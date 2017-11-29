@@ -1,0 +1,44 @@
+<h4>User Detail</h4>
+<form #userDetailForm="ngForm" *ngIf="user">
+  <div class="form-group">
+    <label for="inputEmail">Email address</label>
+    <input type="email"
+           class="form-control"
+           id="inputEmail"
+           placeholder="Enter email"
+           [(ngModel)]="user.email" name="email"
+           required>
+  </div>
+  <div class="form-group">
+    <label for="inputFirstName">First Name</label>
+    <input type="text"
+           class="form-control"
+           id="inputFirstName"
+           placeholder="Enter First Name"
+           [(ngModel)]="user.firstName" name="firstName">
+  </div>
+  <div class="form-group">
+    <label for="inputLastName">Last Name</label>
+    <input type="text"
+           class="form-control"
+           id="inputLastName"
+           placeholder="Enter First Name"
+           [(ngModel)]="user.lastName" name="lastName">
+  </div>
+  <div class="form-group">
+    <label for="inputRole">Role</label>
+    <select class="form-control" id="inputRole">
+      <option *ngFor="let role of roles">{{role.displayName}}</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="inputGroup">Group</label>
+    <select class="form-control" id="inputGroup">
+      <option *ngFor="let group of groups">{{group.displayName}}</option>
+    </select>
+  </div>
+  <div class="container-fluid">
+    <button type="button" class="btn btn-outline-dark" (click)="goBack()">Cancel</button>
+    <button type="submit" class="btn btn-outline-dark" (click)="submit()">Save</button>
+  </div>
+</form>
