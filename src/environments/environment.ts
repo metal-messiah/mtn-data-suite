@@ -4,5 +4,12 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  envName: 'dev',
+  WEB_SERVICE_HOST: 'http://localhost:8080',
+  AUTH_CONFIG: {
+    clientID: 'UTgiibU2z7Honoinje5bVRbhUwyneFN4',
+    domain: 'mtnra.auth0.com',
+    callbackURL: 'http://localhost:4200/callback'
+  }
 };

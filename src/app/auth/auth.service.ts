@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
-import { AUTH_CONFIG } from './auth0-variables';
 import { Router } from '@angular/router';
 import * as auth0 from 'auth0-js';
+import {environment} from '../../environments/environment';
 
 @Injectable()
 export class AuthService {
 
   auth0 = new auth0.WebAuth({
-    clientID: AUTH_CONFIG.clientID,
-    domain: AUTH_CONFIG.domain,
+    clientID: environment.AUTH_CONFIG.clientID,
+    domain: environment.AUTH_CONFIG.domain,
     responseType: 'token id_token',
     audience: 'mtn-rest-api',
-    redirectUri: AUTH_CONFIG.callbackURL,
+    redirectUri: environment.AUTH_CONFIG.callbackURL,
     scope: 'openid email profile'
   });
 

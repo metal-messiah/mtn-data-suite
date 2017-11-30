@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core';
 import {HttpHeaders} from '@angular/common/http';
+import {environment} from '../../environments/environment';
 
 @Injectable()
 export class RestService {
 
-  private host = 'http://localhost:8080';
   private headers: HttpHeaders = new HttpHeaders({
     'Content-Type': 'application/json',
     'Authorization': 'Bearer ' + localStorage.getItem('access_token')
@@ -14,7 +14,7 @@ export class RestService {
   }
 
   public getHost(): string {
-    return this.host;
+    return environment.WEB_SERVICE_HOST;
   }
 
   public getHeaders(): HttpHeaders {
