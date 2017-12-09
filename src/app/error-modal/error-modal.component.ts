@@ -8,7 +8,9 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 })
 export class ErrorModalComponent implements OnInit {
 
-  @Input() name;
+  @Input() message: string;
+  @Input() reason: string;
+  @Input() status: number;
 
   constructor(public activeModal: NgbActiveModal) { }
 

@@ -1,45 +1,70 @@
-<h4>Role Detail</h4>
-<form #roleDetailForm="ngForm" *ngIf="role">
-  <div class="form-group">
-    <label for="inputDisplayName">Display Name</label>
-    <input type="text"
-           class="form-control"
-           id="inputDisplayName"
-           placeholder="Enter Display Name"
-           [(ngModel)]="role.displayName" name="displayName">
+<mat-toolbar color="accent" class="sub-toolbar flex-justify-center">Role Details</mat-toolbar>
+<div class="margined-content" *ngIf="role">
+  <form class="role-form">
+    <div>
+      <mat-form-field>
+        <input matInput placeholder="Display Name"
+               [(ngModel)]="role.displayName" name="displayName">
+      </mat-form-field>
+    </div>
+    <div>
+      <mat-form-field>
+        <input matInput placeholder="Description"
+               [(ngModel)]="role.description" name="description">
+      </mat-form-field>
+    </div>
+    <div class="table-container" *ngIf="dataSource">
+      <mat-table #table [dataSource]="dataSource">
+        <ng-container matColumnDef="permissionSubject">
+          <mat-header-cell *matHeaderCellDef> Permission Subject</mat-header-cell>
+          <mat-cell *matCellDef="let subject">
+            <mat-button-toggle class="full-width" (change)="selectAllForSubject(subject)">{{subject.displayName}}
+            </mat-button-toggle>
+          </mat-cell>
+        </ng-container>
+
+        <ng-container *ngFor="let actionSelection of actionSelections"
+                      [matColumnDef]="actionSelection.action.toLowerCase()">
+          <mat-header-cell *matHeaderCellDef>
+            <div class="flex-row flex-justify-center">
+              <mat-button-toggle (click)="selectAllForAction(actionSelection.action)">{{actionSelection.action}}
+              </mat-button-toggle>
+            </div>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let subject">
+            <div class="flex-row flex-justify-center">
+              <mat-checkbox *ngIf="subject[actionSelection.action] !== undefined"
+                            [ngModel]="subject[actionSelection.action].selected"
+                            [name]="subject[actionSelection.action].systemName"></mat-checkbox>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+    </div>
+
+    <div id="audit">
+      <mat-form-field class="full-width">
+        <input matInput placeholder="Created By" name="createdBy" disabled
+               value="{{role.createdBy.firstName}} {{role.createdBy.lastName}} on {{role.createdDate | date:'medium'}}">
+      </mat-form-field>
+    </div>
+    <div>
+      <mat-form-field class="full-width">
+        <input matInput placeholder="Updated By" name="updatedBy" disabled
+               value="{{role.updatedBy.firstName}} {{role.updatedBy.lastName}} on {{role.updatedDate | date:'medium'}}">
+      </mat-form-field>
+    </div>
+
+    <div class="full-width flex-row flex-justify-space-around">
+      <button mat-raised-button color="accent" class="full-width" (click)="goBack()">Cancel</button>
+      <button mat-raised-button color="primary" class="full-width" (click)="submit()">Save</button>
+    </div>
+  </form>
+
+  <div *ngIf="isLoading" style="text-align: center">
+    <i class="fa fa-spinner fa-3x fa-spin" aria-hidden="true"> </i>
   </div>
-  <div class="form-group">
-    <label for="inputDescription">Description</label>
-    <input type="text"
-           class="form-control"
-           id="inputDescription"
-           placeholder="Enter Description"
-           [(ngModel)]="role.description" name="description">
-  </div>
-  <table class="table">
-    <tr>
-      <th>Permission Group</th>
-      <th>Create</th>
-      <th>Read</th>
-      <th>Update</th>
-      <th>Delete</th>
-    </tr>
-    <tr *ngFor="let permission of permissions">
-      <td>{{permission.id}}</td>
-      <td>{{permission.systemName}}</td>
-      <td>{{permission.displayName}}</td>
-      <td>{{permission.description}}</td>
-      <td></td>
-    </tr>
-  </table>
-  <div class="form-group">
-    <label>Created By {{role.createdBy.firstName}} {{role.createdBy.lastName}} on {{role.createdDate | date:'medium'}}</label>
-  </div>
-  <div class="form-group">
-    <label>Updated By {{role.updatedBy.firstName}} {{role.updatedBy.lastName}} on {{role.updatedDate | date:'medium'}}</label>
-  </div>
-  <div class="container-fluid">
-    <button type="button" class="btn btn-outline-dark" (click)="goBack()">Cancel</button>
-    <button type="submit" class="btn btn-outline-dark" (click)="submit()">Save</button>
-  </div>
-</form>
+</div>

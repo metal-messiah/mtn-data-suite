@@ -1,0 +1,16 @@
+:host{
+  flex-grow: 1;
+}
+
+@media (max-width: 600px) {
+  mat-sidenav-container {
+    height: -webkit-calc(100% - 56px);
+  }
+}
+
+@media (min-width: 600px) {
+  mat-sidenav-container {
+    height: -webkit-calc(100% - 64px);
+  }
+}
+

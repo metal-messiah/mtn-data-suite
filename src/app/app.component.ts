@@ -8,8 +8,18 @@ import { AuthService } from './auth/auth.service';
 })
 export class AppComponent {
 
+  sideNaveOpened = false;
+
   constructor(public auth: AuthService) {
     auth.handleAuthentication();
+  }
+
+  toggleSideNav() {
+    this.sideNaveOpened = !this.sideNaveOpened;
+  }
+
+  closeSideNav() {
+    this.sideNaveOpened = false;
   }
 
 }
