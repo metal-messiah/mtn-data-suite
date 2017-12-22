@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Location} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 
-import {User} from '../models/user';
+import {UserProfile} from '../models/user-profile';
 import {Role} from '../models/role';
 import {Group} from '../models/group';
 
@@ -17,7 +17,7 @@ import {GroupService} from '../services/group.service';
 })
 export class UserDetailComponent implements OnInit {
 
-  user: User;
+  user: UserProfile;
   roles: Role[];
   groups: Group[];
 
@@ -37,7 +37,7 @@ export class UserDetailComponent implements OnInit {
   getUser(): void {
     const id = +this.route.snapshot.paramMap.get('id');
     if (id === null) {
-      this.user = new User();
+      this.user = new UserProfile();
     } else {
       this.userService.getUserProfile(id).subscribe(
         user => this.user = user
@@ -65,7 +65,7 @@ export class UserDetailComponent implements OnInit {
 
   submit() {
     this.userService.saveUser(this.user).subscribe(
-      user => console.log('Saved User: ' + user['id'])
+      user => console.log('Saved UserProfile: ' + user['id'])
     );
   }
 

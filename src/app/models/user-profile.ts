@@ -1,7 +1,7 @@
 import {Role} from './role';
 import {Group} from './group';
 
-export class User {
+export class UserProfile {
   id: number;
   firstName: string;
   lastName: string;

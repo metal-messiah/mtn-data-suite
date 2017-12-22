@@ -5,4 +5,5 @@ export class Permission {
   description: string;
   subject: string;
   action: string;
+  selected: boolean;
 }

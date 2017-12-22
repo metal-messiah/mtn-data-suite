@@ -30,4 +30,13 @@ export class RoleService {
       );
   }
 
+  public saveRole(role): Observable<Role> {
+    let url = this.rest.getHost() + this.endpoint;
+    if (role.id === undefined || role.id === null) {
+      return this.http.post<Role>(url, role, {headers: this.rest.getHeaders()});
+    }
+    url +=  `/${role.id}`;
+    return this.http.put<Role>(url, role, {headers: this.rest.getHeaders()});
+  }
+
 }

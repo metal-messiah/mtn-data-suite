@@ -15,4 +15,5 @@ export class Role {
   createdDate: Date;
   updatedBy: UserProfile;
   updatedDate: Date;
+  version: number;
 }

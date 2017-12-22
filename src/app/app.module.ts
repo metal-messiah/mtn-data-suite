@@ -1,6 +1,6 @@
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {BrowserModule} from '@angular/platform-browser';
-import {CustomMaterialModule} from './custom-material.module';
+import {CustomMaterialModule} from './material/custom-material.module';
 import {FormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
@@ -12,7 +12,6 @@ import {ROUTES} from './app.routes';
 
 import {AppComponent} from './app.component';
 import {CallbackComponent} from './callback/callback.component';
-import {ErrorModalComponent} from './error-modal/error-modal.component';
 import {GroupsComponent} from './groups/groups.component';
 import {HomeComponent} from './home/home.component';
 import {PathNotFoundComponent} from './path-not-found/path-not-found.component';
@@ -29,6 +28,9 @@ import {RestService} from './services/rest.service';
 import {RoleService} from './services/role.service';
 
 import {environment} from '../environments/environment';
+import {BreakpointObserver, MediaMatcher} from '@angular/cdk/layout';
+import {ErrorDialogComponent} from './error-dialog/error-dialog.component';
+import {ErrorService} from './services/error.service';
 
 @NgModule({
   declarations: [
@@ -41,7 +43,7 @@ import {environment} from '../environments/environment';
     UserDetailComponent,
     PathNotFoundComponent,
     RoleDetailComponent,
-    ErrorModalComponent
+    ErrorDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -55,15 +57,18 @@ import {environment} from '../environments/environment';
   ],
   providers: [
     AuthService,
-    RestService,
-    UserService,
-    RoleService,
+    BreakpointObserver,
+    ErrorService,
     GroupService,
-    PermissionService
+    MediaMatcher,
+    PermissionService,
+    RestService,
+    RoleService,
+    UserService
   ],
   bootstrap: [AppComponent],
   entryComponents: [
-    ErrorModalComponent
+    ErrorDialogComponent
   ]
 })
 export class AppModule {

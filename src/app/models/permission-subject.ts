@@ -2,12 +2,14 @@ import {Permission} from './permission';
 
 export class PermissionSubject {
   displayName: string;
-  CREATE: Permission;
-  READ: Permission;
-  UPDATE: Permission;
-  DELETE: Permission;
+  actions: Permission[];
 
   constructor(subject: string) {
     this.displayName = subject;
+    this.actions = new Array<Permission>();
+  }
+
+  addPermission(permission: Permission) {
+    this.actions.push(permission);
   }
 }

@@ -1,8 +1,11 @@
-<mat-toolbar color="accent" class="sub-toolbar flex-justify-center">Roles</mat-toolbar>
-<div class="margined-content">
+<mat-toolbar color="accent" class="sub-toolbar flex-space-between">
+  <button mat-raised-button color="warn" (click)="goBack()">Back</button>
+  <span>Roles</span>
   <button mat-raised-button color="primary" routerLink="/role-detail">
     Add Role
   </button>
+</mat-toolbar>
+<div id="content">
   <div class="table-container" *ngIf="dataSource">
     <mat-table #table [dataSource]="dataSource">
       <ng-container matColumnDef="displayName">

@@ -13,7 +13,7 @@ $mtn-app-primary: mat-palette($mat-blue-grey);
 $mtn-app-accent:  mat-palette($mat-orange, A200, A100, A400);
 
 // The warn palette is optional (defaults to red).
-$mtn-app-warn:    mat-palette($mat-red);
+$mtn-app-warn:    mat-palette($mat-deep-orange);
 
 // Create the theme object (a Sass map containing all of the palettes).
 $mtn-app-theme: mat-light-theme($mtn-app-primary, $mtn-app-accent, $mtn-app-warn);

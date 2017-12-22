@@ -8,8 +8,9 @@ import {PermissionService} from '../services/permission.service';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/Rx';
 import * as _ from 'lodash';
-import {PermissionSubject} from '../models/permission-subject';
-import {MatTableDataSource} from '@angular/material';
+import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
+import {MatSnackBar} from '@angular/material';
+import {ErrorService} from '../services/error.service';
 
 @Component({
   selector: 'app-role-detail',
@@ -18,48 +19,75 @@ import {MatTableDataSource} from '@angular/material';
 })
 export class RoleDetailComponent implements OnInit {
 
-  isLoading = false;
-  actionSelections: object[];
-  dataSource: MatTableDataSource<PermissionSubject>;
-  permissionSubjects: PermissionSubject[];
-  role: Role;
+  allSelected = false;
+  actionControls: object;
+  subjectControls: object;
+  actions: string[] = [];
+  subjects: string[] = [];
+  permissions: Permission[];
+  abbreviate = false;
 
-  displayedColumns = ['permissionSubject', 'create', 'read', 'update', 'delete'];
+  isSaving = false;
+  isLoading = false;
+  role: Role;
 
   constructor(private route: ActivatedRoute,
               private roleService: RoleService,
+              private errorService: ErrorService,
               private permissionService: PermissionService,
-              private location: Location) {
+              private location: Location,
+              private snackBar: MatSnackBar,
+              breakpointObserver: BreakpointObserver) {
+    breakpointObserver.observe([
+      Breakpoints.HandsetPortrait
+    ]).subscribe(result => {
+      this.abbreviate = result.matches;
+    });
   }
 
   ngOnInit() {
-    this.actionSelections = [
-      {action: 'CREATE', selected: false},
-      {action: 'READ', selected: false},
-      {action: 'UPDATE', selected: false},
-      {action: 'DELETE', selected: false}
-    ];
-
     this.isLoading = true;
-    this.getPermissionSubjects().subscribe(
+    this.getPermissions().subscribe(
       () => this.getRole(),
-      null,
+      err => this.errorService.handleServerError(
+        'Failed to retrieve permissions!',
+        err,
+        () => this.location.back()),
       () => this.isLoading = false
     );
   }
 
-  getRole(): void {
+  private getRole(): void {
+    this.isLoading = true;
     const id = +this.route.snapshot.paramMap.get('id');
-    if (id === null) {
-      this.role = new Role();
+    if (id === null || id < 1) {
+      this.initRole(new Role());
+      this.isLoading = false;
     } else {
       this.roleService.getRole(id).subscribe(
-        role => this.role = role
+        role => this.initRole(role),
+        err => this.errorService.handleServerError('Failed to retrieve role!', err,
+          () => this.location.back()),
+        () => this.isLoading = false
       );
     }
   }
 
-  getPermissionSubjects(): Observable<object> {
+  private initRole(role: Role) {
+    this.role = role;
+    _.forEach(this.role.permissions, function (permission) {
+      _.find(this.permissions, {id: permission.id})['selected'] = true;
+      _.forEach(this.subjects, subject => {
+        this.updateSubjectControls(subject);
+      });
+      _.forEach(this.actions, action => {
+        this.updateActionControls(action);
+      });
+      this.allSelected = _.every(this.permissions, {selected: true});
+    }.bind(this));
+  }
+
+  private getPermissions(): Observable<object> {
     return this.permissionService.getPermissions()
       .do(
         pageable => this.parsePermissions(pageable['content'])
@@ -67,49 +95,89 @@ export class RoleDetailComponent implements OnInit {
   }
 
   private parsePermissions(permissions: Permission[]): void {
-    this.permissionSubjects = [];
-    _.forEach(permissions, function (permission) {
-      permission.selected = false;
-      let subject: PermissionSubject = _.find(this.permissionSubjects, {displayName: permission.subject});
-      if (!subject) {
-        subject = new PermissionSubject(permission.subject);
-        this.permissionSubjects.push(subject);
-      }
-      _.forEach(this.actionSelections, function(actionSelection) {
-        if (permission.action === actionSelection.action) {
-          subject[actionSelection.action] = permission;
-        }
-      });
-    }.bind(this));
-    this.dataSource = new MatTableDataSource(_.sortBy(this.permissionSubjects, ['subject']));
-  }
-
-  selectAllForSubject(subject: PermissionSubject) {
-    console.log(`Selecting All for ${subject.displayName}`);
-    subject['selected'] = subject['selected'] !== true;
-    _.forEach(this.actionSelections, function(actionSelection) {
-      if (subject[actionSelection['action']]) {
-        subject[actionSelection['action']]['selected'] = subject['selected'];
-      }
+    this.permissions = permissions;
+    this.subjects = _.chain(permissions).map('subject').uniq().sort().value();
+    this.actions = _.chain(permissions).map('action').uniq().sort().value();
+    this.subjectControls = {};
+    this.actionControls = {};
+    _.forEach(this.subjects, subject => {
+      this.subjectControls[subject] = false;
+    });
+    _.forEach(this.actions, action => {
+      this.actionControls[action] = false;
     });
   }
 
-  selectAllForAction(action: string) {
-    console.log(`Selecting All for ${action}`);
-    const actionSelection = _.find(this.actionSelections, {action: action});
-    actionSelection['selected'] = actionSelection['selected'] !== true;
-    _.forEach(this.permissionSubjects, function(permissionSubject) {
-      if (permissionSubject[action]) {
-        permissionSubject[action]['selected'] = actionSelection['selected'];
-      }
+  getPermission(subject: string, action: string) {
+    return _.find(this.permissions, {subject: subject, action: action});
+  }
+
+  toggleSubject(subject: string) {
+    const subjectPermissions = _.filter(this.permissions, {subject: subject});
+    _.forEach(subjectPermissions, permission => {
+      permission['selected'] = this.subjectControls[subject];
     });
+    _.forEach(this.actions, action => {
+      this.updateActionControls(action);
+    });
+    this.allSelected = _.every(this.permissions, {selected: true});
+  }
+
+  toggleAction(action: string) {
+    const actionPermissions = _.filter(this.permissions, {action: action});
+    _.forEach(actionPermissions, permission => {
+      permission['selected'] = this.actionControls[action];
+    });
+    _.forEach(this.subjects, subject => {
+      this.updateSubjectControls(subject);
+    });
+    this.allSelected = _.every(this.permissions, {selected: true});
   }
 
   selectAllPermissions() {
-    console.log(`Selecting All Permissions`);
+    _.forEach(this.actions, action => {
+      this.actionControls[action] = this.allSelected;
+    });
+    _.forEach(this.subjects, subject => {
+      this.subjectControls[subject] = this.allSelected;
+    });
+    _.forEach(this.permissions, permission => {
+      permission['selected'] = this.allSelected;
+    });
   }
 
-  goBack() {
+  updateAllControls(subject, action) {
+    this.updateSubjectControls(subject);
+    this.updateActionControls(action);
+    this.allSelected = _.every(this.permissions, {selected: true});
+  }
+
+  private updateActionControls(action) {
+    const actionPermissions = _.filter(this.permissions, {action: action});
+    this.actionControls[action] = _.every(actionPermissions, {selected: true});
+  }
+
+  private updateSubjectControls(subject) {
+    const subjectPermissions = _.filter(this.permissions, {subject: subject});
+    this.subjectControls[subject] = _.every(subjectPermissions, {selected: true});
+  }
+
+  cancel() {
     this.location.back();
+  }
+
+  saveRole() {
+    this.isSaving = true;
+    this.role.permissions = _.filter(this.permissions, {selected: true});
+    this.roleService.saveRole(this.role).subscribe(
+      role => {
+        this.snackBar.open('Successfully saved role!', null, {duration: 2000});
+        this.initRole(role);
+      },
+      err => this.errorService.handleServerError('Failed to save role!', err,
+        () => this.isSaving = false,
+        () => this.saveRole()),
+      () => this.isSaving = false
+    );
   }
 }

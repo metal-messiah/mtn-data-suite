@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
+import {Location} from '@angular/common';
+import {MatTableDataSource} from '@angular/material';
+
 import {Role} from '../models/role';
 import {RoleService} from '../services/role.service';
-import {MatTableDataSource} from '@angular/material';
-import {ErrorModalComponent} from '../error-modal/error-modal.component';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {Router} from '@angular/router';
+import {ErrorService} from '../services/error.service';
 
 @Component({
   selector: 'app-roles',
@@ -17,11 +17,10 @@ export class RolesComponent implements OnInit {
   dataSource: MatTableDataSource<Role>;
   displayedColumns = ['displayName', 'description', 'actions'];
 
-  constructor(
-    private roleService: RoleService,
-    private modalService: NgbModal,
-    private router: Router
-  ) {}
+  constructor(private roleService: RoleService,
+              private location: Location,
+              private errorService: ErrorService) {
+  }
 
   ngOnInit() {
     this.getRoles();
@@ -32,23 +31,10 @@ export class RolesComponent implements OnInit {
     this.roleService.getRoles()
       .subscribe(
         pageable => this.dataSource = new MatTableDataSource(pageable.content),
-        err => this.handleServerError('Failed to retrieve roles', err),
+        err => this.errorService.handleServerError('Failed to retrieve roles', err,
+          () => this.location.back(),
+          () => this.getRoles()),
         () => this.isLoading = false
       );
   }
-
-  private handleErrorDialogResult(result): void {
-    this.getRoles();
-  }
-
-  private handleServerError(message: string, err: object): void {
-    const modalRef = this.modalService.open(ErrorModalComponent);
-    modalRef.result.then(
-      (result) => this.handleErrorDialogResult(result),
-      (reason) => this.router.navigate(['/home']));
-    modalRef.componentInstance.message = message;
-    modalRef.componentInstance.reason = err['message'];
-    modalRef.componentInstance.status = err['status'];
-  }
-
 }

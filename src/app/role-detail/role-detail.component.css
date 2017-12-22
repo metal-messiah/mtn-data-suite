@@ -1,9 +1,26 @@
-/*.role-form {*/
-  /*min-width: 150px;*/
-  /*max-width: 500px;*/
-  /*width: 100%;*/
-/*}*/
-
 #audit {
-  margin-top:12px;
+  margin-top: 12px;
+}
+
+th {
+  text-align: left;
+}
+
+#table-container {
+  overflow-y: hidden;
+}
+
+.content {
+  position: absolute;
+  top: 64px;
+  width: 100%
+}
+
+.sub-toolbar {
+  position: fixed;
+  z-index: 100;
+}
+
+.padded {
+  padding: 8px;
 }

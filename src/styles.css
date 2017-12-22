@@ -10,13 +10,58 @@ app-root {
   width: 100%;
 }
 
-.sub-toolbar {
-  max-height:30px;
+.flexible {
+  display:flex;
+}
+
+.flex-1 {
+  flex-grow:1;
+}
+.flex-2 {
+  flex-grow:2;
+}
+.flex-3 {
+  flex-grow:3;
+}
+.flex-4 {
+  flex-grow:4;
+}
+.flex-5 {
+  flex-grow:5;
+}
+.flex-6 {
+  flex-grow:6;
+}
+.flex-7 {
+  flex-grow:7;
+}
+.flex-8 {
+  flex-grow:8;
+}
+.flex-9 {
+  flex-grow:9;
+}
+.flex-10 {
+  flex-grow:10;
+}
+.flex-11 {
+  flex-grow:11;
+}
+.flex-12 {
+  flex-grow:12;
+}
+.cell {
+  height: 32px;
 }
 
 .flex-row {
   display:flex;
   flex-direction: row;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
 }
 
 .flex-space-between {
@@ -35,10 +80,11 @@ app-root {
   justify-content: flex-end;
 }
 
-.margined-content {
-  margin:8px;
-}
-
 .full-width {
   width: 100%;
+}
+
+mat-form-field {
+  width:400px;
+  max-width: 100%;
 }

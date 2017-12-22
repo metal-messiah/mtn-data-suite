@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
-import {User} from '../models/user';
+import {UserProfile} from '../models/user-profile';
 import {UserService} from '../services/user.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {ErrorModalComponent} from '../error-modal/error-modal.component';
 import {Router} from '@angular/router';
 import {MatTableDataSource} from '@angular/material';
+import {ErrorService} from '../services/error.service';
 
 @Component({
   selector: 'app-users',
@@ -14,14 +14,13 @@ import {MatTableDataSource} from '@angular/material';
 export class UsersComponent implements OnInit {
 
   isLoading = false;
-  dataSource: MatTableDataSource<User>;
+  dataSource: MatTableDataSource<UserProfile>;
   displayedColumns = ['name', 'email', 'role', 'group', 'actions'];
 
-  constructor(
-    private userService: UserService,
-    private modalService: NgbModal,
-    private router: Router
-  ) {}
+  constructor(private userService: UserService,
+              private router: Router,
+              private errorService: ErrorService) {
+  }
 
   ngOnInit() {
     this.getUserProfiles();
@@ -32,22 +31,10 @@ export class UsersComponent implements OnInit {
     this.userService.getUserProfiles()
       .subscribe(
         pageable => this.dataSource = new MatTableDataSource(pageable.content),
-        err => this.handleServerError('Failed to retrieve users', err),
+        err => this.errorService.handleServerError('Failed to retrieve users', err,
+          () => this.router.navigate(['/home']),
+          () => this.getUserProfiles()),
         () => this.isLoading = false
       );
-  }
-
-  private handleErrorDialogResult(result): void {
-    this.getUserProfiles();
-  }
-
-  private handleServerError(message: string, err: object): void {
-    const modalRef = this.modalService.open(ErrorModalComponent);
-    modalRef.result.then(
-      (result) => this.handleErrorDialogResult(result),
-      (reason) => this.router.navigate(['/home']));
-    modalRef.componentInstance.message = message;
-    modalRef.componentInstance.reason = err['message'];
-    modalRef.componentInstance.status = err['status'];
   }
 }
