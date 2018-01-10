@@ -1,7 +1,7 @@
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {BrowserModule} from '@angular/platform-browser';
 import {CustomMaterialModule} from './material/custom-material.module';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgModule} from '@angular/core';
@@ -31,6 +31,7 @@ import {environment} from '../environments/environment';
 import {BreakpointObserver, MediaMatcher} from '@angular/cdk/layout';
 import {ErrorDialogComponent} from './error-dialog/error-dialog.component';
 import {ErrorService} from './services/error.service';
+import {DatePipe} from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import {ErrorService} from './services/error.service';
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
+    ReactiveFormsModule,
     RouterModule.forRoot(ROUTES),
     HttpClientModule,
     NgbModule.forRoot(),
@@ -64,7 +66,8 @@ import {ErrorService} from './services/error.service';
     PermissionService,
     RestService,
     RoleService,
-    UserService
+    UserService,
+    DatePipe
   ],
   bootstrap: [AppComponent],
   entryComponents: [

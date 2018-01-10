@@ -1,14 +1,12 @@
 import {Permission} from './permission';
-
-class UserProfile {
-}
+import {UserProfile} from './user-profile';
 
 export class Role {
   id: number;
   displayName: string;
   description: string;
 
-  members: UserProfile[];
+  members: UserProfile[] = [];
   permissions: Permission[];
 
   createdBy: UserProfile;

@@ -1,76 +1,89 @@
-<mat-toolbar color="accent" class="sub-toolbar flex-space-between">
-  <button mat-raised-button color="warn" (click)="cancel()">Cancel</button>
-  <span>Role Details</span>
-  <button mat-raised-button color="primary" [disabled]="isSaving || isLoading || displayName.invalid" (click)="saveRole()">
-    <span *ngIf="!isSaving">Save</span>
-    <span *ngIf="isSaving"><i class="fa fa-spinner fa-spin"></i></span>
-  </button>
-</mat-toolbar>
-<div class="content" *ngIf="role">
-  <div class="padded">
+<form [formGroup]="roleForm" novalidate>
+  <mat-toolbar color="accent" class="sub-toolbar flex-space-between">
+    <button type="button" mat-raised-button color="warn" (click)="cancel()">Cancel</button>
+    <span>Role Details</span>
     <div>
-      <mat-form-field>
-        <input matInput placeholder="Display Name" [disabled]="isSaving" required #displayName="ngModel" id="displayName"
-               class="form-control"
-               [(ngModel)]="role.displayName" name="displayName">
-      </mat-form-field>
+      <!--<button type="reset" mat-raised-button color="warn" (click)="revert()" [disabled]="roleForm.pristine">-->
+        <!--Revert-->
+      <!--</button>-->
+      <button type="submit" mat-raised-button color="primary" (click)="saveRole()" [disabled]="roleForm.pristine || roleForm.invalid">
+        <span *ngIf="roleForm.invalid">Invalid</span>
+        <span *ngIf="!isSaving && roleForm.valid">Save</span>
+        <span *ngIf="isSaving"><i class="fa fa-spinner fa-spin"></i></span>
+      </button>
     </div>
-    <div>
-      <mat-form-field>
-        <input matInput placeholder="Description" [disabled]="isSaving"
-               [(ngModel)]="role.description" name="description">
-      </mat-form-field>
+  </mat-toolbar>
+  <div class="content" *ngIf="role">
+    <div class="padded">
+      <div>
+        <mat-form-field>
+          <input matInput placeholder="Display Name" formControlName="displayName">
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <input matInput placeholder="Description" formControlName="description">
+        </mat-form-field>
+      </div>
     </div>
-  </div>
 
-  <div id="table-container" class="full-width">
-    <table>
-      <tr>
-        <th>
-          <mat-slide-toggle (change)="selectAllPermissions()" [disabled]="isSaving"
-                            [(ngModel)]="allSelected"
-                            name="allSelected"><strong>ALL</strong>
-          </mat-slide-toggle>
-        </th>
-        <th *ngFor="let action of actions">
-          <mat-slide-toggle [(ngModel)]="actionControls[action]" [name]="action" [disabled]="isSaving"
-                            (change)="toggleAction(action)">{{abbreviate ? action.charAt(0) : action}}
-          </mat-slide-toggle>
-        </th>
-      </tr>
-      <tr *ngFor="let subject of subjects">
-        <td>
-          <mat-slide-toggle [(ngModel)]="subjectControls[subject]" [name]="subject" [disabled]="isSaving"
-                            (change)="toggleSubject(subject)">{{subject}}
-          </mat-slide-toggle>
-        </td>
-        <td *ngFor="let action of actions">
-          <mat-slide-toggle *ngIf="getPermission(subject, action)" [disabled]="isSaving"
-                            [(ngModel)]="getPermission(subject, action).selected"
-                            [name]="getPermission(subject,action).systemName"
-                            (change)="updateAllControls(subject, action)">{{abbreviate ? action.charAt(0) : action}}
-          </mat-slide-toggle>
-        </td>
-      </tr>
-    </table>
-  </div>
-
-  <div id="audit" class="padded" *ngIf="role.id !== undefined">
-    <div>
-      <mat-form-field>
-        <input matInput placeholder="Created By" name="createdBy" disabled
-               value="{{role.createdBy.firstName}} {{role.createdBy.lastName}} on {{role.createdDate | date:'medium'}}">
-      </mat-form-field>
+    <div id="table-container" class="full-width">
+      <table>
+        <tr>
+          <th>
+            <mat-slide-toggle (change)="selectAllPermissions()" formControlName="allSelected">
+              <strong>ALL</strong>
+            </mat-slide-toggle>
+          </th>
+          <th *ngFor="let action of actions" formGroupName="actions">
+            <mat-slide-toggle [formControlName]="action" (change)="toggleAction(action)">
+              {{abbreviate ? action.charAt(0) : action}}
+            </mat-slide-toggle>
+          </th>
+        </tr>
+        <tr *ngFor="let subject of subjects">
+          <td formGroupName="subjects">
+            <mat-slide-toggle [formControlName]="subject" (change)="toggleSubject(subject)">
+              {{subject}}
+            </mat-slide-toggle>
+          </td>
+          <td *ngFor="let action of actions" formGroupName="permissions">
+            <div [formGroupName]="subject">
+              <mat-slide-toggle [formControlName]="action"
+                                *ngIf="getPermission(subject, action)"
+                                (change)="updateAllControls(subject, action)">{{abbreviate ? action.charAt(0) : action}}
+              </mat-slide-toggle>
+            </div>
+          </td>
+        </tr>
+      </table>
     </div>
-    <div>
-      <mat-form-field>
-        <input matInput placeholder="Updated By" name="updatedBy" disabled
-               value="{{role.updatedBy.firstName}} {{role.updatedBy.lastName}} on {{role.updatedDate | date:'medium'}}">
-      </mat-form-field>
+
+    <div id="audit" class="padded" *ngIf="role.id !== undefined">
+      <div>
+        <mat-form-field>
+          <input matInput placeholder="Created By" formControlName="createdBy">
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <input matInput placeholder="Created Date" formControlName="createdDate">
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <input matInput placeholder="Updated By" formControlName="updatedBy">
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <input matInput placeholder="Updated Date" formControlName="updatedDate">
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" style="text-align: center">
+      <i class="fa fa-spinner fa-3x fa-spin" aria-hidden="true"> </i>
     </div>
   </div>
-
-  <div *ngIf="isLoading" style="text-align: center">
-    <i class="fa fa-spinner fa-3x fa-spin" aria-hidden="true"> </i>
-  </div>
-</div>
+</form>
