@@ -32,6 +32,7 @@ import {BreakpointObserver, MediaMatcher} from '@angular/cdk/layout';
 import {ErrorDialogComponent} from './error-dialog/error-dialog.component';
 import {ErrorService} from './services/error.service';
 import {DatePipe} from '@angular/common';
+import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import {DatePipe} from '@angular/common';
     UserDetailComponent,
     PathNotFoundComponent,
     RoleDetailComponent,
-    ErrorDialogComponent
+    ErrorDialogComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -71,7 +73,8 @@ import {DatePipe} from '@angular/common';
   ],
   bootstrap: [AppComponent],
   entryComponents: [
-    ErrorDialogComponent
+    ErrorDialogComponent,
+    ConfirmDialogComponent
   ]
 })
 export class AppModule {

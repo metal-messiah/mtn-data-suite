@@ -1,7 +1,7 @@
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {DatePipe, Location} from '@angular/common';
 import {Component, OnInit} from '@angular/core';
-import {MatSnackBar} from '@angular/material';
+import {MatDialog, MatSnackBar} from '@angular/material';
 import {ActivatedRoute} from '@angular/router';
 
 import {Role} from '../models/role';
@@ -16,6 +16,7 @@ import * as _ from 'lodash';
 
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {UserProfile} from '../models/user-profile';
+import {ConfirmDialogComponent} from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-role-detail',
@@ -43,7 +44,8 @@ export class RoleDetailComponent implements OnInit {
               private snackBar: MatSnackBar,
               breakpointObserver: BreakpointObserver,
               private fb: FormBuilder,
-              private datePipe: DatePipe) {
+              private datePipe: DatePipe,
+              public dialog: MatDialog) {
     breakpointObserver.observe([
       Breakpoints.HandsetPortrait
     ]).subscribe(result => {
@@ -111,8 +113,19 @@ export class RoleDetailComponent implements OnInit {
     this.updateAllSelected();
   }
 
-  cancel() {
-    this.location.back();
+  goBack() {
+    if (!this.roleForm.pristine) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
+      });
+      dialogRef.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          this.location.back();
+        }
+      });
+    } else {
+      this.location.back();
+    }
   }
 
   saveRole() {

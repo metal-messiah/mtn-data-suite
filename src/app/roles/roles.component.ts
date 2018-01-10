@@ -26,6 +26,10 @@ export class RolesComponent implements OnInit {
     this.getRoles();
   }
 
+  goBack() {
+    this.location.back();
+  }
+
   private getRoles(): void {
     this.isLoading = true;
     this.roleService.getRoles()
