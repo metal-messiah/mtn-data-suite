@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { AuthService } from './auth/auth.service';
+import { AuthService } from './core/services/auth.service';
+import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -8,18 +9,20 @@ import { AuthService } from './auth/auth.service';
 })
 export class AppComponent {
 
-  sideNaveOpened = false;
+  showHomeNav = true;
 
-  constructor(public auth: AuthService) {
+  constructor(
+    public auth: AuthService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
     auth.handleAuthentication();
-  }
-
-  toggleSideNav() {
-    this.sideNaveOpened = !this.sideNaveOpened;
-  }
-
-  closeSideNav() {
-    this.sideNaveOpened = false;
+    router.events.subscribe((val) => {
+      // console.log(val);
+      if (val instanceof NavigationEnd) {
+        this.showHomeNav = (val.url !== '/');
+      }
+    });
   }
 
 }

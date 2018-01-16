@@ -1,0 +1,58 @@
+<form class="box" [formGroup]="userForm" novalidate>
+  <mat-toolbar class="row header flex-space-between">
+    <div>
+      <button type="button" mat-raised-button color="accent" (click)="goBack()">Back</button>
+    </div>
+    <span id="title">User Details</span>
+    <div>
+      <button type="submit" mat-raised-button color="primary" (click)="saveUser()"
+              [disabled]="userForm.pristine || userForm.invalid">
+        <span *ngIf="userForm.invalid">Invalid</span>
+        <span *ngIf="!isSaving && userForm.valid">Save</span>
+        <span *ngIf="isSaving"><i class="fa fa-spinner fa-spin"></i></span>
+      </button>
+    </div>
+  </mat-toolbar>
+  <div class="row content" *ngIf="user">
+    <div *ngIf="isLoading" style="text-align: center">
+      <i class="fa fa-spinner fa-3x fa-spin" aria-hidden="true"> </i>
+    </div>
+    <mat-list>
+      <mat-list-item>
+        <mat-form-field>
+          <input matInput placeholder="Email" formControlName="email">
+        </mat-form-field>
+      </mat-list-item>
+      <mat-list-item>
+        <mat-form-field>
+          <input matInput placeholder="First Name" formControlName="firstName">
+        </mat-form-field>
+      </mat-list-item>
+      <mat-list-item>
+        <mat-form-field>
+          <input matInput placeholder="Last Name" formControlName="lastName">
+        </mat-form-field>
+      </mat-list-item>
+      <mat-list-item>
+        <mat-form-field *ngIf="user.id !== undefined">
+          <input matInput placeholder="Created By" formControlName="createdBy">
+        </mat-form-field>
+      </mat-list-item>
+      <mat-list-item>
+        <mat-form-field *ngIf="user.id !== undefined">
+          <input matInput placeholder="Created Date" formControlName="createdDate">
+        </mat-form-field>
+      </mat-list-item>
+      <mat-list-item>
+        <mat-form-field *ngIf="user.id !== undefined">
+          <input matInput placeholder="Updated By" formControlName="updatedBy">
+        </mat-form-field>
+      </mat-list-item>
+      <mat-list-item>
+        <mat-form-field *ngIf="user.id !== undefined">
+          <input matInput placeholder="Updated Date" formControlName="updatedDate">
+        </mat-form-field>
+      </mat-list-item>
+    </mat-list>
+  </div>
+</form>

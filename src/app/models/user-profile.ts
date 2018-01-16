@@ -8,4 +8,10 @@ export class UserProfile {
   email: string;
   role: Role;
   group: Group;
+
+  createdBy: UserProfile;
+  createdDate: Date;
+  updatedBy: UserProfile;
+  updatedDate: Date;
+  version: number;
 }

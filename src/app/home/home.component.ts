@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../core/services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -11,5 +11,9 @@ export class HomeComponent implements OnInit {
   constructor(public auth: AuthService) { }
 
   ngOnInit() {
+  }
+
+  clickAdmin() {
+    console.log('admin');
   }
 }

@@ -1,3 +1,7 @@
 a {
   cursor: pointer;
 }
+
+mat-card {
+  width: 150px;
+}

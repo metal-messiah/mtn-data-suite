@@ -1,0 +1,11 @@
+th {
+  text-align: left;
+}
+
+#table-container {
+  margin-bottom: 10px;
+}
+
+mat-list-item{
+  margin-bottom: 8px;
+}
