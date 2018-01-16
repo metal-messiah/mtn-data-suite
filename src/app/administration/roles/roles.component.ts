@@ -22,8 +22,7 @@ export class RolesComponent implements OnInit {
               private errorService: ErrorService,
               private snackBar: MatSnackBar,
               private dialog: MatDialog,
-              private router: Router,
-              private route: ActivatedRoute) {
+              private router: Router) {
   }
 
   ngOnInit() {
@@ -63,7 +62,9 @@ export class RolesComponent implements OnInit {
     this.isLoading = true;
     this.roleService.getRoles()
       .subscribe(
-        pageable => this.roles = pageable.content,
+        pageable => this.roles = pageable.content.sort(function (a, b) {
+          return a.displayName.localeCompare(b.displayName);
+        }),
         err => this.errorService.handleServerError('Failed to retrieve roles', err,
           () => this.goBack(),
           () => this.getRoles()),

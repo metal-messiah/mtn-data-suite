@@ -22,8 +22,7 @@ export class UsersComponent implements OnInit {
               private errorService: ErrorService,
               private snackBar: MatSnackBar,
               private dialog: MatDialog,
-              private router: Router,
-              private route: ActivatedRoute) {
+              private router: Router) {
   }
 
   ngOnInit() {
@@ -63,7 +62,9 @@ export class UsersComponent implements OnInit {
     this.isLoading = true;
     this.userService.getUserProfiles()
       .subscribe(
-        pageable => this.users = pageable.content,
+        pageable => this.users = pageable.content.sort(function(a, b) {
+          return a.firstName.localeCompare(b.firstName);
+        }),
         err => this.errorService.handleServerError('Failed to retrieve users', err,
           () => this.goBack(),
           () => this.getUserProfiles()),

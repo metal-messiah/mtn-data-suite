@@ -129,11 +129,11 @@ export class RoleDetailComponent implements OnInit {
       });
       dialogRef.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.router.navigate(['/admin/roles']);
+          this.goToRoles();
         }
       });
     } else {
-      this.router.navigate(['/admin/roles']);
+      this.goToRoles();
     }
   }
 
@@ -142,14 +142,17 @@ export class RoleDetailComponent implements OnInit {
     this.roleService.saveRole(this.getUpdatedRole()).subscribe(
       role => {
         this.snackBar.open('Successfully saved role!', null, {duration: 2000});
-        this.role = role;
-        this.onRoleChange();
+        this.goToRoles();
       },
       err => this.errorService.handleServerError('Failed to save role!', err,
         () => this.isSaving = false,
         () => this.saveRole()),
       () => this.isSaving = false
     );
+  }
+
+  private goToRoles() {
+    this.router.navigate(['/admin/roles']);
   }
 
   private updateActionControls(action) {

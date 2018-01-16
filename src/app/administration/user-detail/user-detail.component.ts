@@ -72,11 +72,11 @@ export class UserDetailComponent implements OnInit {
       });
       dialogRef.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.router.navigate(['/admin/users'], {relativeTo: this.route});
+          this.goToUsers();
         }
       });
     } else {
-      this.router.navigate(['/admin/users'], {relativeTo: this.route});
+      this.goToUsers();
     }
   }
 
@@ -85,14 +85,17 @@ export class UserDetailComponent implements OnInit {
     this.userService.saveUser(this.getUpdatedUserProfile()).subscribe(
       user => {
         this.snackBar.open('Successfully saved user!', null, {duration: 2000});
-        this.user = user;
-        this.onUserProfileChange();
+        this.goToUsers();
       },
       err => this.errorService.handleServerError('Failed to save user profile!', err,
         () => this.isSaving = false,
         () => this.saveUser()),
       () => this.isSaving = false
     );
+  }
+
+  private goToUsers() {
+    this.router.navigate(['/admin/users']);
   }
 
   private createForm() {
