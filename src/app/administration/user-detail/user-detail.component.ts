@@ -14,9 +14,6 @@ import {ErrorService} from '../../core/services/error.service';
 import {MatDialog, MatSnackBar} from '@angular/material';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog/confirm-dialog.component';
 import {Observable} from 'rxjs/Observable';
-import {Pageable} from '../../models/pageable';
-import * as _ from 'lodash';
-import {Permission} from '../../models/permission';
 import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
 
 @Component({
@@ -57,11 +54,16 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate {
       this.groupService.getGroups()
     ).subscribe(
       pair => {
-        this.roles = pair[0].content;
-        this.groups = pair[1].content;
+        const compareDisplayNames = function(object1, object2) {
+          return object1['displayName'].localeCompare(object2['displayName']);
+        };
+        this.roles = pair[0].content.sort(compareDisplayNames);
+        this.groups = pair[1].content.sort(compareDisplayNames);
         this.getUser();
       },
-      err => this.errorService.handleServerError('Failed to retrieve reference values! (Groups and Roles)', err, () => this.goBack()),
+      err => this.errorService.handleServerError(
+        'Failed to retrieve reference values! (Groups and Roles)', err,
+        () => this.goBack()),
       () => this.isLoading = false
     );
   }
@@ -72,16 +74,19 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate {
 
   saveUser() {
     this.isSaving = true;
+    this.userForm.disable();
+    const reenable = () => {
+      this.isSaving = false;
+      this.userForm.enable();
+    };
     this.userService.saveUser(this.getUpdatedUserProfile()).subscribe(
       user => {
         this.snackBar.open('Successfully saved user!', null, {duration: 2000});
         this.userForm.reset();
         this.goToUsers();
       },
-      err => this.errorService.handleServerError('Failed to save user profile!', err,
-        () => this.isSaving = false,
-        () => this.saveUser()),
-      () => this.isSaving = false
+      err => this.errorService.handleServerError('Failed to save user profile!', err, reenable, this.saveUser),
+      reenable
     );
   }
 
@@ -120,7 +125,8 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate {
           this.user = user;
           this.onUserProfileChange();
         },
-        err => this.errorService.handleServerError('Failed to retrieve user profile!', err,
+        err => this.errorService.handleServerError(
+          'Failed to retrieve user profile!', err,
           () => this.goBack()),
         () => this.isLoading = false
       );
@@ -174,5 +180,9 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate {
       data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
     });
     return dialogRef.afterClosed();
+  }
+
+  compareFn(u1: UserProfile, u2: UserProfile): boolean {
+    return u1 && u2 ? u1.id === u2.id : u1 === u2;
   }
 }

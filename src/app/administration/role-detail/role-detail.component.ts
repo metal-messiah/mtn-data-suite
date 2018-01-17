@@ -130,6 +130,11 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate {
 
   saveRole() {
     this.isSaving = true;
+    this.roleForm.disable();
+    const reenable = () => {
+      this.isSaving = false;
+      this.roleForm.enable();
+    };
     this.roleService.saveRole(this.getUpdatedRole()).subscribe(
       role => {
         this.snackBar.open('Successfully saved role!', null, {duration: 2000});
@@ -137,10 +142,8 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate {
         this.onRoleChange();
         this.goToRoles();
       },
-      err => this.errorService.handleServerError('Failed to save role!', err,
-        () => this.isSaving = false,
-        () => this.saveRole()),
-      () => this.isSaving = false
+      err => this.errorService.handleServerError('Failed to save role!', err, reenable, this.saveRole),
+      reenable
     );
   }
 

@@ -12,24 +12,30 @@
   </mat-toolbar>
   <div class="row content">
     <h3 *ngIf="users && users.length < 1">No Users</h3>
-    <mat-accordion>
-      <mat-expansion-panel *ngFor="let user of users">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            {{user.firstName}} {{user.lastName}}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <p>{{user.email}}</p>
-        <p>{{user.role || "No role assigned"}}</p>
-        <p>{{user.group || "No group assigned"}}</p>
-        <mat-action-row>
-          <button mat-button color="warn" (click)="delete(user)">Delete</button>
-          <button mat-button color="primary" [routerLink]="['../user-detail/', user.id]">Edit</button>
-        </mat-action-row>
-      </mat-expansion-panel>
-    </mat-accordion>
     <div *ngIf="isLoading" style="text-align: center">
       <i class="fa fa-spinner fa-3x fa-spin" aria-hidden="true"></i>
     </div>
+    <mat-accordion *ngIf="!isLoading">
+      <mat-expansion-panel *ngFor="let user of users">
+        <mat-expansion-panel-header>
+          <mat-panel-title >
+            <span *ngIf="user.firstName || user.lastName">{{user.firstName}} {{user.lastName}}</span>
+            <span *ngIf="!user.firstName && !user.lastName">{{user.email}}</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <p><strong>Email:</strong> {{user.email}}</p>
+        <p><strong>Role:</strong> {{user.role ? user.role.displayName : "No role assigned"}}</p>
+        <p><strong>Group:</strong> {{user.group ? user.group.displayName : "No group assigned"}}</p>
+        <mat-action-row>
+          <button [disabled]="isDeleting" mat-button color="warn" (click)="delete(user)">
+            <span *ngIf="isDeleting"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>
+            <span>Delete</span>
+          </button>
+          <button [disabled]="isDeleting" mat-button color="primary" [routerLink]="['../user-detail/', user.id]">
+            Edit
+          </button>
+        </mat-action-row>
+      </mat-expansion-panel>
+    </mat-accordion>
   </div>
 </div>

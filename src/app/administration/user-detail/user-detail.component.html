@@ -6,7 +6,7 @@
     <span id="title">User Details</span>
     <div>
       <button type="submit" mat-raised-button color="primary" (click)="saveUser()"
-              [disabled]="userForm.pristine || userForm.invalid">
+              [disabled]="userForm.pristine || userForm.invalid || isSaving">
         <span *ngIf="userForm.invalid">Invalid</span>
         <span *ngIf="!isSaving && userForm.valid">Save</span>
         <span *ngIf="isSaving"><i class="fa fa-spinner fa-spin"></i></span>
@@ -31,6 +31,22 @@
       <mat-list-item>
         <mat-form-field>
           <input matInput placeholder="Last Name" formControlName="lastName">
+        </mat-form-field>
+      </mat-list-item>
+      <mat-list-item>
+        <mat-form-field>
+          <mat-select placeholder="Select a Role" [compareWith]="compareFn" formControlName="role">
+            <mat-option>None</mat-option>
+            <mat-option *ngFor="let role of roles" [value]="role">{{role.displayName}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-list-item>
+      <mat-list-item>
+        <mat-form-field>
+          <mat-select placeholder="Select a Group" [compareWith]="compareFn" formControlName="group">
+            <mat-option>None</mat-option>
+            <mat-option *ngFor="let group of groups" [value]="group">{{group.displayName}}</mat-option>
+          </mat-select>
         </mat-form-field>
       </mat-list-item>
       <mat-list-item>

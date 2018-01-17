@@ -1,11 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {UserService} from '../../core/services/user.service';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {ErrorService} from '../../core/services/error.service';
 import {UserProfile} from '../../models/user-profile';
 import {MatDialog, MatSnackBar} from '@angular/material';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog/confirm-dialog.component';
-import {Role} from '../../models/role';
 
 @Component({
   selector: 'app-users',
@@ -63,7 +62,8 @@ export class UsersComponent implements OnInit {
     this.userService.getUserProfiles()
       .subscribe(
         pageable => this.users = pageable.content.sort(function(a, b) {
-          return a.firstName.localeCompare(b.firstName);
+          const getVal = (obj) => obj.firstName ? obj.firstName : obj.lastName ? obj.lastName : obj.email;
+          return getVal(a).localeCompare(getVal(b));
         }),
         err => this.errorService.handleServerError('Failed to retrieve users', err,
           () => this.goBack(),
