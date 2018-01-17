@@ -3,6 +3,7 @@ import {HomeComponent} from './home/home.component';
 import {CallbackComponent} from './shared/callback/callback.component';
 import {RouterModule, Routes} from '@angular/router';
 import {PathNotFoundComponent} from './shared/path-not-found/path-not-found.component';
+import {CanDeactivateGuard} from './core/services/can-deactivate.guard';
 
 export const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -13,7 +14,8 @@ export const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  providers: [CanDeactivateGuard]
 })
 export class AppRoutingModule {
 }

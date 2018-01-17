@@ -17,13 +17,14 @@ import {Observable} from 'rxjs/Observable';
 import {Pageable} from '../../models/pageable';
 import * as _ from 'lodash';
 import {Permission} from '../../models/permission';
+import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
 
 @Component({
   selector: 'app-user-detail',
   templateUrl: './user-detail.component.html',
   styleUrls: ['./user-detail.component.css']
 })
-export class UserDetailComponent implements OnInit {
+export class UserDetailComponent implements OnInit, CanComponentDeactivate {
 
   userForm: FormGroup;
 
@@ -66,18 +67,7 @@ export class UserDetailComponent implements OnInit {
   }
 
   goBack() {
-    if (!this.userForm.pristine) {
-      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-        data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
-      });
-      dialogRef.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          this.goToUsers();
-        }
-      });
-    } else {
-      this.goToUsers();
-    }
+    this.goToUsers();
   }
 
   saveUser() {
@@ -85,6 +75,7 @@ export class UserDetailComponent implements OnInit {
     this.userService.saveUser(this.getUpdatedUserProfile()).subscribe(
       user => {
         this.snackBar.open('Successfully saved user!', null, {duration: 2000});
+        this.userForm.reset();
         this.goToUsers();
       },
       err => this.errorService.handleServerError('Failed to save user profile!', err,
@@ -173,5 +164,15 @@ export class UserDetailComponent implements OnInit {
     };
 
     return updatedUserProfile;
+  }
+
+  canDeactivate(): Observable<boolean> | boolean {
+    if (this.userForm.pristine) {
+      return true;
+    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
+    });
+    return dialogRef.afterClosed();
   }
 }

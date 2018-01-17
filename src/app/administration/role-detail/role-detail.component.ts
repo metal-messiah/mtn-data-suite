@@ -16,13 +16,15 @@ import {RoleService} from '../../core/services/role.service';
 import {PermissionService} from '../../core/services/permission.service';
 
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog/confirm-dialog.component';
+import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
   selector: 'app-role-detail',
   templateUrl: './role-detail.component.html',
   styleUrls: ['./role-detail.component.css']
 })
-export class RoleDetailComponent implements OnInit {
+export class RoleDetailComponent implements OnInit, CanComponentDeactivate {
 
   roleForm: FormGroup;
 
@@ -123,18 +125,7 @@ export class RoleDetailComponent implements OnInit {
   }
 
   goBack() {
-    if (!this.roleForm.pristine) {
-      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-        data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
-      });
-      dialogRef.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          this.goToRoles();
-        }
-      });
-    } else {
-      this.goToRoles();
-    }
+    this.goToRoles();
   }
 
   saveRole() {
@@ -142,6 +133,8 @@ export class RoleDetailComponent implements OnInit {
     this.roleService.saveRole(this.getUpdatedRole()).subscribe(
       role => {
         this.snackBar.open('Successfully saved role!', null, {duration: 2000});
+        this.role = role;
+        this.onRoleChange();
         this.goToRoles();
       },
       err => this.errorService.handleServerError('Failed to save role!', err,
@@ -307,5 +300,15 @@ export class RoleDetailComponent implements OnInit {
     };
 
     return updatedRole;
+  }
+
+  canDeactivate(): Observable<boolean> | boolean {
+    if (this.roleForm.pristine) {
+      return true;
+    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
+    });
+    return dialogRef.afterClosed();
   }
 }
