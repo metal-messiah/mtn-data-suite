@@ -46,7 +46,7 @@ export class RolesComponent implements OnInit {
 
   private deleteRole(role: Role) {
     this.isDeleting = true;
-    this.roleService.deleteRole(role).subscribe(
+    this.roleService.del(role).subscribe(
       () => {
         this.snackBar.open('Successfully deleted role!', null, {duration: 2000});
         this.getRoles();
@@ -60,7 +60,7 @@ export class RolesComponent implements OnInit {
 
   private getRoles(): void {
     this.isLoading = true;
-    this.roleService.getRoles()
+    this.roleService.getAll()
       .subscribe(
         pageable => this.roles = pageable.content.sort(function (a, b) {
           return a.displayName.localeCompare(b.displayName);

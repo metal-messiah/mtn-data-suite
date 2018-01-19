@@ -6,8 +6,9 @@ import {RestService} from './services/rest.service';
 import {GroupService} from './services/group.service';
 import {PermissionService} from './services/permission.service';
 import {RoleService} from './services/role.service';
-import {UserService} from './services/user.service';
+import {UserProfileService} from './services/user.service';
 import {AuthGuard} from './services/auth.guard';
+import {DetailFormService} from './services/detail-form.service';
 
 @NgModule({
   imports: [
@@ -17,12 +18,13 @@ import {AuthGuard} from './services/auth.guard';
   providers: [
     AuthService,
     AuthGuard,
+    DetailFormService,
     ErrorService,
     GroupService,
     PermissionService,
     RestService,
     RoleService,
-    UserService
+    UserProfileService
   ]
 })
 export class CoreModule {

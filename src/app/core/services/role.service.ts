@@ -5,16 +5,17 @@ import {Pageable} from '../../models/pageable';
 import {Observable} from 'rxjs/Observable';
 import {Role} from '../../models/role';
 import {tap} from 'rxjs/operators';
+import {ObjectService} from '../../interfaces/object-service';
 
 @Injectable()
-export class RoleService {
+export class RoleService implements ObjectService<Role> {
 
   private endpoint = '/api/role';
 
   constructor(private http: HttpClient, private rest: RestService) {
   }
 
-  public getRole(id: number): Observable<Role> {
+  public getOneById(id: number): Observable<Role> {
     const url = this.rest.getHost() + this.endpoint + `/${id}`;
     return this.http.get<Role>(url, {headers: this.rest.getHeaders()})
       .pipe(
@@ -22,7 +23,7 @@ export class RoleService {
       );
   }
 
-  public getRoles(): Observable<Pageable<Role>> {
+  public getAll(): Observable<Pageable<Role>> {
     const url = this.rest.getHost() + this.endpoint;
     return this.http.get<Pageable<Role>>(url, {headers: this.rest.getHeaders()})
       .pipe(
@@ -30,7 +31,7 @@ export class RoleService {
       );
   }
 
-  public saveRole(role: Role): Observable<Role> {
+  public save(role: Role): Observable<Role> {
     let url = this.rest.getHost() + this.endpoint;
     if (role.id === undefined || role.id === null) {
       return this.http.post<Role>(url, role, {headers: this.rest.getHeaders()});
@@ -39,7 +40,7 @@ export class RoleService {
     return this.http.put<Role>(url, role, {headers: this.rest.getHeaders()});
   }
 
-  public deleteRole(role: Role): Observable<Role> {
+  public del(role: Role): Observable<Role> {
     const url = this.rest.getHost() + this.endpoint + `/${role.id}`;
     return this.http.delete<Role>(url, {headers: this.rest.getHeaders()});
   }

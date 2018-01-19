@@ -1,38 +1,40 @@
 import {Component, OnInit} from '@angular/core';
-import {DatePipe, Location} from '@angular/common';
+import {DatePipe} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {UserProfile} from '../../models/user-profile';
 import {Role} from '../../models/role';
 import {Group} from '../../models/group';
 
-import {UserService} from '../../core/services/user.service';
+import {UserProfileService} from '../../core/services/user.service';
 import {RoleService} from '../../core/services/role.service';
 import {GroupService} from '../../core/services/group.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ErrorService} from '../../core/services/error.service';
-import {MatDialog, MatSnackBar} from '@angular/material';
-import {ConfirmDialogComponent} from '../../shared/confirm-dialog/confirm-dialog.component';
+import {MatSnackBar} from '@angular/material';
 import {Observable} from 'rxjs/Observable';
 import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
+import {DetailFormComponent} from '../../interfaces/detail-form-component';
+import {DetailFormService} from '../../core/services/detail-form.service';
 
 @Component({
   selector: 'app-user-detail',
   templateUrl: './user-detail.component.html',
   styleUrls: ['./user-detail.component.css']
 })
-export class UserDetailComponent implements OnInit, CanComponentDeactivate {
+export class UserDetailComponent implements OnInit, CanComponentDeactivate, DetailFormComponent<UserProfile> {
 
-  userForm: FormGroup;
+  userProfileForm: FormGroup;
 
-  user: UserProfile;
+  userProfile: UserProfile;
+
   roles: Role[];
   groups: Group[];
 
   isSaving = false;
   isLoading = false;
 
-  constructor(private userService: UserService,
+  constructor(private userProfileService: UserProfileService,
               private roleService: RoleService,
               private groupService: GroupService,
               private route: ActivatedRoute,
@@ -41,7 +43,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate {
               private snackBar: MatSnackBar,
               private fb: FormBuilder,
               private datePipe: DatePipe,
-              private dialog: MatDialog) {
+              private detailFormService: DetailFormService<UserProfile>) {
   }
 
   ngOnInit() {
@@ -50,7 +52,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate {
     this.isLoading = true;
 
     Observable.zip(
-      this.roleService.getRoles(),
+      this.roleService.getAll(),
       this.groupService.getGroups()
     ).subscribe(
       pair => {
@@ -59,7 +61,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate {
         };
         this.roles = pair[0].content.sort(compareDisplayNames);
         this.groups = pair[1].content.sort(compareDisplayNames);
-        this.getUser();
+        this.detailFormService.retrieveObj(this);
       },
       err => this.errorService.handleServerError(
         'Failed to retrieve reference values! (Groups and Roles)', err,
@@ -68,34 +70,9 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate {
     );
   }
 
-  goBack() {
-    this.goToUsers();
-  }
-
-  saveUser() {
-    this.isSaving = true;
-    this.userForm.disable();
-    const reenable = () => {
-      this.isSaving = false;
-      this.userForm.enable();
-    };
-    this.userService.saveUser(this.getUpdatedUserProfile()).subscribe(
-      user => {
-        this.snackBar.open('Successfully saved user!', null, {duration: 2000});
-        this.userForm.reset();
-        this.goToUsers();
-      },
-      err => this.errorService.handleServerError('Failed to save user profile!', err, reenable, this.saveUser),
-      reenable
-    );
-  }
-
-  private goToUsers() {
-    this.router.navigate(['/admin/users']);
-  }
-
-  private createForm() {
-    this.userForm = this.fb.group({
+  // Implementations for DetailFormComponent
+  createForm(): void {
+    this.userProfileForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       firstName: '',
       lastName: '',
@@ -106,83 +83,83 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate {
       updatedBy: '',
       updatedDate: ''
     });
-    this.userForm.get('createdBy').disable();
-    this.userForm.get('createdDate').disable();
-    this.userForm.get('updatedBy').disable();
-    this.userForm.get('updatedDate').disable();
+    this.userProfileForm.get('createdBy').disable();
+    this.userProfileForm.get('createdDate').disable();
+    this.userProfileForm.get('updatedBy').disable();
+    this.userProfileForm.get('updatedDate').disable();
   }
-
-  private getUser(): void {
-    this.isLoading = true;
-    const id = +this.route.snapshot.paramMap.get('id');
-    if (id === null || id < 1) {
-      this.user = new UserProfile();
-      this.onUserProfileChange();
-      this.isLoading = false;
-    } else {
-      this.userService.getUserProfile(id).subscribe(
-        user => {
-          this.user = user;
-          this.onUserProfileChange();
-        },
-        err => this.errorService.handleServerError(
-          'Failed to retrieve user profile!', err,
-          () => this.goBack()),
-        () => this.isLoading = false
-      );
-    }
+  getForm(): FormGroup {
+    return this.userProfileForm;
   }
-
-  private onUserProfileChange() {
-    this.userForm.reset({
-      email: this.user.email,
-      firstName: this.user.firstName,
-      lastName: this.user.lastName,
-      group: this.user.group,
-      role: this.user.role
-    });
-
-    if (this.user.id !== undefined) {
-      this.userForm.patchValue({
-        createdBy: `${this.user.createdBy.firstName} ${this.user.createdBy.lastName}`,
-        createdDate: this.datePipe.transform(this.user.createdDate, 'medium'),
-        updatedBy: `${this.user.updatedBy.firstName} ${this.user.updatedBy.lastName}`,
-        updatedDate: this.datePipe.transform(this.user.updatedDate, 'medium'),
-      });
-    }
+  getNewObj(): UserProfile {
+    return new UserProfile();
   }
-
-  private getUpdatedUserProfile(): UserProfile {
-    const formModel = this.userForm.value;
+  getObj(): UserProfile {
+    return this.userProfile;
+  }
+  getObjService(): UserProfileService {
+    return this.userProfileService;
+  }
+  getRoute(): ActivatedRoute {
+    return this.route;
+  }
+  getSavableObj(): UserProfile {
+    const formModel = this.userProfileForm.value;
 
     const updatedUserProfile: UserProfile = {
-      id: this.user.id,
+      id: this.userProfile.id,
       email: formModel.email,
       firstName: formModel.firstName,
       lastName: formModel.lastName,
       group: formModel.group,
       role: formModel.role,
-      createdBy: this.user.createdBy,
-      createdDate: this.user.createdDate,
-      updatedBy: this.user.updatedBy,
-      updatedDate: this.user.updatedDate,
-      version: this.user.version
+      createdBy: this.userProfile.createdBy,
+      createdDate: this.userProfile.createdDate,
+      updatedBy: this.userProfile.updatedBy,
+      updatedDate: this.userProfile.updatedDate,
+      version: this.userProfile.version
     };
 
     return updatedUserProfile;
   }
-
-  canDeactivate(): Observable<boolean> | boolean {
-    if (this.userForm.pristine) {
-      return true;
-    }
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
+  getTypeName(): string {
+    return 'user profile';
+  }
+  goBack() {
+    this.router.navigate(['/admin/users']);
+  }
+  onObjectChange() {
+    this.userProfileForm.reset({
+      email: this.userProfile.email,
+      firstName: this.userProfile.firstName,
+      lastName: this.userProfile.lastName,
+      group: this.userProfile.group,
+      role: this.userProfile.role
     });
-    return dialogRef.afterClosed();
+
+    if (this.userProfile.id !== undefined) {
+      this.userProfileForm.patchValue({
+        createdBy: `${this.userProfile.createdBy.firstName} ${this.userProfile.createdBy.lastName}`,
+        createdDate: this.datePipe.transform(this.userProfile.createdDate, 'medium'),
+        updatedBy: `${this.userProfile.updatedBy.firstName} ${this.userProfile.updatedBy.lastName}`,
+        updatedDate: this.datePipe.transform(this.userProfile.updatedDate, 'medium'),
+      });
+    }
+  }
+  setObj(obj: UserProfile) {
+    this.userProfile = obj;
+    this.onObjectChange();
   }
 
-  compareFn(u1: UserProfile, u2: UserProfile): boolean {
+  // Delegated functions
+  saveUser() {
+    this.detailFormService.save(this);
+  }
+  canDeactivate(): Observable<boolean> | boolean {
+    return this.detailFormService.canDeactivate(this);
+  }
+
+  compareIds(u1, u2): boolean {
     return u1 && u2 ? u1.id === u2.id : u1 === u2;
   }
 }

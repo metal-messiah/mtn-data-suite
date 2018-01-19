@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {UserService} from '../../core/services/user.service';
+import {UserProfileService} from '../../core/services/user.service';
 import {Router} from '@angular/router';
 import {ErrorService} from '../../core/services/error.service';
 import {UserProfile} from '../../models/user-profile';
@@ -17,7 +17,7 @@ export class UsersComponent implements OnInit {
   isLoading = false;
   isDeleting = false;
 
-  constructor(private userService: UserService,
+  constructor(private userService: UserProfileService,
               private errorService: ErrorService,
               private snackBar: MatSnackBar,
               private dialog: MatDialog,
@@ -45,7 +45,7 @@ export class UsersComponent implements OnInit {
 
   private deleteUser(user: UserProfile) {
     this.isDeleting = true;
-    this.userService.deleteUserProfile(user).subscribe(
+    this.userService.del(user).subscribe(
       () => {
         this.snackBar.open('Successfully deleted user!', null, {duration: 2000});
         this.getUserProfiles();
@@ -59,7 +59,7 @@ export class UsersComponent implements OnInit {
 
   private getUserProfiles(): void {
     this.isLoading = true;
-    this.userService.getUserProfiles()
+    this.userService.getAll()
       .subscribe(
         pageable => this.users = pageable.content.sort(function(a, b) {
           const getVal = (obj) => obj.firstName ? obj.firstName : obj.lastName ? obj.lastName : obj.email;

@@ -6,16 +6,17 @@ import {tap} from 'rxjs/operators';
 import {UserProfile} from '../../models/user-profile';
 import {Pageable} from '../../models/pageable';
 import {RestService} from './rest.service';
+import {ObjectService} from '../../interfaces/object-service';
 
 @Injectable()
-export class UserService {
+export class UserProfileService implements ObjectService<UserProfile> {
 
   private endpoint = '/api/user';
 
   constructor(private http: HttpClient, private rest: RestService) {
   }
 
-  public getUserProfile(id: number): Observable<UserProfile> {
+  public getOneById(id: number): Observable<UserProfile> {
     const url = this.rest.getHost() + this.endpoint + `/${id}`;
     return this.http.get<UserProfile>(url, {headers: this.rest.getHeaders()})
       .pipe(
@@ -23,7 +24,7 @@ export class UserService {
       );
   }
 
-  public getUserProfiles(): Observable<Pageable<UserProfile>> {
+  public getAll(): Observable<Pageable<UserProfile>> {
     const url = this.rest.getHost() + this.endpoint;
     const params = new HttpParams().set('simple', 'false');
     return this.http.get<Pageable<UserProfile>>(url, {headers: this.rest.getHeaders(), params: params})
@@ -32,16 +33,16 @@ export class UserService {
       );
   }
 
-  public saveUser(user: UserProfile) {
+  public save(user: UserProfile) {
     let url = this.rest.getHost() + this.endpoint;
     if (user.id === undefined || user.id === null) {
-      return this.http.post<UserProfile>(url, user, {headers: this.rest.getHeaders()})
+      return this.http.post<UserProfile>(url, user, {headers: this.rest.getHeaders()});
     }
     url += `/${user.id}`;
     return this.http.put<UserProfile>(url, user, {headers: this.rest.getHeaders()});
   }
 
-  public deleteUserProfile(user: UserProfile): Observable<UserProfile> {
+  public del(user: UserProfile): Observable<UserProfile> {
     const url = this.rest.getHost() + this.endpoint + `/${user.id}`;
     return this.http.delete<UserProfile>(url, {headers: this.rest.getHeaders()});
   }
