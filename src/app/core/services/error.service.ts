@@ -33,6 +33,7 @@ export class ErrorService {
       }
       case 403: {
         reason = 'Forbidden: You are not permitted to view this resource!';
+        showRetry = false;
         break;
       }
       case 404: {
