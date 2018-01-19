@@ -9,6 +9,7 @@ import {UserDetailComponent} from './user-detail/user-detail.component';
 import {RoleDetailComponent} from './role-detail/role-detail.component';
 import {AdminComponent} from './admin/admin.component';
 import {AdministrationRoutingModule} from './administration-routing.module';
+import { GroupDetailComponent } from './group-detail/group-detail.component';
 
 @NgModule({
   imports: [
@@ -21,7 +22,8 @@ import {AdministrationRoutingModule} from './administration-routing.module';
     RolesComponent,
     UserDetailComponent,
     UsersComponent,
-    AdminComponent
+    AdminComponent,
+    GroupDetailComponent
   ]
 })
 export class AdministrationModule {

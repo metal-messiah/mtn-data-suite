@@ -4,11 +4,10 @@ import {RestService} from './rest.service';
 import {Pageable} from '../../models/pageable';
 import {Observable} from 'rxjs/Observable';
 import {Role} from '../../models/role';
-import {tap} from 'rxjs/operators';
-import {ObjectService} from '../../interfaces/object-service';
+import {EntityService} from '../../interfaces/entity-service';
 
 @Injectable()
-export class RoleService implements ObjectService<Role> {
+export class RoleService implements EntityService<Role> {
 
   private endpoint = '/api/role';
 
@@ -17,18 +16,12 @@ export class RoleService implements ObjectService<Role> {
 
   public getOneById(id: number): Observable<Role> {
     const url = this.rest.getHost() + this.endpoint + `/${id}`;
-    return this.http.get<Role>(url, {headers: this.rest.getHeaders()})
-      .pipe(
-        tap( u => console.log(`Successfully retrieved role with id: ${u['id']}`))
-      );
+    return this.http.get<Role>(url, {headers: this.rest.getHeaders()});
   }
 
   public getAll(): Observable<Pageable<Role>> {
     const url = this.rest.getHost() + this.endpoint;
-    return this.http.get<Pageable<Role>>(url, {headers: this.rest.getHeaders()})
-      .pipe(
-        tap( p => console.log(`Fetched ${p['content'].length} roles.`))
-      );
+    return this.http.get<Pageable<Role>>(url, {headers: this.rest.getHeaders()});
   }
 
   public save(role: Role): Observable<Role> {

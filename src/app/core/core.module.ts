@@ -9,6 +9,7 @@ import {RoleService} from './services/role.service';
 import {UserProfileService} from './services/user.service';
 import {AuthGuard} from './services/auth.guard';
 import {DetailFormService} from './services/detail-form.service';
+import {EntityListService} from './services/entity-list.service';
 
 @NgModule({
   imports: [
@@ -19,6 +20,7 @@ import {DetailFormService} from './services/detail-form.service';
     AuthService,
     AuthGuard,
     DetailFormService,
+    EntityListService,
     ErrorService,
     GroupService,
     PermissionService,

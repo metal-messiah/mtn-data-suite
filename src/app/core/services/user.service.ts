@@ -6,10 +6,10 @@ import {tap} from 'rxjs/operators';
 import {UserProfile} from '../../models/user-profile';
 import {Pageable} from '../../models/pageable';
 import {RestService} from './rest.service';
-import {ObjectService} from '../../interfaces/object-service';
+import {EntityService} from '../../interfaces/entity-service';
 
 @Injectable()
-export class UserProfileService implements ObjectService<UserProfile> {
+export class UserProfileService implements EntityService<UserProfile> {
 
   private endpoint = '/api/user';
 
@@ -29,7 +29,7 @@ export class UserProfileService implements ObjectService<UserProfile> {
     const params = new HttpParams().set('simple', 'false');
     return this.http.get<Pageable<UserProfile>>(url, {headers: this.rest.getHeaders(), params: params})
       .pipe(
-        tap( p => console.log('Fetched ' + p['content'].length + ' users.'))
+        tap( p => console.log('Fetched ' + p['content'].length + ' user profiles.'))
       );
   }
 

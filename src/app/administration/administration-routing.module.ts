@@ -9,6 +9,7 @@ import {RolesComponent} from './roles/roles.component';
 import {AdminComponent} from './admin/admin.component';
 import {AuthGuard} from '../core/services/auth.guard';
 import {CanDeactivateGuard} from '../core/services/can-deactivate.guard';
+import {GroupDetailComponent} from './group-detail/group-detail.component';
 
 const routes: Routes = [
   {
@@ -22,7 +23,9 @@ const routes: Routes = [
       {path: 'role-detail', component: RoleDetailComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'role-detail/:id', component: RoleDetailComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'user-detail', component: UserDetailComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'user-detail/:id', component: UserDetailComponent, canDeactivate: [CanDeactivateGuard]}
+      {path: 'user-detail/:id', component: UserDetailComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'group-detail', component: GroupDetailComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'group-detail/:id', component: GroupDetailComponent, canDeactivate: [CanDeactivateGuard]}
     ]
   }
 ];

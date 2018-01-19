@@ -1,5 +1,5 @@
 import {FormGroup} from '@angular/forms';
-import {ObjectService} from './object-service';
+import {EntityService} from './entity-service';
 import {ActivatedRoute} from '@angular/router';
 
 export interface DetailFormComponent<T> {
@@ -10,7 +10,7 @@ export interface DetailFormComponent<T> {
   getForm: () => FormGroup;
   getNewObj: () => T;
   getObj: () => T;
-  getObjService: () => ObjectService<T>;
+  getObjService: () => EntityService<T>;
   getRoute: () => ActivatedRoute;
   getSavableObj: () => T;
   getTypeName: () => string;

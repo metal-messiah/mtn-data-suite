@@ -1,17 +1,12 @@
 import {Permission} from './permission';
 import {UserProfile} from './user-profile';
+import {AuditingEntity} from './auditing-entity';
 
-export class Role {
+export class Role extends AuditingEntity{
   id: number;
   displayName: string;
   description: string;
 
   members: UserProfile[] = [];
   permissions: Permission[];
-
-  createdBy: UserProfile;
-  createdDate: Date;
-  updatedBy: UserProfile;
-  updatedDate: Date;
-  version: number;
 }

@@ -1,3 +1,38 @@
-<p>
-  groups works!
-</p>
+<div class="box">
+  <mat-toolbar class="row header flex-space-between">
+    <div>
+      <button type="button" mat-raised-button color="accent" (click)="goBack()">Back</button>
+    </div>
+    <span><i class="fa fa-id-badge"></i> Groups</span>
+    <div>
+      <button mat-raised-button color="primary" routerLink="../group-detail">
+        Add Group
+      </button>
+    </div>
+  </mat-toolbar>
+  <div class="row content">
+    <h3 *ngIf="groups && groups.length < 1">No Groups</h3>
+    <div *ngIf="isLoading" style="text-align: center">
+      <i class="fa fa-spinner fa-3x fa-spin" aria-hidden="true"></i>
+    </div>
+    <mat-accordion *ngIf="!isLoading">
+      <mat-expansion-panel *ngFor="let group of groups">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            {{group.displayName}}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <p>{{group.description}}</p>
+        <mat-action-row>
+          <button [disabled]="isDeleting" mat-button color="warn"(click)="delete(group)">
+            <span *ngIf="isDeleting"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>
+            <span>Delete</span>
+          </button>
+          <button [disabled]="isDeleting" mat-button color="primary" [routerLink]="['../group-detail/', group.id]" >
+            Edit
+          </button>
+        </mat-action-row>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>

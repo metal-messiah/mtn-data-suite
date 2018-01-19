@@ -53,7 +53,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
 
     Observable.zip(
       this.roleService.getAll(),
-      this.groupService.getGroups()
+      this.groupService.getAll()
     ).subscribe(
       pair => {
         const compareDisplayNames = function(object1, object2) {

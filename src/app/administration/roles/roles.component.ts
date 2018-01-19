@@ -1,74 +1,57 @@
 import {Component, OnInit} from '@angular/core';
-import {MatDialog, MatSnackBar} from '@angular/material';
 
 import {Role} from '../../models/role';
 import {RoleService} from '../../core/services/role.service';
-import {ErrorService} from '../../core/services/error.service';
-import {ConfirmDialogComponent} from '../../shared/confirm-dialog/confirm-dialog.component';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
+import {BasicEntityListComponent} from '../../interfaces/basic-entity-list-component';
+import {EntityListService} from '../../core/services/entity-list.service';
 
 @Component({
   selector: 'app-roles',
   templateUrl: './roles.component.html',
   styleUrls: ['./roles.component.css']
 })
-export class RolesComponent implements OnInit {
+export class RolesComponent implements OnInit, BasicEntityListComponent<Role> {
 
   roles: Role[];
+
   isLoading = false;
   isDeleting = false;
 
   constructor(private roleService: RoleService,
-              private errorService: ErrorService,
-              private snackBar: MatSnackBar,
-              private dialog: MatDialog,
-              private router: Router) {
+              private router: Router,
+              private els: EntityListService<Role>) {
   }
 
   ngOnInit() {
-    this.getRoles();
+    this.els.initialize(this);
   }
 
-  delete(role: Role) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {title: 'Delete Role!', question: `Are you sure you wish to delete the ${role.displayName} role?`}
-    });
-    dialogRef.afterClosed().subscribe(confirm => {
-      if (confirm) {
-        this.deleteRole(role);
-      }
-    });
+  confirmDelete(role: Role) {
+    this.els.confirmDelete(this, role);
   }
 
   goBack() {
     this.router.navigate(['admin']);
   }
 
-  private deleteRole(role: Role) {
-    this.isDeleting = true;
-    this.roleService.del(role).subscribe(
-      () => {
-        this.snackBar.open('Successfully deleted role!', null, {duration: 2000});
-        this.getRoles();
-      },
-      err => this.errorService.handleServerError('Failed to delete role!', err,
-        () => this.isDeleting = false,
-        () => this.deleteRole(role)),
-      () => this.isDeleting = false
-    );
+  getPluralTypeName(): string {
+    return 'roles';
   }
 
-  private getRoles(): void {
-    this.isLoading = true;
-    this.roleService.getAll()
-      .subscribe(
-        pageable => this.roles = pageable.content.sort(function (a, b) {
-          return a.displayName.localeCompare(b.displayName);
-        }),
-        err => this.errorService.handleServerError('Failed to retrieve roles', err,
-          () => this.goBack(),
-          () => this.getRoles()),
-        () => this.isLoading = false
-      );
+  getEntityService(): RoleService {
+    return this.roleService;
+  }
+
+  getTypeName(): string {
+    return 'role';
+  }
+
+  setEntities(roles: Role[]): void {
+    this.roles = roles;
+  }
+
+  sortCompare(a: Role, b: Role): number {
+    return a.displayName.localeCompare(b.displayName);
   }
 }
