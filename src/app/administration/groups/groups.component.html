@@ -24,7 +24,7 @@
         </mat-expansion-panel-header>
         <p>{{group.description}}</p>
         <mat-action-row>
-          <button [disabled]="isDeleting" mat-button color="warn"(click)="delete(group)">
+          <button [disabled]="isDeleting" mat-button color="warn" (click)="confirmDelete(group)">
             <span *ngIf="isDeleting"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></span>
             <span>Delete</span>
           </button>

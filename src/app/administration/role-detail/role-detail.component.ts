@@ -1,23 +1,21 @@
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {DatePipe} from '@angular/common';
 import {Component, OnInit} from '@angular/core';
-import {MatSnackBar} from '@angular/material';
-import {ActivatedRoute, NavigationStart, Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import 'rxjs/Rx';
 import * as _ from 'lodash';
+import {Observable} from 'rxjs/Observable';
 
 import {Role} from '../../models/role';
 import {Permission} from '../../models/permission';
 import {UserProfile} from '../../models/user-profile';
+import {DetailFormComponent} from '../../interfaces/detail-form-component';
 
 import {ErrorService} from '../../core/services/error.service';
 import {RoleService} from '../../core/services/role.service';
 import {PermissionService} from '../../core/services/permission.service';
-
 import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
-import {Observable} from 'rxjs/Observable';
-import {DetailFormComponent} from '../../interfaces/detail-form-component';
 import {DetailFormService} from '../../core/services/detail-form.service';
 
 @Component({
@@ -45,7 +43,6 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
               private route: ActivatedRoute,
               private router: Router,
               private errorService: ErrorService,
-              private snackBar: MatSnackBar,
               private fb: FormBuilder,
               private datePipe: DatePipe,
               private breakpointObserver: BreakpointObserver,
@@ -54,11 +51,6 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
       Breakpoints.HandsetPortrait
     ]).subscribe(result => {
       this.abbreviate = result.matches;
-    });
-
-    router.events.subscribe((val) => {
-      if (val instanceof NavigationStart) {
-      }
     });
   }
 
@@ -97,21 +89,27 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
     this.roleForm.get('updatedBy').disable();
     this.roleForm.get('updatedDate').disable();
   }
+
   getForm(): FormGroup {
     return this.roleForm;
   }
+
   getNewObj(): Role {
     return new Role();
   }
+
   getObj(): Role {
     return this.role;
   }
+
   getObjService(): RoleService {
     return this.roleService;
   }
+
   getRoute(): ActivatedRoute {
     return this.route;
   }
+
   getSavableObj(): Role {
     const formModel = this.roleForm.value;
 
@@ -144,12 +142,15 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
       version: this.role.version
     };
   }
+
   getTypeName(): string {
     return 'role';
   }
+
   goBack() {
     this.router.navigate(['/admin/roles']);
   }
+
   onObjectChange(): void {
     this.roleForm.reset({
       displayName: this.role.displayName,
@@ -182,6 +183,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
 
     this.updateAllSelected();
   }
+
   setObj(obj: Role) {
     this.role = obj;
     this.onObjectChange();
@@ -191,6 +193,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
   saveRole() {
     this.detailFormService.save(this);
   }
+
   canDeactivate(): Observable<boolean> | boolean {
     return this.detailFormService.canDeactivate(this);
   }
@@ -199,6 +202,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
   getPermission(subject: string, action: string) {
     return this.roleForm.get(`permissions.${subject}.${action}`);
   }
+
   selectAllPermissions() {
     const val = this.roleForm.get('allSelected').value;
     _.forEach(this.permissions, permission => {
@@ -212,6 +216,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
       this.roleForm.get(`subjects.${subject}`).setValue(val);
     });
   }
+
   toggleAction(action: string) {
     const actionPermissions = _.filter(this.permissions, {action: action});
     _.forEach(actionPermissions, permission => {
@@ -222,6 +227,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
     });
     this.updateAllSelected();
   }
+
   toggleSubject(subject: string) {
     const subjectPermissions = _.filter(this.permissions, {subject: subject});
     _.forEach(subjectPermissions, permission => {
@@ -232,6 +238,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
     });
     this.updateAllSelected();
   }
+
   updateAllControls(subject, action) {
     this.updateSubjectControls(subject);
     this.updateActionControls(action);
@@ -264,6 +271,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
       (permissionControls.get(permission.subject) as FormGroup).addControl(permission.action, permissionControl);
     });
   }
+
   private updateActionControls(action) {
     const actionPermissions = _.filter(this.permissions, {action: action});
     const every = _.every(actionPermissions, permission => {
@@ -271,12 +279,14 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
     });
     this.roleForm.get(`actions.${action}`).setValue(every);
   }
+
   private updateAllSelected() {
     const every = _.every(this.permissions, permission => {
       return permission['control'].value;
     });
     this.roleForm.patchValue({'allSelected': every});
   }
+
   private updateSubjectControls(subject) {
     const subjectPermissions = _.filter(this.permissions, {subject: subject});
     this.roleForm.get(`subjects.${subject}`).setValue(_.every(subjectPermissions, permission => {

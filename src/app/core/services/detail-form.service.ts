@@ -53,7 +53,7 @@ export class DetailFormService<T> {
     } else {
       fc.getObjService().getOneById(id).subscribe(
         obj => fc.setObj(obj),
-        err => this.errorService.handleServerError(`Failed to retrieve ${fc.getTypeName}!`, err,
+        err => this.errorService.handleServerError(`Failed to retrieve ${fc.getTypeName()}!`, err,
           () => fc.goBack()),
         () => fc.isLoading = false
       );

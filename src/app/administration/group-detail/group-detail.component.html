@@ -1,3 +1,53 @@
-<p>
-  group-detail works!
-</p>
+<form class="box" [formGroup]="groupForm" novalidate>
+  <mat-toolbar class="row header flex-space-between">
+    <div>
+      <button type="button" mat-raised-button color="accent" (click)="goBack()">Back</button>
+    </div>
+    <span id="title">Group Details</span>
+    <div>
+      <button type="submit" mat-raised-button color="primary" (click)="saveGroup()"
+              [disabled]="groupForm.pristine || groupForm.invalid || isSaving">
+        <span *ngIf="groupForm.invalid">Invalid</span>
+        <span *ngIf="!isSaving && groupForm.valid">Save</span>
+        <span *ngIf="isSaving"><i class="fa fa-spinner fa-spin"></i></span>
+      </button>
+    </div>
+  </mat-toolbar>
+  <div class="row content" *ngIf="group">
+    <div *ngIf="isLoading" style="text-align: center">
+      <i class="fa fa-spinner fa-3x fa-spin" aria-hidden="true"> </i>
+    </div>
+    <mat-list>
+      <mat-list-item>
+        <mat-form-field>
+          <input matInput placeholder="Display Name" formControlName="displayName">
+        </mat-form-field>
+      </mat-list-item>
+      <mat-list-item>
+        <mat-form-field>
+          <input matInput placeholder="Description" formControlName="description">
+        </mat-form-field>
+      </mat-list-item>
+      <mat-list-item>
+        <mat-form-field *ngIf="group.id !== undefined">
+          <input matInput placeholder="Created By" formControlName="createdBy">
+        </mat-form-field>
+      </mat-list-item>
+      <mat-list-item>
+        <mat-form-field *ngIf="group.id !== undefined">
+          <input matInput placeholder="Created Date" formControlName="createdDate">
+        </mat-form-field>
+      </mat-list-item>
+      <mat-list-item>
+        <mat-form-field *ngIf="group.id !== undefined">
+          <input matInput placeholder="Updated By" formControlName="updatedBy">
+        </mat-form-field>
+      </mat-list-item>
+      <mat-list-item>
+        <mat-form-field *ngIf="group.id !== undefined">
+          <input matInput placeholder="Updated Date" formControlName="updatedDate">
+        </mat-form-field>
+      </mat-list-item>
+    </mat-list>
+  </div>
+</form>

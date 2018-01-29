@@ -6,5 +6,5 @@ export class Group extends AuditingEntity {
   displayName: string;
   description: string;
 
-  members: UserProfile;
+  members: UserProfile[] = [];
 }

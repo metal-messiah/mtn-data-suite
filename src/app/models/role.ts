@@ -8,5 +8,5 @@ export class Role extends AuditingEntity{
   description: string;
 
   members: UserProfile[] = [];
-  permissions: Permission[];
+  permissions: Permission[] = [];
 }

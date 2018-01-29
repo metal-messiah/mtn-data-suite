@@ -27,7 +27,7 @@ export class EntityListService<T> {
 
   confirmDelete(comp: BasicEntityListComponent<T>, entity: T) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {title: 'Delete Role!', question: `Are you sure you wish to delete this ${comp.getTypeName()}?`}
+      data: {title: `Delete ${comp.getTypeName()}!`, question: `Are you sure you wish to delete this ${comp.getTypeName()}?`}
     });
     dialogRef.afterClosed().subscribe(confirm => {
       if (confirm) {
