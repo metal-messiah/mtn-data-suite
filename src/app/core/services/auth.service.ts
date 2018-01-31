@@ -1,8 +1,14 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 import * as auth0 from 'auth0-js';
 import {environment} from '../../../environments/environment';
 import {Location} from '@angular/common';
+import {HttpClient} from '@angular/common/http';
+import {RestService} from './rest.service';
+import {UserProfile} from '../../models/user-profile';
+import {Observable} from 'rxjs/Observable';
+import {ErrorDialogComponent} from '../../shared/error-dialog/error-dialog.component';
+import {MatDialog} from '@angular/material';
 
 @Injectable()
 export class AuthService {
@@ -16,7 +22,12 @@ export class AuthService {
     scope: 'openid email profile'
   });
 
-  constructor(public router: Router, private location: Location) {}
+  constructor(public router: Router,
+              private location: Location,
+              private http: HttpClient,
+              private rest: RestService,
+              private dialog: MatDialog) {
+  }
 
   public login(): void {
     localStorage.setItem('loggingInFrom', this.location.path());
@@ -28,14 +39,44 @@ export class AuthService {
       if (authResult && authResult.accessToken && authResult.idToken) {
         window.location.hash = '';
         this.setSession(authResult);
-        const redirectTo = localStorage.getItem('loggingInFrom');
-        this.router.navigate([redirectTo]);
+        this.getUserProfile().subscribe(
+          userProfile => {
+            localStorage.setItem('user_profile', JSON.stringify(userProfile));
+            const redirectTo = localStorage.getItem('loggingInFrom');
+            this.router.navigate([redirectTo]);
+          },
+          error => this.onError(error)
+        );
+
       } else if (err) {
-        this.router.navigate(['/home']);
-        console.log(err);
-        alert(`Error: ${err.error}. Check the console for further details.`);
+        this.onError(err);
       }
     });
+  }
+
+  onError(err): void {
+    this.logout();
+    const dialogRef = this.dialog.open(ErrorDialogComponent, {
+      data: {
+        message: 'Login failed!',
+        reason: err['error']['message'],
+        status: err['status'],
+        showRetry: false,
+        showLogin: true
+      }
+    });
+    dialogRef.afterClosed().subscribe(response => {
+      if (response === 'login') {
+        this.login();
+      } else {
+        this.router.navigate(['/']);
+      }
+    });
+  }
+
+  private getUserProfile(): Observable<UserProfile> {
+    const url = this.rest.getHost() + `/api/auth/user`;
+    return this.http.get<UserProfile>(url, {headers: this.rest.getHeaders()});
   }
 
   private setSession(authResult): void {

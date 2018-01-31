@@ -5,11 +5,6 @@ import {environment} from '../../../environments/environment';
 @Injectable()
 export class RestService {
 
-  private headers: HttpHeaders = new HttpHeaders({
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + localStorage.getItem('access_token')
-  });
-
   constructor() {
   }
 
@@ -18,7 +13,10 @@ export class RestService {
   }
 
   public getHeaders(): HttpHeaders {
-    return this.headers;
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+    });
   }
 
 }
