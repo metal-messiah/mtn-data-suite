@@ -55,6 +55,10 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
       members: this.fb.array([]),
       allSelected: true
     });
+    this.setDisabledFields();
+  }
+
+  setDisabledFields(): void {
     this.groupForm.get('createdBy').disable();
     this.groupForm.get('createdDate').disable();
     this.groupForm.get('updatedBy').disable();

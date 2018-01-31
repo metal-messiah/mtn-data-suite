@@ -17,4 +17,5 @@ export interface DetailFormComponent<T> {
   goBack: () => void;
   onObjectChange: () => void;
   setObj: (obj: T) => void;
+  setDisabledFields: () => void;
 }

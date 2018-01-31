@@ -29,6 +29,7 @@ export class DetailFormService<T> {
     const reenable = () => {
       fc.isSaving = false;
       fc.getForm().enable();
+      fc.setDisabledFields();
     };
     fc.getObjService().save(fc.getSavableObj()).subscribe(
       savedObj => {

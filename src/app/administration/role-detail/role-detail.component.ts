@@ -84,6 +84,10 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
       members: this.fb.array([]),
       allSelected: true
     });
+    this.setDisabledFields();
+  }
+
+  setDisabledFields(): void {
     this.roleForm.get('createdBy').disable();
     this.roleForm.get('createdDate').disable();
     this.roleForm.get('updatedBy').disable();

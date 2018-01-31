@@ -83,11 +83,16 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
       updatedBy: '',
       updatedDate: ''
     });
+    this.setDisabledFields();
+  }
+
+  setDisabledFields(): void {
     this.userProfileForm.get('createdBy').disable();
     this.userProfileForm.get('createdDate').disable();
     this.userProfileForm.get('updatedBy').disable();
     this.userProfileForm.get('updatedDate').disable();
   }
+
   getForm(): FormGroup {
     return this.userProfileForm;
   }
