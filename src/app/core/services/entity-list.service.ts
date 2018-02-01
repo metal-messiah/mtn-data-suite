@@ -43,7 +43,7 @@ export class EntityListService<T> {
         this.snackBar.open(`Successfully deleted ${comp.getTypeName()}!`, null, {duration: 2000});
         this.initialize(comp);
       },
-      err => this.errorService.handleServerError(`Failed to delete ${comp.getTypeName}!`, err,
+      err => this.errorService.handleServerError(`Failed to delete ${comp.getTypeName()}!`, err,
         () => comp.isDeleting = false,
         () => this.deleteEntity(comp, entity)),
       () => comp.isDeleting = false
