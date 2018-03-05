@@ -1,11 +1,18 @@
 import { TestBed, async, inject } from '@angular/core/testing';
 
 import { AuthGuard } from './auth.guard';
+import { AuthService } from './auth.service';
 
 describe('AuthGuard', () => {
   beforeEach(() => {
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['isAuthenticated', 'login']);
+    authServiceSpy.isAuthenticated.and.returnValue(true);
+
     TestBed.configureTestingModule({
-      providers: [AuthGuard]
+      providers: [
+        AuthGuard,
+        {provide: AuthService, useValue: authServiceSpy}
+      ]
     });
   });
 

@@ -1,16 +1,33 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GroupDetailComponent } from './group-detail.component';
+import { AdministrationModule } from '../administration.module';
+import { GroupService } from '../../core/services/group.service';
+import { ActivatedRouteStub } from '../../../testing/activated-route-stub';
+import { ActivatedRoute, Router } from '@angular/router';
+import { DetailFormService } from '../../core/services/detail-form.service';
 
 describe('GroupDetailComponent', () => {
   let component: GroupDetailComponent;
   let fixture: ComponentFixture<GroupDetailComponent>;
 
   beforeEach(async(() => {
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const detailFormService = jasmine.createSpyObj('DetailFormService', ['retrieveObj', 'save', 'canDeactivate']);
+    // TODO Mock return of retrieveObj
+    // TODO Mock return of save
+    // TODO Mock return of canDeactivate
+
     TestBed.configureTestingModule({
-      declarations: [ GroupDetailComponent ]
+      imports: [AdministrationModule],
+      providers: [
+        {provide: GroupService, useValue: {}},
+        {provide: DetailFormService, useValue: detailFormService},
+        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()},
+        {provide: Router, useValue: routerSpy}
+      ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

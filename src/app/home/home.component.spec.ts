@@ -1,9 +1,8 @@
-/* tslint:disable:no-unused-variable */
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { DebugElement } from '@angular/core';
 
 import { HomeComponent } from './home.component';
+import { SharedModule } from '../shared/shared.module';
+import { CustomMaterialModule } from '../shared/material/custom-material.module';
 import { AuthService } from '../core/services/auth.service';
 
 describe('HomeComponent', () => {
@@ -12,12 +11,13 @@ describe('HomeComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ HomeComponent ],
+      imports: [CustomMaterialModule],
+      declarations: [HomeComponent],
       providers: [
         { provide: AuthService, useValue: { isAuthenticated: () => false }}
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

@@ -13,7 +13,4 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
   }
 
-  clickAdmin() {
-    console.log('admin');
-  }
 }
