@@ -21,10 +21,10 @@ export class DatabaseSupportComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.duplicateService.getAllDuplicateSites()
+    this.duplicateService.getAll()
       .subscribe(
         duplicateSites => {
-          this.duplicates = duplicateSites
+          this.duplicates = duplicateSites;
         },
         err => console.log(`Hit error, ${err}`)
       );
