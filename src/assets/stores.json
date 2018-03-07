@@ -1,0 +1,718 @@
+{
+  "table": "UnknownTable",
+  "rows":
+  [
+    {
+      "site_id": 19805,
+      "store_id": 22102,
+      "latitude": 40.27195358276367,
+      "longitude": -111.68278503417969,
+      "storeName": "Sprouts Farmers Market",
+      "storeNumber": "602"
+    },
+    {
+      "site_id": 22103,
+      "store_id": 24555,
+      "latitude": 40.22977828979492,
+      "longitude": -111.64730072021484,
+      "storeName": "Allens Super Save Market",
+      "storeNumber": "1"
+    },
+    {
+      "site_id": 22104,
+      "store_id": 24556,
+      "latitude": 40.33209228515625,
+      "longitude": -111.71197509765625,
+      "storeName": "Allens Super Save Market",
+      "storeNumber": "2"
+    },
+    {
+      "site_id": 22105,
+      "store_id": 24557,
+      "latitude": 40.16190719604492,
+      "longitude": -111.61077880859375,
+      "storeName": "Allens Super Save Market",
+      "storeNumber": "4"
+    },
+    {
+      "site_id": 23614,
+      "store_id": 26236,
+      "latitude": 40.264408111572266,
+      "longitude": -111.66888427734375,
+      "storeName": "Buy Low Market",
+      "storeNumber": "5"
+    },
+    {
+      "site_id": 23635,
+      "store_id": 26258,
+      "latitude": 40.24990463256836,
+      "longitude": -111.64318084716797,
+      "storeName": "BYU Creamery Grocery",
+      "storeNumber": null
+    },
+    {
+      "site_id": 24697,
+      "store_id": 27410,
+      "latitude": 40.069698333740234,
+      "longitude": -111.66400146484375,
+      "storeName": "Crisp Grocery",
+      "storeNumber": null
+    },
+    {
+      "site_id": 25030,
+      "store_id": 27764,
+      "latitude": 40.27484130859375,
+      "longitude": -111.65158081054688,
+      "storeName": "Days Market",
+      "storeNumber": null
+    },
+    {
+      "site_id": 27210,
+      "store_id": 30102,
+      "latitude": 40.38669680759466,
+      "longitude": -111.83742094039917,
+      "storeName": "The Fresh Market",
+      "storeNumber": "2304"
+    },
+    {
+      "site_id": 27210,
+      "store_id": 30103,
+      "latitude": 40.38669680759466,
+      "longitude": -111.83742094039917,
+      "storeName": "Macey's",
+      "storeNumber": "2304"
+    },
+    {
+      "site_id": 27213,
+      "store_id": 30106,
+      "latitude": 40.23436132093655,
+      "longitude": -111.66844630241394,
+      "storeName": "The Fresh Market",
+      "storeNumber": "2312"
+    },
+    {
+      "site_id": 27215,
+      "store_id": 30108,
+      "latitude": 40.26306645008795,
+      "longitude": -111.66970682144165,
+      "storeName": "The Fresh Market",
+      "storeNumber": "2358"
+    },
+    {
+      "site_id": 27215,
+      "store_id": 30109,
+      "latitude": 40.26306645008795,
+      "longitude": -111.66970682144165,
+      "storeName": "Walmart NM",
+      "storeNumber": "4100"
+    },
+    {
+      "site_id": 27221,
+      "store_id": 30116,
+      "latitude": 40.37800961333302,
+      "longitude": -111.79503512382513,
+      "storeName": "The Fresh Market",
+      "storeNumber": "2378"
+    },
+    {
+      "site_id": 27225,
+      "store_id": 30121,
+      "latitude": 40.118186950683594,
+      "longitude": -111.64041900634766,
+      "storeName": "The Fresh Market",
+      "storeNumber": "2386"
+    },
+    {
+      "site_id": 27699,
+      "store_id": 30642,
+      "latitude": 40.04463577270508,
+      "longitude": -111.71923828125,
+      "storeName": "Ginis Corner Market",
+      "storeNumber": null
+    },
+    {
+      "site_id": 27819,
+      "store_id": 30763,
+      "latitude": 40.37688446044922,
+      "longitude": -111.80718231201172,
+      "storeName": "Good Earth Natural Foods",
+      "storeNumber": null
+    },
+    {
+      "site_id": 27820,
+      "store_id": 30764,
+      "latitude": 40.28829574584961,
+      "longitude": -111.69112396240234,
+      "storeName": "Good Earth Natural Foods",
+      "storeNumber": null
+    },
+    {
+      "site_id": 27821,
+      "store_id": 30765,
+      "latitude": 40.22047424316406,
+      "longitude": -111.65872192382812,
+      "storeName": "Good Earth Natural Foods",
+      "storeNumber": null
+    },
+    {
+      "site_id": 28740,
+      "store_id": 31731,
+      "latitude": 40.31195068359375,
+      "longitude": -111.67499542236328,
+      "storeName": "Harmons Market",
+      "storeNumber": "88"
+    },
+    {
+      "site_id": 28740,
+      "store_id": 31732,
+      "latitude": 40.31195068359375,
+      "longitude": -111.67499542236328,
+      "storeName": "Harmons",
+      "storeNumber": "88"
+    },
+    {
+      "site_id": 30390,
+      "store_id": 33479,
+      "latitude": 40.431861877441406,
+      "longitude": -111.78308868408203,
+      "storeName": "Kohlers Food Store",
+      "storeNumber": null
+    },
+    {
+      "site_id": 30391,
+      "store_id": 33480,
+      "latitude": 40.38786315917969,
+      "longitude": -111.8441162109375,
+      "storeName": "Kohlers Food Stores",
+      "storeNumber": null
+    },
+    {
+      "site_id": 30391,
+      "store_id": 33481,
+      "latitude": 40.38786315917969,
+      "longitude": -111.8441162109375,
+      "storeName": "Kohler's",
+      "storeNumber": null
+    },
+    {
+      "site_id": 31824,
+      "store_id": 35001,
+      "latitude": 40.31337356567383,
+      "longitude": -111.70189666748047,
+      "storeName": "Maceys Market",
+      "storeNumber": "11"
+    },
+    {
+      "site_id": 31824,
+      "store_id": 35002,
+      "latitude": 40.31337356567383,
+      "longitude": -111.70189666748047,
+      "storeName": "Macey's",
+      "storeNumber": "11"
+    },
+    {
+      "site_id": 31826,
+      "store_id": 35005,
+      "latitude": 40.25306600914336,
+      "longitude": -111.66665410995483,
+      "storeName": "Maceys Market",
+      "storeNumber": "40"
+    },
+    {
+      "site_id": 31826,
+      "store_id": 35006,
+      "latitude": 40.25306600914336,
+      "longitude": -111.66665410995483,
+      "storeName": "Macey's",
+      "storeNumber": "40"
+    },
+    {
+      "site_id": 31829,
+      "store_id": 35011,
+      "latitude": 40.36614227294922,
+      "longitude": -111.75190734863281,
+      "storeName": "Maceys Market",
+      "storeNumber": "75"
+    },
+    {
+      "site_id": 31829,
+      "store_id": 35012,
+      "latitude": 40.36614227294922,
+      "longitude": -111.75190734863281,
+      "storeName": "Macey's",
+      "storeNumber": "75"
+    },
+    {
+      "site_id": 31830,
+      "store_id": 35013,
+      "latitude": 40.123864250116846,
+      "longitude": -111.65138125419617,
+      "storeName": "Maceys Market",
+      "storeNumber": "998"
+    },
+    {
+      "site_id": 31830,
+      "store_id": 35014,
+      "latitude": 40.123864250116846,
+      "longitude": -111.65138125419617,
+      "storeName": "Macey's",
+      "storeNumber": "998"
+    },
+    {
+      "site_id": 33851,
+      "store_id": 37119,
+      "latitude": 40.0512580871582,
+      "longitude": -111.73211669921875,
+      "storeName": "Payson Market",
+      "storeNumber": null
+    },
+    {
+      "site_id": 34198,
+      "store_id": 37560,
+      "latitude": 40.11216735839844,
+      "longitude": -111.65473937988281,
+      "storeName": "Plaza Market",
+      "storeNumber": null
+    },
+    {
+      "site_id": 35018,
+      "store_id": 38549,
+      "latitude": 40.25638961791992,
+      "longitude": -111.67239379882812,
+      "storeName": "Rancho Market",
+      "storeNumber": "4"
+    },
+    {
+      "site_id": 35018,
+      "store_id": 38550,
+      "latitude": 40.25638961791992,
+      "longitude": -111.67239379882812,
+      "storeName": "Rancho Markets",
+      "storeNumber": "4"
+    },
+    {
+      "site_id": 35151,
+      "store_id": 38688,
+      "latitude": 40.31208419799805,
+      "longitude": -111.70594024658203,
+      "storeName": "Real Foods Market",
+      "storeNumber": null
+    },
+    {
+      "site_id": 35151,
+      "store_id": 38689,
+      "latitude": 40.31208419799805,
+      "longitude": -111.70594024658203,
+      "storeName": "Redmond heritage farm store",
+      "storeNumber": null
+    },
+    {
+      "site_id": 35152,
+      "store_id": 38690,
+      "latitude": 40.23392105102539,
+      "longitude": -111.67417907714844,
+      "storeName": "Reams Food Store",
+      "storeNumber": "1"
+    },
+    {
+      "site_id": 35154,
+      "store_id": 38693,
+      "latitude": 40.161136627197266,
+      "longitude": -111.59689331054688,
+      "storeName": "Reams Food Store",
+      "storeNumber": "4"
+    },
+    {
+      "site_id": 35154,
+      "store_id": 38694,
+      "latitude": 40.161136627197266,
+      "longitude": -111.59689331054688,
+      "storeName": "Ream's",
+      "storeNumber": "4"
+    },
+    {
+      "site_id": 35335,
+      "store_id": 38882,
+      "latitude": 40.29617717398391,
+      "longitude": -111.69601249694824,
+      "storeName": "Ridleys Food & Drug",
+      "storeNumber": "158"
+    },
+    {
+      "site_id": 35335,
+      "store_id": 38883,
+      "latitude": 40.29617717398391,
+      "longitude": -111.69601249694824,
+      "storeName": "Ridley's",
+      "storeNumber": "158"
+    },
+    {
+      "site_id": 35336,
+      "store_id": 38884,
+      "latitude": 40.326114654541016,
+      "longitude": -111.70789337158203,
+      "storeName": "Ridleys Food & Drug",
+      "storeNumber": "160"
+    },
+    {
+      "site_id": 35336,
+      "store_id": 38885,
+      "latitude": 40.326114654541016,
+      "longitude": -111.70789337158203,
+      "storeName": "Ridley's",
+      "storeNumber": "160"
+    },
+    {
+      "site_id": 37680,
+      "store_id": 41456,
+      "latitude": 40.354010768298544,
+      "longitude": -111.73725128173828,
+      "storeName": "Smiths Food & Drug",
+      "storeNumber": "73"
+    },
+    {
+      "site_id": 37680,
+      "store_id": 41457,
+      "latitude": 40.354010768298544,
+      "longitude": -111.73725128173828,
+      "storeName": "Smith's",
+      "storeNumber": "73"
+    },
+    {
+      "site_id": 37681,
+      "store_id": 41458,
+      "latitude": 40.03437042236328,
+      "longitude": -111.73407745361328,
+      "storeName": "Smiths Food & Drug",
+      "storeNumber": "75"
+    },
+    {
+      "site_id": 37681,
+      "store_id": 41459,
+      "latitude": 40.03437042236328,
+      "longitude": -111.73407745361328,
+      "storeName": "Smith's",
+      "storeNumber": "75"
+    },
+    {
+      "site_id": 37688,
+      "store_id": 41472,
+      "latitude": 40.374601416216706,
+      "longitude": -111.92126512527466,
+      "storeName": "Smiths Food & Drug",
+      "storeNumber": "107"
+    },
+    {
+      "site_id": 37694,
+      "store_id": 41483,
+      "latitude": 40.238383016101736,
+      "longitude": -111.66143846511841,
+      "storeName": "Smiths Food & Drug",
+      "storeNumber": "136"
+    },
+    {
+      "site_id": 37694,
+      "store_id": 41484,
+      "latitude": 40.238383016101736,
+      "longitude": -111.66143846511841,
+      "storeName": "Smith's",
+      "storeNumber": "136"
+    },
+    {
+      "site_id": 37698,
+      "store_id": 41491,
+      "latitude": 40.296408560168224,
+      "longitude": -111.69198727607727,
+      "storeName": "Smiths Food & Drug",
+      "storeNumber": "144"
+    },
+    {
+      "site_id": 37698,
+      "store_id": 41492,
+      "latitude": 40.296408560168224,
+      "longitude": -111.69198727607727,
+      "storeName": "Smith's",
+      "storeNumber": "144"
+    },
+    {
+      "site_id": 37733,
+      "store_id": 41550,
+      "latitude": 40.43013767490051,
+      "longitude": -111.82482671737671,
+      "storeName": "Smiths Marketplace",
+      "storeNumber": "119"
+    },
+    {
+      "site_id": 37733,
+      "store_id": 41551,
+      "latitude": 40.43013767490051,
+      "longitude": -111.82482671737671,
+      "storeName": "Smith's Marketplace",
+      "storeNumber": "119"
+    },
+    {
+      "site_id": 38884,
+      "store_id": 42785,
+      "latitude": 40.29578438853242,
+      "longitude": -111.6991057395935,
+      "storeName": "SuperTarget",
+      "storeNumber": "1754"
+    },
+    {
+      "site_id": 38884,
+      "store_id": 42786,
+      "latitude": 40.29578438853242,
+      "longitude": -111.6991057395935,
+      "storeName": "Super Target",
+      "storeNumber": "1754"
+    },
+    {
+      "site_id": 40807,
+      "store_id": 44978,
+      "latitude": 40.311798095703125,
+      "longitude": -111.71949768066406,
+      "storeName": "WinCo Foods",
+      "storeNumber": "76"
+    },
+    {
+      "site_id": 41030,
+      "store_id": 45251,
+      "latitude": 40.305667877197266,
+      "longitude": -111.69889831542969,
+      "storeName": "KMart",
+      "storeNumber": "3096"
+    },
+    {
+      "site_id": 41167,
+      "store_id": 45398,
+      "latitude": 40.21814727783203,
+      "longitude": -111.65878295898438,
+      "storeName": "KMart",
+      "storeNumber": "3765"
+    },
+    {
+      "site_id": 41476,
+      "store_id": 45723,
+      "latitude": 40.12276840209961,
+      "longitude": -111.6336441040039,
+      "storeName": "KMart",
+      "storeNumber": "7425"
+    },
+    {
+      "site_id": 41756,
+      "store_id": 46010,
+      "latitude": 40.26546681958314,
+      "longitude": -111.6680223941803,
+      "storeName": "Shopko Store",
+      "storeNumber": "86"
+    },
+    {
+      "site_id": 41766,
+      "store_id": 46021,
+      "latitude": 40.29487345320667,
+      "longitude": -111.69253897666937,
+      "storeName": "Shopko Store",
+      "storeNumber": "105"
+    },
+    {
+      "site_id": 41768,
+      "store_id": 46023,
+      "latitude": 40.12226104736328,
+      "longitude": -111.65487670898438,
+      "storeName": "Shopko Store",
+      "storeNumber": "108"
+    },
+    {
+      "site_id": 42233,
+      "store_id": 46519,
+      "latitude": 40.377037048339844,
+      "longitude": -111.81068420410156,
+      "storeName": "Target",
+      "storeNumber": "1814"
+    },
+    {
+      "site_id": 43651,
+      "store_id": 48112,
+      "latitude": 40.272972106933594,
+      "longitude": -111.7123794555664,
+      "storeName": "Walmart SC",
+      "storeNumber": "1768"
+    },
+    {
+      "site_id": 43891,
+      "store_id": 48352,
+      "latitude": 40.38532730352762,
+      "longitude": -111.82479524612427,
+      "storeName": "Walmart SC",
+      "storeNumber": "2511"
+    },
+    {
+      "site_id": 44032,
+      "store_id": 48493,
+      "latitude": 40.15774154663086,
+      "longitude": -111.64242553710938,
+      "storeName": "Walmart SC",
+      "storeNumber": "3208"
+    },
+    {
+      "site_id": 44231,
+      "store_id": 48693,
+      "latitude": 40.388900079422704,
+      "longitude": -111.91991090774536,
+      "storeName": "Walmart SC",
+      "storeNumber": "4438"
+    },
+    {
+      "site_id": 44245,
+      "store_id": 48707,
+      "latitude": 40.41640090942383,
+      "longitude": -111.77050018310547,
+      "storeName": "Walmart SC",
+      "storeNumber": "4689"
+    },
+    {
+      "site_id": 44283,
+      "store_id": 48745,
+      "latitude": 40.027400970458984,
+      "longitude": -111.75457763671875,
+      "storeName": "Walmart SC",
+      "storeNumber": "5167"
+    },
+    {
+      "site_id": 44301,
+      "store_id": 48763,
+      "latitude": 40.34891128540039,
+      "longitude": -111.72815704345703,
+      "storeName": "Walmart SC",
+      "storeNumber": "5270"
+    },
+    {
+      "site_id": 46150,
+      "store_id": 50942,
+      "latitude": 40.16053771972656,
+      "longitude": -111.62967681884766,
+      "storeName": "Smith's",
+      "storeNumber": null
+    },
+    {
+      "site_id": 46153,
+      "store_id": 50947,
+      "latitude": 40.38610872326746,
+      "longitude": -111.91437721252441,
+      "storeName": "Smith's",
+      "storeNumber": null
+    },
+    {
+      "site_id": 46528,
+      "store_id": 51406,
+      "latitude": 40.12413090951576,
+      "longitude": -111.63937300381315,
+      "storeName": "Walmart SC",
+      "storeNumber": null
+    },
+    {
+      "site_id": 46528,
+      "store_id": 51407,
+      "latitude": 40.12413090951576,
+      "longitude": -111.63937300381315,
+      "storeName": "Walmart",
+      "storeNumber": "4068"
+    },
+    {
+      "site_id": 46529,
+      "store_id": 51408,
+      "latitude": 40.06683155283339,
+      "longitude": -111.66699266997529,
+      "storeName": "Stokes",
+      "storeNumber": null
+    },
+    {
+      "site_id": 46530,
+      "store_id": 51409,
+      "latitude": 40.431131374016914,
+      "longitude": -111.78652873334352,
+      "storeName": "Ridley's",
+      "storeNumber": null
+    },
+    {
+      "site_id": 46531,
+      "store_id": 51410,
+      "latitude": 40.43145884701911,
+      "longitude": -111.79190758947982,
+      "storeName": "Meiers",
+      "storeNumber": null
+    },
+    {
+      "site_id": 46532,
+      "store_id": 51411,
+      "latitude": 40.367365908729276,
+      "longitude": -111.76178030213009,
+      "storeName": "Walmart NM",
+      "storeNumber": "4700"
+    },
+    {
+      "site_id": 46533,
+      "store_id": 51412,
+      "latitude": 40.363693771981666,
+      "longitude": -111.96612872607272,
+      "storeName": "Ridley's",
+      "storeNumber": null
+    },
+    {
+      "site_id": 46534,
+      "store_id": 51413,
+      "latitude": 40.43321492867723,
+      "longitude": -111.8784719149624,
+      "storeName": "Harmons",
+      "storeNumber": null
+    },
+    {
+      "site_id": 47688,
+      "store_id": 52643,
+      "latitude": 40.1207303120658,
+      "longitude": -111.64332926273346,
+      "storeName": "Good Earth Natural Foods",
+      "storeNumber": null
+    },
+    {
+      "site_id": 48496,
+      "store_id": 53481,
+      "latitude": 40.38999557495117,
+      "longitude": -111.82328033447266,
+      "storeName": "Costco Wholesale",
+      "storeNumber": null
+    },
+    {
+      "site_id": 48497,
+      "store_id": 53482,
+      "latitude": 40.27995300292969,
+      "longitude": -111.68045043945312,
+      "storeName": "Costco Wholesale",
+      "storeNumber": null
+    },
+    {
+      "site_id": 48500,
+      "store_id": 53485,
+      "latitude": 40.124046325683594,
+      "longitude": -111.64957427978516,
+      "storeName": "Costco Wholesale",
+      "storeNumber": null
+    },
+    {
+      "site_id": 48786,
+      "store_id": 53775,
+      "latitude": 40.21614074707031,
+      "longitude": -111.6570053100586,
+      "storeName": "Sam's Club",
+      "storeNumber": "6685"
+    },
+    {
+      "site_id": 50541,
+      "store_id": 55626,
+      "latitude": 40.2758674621582,
+      "longitude": -111.68499755859375,
+      "storeName": "Trader Joe's",
+      "storeNumber": null
+    }
+  ]
+}

@@ -1,9 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {UserProfileService} from '../../core/services/user.service';
 import {Router} from '@angular/router';
-import {ErrorService} from '../../core/services/error.service';
 import {UserProfile} from '../../models/user-profile';
-import {MatDialog, MatSnackBar} from '@angular/material';
 import {BasicEntityListComponent} from '../../interfaces/basic-entity-list-component';
 import {EntityListService} from '../../core/services/entity-list.service';
 

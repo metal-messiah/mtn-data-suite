@@ -6,4 +6,10 @@ export class AuditingEntity {
   updatedBy: UserProfile;
   updatedDate: Date;
   version: number;
+
+  constructor(obj?: AuditingEntity) {
+    if (obj) {
+      Object.keys(obj).forEach(key => this[key] = obj[key]);
+    }
+  }
 }

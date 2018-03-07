@@ -11,6 +11,7 @@ import {AppRoutingModule} from './app-routing.module';
 import {CoreModule} from './core/core.module';
 import {HomeComponent} from './home/home.component';
 import {SharedModule} from './shared/shared.module';
+import {CasingModule} from './casing/casing.module';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import {SharedModule} from './shared/shared.module';
     CoreModule,
     SharedModule,
     AdministrationModule,
-    AppRoutingModule
+    CasingModule,
+    AppRoutingModule // must come last?
   ],
   declarations: [AppComponent, HomeComponent],
   providers: [],

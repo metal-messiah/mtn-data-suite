@@ -1,13 +1,14 @@
-import {NgModule} from '@angular/core';
-import {CommonModule, DatePipe} from '@angular/common';
-import {ErrorDialogComponent} from './error-dialog/error-dialog.component';
-import {ConfirmDialogComponent} from './confirm-dialog/confirm-dialog.component';
-import {CustomMaterialModule} from './material/custom-material.module';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
-import {BreakpointObserver, MediaMatcher} from '@angular/cdk/layout';
-import {CallbackComponent} from './callback/callback.component';
-import {PathNotFoundComponent} from './path-not-found/path-not-found.component';
+import { NgModule } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { ErrorDialogComponent } from './error-dialog/error-dialog.component';
+import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
+import { CustomMaterialModule } from './material/custom-material.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { BreakpointObserver, MediaMatcher } from '@angular/cdk/layout';
+import { CallbackComponent } from './callback/callback.component';
+import { PathNotFoundComponent } from './path-not-found/path-not-found.component';
+import { MapComponent } from './map/map.component';
 
 @NgModule({
   imports: [
@@ -18,7 +19,8 @@ import {PathNotFoundComponent} from './path-not-found/path-not-found.component';
     ErrorDialogComponent,
     ConfirmDialogComponent,
     CallbackComponent,
-    PathNotFoundComponent
+    PathNotFoundComponent,
+    MapComponent
   ],
   providers: [
     BreakpointObserver,
@@ -36,6 +38,7 @@ import {PathNotFoundComponent} from './path-not-found/path-not-found.component';
     DatePipe,
     FormsModule,
     HttpClientModule,
+    MapComponent,
     PathNotFoundComponent,
     ReactiveFormsModule,
   ]

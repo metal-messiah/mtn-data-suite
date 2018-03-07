@@ -1,15 +1,1 @@
-<mat-toolbar color="primary" class="flex-space-between">
-  <div>
-    <a *ngIf="showHomeNav" mat-icon-button routerLink="/"><i class="fa fa-home fa-2x"></i></a>
-  </div>
-  <span>MTN App Suite</span>
-  <div>
-    <a mat-icon-button *ngIf="!auth.isAuthenticated()" (click)="auth.login()">
-      <i class="fa fa-sign-in fa-2x"></i>
-    </a>
-    <a mat-icon-button *ngIf="auth.isAuthenticated()" (click)="auth.logout()">
-      <i class="fa fa-sign-out fa-2x"></i>
-    </a>
-  </div>
-</mat-toolbar>
 <router-outlet></router-outlet>

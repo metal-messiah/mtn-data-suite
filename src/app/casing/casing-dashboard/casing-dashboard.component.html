@@ -1,0 +1,59 @@
+<form class="box">
+  <mat-toolbar class="row header flex-space-between">
+    <div>
+      <button mat-icon-button><i class="fa fa-bars fa-2x"></i></button>
+    </div>
+    <mat-form-field floatLabel="never" id="searchField">
+      <i matPrefix class="fa fa-search"></i>
+      <input matInput type="search" placeholder="Location or Store ID" [(ngModel)]="searchQuery" name="search"/>
+    </mat-form-field>
+    <div>
+      <button mat-icon-button><i class="fa fa-filter fa-2x"></i></button>
+    </div>
+  </mat-toolbar>
+  <app-map #casingMap class="row content" (onReady)="onMapReady($event)"></app-map>
+  <div id="infoCard" *ngIf="showCard">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+            <strong>{{selectedSite.getLabel()}}</strong>
+        </mat-card-title>
+        <mat-card-subtitle>{{selectedSite.getActiveStore().currentStoreStatus}}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div style="display:flex; justify-content: space-between;">
+          <div>
+            <p>{{selectedSite.getIntersection()}}</p>
+            <p>{{selectedSite.address1}}</p>
+            <p>{{selectedSite.getPrincipality()}}</p>
+          </div>
+          <div>
+            <p>Site #{{selectedSite.id}}</p>
+            <p *ngIf="selectedSite.getActiveStore().latestSalesArea != null">
+              {{selectedSite.getActiveStore().latestSalesArea / 1000 | number}}k sqft
+            </p>
+            <p *ngIf="selectedSite.getActiveStore().latestVolume != null">
+              ${{selectedSite.getActiveStore().latestVolume / 1000 | number}}k
+            </p>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button><i class="fa fa-thumb-tack"></i> Pin</button>
+        <button mat-button><i class="fa fa-clock-o"></i> History</button>
+        <button mat-button><i class="fa fa-pencil"></i> Details</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+  <mat-toolbar class="row footer flex-space-between" color="primary">
+    <div>
+      <button mat-button>List</button>
+    </div>
+    <div>
+      <button mat-button (click)="toggleMode()">Toggle Mode</button>
+    </div>
+    <div>
+      <button mat-button>Sort</button>
+    </div>
+  </mat-toolbar>
+</form>
