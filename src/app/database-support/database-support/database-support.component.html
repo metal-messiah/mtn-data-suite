@@ -1,0 +1,65 @@
+<div class="box">
+  <mat-toolbar class="row header flex-space-between">
+    <div>
+      <button type="button" mat-raised-button color="accent" (click)="goBack()">Back</button>
+    </div>
+    <span>
+      <i class="fa fa-database"></i> Database Support</span>
+    <div></div>
+  </mat-toolbar>
+  <div class="row content">
+    <div class="flex-container">
+      <!-- Map API or routerLink will go here -->
+      <div id="Map"></div>
+
+      <!-- Right side of Database Support Main Window -->
+      <div id="Forms">
+        <!--Start of Cards -->
+        <mat-accordion class="headers-align" *ngIf="!isLoading">
+          <mat-expansion-panel *ngFor="let duplicate of duplicates">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <div class="container">
+                  <h3>Duplicate</h3>
+                  <h3>Duplicate</h3>
+                </div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <!-- Left Side -->
+            <div class="container">
+              <strong>Store Name:</strong> {{duplicate['entities'][0].storeName}}
+              <strong>Store Name:</strong> {{duplicate['entities'][1].storeName}}
+            </div>
+            <div class="container">
+              <strong>City:</strong> {{duplicate['entities'][0].city}}
+              <strong>City:</strong> {{duplicate['entities'][1].city}}
+            </div>
+            <div class="container">
+              <strong>State:</strong> {{duplicate['entities'][0].state}}
+              <strong>State:</strong> {{duplicate['entities'][1].state}}
+            </div>
+            <div class="container">
+              <strong>Lat:</strong> {{duplicate['entities'][0].latitude}}
+              <strong>Lat:</strong> {{duplicate['entities'][1].latitude}}
+            </div>
+            <div class="container">
+              <strong>Long:</strong> {{duplicate['entities'][0].longitude}}
+              <strong>Long:</strong> {{duplicate['entities'][1].longitude}}
+            </div>
+            <div class="container">
+              <div>
+                ID: {{duplicate['entities'][0].id}}
+              </div>
+              <div>
+                ID: {{duplicate['entities'][1].id}}
+              </div>
+            </div>
+
+          </mat-expansion-panel>
+
+        </mat-accordion>
+        <!-- End of Cards-->
+      </div>
+    </div>
+  </div>
+</div>

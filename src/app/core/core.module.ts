@@ -11,6 +11,7 @@ import { AuthGuard } from './services/auth.guard';
 import { DetailFormService } from './services/detail-form.service';
 import { EntityListService } from './services/entity-list.service';
 import { SiteService } from './services/site.service';
+import { DuplicateService } from './services/duplicate.service';
 
 @NgModule({
   imports: [
@@ -21,6 +22,7 @@ import { SiteService } from './services/site.service';
     AuthService,
     AuthGuard,
     DetailFormService,
+    DuplicateService,
     EntityListService,
     ErrorService,
     GroupService,
