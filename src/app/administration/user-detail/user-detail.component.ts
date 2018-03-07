@@ -11,7 +11,6 @@ import {RoleService} from '../../core/services/role.service';
 import {GroupService} from '../../core/services/group.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ErrorService} from '../../core/services/error.service';
-import {MatSnackBar} from '@angular/material';
 import {Observable} from 'rxjs/Observable';
 import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
 import {DetailFormComponent} from '../../interfaces/detail-form-component';
@@ -40,7 +39,6 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
               private route: ActivatedRoute,
               private router: Router,
               private errorService: ErrorService,
-              private snackBar: MatSnackBar,
               private fb: FormBuilder,
               private datePipe: DatePipe,
               private detailFormService: DetailFormService<UserProfile>) {

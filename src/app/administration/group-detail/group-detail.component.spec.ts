@@ -4,28 +4,29 @@ import { GroupDetailComponent } from './group-detail.component';
 import { AdministrationModule } from '../administration.module';
 import { GroupService } from '../../core/services/group.service';
 import { ActivatedRouteStub } from '../../../testing/activated-route-stub';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { DetailFormService } from '../../core/services/detail-form.service';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('GroupDetailComponent', () => {
   let component: GroupDetailComponent;
   let fixture: ComponentFixture<GroupDetailComponent>;
 
   beforeEach(async(() => {
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const detailFormService = jasmine.createSpyObj('DetailFormService', ['retrieveObj', 'save', 'canDeactivate']);
     // TODO Mock return of retrieveObj
     // TODO Mock return of save
     // TODO Mock return of canDeactivate
 
     TestBed.configureTestingModule({
-      imports: [AdministrationModule],
+      imports: [
+        AdministrationModule,
+        RouterTestingModule
+      ],
       providers: [
         {provide: GroupService, useValue: {}},
         {provide: DetailFormService, useValue: detailFormService},
-        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()},
-        {provide: Router, useValue: routerSpy}
-      ]
+        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()}]
     })
       .compileComponents();
   }));

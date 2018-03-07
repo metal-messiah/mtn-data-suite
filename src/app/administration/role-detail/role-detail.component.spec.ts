@@ -1,9 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import { RoleDetailComponent } from './role-detail.component';
 import { AdministrationModule } from '../administration.module';
-import { ActivatedRoute, Router } from '@angular/router';
-import { GroupService } from '../../core/services/group.service';
 import { ActivatedRouteStub } from '../../../testing/activated-route-stub';
 import { DetailFormService } from '../../core/services/detail-form.service';
 import { RoleService } from '../../core/services/role.service';
@@ -19,7 +19,6 @@ describe('RoleDetailComponent', () => {
     const permissionServiceSpy = jasmine.createSpyObj('PermissionService', ['getPermissions']);
     permissionServiceSpy.getPermissions.and.returnValue(of({content: []}));
     // TODO Mcok return of getPermissions
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const detailFormService = jasmine.createSpyObj('DetailFormService', ['retrieveObj', 'save', 'canDeactivate']);
     // TODO Mock return of retrieveObj
     // TODO Mock return of save
@@ -27,14 +26,16 @@ describe('RoleDetailComponent', () => {
     const errorServiceSpy = jasmine.createSpyObj('ErrorService', ['handleServerError']);
 
     TestBed.configureTestingModule({
-      imports: [ AdministrationModule ],
+      imports: [
+        AdministrationModule,
+        RouterTestingModule
+      ],
       providers: [
         {provide: RoleService, useValue: {}},
         {provide: PermissionService, useValue: permissionServiceSpy},
         {provide: DetailFormService, useValue: detailFormService},
         {provide: ErrorService, useValue: errorServiceSpy},
-        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()},
-        {provide: Router, useValue: routerSpy}
+        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()}
       ]
     })
     .compileComponents();

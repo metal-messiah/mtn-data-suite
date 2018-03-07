@@ -13,7 +13,8 @@ import {
   MatMenuModule,
   MatSelectModule,
   MatSidenavModule,
-  MatSlideToggleModule, MatSnackBarModule,
+  MatSlideToggleModule,
+  MatSnackBarModule,
   MatTableModule,
   MatToolbarModule
 } from '@angular/material';

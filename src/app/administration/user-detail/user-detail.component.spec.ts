@@ -2,7 +2,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { UserDetailComponent } from './user-detail.component';
 import { AdministrationModule } from '../administration.module';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { GroupService } from '../../core/services/group.service';
 import { ActivatedRouteStub } from '../../../testing/activated-route-stub';
 import { DetailFormService } from '../../core/services/detail-form.service';
@@ -10,6 +10,7 @@ import { UserProfileService } from '../../core/services/user.service';
 import { RoleService } from '../../core/services/role.service';
 import { ErrorService } from '../../core/services/error.service';
 import { of } from 'rxjs/observable/of';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('UserDetailComponent', () => {
   let component: UserDetailComponent;
@@ -20,7 +21,6 @@ describe('UserDetailComponent', () => {
     roleServiceSpy.getAll.and.returnValue(of({content: []}));
     const groupServiceSpy = jasmine.createSpyObj('GroupService', ['getAll']);
     groupServiceSpy.getAll.and.returnValue(of({content: []}));
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const detailFormService = jasmine.createSpyObj('DetailFormService', ['retrieveObj', 'save', 'canDeactivate']);
     // TODO Mock return of retrieveObj
     // TODO Mock return of save
@@ -28,15 +28,17 @@ describe('UserDetailComponent', () => {
     const errorServiceSpy = jasmine.createSpyObj('ErrorService', ['handleServerError']);
 
     TestBed.configureTestingModule({
-      imports: [ AdministrationModule ],
+      imports: [
+        AdministrationModule,
+        RouterTestingModule
+      ],
       providers: [
         {provide: UserProfileService, useValue: {}},
         {provide: RoleService, useValue: roleServiceSpy},
         {provide: GroupService, useValue: groupServiceSpy},
         {provide: ErrorService, useValue: errorServiceSpy},
         {provide: DetailFormService, useValue: detailFormService},
-        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()},
-        {provide: Router, useValue: routerSpy}
+        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()}
       ]
     })
     .compileComponents();

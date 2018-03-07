@@ -30,6 +30,7 @@ export class AuthService {
   }
 
   public login(): void {
+    localStorage.clear();
     localStorage.setItem('loggingInFrom', this.location.path());
     this.auth0.authorize();
   }
@@ -89,9 +90,7 @@ export class AuthService {
 
   public logout(): void {
     // Remove tokens and expiry time from localStorage
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('id_token');
-    localStorage.removeItem('expires_at');
+    localStorage.clear();
     // Go back to the home route
     this.router.navigate(['/']);
   }
