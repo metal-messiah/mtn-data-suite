@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { DuplicateService } from '../../core/services/duplicate.service';
-import { Duplicate } from '../../models/duplicate';
-import { Site } from '../../models/site';
+import { DuplicateService } from '../core/services/duplicate.service';
+import { Duplicate } from '../models/duplicate';
+import { Site } from '../models/site';
 import { Router } from '@angular/router';
 
 @Component({

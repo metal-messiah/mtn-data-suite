@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 
 import { SharedModule } from '../shared/shared.module';
-import { DatabaseSupportComponent } from './database-support/database-support.component';
+import { DatabaseSupportComponent } from './database-support.component';
 import { AdministrationRoutingModule } from './database-support-routing.module';
 import { DataEditingComponent } from './data-editing/data-editing.component';
 import { MapComponent } from './data-editing/map/map.component';

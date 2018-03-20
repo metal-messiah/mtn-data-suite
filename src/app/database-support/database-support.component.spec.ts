@@ -1,9 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DatabaseSupportComponent } from './database-support.component';
-import { DuplicateService } from '../../core/services/duplicate.service';
+import { DuplicateService } from '../core/services/duplicate.service';
 import { RouterTestingModule } from '@angular/router/testing';
-import { SharedModule } from '../../shared/shared.module';
+import { SharedModule } from '../shared/shared.module';
 import { of } from 'rxjs/observable/of';
 
 describe('DatabaseSupportComponent', () => {
