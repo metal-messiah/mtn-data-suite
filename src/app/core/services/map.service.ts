@@ -35,7 +35,6 @@ export class MapService {
   drawingManager: google.maps.drawing.DrawingManager;
   selectedMappables: Mappable[];
   followMeMarker: google.maps.Marker;
-  userLocation: google.maps.LatLng;
 
   constructor(private iconService: IconService) {
   }
@@ -314,15 +313,16 @@ export class MapService {
   }
 
   followMe(latitude: number, longitude: number): void {
-    this.map.setCenter(this.userLocation);
+    const userLocation = new google.maps.LatLng(latitude, longitude);
+    this.map.setCenter(userLocation);
     if (this.followMeMarker == null) {
       this.followMeMarker = new google.maps.Marker({
-        position: this.userLocation,
+        position: userLocation,
         map: this.map,
         icon: this.iconService.getIcon(Color.BLUE, Color.YELLOW, google.maps.SymbolPath.FORWARD_CLOSED_ARROW),
       });
     }
-    this.followMeMarker.setPosition(this.userLocation);
+    this.followMeMarker.setPosition(userLocation);
   }
 
   stopFollowingMe() {

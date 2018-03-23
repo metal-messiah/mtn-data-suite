@@ -82,7 +82,6 @@ export class CasingDashboardComponent implements OnInit {
     console.log('Getting Sites');
     this.siteService.getAllInBounds(bounds).subscribe(
       page => {
-        console.log(page.content);
         this.sites = page.content.map(site => new Site(site));
         this.mapService.drawMappables(this.sites);
         // if (page.totalPages > 1) {
