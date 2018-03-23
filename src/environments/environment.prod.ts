@@ -5,6 +5,6 @@ export const environment = {
   AUTH_CONFIG: {
     clientID: 'UTgiibU2z7Honoinje5bVRbhUwyneFN4',
     domain: 'mtnra.auth0.com',
-    callbackURL: 'https://mtn-app-suite.firebaseapp.com/callback'
+    callbackURL: 'https://mtn-mds-suite.firebaseapp.com/callback'
   }
 };

@@ -5,6 +5,7 @@ import { AdministrationModule } from '../administration.module';
 import { ActivatedRouteStub } from '../../../testing/activated-route-stub';
 import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { AuthService } from '../../core/services/auth.service';
 
 describe('AdminComponent', () => {
   let component: AdminComponent;
@@ -17,7 +18,14 @@ describe('AdminComponent', () => {
         RouterTestingModule
       ],
       providers: [
-        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()}
+        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()},
+        {
+          provide: AuthService, useValue: {
+            login: () => {},
+            logout: () => {},
+            isAuthenticated: () => {}
+          }
+        }
       ]
     })
     .compileComponents();

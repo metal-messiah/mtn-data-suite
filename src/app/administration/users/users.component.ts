@@ -6,7 +6,7 @@ import {BasicEntityListComponent} from '../../interfaces/basic-entity-list-compo
 import {EntityListService} from '../../core/services/entity-list.service';
 
 @Component({
-  selector: 'app-users',
+  selector: 'mds-users',
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css']
 })

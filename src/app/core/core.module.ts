@@ -12,6 +12,8 @@ import { DetailFormService } from './services/detail-form.service';
 import { EntityListService } from './services/entity-list.service';
 import { SiteService } from './services/site.service';
 import { DuplicateService } from './services/duplicate.service';
+import { ProjectService } from './services/project.service';
+import { IconService } from './services/icon.service';
 
 @NgModule({
   imports: [
@@ -30,7 +32,9 @@ import { DuplicateService } from './services/duplicate.service';
     RestService,
     RoleService,
     SiteService,
-    UserProfileService
+    UserProfileService,
+    ProjectService,
+    IconService
   ]
 })
 export class CoreModule {

@@ -6,4 +6,5 @@ export interface Mappable {
   location: Location;
   getCoordinates: () => number[];
   getLabel: () => string;
+  getId: () => number;
 }

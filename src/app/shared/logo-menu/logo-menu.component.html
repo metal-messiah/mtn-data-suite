@@ -1,0 +1,14 @@
+<div>
+  <button mat-icon-button [matMenuTriggerFor]="menu">
+    <img class="logo" src="../../../assets/images/icons/MTN%20Logo.gif" alt="MTN">
+  </button>
+</div>
+<mat-menu #menu="matMenu">
+  <button mat-menu-item *ngIf="showHome" routerLink="/"><i class="fa fa-home"></i>&nbsp;Home</button>
+  <button mat-menu-item *ngIf="auth.isAuthenticated()" (click)="auth.logout()">
+    <i class="fa fa-sign-out"></i>&nbsp;Sign Out
+  </button>
+  <button mat-menu-item *ngIf="!auth.isAuthenticated()" (click)="auth.login()">
+    <i class="fa fa-sign-in"></i>&nbsp;Sign In
+  </button>
+</mat-menu>

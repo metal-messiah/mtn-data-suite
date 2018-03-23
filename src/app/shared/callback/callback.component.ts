@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-callback',
+  selector: 'mds-callback',
   templateUrl: './callback.component.html',
   styleUrls: ['./callback.component.css']
 })

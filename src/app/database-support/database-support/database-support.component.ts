@@ -5,7 +5,7 @@ import { Site } from '../../models/site';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-database-support',
+  selector: 'mds-database-support',
   templateUrl: './database-support.component.html',
   styleUrls: ['./database-support.component.css']
 })

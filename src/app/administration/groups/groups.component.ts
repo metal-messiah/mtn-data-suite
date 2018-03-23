@@ -7,7 +7,7 @@ import {EntityListService} from '../../core/services/entity-list.service';
 import {Router} from '@angular/router';
 
 @Component({
-  selector: 'app-groups',
+  selector: 'mds-groups',
   templateUrl: './groups.component.html',
   styleUrls: ['./groups.component.css']
 })

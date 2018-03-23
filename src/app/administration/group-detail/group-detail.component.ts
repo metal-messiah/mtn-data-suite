@@ -14,7 +14,7 @@ import {Group} from '../../models/group';
 import {UserProfile} from '../../models/user-profile';
 
 @Component({
-  selector: 'app-group-detail',
+  selector: 'mds-group-detail',
   templateUrl: './group-detail.component.html',
   styleUrls: ['./group-detail.component.css']
 })

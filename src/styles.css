@@ -6,7 +6,7 @@ html, body, .viewport {
   display: flex;
 }
 
-app-root {
+mds-root {
   width: 100%;
 }
 
@@ -48,7 +48,7 @@ mat-form-field {
 }
 
 .box .row.footer {
-  flex: 0 1 40px;
+  flex: 0 1 50px;
 }
 
 /* The location pointed to by the popup tip. */
@@ -101,4 +101,8 @@ mat-form-field {
   max-width: 140px;
   overflow-x: hidden;
   text-overflow: ellipsis;
+}
+
+.mat-dialog-container {
+  padding: 0 !important;
 }

@@ -1,8 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CasingComponent } from './casing.component';
-import { CasingModule } from '../casing.module';
+import { CasingModule } from './casing.module';
 import { RouterTestingModule } from '@angular/router/testing';
+import { AuthService } from '../core/services/auth.service';
 
 describe('CasingComponent', () => {
   let component: CasingComponent;
@@ -13,9 +14,10 @@ describe('CasingComponent', () => {
       imports: [
         CasingModule,
         RouterTestingModule
-      ]
+      ],
+      providers: [{provide: AuthService, useValue: {isAuthenticated: () => {}}}]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

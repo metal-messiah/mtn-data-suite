@@ -1,8 +1,15 @@
 import {NgModule} from '@angular/core';
 import {CasingDashboardComponent} from './casing-dashboard/casing-dashboard.component';
-import {CasingComponent} from './casing/casing.component';
+import {CasingComponent} from './casing.component';
 import {SharedModule} from '../shared/shared.module';
 import {CasingRoutingModule} from './casing-routing.module';
+import { CasingProjectsComponent } from './casing-projects/casing-projects.component';
+import { SelectProjectComponent } from './select-project/select-project.component';
+import { ProjectSummaryComponent } from './project-summary/project-summary.component';
+import { ProjectDetailComponent } from './project-detail/project-detail.component';
+import { SiteListComponent } from './site-list/site-list.component';
+import { CasingService } from './casing.service';
+import { SiteDetailComponent } from './site-detail/site-detail.component';
 
 @NgModule({
   imports: [
@@ -11,8 +18,18 @@ import {CasingRoutingModule} from './casing-routing.module';
   ],
   declarations: [
     CasingComponent,
-    CasingDashboardComponent
-  ]
+    CasingDashboardComponent,
+    CasingProjectsComponent,
+    SelectProjectComponent,
+    ProjectSummaryComponent,
+    ProjectDetailComponent,
+    SiteListComponent,
+    SiteDetailComponent
+  ],
+  entryComponents: [
+    SelectProjectComponent
+  ],
+  providers: [CasingService]
 })
 export class CasingModule {
 }

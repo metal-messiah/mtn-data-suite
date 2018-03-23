@@ -1,9 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HomeComponent } from './home.component';
-import { SharedModule } from '../shared/shared.module';
 import { CustomMaterialModule } from '../shared/material/custom-material.module';
 import { AuthService } from '../core/services/auth.service';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
@@ -13,6 +13,7 @@ describe('HomeComponent', () => {
     TestBed.configureTestingModule({
       imports: [CustomMaterialModule],
       declarations: [HomeComponent],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
         { provide: AuthService, useValue: { isAuthenticated: () => false }}
       ]

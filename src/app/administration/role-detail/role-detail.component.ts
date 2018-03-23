@@ -19,7 +19,7 @@ import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
 import {DetailFormService} from '../../core/services/detail-form.service';
 
 @Component({
-  selector: 'app-role-detail',
+  selector: 'mds-role-detail',
   templateUrl: './role-detail.component.html',
   styleUrls: ['./role-detail.component.css']
 })

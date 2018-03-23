@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {MapService} from '../../core/services/map.service';
 
 @Component({
-  selector: 'app-map',
+  selector: 'mds-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css']
 })

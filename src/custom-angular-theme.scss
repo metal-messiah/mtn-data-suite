@@ -9,16 +9,16 @@
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue.
-$mtn-app-primary: mat-palette($mat-blue-grey);
-$mtn-app-accent:  mat-palette($mat-orange, A200, A100, A400);
+$mds-primary: mat-palette($mat-blue-grey);
+$mds-accent:  mat-palette($mat-orange, A200, A100, A400);
 
 // The warn palette is optional (defaults to red).
-$mtn-app-warn:    mat-palette($mat-deep-orange);
+$mds-warn:    mat-palette($mat-deep-orange);
 
 // Create the theme object (a Sass map containing all of the palettes).
-$mtn-app-theme: mat-light-theme($mtn-app-primary, $mtn-app-accent, $mtn-app-warn);
+$mds-theme: mat-light-theme($mds-primary, $mds-accent, $mds-warn);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
-@include angular-material-theme($mtn-app-theme);
+@include angular-material-theme($mds-theme);
