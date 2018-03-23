@@ -46,6 +46,8 @@ export class MapService {
       zoom: 8
     });
 
+    this.geocoder = new google.maps.Geocoder();
+
     // Init Markers
     this.markers = [];
     this.mappables = [];

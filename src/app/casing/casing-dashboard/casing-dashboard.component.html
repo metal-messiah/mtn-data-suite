@@ -61,9 +61,9 @@
             </div>
           </mat-card-content>
           <mat-card-actions>
-            <button mat-button><i class="fa fa-thumb-tack"></i> Pin</button>
-            <button mat-button><i class="fa fa-clock-o"></i> History</button>
-            <button mat-button><i class="fa fa-pencil"></i> Details</button>
+            <button mat-button [matMenuTriggerFor]="markerMoreMenu"><i class="fa fa-ellipsis-v"></i>&nbsp;More</button>
+            <button mat-button (click)="pinLocation()"><i class="fa fa-thumb-tack"></i>&nbsp;Pin</button>
+            <button mat-button (click)="goToLocationOverview()"><i class="fa fa-pencil"></i>&nbsp;Edit</button>
           </mat-card-actions>
         </mat-card>
       </div>
@@ -126,3 +126,9 @@
   <button mat-menu-item (click)="mapService.setMarkerType(markerType.LABEL)">{{markerType.LABEL.valueOf()}}</button>
   <button mat-menu-item (click)="mapService.setMarkerType(markerType.LOGO)">{{markerType.LOGO.valueOf()}}</button>
 </mat-menu>
+
+<mat-menu #markerMoreMenu="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item><i class="fa fa-arrows"></i>&nbsp;Move</button>
+  <button mat-menu-item><i class="fa fa-clock-o"></i>&nbsp;History</button>
+</mat-menu>
+

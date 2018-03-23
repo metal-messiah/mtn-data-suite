@@ -5,7 +5,7 @@ import { SiteService } from '../../core/services/site.service';
 import { Site } from '../../models/site';
 import { debounceTime } from 'rxjs/operators';
 import { CasingDashboardService } from './casing-dashboard.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MarkerType } from '../../core/enums/MarkerType';
 
 export enum ToolbarType {
@@ -18,7 +18,7 @@ export enum ToolbarType {
   styleUrls: ['./casing-dashboard.component.css'],
   providers: [MapService]
 })
-export class CasingDashboardComponent implements OnInit {
+export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   searchQuery: string;
   sites: Site[];
@@ -37,11 +37,16 @@ export class CasingDashboardComponent implements OnInit {
               private siteService: SiteService,
               private snackBar: MatSnackBar,
               private ngZone: NgZone,
-              private router: Router) {
+              private router: Router,
+              private route: ActivatedRoute) {
   }
 
   ngOnInit() {
     this.searchQuery = 'search query';
+  }
+
+  ngOnDestroy() {
+    console.log('Destroying CasingDashboardComponent');
   }
 
   onMapReady(event) {
@@ -114,7 +119,7 @@ export class CasingDashboardComponent implements OnInit {
   editNewLocation(): void {
     this.mapService.getNewMarkerAddress().subscribe((address: Site) => {
       this.casingDashboardService.newSite = new Site(address);
-      this.router.navigate(['site-detail']);
+      this.router.navigate(['site-detail'], {relativeTo: this.route});
     }, (err) => console.error(err));
   }
 
@@ -166,9 +171,18 @@ export class CasingDashboardComponent implements OnInit {
 
   deactivateFollowMe(): void {
     this.following = false;
+    this.sideNavIsOpen = false;
     if (navigator.geolocation) {
       navigator.geolocation.clearWatch(this.navigatorWatch);
     }
     this.mapService.stopFollowingMe();
+  }
+
+  pinLocation(): void {
+
+  }
+
+  goToLocationOverview(): void {
+    this.router.navigate(['location-overview', this.selectedSite.getId()], {relativeTo: this.route});
   }
 }
