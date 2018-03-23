@@ -8,7 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class LogoMenuComponent implements OnInit {
 
-  @Input('showHome') showHome = true;
+  @Input() showHome = true;
 
   constructor(public auth: AuthService) { }
 

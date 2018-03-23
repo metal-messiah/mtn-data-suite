@@ -13,14 +13,14 @@ export class MapComponent implements OnInit {
   @Input() latitude = 0;
   @Input() longitude = 0;
   @Input() zoom = 8;
-  @Output() onReady = new EventEmitter();
+  @Output() ready = new EventEmitter();
 
   constructor(private mapService: MapService) {
   }
 
   ngOnInit() {
     this.mapService.initialize(document.getElementById('map'));
-    this.onReady.emit('Hooray!');
+    this.ready.emit('Hooray!');
   }
 
 }

@@ -4,8 +4,8 @@ import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 
 @Component({
   selector: 'mds-root',
-  templateUrl: './mds.component.html',
-  styleUrls: ['./mds.component.css']
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
 

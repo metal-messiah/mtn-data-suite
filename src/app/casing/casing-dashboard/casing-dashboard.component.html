@@ -33,7 +33,7 @@
   </mat-sidenav>
   <mat-sidenav-content>
     <form class="box">
-      <mds-map #casingMap class="row content" (onReady)="onMapReady($event)"></mds-map>
+      <mds-map #casingMap class="row content" (ready)="onMapReady($event)"></mds-map>
       <div id="infoCard" *ngIf="showCard">
         <mat-card>
           <mat-card-header>
