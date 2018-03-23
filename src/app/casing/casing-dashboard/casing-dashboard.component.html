@@ -3,12 +3,12 @@
     <mat-nav-list role="list">
       <h3 mat-subheader>Project</h3>
       <mat-list-item routerLink="/casing/projects">Manage Projects</mat-list-item>
-      <mat-list-item *ngIf="casingService.selectedProject == null"
-                     (click)="casingService.openProjectSelectionDialog()">Select Project
+      <mat-list-item *ngIf="casingDashboardService.selectedProject == null"
+                     (click)="casingDashboardService.openProjectSelectionDialog()">Select Project
       </mat-list-item>
-      <mat-list-item *ngIf="casingService.selectedProject != null"
+      <mat-list-item *ngIf="casingDashboardService.selectedProject != null"
                      [matMenuTriggerFor]="selectedProjectMenu">
-        {{casingService.selectedProject.projectName}}&nbsp;<i class="fa fa-chevron-right"></i>
+        {{casingDashboardService.selectedProject.projectName}}&nbsp;<i class="fa fa-chevron-right"></i>
       </mat-list-item>
       <mat-divider></mat-divider>
       <h3 mat-subheader>Sites</h3>
@@ -110,9 +110,9 @@
 </mat-sidenav-container>
 
 <mat-menu #selectedProjectMenu="matMenu" [overlapTrigger]="false" xPosition="after">
-  <button mat-menu-item (click)="casingService.openProjectSelectionDialog()">Change Selected Project</button>
-  <button mat-menu-item (click)="casingService.navigateToProjectSummary()">View Summary</button>
-  <button mat-menu-item (click)="casingService.navigateToProjectDetail()">Edit</button>
+  <button mat-menu-item (click)="casingDashboardService.openProjectSelectionDialog()">Change Selected Project</button>
+  <button mat-menu-item (click)="casingDashboardService.navigateToProjectSummary()">View Summary</button>
+  <button mat-menu-item (click)="casingDashboardService.navigateToProjectDetail()">Edit</button>
   <button mat-menu-item *ngIf="!showingBoundaries"
           (click)="toggleSelectedProjectBoundaries(true)">Show Boundaries
   </button>

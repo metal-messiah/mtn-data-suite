@@ -53,26 +53,17 @@ export class MapService {
     this.selectedMappables = [];
 
     // Listen to events and pass them on via subjects
-    this.map.addListener('bounds_changed', () => this.boundsChanged$.next(this.map.getBounds().toJSON()));
+    this.map.addListener('bounds_changed', () => {
+      if (this.map != null) {
+        this.boundsChanged$.next(this.map.getBounds().toJSON());
+      } else {
+        console.warn('Map not yet initialized!');
+      }
+    });
     this.map.addListener('click', (event) => this.mapClick$.next(event.latLng.toJSON()));
 
     // Setup Drawing Manager
     this.drawingManager = new google.maps.drawing.DrawingManager();
-  }
-
-  /*
-  Accessors
-   */
-  getBoundsChanged(): Subject<any> {
-    return this.boundsChanged$;
-  }
-
-  getMarkerClick(): Subject<number> {
-    return this.markerClick$;
-  }
-
-  getMapClick(): Subject<object> {
-    return this.mapClick$;
   }
 
   /*
@@ -337,5 +328,21 @@ export class MapService {
   stopFollowingMe() {
     this.followMeMarker.setMap(null);
     this.followMeMarker = null;
+  }
+
+  getPerspective() {
+    if (this.map != null) {
+      const center = this.map.getCenter();
+      return {
+        zoom: this.map.getZoom(),
+        latitude: center.lat(),
+        longitude: center.lng()
+      };
+    }
+    return {
+      zoom: 10,
+      latitude: 39.8283,
+      longitude: -98.5795
+    };
   }
 }

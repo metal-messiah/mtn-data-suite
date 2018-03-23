@@ -1,10 +1,10 @@
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
 import { MapService } from '../../core/services/map.service';
 import { SiteService } from '../../core/services/site.service';
 import { Site } from '../../models/site';
 import { debounceTime } from 'rxjs/operators';
-import { CasingService } from '../casing.service';
+import { CasingDashboardService } from './casing-dashboard.service';
 import { Router } from '@angular/router';
 import { MarkerType } from '../../core/enums/MarkerType';
 
@@ -33,7 +33,7 @@ export class CasingDashboardComponent implements OnInit {
   navigatorWatch: number;
 
   constructor(public mapService: MapService,
-              public casingService: CasingService,
+              public casingDashboardService: CasingDashboardService,
               private siteService: SiteService,
               private snackBar: MatSnackBar,
               private ngZone: NgZone,
@@ -46,24 +46,26 @@ export class CasingDashboardComponent implements OnInit {
 
   onMapReady(event) {
     console.log(`Map is ready: ${event}`);
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        this.mapService.setCenter(position.coords.latitude, position.coords.longitude);
-        this.mapService.setZoom(15);
-      },
-      error => {
+    this.casingDashboardService.getSavedPerspective().subscribe(perspective => {
+      if (perspective != null) {
+        this.mapService.setCenter(perspective.latitude, perspective.longitude);
+        this.mapService.setZoom(perspective.zoom);
+      } else {
         this.mapService.setCenter(40.356714, -111.770421);
         this.mapService.setZoom(10);
-        console.log(error);
-      },
-      {});
+      }
+    });
 
-    this.mapService.getBoundsChanged()
-      .pipe(debounceTime(500))
-      .subscribe(bounds => this.getSites(bounds));
+    this.mapService.boundsChanged$
+      .pipe(debounceTime(750))
+      .subscribe(bounds => {
+        const perspective = this.mapService.getPerspective();
+        this.casingDashboardService.savePerspective(perspective).subscribe();
+        this.getSites(bounds);
+      });
 
-    this.mapService.getMarkerClick().subscribe((id: number) => this.selectSite(id));
-    this.mapService.getMapClick().subscribe((coords: object) => {
+    this.mapService.markerClick$.subscribe((id: number) => this.selectSite(id));
+    this.mapService.mapClick$.subscribe((coords: object) => {
       this.selectedSite = null;
       this.ngZone.run(() => this.showCard = false);
     });
@@ -112,7 +114,7 @@ export class CasingDashboardComponent implements OnInit {
 
   editNewLocation(): void {
     this.mapService.getNewMarkerAddress().subscribe((address: Site) => {
-      this.casingService.newSite = new Site(address);
+      this.casingDashboardService.newSite = new Site(address);
       this.router.navigate(['site-detail']);
     }, (err) => console.error(err));
   }

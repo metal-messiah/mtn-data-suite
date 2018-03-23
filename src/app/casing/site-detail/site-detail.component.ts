@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CasingService } from '../casing.service';
+import { CasingDashboardService } from '../casing-dashboard/casing-dashboard.service';
 import { DetailFormComponent } from '../../interfaces/detail-form-component';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
 import { Site } from '../../models/site';
@@ -24,7 +24,7 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate, Deta
   isSaving = false;
 
   constructor(private siteService: SiteService,
-              private casingService: CasingService,
+              private casingDashboardService: CasingDashboardService,
               private route: ActivatedRoute,
               private router: Router,
               private fb: FormBuilder,
@@ -33,8 +33,8 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate, Deta
   ngOnInit() {
 
     // TODO if no route param - treat as new site, attempt to retrieve from casing service
-    if (this.casingService.newSite != null) {
-      this.site = this.casingService.newSite;
+    if (this.casingDashboardService.newSite != null) {
+      this.site = this.casingDashboardService.newSite;
     }
   }
 
@@ -54,8 +54,8 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate, Deta
   }
 
   getNewObj(): Site {
-    if (this.casingService.newSite) {
-      return this.casingService.newSite;
+    if (this.casingDashboardService.newSite) {
+      return this.casingDashboardService.newSite;
     }
     return new Site();
   }

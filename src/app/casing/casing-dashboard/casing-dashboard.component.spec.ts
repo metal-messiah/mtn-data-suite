@@ -6,7 +6,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { MapService } from '../../core/services/map.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { IconService } from '../../core/services/icon.service';
-import { CasingService } from '../casing.service';
+import { CasingDashboardService } from './casing-dashboard.service';
 import { RouterTestingModule } from '@angular/router/testing';
 
 describe('CasingDashboardComponent', () => {
@@ -20,7 +20,7 @@ describe('CasingDashboardComponent', () => {
       providers: [
         {provide: SiteService, useValue: {}},
         {provide: MapService, useValue: {}},
-        {provide: CasingService, useValue: {}},
+        {provide: CasingDashboardService, useValue: {}},
         IconService
       ]
     })
