@@ -8,19 +8,9 @@ import { MarkerPath } from '../enums/MarkerPath';
 import { Color } from '../enums/Color';
 import { IconService } from './icon.service';
 
-export enum Mode {
-  DEFAULT, MULTI_SELECT
-}
-
-export enum ClickListener {
-  DEFAULT_CLICK_LISTENER = 'd',
-  MULTI_SELECT_CLICK_LISTENER = 'm'
-}
-
 @Injectable()
 export class MapService {
 
-  mode: Mode = Mode.DEFAULT;
   map: google.maps.Map;
   geocoder: google.maps.Geocoder;
   latitude = 0;
@@ -29,11 +19,12 @@ export class MapService {
   markerType = MarkerType.PIN;
   mappables: Mappable[];
   boundsChanged$ = new Subject<any>();
-  markerClick$ = new Subject<number>();
+  markerClick$ = new Subject<Mappable>();
   mapClick$ = new Subject<object>();
   newMarker: google.maps.Marker;
   drawingManager: google.maps.drawing.DrawingManager;
   selectedMappables: Mappable[];
+  draggableMappable: Mappable;
   followMeMarker: google.maps.Marker;
 
   constructor(private iconService: IconService) {
@@ -94,35 +85,38 @@ export class MapService {
         map: this.map
       });
       marker.set('mappable', mappable);
-      marker.set(ClickListener.DEFAULT_CLICK_LISTENER, () => this.selectMarker(marker));
-      marker.set(ClickListener.MULTI_SELECT_CLICK_LISTENER, () => {
-        this.selectedMappables.push(marker.get('mappable'));
-        this.resetStyles();
-      });
       this.setMarkerStyle(marker, label);
-      if (this.mode === Mode.DEFAULT) {
-        marker.addListener('click', marker.get(ClickListener.DEFAULT_CLICK_LISTENER));
-      } else if (this.mode === Mode.MULTI_SELECT) {
-        marker.addListener('click', marker.get(ClickListener.MULTI_SELECT_CLICK_LISTENER));
-      }
+      marker.addListener('click', (event) => this.markerClick$.next(mappable));
       this.markers.push(marker);
     });
   }
 
-  selectMarker(marker: google.maps.Marker) {
-    const mappable = marker.get('mappable');
+  selectSingleMappable(mappable: Mappable) {
     this.selectedMappables = [mappable];
-    this.markerClick$.next(mappable.getId());
-    this.resetStyles();
+    this.setStyles();
   }
 
-  markerIsSelected(marker: google.maps.Marker) {
-    const mappable: Mappable = marker.get('mappable');
+  addMappableToSelection(mappable: Mappable) {
+    this.selectedMappables.push(mappable);
+    this.setStyles();
+  }
+
+  mappableIsSelected(mappable: Mappable) {
     return this.selectedMappables.some(m => m.getId() === mappable.getId());
   }
 
   setMarkerStyle(marker: google.maps.Marker, label: string) {
-    const fillColor = this.markerIsSelected(marker) ? Color.BLUE : Color.RED;
+    const mappable = marker.get('mappable');
+
+    marker.setDraggable(false);
+
+    let fillColor = Color.RED;
+    if (this.draggableMappable != null && mappable.getId() === this.draggableMappable.getId()) {
+      fillColor = Color.PURPLE;
+      marker.setDraggable(true);
+    } else if (this.mappableIsSelected(mappable)) {
+      fillColor = Color.BLUE;
+    }
 
     if (this.markerType === MarkerType.PIN) {
       marker.setIcon(this.iconService.getIcon(fillColor, Color.WHITE, MarkerPath.FILLED));
@@ -141,7 +135,7 @@ export class MapService {
     }
   }
 
-  resetStyles() {
+  setStyles() {
     this.markers.forEach(marker => {
       this.setMarkerStyle(marker, marker.getLabel().text);
     });
@@ -235,8 +229,6 @@ export class MapService {
   }
 
   activateMultiSelect() {
-    this.mode = Mode.MULTI_SELECT;
-
     // Create drawing manager
     const multiSelectDrawingOptions = {
       drawingControlOptions: {
@@ -252,11 +244,7 @@ export class MapService {
 
     // Reset selection and listeners
     this.selectedMappables = [];
-    this.markers.forEach(marker => {
-      google.maps.event.clearListeners(marker, 'click');
-      marker.addListener('click', marker.get(ClickListener.MULTI_SELECT_CLICK_LISTENER));
-    });
-    this.resetStyles();
+    this.setStyles();
 
     // Listen for completion of drawings
     google.maps.event.addListener(this.drawingManager, 'overlaycomplete', (event) => {
@@ -284,19 +272,14 @@ export class MapService {
         console.error('Drawing Geometry type not detected!');
       }
       event.overlay.setMap(null);
-      this.resetStyles();
+      this.setStyles();
     });
   }
 
   deactivateMultiSelect() {
-    this.mode = Mode.DEFAULT;
     this.drawingManager.setMap(null);
     this.selectedMappables = [];
-    this.markers.forEach(marker => {
-      google.maps.event.clearListeners(marker, 'click');
-      marker.addListener('click', marker.get(ClickListener.DEFAULT_CLICK_LISTENER));
-    });
-    this.resetStyles();
+    this.setStyles();
   }
 
   findMe(latitude: number, longitude: number): void {
@@ -328,8 +311,10 @@ export class MapService {
   }
 
   stopFollowingMe() {
-    this.followMeMarker.setMap(null);
-    this.followMeMarker = null;
+    if (this.followMeMarker != null) {
+      this.followMeMarker.setMap(null);
+      this.followMeMarker = null;
+    }
   }
 
   getPerspective() {
@@ -346,5 +331,28 @@ export class MapService {
       latitude: 39.8283,
       longitude: -98.5795
     };
+  }
+
+  private getMappableMarker(mappable: Mappable) {
+    return this.markers.find(marker => marker.get('mappable').getId() === mappable.getId());
+  }
+
+  setMappableAsDraggable(mappable: Mappable) {
+    this.draggableMappable = mappable;
+    this.setStyles();
+  }
+
+  cancelMappableMove() {
+    this.draggableMappable = null;
+    this.drawMappables(this.mappables);
+  }
+
+  getMovedMappableCoordinates(): object {
+    const movedMarker = this.getMappableMarker(this.draggableMappable);
+    return movedMarker.getPosition().toJSON();
+  }
+
+  getBounds() {
+    return this.map.getBounds().toJSON();
   }
 }

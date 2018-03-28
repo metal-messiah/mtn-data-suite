@@ -64,7 +64,8 @@ export class AuthService {
         status: err['status'],
         showRetry: false,
         showLogin: true
-      }
+      },
+      width: '250px'
     });
     dialogRef.afterClosed().subscribe(response => {
       if (response === 'login') {

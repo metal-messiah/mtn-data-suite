@@ -1,11 +1,7 @@
-<div id="wrapper">
-  <div class="title">
-    <h2>Select A Project</h2>
-    <button mat-icon-button (focus)="false" (click)="closeDialog()" tabindex="-1">
-      <i class="fa fa-times-circle fa-2x"></i>
-    </button>
-  </div>
-  <mat-divider></mat-divider>
+<div mat-dialog-title class="title">
+  Select A Project
+</div>
+<div mat-dialog-content>
   <div class="box">
     <div class="row header">
       <div class="search-section">
@@ -47,12 +43,13 @@
         </mat-list-item>
       </mat-nav-list>
     </div>
-    <mat-toolbar class="row footer flex-space-between" color="primary">
-      <div>
-        <button mat-raised-button color="accent" (click)="clearSelectedProject()">
-          Clear Selected Project
-        </button>
-      </div>
-    </mat-toolbar>
   </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button color="accent" (click)="closeDialog()">
+    Cancel
+  </button>
+  <button mat-raised-button color="primary" (click)="clearSelectedProject()">
+    Select None
+  </button>
 </div>

@@ -21,11 +21,11 @@
       <mat-divider></mat-divider>
       <h3 mat-subheader>Geolocation</h3>
       <mat-list-item role="listitem" (click)="findMe()">Find Me</mat-list-item>
-      <mat-list-item *ngIf="following" role="listitem" (click)="deactivateFollowMe()">
+      <mat-list-item *ngIf="mode === modeType.FOLLOWING" role="listitem" (click)="deactivateFollowMe()">
         <h4 mat-line>Follow Me</h4>
         <p mat-line>Deactivate</p>
       </mat-list-item>
-      <mat-list-item *ngIf="!following" role="listitem" (click)="activateFollowMe()">
+      <mat-list-item *ngIf="mode !== modeType.FOLLOWING" role="listitem" (click)="activateFollowMe()">
         <h4 mat-line>Follow Me</h4>
         <p mat-line>Activate</p>
       </mat-list-item>
@@ -60,14 +60,38 @@
               </div>
             </div>
           </mat-card-content>
-          <mat-card-actions>
-            <button mat-button [matMenuTriggerFor]="markerMoreMenu"><i class="fa fa-ellipsis-v"></i>&nbsp;More</button>
-            <button mat-button (click)="pinLocation()"><i class="fa fa-thumb-tack"></i>&nbsp;Pin</button>
-            <button mat-button (click)="goToLocationOverview()"><i class="fa fa-pencil"></i>&nbsp;Edit</button>
+          <mat-card-actions disabled="true">
+            <button mat-button [disabled]="mode === modeType.MOVING_SITE" [matMenuTriggerFor]="markerMoreMenu">
+              <i class="fa fa-ellipsis-v"></i>&nbsp;More
+            </button>
+            <button mat-button [disabled]="mode === modeType.MOVING_SITE" (click)="pinLocation()">
+              <i class="fa fa-thumb-tack"></i>&nbsp;Pin
+            </button>
+            <button mat-button [disabled]="mode === modeType.MOVING_SITE" (click)="goToLocationOverview()">
+              <i class="fa fa-pencil"></i>&nbsp;Edit
+            </button>
           </mat-card-actions>
         </mat-card>
       </div>
-      <mat-toolbar *ngIf="activeToolbar === toolbarType.MULTI_SELECT" class="row footer flex-space-between" color="primary">
+      <mat-toolbar *ngIf="mode === modeType.FOLLOWING" class="row footer flex-space-between" color="primary">
+        <div></div>
+        <div>
+          <button mat-raised-button color="accent" (click)="deactivateFollowMe()">Stop Follow Me</button>
+        </div>
+        <div></div>
+      </mat-toolbar>
+      <mat-toolbar *ngIf="mode === modeType.MOVING_SITE" class="row footer flex-space-between" color="primary">
+        <div>
+          <button mat-raised-button color="accent" (click)="cancelSiteMove()">Cancel</button>
+        </div>
+        <div>
+          Drag Marker
+        </div>
+        <div>
+          <button mat-raised-button color="accent" (click)="saveSiteMove()">Save</button>
+        </div>
+      </mat-toolbar>
+      <mat-toolbar *ngIf="mode === modeType.MULTI_SELECT" class="row footer flex-space-between" color="primary">
         <div>
           <button mat-raised-button color="warn" (click)="cancelMultiSelect()">Cancel</button>
         </div>
@@ -78,7 +102,7 @@
           <button mat-raised-button color="accent" (click)="editNewLocation()">Edit Details</button>
         </div>
       </mat-toolbar>
-      <mat-toolbar *ngIf="activeToolbar === toolbarType.NEW_SITE" class="row footer flex-space-between" color="primary">
+      <mat-toolbar *ngIf="mode === modeType.CREATING_SITE" class="row footer flex-space-between" color="primary">
         <div>
           <button mat-raised-button color="warn" (click)="cancelLocationCreation()">Cancel</button>
         </div>
@@ -89,7 +113,7 @@
           <button mat-raised-button color="accent" (click)="editNewLocation()">Edit Details</button>
         </div>
       </mat-toolbar>
-      <mat-toolbar *ngIf="activeToolbar === toolbarType.DEFAULT" class="row footer flex-space-between" color="primary">
+      <mat-toolbar *ngIf="mode === modeType.DEFAULT" class="row footer flex-space-between" color="primary">
         <div>
           <button mat-icon-button (click)="sideNavIsOpen = !sideNavIsOpen">
             <i class="fa fa-ellipsis-v fa-2x"></i>
@@ -128,7 +152,7 @@
 </mat-menu>
 
 <mat-menu #markerMoreMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item><i class="fa fa-arrows"></i>&nbsp;Move</button>
+  <button mat-menu-item (click)="moveSite()"><i class="fa fa-arrows"></i>&nbsp;Move</button>
   <button mat-menu-item><i class="fa fa-clock-o"></i>&nbsp;History</button>
 </mat-menu>
 

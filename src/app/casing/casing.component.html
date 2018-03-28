@@ -5,7 +5,7 @@
   </div>
   <div class="project-button-container">
     <button class="project-button" mat-raised-button
-            *ngIf="casingDashboardService.selectedProject === null" color="warn"
+            *ngIf="casingDashboardService.selectedProject == null" color="warn"
             (click)="casingDashboardService.openProjectSelectionDialog()">
       Select Project
     </button>

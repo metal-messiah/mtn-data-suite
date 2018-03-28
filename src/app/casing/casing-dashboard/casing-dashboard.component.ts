@@ -12,6 +12,10 @@ export enum ToolbarType {
   MULTI_SELECT, NEW_SITE, DEFAULT
 }
 
+export enum CasingDashboardMode {
+  DEFAULT, FOLLOWING, MOVING_SITE, CREATING_SITE, MULTI_SELECT
+}
+
 @Component({
   selector: 'mds-casing-dashboard',
   templateUrl: './casing-dashboard.component.html',
@@ -27,10 +31,9 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   showingBoundaries = false;
   sideNavIsOpen = false;
   markerType = MarkerType;
-  toolbarType = ToolbarType;
-  activeToolbar = ToolbarType.DEFAULT;
-  following = false;
   navigatorWatch: number;
+  mode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
+  modeType = CasingDashboardMode;
 
   constructor(public mapService: MapService,
               public casingDashboardService: CasingDashboardService,
@@ -66,21 +69,25 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       .subscribe(bounds => {
         const perspective = this.mapService.getPerspective();
         this.casingDashboardService.savePerspective(perspective).subscribe();
-        this.getSites(bounds);
+        if (this.mode !== CasingDashboardMode.MOVING_SITE) {
+          this.getSites(bounds);
+        }
       });
 
-    this.mapService.markerClick$.subscribe((id: number) => this.selectSite(id));
+    this.mapService.markerClick$.subscribe((site: Site) => {
+      if (this.mode === CasingDashboardMode.MULTI_SELECT) {
+        this.mapService.addMappableToSelection(site);
+      } else if (this.mode === CasingDashboardMode.DEFAULT) { // Don't select while moving, creating or following
+        this.selectedSite = site;
+        this.mapService.selectSingleMappable(site);
+        this.ngZone.run(() => this.showCard = true);
+      }
+    });
     this.mapService.mapClick$.subscribe((coords: object) => {
       this.selectedSite = null;
       this.ngZone.run(() => this.showCard = false);
     });
 
-  }
-
-  selectSite(id: number) {
-    this.selectedSite = this.sites.find(site => site.id === id);
-    this.ngZone.run(() => this.showCard = true);
-    console.log(this.selectedSite);
   }
 
   getSites(bounds): void {
@@ -107,13 +114,13 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   createNewLocation(): void {
     this.sideNavIsOpen = false;
-    this.activeToolbar = ToolbarType.NEW_SITE;
+    this.mode = CasingDashboardMode.CREATING_SITE;
     this.mapService.createNewMarker();
   }
 
   cancelLocationCreation(): void {
     this.mapService.deleteNewMarker();
-    this.activeToolbar = ToolbarType.DEFAULT;
+    this.mode = CasingDashboardMode.DEFAULT;
   }
 
   editNewLocation(): void {
@@ -126,18 +133,18 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   multiSelect(): void {
     this.sideNavIsOpen = false;
     // this.mapService.setMarkerType(MarkerType.PIN);
-    this.activeToolbar = ToolbarType.MULTI_SELECT;
+    this.mode = CasingDashboardMode.MULTI_SELECT;
     this.mapService.activateMultiSelect();
   }
 
   cancelMultiSelect(): void {
-    this.activeToolbar = ToolbarType.DEFAULT;
+    this.mode = CasingDashboardMode.DEFAULT;
     this.mapService.deactivateMultiSelect();
   }
 
   findMe(): void {
     this.sideNavIsOpen = false;
-    if (!this.following) {
+    if (this.mode !== CasingDashboardMode.FOLLOWING) {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           this.mapService.findMe(position.coords.latitude, position.coords.longitude);
@@ -153,7 +160,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   activateFollowMe(): void {
-    this.following = true;
+    this.mode = CasingDashboardMode.FOLLOWING;
     this.sideNavIsOpen = false;
     if (navigator.geolocation) {
       const options = {
@@ -170,7 +177,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   deactivateFollowMe(): void {
-    this.following = false;
+    this.mode = CasingDashboardMode.DEFAULT;
     this.sideNavIsOpen = false;
     if (navigator.geolocation) {
       navigator.geolocation.clearWatch(this.navigatorWatch);
@@ -179,10 +186,36 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   pinLocation(): void {
-
+    // TODO save the location data to the device
   }
 
   goToLocationOverview(): void {
     this.router.navigate(['location-overview', this.selectedSite.getId()], {relativeTo: this.route});
+  }
+
+  moveSite() {
+    this.mode = CasingDashboardMode.MOVING_SITE;
+    this.mapService.setMappableAsDraggable(this.selectedSite);
+  }
+
+  cancelSiteMove() {
+    this.mode = CasingDashboardMode.DEFAULT;
+    this.mapService.cancelMappableMove();
+  }
+
+  saveSiteMove() {
+    const coordinates = this.mapService.getMovedMappableCoordinates();
+    this.siteService.getById(this.selectedSite.getId()).subscribe(site => {
+      // Web service requires lng first
+      site.location.coordinates = [coordinates['lng'], coordinates['lat']];
+      this.siteService.save(site).subscribe(savedSite => {
+        this.mode = CasingDashboardMode.DEFAULT;
+        this.mapService.setMappableAsDraggable(null);
+        this.getSites(this.mapService.getBounds());
+      }, error => console.log(error));
+    }, err => {
+      console.error('Moved Site not found in DB');
+    });
+
   }
 }
