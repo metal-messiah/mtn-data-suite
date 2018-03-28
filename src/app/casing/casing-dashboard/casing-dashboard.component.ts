@@ -1,15 +1,20 @@
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
+import { debounceTime } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
+
 import { MapService } from '../../core/services/map.service';
 import { SiteService } from '../../core/services/site.service';
 import { Site } from '../../models/site';
-import { debounceTime } from 'rxjs/operators';
 import { CasingDashboardService } from './casing-dashboard.service';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MarkerType } from '../../core/enums/MarkerType';
 
-export enum ToolbarType {
-  MULTI_SELECT, NEW_SITE, DEFAULT
+export enum MultiSelectToolTypes {
+  CLICK, CIRCLE, RECTANGLE, POLYGON
+}
+
+export enum MultiSelectModes {
+  SELECT, DESELECT
 }
 
 export enum CasingDashboardMode {
@@ -34,6 +39,10 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   navigatorWatch: number;
   mode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
   modeType = CasingDashboardMode;
+  multiSelectToolTypes = MultiSelectToolTypes;
+  multiSelectTool = MultiSelectToolTypes.CLICK;
+  multiSelectModes = MultiSelectModes;
+  multiSelectMode = MultiSelectModes.SELECT;
 
   constructor(public mapService: MapService,
               public casingDashboardService: CasingDashboardService,
@@ -76,10 +85,15 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
     this.mapService.markerClick$.subscribe((site: Site) => {
       if (this.mode === CasingDashboardMode.MULTI_SELECT) {
-        this.mapService.addMappableToSelection(site);
+        if (this.multiSelectMode === MultiSelectModes.SELECT) {
+          this.mapService.selectMappable(site);
+        } else {
+          this.mapService.deselectMappable(site);
+        }
       } else if (this.mode === CasingDashboardMode.DEFAULT) { // Don't select while moving, creating or following
         this.selectedSite = site;
-        this.mapService.selectSingleMappable(site);
+        this.mapService.deselectAllMappables();
+        this.mapService.selectMappable(site);
         this.ngZone.run(() => this.showCard = true);
       }
     });
@@ -134,12 +148,21 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.sideNavIsOpen = false;
     // this.mapService.setMarkerType(MarkerType.PIN);
     this.mode = CasingDashboardMode.MULTI_SELECT;
-    this.mapService.activateMultiSelect();
+    this.mapService.activateDrawingTools().subscribe(event => {
+      const sites = this.mapService.getMappablesInShape(event);
+      if (this.multiSelectMode === MultiSelectModes.SELECT) {
+        this.mapService.selectMappables(sites);
+      } else if (this.multiSelectMode === MultiSelectModes.DESELECT) {
+        this.mapService.deselectMappables(sites);
+      }
+      this.mapService.clearDrawings();
+    });
   }
 
   cancelMultiSelect(): void {
     this.mode = CasingDashboardMode.DEFAULT;
-    this.mapService.deactivateMultiSelect();
+    this.mapService.deactivateDrawingTool();
+    this.mapService.deselectAllMappables();
   }
 
   findMe(): void {
@@ -216,6 +239,22 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     }, err => {
       console.error('Moved Site not found in DB');
     });
+  }
 
+  setMultiSelectTool(tool: MultiSelectToolTypes) {
+    this.multiSelectTool = tool;
+    if (tool === MultiSelectToolTypes.CLICK) {
+      this.mapService.setDrawingModeToClick();
+    } else if (tool === MultiSelectToolTypes.CIRCLE) {
+      this.mapService.setDrawingModeToCircle();
+    } else if (tool === MultiSelectToolTypes.RECTANGLE) {
+      this.mapService.setDrawingModeToRectangle();
+    } else if (tool === MultiSelectToolTypes.POLYGON) {
+      this.mapService.setDrawingModeToPolygon();
+    }
+  }
+
+  setMultiSelectMode(mode: MultiSelectModes) {
+    this.multiSelectMode = mode;
   }
 }

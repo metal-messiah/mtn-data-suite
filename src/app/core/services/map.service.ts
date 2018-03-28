@@ -7,6 +7,7 @@ import { MarkerType } from '../enums/MarkerType';
 import { MarkerPath } from '../enums/MarkerPath';
 import { Color } from '../enums/Color';
 import { IconService } from './icon.service';
+import OverlayType = google.maps.drawing.OverlayType;
 
 @Injectable()
 export class MapService {
@@ -21,11 +22,13 @@ export class MapService {
   boundsChanged$ = new Subject<any>();
   markerClick$ = new Subject<Mappable>();
   mapClick$ = new Subject<object>();
+  drawingComplete$ = new Subject<any>();
   newMarker: google.maps.Marker;
   drawingManager: google.maps.drawing.DrawingManager;
   selectedMappables: Mappable[];
   draggableMappable: Mappable;
   followMeMarker: google.maps.Marker;
+  drawingEvents: any[];
 
   constructor(private iconService: IconService) {
   }
@@ -91,12 +94,34 @@ export class MapService {
     });
   }
 
-  selectSingleMappable(mappable: Mappable) {
-    this.selectedMappables = [mappable];
+  deselectAllMappables() {
+    this.selectedMappables = [];
     this.setStyles();
   }
 
-  addMappableToSelection(mappable: Mappable) {
+  deselectMappables(mappables: Mappable[]) {
+    const newSelection = [];
+    this.selectedMappables.forEach( mappable => {
+      if (!mappables.some(m => m.getId() === mappable.getId())) {
+        newSelection.push(mappable);
+      }
+    });
+    this.selectedMappables = newSelection;
+    this.setStyles();
+  }
+
+  selectMappables(mappables: Mappable[]) {
+    this.selectedMappables = this.selectedMappables.concat(mappables);
+    this.setStyles();
+  }
+
+  deselectMappable(mappable: Mappable) {
+    const index = this.selectedMappables.findIndex(m => m.getId() === mappable.getId());
+    this.selectedMappables.splice(index, 1);
+    this.setStyles();
+  }
+
+  selectMappable(mappable: Mappable) {
     this.selectedMappables.push(mappable);
     this.setStyles();
   }
@@ -228,58 +253,77 @@ export class MapService {
     return null;
   }
 
-  activateMultiSelect() {
+  activateDrawingTools() {
+    this.drawingEvents = [];
     // Create drawing manager
     const multiSelectDrawingOptions = {
+      drawingControl: false,
       drawingControlOptions: {
         drawingModes: [
           google.maps.drawing.OverlayType.RECTANGLE,
           google.maps.drawing.OverlayType.CIRCLE,
-          google.maps.drawing.OverlayType.POLYGON],
-        position: google.maps.ControlPosition.LEFT_BOTTOM
+          google.maps.drawing.OverlayType.POLYGON]
       }
     };
     this.drawingManager.setOptions(multiSelectDrawingOptions);
     this.drawingManager.setMap(this.map);
 
-    // Reset selection and listeners
-    this.selectedMappables = [];
-    this.setStyles();
-
     // Listen for completion of drawings
     google.maps.event.addListener(this.drawingManager, 'overlaycomplete', (event) => {
-      if (event.type === google.maps.drawing.OverlayType.CIRCLE) {
-        this.markers.forEach(marker => {
-          const cir: google.maps.Circle = event.overlay;
-          if (cir.getBounds().contains(marker.getPosition()) &&
-            google.maps.geometry.spherical.computeDistanceBetween(cir.getCenter(), marker.getPosition()) <= cir.getRadius()) {
-            this.selectedMappables.push(marker.get('mappable'));
-          }
-        });
-      } else if (event.type === google.maps.drawing.OverlayType.POLYGON) {
-        this.markers.forEach(marker => {
-          if (google.maps.geometry.poly.containsLocation(marker.getPosition(), event.overlay)) {
-            this.selectedMappables.push(marker.get('mappable'));
-          }
-        });
-      } else if (event.type === google.maps.drawing.OverlayType.RECTANGLE) {
-        this.markers.forEach(marker => {
-          if (event.overlay.getBounds().contains(marker.getPosition())) {
-            this.selectedMappables.push(marker.get('mappable'));
-          }
-        });
-      } else {
-        console.error('Drawing Geometry type not detected!');
-      }
-      event.overlay.setMap(null);
-      this.setStyles();
+      this.drawingEvents.push(event);
+      this.drawingComplete$.next(event);
     });
+
+    return this.drawingComplete$;
   }
 
-  deactivateMultiSelect() {
+  setDrawingModeToClick() {
+    this.drawingManager.setDrawingMode(null);
+  }
+
+  setDrawingModeToCircle() {
+    this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.CIRCLE);
+  }
+
+  setDrawingModeToRectangle() {
+    this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.RECTANGLE);
+  }
+
+  setDrawingModeToPolygon() {
+    this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
+  }
+
+  deactivateDrawingTool() {
+    this.clearDrawings();
     this.drawingManager.setMap(null);
-    this.selectedMappables = [];
-    this.setStyles();
+  }
+
+  getMappablesInShape(event): Mappable[] {
+    const mappablesInShape: Mappable[] = [];
+    if (event.type === google.maps.drawing.OverlayType.CIRCLE) {
+      this.markers.forEach(marker => {
+        const cir: google.maps.Circle = event.overlay;
+        if (cir.getBounds().contains(marker.getPosition()) &&
+          google.maps.geometry.spherical.computeDistanceBetween(cir.getCenter(), marker.getPosition()) <= cir.getRadius()) {
+          mappablesInShape.push(marker.get('mappable'));
+        }
+      });
+    } else if (event.type === google.maps.drawing.OverlayType.POLYGON) {
+      this.markers.forEach(marker => {
+        if (google.maps.geometry.poly.containsLocation(marker.getPosition(), event.overlay)) {
+          mappablesInShape.push(marker.get('mappable'));
+        }
+      });
+    } else if (event.type === google.maps.drawing.OverlayType.RECTANGLE) {
+      this.markers.forEach(marker => {
+        if (event.overlay.getBounds().contains(marker.getPosition())) {
+          mappablesInShape.push(marker.get('mappable'));
+        }
+      });
+    } else {
+      console.error('Drawing Geometry type not detected!');
+    }
+    return mappablesInShape;
   }
 
   findMe(latitude: number, longitude: number): void {
@@ -354,5 +398,9 @@ export class MapService {
 
   getBounds() {
     return this.map.getBounds().toJSON();
+  }
+
+  clearDrawings() {
+    this.drawingEvents.forEach(event => event.overlay.setMap(null));
   }
 }

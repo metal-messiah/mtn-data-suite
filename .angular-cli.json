@@ -22,7 +22,7 @@
       "styles": [
         "custom-angular-theme.scss",
         "styles.css",
-        "../node_modules/font-awesome/css/font-awesome.css"
+        "assets/css/fontawesome-all.min.css"
       ],
       "scripts": [],
       "environmentSource": "environments/environment.ts",
