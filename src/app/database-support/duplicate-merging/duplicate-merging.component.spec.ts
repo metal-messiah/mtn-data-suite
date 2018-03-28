@@ -1,14 +1,14 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DatabaseSupportComponent } from './database-support.component';
-import { DuplicateService } from '../core/services/duplicate.service';
 import { RouterTestingModule } from '@angular/router/testing';
-import { SharedModule } from '../shared/shared.module';
 import { of } from 'rxjs/observable/of';
+import { SharedModule } from '../../shared/shared.module';
+import { DuplicateMergingComponent } from './duplicate-merging.component';
+import { DuplicateService } from '../../core/services/duplicate.service';
 
-describe('DatabaseSupportComponent', () => {
-  let component: DatabaseSupportComponent;
-  let fixture: ComponentFixture<DatabaseSupportComponent>;
+describe('DuplicateMergingComponent', () => {
+  let component: DuplicateMergingComponent;
+  let fixture: ComponentFixture<DuplicateMergingComponent>;
 
   beforeEach(async(() => {
     const duplicateServiceSpy = jasmine.createSpyObj('DuplicateService', ['getAll']);
@@ -16,7 +16,7 @@ describe('DatabaseSupportComponent', () => {
 
     TestBed.configureTestingModule({
       imports: [ SharedModule, RouterTestingModule ],
-      declarations: [DatabaseSupportComponent],
+      declarations: [DuplicateMergingComponent],
       providers: [
         {provide: DuplicateService, useValue: duplicateServiceSpy}
       ]
@@ -25,7 +25,7 @@ describe('DatabaseSupportComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DatabaseSupportComponent);
+    fixture = TestBed.createComponent(DuplicateMergingComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
