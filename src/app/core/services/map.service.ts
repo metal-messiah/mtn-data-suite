@@ -7,13 +7,18 @@ import { MarkerType } from '../enums/MarkerType';
 import { MarkerPath } from '../enums/MarkerPath';
 import { Color } from '../enums/Color';
 import { IconService } from './icon.service';
-import OverlayType = google.maps.drawing.OverlayType;
 
+/*
+  The MapService should
+  - Initialize a map
+  - Draw overlays as specified by components
+  - Expose controls to pan and zoom
+  - Expose methods to get the center, bounds and zoom level
+ */
 @Injectable()
 export class MapService {
 
   map: google.maps.Map;
-  geocoder: google.maps.Geocoder;
   latitude = 0;
   longitude = 0;
   markers: google.maps.Marker[];
@@ -39,8 +44,6 @@ export class MapService {
       center: {lat: this.latitude, lng: this.longitude},
       zoom: 8
     });
-
-    this.geocoder = new google.maps.Geocoder();
 
     // Init Markers
     this.markers = [];
@@ -203,56 +206,6 @@ export class MapService {
     this.newMarker = null;
   }
 
-  getNewMarkerAddress() {
-    return Observable.create((observer) => {
-      this.geocoder.geocode({'location': this.newMarker.getPosition()}, (results, status) => {
-        if (status === google.maps.GeocoderStatus.OK) {
-          if (results.length > 0) {
-            observer.next(this.parseAddressResults(results[0].address_components));
-          } else {
-            observer.next(null);
-          }
-        } else {
-          observer.error(status);
-        }
-      });
-    });
-  }
-
-  parseAddressResults(results: object[]) {
-    const streetNumber = this.getAddressItem(results, 'street_number');
-    const streetRoute = this.getAddressItem(results, 'route');
-    return {
-      address1: this.buildAddress(streetNumber, streetRoute),
-      city: this.getAddressItem(results, 'locality'),
-      county: this.getAddressItem(results, 'administrative_area_level_2'),
-      state: this.getAddressItem(results, 'administrative_area_level_1'),
-      postalCode: this.getAddressItem(results, 'postal_code')
-    };
-  }
-
-  buildAddress(streetNumber: string, streetRoute: string) {
-    let address = '';
-    if (streetNumber != null) {
-      address += streetNumber;
-      if (streetRoute != null) {
-        address += ' ';
-      }
-    }
-    if (streetRoute != null) {
-      address += streetRoute;
-    }
-    return address;
-  }
-
-  getAddressItem(result: object[], itemName: string) {
-    const item = result.find((i) => i['types'].includes(itemName));
-    if (item != null) {
-      return item['short_name'];
-    }
-    return null;
-  }
-
   activateDrawingTools() {
     this.drawingEvents = [];
     // Create drawing manager
@@ -402,5 +355,9 @@ export class MapService {
 
   clearDrawings() {
     this.drawingEvents.forEach(event => event.overlay.setMap(null));
+  }
+
+  getNewLocationCoordinates() {
+    return this.newMarker.getPosition().toJSON();
   }
 }

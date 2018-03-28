@@ -14,6 +14,7 @@ import { SiteService } from './services/site.service';
 import { DuplicateService } from './services/duplicate.service';
 import { ProjectService } from './services/project.service';
 import { IconService } from './services/icon.service';
+import { GeocoderService } from './services/geocoder.service';
 
 @NgModule({
   imports: [
@@ -34,7 +35,8 @@ import { IconService } from './services/icon.service';
     SiteService,
     UserProfileService,
     ProjectService,
-    IconService
+    IconService,
+    GeocoderService
   ]
 })
 export class CoreModule {

@@ -110,7 +110,7 @@
           </button>
         </div>
         <div>
-          <button mat-raised-button color="accent">Actions</button>
+          <button mat-raised-button color="accent">({{mapService.selectedMappables.length}})&nbsp;Actions</button>
         </div>
       </mat-toolbar>
       <mat-toolbar *ngIf="mode === modeType.CREATING_SITE" class="row footer flex-space-between" color="primary">

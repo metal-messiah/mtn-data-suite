@@ -8,6 +8,7 @@ import { SiteService } from '../../core/services/site.service';
 import { Site } from '../../models/site';
 import { CasingDashboardService } from './casing-dashboard.service';
 import { MarkerType } from '../../core/enums/MarkerType';
+import { GeocoderService } from '../../core/services/geocoder.service';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -45,6 +46,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   multiSelectMode = MultiSelectModes.SELECT;
 
   constructor(public mapService: MapService,
+              public geocoderService: GeocoderService,
               public casingDashboardService: CasingDashboardService,
               private siteService: SiteService,
               private snackBar: MatSnackBar,
@@ -90,6 +92,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         } else {
           this.mapService.deselectMappable(site);
         }
+        this.ngZone.run(() => true);
       } else if (this.mode === CasingDashboardMode.DEFAULT) { // Don't select while moving, creating or following
         this.selectedSite = site;
         this.mapService.deselectAllMappables();
@@ -138,7 +141,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   editNewLocation(): void {
-    this.mapService.getNewMarkerAddress().subscribe((address: Site) => {
+    const coordinates = this.mapService.getNewLocationCoordinates();
+    this.geocoderService.reverseGeocode(coordinates).subscribe((address: Site) => {
       this.casingDashboardService.newSite = new Site(address);
       this.router.navigate(['site-detail'], {relativeTo: this.route});
     }, (err) => console.error(err));

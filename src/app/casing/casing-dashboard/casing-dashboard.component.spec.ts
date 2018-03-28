@@ -8,6 +8,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { IconService } from '../../core/services/icon.service';
 import { CasingDashboardService } from './casing-dashboard.service';
 import { RouterTestingModule } from '@angular/router/testing';
+import { GeocoderService } from '../../core/services/geocoder.service';
 
 describe('CasingDashboardComponent', () => {
   let component: CasingDashboardComponent;
@@ -20,6 +21,7 @@ describe('CasingDashboardComponent', () => {
       providers: [
         {provide: SiteService, useValue: {}},
         {provide: MapService, useValue: {}},
+        {provide: GeocoderService, useValue: {}},
         {provide: CasingDashboardService, useValue: {}},
         IconService
       ]
