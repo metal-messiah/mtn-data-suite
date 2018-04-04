@@ -3,7 +3,7 @@ import { AuthService } from './core/services/auth.service';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 
 @Component({
-  selector: 'app-root',
+  selector: 'mds-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })

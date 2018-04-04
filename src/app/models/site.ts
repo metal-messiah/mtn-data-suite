@@ -29,18 +29,24 @@ export class Site extends AuditingEntity implements Mappable {
   shoppingCenter: ShoppingCenter;
   private stores: Store[];
 
-  constructor(obj: Site) {
-    super(obj);
-    Object.keys(obj).forEach(key => this[key] = obj[key]);
-    if (obj.stores != null) {
-      this.stores = obj.stores.map(store => new Store(store));
+  constructor(obj?: Site) {
+    if (obj != null) {
+      super(obj);
+      Object.keys(obj).forEach(key => this[key] = obj[key]);
+      if (obj.stores != null) {
+        this.stores = obj.stores.map(store => new Store(store));
+      }
+      if (obj.activeStore != null) {
+        this.activeStore = new Store(obj.activeStore);
+      }
+      if (obj.shoppingCenter != null) {
+        this.shoppingCenter = new ShoppingCenter(obj.shoppingCenter);
+      }
     }
-    if (obj.activeStore != null) {
-      this.activeStore = new Store(obj.activeStore);
-    }
-    if (obj.shoppingCenter != null) {
-      this.shoppingCenter = new ShoppingCenter(obj.shoppingCenter);
-    }
+  }
+
+  getId(): number {
+    return this.id;
   }
 
   getCoordinates(): number[] {

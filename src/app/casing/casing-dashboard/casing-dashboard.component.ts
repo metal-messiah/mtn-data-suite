@@ -4,9 +4,16 @@ import { MapService } from '../../core/services/map.service';
 import { SiteService } from '../../core/services/site.service';
 import { Site } from '../../models/site';
 import { debounceTime } from 'rxjs/operators';
+import { CasingService } from '../casing.service';
+import { Router } from '@angular/router';
+import { MarkerType } from '../../core/enums/MarkerType';
+
+export enum ToolbarType {
+  MULTI_SELECT, NEW_SITE, DEFAULT
+}
 
 @Component({
-  selector: 'app-casing-dashboard',
+  selector: 'mds-casing-dashboard',
   templateUrl: './casing-dashboard.component.html',
   styleUrls: ['./casing-dashboard.component.css'],
   providers: [MapService]
@@ -17,12 +24,20 @@ export class CasingDashboardComponent implements OnInit {
   sites: Site[];
   selectedSite: Site = null;
   showCard = false;
+  showingBoundaries = false;
+  sideNavIsOpen = false;
+  markerType = MarkerType;
+  toolbarType = ToolbarType;
+  activeToolbar = ToolbarType.DEFAULT;
+  following = false;
+  navigatorWatch: number;
 
-  constructor(
-    private mapService: MapService,
-    private siteService: SiteService,
-    private snackBar: MatSnackBar,
-    private ngZone: NgZone) {
+  constructor(public mapService: MapService,
+              public casingService: CasingService,
+              private siteService: SiteService,
+              private snackBar: MatSnackBar,
+              private ngZone: NgZone,
+              private router: Router) {
   }
 
   ngOnInit() {
@@ -52,6 +67,7 @@ export class CasingDashboardComponent implements OnInit {
       this.selectedSite = null;
       this.ngZone.run(() => this.showCard = false);
     });
+
   }
 
   selectSite(id: number) {
@@ -76,7 +92,82 @@ export class CasingDashboardComponent implements OnInit {
     );
   }
 
-  toggleMode(): void {
-    this.mapService.toggleMode();
+  toggleSelectedProjectBoundaries(show: boolean): void {
+    this.showingBoundaries = show;
+    // TODO get boundaries
+    // TODO map boundaries
+    // TODO fit map to boundaries
+  }
+
+  createNewLocation(): void {
+    this.sideNavIsOpen = false;
+    this.activeToolbar = ToolbarType.NEW_SITE;
+    this.mapService.createNewMarker();
+  }
+
+  cancelLocationCreation(): void {
+    this.mapService.deleteNewMarker();
+    this.activeToolbar = ToolbarType.DEFAULT;
+  }
+
+  editNewLocation(): void {
+    this.mapService.getNewMarkerAddress().subscribe((address: Site) => {
+      this.casingService.newSite = new Site(address);
+      this.router.navigate(['site-detail']);
+    }, (err) => console.error(err));
+  }
+
+  multiSelect(): void {
+    this.sideNavIsOpen = false;
+    // this.mapService.setMarkerType(MarkerType.PIN);
+    this.activeToolbar = ToolbarType.MULTI_SELECT;
+    this.mapService.activateMultiSelect();
+  }
+
+  cancelMultiSelect(): void {
+    this.activeToolbar = ToolbarType.DEFAULT;
+    this.mapService.deactivateMultiSelect();
+  }
+
+  findMe(): void {
+    this.sideNavIsOpen = false;
+    if (!this.following) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          this.mapService.findMe(position.coords.latitude, position.coords.longitude);
+        }, (err) => {
+          // TODO tell user can't show location
+          console.error(`Can't show location: ${err}`);
+        });
+      } else {
+        // TODO Browser doesn't support Geolocation
+        console.error('Browser doesn\'t support Geolocation!');
+      }
+    }
+  }
+
+  activateFollowMe(): void {
+    this.following = true;
+    this.sideNavIsOpen = false;
+    if (navigator.geolocation) {
+      const options = {
+        maximumAge: 2000
+      };
+      this.navigatorWatch = navigator.geolocation.watchPosition((position) => {
+        this.mapService.followMe(position.coords.latitude, position.coords.longitude);
+      }, () => {
+        // TODO tell user can't show location
+      }, options);
+    } else {
+      // TODO Browser doesn't support Geolocation
+    }
+  }
+
+  deactivateFollowMe(): void {
+    this.following = false;
+    if (navigator.geolocation) {
+      navigator.geolocation.clearWatch(this.navigatorWatch);
+    }
+    this.mapService.stopFollowingMe();
   }
 }

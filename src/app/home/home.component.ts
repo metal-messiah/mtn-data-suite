@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../core/services/auth.service';
 
 @Component({
-  selector: 'app-home',
+  selector: 'mds-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })

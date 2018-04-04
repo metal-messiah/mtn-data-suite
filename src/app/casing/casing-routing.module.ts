@@ -3,7 +3,13 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { AuthGuard } from '../core/services/auth.guard';
 import { CasingDashboardComponent } from './casing-dashboard/casing-dashboard.component';
-import { CasingComponent } from './casing/casing.component';
+import { CasingComponent } from './casing.component';
+import { CasingProjectsComponent } from './casing-projects/casing-projects.component';
+import { ProjectSummaryComponent } from './project-summary/project-summary.component';
+import { CanDeactivateGuard } from '../core/services/can-deactivate.guard';
+import { ProjectDetailComponent } from './project-detail/project-detail.component';
+import { SiteListComponent } from './site-list/site-list.component';
+import { SiteDetailComponent } from './site-detail/site-detail.component';
 
 const routes: Routes = [
   {
@@ -11,7 +17,13 @@ const routes: Routes = [
     component: CasingComponent,
     canActivate: [AuthGuard],
     children: [
-      {path: '', component: CasingDashboardComponent}
+      {path: '', component: CasingDashboardComponent},
+      {path: 'site-list', component: SiteListComponent},
+      {path: 'site-detail/:id', component: SiteDetailComponent},
+      {path: 'site-detail', component: SiteDetailComponent},
+      {path: 'projects', component: CasingProjectsComponent},
+      {path: 'project-summary/:id', component: ProjectSummaryComponent},
+      {path: 'project-detail/:id', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]}
     ]
   }
 ];

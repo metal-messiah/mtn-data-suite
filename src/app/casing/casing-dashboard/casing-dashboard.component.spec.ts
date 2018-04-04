@@ -4,8 +4,10 @@ import { CasingDashboardComponent } from './casing-dashboard.component';
 import { SiteService } from '../../core/services/site.service';
 import { SharedModule } from '../../shared/shared.module';
 import { MapService } from '../../core/services/map.service';
-import { MapComponent } from '../../shared/map/map.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { IconService } from '../../core/services/icon.service';
+import { CasingService } from '../casing.service';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('CasingDashboardComponent', () => {
   let component: CasingDashboardComponent;
@@ -13,11 +15,13 @@ describe('CasingDashboardComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [ SharedModule, BrowserAnimationsModule ],
+      imports: [ SharedModule, BrowserAnimationsModule, RouterTestingModule ],
       declarations: [CasingDashboardComponent],
       providers: [
         {provide: SiteService, useValue: {}},
-        {provide: MapService, useValue: {}}
+        {provide: MapService, useValue: {}},
+        {provide: CasingService, useValue: {}},
+        IconService
       ]
     })
     .compileComponents();

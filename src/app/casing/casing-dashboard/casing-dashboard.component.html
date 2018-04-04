@@ -1,59 +1,128 @@
-<form class="box">
-  <mat-toolbar class="row header flex-space-between">
-    <div>
-      <button mat-icon-button><i class="fa fa-bars fa-2x"></i></button>
-    </div>
-    <mat-form-field floatLabel="never" id="searchField">
-      <i matPrefix class="fa fa-search"></i>
-      <input matInput type="search" placeholder="Location or Store ID" [(ngModel)]="searchQuery" name="search"/>
-    </mat-form-field>
-    <div>
-      <button mat-icon-button><i class="fa fa-filter fa-2x"></i></button>
-    </div>
-  </mat-toolbar>
-  <app-map #casingMap class="row content" (onReady)="onMapReady($event)"></app-map>
-  <div id="infoCard" *ngIf="showCard">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-            <strong>{{selectedSite.getLabel()}}</strong>
-        </mat-card-title>
-        <mat-card-subtitle>{{selectedSite.getActiveStore().currentStoreStatus}}</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <div style="display:flex; justify-content: space-between;">
-          <div>
-            <p>{{selectedSite.getIntersection()}}</p>
-            <p>{{selectedSite.address1}}</p>
-            <p>{{selectedSite.getPrincipality()}}</p>
-          </div>
-          <div>
-            <p>Site #{{selectedSite.id}}</p>
-            <p *ngIf="selectedSite.getActiveStore().latestSalesArea != null">
-              {{selectedSite.getActiveStore().latestSalesArea / 1000 | number}}k sqft
-            </p>
-            <p *ngIf="selectedSite.getActiveStore().latestVolume != null">
-              ${{selectedSite.getActiveStore().latestVolume / 1000 | number}}k
-            </p>
-          </div>
+<mat-sidenav-container id="casing-dash-container">
+  <mat-sidenav mode="over" [(opened)]="sideNavIsOpen" class="casing-side-nav">
+    <mat-nav-list role="list">
+      <h3 mat-subheader>Project</h3>
+      <mat-list-item routerLink="/casing/projects">Manage Projects</mat-list-item>
+      <mat-list-item *ngIf="casingService.selectedProject == null"
+                     (click)="casingService.openProjectSelectionDialog()">Select Project
+      </mat-list-item>
+      <mat-list-item *ngIf="casingService.selectedProject != null"
+                     [matMenuTriggerFor]="selectedProjectMenu">
+        {{casingService.selectedProject.projectName}}&nbsp;<i class="fa fa-chevron-right"></i>
+      </mat-list-item>
+      <mat-divider></mat-divider>
+      <h3 mat-subheader>Sites</h3>
+      <mat-list-item role="listitem" [matMenuTriggerFor]="markerTypeMenu">
+        <h4 mat-line>Marker Type</h4>&nbsp;<i class="fa fa-chevron-right"></i>
+        <p mat-line>{{mapService.getMarkerType().valueOf()}}</p>
+      </mat-list-item>
+      <mat-list-item role="listitem" (click)="createNewLocation()">Create New Site</mat-list-item>
+      <mat-list-item role="listitem" (click)="multiSelect()">Multi Select</mat-list-item>
+      <mat-divider></mat-divider>
+      <h3 mat-subheader>Geolocation</h3>
+      <mat-list-item role="listitem" (click)="findMe()">Find Me</mat-list-item>
+      <mat-list-item *ngIf="following" role="listitem" (click)="deactivateFollowMe()">
+        <h4 mat-line>Follow Me</h4>
+        <p mat-line>Deactivate</p>
+      </mat-list-item>
+      <mat-list-item *ngIf="!following" role="listitem" (click)="activateFollowMe()">
+        <h4 mat-line>Follow Me</h4>
+        <p mat-line>Activate</p>
+      </mat-list-item>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <form class="box">
+      <mds-map #casingMap class="row content" (ready)="onMapReady($event)"></mds-map>
+      <div id="infoCard" *ngIf="showCard">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+              <strong>{{selectedSite.getLabel()}}</strong>
+            </mat-card-title>
+            <mat-card-subtitle>{{selectedSite.getActiveStore().currentStoreStatus}}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div style="display:flex; justify-content: space-between;">
+              <div>
+                <p>{{selectedSite.getIntersection()}}</p>
+                <p>{{selectedSite.address1}}</p>
+                <p>{{selectedSite.getPrincipality()}}</p>
+              </div>
+              <div>
+                <p>Site #{{selectedSite.id}}</p>
+                <p *ngIf="selectedSite.getActiveStore().latestSalesArea != null">
+                  {{selectedSite.getActiveStore().latestSalesArea / 1000 | number}}k sqft
+                </p>
+                <p *ngIf="selectedSite.getActiveStore().latestVolume != null">
+                  ${{selectedSite.getActiveStore().latestVolume / 1000 | number}}k
+                </p>
+              </div>
+            </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button><i class="fa fa-thumb-tack"></i> Pin</button>
+            <button mat-button><i class="fa fa-clock-o"></i> History</button>
+            <button mat-button><i class="fa fa-pencil"></i> Details</button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+      <mat-toolbar *ngIf="activeToolbar === toolbarType.MULTI_SELECT" class="row footer flex-space-between" color="primary">
+        <div>
+          <button mat-raised-button color="warn" (click)="cancelMultiSelect()">Cancel</button>
         </div>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-button><i class="fa fa-thumb-tack"></i> Pin</button>
-        <button mat-button><i class="fa fa-clock-o"></i> History</button>
-        <button mat-button><i class="fa fa-pencil"></i> Details</button>
-      </mat-card-actions>
-    </mat-card>
-  </div>
-  <mat-toolbar class="row footer flex-space-between" color="primary">
-    <div>
-      <button mat-button>List</button>
-    </div>
-    <div>
-      <button mat-button (click)="toggleMode()">Toggle Mode</button>
-    </div>
-    <div>
-      <button mat-button>Sort</button>
-    </div>
-  </mat-toolbar>
-</form>
+        <div>
+          <span>Select Pins</span>
+        </div>
+        <div>
+          <button mat-raised-button color="accent" (click)="editNewLocation()">Edit Details</button>
+        </div>
+      </mat-toolbar>
+      <mat-toolbar *ngIf="activeToolbar === toolbarType.NEW_SITE" class="row footer flex-space-between" color="primary">
+        <div>
+          <button mat-raised-button color="warn" (click)="cancelLocationCreation()">Cancel</button>
+        </div>
+        <div>
+          <span>Drag Pin</span>
+        </div>
+        <div>
+          <button mat-raised-button color="accent" (click)="editNewLocation()">Edit Details</button>
+        </div>
+      </mat-toolbar>
+      <mat-toolbar *ngIf="activeToolbar === toolbarType.DEFAULT" class="row footer flex-space-between" color="primary">
+        <div>
+          <button mat-icon-button (click)="sideNavIsOpen = !sideNavIsOpen">
+            <i class="fa fa-ellipsis-v fa-2x"></i>
+          </button>
+        </div>
+        <div>
+          <button mat-icon-button><i class="fa fa-search fa-2x"></i></button>
+        </div>
+        <div>
+          <button mat-icon-button><i class="fa fa-filter fa-2x"></i></button>
+        </div>
+        <div>
+          <button mat-icon-button routerLink="site-list"><i class="fa fa-list fa-2x"></i></button>
+        </div>
+      </mat-toolbar>
+    </form>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+
+<mat-menu #selectedProjectMenu="matMenu" [overlapTrigger]="false" xPosition="after">
+  <button mat-menu-item (click)="casingService.openProjectSelectionDialog()">Change Selected Project</button>
+  <button mat-menu-item (click)="casingService.navigateToProjectSummary()">View Summary</button>
+  <button mat-menu-item (click)="casingService.navigateToProjectDetail()">Edit</button>
+  <button mat-menu-item *ngIf="!showingBoundaries"
+          (click)="toggleSelectedProjectBoundaries(true)">Show Boundaries
+  </button>
+  <button mat-menu-item *ngIf="showingBoundaries"
+          (click)="toggleSelectedProjectBoundaries(false)">Hide Boundaries
+  </button>
+</mat-menu>
+
+<mat-menu #markerTypeMenu="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item (click)="mapService.setMarkerType(markerType.PIN)">{{markerType.PIN.valueOf()}}</button>
+  <button mat-menu-item (click)="mapService.setMarkerType(markerType.LABEL)">{{markerType.LABEL.valueOf()}}</button>
+  <button mat-menu-item (click)="mapService.setMarkerType(markerType.LOGO)">{{markerType.LOGO.valueOf()}}</button>
+</mat-menu>

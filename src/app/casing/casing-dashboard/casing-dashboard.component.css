@@ -6,7 +6,7 @@
   max-width: 250px;
 }
 
-app-map {
+mds-map {
   height: inherit;
 }
 
@@ -15,7 +15,7 @@ app-map {
   justify-content: center;
   width: 100%;
   position: absolute;
-  bottom: 40px;
+  bottom: 50px;
   pointer-events: none;
 }
 
@@ -43,4 +43,26 @@ mat-card-content {
 
 .mat-card > .mat-card-actions:last-child {
   margin-bottom: -8px;
+}
+
+#casing-dash-container {
+  height: calc(100% - 64px);
+}
+
+@media (max-width: 600px) {
+  #casing-dash-container {
+    height: calc(100% - 56px);
+  }
+}
+
+.box {
+  height: 100%;
+}
+
+form {
+  overflow: hidden;
+}
+
+.casing-side-nav {
+  max-width: 300px;
 }

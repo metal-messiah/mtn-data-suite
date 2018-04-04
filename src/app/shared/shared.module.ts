@@ -9,18 +9,22 @@ import { BreakpointObserver, MediaMatcher } from '@angular/cdk/layout';
 import { CallbackComponent } from './callback/callback.component';
 import { PathNotFoundComponent } from './path-not-found/path-not-found.component';
 import { MapComponent } from './map/map.component';
+import { LogoMenuComponent } from './logo-menu/logo-menu.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   imports: [
     CommonModule,
-    CustomMaterialModule
+    CustomMaterialModule,
+    RouterModule
   ],
   declarations: [
     ErrorDialogComponent,
     ConfirmDialogComponent,
     CallbackComponent,
     PathNotFoundComponent,
-    MapComponent
+    MapComponent,
+    LogoMenuComponent
   ],
   providers: [
     BreakpointObserver,
@@ -38,9 +42,10 @@ import { MapComponent } from './map/map.component';
     DatePipe,
     FormsModule,
     HttpClientModule,
+    LogoMenuComponent,
     MapComponent,
     PathNotFoundComponent,
-    ReactiveFormsModule,
+    ReactiveFormsModule
   ]
 })
 export class SharedModule {

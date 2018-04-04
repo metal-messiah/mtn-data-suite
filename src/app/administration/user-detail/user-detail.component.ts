@@ -17,7 +17,7 @@ import {DetailFormComponent} from '../../interfaces/detail-form-component';
 import {DetailFormService} from '../../core/services/detail-form.service';
 
 @Component({
-  selector: 'app-user-detail',
+  selector: 'mds-user-detail',
   templateUrl: './user-detail.component.html',
   styleUrls: ['./user-detail.component.css']
 })

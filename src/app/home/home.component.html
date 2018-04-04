@@ -1,27 +1,20 @@
 <mat-toolbar color="primary" class="flex-space-between">
-  <div>
-    <a *ngIf="showHomeNav" mat-icon-button routerLink="/"><i class="fa fa-home fa-2x"></i></a>
-  </div>
+  <mds-logo-menu [showHome]="false"></mds-logo-menu>
   <span>MTN App Suite</span>
-  <div>
-    <a mat-icon-button *ngIf="!auth.isAuthenticated()" (click)="auth.login()">
-      <i class="fa fa-sign-in fa-2x"></i>
-    </a>
-    <a mat-icon-button *ngIf="auth.isAuthenticated()" (click)="auth.logout()">
-      <i class="fa fa-sign-out fa-2x"></i>
-    </a>
-  </div>
+  <div></div>
 </mat-toolbar>
 <div class="box">
   <mat-toolbar class="row header flex-space-between">
     <span></span>
-    <span><i class="fa fa-home"></i> Home</span>
+    <span><i class="fa fa-home"></i>&nbsp;Home</span>
     <span></span>
   </mat-toolbar>
   <div class="row content">
-    <h4 *ngIf="!auth.isAuthenticated()">
-      You are not logged in! Please <a (click)="auth.login()">Log In</a> to continue.
-    </h4>
+    <div class="login-button-container" *ngIf="!auth.isAuthenticated()">
+      <button mat-raised-button color="primary" (click)="auth.login()" class="font-size-large">
+        <i class="fa fa-sign-in"></i>&nbsp;Sign in
+      </button>
+    </div>
     <mat-nav-list *ngIf="auth.isAuthenticated()">
       <mat-list-item routerLink="/admin">
         <div mat-list-icon><i class="fa fa-key"></i></div>

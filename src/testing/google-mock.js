@@ -38,6 +38,14 @@
       },
       Size: function() {
         return {};
+      },
+      Geocoder: function() {
+        return {};
+      },
+      drawing: {
+        DrawingManager: function() {
+          return {};
+        }
       }
     }
   };

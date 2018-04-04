@@ -7,7 +7,7 @@ import {BasicEntityListComponent} from '../../interfaces/basic-entity-list-compo
 import {EntityListService} from '../../core/services/entity-list.service';
 
 @Component({
-  selector: 'app-roles',
+  selector: 'mds-roles',
   templateUrl: './roles.component.html',
   styleUrls: ['./roles.component.css']
 })

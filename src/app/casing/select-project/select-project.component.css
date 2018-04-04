@@ -1,0 +1,83 @@
+h1 {
+  margin-bottom: 8px;
+}
+
+mat-form-field i {
+  margin-right: 8px;
+}
+
+mat-form-field .mat-input-wrapper {
+  padding-bottom: 8px;
+}
+
+.content {
+  max-height: 400px;
+}
+
+.yellow {
+  color: goldenrod;
+}
+
+.active {
+  color: #4554d1;
+}
+
+.filter-section {
+  display: flex;
+  justify-content: space-around;
+  align-content: center;
+  align-items: center;
+}
+
+.header {
+  margin-bottom: 8px;
+}
+
+#wrapper {
+  max-width: 400px;
+  min-height: 400px;
+}
+
+.title {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title > h2 {
+  margin: 0;
+  padding-left: 8px;
+  font: 500 20px/32px Roboto, "Helvetica Neue", sans-serif;
+}
+
+mat-list {
+  width: 100%;
+}
+
+.custom-select-list-item {
+  font-size: large;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.icon-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 24px;
+}
+
+.project-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-section {
+  padding: 0 8px 0 9px;
+}
+
+.footer {
+  justify-content: center;
+}
