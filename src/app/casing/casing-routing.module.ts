@@ -1,9 +1,9 @@
-import {NgModule} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
-import {AuthGuard} from '../core/services/auth.guard';
-import {CasingDashboardComponent} from './casing-dashboard/casing-dashboard.component';
-import {CasingComponent} from './casing/casing.component';
+import { AuthGuard } from '../core/services/auth.guard';
+import { CasingDashboardComponent } from './casing-dashboard/casing-dashboard.component';
+import { CasingComponent } from './casing/casing.component';
 
 const routes: Routes = [
   {

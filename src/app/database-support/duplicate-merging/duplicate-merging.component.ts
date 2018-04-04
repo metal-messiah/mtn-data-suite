@@ -5,12 +5,11 @@ import { Duplicate } from '../../models/duplicate';
 import { Site } from '../../models/site';
 
 @Component({
-  selector: 'app-database-support',
-  templateUrl: './database-support.component.html',
-  styleUrls: ['./database-support.component.css']
+  selector: 'app-duplicate-merging',
+  templateUrl: './duplicate-merging.component.html',
+  styleUrls: ['./duplicate-merging.component.css']
 })
 
-// TODO Rename the class
 export class DuplicateMergingComponent implements OnInit {
 
   duplicates: Duplicate<Site>[];

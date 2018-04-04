@@ -1,11 +1,13 @@
- <!-- TODO Refactor to match for database-support (use casing/casing as template) -->
 <mat-toolbar class="row header flex-space-between" color="primary">
   <div>
     <a mat-icon-button routerLink="/"><i class="fa fa-home fa-2x"></i></a>
   </div>
-  <h2><i class="fa fa-briefcase"></i> Casing</h2>
   <div>
-    <a mat-icon-button disabled="true"></a>
+    <button type="button" mat-raised-button color="accent" (click)="goBack()">Back</button>
+  </div>
+  <h2><i class="fa fa-database"></i> Database Support</h2>
+  <div>
+    <a mat-icon-button></a>
   </div>
 </mat-toolbar>
 <router-outlet></router-outlet>

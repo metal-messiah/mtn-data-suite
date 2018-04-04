@@ -18,10 +18,11 @@ export class CasingDashboardComponent implements OnInit {
   selectedSite: Site = null;
   showCard = false;
 
-  constructor(private mapService: MapService,
-              private siteService: SiteService,
-              private snackBar: MatSnackBar,
-              private ngZone: NgZone) {
+  constructor(
+    private mapService: MapService,
+    private siteService: SiteService,
+    private snackBar: MatSnackBar,
+    private ngZone: NgZone) {
   }
 
   ngOnInit() {
