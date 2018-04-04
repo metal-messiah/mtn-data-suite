@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Color } from '../enums/Color';
-import { MarkerPath } from '../enums/MarkerPath';
+import { MarkerShape } from '../enums/MarkerShape';
 
 @Injectable()
 export class IconService {
@@ -8,8 +8,8 @@ export class IconService {
   constructor() {
   }
 
-  getIcon(fillColor: Color | string, strokeColor: Color | string, symbolPath: MarkerPath | google.maps.SymbolPath, rotation?: number) {
-    if (symbolPath === MarkerPath.FILLED || symbolPath === MarkerPath.DEFAULT) {
+  getIcon(fillColor: Color | string, strokeColor: Color | string, symbolPath: MarkerShape | google.maps.SymbolPath) {
+    if (symbolPath === MarkerShape.FILLED || symbolPath === MarkerShape.DEFAULT) {
       return {
         path: symbolPath,
         fillColor: fillColor,
@@ -18,8 +18,7 @@ export class IconService {
         strokeColor: strokeColor,
         strokeWeight: 2.5,
         anchor: new google.maps.Point(255, 510),
-        labelOrigin: new google.maps.Point(255, 200),
-        rotation: rotation != null ? rotation : 0
+        labelOrigin: new google.maps.Point(255, 200)
       };
     }
 
@@ -30,8 +29,7 @@ export class IconService {
       scale: 7,
       strokeColor: strokeColor,
       strokeWeight: 2.5,
-      labelOrigin: new google.maps.Point(0, -2),
-      rotation: rotation != null ? rotation : 0
+      labelOrigin: new google.maps.Point(0, -2)
     };
   }
 

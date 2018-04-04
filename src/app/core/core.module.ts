@@ -15,6 +15,8 @@ import { DuplicateService } from './services/duplicate.service';
 import { ProjectService } from './services/project.service';
 import { IconService } from './services/icon.service';
 import { GeocoderService } from './services/geocoder.service';
+import { LabelService } from './services/label.service';
+import { NavigatorService } from './services/navigator.service';
 
 @NgModule({
   imports: [
@@ -36,7 +38,9 @@ import { GeocoderService } from './services/geocoder.service';
     UserProfileService,
     ProjectService,
     IconService,
-    GeocoderService
+    GeocoderService,
+    LabelService,
+    NavigatorService
   ]
 })
 export class CoreModule {

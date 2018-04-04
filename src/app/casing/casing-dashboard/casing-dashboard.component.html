@@ -14,18 +14,18 @@
       <h3 mat-subheader>Sites</h3>
       <mat-list-item role="listitem" [matMenuTriggerFor]="markerTypeMenu">
         <h4 mat-line>Marker Type</h4>&nbsp;<i class="fas fa-chevron-right"></i>
-        <p mat-line>{{mapService.getMarkerType().valueOf()}}</p>
+        <p mat-line>{{selectedMarkerType.valueOf()}}</p>
       </mat-list-item>
       <mat-list-item role="listitem" (click)="createNewLocation()">Create New Site</mat-list-item>
       <mat-list-item role="listitem" (click)="multiSelect()">Multi Select</mat-list-item>
       <mat-divider></mat-divider>
       <h3 mat-subheader>Geolocation</h3>
       <mat-list-item role="listitem" (click)="findMe()">Find Me</mat-list-item>
-      <mat-list-item *ngIf="mode === modeType.FOLLOWING" role="listitem" (click)="deactivateFollowMe()">
+      <mat-list-item *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" role="listitem" (click)="deactivateFollowMe()">
         <h4 mat-line>Follow Me</h4>
         <p mat-line>Deactivate</p>
       </mat-list-item>
-      <mat-list-item *ngIf="mode !== modeType.FOLLOWING" role="listitem" (click)="activateFollowMe()">
+      <mat-list-item *ngIf="selectedDashboardMode !== casingDashboardMode.FOLLOWING" role="listitem" (click)="activateFollowMe()">
         <h4 mat-line>Follow Me</h4>
         <p mat-line>Activate</p>
       </mat-list-item>
@@ -38,49 +38,49 @@
         <mat-card>
           <mat-card-header>
             <mat-card-title>
-              <strong>{{selectedSite.getLabel()}}</strong>
+              <strong>{{selectedSites[0].getLabel()}}</strong>
             </mat-card-title>
-            <mat-card-subtitle>{{selectedSite.getActiveStore().currentStoreStatus}}</mat-card-subtitle>
+            <mat-card-subtitle>{{selectedSites[0].getActiveStore().currentStoreStatus}}</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
             <div style="display:flex; justify-content: space-between;">
               <div>
-                <p>{{selectedSite.getIntersection()}}</p>
-                <p>{{selectedSite.address1}}</p>
-                <p>{{selectedSite.getPrincipality()}}</p>
+                <p>{{selectedSites[0].getIntersection()}}</p>
+                <p>{{selectedSites[0].address1}}</p>
+                <p>{{selectedSites[0].getPrincipality()}}</p>
               </div>
               <div>
-                <p>Site #{{selectedSite.id}}</p>
-                <p *ngIf="selectedSite.getActiveStore().latestSalesArea != null">
-                  {{selectedSite.getActiveStore().latestSalesArea / 1000 | number}}k sqft
+                <p>Site #{{selectedSites[0].getId()}}</p>
+                <p *ngIf="selectedSites[0].getActiveStore().latestSalesArea != null">
+                  {{selectedSites[0].getActiveStore().latestSalesArea / 1000 | number}}k sqft
                 </p>
-                <p *ngIf="selectedSite.getActiveStore().latestVolume != null">
-                  ${{selectedSite.getActiveStore().latestVolume / 1000 | number}}k
+                <p *ngIf="selectedSites[0].getActiveStore().latestVolume != null">
+                  ${{selectedSites[0].getActiveStore().latestVolume / 1000 | number}}k
                 </p>
               </div>
             </div>
           </mat-card-content>
           <mat-card-actions disabled="true">
-            <button mat-button [disabled]="mode === modeType.MOVING_SITE" [matMenuTriggerFor]="markerMoreMenu">
+            <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_SITE" [matMenuTriggerFor]="markerMoreMenu">
               <i class="fas fa-ellipsis-v"></i>&nbsp;More
             </button>
-            <button mat-button [disabled]="mode === modeType.MOVING_SITE" (click)="pinLocation()">
+            <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_SITE" (click)="pinLocation()">
               <i class="fas fa-thumb-tack"></i>&nbsp;Pin
             </button>
-            <button mat-button [disabled]="mode === modeType.MOVING_SITE" (click)="goToLocationOverview()">
+            <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_SITE" (click)="goToLocationOverview()">
               <i class="fas fa-pencil"></i>&nbsp;Edit
             </button>
           </mat-card-actions>
         </mat-card>
       </div>
-      <mat-toolbar *ngIf="mode === modeType.FOLLOWING" class="row footer flex-space-between" color="primary">
+      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" class="row footer flex-space-between" color="primary">
         <div></div>
         <div>
           <button mat-raised-button color="accent" (click)="deactivateFollowMe()">Stop Follow Me</button>
         </div>
         <div></div>
       </mat-toolbar>
-      <mat-toolbar *ngIf="mode === modeType.MOVING_SITE" class="row footer flex-space-between" color="primary">
+      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MOVING_SITE" class="row footer flex-space-between" color="primary">
         <div>
           <button mat-raised-button color="accent" (click)="cancelSiteMove()">Cancel</button>
         </div>
@@ -91,29 +91,29 @@
           <button mat-raised-button color="accent" (click)="saveSiteMove()">Save</button>
         </div>
       </mat-toolbar>
-      <mat-toolbar *ngIf="mode === modeType.MULTI_SELECT" class="row footer flex-space-between" color="primary">
+      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MULTI_SELECT" class="row footer flex-space-between" color="primary">
         <div>
           <button mat-raised-button color="warn" (click)="cancelMultiSelect()">Cancel</button>
         </div>
         <div>
           <button mat-mini-fab [mat-menu-trigger-for]="multiSelectToolsMenu" color="primary">
-            <i *ngIf="multiSelectTool === multiSelectToolTypes.CLICK" class="far fa-hand-pointer"></i>
-            <i *ngIf="multiSelectTool === multiSelectToolTypes.CIRCLE" class="far fa-circle"></i>
-            <i *ngIf="multiSelectTool === multiSelectToolTypes.RECTANGLE" class="far fa-square"></i>
-            <i *ngIf="multiSelectTool === multiSelectToolTypes.POLYGON" class="far fa-star"></i>
+            <i *ngIf="selectedMultiSelectTool === multiSelectToolType.CLICK" class="far fa-hand-pointer"></i>
+            <i *ngIf="selectedMultiSelectTool === multiSelectToolType.CIRCLE" class="far fa-circle"></i>
+            <i *ngIf="selectedMultiSelectTool === multiSelectToolType.RECTANGLE" class="far fa-square"></i>
+            <i *ngIf="selectedMultiSelectTool === multiSelectToolType.POLYGON" class="far fa-star"></i>
           </button>
         </div>
         <div>
           <button mat-mini-fab [mat-menu-trigger-for]="multiSelectModeMenu" color="primary">
-            <i *ngIf="multiSelectMode === multiSelectModes.SELECT" class="fas fa-plus"></i>
-            <i *ngIf="multiSelectMode === multiSelectModes.DESELECT" class="fas fa-minus"></i>
+            <i *ngIf="selectedMultiSelectMode === multiSelectMode.SELECT" class="fas fa-plus"></i>
+            <i *ngIf="selectedMultiSelectMode === multiSelectMode.DESELECT" class="fas fa-minus"></i>
           </button>
         </div>
         <div>
-          <button mat-raised-button color="accent">({{mapService.selectedMappables.length}})&nbsp;Actions</button>
+          <button mat-raised-button color="accent">({{selectedSites.length}})&nbsp;Actions</button>
         </div>
       </mat-toolbar>
-      <mat-toolbar *ngIf="mode === modeType.CREATING_SITE" class="row footer flex-space-between" color="primary">
+      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.CREATING_SITE" class="row footer flex-space-between" color="primary">
         <div>
           <button mat-raised-button color="warn" (click)="cancelLocationCreation()">Cancel</button>
         </div>
@@ -124,7 +124,7 @@
           <button mat-raised-button color="accent" (click)="editNewLocation()">Edit Details</button>
         </div>
       </mat-toolbar>
-      <mat-toolbar *ngIf="mode === modeType.DEFAULT" class="row footer flex-space-between" color="primary">
+      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" class="row footer flex-space-between" color="primary">
         <div>
           <button mat-mini-fab color="primary" (click)="sideNavIsOpen = !sideNavIsOpen">
             <i class="fas fa-ellipsis-v"></i>
@@ -163,9 +163,9 @@
 </mat-menu>
 
 <mat-menu #markerTypeMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="mapService.setMarkerType(markerType.PIN)">{{markerType.PIN.valueOf()}}</button>
-  <button mat-menu-item (click)="mapService.setMarkerType(markerType.LABEL)">{{markerType.LABEL.valueOf()}}</button>
-  <button mat-menu-item (click)="mapService.setMarkerType(markerType.LOGO)">{{markerType.LOGO.valueOf()}}</button>
+  <button mat-menu-item (click)="setMarkerType(markerType.PIN)">{{markerType.PIN.valueOf()}}</button>
+  <button mat-menu-item (click)="setMarkerType(markerType.LABEL)">{{markerType.LABEL.valueOf()}}</button>
+  <button mat-menu-item (click)="setMarkerType(markerType.LOGO)">{{markerType.LOGO.valueOf()}}</button>
 </mat-menu>
 
 <mat-menu #markerMoreMenu="matMenu" [overlapTrigger]="false">
@@ -174,25 +174,25 @@
 </mat-menu>
 
 <mat-menu #multiSelectToolsMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="setMultiSelectTool(multiSelectToolTypes.CLICK)">
+  <button mat-menu-item (click)="setMultiSelectTool(multiSelectToolType.CLICK)">
     <i class="far fa-hand-pointer"></i>&nbsp;Click
   </button>
-  <button mat-menu-item (click)="setMultiSelectTool(multiSelectToolTypes.RECTANGLE)">
+  <button mat-menu-item (click)="setMultiSelectTool(multiSelectToolType.RECTANGLE)">
     <i class="far fa-square"></i>&nbsp;Rectangle
   </button>
-  <button mat-menu-item (click)="setMultiSelectTool(multiSelectToolTypes.CIRCLE)">
+  <button mat-menu-item (click)="setMultiSelectTool(multiSelectToolType.CIRCLE)">
     <i class="far fa-circle"></i>&nbsp;Circle
   </button>
-  <button mat-menu-item (click)="setMultiSelectTool(multiSelectToolTypes.POLYGON)">
+  <button mat-menu-item (click)="setMultiSelectTool(multiSelectToolType.POLYGON)">
     <i class="far fa-star"></i>&nbsp;Polygon
   </button>
 </mat-menu>
 
 <mat-menu #multiSelectModeMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="setMultiSelectMode(multiSelectModes.SELECT)">
+  <button mat-menu-item (click)="setMultiSelectMode(multiSelectMode.SELECT)">
     <i class="fas fa-plus-circle"></i>&nbsp;Select
   </button>
-  <button mat-menu-item (click)="setMultiSelectMode(multiSelectModes.DESELECT)">
+  <button mat-menu-item (click)="setMultiSelectMode(multiSelectMode.DESELECT)">
     <i class="fas fa-minus-circle"></i>&nbsp;Deselect
   </button>
 </mat-menu>
