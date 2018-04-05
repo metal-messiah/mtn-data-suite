@@ -1,5 +1,5 @@
 import { Component, NgZone, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { debounceTime } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -18,6 +18,7 @@ import { LabelService } from '../../core/services/label.service';
 import { NavigatorService } from '../../core/services/navigator.service';
 import { FindMeLayer } from '../../models/find-me-layer';
 import { FollowMeLayer } from '../../models/follow-me-layer';
+import { SearchComponent } from '../search/search.component';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -65,6 +66,8 @@ export class CasingDashboardComponent implements OnInit {
   multiSelectMode = MultiSelectMode;
   markerType = MarkerType;
 
+  searchDialog: any;
+
   constructor(public mapService: MapService,
               public geocoderService: GeocoderService,
               public casingDashboardService: CasingDashboardService,
@@ -75,7 +78,8 @@ export class CasingDashboardComponent implements OnInit {
               private route: ActivatedRoute,
               private labelService: LabelService,
               private iconService: IconService,
-              private navigatorService: NavigatorService) {
+              private navigatorService: NavigatorService,
+              private dialog: MatDialog) {
     this.selectedSites = [];
   }
 
@@ -398,5 +402,9 @@ export class CasingDashboardComponent implements OnInit {
     this.sideNavIsOpen = false;
     this.selectedMarkerType = markerType;
     this.defaultPointLayer.refreshOptions();
+  }
+
+  openSearch() {
+    this.searchDialog = this.dialog.open(SearchComponent);
   }
 }

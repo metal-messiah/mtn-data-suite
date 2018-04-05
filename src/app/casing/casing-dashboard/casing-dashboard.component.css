@@ -2,10 +2,6 @@
   margin-right: 8px;
 }
 
-#searchField {
-  max-width: 250px;
-}
-
 mds-map {
   height: inherit;
 }

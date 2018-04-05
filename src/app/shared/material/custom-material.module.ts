@@ -15,7 +15,7 @@ import {
   MatSidenavModule,
   MatSlideToggleModule,
   MatSnackBarModule,
-  MatTableModule,
+  MatTableModule, MatTabsModule,
   MatToolbarModule
 } from '@angular/material';
 
@@ -37,6 +37,7 @@ import {
     MatSlideToggleModule,
     MatSnackBarModule,
     MatTableModule,
+    MatTabsModule,
     MatToolbarModule
   ],
   exports: [
@@ -56,6 +57,7 @@ import {
     MatSlideToggleModule,
     MatSnackBarModule,
     MatTableModule,
+    MatTabsModule,
     MatToolbarModule
   ]
 })
