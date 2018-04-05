@@ -65,10 +65,10 @@
               <i class="fas fa-ellipsis-v"></i>&nbsp;More
             </button>
             <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_SITE" (click)="pinLocation()">
-              <i class="fas fa-thumb-tack"></i>&nbsp;Pin
+              <i class="fas fa-thumbtack"></i>&nbsp;Pin
             </button>
             <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_SITE" (click)="goToLocationOverview()">
-              <i class="fas fa-pencil"></i>&nbsp;Edit
+              <i class="fas fa-pencil-alt"></i>&nbsp;Edit
             </button>
           </mat-card-actions>
         </mat-card>
@@ -169,7 +169,7 @@
 </mat-menu>
 
 <mat-menu #markerMoreMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="moveSite()"><i class="fas fa-arrows"></i>&nbsp;Move</button>
+  <button mat-menu-item (click)="moveSite()"><i class="fas fa-arrows-alt"></i>&nbsp;Move</button>
   <button mat-menu-item><i class="far fa-clock"></i>&nbsp;History</button>
 </mat-menu>
 
