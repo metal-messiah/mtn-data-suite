@@ -6,38 +6,38 @@
 <div class="box">
   <mat-toolbar class="row header flex-space-between">
     <span></span>
-    <span><i class="fa fa-home"></i>&nbsp;Home</span>
+    <span><i class="fas fa-home"></i>&nbsp;Home</span>
     <span></span>
   </mat-toolbar>
   <div class="row content">
     <div class="login-button-container" *ngIf="!auth.isAuthenticated()">
       <button mat-raised-button color="primary" (click)="auth.login()" class="font-size-large">
-        <i class="fa fa-sign-in"></i>&nbsp;Sign in
+        <i class="fas fa-sign-in-alt"></i>&nbsp;Sign in
       </button>
     </div>
     <mat-nav-list *ngIf="auth.isAuthenticated()">
       <mat-list-item routerLink="/admin">
-        <div mat-list-icon><i class="fa fa-key"></i></div>
+        <div mat-list-icon><i class="fas fa-key"></i></div>
         <h3 mat-line>Administration</h3>
       </mat-list-item>
       <mat-divider></mat-divider>
       <mat-list-item routerLink="/casing">
-        <div mat-list-icon><i class="fa fa-briefcase"></i></div>
+        <div mat-list-icon><i class="fas fa-briefcase"></i></div>
         <h3 mat-line>Casing</h3>
       </mat-list-item>
       <mat-divider></mat-divider>
       <mat-list-item>
-        <div mat-list-icon><i class="fa fa-download"></i></div>
+        <div mat-list-icon><i class="fas fa-download"></i></div>
         <h3 mat-line>Data Extraction</h3>
       </mat-list-item>
       <mat-divider></mat-divider>
       <mat-list-item routerLink="/database-support">
-        <div mat-list-icon><i class="fa fa-database"></i></div>
+        <div mat-list-icon><i class="fas fa-database"></i></div>
         <h3 mat-line>Database Support</h3>
       </mat-list-item>
       <mat-divider></mat-divider>
       <mat-list-item>
-        <div mat-list-icon><i class="fa fa-user-circle"></i></div>
+        <div mat-list-icon><i class="fas fa-user-circle"></i></div>
         <h3 mat-line>My Profile</h3>
       </mat-list-item>
       <mat-divider></mat-divider>

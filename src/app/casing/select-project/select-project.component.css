@@ -81,3 +81,12 @@ mat-list {
 .footer {
   justify-content: center;
 }
+
+.box {
+  margin: 0 -24px;
+  max-height: 415px;
+}
+
+.title {
+  margin: 0;
+}

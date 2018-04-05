@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs/Observable';
+import * as _ from 'lodash';
+
 import { RestService } from './rest.service';
+import { EntityService } from '../../interfaces/entity-service';
 import { Pageable } from '../../models/pageable';
 import { Site } from '../../models/site';
-import * as _ from 'lodash';
-import { EntityService } from '../../interfaces/entity-service';
-import { Observable } from 'rxjs/Observable';
+import { Coordinates} from '../../models/coordinates';
 
 @Injectable()
 export class SiteService implements EntityService<Site> {
@@ -36,6 +38,16 @@ export class SiteService implements EntityService<Site> {
     }
     url += `/${site.id}`;
     return this.http.put<Site>(url, site, {headers: this.rest.getHeaders()});
+  }
+
+  updateCoordinates(siteId: number, coordinates: Coordinates): Observable<Site> {
+    // Retrieve full site object needed to PUT changes
+    return this.getById(siteId).flatMap(site => {
+      // Make the changes
+      site.location.coordinates = [coordinates['lng'], coordinates['lat']];
+      // Submit Changes to web service
+      return this.save(site);
+    });
   }
 
   public del(site: Site): Observable<Site> {

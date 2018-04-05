@@ -9,13 +9,13 @@
               [disabled]="userProfileForm.pristine || userProfileForm.invalid || isSaving">
         <span *ngIf="userProfileForm.invalid">Invalid</span>
         <span *ngIf="!isSaving && userProfileForm.valid">Save</span>
-        <span *ngIf="isSaving"><i class="fa fa-spinner fa-spin"></i></span>
+        <span *ngIf="isSaving"><i class="fas fa-spinner fa-spin"></i></span>
       </button>
     </div>
   </mat-toolbar>
   <div class="row content" *ngIf="userProfile">
     <div *ngIf="isLoading" style="text-align: center">
-      <i class="fa fa-spinner fa-3x fa-spin" aria-hidden="true"> </i>
+      <i class="fas fa-spinner fa-3x fa-spin" aria-hidden="true"> </i>
     </div>
     <mat-list>
       <mat-list-item>

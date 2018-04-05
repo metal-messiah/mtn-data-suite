@@ -2,6 +2,7 @@ import { AuditingEntity } from './auditing-entity';
 import { ShoppingCenter } from './shopping-center';
 import { Store } from './store';
 import { Mappable } from '../interfaces/mappable';
+import { Coordinates } from './coordinates';
 
 export class Site extends AuditingEntity implements Mappable {
   id: number;
@@ -49,8 +50,8 @@ export class Site extends AuditingEntity implements Mappable {
     return this.id;
   }
 
-  getCoordinates(): number[] {
-    return this.location.coordinates;
+  getCoordinates(): Coordinates {
+    return {lat: this.location.coordinates[1], lng: this.location.coordinates[0]};
   }
 
   getLabel(): string {

@@ -1,21 +1,21 @@
 <mat-toolbar class="row header flex-space-between" color="primary">
   <div class="title-bar">
     <mds-logo-menu></mds-logo-menu>
-    <h2><i class="fa fa-briefcase"></i>&nbsp;Casing</h2>
+    <h2><i class="fas fa-briefcase"></i>&nbsp;Casing</h2>
   </div>
   <div class="project-button-container">
     <button class="project-button" mat-raised-button
-            *ngIf="casingService.selectedProject === null" color="warn"
-            (click)="casingService.openProjectSelectionDialog()">
+            *ngIf="casingDashboardService.selectedProject == null" color="warn"
+            (click)="casingDashboardService.openProjectSelectionDialog()">
       Select Project
     </button>
     <button class="project-button" mat-raised-button
-            *ngIf="casingService.selectedProject != null" color="accent"
+            *ngIf="casingDashboardService.selectedProject != null" color="accent"
             [matMenuTriggerFor]="projectMenu">
-      {{casingService.selectedProject.projectName}}
+      {{casingDashboardService.selectedProject.projectName}}
     </button>
     <mat-menu #projectMenu="matMenu">
-      <button mat-menu-item (click)="casingService.openProjectSelectionDialog()">Change Selected Project</button>
+      <button mat-menu-item (click)="casingDashboardService.openProjectSelectionDialog()">Change Selected Project</button>
       <button mat-menu-item (click)="navigateToProjectSummary()">View Project Summary</button>
       <button mat-menu-item (click)="navigateToProjectDetail()">Edit Project</button>
     </mat-menu>

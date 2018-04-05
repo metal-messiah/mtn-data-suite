@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Project } from '../models/project';
-import { SelectProjectComponent } from './select-project/select-project.component';
+import { Project } from '../../models/project';
+import { SelectProjectComponent } from '../select-project/select-project.component';
 import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
-import { Site } from '../models/site';
+import { Site } from '../../models/site';
+import { Observable } from 'rxjs/Observable';
+import { of } from 'rxjs/observable/of';
 
 @Injectable()
-export class CasingService {
+export class CasingDashboardService {
 
   selectedProject: Project;
   private _newSite: Site;
@@ -38,7 +40,6 @@ export class CasingService {
     }
   }
 
-
   get newSite(): Site {
     return this._newSite;
   }
@@ -46,4 +47,27 @@ export class CasingService {
   set newSite(value: Site) {
     this._newSite = value;
   }
+
+  savePerspective(perspective: object): Observable<boolean> {
+    return Observable.create( observer => {
+      try {
+        localStorage.setItem('casingDashboardPerspective', JSON.stringify(perspective));
+        observer.next(true);
+      } catch (e) {
+        observer.error(e);
+      }
+    });
+  }
+
+  getSavedPerspective(): Observable<any> {
+    return Observable.create( observer => {
+      try {
+        const perspective = JSON.parse(localStorage.getItem('casingDashboardPerspective'));
+        observer.next(perspective);
+      } catch (e) {
+        observer.error(e);
+      }
+    });
+  }
+
 }
