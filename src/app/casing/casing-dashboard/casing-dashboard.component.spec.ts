@@ -9,6 +9,8 @@ import { IconService } from '../../core/services/icon.service';
 import { CasingDashboardService } from './casing-dashboard.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { GeocoderService } from '../../core/services/geocoder.service';
+import { LabelService } from '../../core/services/label.service';
+import { NavigatorService } from '../../core/services/navigator.service';
 
 describe('CasingDashboardComponent', () => {
   let component: CasingDashboardComponent;
@@ -23,6 +25,8 @@ describe('CasingDashboardComponent', () => {
         {provide: MapService, useValue: {}},
         {provide: GeocoderService, useValue: {}},
         {provide: CasingDashboardService, useValue: {}},
+        {provide: NavigatorService, useValue: {}},
+        LabelService,
         IconService
       ]
     })
