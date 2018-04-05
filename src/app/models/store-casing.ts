@@ -1,6 +1,7 @@
 import { AuditingEntity } from './auditing-entity';
 import { Store } from './store';
 import { Interaction } from './interaction';
+import { StoreVolume } from './store-volume';
 
 export class StoreCasing extends AuditingEntity {
   id: number;
@@ -31,9 +32,22 @@ export class StoreCasing extends AuditingEntity {
   volumePercentProduce: number;
   volumePlusMinus: number;
   volumeNote: string;
-  volumeTotal: number;
   volumeConfidence: string;
   legacyCasingId: number;
 
+  storeVolume: StoreVolume;
   interactions: Interaction[];
+
+  constructor(obj?: StoreCasing) {
+    if (obj != null) {
+      super(obj);
+      Object.keys(obj).forEach(key => this[key] = obj[key]);
+      if (obj.storeVolume != null) {
+        this.storeVolume = new StoreVolume(obj.storeVolume);
+      }
+      if (obj.interactions != null) {
+        this.interactions = obj.interactions.map(interaction => new Interaction(interaction));
+      }
+    }
+  }
 }
