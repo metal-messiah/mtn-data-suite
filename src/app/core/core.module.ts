@@ -17,7 +17,6 @@ import { IconService } from './services/icon.service';
 import { GeocoderService } from './services/geocoder.service';
 import { LabelService } from './services/label.service';
 import { NavigatorService } from './services/navigator.service';
-import { GooglePlacesService } from './services/google-places.service';
 import { MapService } from './services/map.service';
 
 @NgModule({
@@ -34,7 +33,6 @@ import { MapService } from './services/map.service';
     ErrorService,
     GeocoderService,
     GroupService,
-    GooglePlacesService,
     IconService,
     LabelService,
     MapService,

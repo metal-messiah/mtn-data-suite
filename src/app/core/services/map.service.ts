@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import {} from '@types/googlemaps';
 import { Subject } from 'rxjs/Subject';
 import { MapPointLayer } from '../../models/map-point-layer';
+import { Observable } from 'rxjs/Observable';
+import { GooglePlace } from '../../models/GooglePlace';
 
 /*
   The MapService should
@@ -21,6 +23,8 @@ export class MapService {
   drawingEvents: any[];
   drawingComplete$ = new Subject<any>();
 
+  placesService: google.maps.places.PlacesService;
+
   constructor() {
   }
 
@@ -30,6 +34,7 @@ export class MapService {
       center: {lat: 39.8283, lng: -98.5795},
       zoom: 8
     });
+    this.placesService = new google.maps.places.PlacesService(this.map);
 
     // Listen to events and pass them on via subjects
     this.map.addListener('bounds_changed', () => {
@@ -43,10 +48,6 @@ export class MapService {
 
     // Setup Drawing Manager
     this.drawingManager = new google.maps.drawing.DrawingManager();
-  }
-
-  getMap(): google.maps.Map {
-    return this.map;
   }
 
   setCenter(position: google.maps.LatLngLiteral) {
@@ -129,6 +130,19 @@ export class MapService {
 
   addPointLayer(pointLayer: MapPointLayer) {
     pointLayer.addToMap(this.map);
+  }
+
+  searchFor(queryString: string): Observable<GooglePlace[]> {
+    return Observable.create(observer => {
+      const request = {
+        bounds: this.getBounds(),
+        name: queryString
+      };
+      this.placesService.nearbySearch(request, (response) => {
+          observer.next(response.map(place => new GooglePlace(place)));
+        }
+      );
+    });
   }
 
 }

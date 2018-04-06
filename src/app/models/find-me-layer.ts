@@ -9,6 +9,7 @@ export class FindMeLayer extends MapPointLayer {
 
   constructor(coordinates: Coordinates) {
     super({
+      additionToZIndex: 100,
       getMappableIsDraggable: (mappable: Mappable) => {
         return false;
       },
@@ -33,7 +34,7 @@ export class FindMeLayer extends MapPointLayer {
       position: coordinates
     });
     this.markers = [ this.locationMarker ];
-    this.setMarkerStyle(this.locationMarker);
+    this.setMarkerOptions(this.locationMarker);
     this.locationMarker.setAnimation(google.maps.Animation.BOUNCE);
   }
 }

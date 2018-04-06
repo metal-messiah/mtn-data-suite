@@ -33,12 +33,12 @@ export class MapPointLayer {
     // Preserve relationship between marker and mappable
     marker.set('mappable', mappable);
     this.markers.push(marker);
-    this.setMarkerStyle(marker);
+    this.setMarkerOptions(marker);
   }
 
   refreshOptionsForMappable(mappable: Mappable): void {
     const marker = this.getMarkerForMappable(mappable);
-    this.setMarkerStyle(marker);
+    this.setMarkerOptions(marker);
   }
 
   getMarkerForMappable(mappable: Mappable) {
@@ -46,14 +46,15 @@ export class MapPointLayer {
   }
 
   refreshOptions(): void {
-    this.markers.forEach(marker => this.setMarkerStyle(marker));
+    this.markers.forEach(marker => this.setMarkerOptions(marker));
   }
 
-  setMarkerStyle(marker: google.maps.Marker): void {
+  setMarkerOptions(marker: google.maps.Marker): void {
     const mappable = marker.get('mappable');
     marker.setDraggable(this.layerOptions.getMappableIsDraggable(mappable));
     marker.setIcon(this.layerOptions.getMappableIcon(mappable));
     marker.setLabel(this.layerOptions.getMappableLabel(mappable));
+    marker.setZIndex(marker.getZIndex() + this.layerOptions.additionToZIndex);
   }
 
   addToMap(map: google.maps.Map) {

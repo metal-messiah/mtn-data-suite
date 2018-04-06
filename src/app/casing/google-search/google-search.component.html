@@ -15,6 +15,7 @@
     </div>
     <div id="search-results">
       <mat-nav-list>
+        <mat-list-item *ngIf="noSearchResults">No Search Results</mat-list-item>
         <mat-list-item *ngFor="let place of places" (click)="goToPlace(place)">
           <h3 matLine>{{place.name}}</h3>
           <p matLine>
@@ -26,5 +27,6 @@
   </div>
   <div mat-dialog-actions>
     <button mat-raised-button color="accent" type="button" (click)="closeDialog()">Close</button>
+    <button mat-raised-button color="primary" type="button" (click)="searchWithMap()">Search with Map</button>
   </div>
 </form>

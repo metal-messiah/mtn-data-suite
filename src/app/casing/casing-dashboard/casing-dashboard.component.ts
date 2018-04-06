@@ -21,6 +21,8 @@ import { FollowMeLayer } from '../../models/follow-me-layer';
 import { LatLngSearchComponent } from '../lat-lng-search/lat-lng-search.component';
 import { Coordinates } from '../../models/coordinates';
 import { GoogleSearchComponent } from '../google-search/google-search.component';
+import { GooglePlace } from '../../models/GooglePlace';
+import { Subscription } from 'rxjs/Subscription';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -68,6 +70,8 @@ export class CasingDashboardComponent implements OnInit {
   multiSelectMode = MultiSelectMode;
   markerType = MarkerType;
 
+  googleSearchSubscription: Subscription;
+
   constructor(public mapService: MapService,
               public geocoderService: GeocoderService,
               public casingDashboardService: CasingDashboardService,
@@ -85,6 +89,7 @@ export class CasingDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.defaultPointLayer = new MapPointLayer({
+      additionToZIndex: 0,
       getMappableIsDraggable: (site: Site) => {
         return this.siteIsDraggable(site);
       },
@@ -214,6 +219,7 @@ export class CasingDashboardComponent implements OnInit {
     this.selectedDashboardMode = CasingDashboardMode.CREATING_SITE;
     // Create new Layer for new Location
     this.newLocationPointLayer = new MapPointLayer({
+      additionToZIndex: 100,
       getMappableIsDraggable: (site: Site) => {
         return true;
       },
@@ -410,27 +416,55 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   openGoogleSearch() {
-    if (this.googleLayer == null) {
-      this.googleLayer = new MapPointLayer({
-        getMappableIsDraggable: (mappable: Mappable) => {
-          return false;
-        },
-        getMappableIcon: (mappable: Mappable) => {
-          return this.iconService.getIcon(Color.PINK, Color.WHITE, MarkerShape.FILLED);
-        },
-        getMappableLabel: (mappable: Mappable) => {
-          return this.labelService.getLabel(mappable.getLabel()[0], Color.WHITE);
+   const latLngSearchDialog = this.dialog.open(GoogleSearchComponent);
+    latLngSearchDialog.afterClosed().subscribe(result => {
+      if (result != null) {
+        // Create google point layer
+        if (this.googleLayer == null) {
+          this.googleLayer = new MapPointLayer({
+            additionToZIndex: 10000,
+            getMappableIsDraggable: (mappable: Mappable) => {
+              return false;
+            },
+            getMappableIcon: (mappable: Mappable) => {
+              return this.iconService.getIcon(Color.PINK, Color.WHITE, MarkerShape.FILLED);
+            },
+            getMappableLabel: (mappable: Mappable) => {
+              return this.labelService.getLabel(mappable.getLabel()[0], Color.WHITE);
+            }
+          });
         }
-      });
-    }
-
-    const latLngSearchDialog = this.dialog.open(GoogleSearchComponent);
-    latLngSearchDialog.afterClosed().subscribe((place: Mappable) => {
-      this.googleLayer.clearMarkers();
-      this.googleLayer.createMarkerFromMappable(place);
-      this.mapService.addPointLayer(this.googleLayer);
-      this.mapService.setCenter(place.getCoordinates());
+        if (result.place != null) {
+          this.updateGoogleLayer([result.place]);
+          this.mapService.setCenter(result.place.getCoordinates());
+        } else if (result.query != null) {
+          this.mapService.searchFor(result.query).subscribe((searchResults: GooglePlace[]) => {
+            this.updateGoogleLayer(searchResults);
+          });
+          this.googleSearchSubscription = this.mapService.boundsChanged$.pipe(debounceTime(750))
+            .subscribe(bounds => {
+            this.mapService.searchFor(result.query).subscribe((searchResults: GooglePlace[]) => {
+              this.updateGoogleLayer(searchResults);
+            });
+          });
+        }
+      }
     });
+  }
+
+  updateGoogleLayer(mappables: Mappable[]) {
+    this.googleLayer.clearMarkers();
+    this.googleLayer.createMarkersFromMappables(mappables);
+    this.mapService.addPointLayer(this.googleLayer);
+  }
+
+  clearGoogleSearch() {
+    if (this.googleSearchSubscription != null) {
+      this.googleSearchSubscription.unsubscribe();
+      this.googleSearchSubscription = null;
+    }
+    this.googleLayer.removeFromMap();
+    this.googleLayer = null;
   }
 
   openLatLngSearch() {

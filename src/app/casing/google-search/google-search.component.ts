@@ -1,8 +1,8 @@
 import { Component, NgZone } from '@angular/core';
 import { MatDialogRef } from '@angular/material';
 import { FormControl } from '@angular/forms';
-import { GooglePlacesService } from 'app/core/services/google-places.service';
 import { GooglePlace } from '../../models/GooglePlace';
+import { MapService } from '../../core/services/map.service';
 
 @Component({
   selector: 'mds-search',
@@ -13,9 +13,10 @@ export class GoogleSearchComponent {
 
   places: GooglePlace[];
   googleFormControl = new FormControl('');
+  noSearchResults = false;
 
   constructor(public dialogRef: MatDialogRef<GoogleSearchComponent>,
-              private searchService: GooglePlacesService,
+              private mapService: MapService,
               private ngZone: NgZone) { }
 
   closeDialog() {
@@ -24,13 +25,20 @@ export class GoogleSearchComponent {
 
   search() {
     const queryString = this.googleFormControl.value;
-    this.searchService.searchFor(queryString).subscribe( (searchResults: GooglePlace[]) => {
+    this.mapService.searchFor(queryString).subscribe( (searchResults: GooglePlace[]) => {
+      this.noSearchResults = (searchResults.length === 0);
       this.ngZone.run(() => this.places = searchResults);
     });
   }
 
-  goToPlace(place) {
-    this.dialogRef.close(place);
+  goToPlace(place: GooglePlace) {
+    this.dialogRef.close({place: place});
+  }
+
+  searchWithMap() {
+    this.dialogRef.close({
+      query: this.googleFormControl.value
+    });
   }
 
 }

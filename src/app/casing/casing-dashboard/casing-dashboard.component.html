@@ -201,10 +201,13 @@
   <button mat-menu-item (click)="openDatabaseSearch()" [disabled]="true">
     <i class="fas fa-database"></i>&nbsp;Database
   </button>
+  <button mat-menu-item (click)="openLatLngSearch()">
+    <i class="fas fa-crosshairs"></i>&nbsp;Lat/Lng
+  </button>
   <button mat-menu-item (click)="openGoogleSearch()">
     <i class="fab fa-google"></i>&nbsp;Google
   </button>
-  <button mat-menu-item (click)="openLatLngSearch()">
-    <i class="fas fa-crosshairs"></i>&nbsp;Lat/Lng
+  <button mat-menu-item (click)="clearGoogleSearch()" *ngIf="googleLayer != null">
+    <i class="fas ban"></i>&nbsp;Clear Google Search
   </button>
 </mat-menu>

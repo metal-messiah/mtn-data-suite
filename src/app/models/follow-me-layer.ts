@@ -9,6 +9,7 @@ export class FollowMeLayer extends MapPointLayer {
 
   constructor() {
     super({
+      additionToZIndex: 100,
       getMappableIsDraggable: (mappable: Mappable) => {
         return false;
       },
@@ -33,7 +34,7 @@ export class FollowMeLayer extends MapPointLayer {
       position: {lat: 0, lng: 0}
     });
     this.markers = [ this.locationMarker ];
-    this.setMarkerStyle(this.locationMarker);
+    this.setMarkerOptions(this.locationMarker);
   }
 
   updatePosition(coordinates: Coordinates) {

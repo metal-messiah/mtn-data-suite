@@ -1,6 +1,7 @@
 import { Mappable } from './mappable';
 
-export interface MapPointLayerOptions {
+export class MapPointLayerOptions {
+  additionToZIndex = 0;
   getMappableIsDraggable: (mappable: Mappable) => boolean;
   getMappableIcon: (mappable: Mappable) => any;
   getMappableLabel: (mappable: Mappable) => string | {color: string, fontWeight: string, text: string};
