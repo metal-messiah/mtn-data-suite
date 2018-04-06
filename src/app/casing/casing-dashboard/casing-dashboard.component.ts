@@ -20,6 +20,7 @@ import { FindMeLayer } from '../../models/find-me-layer';
 import { FollowMeLayer } from '../../models/follow-me-layer';
 import { LatLngSearchComponent } from '../lat-lng-search/lat-lng-search.component';
 import { Coordinates } from '../../models/coordinates';
+import { GoogleSearchComponent } from '../google-search/google-search.component';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -36,8 +37,7 @@ export enum CasingDashboardMode {
 @Component({
   selector: 'mds-casing-dashboard',
   templateUrl: './casing-dashboard.component.html',
-  styleUrls: ['./casing-dashboard.component.css'],
-  providers: [MapService]
+  styleUrls: ['./casing-dashboard.component.css']
 })
 export class CasingDashboardComponent implements OnInit {
 
@@ -49,6 +49,7 @@ export class CasingDashboardComponent implements OnInit {
   defaultPointLayer: MapPointLayer;
   newLocationPointLayer: MapPointLayer;
   followMeLayer: FollowMeLayer;
+  googleLayer: MapPointLayer;
 
   // Flags
   showCard = false;
@@ -66,8 +67,6 @@ export class CasingDashboardComponent implements OnInit {
   multiSelectToolType = MultiSelectToolTypes;
   multiSelectMode = MultiSelectMode;
   markerType = MarkerType;
-
-  searchDialog: any;
 
   constructor(public mapService: MapService,
               public geocoderService: GeocoderService,
@@ -377,7 +376,8 @@ export class CasingDashboardComponent implements OnInit {
     const coordinates = this.defaultPointLayer.getCoordinatesOfMappableMarker(this.movingSite);
     this.siteService.updateCoordinates(this.selectedSites[0].getId(), coordinates)
       .subscribe(updatedSite => {
-        this.cancelSiteMove();
+        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        this.movingSite = null;
         this.getSites(this.mapService.getBounds());
       });
   }
@@ -406,16 +406,36 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   openDatabaseSearch() {
-
+    // TODO
   }
 
   openGoogleSearch() {
+    if (this.googleLayer == null) {
+      this.googleLayer = new MapPointLayer({
+        getMappableIsDraggable: (mappable: Mappable) => {
+          return false;
+        },
+        getMappableIcon: (mappable: Mappable) => {
+          return this.iconService.getIcon(Color.PINK, Color.WHITE, MarkerShape.FILLED);
+        },
+        getMappableLabel: (mappable: Mappable) => {
+          return this.labelService.getLabel(mappable.getLabel()[0], Color.WHITE);
+        }
+      });
+    }
 
+    const latLngSearchDialog = this.dialog.open(GoogleSearchComponent);
+    latLngSearchDialog.afterClosed().subscribe((place: Mappable) => {
+      this.googleLayer.clearMarkers();
+      this.googleLayer.createMarkerFromMappable(place);
+      this.mapService.addPointLayer(this.googleLayer);
+      this.mapService.setCenter(place.getCoordinates());
+    });
   }
 
   openLatLngSearch() {
     const latLngSearchDialog = this.dialog.open(LatLngSearchComponent);
-    latLngSearchDialog.afterClosed().subscribe(coordinates => {
+    latLngSearchDialog.afterClosed().subscribe((coordinates: Coordinates) => {
       console.log(coordinates);
       if (coordinates != null) {
         this.mapService.setCenter(coordinates);

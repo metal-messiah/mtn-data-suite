@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import {} from '@types/googlemaps';
 import { Subject } from 'rxjs/Subject';
-import { IconService } from './icon.service';
 import { MapPointLayer } from '../../models/map-point-layer';
 
 /*
@@ -22,7 +21,7 @@ export class MapService {
   drawingEvents: any[];
   drawingComplete$ = new Subject<any>();
 
-  constructor(private iconService: IconService) {
+  constructor() {
   }
 
   initialize(element: HTMLElement) {
@@ -46,9 +45,10 @@ export class MapService {
     this.drawingManager = new google.maps.drawing.DrawingManager();
   }
 
-  /*
-  Mutators
-   */
+  getMap(): google.maps.Map {
+    return this.map;
+  }
+
   setCenter(position: google.maps.LatLngLiteral) {
     this.map.setCenter(position);
   }

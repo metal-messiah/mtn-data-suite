@@ -198,7 +198,7 @@
 </mat-menu>
 
 <mat-menu #searchMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="openDatabaseSearch()">
+  <button mat-menu-item (click)="openDatabaseSearch()" [disabled]="true">
     <i class="fas fa-database"></i>&nbsp;Database
   </button>
   <button mat-menu-item (click)="openGoogleSearch()">

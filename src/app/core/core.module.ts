@@ -17,6 +17,8 @@ import { IconService } from './services/icon.service';
 import { GeocoderService } from './services/geocoder.service';
 import { LabelService } from './services/label.service';
 import { NavigatorService } from './services/navigator.service';
+import { GooglePlacesService } from './services/google-places.service';
+import { MapService } from './services/map.service';
 
 @NgModule({
   imports: [
@@ -30,17 +32,19 @@ import { NavigatorService } from './services/navigator.service';
     DuplicateService,
     EntityListService,
     ErrorService,
+    GeocoderService,
     GroupService,
+    GooglePlacesService,
+    IconService,
+    LabelService,
+    MapService,
+    NavigatorService,
     PermissionService,
+    ProjectService,
     RestService,
     RoleService,
     SiteService,
-    UserProfileService,
-    ProjectService,
-    IconService,
-    GeocoderService,
-    LabelService,
-    NavigatorService
+    UserProfileService
   ]
 })
 export class CoreModule {

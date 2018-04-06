@@ -11,9 +11,9 @@ import { SiteListComponent } from './site-list/site-list.component';
 import { CasingDashboardService } from './casing-dashboard/casing-dashboard.service';
 import { SiteDetailComponent } from './site-detail/site-detail.component';
 import { LocationOverviewComponent } from './location-overview/location-overview.component';
-import { GooglePlacesComponent } from './google-places/google-places.component';
 import { DbSearchComponent } from './db-search/db-search.component';
 import { LatLngSearchComponent } from './lat-lng-search/lat-lng-search.component';
+import { GoogleSearchComponent } from './google-search/google-search.component';
 
 @NgModule({
   imports: [
@@ -30,13 +30,13 @@ import { LatLngSearchComponent } from './lat-lng-search/lat-lng-search.component
     SiteListComponent,
     SiteDetailComponent,
     LocationOverviewComponent,
-    LatLngSearchComponent,
-    GooglePlacesComponent,
     DbSearchComponent,
-    LatLngSearchComponent
+    LatLngSearchComponent,
+    GoogleSearchComponent
   ],
   entryComponents: [
     LatLngSearchComponent,
+    GoogleSearchComponent,
     SelectProjectComponent
   ],
   providers: [CasingDashboardService]

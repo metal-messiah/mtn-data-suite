@@ -40,7 +40,7 @@ export class SiteService implements EntityService<Site> {
     return this.http.put<Site>(url, site, {headers: this.rest.getHeaders()});
   }
 
-  updateCoordinates(siteId: number, coordinates: Coordinates): Observable<Site> {
+  updateCoordinates(siteId: number | string, coordinates: Coordinates): Observable<Site> {
     // Retrieve full site object needed to PUT changes
     return this.getById(siteId).flatMap(site => {
       // Make the changes
