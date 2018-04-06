@@ -131,7 +131,7 @@
           </button>
         </div>
         <div>
-          <button mat-mini-fab color="primary" (click)="openSearch()">
+          <button mat-mini-fab color="primary" [matMenuTriggerFor]="searchMenu">
             <i class="fas fa-search"></i>
           </button>
         </div>
@@ -194,5 +194,17 @@
   </button>
   <button mat-menu-item (click)="setMultiSelectMode(multiSelectMode.DESELECT)">
     <i class="fas fa-minus-circle"></i>&nbsp;Deselect
+  </button>
+</mat-menu>
+
+<mat-menu #searchMenu="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item (click)="openDatabaseSearch()">
+    <i class="fas fa-database"></i>&nbsp;Database
+  </button>
+  <button mat-menu-item (click)="openGoogleSearch()">
+    <i class="fab fa-google"></i>&nbsp;Google
+  </button>
+  <button mat-menu-item (click)="openLatLngSearch()">
+    <i class="fas fa-crosshairs"></i>&nbsp;Lat/Lng
   </button>
 </mat-menu>

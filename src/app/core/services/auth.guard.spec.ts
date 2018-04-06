@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 
 describe('AuthGuard', () => {
   beforeEach(() => {
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['isAuthenticated', 'login']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['isAuthenticated', 'signIn']);
     authServiceSpy.isAuthenticated.and.returnValue(true);
 
     TestBed.configureTestingModule({

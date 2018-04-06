@@ -21,7 +21,7 @@ describe('AdminComponent', () => {
         {provide: ActivatedRoute, useValue: new ActivatedRouteStub()},
         {
           provide: AuthService, useValue: {
-            login: () => {},
+            signIn: () => {},
             logout: () => {},
             isAuthenticated: () => {}
           }

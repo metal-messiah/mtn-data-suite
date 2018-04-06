@@ -18,7 +18,7 @@ import { LabelService } from '../../core/services/label.service';
 import { NavigatorService } from '../../core/services/navigator.service';
 import { FindMeLayer } from '../../models/find-me-layer';
 import { FollowMeLayer } from '../../models/follow-me-layer';
-import { SearchComponent } from '../search/search.component';
+import { LatLngSearchComponent } from '../lat-lng-search/lat-lng-search.component';
 import { Coordinates } from '../../models/coordinates';
 
 export enum MultiSelectToolTypes {
@@ -405,14 +405,22 @@ export class CasingDashboardComponent implements OnInit {
     this.defaultPointLayer.refreshOptions();
   }
 
-  openSearch() {
-    const searchDialog = this.dialog.open(SearchComponent);
-    searchDialog.afterClosed().subscribe(result => {
-      console.log(result);
-      if (result.coordinates != null) {
-        this.mapService.setCenter(result.coordinates);
+  openDatabaseSearch() {
+
+  }
+
+  openGoogleSearch() {
+
+  }
+
+  openLatLngSearch() {
+    const latLngSearchDialog = this.dialog.open(LatLngSearchComponent);
+    latLngSearchDialog.afterClosed().subscribe(coordinates => {
+      console.log(coordinates);
+      if (coordinates != null) {
+        this.mapService.setCenter(coordinates);
         // Create layer
-        const fm = new FindMeLayer(result.coordinates);
+        const fm = new FindMeLayer(coordinates);
         // Add it to the map
         this.mapService.addPointLayer(fm);
         // After 5 seconds remove it from the map
