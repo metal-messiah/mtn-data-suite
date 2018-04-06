@@ -1,3 +1,16 @@
-<p>
-  lat-lng-search works!
-</p>
+<form class="lat-long-search-form box">
+  <div class="row content">
+    <mat-form-field class="example-full-width">
+      <input matInput placeholder="Latitude and Longitude" [formControl]="latLngFormControl">
+      <mat-error *ngIf="latLngFormControl.hasError('pattern')">
+        Please enter two numbers separated by a comma, space, or tab
+      </mat-error>
+    </mat-form-field>
+  </div>
+  <div class="row footer">
+    <div></div>
+    <button mat-raised-button color="primary" type="submit" (click)="submit()"
+            [disabled]="latLngFormControl.hasError('pattern') || latLngFormControl.value === ''">Go!</button>
+    <div></div>
+  </div>
+</form>

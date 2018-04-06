@@ -19,6 +19,7 @@ import { NavigatorService } from '../../core/services/navigator.service';
 import { FindMeLayer } from '../../models/find-me-layer';
 import { FollowMeLayer } from '../../models/follow-me-layer';
 import { SearchComponent } from '../search/search.component';
+import { Coordinates } from '../../models/coordinates';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -110,12 +111,12 @@ export class CasingDashboardComponent implements OnInit {
     });
 
     this.mapService.boundsChanged$.pipe(debounceTime(750)).subscribe(bounds => {
-        const perspective = this.mapService.getPerspective();
-        this.casingDashboardService.savePerspective(perspective).subscribe();
-        if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_SITE) {
-          this.getSites(bounds);
-        }
-      });
+      const perspective = this.mapService.getPerspective();
+      this.casingDashboardService.savePerspective(perspective).subscribe();
+      if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_SITE) {
+        this.getSites(bounds);
+      }
+    });
     this.mapService.mapClick$.subscribe((coords: object) => {
       this.showCard = false;
       this.ngZone.run(() => this.showCard = false);
@@ -186,7 +187,7 @@ export class CasingDashboardComponent implements OnInit {
       shape = google.maps.SymbolPath.CIRCLE;
     }
 
-    return this.iconService.getIcon( fillColor, Color.WHITE, shape);
+    return this.iconService.getIcon(fillColor, Color.WHITE, shape);
   }
 
   getSites(bounds): void {
@@ -375,7 +376,7 @@ export class CasingDashboardComponent implements OnInit {
   saveSiteMove() {
     const coordinates = this.defaultPointLayer.getCoordinatesOfMappableMarker(this.movingSite);
     this.siteService.updateCoordinates(this.selectedSites[0].getId(), coordinates)
-      .subscribe( updatedSite => {
+      .subscribe(updatedSite => {
         this.cancelSiteMove();
         this.getSites(this.mapService.getBounds());
       });
@@ -405,6 +406,20 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   openSearch() {
-    this.searchDialog = this.dialog.open(SearchComponent);
+    const searchDialog = this.dialog.open(SearchComponent);
+    searchDialog.afterClosed().subscribe(result => {
+      console.log(result);
+      if (result.coordinates != null) {
+        this.mapService.setCenter(result.coordinates);
+        // Create layer
+        const fm = new FindMeLayer(result.coordinates);
+        // Add it to the map
+        this.mapService.addPointLayer(fm);
+        // After 5 seconds remove it from the map
+        setTimeout(() => {
+          fm.removeFromMap();
+        }, 3000);
+      }
+    });
   }
 }

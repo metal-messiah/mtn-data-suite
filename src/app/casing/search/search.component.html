@@ -10,11 +10,11 @@
       <mds-google-places></mds-google-places>
     </mat-tab>
     <mat-tab label="Lat/Lng" class="search-tab-content">
-      <mds-lat-lng-search></mds-lat-lng-search>
+      <mds-lat-lng-search (onSubmitted)="returnCoordinates($event)"></mds-lat-lng-search>
     </mat-tab>
   </mat-tab-group>
 </div>
 <div mat-dialog-actions>
   <div></div>
-  <button mat-raised-button color="accent">Close</button>
+  <button mat-raised-button color="accent" type="button" (click)="closeDialog()">Close</button>
 </div>
