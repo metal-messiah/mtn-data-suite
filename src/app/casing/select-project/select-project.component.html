@@ -1,16 +1,12 @@
-<div id="wrapper">
-  <div class="title">
-    <h2>Select A Project</h2>
-    <button mat-icon-button (focus)="false" (click)="closeDialog()" tabindex="-1">
-      <i class="fa fa-times-circle fa-2x"></i>
-    </button>
-  </div>
-  <mat-divider></mat-divider>
+<div mat-dialog-title class="title">
+  Select A Project
+</div>
+<div mat-dialog-content>
   <div class="box">
     <div class="row header">
       <div class="search-section">
         <mat-form-field floatLabel="never" id="searchField">
-          <i matPrefix class="fa fa-search"></i>
+          <i matPrefix class="fas fa-search"></i>
           <input matInput autofocus type="search" #projectSearchBox placeholder="Project Name"
                  [(ngModel)]="projectQuery" name="projectQuery"/>
         </mat-form-field>
@@ -19,13 +15,13 @@
         <mat-list dense>
           <mat-list-item>
             <div class="custom-select-list-item">
-              <span><i class="fa fa-briefcase active"></i>&nbsp;&nbsp;Active</span>
+              <span><i class="fas fa-briefcase active"></i>&nbsp;&nbsp;Active</span>
               <mat-checkbox [(ngModel)]="active" (change)="getProjects()"></mat-checkbox>
             </div>
           </mat-list-item>
           <mat-list-item>
             <div class="custom-select-list-item">
-              <span><i class="fa fa-star yellow"></i>&nbsp;&nbsp;Primary Data</span>
+              <span><i class="fas fa-star yellow"></i>&nbsp;&nbsp;Primary Data</span>
               <mat-checkbox [(ngModel)]="primaryData" (change)="getProjects()"></mat-checkbox>
             </div>
           </mat-list-item>
@@ -37,8 +33,8 @@
       <mat-nav-list>
         <mat-list-item *ngFor="let project of projects" (click)="selectProject(project)">
           <span class="icon-container">
-            <i *ngIf="project.active" class="fa fa-briefcase active"></i>
-            <i *ngIf="project.primary" class="fa fa-star yellow"></i>
+            <i *ngIf="project.active" class="fas fa-briefcase active"></i>
+            <i *ngIf="project.primary" class="fas fa-star yellow"></i>
           </span>
           <span class="project-name">{{project.projectName}}</span>
         </mat-list-item>
@@ -47,12 +43,13 @@
         </mat-list-item>
       </mat-nav-list>
     </div>
-    <mat-toolbar class="row footer flex-space-between" color="primary">
-      <div>
-        <button mat-raised-button color="accent" (click)="clearSelectedProject()">
-          Clear Selected Project
-        </button>
-      </div>
-    </mat-toolbar>
   </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button color="accent" (click)="closeDialog()">
+    Cancel
+  </button>
+  <button mat-raised-button color="primary" (click)="clearSelectedProject()">
+    Select None
+  </button>
 </div>

@@ -58,7 +58,8 @@ export class ErrorService {
         status: err['status'],
         showRetry: showRetry && retry !== undefined,
         showLogin: showLogin
-      }
+      },
+      width: '250px'
     });
     dialogRef.afterClosed().subscribe(response => {
       if (response === 'retry') {

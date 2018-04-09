@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { CasingService } from './casing.service';
+import { CasingDashboardService } from './casing-dashboard/casing-dashboard.service';
 
 @Component({
   selector: 'mds-casing',
@@ -9,7 +8,7 @@ import { CasingService } from './casing.service';
 })
 export class CasingComponent implements OnInit {
 
-  constructor(public casingService: CasingService) { }
+  constructor(public casingDashboardService: CasingDashboardService) { }
 
   ngOnInit() {
   }

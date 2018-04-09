@@ -8,8 +8,9 @@ import { SelectProjectComponent } from './select-project/select-project.componen
 import { ProjectSummaryComponent } from './project-summary/project-summary.component';
 import { ProjectDetailComponent } from './project-detail/project-detail.component';
 import { SiteListComponent } from './site-list/site-list.component';
-import { CasingService } from './casing.service';
+import { CasingDashboardService } from './casing-dashboard/casing-dashboard.service';
 import { SiteDetailComponent } from './site-detail/site-detail.component';
+import { LocationOverviewComponent } from './location-overview/location-overview.component';
 
 @NgModule({
   imports: [
@@ -24,12 +25,13 @@ import { SiteDetailComponent } from './site-detail/site-detail.component';
     ProjectSummaryComponent,
     ProjectDetailComponent,
     SiteListComponent,
-    SiteDetailComponent
+    SiteDetailComponent,
+    LocationOverviewComponent
   ],
   entryComponents: [
     SelectProjectComponent
   ],
-  providers: [CasingService]
+  providers: [CasingDashboardService]
 })
 export class CasingModule {
 }

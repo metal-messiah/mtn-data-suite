@@ -10,6 +10,7 @@ import { CanDeactivateGuard } from '../core/services/can-deactivate.guard';
 import { ProjectDetailComponent } from './project-detail/project-detail.component';
 import { SiteListComponent } from './site-list/site-list.component';
 import { SiteDetailComponent } from './site-detail/site-detail.component';
+import { LocationOverviewComponent } from './location-overview/location-overview.component';
 
 const routes: Routes = [
   {
@@ -22,8 +23,10 @@ const routes: Routes = [
       {path: 'site-detail/:id', component: SiteDetailComponent},
       {path: 'site-detail', component: SiteDetailComponent},
       {path: 'projects', component: CasingProjectsComponent},
-      {path: 'project-summary/:id', component: ProjectSummaryComponent},
-      {path: 'project-detail/:id', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]}
+      {path: 'project-summary/:projectId', component: ProjectSummaryComponent},
+      {path: 'project-detail/:id', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'project-detail/', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'location-overview/:siteId', component: LocationOverviewComponent}
     ]
   }
 ];

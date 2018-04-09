@@ -1,10 +1,7 @@
-export interface Location {
-  coordinates: number[];
-}
+import { Coordinates } from '../models/coordinates';
 
 export interface Mappable {
-  location: Location;
-  getCoordinates: () => number[];
+  getCoordinates: () => Coordinates;
   getLabel: () => string;
   getId: () => number;
 }
