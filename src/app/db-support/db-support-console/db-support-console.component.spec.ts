@@ -1,6 +1,10 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DbSupportConsoleComponent } from './db-support-console.component';
+import { DbSupportModule } from '../db-support.module';
+import { RouterTestingModule } from '@angular/router/testing';
+import { DuplicateService } from '../../core/services/duplicate.service';
+import { MapService } from '../../core/services/map.service';
 
 describe('DbSupportConsoleComponent', () => {
   let component: DbSupportConsoleComponent;
@@ -8,7 +12,15 @@ describe('DbSupportConsoleComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DbSupportConsoleComponent ]
+      imports: [
+        DbSupportModule,
+        RouterTestingModule
+      ],
+      providers: [
+        {provide: DuplicateService, useValue: {}},
+        {provide: MapService, useValue: {}}
+
+      ]
     })
     .compileComponents();
   }));

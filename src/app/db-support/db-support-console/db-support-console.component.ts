@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { DuplicateService } from '../../core/services/duplicate.service';
 import { Site } from '../../models/site';
 import { Duplicate } from '../../models/duplicate';
+import { MapService } from '../../core/services/map.service';
 
 @Component({
   selector: 'mds-db-support-console',
@@ -16,6 +17,7 @@ export class DbSupportConsoleComponent implements OnInit {
   isLoading = false;
 
   constructor(private duplicateService: DuplicateService,
+              private mapService: MapService,
               private router: Router) {
   }
 

@@ -4,6 +4,7 @@ import { DbSupportRoutingModule } from './db-support-routing.module';
 import { DbSupportDashboardComponent } from './db-support-dashboard/db-support-dashboard.component';
 import { DbSupportConsoleComponent } from './db-support-console/db-support-console.component';
 import { DbSupportComponent } from './db-support.component';
+import { MapService } from '../core/services/map.service';
 
 @NgModule({
   imports: [
@@ -14,6 +15,9 @@ import { DbSupportComponent } from './db-support.component';
     DbSupportDashboardComponent,
     DbSupportConsoleComponent,
     DbSupportComponent
+  ],
+  providers: [
+    MapService
   ]
 })
 

@@ -1,6 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DbSupportComponent } from './db-support.component';
+import { DbSupportModule } from './db-support.module';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('DbSupportComponent', () => {
   let component: DbSupportComponent;
@@ -8,7 +10,10 @@ describe('DbSupportComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DbSupportComponent ]
+      imports: [
+        DbSupportModule,
+        RouterTestingModule
+      ]
     })
     .compileComponents();
   }));

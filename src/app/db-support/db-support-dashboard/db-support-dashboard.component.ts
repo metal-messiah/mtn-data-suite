@@ -8,8 +8,7 @@ import { MapService } from '../../core/services/map.service';
 @Component({
   selector: 'mds-database-dashboard',
   templateUrl: './db-support-dashboard.component.html',
-  styleUrls: ['./db-support-dashboard.component.css'],
-  providers: [MapService]
+  styleUrls: ['./db-support-dashboard.component.css']
 })
 export class DbSupportDashboardComponent implements OnInit {
 
