@@ -1,0 +1,21 @@
+#map {
+  width: 66%;
+}
+
+#console {
+  width: 33%
+}
+
+#db-support-dash-container {
+  height: calc(100% - 64px);
+}
+
+@media (max-width: 600px) {
+  #db-support-dash-container {
+    height: calc(100% - 56px);
+  }
+}
+
+.box {
+  height: 100%;
+}

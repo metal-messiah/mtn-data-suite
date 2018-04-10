@@ -1,11 +1,6 @@
 <div class="row content">
   <div class="flex-container">
     <!-- Map API or routerLink will go here -->
-    <div id="Map"></div>
-
-    <!-- Right side of Database Support Main Window -->
-    <div id="Forms">
-      <!--Start of Cards -->
       <mat-accordion class="headers-align" *ngIf="!isLoading">
         <mat-expansion-panel *ngFor="let duplicate of duplicates">
           <mat-expansion-panel-header>
@@ -51,6 +46,5 @@
       </mat-accordion>
       <!-- End of Cards-->
     </div>
-  </div>
 </div>
 

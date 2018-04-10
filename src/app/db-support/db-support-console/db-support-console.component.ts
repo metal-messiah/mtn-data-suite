@@ -5,7 +5,7 @@ import { Site } from '../../models/site';
 import { Duplicate } from '../../models/duplicate';
 
 @Component({
-  selector: 'app-db-support-console',
+  selector: 'mds-db-support-console',
   templateUrl: './db-support-console.component.html',
   styleUrls: ['./db-support-console.component.css']
 })

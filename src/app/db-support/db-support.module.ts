@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from '../shared/shared.module';
 import { DbSupportRoutingModule } from './db-support-routing.module';
-import { DbDashboardComponent } from './db-support-dashboard/db-dashboard.component';
+import { DbSupportDashboardComponent } from './db-support-dashboard/db-support-dashboard.component';
 import { DbSupportConsoleComponent } from './db-support-console/db-support-console.component';
 import { DbSupportComponent } from './db-support.component';
 
@@ -11,7 +11,7 @@ import { DbSupportComponent } from './db-support.component';
     DbSupportRoutingModule
   ],
   declarations: [
-    DbDashboardComponent,
+    DbSupportDashboardComponent,
     DbSupportConsoleComponent,
     DbSupportComponent
   ]

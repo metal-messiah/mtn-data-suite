@@ -7,11 +7,11 @@ import { MapService } from '../../core/services/map.service';
 
 @Component({
   selector: 'mds-database-dashboard',
-  templateUrl: './db-dashboard.component.html',
-  styleUrls: ['./db-dashboard.component.css'],
+  templateUrl: './db-support-dashboard.component.html',
+  styleUrls: ['./db-support-dashboard.component.css'],
   providers: [MapService]
 })
-export class DbDashboardComponent implements OnInit {
+export class DbSupportDashboardComponent implements OnInit {
 
   duplicates: Duplicate<Site>[];
 
@@ -20,8 +20,6 @@ export class DbDashboardComponent implements OnInit {
   constructor(
     private duplicateService: DuplicateService,
     private mapService: MapService,
-
-    // TODO Do I need Router anymore? You don't have it in casing-dashboard.component.ts
     private router: Router
   ) {
   }

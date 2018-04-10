@@ -2,17 +2,18 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { AuthGuard } from '../core/services/auth.guard';
-import { DbDashboardComponent } from './db-support-dashboard/db-dashboard.component';
+import { DbSupportDashboardComponent } from './db-support-dashboard/db-support-dashboard.component';
 import { DbSupportConsoleComponent } from './db-support-console/db-support-console.component';
+import { DbSupportComponent } from './db-support.component';
 
 const routes: Routes = [
   {
     path: 'database-support',
+    component: DbSupportComponent,
     canActivate: [AuthGuard],
     children: [
-      {path: '', component: DbDashboardComponent},
-      {path: 'db-support-console', component: DbSupportConsoleComponent},
-      {path: 'db-support-dashboard', component: DbDashboardComponent}
+      {path: '', component: DbSupportDashboardComponent},
+      {path: 'db-support-console', component: DbSupportConsoleComponent}
     ]
   }
 ];
