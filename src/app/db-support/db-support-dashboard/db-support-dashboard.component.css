@@ -1,21 +1,14 @@
-#map {
-  width: 66%;
-}
-
-#console {
-  width: 33%
-}
-
-#db-support-dash-container {
-  height: calc(100% - 64px);
-}
-
-@media (max-width: 600px) {
-  #db-support-dash-container {
-    height: calc(100% - 56px);
-  }
-}
-
-.box {
+.dashboard-wrapper {
   height: 100%;
+  display: flex;
+}
+
+mds-map {
+  height: 100%;
+  flex: 2 0 auto;
+}
+
+mds-db-support-console {
+  height: 100%;
+  flex-basis: 500px;
 }
