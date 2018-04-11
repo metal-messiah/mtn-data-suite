@@ -1,8 +1,8 @@
-import {NgModule} from '@angular/core';
-import {CasingDashboardComponent} from './casing-dashboard/casing-dashboard.component';
-import {CasingComponent} from './casing.component';
-import {SharedModule} from '../shared/shared.module';
-import {CasingRoutingModule} from './casing-routing.module';
+import { NgModule } from '@angular/core';
+import { CasingDashboardComponent } from './casing-dashboard/casing-dashboard.component';
+import { CasingComponent } from './casing.component';
+import { SharedModule } from '../shared/shared.module';
+import { CasingRoutingModule } from './casing-routing.module';
 import { CasingProjectsComponent } from './casing-projects/casing-projects.component';
 import { SelectProjectComponent } from './select-project/select-project.component';
 import { ProjectSummaryComponent } from './project-summary/project-summary.component';
