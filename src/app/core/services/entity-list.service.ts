@@ -1,17 +1,19 @@
-import {Injectable} from '@angular/core';
-import {BasicEntityListComponent} from '../../interfaces/basic-entity-list-component';
-import {ErrorService} from './error.service';
-import {MatDialog, MatSnackBar} from '@angular/material';
-import {ConfirmDialogComponent} from '../../shared/confirm-dialog/confirm-dialog.component';
+import { Injectable } from '@angular/core';
+import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-component';
+import { ErrorService } from './error.service';
+import { MatDialog, MatSnackBar } from '@angular/material';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { Entity } from '../../models/entity';
 
 @Injectable()
-export class EntityListService<T> {
+export class EntityListService<T extends Entity> {
 
   constructor(
     private dialog: MatDialog,
     private errorService: ErrorService,
     private snackBar: MatSnackBar
-  ) { }
+  ) {
+  }
 
   initialize(comp: BasicEntityListComponent<T>) {
     comp.isLoading = true;
@@ -27,7 +29,10 @@ export class EntityListService<T> {
 
   confirmDelete(comp: BasicEntityListComponent<T>, entity: T) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {title: `Delete ${comp.getTypeName()}!`, question: `Are you sure you wish to delete this ${comp.getTypeName()}?`}
+      data: {
+        title: `Delete ${comp.getTypeName()}!`,
+        question: `Are you sure you wish to delete this ${comp.getTypeName()}?`
+      }
     });
     dialogRef.afterClosed().subscribe(confirm => {
       if (confirm) {
@@ -38,7 +43,7 @@ export class EntityListService<T> {
 
   deleteEntity(comp: BasicEntityListComponent<T>, entity: T) {
     comp.isDeleting = true;
-    comp.getEntityService().del(entity).subscribe(
+    comp.getEntityService().delete(entity).subscribe(
       () => {
         this.snackBar.open(`Successfully deleted ${comp.getTypeName()}!`, null, {duration: 2000});
         this.initialize(comp);

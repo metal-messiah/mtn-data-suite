@@ -27,10 +27,8 @@ export class GooglePlace implements PlaceResult, Mappable {
   vicinity: string;
   website: string;
 
-  constructor(obj?: PlaceResult) {
-    if (obj != null) {
-      Object.keys(obj).forEach(key => this[key] = obj[key]);
-    }
+  constructor(obj) {
+    Object.assign(this, obj);
   }
 
   getCoordinates(): Coordinates {
@@ -39,10 +37,6 @@ export class GooglePlace implements PlaceResult, Mappable {
 
   getId(): string {
     return this.place_id;
-  };
-
-  getLabel(): string {
-    return this.name;
   };
 
 }

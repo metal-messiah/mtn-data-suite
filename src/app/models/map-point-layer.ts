@@ -54,7 +54,6 @@ export class MapPointLayer {
     marker.setDraggable(this.layerOptions.getMappableIsDraggable(mappable));
     marker.setIcon(this.layerOptions.getMappableIcon(mappable));
     marker.setLabel(this.layerOptions.getMappableLabel(mappable));
-    marker.setZIndex(marker.getZIndex() + this.layerOptions.additionToZIndex);
   }
 
   addToMap(map: google.maps.Map) {

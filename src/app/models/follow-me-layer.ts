@@ -9,7 +9,6 @@ export class FollowMeLayer extends MapPointLayer {
 
   constructor() {
     super({
-      additionToZIndex: 100,
       getMappableIsDraggable: (mappable: Mappable) => {
         return false;
       },

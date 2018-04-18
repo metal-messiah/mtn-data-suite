@@ -9,7 +9,6 @@ export class FindMeLayer extends MapPointLayer {
 
   constructor(coordinates: Coordinates) {
     super({
-      additionToZIndex: 100,
       getMappableIsDraggable: (mappable: Mappable) => {
         return false;
       },

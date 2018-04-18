@@ -1,10 +1,15 @@
 import { AuditingEntity } from './auditing-entity';
 
 export class StoreVolume extends AuditingEntity {
-  id: number;
+
   volumeTotal: number;
   volumeDate: Date;
   volumeType: string;
   source: string;
   legacyCasingId: number;
+
+  constructor(obj?) {
+    super(obj);
+    Object.assign(this, obj);
+  }
 }

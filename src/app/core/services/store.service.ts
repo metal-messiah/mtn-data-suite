@@ -4,13 +4,14 @@ import * as _ from 'lodash';
 
 import { RestService } from './rest.service';
 import { CrudService } from '../../interfaces/crud-service';
+import { Store } from '../../models/store';
 import { Pageable } from '../../models/pageable';
-import { Site } from '../../models/site';
+import { Observable } from 'rxjs/Observable';
 
 @Injectable()
-export class SiteService extends CrudService<Site> {
+export class StoreService extends CrudService<Store> {
 
-  private endpoint = '/api/site';
+  private endpoint = '/api/store';
 
   constructor(protected http: HttpClient, protected rest: RestService) {
     super(http, rest);
@@ -20,22 +21,17 @@ export class SiteService extends CrudService<Site> {
     return this.endpoint;
   };
 
-  getActiveInBounds(bounds) {
+  getStoresOfTypeInBounds(bounds: any): Observable<Pageable<Store>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams().set('size', '300');
     params = params.set('store_type', 'ACTIVE');
     _.forEach(bounds, function(value, key) {
       params = params.set(key, value);
     });
-    return this.http.get<Pageable<Site>>(url, {headers: this.rest.getHeaders(), params: params});
-  }
-
-  getAllInBounds(bounds) {
-    const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams().set('size', '300');
-    _.forEach(bounds, function(value, key) {
-      params = params.set(key, value);
-    });
-    return this.http.get<Pageable<Site>>(url, {headers: this.rest.getHeaders(), params: params});
+    return this.http.get<Pageable<Store>>(url, {headers: this.rest.getHeaders(), params: params})
+      .map((page) => {
+        page.content = page.content.map(store => new Store(store));
+        return page;
+      });
   }
 }

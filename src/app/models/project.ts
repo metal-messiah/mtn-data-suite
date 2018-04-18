@@ -2,7 +2,7 @@ import {AuditingEntity} from './auditing-entity';
 import { Interaction } from './interaction';
 
 export class Project extends AuditingEntity {
-  id: number;
+
   projectName: string;
   metroArea: string;
   clientName: string;
@@ -17,4 +17,9 @@ export class Project extends AuditingEntity {
 
   interactions: Interaction[];
   // TODO Add StoreModel
+
+  constructor(obj) {
+    super(obj);
+    Object.assign(this, obj);
+  }
 }

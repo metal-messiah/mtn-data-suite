@@ -64,7 +64,7 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate, Deta
     return this.site;
   }
 
-  getObjService(): SiteService {
+  getEntityService(): SiteService {
     return this.siteService;
   }
 

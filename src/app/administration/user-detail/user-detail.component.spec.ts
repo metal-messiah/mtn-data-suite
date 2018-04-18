@@ -23,7 +23,7 @@ describe('UserDetailComponent', () => {
     groupServiceSpy.getAll.and.returnValue(of({content: []}));
     const detailFormService = jasmine.createSpyObj('DetailFormService', ['retrieveObj', 'save', 'canDeactivate']);
     // TODO Mock return of retrieveObj
-    // TODO Mock return of save
+    // TODO Mock return of create
     // TODO Mock return of canDeactivate
     const errorServiceSpy = jasmine.createSpyObj('ErrorService', ['handleServerError']);
 

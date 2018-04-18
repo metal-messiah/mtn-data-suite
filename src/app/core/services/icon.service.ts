@@ -8,7 +8,7 @@ export class IconService {
   constructor() {
   }
 
-  getIcon(fillColor: Color | string, strokeColor: Color | string, symbolPath: MarkerShape | google.maps.SymbolPath) {
+  getIcon(fillColor: Color | string, strokeColor: Color | string, symbolPath: MarkerShape | google.maps.SymbolPath, rotation?: number) {
     if (symbolPath === MarkerShape.FILLED || symbolPath === MarkerShape.DEFAULT) {
       return {
         path: symbolPath,
@@ -18,7 +18,8 @@ export class IconService {
         strokeColor: strokeColor,
         strokeWeight: 2.5,
         anchor: new google.maps.Point(255, 510),
-        labelOrigin: new google.maps.Point(255, 200)
+        labelOrigin: new google.maps.Point(255, 200),
+        rotation: rotation
       };
     }
 
@@ -29,7 +30,8 @@ export class IconService {
       scale: 7,
       strokeColor: strokeColor,
       strokeWeight: 2.5,
-      labelOrigin: new google.maps.Point(0, -2)
+      labelOrigin: new google.maps.Point(0, -2),
+      rotation: rotation
     };
   }
 

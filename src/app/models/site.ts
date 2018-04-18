@@ -1,12 +1,12 @@
 import { AuditingEntity } from './auditing-entity';
 import { ShoppingCenter } from './shopping-center';
-import { Store } from './store';
 import { Mappable } from '../interfaces/mappable';
 import { Coordinates } from './coordinates';
 
 export class Site extends AuditingEntity implements Mappable {
-  id: number;
-  location: any;
+
+  latitude: number;
+  longitude: number;
   type: string;
   footprintSqft: number;
   positionInCenter: string;
@@ -22,27 +22,13 @@ export class Site extends AuditingEntity implements Mappable {
   intersectionStreetPrimary: string;
   intersectionStreetSecondary: string;
 
-  // Only included in SimpleSiteView
-  private activeStore: Store;
-  hasPlannedStore: boolean;
-
-  // Only included in SiteView
   shoppingCenter: ShoppingCenter;
-  private stores: Store[];
 
-  constructor(obj?: Site) {
-    if (obj != null) {
-      super(obj);
-      Object.keys(obj).forEach(key => this[key] = obj[key]);
-      if (obj.stores != null) {
-        this.stores = obj.stores.map(store => new Store(store));
-      }
-      if (obj.activeStore != null) {
-        this.activeStore = new Store(obj.activeStore);
-      }
-      if (obj.shoppingCenter != null) {
-        this.shoppingCenter = new ShoppingCenter(obj.shoppingCenter);
-      }
+  constructor(obj?) {
+    super(obj);
+    Object.assign(this, obj);
+    if (obj.shoppingCenter != null) {
+      this.shoppingCenter = new ShoppingCenter(obj.shoppingCenter);
     }
   }
 
@@ -51,16 +37,7 @@ export class Site extends AuditingEntity implements Mappable {
   }
 
   getCoordinates(): Coordinates {
-    return {lat: this.location.coordinates[1], lng: this.location.coordinates[0]};
-  }
-
-  getLabel(): string {
-    if (this.activeStore != null) {
-      return this.activeStore.getLabel();
-    } else if (this.hasPlannedStore) {
-      return 'Planned';
-    }
-    return 'Unknown';
+    return {lat: this.latitude, lng: this.longitude};
   }
 
   getIntersection(): string {
@@ -101,14 +78,6 @@ export class Site extends AuditingEntity implements Mappable {
       principality += this.postalCode;
     }
     return principality;
-  }
-
-  getActiveStore(): Store {
-    if (this.activeStore != null) {
-      return this.activeStore;
-    } else if (this.stores != null && this.stores.length > 0) {
-      return this.stores.find(store => store.storeType === 'ACTIVE');
-    }
   }
 
 }

@@ -4,9 +4,10 @@ import {MatDialog, MatSnackBar} from '@angular/material';
 import {ErrorService} from './error.service';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog/confirm-dialog.component';
 import {Observable} from 'rxjs/Observable';
+import { Entity } from '../../models/entity';
 
 @Injectable()
-export class DetailFormService<T> {
+export class DetailFormService<T extends Entity> {
 
   constructor(private snackBar: MatSnackBar,
               private errorService: ErrorService,
@@ -24,25 +25,45 @@ export class DetailFormService<T> {
   }
 
   save(fc: DetailFormComponent<T>) {
+    // Set State
     fc.isSaving = true;
     fc.getForm().disable();
+
+    // Callback to reenable
     const reenable = () => {
       fc.isSaving = false;
       fc.getForm().enable();
       fc.setDisabledFields();
     };
-    fc.getObjService().save(fc.getSavableObj()).subscribe(
-      savedObj => {
-        this.snackBar.open(`Successfully saved ${fc.getTypeName()}!`, null, {duration: 2000});
-        fc.setObj(savedObj);
-        fc.goBack();
-      },
-      err => this.errorService.handleServerError(
-        `Failed to save ${fc.getTypeName()}`,
-        err, reenable,
-        () => this.save(fc)),
-      reenable
-    );
+
+    // If object is new create it, otherwise update it
+    if (fc.getSavableObj().getId() == null) {
+      fc.getEntityService().create(fc.getSavableObj()).subscribe(
+        created => {
+          this.snackBar.open(`Successfully created ${fc.getTypeName()}!`, null, {duration: 2000});
+          fc.setObj(created);
+          fc.goBack();
+        },
+        err => this.errorService.handleServerError(
+          `Failed to create ${fc.getTypeName()}`,
+          err, reenable,
+          () => this.save(fc)),
+        reenable
+      );
+    } else {
+      fc.getEntityService().update(fc.getSavableObj()).subscribe(
+        updatedEntity => {
+          this.snackBar.open(`Successfully updated ${fc.getTypeName()}!`, null, {duration: 2000});
+          fc.setObj(updatedEntity);
+          fc.goBack();
+        },
+        err => this.errorService.handleServerError(
+          `Failed to update ${fc.getTypeName()}`,
+          err, reenable,
+          () => this.save(fc)),
+        reenable
+      );
+    }
   }
 
   retrieveObj(fc: DetailFormComponent<T>) {
@@ -52,7 +73,7 @@ export class DetailFormService<T> {
       fc.setObj(fc.getNewObj());
       fc.isLoading = false;
     } else {
-      fc.getObjService().getOneById(id).subscribe(
+      fc.getEntityService().getOneById(id).subscribe(
         obj => fc.setObj(obj),
         err => this.errorService.handleServerError(`Failed to retrieve ${fc.getTypeName()}!`, err,
           () => fc.goBack()),

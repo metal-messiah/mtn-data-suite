@@ -4,17 +4,22 @@ import { RestService } from './rest.service';
 import { Pageable } from '../../models/pageable';
 import { Project } from '../../models/project';
 import { Observable } from 'rxjs/Observable';
+import { CrudService } from '../../interfaces/crud-service';
 
 @Injectable()
-export class ProjectService {
+export class ProjectService extends CrudService<Project>{
 
   private endpoint = '/api/project';
 
-  constructor(private http: HttpClient,
-              private rest: RestService) {
+  constructor(protected http: HttpClient, protected rest: RestService) {
+    super(http, rest);
   }
 
-  public getAll(projectQuery: string, active: boolean, primaryData: boolean, pageNumber?: number): Observable<Pageable<Project>> {
+  protected getEndpoint(): string {
+    return this.endpoint;
+  }
+
+  public getAllByQuery(projectQuery: string, active: boolean, primaryData: boolean, pageNumber?: number): Observable<Pageable<Project>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams();
     if (projectQuery != null && projectQuery.length > 0) {

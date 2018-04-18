@@ -1,13 +1,9 @@
 import {AuditingEntity} from './auditing-entity';
-import { Project } from './project';
-import { ShoppingCenter } from './shopping-center';
-import { Store } from './store';
-import { Interaction } from './interaction';
 import { ShoppingCenterAccess } from './shopping-center-access';
 import { ShoppingCenterTenant } from './shopping-center-tenant';
 
 export class ShoppingCenterSurvey extends AuditingEntity {
-  id: number;
+
   surveyDate: Date;
   centerType: string;
   note: string;
@@ -24,9 +20,17 @@ export class ShoppingCenterSurvey extends AuditingEntity {
   sqFtPercentOccupied: number;
   legacyCasingId;
 
-  shoppingCenter: ShoppingCenter;
-
-  interactions: Interaction[];
   accesses: ShoppingCenterAccess[];
   tenants: ShoppingCenterTenant[];
+
+  constructor(obj?) {
+    super(obj);
+    Object.assign(this, obj);
+    if (obj.accesses != null) {
+      this.accesses = obj.accesses.map(access => new ShoppingCenterAccess(access));
+    }
+    if (obj.tenants != null) {
+      this.tenants = obj.tenants.map(tenant => new ShoppingCenterTenant(tenant));
+    }
+  }
 }

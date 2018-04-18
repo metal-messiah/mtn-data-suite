@@ -1,10 +1,9 @@
 import { AuditingEntity } from './auditing-entity';
-import { Store } from './store';
 import { Interaction } from './interaction';
+import { StoreVolume } from './store-volume';
 
 export class StoreSurvey extends AuditingEntity {
-  id: number;
-  store: Store;
+
   surveyDate: Date;
   note: string;
   fit: string;
@@ -78,6 +77,9 @@ export class StoreSurvey extends AuditingEntity {
   seasonalityDec: number;
   legacyCasingId: number;
 
-  interactions: Interaction[];
+  constructor(obj?) {
+    super(obj);
+    Object.assign(this, obj);
+  }
 
 }

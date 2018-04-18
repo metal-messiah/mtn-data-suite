@@ -21,8 +21,10 @@ import { FollowMeLayer } from '../../models/follow-me-layer';
 import { LatLngSearchComponent } from '../lat-lng-search/lat-lng-search.component';
 import { Coordinates } from '../../models/coordinates';
 import { GoogleSearchComponent } from '../google-search/google-search.component';
-import { GooglePlace } from '../../models/GooglePlace';
+import { GooglePlace } from '../../models/google-place';
 import { Subscription } from 'rxjs/Subscription';
+import { StoreService } from '../../core/services/store.service';
+import { Store } from '../../models/store';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -33,7 +35,13 @@ export enum MultiSelectMode {
 }
 
 export enum CasingDashboardMode {
-  DEFAULT, FOLLOWING, MOVING_SITE, CREATING_SITE, MULTI_SELECT
+  DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT
+}
+
+export enum CardState {
+  HIDDEN,
+  SELECTED_MAPPABLE,
+  GOOGLE
 }
 
 @Component({
@@ -43,10 +51,12 @@ export enum CasingDashboardMode {
 })
 export class CasingDashboardComponent implements OnInit {
 
-  sites: Site[];
-  selectedSites: Mappable[];
-  movingSite: Mappable;
+  movingStore: Store;
   newLocation: Mappable;
+
+  mappables: Mappable[];
+  selectedMappables: Mappable[];
+  selectedGooglePlace: GooglePlace;
 
   defaultPointLayer: MapPointLayer;
   newLocationPointLayer: MapPointLayer;
@@ -54,7 +64,6 @@ export class CasingDashboardComponent implements OnInit {
   googleLayer: MapPointLayer;
 
   // Flags
-  showCard = false;
   showingBoundaries = false;
   sideNavIsOpen = false;
 
@@ -63,12 +72,14 @@ export class CasingDashboardComponent implements OnInit {
   selectedMultiSelectTool = MultiSelectToolTypes.CLICK;
   selectedMultiSelectMode = MultiSelectMode.SELECT;
   selectedMarkerType = MarkerType.PIN;
+  selectedCardState = CardState.HIDDEN;
 
   // Enums for template
   casingDashboardMode = CasingDashboardMode;
   multiSelectToolType = MultiSelectToolTypes;
   multiSelectMode = MultiSelectMode;
   markerType = MarkerType;
+  cardState = CardState;
 
   googleSearchSubscription: Subscription;
 
@@ -76,6 +87,7 @@ export class CasingDashboardComponent implements OnInit {
               public geocoderService: GeocoderService,
               public casingDashboardService: CasingDashboardService,
               private siteService: SiteService,
+              private storeService: StoreService,
               private snackBar: MatSnackBar,
               private ngZone: NgZone,
               private router: Router,
@@ -84,20 +96,22 @@ export class CasingDashboardComponent implements OnInit {
               private iconService: IconService,
               private navigatorService: NavigatorService,
               private dialog: MatDialog) {
-    this.selectedSites = [];
+    this.selectedMappables = [];
   }
 
   ngOnInit() {
     this.defaultPointLayer = new MapPointLayer({
-      additionToZIndex: 0,
-      getMappableIsDraggable: (site: Site) => {
-        return this.siteIsDraggable(site);
+      getMappableIsDraggable: (store: Store) => {
+        return this.storeIsDraggable(store);
       },
-      getMappableIcon: (site: Site) => {
-        return this.getSiteIcon(site);
+      getMappableIcon: (store: Store) => {
+        return this.getStoreIcon(store);
       },
-      getMappableLabel: (site: Site) => {
-        return this.getSiteLabel(site);
+      getMappableLabel: (store: Store) => {
+        if (this.selectedMarkerType === MarkerType.PIN) {
+          return this.labelService.getLabel(store.getLabel()[0], Color.WHITE);
+        }
+        return this.labelService.getLabel(store.getLabel(), Color.BLACK);
       }
     });
   }
@@ -117,72 +131,64 @@ export class CasingDashboardComponent implements OnInit {
     this.mapService.boundsChanged$.pipe(debounceTime(750)).subscribe(bounds => {
       const perspective = this.mapService.getPerspective();
       this.casingDashboardService.savePerspective(perspective).subscribe();
-      if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_SITE) {
-        this.getSites(bounds);
+      if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
+        this.getActiveStores(bounds);
       }
     });
     this.mapService.mapClick$.subscribe((coords: object) => {
-      this.showCard = false;
-      this.ngZone.run(() => this.showCard = false);
+      this.ngZone.run(() => this.selectedCardState = CardState.HIDDEN);
     });
-    this.defaultPointLayer.markerClick$.subscribe((site: Site) => {
+    this.defaultPointLayer.markerClick$.subscribe((store: Store) => {
       if (this.selectedDashboardMode === CasingDashboardMode.MULTI_SELECT) {
         if (this.selectedMultiSelectMode === MultiSelectMode.SELECT) {
-          this.selectSite(site);
+          this.selectMappable(store);
         } else {
-          this.deselectSite(site);
+          this.deselectMappable(store);
         }
-        this.defaultPointLayer.refreshOptionsForMappable(site);
+        this.defaultPointLayer.refreshOptionsForMappable(store);
         this.ngZone.run(() => true);
       } else if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) { // Don't select while moving, creating or following
-        this.selectedSites = [];
-        this.selectSite(site);
+        this.selectedMappables = [];
+        this.selectMappable(store);
         this.defaultPointLayer.refreshOptions();
-        this.ngZone.run(() => this.showCard = true);
+        this.ngZone.run(() => this.selectedCardState = CardState.SELECTED_MAPPABLE);
       }
     });
   }
 
-  selectSite(site: Mappable) {
-    this.selectedSites.push(site);
+  selectMappable(mappable: Mappable) {
+    this.selectedMappables.push(mappable);
   }
 
-  selectSites(sites: Mappable[]) {
-    sites.forEach(site => this.selectSite(site));
+  selectMappables(mappables: Mappable[]) {
+    mappables.forEach(store => this.selectMappable(store));
   }
 
-  deselectSite(site: Mappable) {
-    const index = this.selectedSites.findIndex(s => s.getId() === site.getId());
-    this.selectedSites.splice(index, 1);
+  deselectMappable(mappable: Mappable) {
+    const index = this.selectedMappables.findIndex(s => s.getId() === mappable.getId());
+    this.selectedMappables.splice(index, 1);
   }
 
-  deselectSites(sites: Mappable[]) {
-    sites.forEach(site => this.deselectSite(site));
+  deselectMappables(mappables: Mappable[]) {
+    mappables.forEach(mappable => this.deselectMappable(mappable));
   }
 
-  siteIsSelected(site: Site) {
-    const selectedSite = this.selectedSites.find(s => s.getId() === site.getId());
-    return selectedSite != null;
+  mappableIsSelected(mappable: Mappable) {
+    const selectedMappable = this.selectedMappables.find(s => s.getId() === mappable.getId());
+    return selectedMappable != null;
   }
 
-  siteIsDraggable(site: Site) {
-    // If Site is new (has no location ID) or is being moved
-    return site.getId() == null ||
-      (this.movingSite != null && site.getId() === this.movingSite.getId());
+  storeIsDraggable(store: Store) {
+    // If Store is new (has no store_id) or is being moved
+    return store.site.getId() == null ||
+      (this.movingStore != null && store.site.getId() === this.movingStore.site.getId());
   }
 
-  getSiteLabel(site: Site): any {
-    if (this.selectedMarkerType === MarkerType.PIN) {
-      return this.labelService.getLabel(site.getLabel()[0], Color.WHITE);
-    }
-    return this.labelService.getLabel(site.getLabel(), Color.BLACK);
-  }
-
-  getSiteIcon(site: Site) {
+  getStoreIcon(store: Store) {
     let fillColor = Color.RED;
-    if (this.siteIsDraggable(site)) {
+    if (this.storeIsDraggable(store)) {
       fillColor = Color.PURPLE;
-    } else if (this.siteIsSelected(site)) {
+    } else if (this.mappableIsSelected(store)) {
       fillColor = Color.BLUE;
     }
 
@@ -194,15 +200,15 @@ export class CasingDashboardComponent implements OnInit {
     return this.iconService.getIcon(fillColor, Color.WHITE, shape);
   }
 
-  getSites(bounds): void {
-    console.log('Getting Sites');
-    this.siteService.getAllInBounds(bounds).subscribe(
+  getActiveStores(bounds): void {
+    console.log('Getting Stores');
+    this.storeService.getStoresOfTypeInBounds(bounds).subscribe(
       page => {
-        this.sites = page.content.map(site => new Site(site));
+        this.mappables = page.content;
         this.defaultPointLayer.clearMarkers();
-        this.defaultPointLayer.createMarkersFromMappables(this.sites);
+        this.defaultPointLayer.createMarkersFromMappables(this.mappables);
         this.mapService.addPointLayer(this.defaultPointLayer);
-        // TODO Show snackbar notfication of number of sites pulled, filtered, etc.
+        // TODO Show snackbar notfication of number of mappables pulled, filtered, etc.
       }
     );
   }
@@ -216,17 +222,16 @@ export class CasingDashboardComponent implements OnInit {
 
   createNewLocation(): void {
     this.sideNavIsOpen = false;
-    this.selectedDashboardMode = CasingDashboardMode.CREATING_SITE;
+    this.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
     // Create new Layer for new Location
     this.newLocationPointLayer = new MapPointLayer({
-      additionToZIndex: 100,
-      getMappableIsDraggable: (site: Site) => {
+      getMappableIsDraggable: (mappable: Mappable) => {
         return true;
       },
-      getMappableIcon: (site: Site) => {
+      getMappableIcon: (mappable: Mappable) => {
         return this.iconService.getIcon(Color.PURPLE, Color.WHITE, MarkerShape.DEFAULT);
       },
-      getMappableLabel: (site: Site) => {
+      getMappableLabel: (mappable: Mappable) => {
         return null;
       }
     });
@@ -234,9 +239,6 @@ export class CasingDashboardComponent implements OnInit {
     this.newLocation = {
       getCoordinates: () => {
         return this.mapService.getCenter();
-      },
-      getLabel: () => {
-        return null;
       },
       getId: () => {
         return 0;
@@ -275,15 +277,15 @@ export class CasingDashboardComponent implements OnInit {
     this.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
     // Activate Map Drawing Tools and listen for completed Shapes
     this.mapService.activateDrawingTools().subscribe(shape => {
-      // Get Sites in drawn shape
-      // TODO - Not all sites may be mapped as user draws polygon and pans screen - need to get these from Web Service
-      const sites = this.defaultPointLayer.getMappablesInShape(shape);
+      // Get Mappaples in drawn shape
+      // TODO - Not all mappables may be mapped as user draws polygon and pans screen - need to get these from Web Service
+      const mappables = this.defaultPointLayer.getMappablesInShape(shape);
 
-      // Select or deselect sites
+      // Select or deselect mappables
       if (this.selectedMultiSelectMode === MultiSelectMode.SELECT) {
-        this.selectSites(sites);
+        this.selectMappables(mappables);
       } else if (this.selectedMultiSelectMode === MultiSelectMode.DESELECT) {
-        this.deselectSites(sites);
+        this.deselectMappables(mappables);
       }
       // Refresh marker Appearance
       this.defaultPointLayer.refreshOptions();
@@ -296,8 +298,8 @@ export class CasingDashboardComponent implements OnInit {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
     // Deactivate drawing tools
     this.mapService.deactivateDrawingTools();
-    // Clear Selected sites
-    this.selectedSites = [];
+    // Clear Selected mappables
+    this.selectedMappables = [];
     // Refresh marker Appearance
     this.defaultPointLayer.refreshOptions();
   }
@@ -357,35 +359,48 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   pinLocation(): void {
-    // TODO save the location data to the device
+    // TODO create the location data to the device
   }
 
   goToLocationOverview(): void {
-    this.router.navigate(['location-overview', this.selectedSites[0].getId()], {relativeTo: this.route});
+    this.router.navigate(['location-overview', this.selectedMappables[0].getId()], {relativeTo: this.route});
   }
 
-  moveSite() {
-    this.selectedDashboardMode = CasingDashboardMode.MOVING_SITE;
-    this.movingSite = this.selectedSites[0];
-    this.defaultPointLayer.refreshOptionsForMappable(this.movingSite);
+  moveStore() {
+    this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
+    this.movingStore = this.selectedMappables[0] as Store;
+    this.defaultPointLayer.refreshOptionsForMappable(this.movingStore);
   }
 
-  cancelSiteMove() {
+  cancelStoreMove() {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    const site = this.movingSite;
-    this.movingSite = null;
-    this.defaultPointLayer.resetPositionOfMappable(site);
-    this.defaultPointLayer.refreshOptionsForMappable(site);
+    const store = this.movingStore;
+    this.movingStore = null;
+    this.defaultPointLayer.resetPositionOfMappable(store);
+    this.defaultPointLayer.refreshOptionsForMappable(store);
   }
 
-  saveSiteMove() {
-    const coordinates = this.defaultPointLayer.getCoordinatesOfMappableMarker(this.movingSite);
-    this.siteService.updateCoordinates(this.selectedSites[0].getId(), coordinates)
-      .subscribe(updatedSite => {
-        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-        this.movingSite = null;
-        this.getSites(this.mapService.getBounds());
-      });
+  saveStoreMove() {
+    // Get new coordinates
+    const coordinates = this.defaultPointLayer.getCoordinatesOfMappableMarker(this.movingStore);
+
+    // Preserve coordinates in case of error
+    const originalCoordinates = this.movingStore.site.getCoordinates();
+
+    // Update values
+    this.movingStore.site.latitude = coordinates.lat;
+    this.movingStore.site.longitude = coordinates.lng;
+
+    // Save updated values
+    this.siteService.update(this.movingStore.site).subscribe(updatedSite => {
+      this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+      this.movingStore = null;
+      this.getActiveStores(this.mapService.getBounds());
+    }, (err) => {
+      // Resets original values (does not move pin) Allows cancel to return pin to original location
+      this.movingStore.site.latitude = originalCoordinates.lat;
+      this.movingStore.site.longitude = originalCoordinates.lng;
+    });
   }
 
   setMultiSelectTool(tool: MultiSelectToolTypes) {
@@ -416,39 +431,47 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   openGoogleSearch() {
-   const latLngSearchDialog = this.dialog.open(GoogleSearchComponent);
+    const latLngSearchDialog = this.dialog.open(GoogleSearchComponent);
     latLngSearchDialog.afterClosed().subscribe(result => {
       if (result != null) {
         // Create google point layer
         if (this.googleLayer == null) {
           this.googleLayer = new MapPointLayer({
-            additionToZIndex: 10000,
-            getMappableIsDraggable: (mappable: Mappable) => {
+            getMappableIsDraggable: (place: GooglePlace) => {
               return false;
             },
-            getMappableIcon: (mappable: Mappable) => {
+            getMappableIcon: (place: GooglePlace) => {
               return this.iconService.getIcon(Color.PINK, Color.WHITE, MarkerShape.FILLED);
             },
-            getMappableLabel: (mappable: Mappable) => {
-              return this.labelService.getLabel(mappable.getLabel()[0], Color.WHITE);
+            getMappableLabel: (place: GooglePlace) => {
+              return place.name;
             }
           });
+          this.googleLayer.markerClick$.subscribe((googlePlace: GooglePlace) => {
+            console.log(googlePlace);
+            this.selectedGooglePlace = googlePlace;
+            this.selectedCardState = CardState.GOOGLE;
+          });
         }
+
         if (result.place != null) {
           this.updateGoogleLayer([result.place]);
           this.mapService.setCenter(result.place.getCoordinates());
         } else if (result.query != null) {
-          this.mapService.searchFor(result.query).subscribe((searchResults: GooglePlace[]) => {
-            this.updateGoogleLayer(searchResults);
-          });
+          this.getGoogleLocationInView(result.query);
+          if (this.googleSearchSubscription != null) {
+            this.googleSearchSubscription.unsubscribe();
+          }
           this.googleSearchSubscription = this.mapService.boundsChanged$.pipe(debounceTime(750))
-            .subscribe(bounds => {
-            this.mapService.searchFor(result.query).subscribe((searchResults: GooglePlace[]) => {
-              this.updateGoogleLayer(searchResults);
-            });
-          });
+            .subscribe(bounds => this.getGoogleLocationInView(result.query));
         }
       }
+    });
+  }
+
+  getGoogleLocationInView(query: string) {
+    this.mapService.searchFor(query).subscribe((searchResults: GooglePlace[]) => {
+      this.ngZone.run(() => this.updateGoogleLayer(searchResults));
     });
   }
 
@@ -459,12 +482,34 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   clearGoogleSearch() {
+    this.selectedCardState = CardState.HIDDEN;
     if (this.googleSearchSubscription != null) {
       this.googleSearchSubscription.unsubscribe();
       this.googleSearchSubscription = null;
     }
     this.googleLayer.removeFromMap();
     this.googleLayer = null;
+  }
+
+  saveGooglePlaceAsStore() {
+    this.mapService.getDetailedGooglePlace(this.selectedGooglePlace).subscribe(googlePlace => {
+      console.log(googlePlace);
+      // const newSite = new Site({
+      //   latitude: googlePlace.getCoordinates().lat,
+      //   longitude: googlePlace.getCoordinates().lng,
+      //   type: 'ACTIVE',
+      //   address1: googlePlace.address_components.,
+      //   city: string,
+      //   county: string,
+      //   state: string,
+      //   postalCode: string,
+      //   country: string,
+      //   intersectionType: string,
+      //   quad: string,
+      //   intersectionStreetPrimary: string,
+      //   intersectionStreetSecondary: string
+      // });
+    });
   }
 
   openLatLngSearch() {

@@ -1,9 +1,7 @@
 import { AuditingEntity } from './auditing-entity';
-import { ShoppingCenterSurvey } from './shopping-center-survey';
 
 export class ShoppingCenterAccess extends AuditingEntity {
-  id: number;
-  survey: ShoppingCenterSurvey;
+
   accessType: string;
   hasLeftIn = false;
   hasOneWayRoad = false;
@@ -12,4 +10,9 @@ export class ShoppingCenterAccess extends AuditingEntity {
   hasRightIn = false;
   hasRightOut = false;
   legacyCasingId: number;
+
+  constructor(obj) {
+    super(obj);
+    Object.assign(this, obj);
+  }
 }

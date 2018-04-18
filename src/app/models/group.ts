@@ -1,10 +1,17 @@
-import {UserProfile} from './user-profile';
-import {AuditingEntity} from './auditing-entity';
+import { AuditingEntity } from './auditing-entity';
+import { SimplifiedUserProfile } from './simplified-user-profile';
 
 export class Group extends AuditingEntity {
-  id: number;
+
   displayName: string;
   description: string;
 
-  members: UserProfile[] = [];
+  members: SimplifiedUserProfile[] = [];
+
+  constructor(obj?) {
+    super(obj);
+    if (obj != null) {
+      Object.assign(this, obj);
+    }
+  }
 }

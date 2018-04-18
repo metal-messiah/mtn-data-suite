@@ -1,4 +1,4 @@
-import {AuditingEntity} from './auditing-entity';
+import { AuditingEntity } from './auditing-entity';
 import { Project } from './project';
 import { ShoppingCenter } from './shopping-center';
 import { Store } from './store';
@@ -8,7 +8,7 @@ import { StoreSurvey } from './store-survey';
 import { StoreCasing } from './store-casing';
 
 export class Interaction extends AuditingEntity {
-  id: number;
+
   project: Project;
   shoppingCenter: ShoppingCenter;
   shoppingCenterSurvey: ShoppingCenterSurvey;
@@ -18,4 +18,9 @@ export class Interaction extends AuditingEntity {
   storeCasing: StoreCasing;
   interactionDate: Date;
   legacyCasingId: number;
+
+  constructor(obj) {
+    super(obj);
+    Object.assign(this, obj);
+  }
 }

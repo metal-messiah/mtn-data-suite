@@ -18,6 +18,7 @@ import { GeocoderService } from './services/geocoder.service';
 import { LabelService } from './services/label.service';
 import { NavigatorService } from './services/navigator.service';
 import { MapService } from './services/map.service';
+import { StoreService } from './services/store.service';
 
 @NgModule({
   imports: [
@@ -42,7 +43,8 @@ import { MapService } from './services/map.service';
     RestService,
     RoleService,
     SiteService,
-    UserProfileService
+    UserProfileService,
+    StoreService
   ]
 })
 export class CoreModule {

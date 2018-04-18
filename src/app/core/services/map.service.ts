@@ -3,7 +3,7 @@ import {} from '@types/googlemaps';
 import { Subject } from 'rxjs/Subject';
 import { MapPointLayer } from '../../models/map-point-layer';
 import { Observable } from 'rxjs/Observable';
-import { GooglePlace } from '../../models/GooglePlace';
+import { GooglePlace } from '../../models/google-place';
 
 /*
   The MapService should
@@ -145,4 +145,18 @@ export class MapService {
     });
   }
 
+  getDetailedGooglePlace(requestPlace: GooglePlace) {
+    return Observable.create(observer => {
+      const request = {
+        placeId: requestPlace.getId()
+      };
+      this.placesService.getDetails(request, (resultPlace, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          observer.next(new GooglePlace(resultPlace));
+        } else {
+          observer.error(status);
+        }
+      });
+    });
+  }
 }

@@ -1,16 +1,15 @@
 import {UserProfile} from './user-profile';
+import { Entity } from './entity';
 
-export class AuditingEntity {
+export class AuditingEntity extends Entity {
   createdBy: UserProfile;
   createdDate: Date;
   updatedBy: UserProfile;
   updatedDate: Date;
   version: number;
 
-  constructor(obj?: AuditingEntity) {
-    if (obj) {
-      Object.keys(obj).forEach(key => this[key] = obj[key]);
-    }
-
+  constructor(obj?) {
+    super(obj);
+    Object.assign(this, obj);
   }
 }

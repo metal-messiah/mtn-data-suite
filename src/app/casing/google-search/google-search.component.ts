@@ -1,7 +1,7 @@
 import { Component, NgZone } from '@angular/core';
 import { MatDialogRef } from '@angular/material';
 import { FormControl } from '@angular/forms';
-import { GooglePlace } from '../../models/GooglePlace';
+import { GooglePlace } from '../../models/google-place';
 import { MapService } from '../../core/services/map.service';
 
 @Component({

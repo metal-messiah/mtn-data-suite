@@ -106,7 +106,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
     return this.role;
   }
 
-  getObjService(): RoleService {
+  getEntityService(): RoleService {
     return this.roleService;
   }
 
@@ -133,7 +133,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
       (member: UserProfile) => Object.assign({}, member)
     );
 
-    return {
+    return new Role({
       id: this.role.id,
       displayName: formModel.displayName,
       description: formModel.description,
@@ -144,7 +144,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
       updatedBy: this.role.updatedBy,
       updatedDate: this.role.updatedDate,
       version: this.role.version
-    };
+    });
   }
 
   getTypeName(): string {

@@ -6,7 +6,11 @@ mds-map {
   height: inherit;
 }
 
-#infoCard {
+mat-card {
+  pointer-events: all;
+}
+
+.infoCard {
   display: flex;
   justify-content: center;
   width: 100%;
@@ -15,29 +19,28 @@ mds-map {
   pointer-events: none;
 }
 
-mat-card {
-  pointer-events: all;
+#siteInfoCard mat-card {
   padding: 10px;
   width: 70%;
   max-width: 360px;
 }
 
-mat-card-actions {
+#siteInfoCard mat-card-actions {
   padding-top: 5px;
   display: flex;
   justify-content: space-around;
 }
 
-mat-card-subtitle {
+#siteInfoCard mat-card-subtitle {
   margin-bottom: 0px;
 }
 
-mat-card-content {
+#siteInfoCard mat-card-content {
   margin-bottom: 0px;
   font-size: small;
 }
 
-.mat-card > .mat-card-actions:last-child {
+#siteInfoCard .mat-card > .mat-card-actions:last-child {
   margin-bottom: -8px;
 }
 

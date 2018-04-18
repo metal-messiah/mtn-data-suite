@@ -100,7 +100,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
   getObj(): UserProfile {
     return this.userProfile;
   }
-  getObjService(): UserProfileService {
+  getEntityService(): UserProfileService {
     return this.userProfileService;
   }
   getRoute(): ActivatedRoute {
@@ -109,7 +109,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
   getSavableObj(): UserProfile {
     const formModel = this.userProfileForm.value;
 
-    const updatedUserProfile: UserProfile = {
+    return new UserProfile({
       id: this.userProfile.id,
       email: formModel.email,
       firstName: formModel.firstName,
@@ -121,9 +121,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
       updatedBy: this.userProfile.updatedBy,
       updatedDate: this.userProfile.updatedDate,
       version: this.userProfile.version
-    };
-
-    return updatedUserProfile;
+    });
   }
   getTypeName(): string {
     return 'user profile';

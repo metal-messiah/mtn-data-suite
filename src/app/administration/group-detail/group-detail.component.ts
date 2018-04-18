@@ -77,7 +77,7 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
     return this.group;
   }
 
-  getObjService(): GroupService {
+  getEntityService(): GroupService {
     return this.groupService;
   }
 
@@ -93,7 +93,7 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
       (member: UserProfile) => Object.assign({}, member)
     );
 
-    return {
+    return new Group({
       id: this.group.id,
       displayName: formModel.displayName,
       description: formModel.description,
@@ -102,8 +102,9 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
       createdDate: this.group.createdDate,
       updatedBy: this.group.updatedBy,
       updatedDate: this.group.updatedDate,
-      version: this.group.version
-    };
+      version: this.group.version,
+      jiffy: 'blag'
+    });
   }
 
   getTypeName(): string {

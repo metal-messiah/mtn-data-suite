@@ -13,8 +13,9 @@ describe('SelectProjectComponent', () => {
   let fixture: ComponentFixture<SelectProjectComponent>;
 
   beforeEach(async(() => {
-    const projectServiceSpy = jasmine.createSpyObj('ProjectService', ['getAll']);
+    const projectServiceSpy = jasmine.createSpyObj('ProjectService', ['getAll', 'getAllByQuery']);
     projectServiceSpy.getAll.and.returnValue(of({content: []}));
+    projectServiceSpy.getAllByQuery.and.returnValue(of({content: []}));
 
     TestBed.configureTestingModule({
       imports: [ CasingModule, BrowserAnimationsModule, SharedModule ],
