@@ -25,6 +25,7 @@ import { GooglePlace } from '../../models/google-place';
 import { Subscription } from 'rxjs/Subscription';
 import { StoreService } from '../../core/services/store.service';
 import { Store } from '../../models/store';
+import { MappableService } from '../../shared/mappable.service';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -47,15 +48,14 @@ export enum CardState {
 @Component({
   selector: 'mds-casing-dashboard',
   templateUrl: './casing-dashboard.component.html',
-  styleUrls: ['./casing-dashboard.component.css']
+  styleUrls: ['./casing-dashboard.component.css'],
+  providers: [MappableService]
 })
 export class CasingDashboardComponent implements OnInit {
 
   movingStore: Store;
   newLocation: Mappable;
 
-  mappables: Mappable[];
-  selectedMappables: Mappable[];
   selectedGooglePlace: GooglePlace;
 
   defaultPointLayer: MapPointLayer;
@@ -88,6 +88,7 @@ export class CasingDashboardComponent implements OnInit {
               public casingDashboardService: CasingDashboardService,
               private siteService: SiteService,
               private storeService: StoreService,
+              public mappableService: MappableService,
               private snackBar: MatSnackBar,
               private ngZone: NgZone,
               private router: Router,
@@ -96,7 +97,6 @@ export class CasingDashboardComponent implements OnInit {
               private iconService: IconService,
               private navigatorService: NavigatorService,
               private dialog: MatDialog) {
-    this.selectedMappables = [];
   }
 
   ngOnInit() {
@@ -141,41 +141,19 @@ export class CasingDashboardComponent implements OnInit {
     this.defaultPointLayer.markerClick$.subscribe((store: Store) => {
       if (this.selectedDashboardMode === CasingDashboardMode.MULTI_SELECT) {
         if (this.selectedMultiSelectMode === MultiSelectMode.SELECT) {
-          this.selectMappable(store);
+          this.mappableService.selectMappable(store);
         } else {
-          this.deselectMappable(store);
+          this.mappableService.deselectMappable(store);
         }
         this.defaultPointLayer.refreshOptionsForMappable(store);
         this.ngZone.run(() => true);
       } else if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) { // Don't select while moving, creating or following
-        this.selectedMappables = [];
-        this.selectMappable(store);
+        this.mappableService.deselectAll();
+        this.mappableService.selectMappable(store);
         this.defaultPointLayer.refreshOptions();
         this.ngZone.run(() => this.selectedCardState = CardState.SELECTED_MAPPABLE);
       }
     });
-  }
-
-  selectMappable(mappable: Mappable) {
-    this.selectedMappables.push(mappable);
-  }
-
-  selectMappables(mappables: Mappable[]) {
-    mappables.forEach(store => this.selectMappable(store));
-  }
-
-  deselectMappable(mappable: Mappable) {
-    const index = this.selectedMappables.findIndex(s => s.getId() === mappable.getId());
-    this.selectedMappables.splice(index, 1);
-  }
-
-  deselectMappables(mappables: Mappable[]) {
-    mappables.forEach(mappable => this.deselectMappable(mappable));
-  }
-
-  mappableIsSelected(mappable: Mappable) {
-    const selectedMappable = this.selectedMappables.find(s => s.getId() === mappable.getId());
-    return selectedMappable != null;
   }
 
   storeIsDraggable(store: Store) {
@@ -188,7 +166,7 @@ export class CasingDashboardComponent implements OnInit {
     let fillColor = Color.RED;
     if (this.storeIsDraggable(store)) {
       fillColor = Color.PURPLE;
-    } else if (this.mappableIsSelected(store)) {
+    } else if (this.mappableService.mappableIsSelected(store)) {
       fillColor = Color.BLUE;
     }
 
@@ -204,9 +182,9 @@ export class CasingDashboardComponent implements OnInit {
     console.log('Getting Stores');
     this.storeService.getStoresOfTypeInBounds(bounds).subscribe(
       page => {
-        this.mappables = page.content;
+        this.mappableService.setMappables(page.content);
         this.defaultPointLayer.clearMarkers();
-        this.defaultPointLayer.createMarkersFromMappables(this.mappables);
+        this.defaultPointLayer.createMarkersFromMappables(this.mappableService.mappables);
         this.mapService.addPointLayer(this.defaultPointLayer);
         // TODO Show snackbar notfication of number of mappables pulled, filtered, etc.
       }
@@ -283,9 +261,9 @@ export class CasingDashboardComponent implements OnInit {
 
       // Select or deselect mappables
       if (this.selectedMultiSelectMode === MultiSelectMode.SELECT) {
-        this.selectMappables(mappables);
+        this.mappableService.selectMappables(mappables);
       } else if (this.selectedMultiSelectMode === MultiSelectMode.DESELECT) {
-        this.deselectMappables(mappables);
+        this.mappableService.deselectMappables(mappables);
       }
       // Refresh marker Appearance
       this.defaultPointLayer.refreshOptions();
@@ -299,7 +277,7 @@ export class CasingDashboardComponent implements OnInit {
     // Deactivate drawing tools
     this.mapService.deactivateDrawingTools();
     // Clear Selected mappables
-    this.selectedMappables = [];
+    this.mappableService.deselectAll();
     // Refresh marker Appearance
     this.defaultPointLayer.refreshOptions();
   }
@@ -363,12 +341,16 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   goToLocationOverview(): void {
-    this.router.navigate(['location-overview', this.selectedMappables[0].getId()], {relativeTo: this.route});
+    if (this.mappableService.latestSelected != null) {
+      this.router.navigate(['location-overview', this.mappableService.latestSelected.getId()], {relativeTo: this.route});
+    } else {
+      throw new Error('Trying to navigate to mappable before it was selected');
+    }
   }
 
   moveStore() {
     this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
-    this.movingStore = this.selectedMappables[0] as Store;
+    this.movingStore = this.mappableService.latestSelected as Store;
     this.defaultPointLayer.refreshOptionsForMappable(this.movingStore);
   }
 

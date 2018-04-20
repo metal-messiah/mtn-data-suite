@@ -56,16 +56,16 @@
         <mat-card>
           <mat-card-header>
             <mat-card-title>
-              <strong>{{selectedMappables[0].getLabel()}}</strong>
+              <strong>{{mappableService.getLatestSelection().getLabel()}}</strong>
             </mat-card-title>
-            <mat-card-subtitle>{{selectedMappables[0].currentStoreStatus}}</mat-card-subtitle>
+            <mat-card-subtitle>{{mappableService.getLatestSelection().currentStoreStatus}}</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
             <div style="display:flex; justify-content: space-between;">
               <div>
-                <p>{{selectedMappables[0].site.getIntersection()}}</p>
-                <p>{{selectedMappables[0].site.address1}}</p>
-                <p>{{selectedMappables[0].site.getPrincipality()}}</p>
+                <p>{{mappableService.getLatestSelection().site.getIntersection()}}</p>
+                <p>{{mappableService.getLatestSelection().site.address1}}</p>
+                <p>{{mappableService.getLatestSelection().site.getPrincipality()}}</p>
               </div>
             </div>
           </mat-card-content>
@@ -119,7 +119,9 @@
           </button>
         </div>
         <div>
-          <button mat-raised-button color="accent">({{selectedMappables.length}})&nbsp;Actions</button>
+          <button mat-raised-button color="accent">
+            <span *ngIf="mappableService.numSelected > 0">({{mappableService.numSelected}})</span>&nbsp;Actions
+          </button>
         </div>
       </mat-toolbar>
       <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.CREATING_NEW" class="row footer flex-space-between" color="primary">
