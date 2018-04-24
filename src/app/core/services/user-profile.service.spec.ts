@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { UserProfileService } from './user.service';
+import { UserProfileService } from './user-profile.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RestService } from './rest.service';
 

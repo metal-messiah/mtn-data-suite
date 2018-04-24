@@ -1,4 +1,4 @@
-import {CrudService} from './crud-service';
+import { CrudService } from './crud-service';
 import { Entity } from '../models/entity';
 
 export interface BasicEntityListComponent<T extends Entity> {
@@ -11,5 +11,5 @@ export interface BasicEntityListComponent<T extends Entity> {
   getTypeName: () => string;
   goBack: () => void;
   sortCompare: (a: T, b: T) => number;
-  setEntities: (entities: T[]) => void;
+  loadEntities: () => void;
 }

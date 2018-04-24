@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { GroupService } from '../../core/services/group.service';
 import { ActivatedRouteStub } from '../../../testing/activated-route-stub';
 import { DetailFormService } from '../../core/services/detail-form.service';
-import { UserProfileService } from '../../core/services/user.service';
+import { UserProfileService } from '../../core/services/user-profile.service';
 import { RoleService } from '../../core/services/role.service';
 import { ErrorService } from '../../core/services/error.service';
 import { of } from 'rxjs/observable/of';

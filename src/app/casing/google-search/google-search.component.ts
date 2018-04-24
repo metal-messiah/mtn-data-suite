@@ -31,7 +31,7 @@ export class GoogleSearchComponent {
     });
   }
 
-  goToPlace(place: GooglePlace) {
+  goToStore(place: GooglePlace) {
     this.dialogRef.close({place: place});
   }
 

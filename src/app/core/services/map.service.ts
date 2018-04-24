@@ -148,7 +148,7 @@ export class MapService {
   getDetailedGooglePlace(requestPlace: GooglePlace) {
     return Observable.create(observer => {
       const request = {
-        placeId: requestPlace.getId()
+        placeId: requestPlace.id
       };
       this.placesService.getDetails(request, (resultPlace, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK) {

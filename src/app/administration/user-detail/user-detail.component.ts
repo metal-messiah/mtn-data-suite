@@ -6,7 +6,7 @@ import {UserProfile} from '../../models/user-profile';
 import {Role} from '../../models/role';
 import {Group} from '../../models/group';
 
-import {UserProfileService} from '../../core/services/user.service';
+import {UserProfileService} from '../../core/services/user-profile.service';
 import {RoleService} from '../../core/services/role.service';
 import {GroupService} from '../../core/services/group.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
@@ -15,6 +15,9 @@ import {Observable} from 'rxjs/Observable';
 import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
 import {DetailFormComponent} from '../../interfaces/detail-form-component';
 import {DetailFormService} from '../../core/services/detail-form.service';
+import { SimplifiedGroup } from '../../models/simplified-group';
+import { SimplifiedRole } from '../../models/simplified-role';
+import { SimplifiedUserProfile } from '../../models/simplified-user-profile';
 
 @Component({
   selector: 'mds-user-detail',
@@ -27,8 +30,8 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
 
   userProfile: UserProfile;
 
-  roles: Role[];
-  groups: Group[];
+  roles: SimplifiedRole[];
+  groups: SimplifiedGroup[];
 
   isSaving = false;
   isLoading = false;
@@ -41,7 +44,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
               private errorService: ErrorService,
               private fb: FormBuilder,
               private datePipe: DatePipe,
-              private detailFormService: DetailFormService<UserProfile>) {
+              private detailFormService: DetailFormService<UserProfile, SimplifiedUserProfile>) {
   }
 
   ngOnInit() {
@@ -50,8 +53,8 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
     this.isLoading = true;
 
     Observable.zip(
-      this.roleService.getAll(),
-      this.groupService.getAll()
+      this.roleService.getAllRoles(),
+      this.groupService.getAllGroups()
     ).subscribe(
       pair => {
         const compareDisplayNames = function(object1, object2) {
@@ -140,9 +143,9 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
 
     if (this.userProfile.id !== undefined) {
       this.userProfileForm.patchValue({
-        createdBy: `${this.userProfile.createdBy.firstName} ${this.userProfile.createdBy.lastName}`,
+        createdBy: this.userProfile.createdBy.email,
         createdDate: this.datePipe.transform(this.userProfile.createdDate, 'medium'),
-        updatedBy: `${this.userProfile.updatedBy.firstName} ${this.userProfile.updatedBy.lastName}`,
+        updatedBy: this.userProfile.updatedBy.email,
         updatedDate: this.datePipe.transform(this.userProfile.updatedDate, 'medium'),
       });
     }

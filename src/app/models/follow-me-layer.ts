@@ -1,7 +1,7 @@
 import { MapPointLayer } from './map-point-layer';
 import { Coordinates } from './coordinates';
 import { Mappable } from '../interfaces/mappable';
-import { Color } from '../core/enums/Color';
+import { Color } from '../core/functionalEnums/Color';
 
 export class FollowMeLayer extends MapPointLayer {
 

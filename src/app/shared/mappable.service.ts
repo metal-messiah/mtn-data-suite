@@ -24,7 +24,7 @@ export class MappableService {
 
   selectMappable(mappable: Mappable): void {
     this.latestSelected = mappable;
-    this.selectedMappableIds.add(mappable.getId());
+    this.selectedMappableIds.add(mappable.id);
     this.numSelected = this.selectedMappableIds.size;
   }
 
@@ -33,7 +33,7 @@ export class MappableService {
   }
 
   deselectMappable(mappable: Mappable): void {
-    this.selectedMappableIds.delete(mappable.getId());
+    this.selectedMappableIds.delete(mappable.id);
     this.numSelected = this.selectedMappableIds.size;
   }
 
@@ -42,7 +42,7 @@ export class MappableService {
   }
 
   mappableIsSelected(mappable: Mappable): boolean {
-    return this.selectedMappableIds.has(mappable.getId());
+    return this.selectedMappableIds.has(mappable.id);
   }
 
   getLatestSelection() {

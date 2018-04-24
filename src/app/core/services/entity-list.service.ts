@@ -4,9 +4,10 @@ import { ErrorService } from './error.service';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { Entity } from '../../models/entity';
+import { AuditingEntity } from '../../models/auditing-entity';
 
 @Injectable()
-export class EntityListService<T extends Entity> {
+export class EntityListService<T extends AuditingEntity> {
 
   constructor(
     private dialog: MatDialog,
@@ -17,14 +18,7 @@ export class EntityListService<T extends Entity> {
 
   initialize(comp: BasicEntityListComponent<T>) {
     comp.isLoading = true;
-    comp.getEntityService().getAll()
-      .subscribe(
-        pageable => comp.setEntities(pageable.content.sort(comp.sortCompare)),
-        err => this.errorService.handleServerError(`Failed to retrieve ${comp.getPluralTypeName()}`, err,
-          () => comp.goBack(),
-          () => this.initialize(comp)),
-        () => comp.isLoading = false
-      );
+    comp.loadEntities();
   }
 
   confirmDelete(comp: BasicEntityListComponent<T>, entity: T) {

@@ -1,26 +1,47 @@
 import { AuditingEntity } from './auditing-entity';
-import { Project } from './project';
-import { ShoppingCenter } from './shopping-center';
-import { Store } from './store';
-import { ShoppingCenterSurvey } from './shopping-center-survey';
-import { ShoppingCenterCasing } from './shopping-center-casing';
-import { StoreSurvey } from './store-survey';
-import { StoreCasing } from './store-casing';
+import { SimplifiedProject } from './simplified-project';
+import { SimplifiedStore } from './simplified-store';
+import { SimplifiedStoreCasing } from './simplified-store-casing';
+import { SimplifiedShoppingCenterCasing } from './simplified-shopping-center-casing';
+import { SimplifiedShoppingCenterSurvey } from './simplified-shopping-center-survey';
+import { SimplifiedShoppingCenter } from './simplified-shopping-center';
+import { SimplifiedStoreSurvey } from './simplified-store-survey';
 
 export class Interaction extends AuditingEntity {
 
-  project: Project;
-  shoppingCenter: ShoppingCenter;
-  shoppingCenterSurvey: ShoppingCenterSurvey;
-  shoppingCenterCasing: ShoppingCenterCasing;
-  store: Store;
-  storeSurvey: StoreSurvey;
-  storeCasing: StoreCasing;
+  project: SimplifiedProject;
+  shoppingCenter: SimplifiedShoppingCenter;
+  shoppingCenterSurvey: SimplifiedShoppingCenterSurvey;
+  shoppingCenterCasing: SimplifiedShoppingCenterCasing;
+  store: SimplifiedStore;
+  storeSurvey: SimplifiedStoreSurvey;
+  storeCasing: SimplifiedStoreCasing;
   interactionDate: Date;
   legacyCasingId: number;
 
   constructor(obj) {
     super(obj);
     Object.assign(this, obj);
+    if (obj.project != null) {
+      this.project = new SimplifiedProject(obj.project);
+    }
+    if (obj.shoppingCenter != null) {
+      this.shoppingCenter = new SimplifiedShoppingCenter(obj.shoppingCenter);
+    }
+    if (obj.shoppingCenterSurvey != null) {
+      this.shoppingCenterSurvey = new SimplifiedShoppingCenterSurvey(obj.shoppingCenterSurvey);
+    }
+    if (obj.shoppingCenterCasing != null) {
+      this.shoppingCenterCasing = new SimplifiedShoppingCenterCasing(obj.shoppingCenterCasing);
+    }
+    if (obj.store != null) {
+      this.store = new SimplifiedStore(obj.store);
+    }
+    if (obj.storeSurvey != null) {
+      this.storeSurvey = new SimplifiedStoreSurvey(obj.storeSurvey);
+    }
+    if (obj.storeCasing != null) {
+      this.storeCasing = new SimplifiedStoreCasing(obj.storeCasing);
+    }
   }
 }

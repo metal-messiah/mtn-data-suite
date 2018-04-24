@@ -7,12 +7,12 @@ import { MapService } from '../../core/services/map.service';
 import { SiteService } from '../../core/services/site.service';
 import { Site } from '../../models/site';
 import { CasingDashboardService } from './casing-dashboard.service';
-import { MarkerType } from '../../core/enums/MarkerType';
+import { MarkerType } from '../../core/functionalEnums/MarkerType';
 import { GeocoderService } from '../../core/services/geocoder.service';
 import { Mappable } from '../../interfaces/mappable';
 import { MapPointLayer } from '../../models/map-point-layer';
-import { Color } from '../../core/enums/Color';
-import { MarkerShape } from '../../core/enums/MarkerShape';
+import { Color } from '../../core/functionalEnums/Color';
+import { MarkerShape } from '../../core/functionalEnums/MarkerShape';
 import { IconService } from '../../core/services/icon.service';
 import { LabelService } from '../../core/services/label.service';
 import { NavigatorService } from '../../core/services/navigator.service';
@@ -26,6 +26,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { StoreService } from '../../core/services/store.service';
 import { Store } from '../../models/store';
 import { MappableService } from '../../shared/mappable.service';
+import { DatabaseSearchComponent } from '../database-search/database-search.component';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -158,8 +159,8 @@ export class CasingDashboardComponent implements OnInit {
 
   storeIsDraggable(store: Store) {
     // If Store is new (has no store_id) or is being moved
-    return store.site.getId() == null ||
-      (this.movingStore != null && store.site.getId() === this.movingStore.site.getId());
+    return store.site.id == null ||
+      (this.movingStore != null && store.site.id === this.movingStore.site.id);
   }
 
   getStoreIcon(store: Store) {
@@ -218,9 +219,7 @@ export class CasingDashboardComponent implements OnInit {
       getCoordinates: () => {
         return this.mapService.getCenter();
       },
-      getId: () => {
-        return 0;
-      }
+      id: 0
     };
     // Add new location to layer
     this.newLocationPointLayer.createMarkerFromMappable(this.newLocation);
@@ -342,7 +341,7 @@ export class CasingDashboardComponent implements OnInit {
 
   goToLocationOverview(): void {
     if (this.mappableService.latestSelected != null) {
-      this.router.navigate(['location-overview', this.mappableService.latestSelected.getId()], {relativeTo: this.route});
+      this.router.navigate(['location-overview', this.mappableService.latestSelected.id], {relativeTo: this.route});
     } else {
       throw new Error('Trying to navigate to mappable before it was selected');
     }
@@ -366,22 +365,21 @@ export class CasingDashboardComponent implements OnInit {
     // Get new coordinates
     const coordinates = this.defaultPointLayer.getCoordinatesOfMappableMarker(this.movingStore);
 
-    // Preserve coordinates in case of error
-    const originalCoordinates = this.movingStore.site.getCoordinates();
+    // Get Full version of site
+    this.siteService.getOneById(this.movingStore.site.id).subscribe((site: Site) => {
+      // Save updated values
+      site.latitude = coordinates.lat;
+      site.longitude = coordinates.lng;
 
-    // Update values
-    this.movingStore.site.latitude = coordinates.lat;
-    this.movingStore.site.longitude = coordinates.lng;
-
-    // Save updated values
-    this.siteService.update(this.movingStore.site).subscribe(updatedSite => {
-      this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-      this.movingStore = null;
-      this.getActiveStores(this.mapService.getBounds());
-    }, (err) => {
-      // Resets original values (does not move pin) Allows cancel to return pin to original location
-      this.movingStore.site.latitude = originalCoordinates.lat;
-      this.movingStore.site.longitude = originalCoordinates.lng;
+      this.siteService.update(site).subscribe(updatedSite => {
+        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        this.movingStore = null;
+        this.getActiveStores(this.mapService.getBounds());
+      }, updateError => {
+        // TODO handle update error
+      });
+    }, findError => {
+      // TODO handle findError
     });
   }
 
@@ -409,12 +407,15 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   openDatabaseSearch() {
-    // TODO
+    const databaseSearchDialog = this.dialog.open(DatabaseSearchComponent);
+    databaseSearchDialog.afterClosed().subscribe(store => {
+      console.log(store);
+    });
   }
 
   openGoogleSearch() {
-    const latLngSearchDialog = this.dialog.open(GoogleSearchComponent);
-    latLngSearchDialog.afterClosed().subscribe(result => {
+    const googleSearchDialog = this.dialog.open(GoogleSearchComponent);
+    googleSearchDialog.afterClosed().subscribe(result => {
       if (result != null) {
         // Create google point layer
         if (this.googleLayer == null) {

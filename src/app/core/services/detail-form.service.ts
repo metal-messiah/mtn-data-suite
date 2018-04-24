@@ -1,13 +1,14 @@
-import {Injectable} from '@angular/core';
-import {DetailFormComponent} from '../../interfaces/detail-form-component';
-import {MatDialog, MatSnackBar} from '@angular/material';
-import {ErrorService} from './error.service';
-import {ConfirmDialogComponent} from '../../shared/confirm-dialog/confirm-dialog.component';
-import {Observable} from 'rxjs/Observable';
+import { Injectable } from '@angular/core';
+import { DetailFormComponent } from '../../interfaces/detail-form-component';
+import { MatDialog, MatSnackBar } from '@angular/material';
+import { ErrorService } from './error.service';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { Observable } from 'rxjs/Observable';
 import { Entity } from '../../models/entity';
+import { AuditingEntity } from '../../models/auditing-entity';
 
 @Injectable()
-export class DetailFormService<T extends Entity> {
+export class DetailFormService<T extends AuditingEntity, S extends Entity> {
 
   constructor(private snackBar: MatSnackBar,
               private errorService: ErrorService,
@@ -37,7 +38,7 @@ export class DetailFormService<T extends Entity> {
     };
 
     // If object is new create it, otherwise update it
-    if (fc.getSavableObj().getId() == null) {
+    if (fc.getSavableObj().id == null) {
       fc.getEntityService().create(fc.getSavableObj()).subscribe(
         created => {
           this.snackBar.open(`Successfully created ${fc.getTypeName()}!`, null, {duration: 2000});

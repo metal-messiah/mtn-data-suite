@@ -1,6 +1,5 @@
 import { AuditingEntity } from './auditing-entity';
-import { Interaction } from './interaction';
-import { StoreVolume } from './store-volume';
+import { SimplifiedInteraction } from './simplified-interaction';
 
 export class StoreSurvey extends AuditingEntity {
 
@@ -77,9 +76,14 @@ export class StoreSurvey extends AuditingEntity {
   seasonalityDec: number;
   legacyCasingId: number;
 
-  constructor(obj?) {
+  interactions: SimplifiedInteraction[];
+
+  constructor(obj) {
     super(obj);
     Object.assign(this, obj);
+    if (obj.interactions != null) {
+      this.interactions = obj.interactions.map(interaction => new SimplifiedInteraction(interaction));
+    }
   }
 
 }

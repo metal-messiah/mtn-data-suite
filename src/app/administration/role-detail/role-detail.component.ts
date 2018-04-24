@@ -17,6 +17,7 @@ import {RoleService} from '../../core/services/role.service';
 import {PermissionService} from '../../core/services/permission.service';
 import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
 import {DetailFormService} from '../../core/services/detail-form.service';
+import { SimplifiedRole } from 'app/models/simplified-role';
 
 @Component({
   selector: 'mds-role-detail',
@@ -46,7 +47,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
               private fb: FormBuilder,
               private datePipe: DatePipe,
               private breakpointObserver: BreakpointObserver,
-              private detailFormService: DetailFormService<Role>) {
+              private detailFormService: DetailFormService<Role, SimplifiedRole>) {
     breakpointObserver.observe([
       Breakpoints.HandsetPortrait
     ]).subscribe(result => {
@@ -99,7 +100,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
   }
 
   getNewObj(): Role {
-    return new Role();
+    return new Role({});
   }
 
   getObj(): Role {
@@ -167,9 +168,9 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
 
     if (this.role.id !== undefined) {
       this.roleForm.patchValue({
-        createdBy: `${this.role.createdBy.firstName} ${this.role.createdBy.lastName}`,
+        createdBy: this.role.createdBy.email,
         createdDate: this.datePipe.transform(this.role.createdDate, 'medium'),
-        updatedBy: `${this.role.updatedBy.firstName} ${this.role.updatedBy.lastName}`,
+        updatedBy: this.role.updatedBy.email,
         updatedDate: this.datePipe.transform(this.role.updatedDate, 'medium'),
       });
     }

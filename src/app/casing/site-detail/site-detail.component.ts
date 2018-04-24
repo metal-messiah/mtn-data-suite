@@ -8,6 +8,7 @@ import { SiteService } from '../../core/services/site.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DetailFormService } from '../../core/services/detail-form.service';
 import { Observable } from 'rxjs/Observable';
+import { SimplifiedSite } from '../../models/simplified-site';
 
 @Component({
   selector: 'mds-site-detail',
@@ -28,7 +29,7 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate, Deta
               private route: ActivatedRoute,
               private router: Router,
               private fb: FormBuilder,
-              private detailFormService: DetailFormService<Site>) { }
+              private detailFormService: DetailFormService<Site, SimplifiedSite>) { }
 
   ngOnInit() {
 

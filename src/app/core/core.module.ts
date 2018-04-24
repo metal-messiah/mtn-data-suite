@@ -6,12 +6,11 @@ import { RestService } from './services/rest.service';
 import { GroupService } from './services/group.service';
 import { PermissionService } from './services/permission.service';
 import { RoleService } from './services/role.service';
-import { UserProfileService } from './services/user.service';
+import { UserProfileService } from './services/user-profile.service';
 import { AuthGuard } from './services/auth.guard';
 import { DetailFormService } from './services/detail-form.service';
 import { EntityListService } from './services/entity-list.service';
 import { SiteService } from './services/site.service';
-import { DuplicateService } from './services/duplicate.service';
 import { ProjectService } from './services/project.service';
 import { IconService } from './services/icon.service';
 import { GeocoderService } from './services/geocoder.service';
@@ -29,7 +28,6 @@ import { StoreService } from './services/store.service';
     AuthService,
     AuthGuard,
     DetailFormService,
-    DuplicateService,
     EntityListService,
     ErrorService,
     GeocoderService,

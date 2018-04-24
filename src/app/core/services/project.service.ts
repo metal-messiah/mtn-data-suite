@@ -5,18 +5,15 @@ import { Pageable } from '../../models/pageable';
 import { Project } from '../../models/project';
 import { Observable } from 'rxjs/Observable';
 import { CrudService } from '../../interfaces/crud-service';
+import { SimplifiedProject } from '../../models/simplified-project';
 
 @Injectable()
-export class ProjectService extends CrudService<Project>{
+export class ProjectService extends CrudService<Project> {
 
-  private endpoint = '/api/project';
+  protected endpoint = '/api/project';
 
   constructor(protected http: HttpClient, protected rest: RestService) {
     super(http, rest);
-  }
-
-  protected getEndpoint(): string {
-    return this.endpoint;
   }
 
   public getAllByQuery(projectQuery: string, active: boolean, primaryData: boolean, pageNumber?: number): Observable<Pageable<Project>> {
@@ -35,6 +32,10 @@ export class ProjectService extends CrudService<Project>{
       params = params.set('page', pageNumber.toLocaleString());
     }
     return this.http.get<Pageable<Project>>(url, {headers: this.rest.getHeaders(), params: params});
+  }
+
+  protected createEntityFromObj(entityObj): Project {
+    return new Project(entityObj);
   }
 
 }

@@ -12,6 +12,7 @@ import {GroupService} from '../../core/services/group.service';
 import {DetailFormComponent} from '../../interfaces/detail-form-component';
 import {Group} from '../../models/group';
 import {UserProfile} from '../../models/user-profile';
+import { SimplifiedGroup } from '../../models/simplified-group';
 
 @Component({
   selector: 'mds-group-detail',
@@ -32,7 +33,7 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
               private router: Router,
               private fb: FormBuilder,
               private datePipe: DatePipe,
-              private detailFormService: DetailFormService<Group>) {
+              private detailFormService: DetailFormService<Group, SimplifiedGroup>) {
   }
 
   ngOnInit() {
@@ -127,9 +128,9 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
 
     if (this.group.id !== undefined) {
       this.groupForm.patchValue({
-        createdBy: `${this.group.createdBy.firstName} ${this.group.createdBy.lastName}`,
+        createdBy: this.group.createdBy.email,
         createdDate: this.datePipe.transform(this.group.createdDate, 'medium'),
-        updatedBy: `${this.group.updatedBy.firstName} ${this.group.updatedBy.lastName}`,
+        updatedBy: this.group.updatedBy.email,
         updatedDate: this.datePipe.transform(this.group.updatedDate, 'medium'),
       });
     }

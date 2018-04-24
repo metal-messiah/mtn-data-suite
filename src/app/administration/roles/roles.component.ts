@@ -1,10 +1,12 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
-import {Role} from '../../models/role';
-import {RoleService} from '../../core/services/role.service';
-import {Router} from '@angular/router';
-import {BasicEntityListComponent} from '../../interfaces/basic-entity-list-component';
-import {EntityListService} from '../../core/services/entity-list.service';
+import { Role } from '../../models/role';
+import { RoleService } from '../../core/services/role.service';
+import { Router } from '@angular/router';
+import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-component';
+import { EntityListService } from '../../core/services/entity-list.service';
+import { ErrorService } from '../../core/services/error.service';
+import { SimplifiedRole } from '../../models/simplified-role';
 
 @Component({
   selector: 'mds-roles',
@@ -13,19 +15,30 @@ import {EntityListService} from '../../core/services/entity-list.service';
 })
 export class RolesComponent implements OnInit, BasicEntityListComponent<Role> {
 
-  roles: Role[];
+  roles: SimplifiedRole[];
 
   isLoading = false;
   isDeleting = false;
 
   constructor(private roleService: RoleService,
               private router: Router,
-              private els: EntityListService<Role>) {
+              private els: EntityListService<Role>,
+              private errorService: ErrorService) {
   }
 
   ngOnInit() {
     this.els.initialize(this);
   }
+
+  loadEntities(): void {
+    this.roleService.getAllRoles().subscribe(
+      pageable => this.roles = pageable.content.sort(this.sortCompare),
+      err => this.errorService.handleServerError(`Failed to retrieve Roles`, err,
+        () => this.goBack(),
+        () => this.els.initialize(this)),
+      () => this.isLoading = false
+    );
+  };
 
   confirmDelete(role: Role) {
     this.els.confirmDelete(this, role);
@@ -45,10 +58,6 @@ export class RolesComponent implements OnInit, BasicEntityListComponent<Role> {
 
   getTypeName(): string {
     return 'role';
-  }
-
-  setEntities(roles: Role[]): void {
-    this.roles = roles;
   }
 
   sortCompare(a: Role, b: Role): number {

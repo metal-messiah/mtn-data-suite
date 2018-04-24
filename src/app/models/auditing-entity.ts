@@ -1,15 +1,22 @@
-import {UserProfile} from './user-profile';
 import { Entity } from './entity';
+import { SimplifiedUserProfile } from './simplified-user-profile';
 
-export class AuditingEntity extends Entity {
-  createdBy: UserProfile;
-  createdDate: Date;
-  updatedBy: UserProfile;
-  updatedDate: Date;
-  version: number;
+export class AuditingEntity implements Entity {
+
+  readonly id: number;
+  readonly createdBy: SimplifiedUserProfile;
+  readonly createdDate: Date;
+  readonly updatedBy: SimplifiedUserProfile;
+  readonly updatedDate: Date;
+  readonly version: number;
 
   constructor(obj?) {
-    super(obj);
     Object.assign(this, obj);
+    if (obj.createdBy != null) {
+      this.createdBy = new SimplifiedUserProfile(obj.createdBy);
+    }
+    if (obj.updatedBy != null) {
+      this.updatedBy = new SimplifiedUserProfile(obj.updatedBy);
+    }
   }
 }

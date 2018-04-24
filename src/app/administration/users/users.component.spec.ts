@@ -1,16 +1,16 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UsersComponent } from './users.component';
+import { UserProfilesComponent } from './user-profiles.component';
 import { AdministrationModule } from '../administration.module';
 import { ActivatedRoute } from '@angular/router';
 import { ActivatedRouteStub } from '../../../testing/activated-route-stub';
 import { EntityListService } from '../../core/services/entity-list.service';
-import { UserProfileService } from '../../core/services/user.service';
+import { UserProfileService } from '../../core/services/user-profile.service';
 import { RouterTestingModule } from '@angular/router/testing';
 
-describe('UsersComponent', () => {
-  let component: UsersComponent;
-  let fixture: ComponentFixture<UsersComponent>;
+describe('UserProfilesComponent', () => {
+  let component: UserProfilesComponent;
+  let fixture: ComponentFixture<UserProfilesComponent>;
 
   beforeEach(async(() => {
     const entityListServiceSpy = jasmine.createSpyObj('EntityListService', ['initialize', 'confirmDelete'])
@@ -32,7 +32,7 @@ describe('UsersComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(UsersComponent);
+    fixture = TestBed.createComponent(UserProfilesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Color } from '../enums/Color';
-import { MarkerShape } from '../enums/MarkerShape';
+import { Color } from '../functionalEnums/Color';
+import { MarkerShape } from '../functionalEnums/MarkerShape';
 
 @Injectable()
 export class IconService {

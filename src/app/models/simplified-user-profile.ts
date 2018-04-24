@@ -1,9 +1,12 @@
 import { Entity } from './entity';
 
-export interface SimplifiedUserProfile extends Entity {
+export class SimplifiedUserProfile implements Entity {
 
-  firstName: string;
-  lastName: string;
+  id: number;
   email: string;
+
+  constructor(obj?) {
+    Object.assign(this, obj);
+  }
 
 }

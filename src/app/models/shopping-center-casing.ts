@@ -1,4 +1,5 @@
 import { AuditingEntity } from './auditing-entity';
+import { SimplifiedInteraction } from './simplified-interaction';
 
 export class ShoppingCenterCasing extends AuditingEntity {
 
@@ -10,8 +11,13 @@ export class ShoppingCenterCasing extends AuditingEntity {
   ratingSynergy: string;
   legacyCasingId: number;
 
+  interactions: SimplifiedInteraction[];
+
   constructor(obj?) {
     super(obj);
     Object.assign(this, obj);
+    if (obj.interactions != null) {
+      this.interactions = obj.interactions.map(interaction => new SimplifiedInteraction(interaction));
+    }
   }
 }

@@ -7,19 +7,16 @@ import { CrudService } from '../../interfaces/crud-service';
 import { Store } from '../../models/store';
 import { Pageable } from '../../models/pageable';
 import { Observable } from 'rxjs/Observable';
+import { SimplifiedStore } from '../../models/simplified-store';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {
 
-  private endpoint = '/api/store';
+  protected endpoint = '/api/store';
 
   constructor(protected http: HttpClient, protected rest: RestService) {
     super(http, rest);
   }
-
-  protected getEndpoint(): string {
-    return this.endpoint;
-  };
 
   getStoresOfTypeInBounds(bounds: any): Observable<Pageable<Store>> {
     const url = this.rest.getHost() + this.endpoint;
@@ -33,5 +30,9 @@ export class StoreService extends CrudService<Store> {
         page.content = page.content.map(store => new Store(store));
         return page;
       });
+  }
+
+  protected createEntityFromObj(entityObj): Store {
+    return new Store(entityObj);
   }
 }

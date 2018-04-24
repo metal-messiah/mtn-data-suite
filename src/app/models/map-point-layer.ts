@@ -42,7 +42,7 @@ export class MapPointLayer {
   }
 
   getMarkerForMappable(mappable: Mappable) {
-    return this.markers.find(marker => marker.get('mappable').getId() === mappable.getId());
+    return this.markers.find(marker => marker.get('mappable').id === mappable.id);
   }
 
   refreshOptions(): void {
@@ -73,7 +73,7 @@ export class MapPointLayer {
 
   getCoordinatesOfMappableMarker(mappable: Mappable): google.maps.LatLngLiteral {
     const marker = this.markers.find(m => {
-      return m.get('mappable').getId() === mappable.getId();
+      return m.get('mappable').id === mappable.id;
     });
     return marker.getPosition().toJSON();
   }

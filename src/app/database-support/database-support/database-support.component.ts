@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { DuplicateService } from '../../core/services/duplicate.service';
 import { Duplicate } from '../../models/duplicate';
 import { Site } from '../../models/site';
 import { Router } from '@angular/router';
@@ -16,18 +15,10 @@ export class DatabaseSupportComponent implements OnInit {
   isLoading = false;
 
   constructor(
-    private duplicateService: DuplicateService,
     private router: Router
   ) {}
 
   ngOnInit() {
-    this.duplicateService.getAll()
-      .subscribe(
-        duplicateSites => {
-          this.duplicates = duplicateSites;
-        },
-        err => console.log(`Hit error, ${err}`)
-      );
   }
 
   goBack() {
