@@ -1,0 +1,9 @@
+#search-bar {
+  display: flex;
+  justify-content: space-around;
+}
+
+#search-results {
+  overflow: auto;
+  max-height: 300px;
+}
