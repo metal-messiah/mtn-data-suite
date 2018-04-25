@@ -103,10 +103,22 @@ export class CasingDashboardComponent implements OnInit {
   ngOnInit() {
     this.defaultPointLayer = new MapPointLayer({
       getMappableIsDraggable: (store: Store) => {
-        return this.storeIsDraggable(store);
+        return this.storeIsMoving(store);
       },
       getMappableIcon: (store: Store) => {
-        return this.getStoreIcon(store);
+        let fillColor = Color.RED;
+        if (this.storeIsMoving(store)) {
+          fillColor = Color.PURPLE;
+        } else if (this.mappableService.mappableIsSelected(store)) {
+          fillColor = Color.BLUE;
+        }
+
+        let shape: MarkerShape | google.maps.SymbolPath = MarkerShape.FILLED;
+        if (this.selectedMarkerType === MarkerType.LABEL) {
+          shape = google.maps.SymbolPath.CIRCLE;
+        }
+
+        return this.iconService.getIcon(fillColor, Color.WHITE, shape);
       },
       getMappableLabel: (store: Store) => {
         if (this.selectedMarkerType === MarkerType.PIN) {
@@ -157,26 +169,10 @@ export class CasingDashboardComponent implements OnInit {
     });
   }
 
-  storeIsDraggable(store: Store) {
+  storeIsMoving(store: Store) {
     // If Store is new (has no store_id) or is being moved
     return store.site.id == null ||
       (this.movingStore != null && store.site.id === this.movingStore.site.id);
-  }
-
-  getStoreIcon(store: Store) {
-    let fillColor = Color.RED;
-    if (this.storeIsDraggable(store)) {
-      fillColor = Color.PURPLE;
-    } else if (this.mappableService.mappableIsSelected(store)) {
-      fillColor = Color.BLUE;
-    }
-
-    let shape: MarkerShape | google.maps.SymbolPath = MarkerShape.FILLED;
-    if (this.selectedMarkerType === MarkerType.LABEL) {
-      shape = google.maps.SymbolPath.CIRCLE;
-    }
-
-    return this.iconService.getIcon(fillColor, Color.WHITE, shape);
   }
 
   getActiveStores(bounds): void {
@@ -265,7 +261,7 @@ export class CasingDashboardComponent implements OnInit {
         this.mappableService.deselectMappables(mappables);
       }
       // Refresh marker Appearance
-      this.defaultPointLayer.refreshOptions();
+      this.defaultPointLayer.refreshOptionsForMappables(mappables);
       // Remove drawings from maps
       this.mapService.clearDrawings();
     });

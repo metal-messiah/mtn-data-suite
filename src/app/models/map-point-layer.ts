@@ -41,6 +41,10 @@ export class MapPointLayer {
     this.setMarkerOptions(marker);
   }
 
+  refreshOptionsForMappables(mappables: Mappable[]): void {
+    mappables.forEach(mappable => this.refreshOptionsForMappable(mappable));
+  }
+
   getMarkerForMappable(mappable: Mappable) {
     return this.markers.find(marker => marker.get('mappable').id === mappable.id);
   }
