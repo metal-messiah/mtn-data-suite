@@ -8,8 +8,8 @@ import { UserProfileService } from '../../core/services/user-profile.service';
 
 @Component({
   selector: 'mds-users',
-  templateUrl: './users.component.html',
-  styleUrls: ['./users.component.css']
+  templateUrl: './user-profiles.component.html',
+  styleUrls: ['./user-profiles.component.css']
 })
 export class UserProfilesComponent implements OnInit, BasicEntityListComponent<UserProfile> {
 

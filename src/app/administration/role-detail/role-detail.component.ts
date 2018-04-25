@@ -47,7 +47,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
               private fb: FormBuilder,
               private datePipe: DatePipe,
               private breakpointObserver: BreakpointObserver,
-              private detailFormService: DetailFormService<Role, SimplifiedRole>) {
+              private detailFormService: DetailFormService<Role>) {
     breakpointObserver.observe([
       Breakpoints.HandsetPortrait
     ]).subscribe(result => {

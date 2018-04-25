@@ -7,6 +7,7 @@ import { GroupService } from '../../core/services/group.service';
 import { EntityListService } from '../../core/services/entity-list.service';
 import { ActivatedRouteStub } from '../../../testing/activated-route-stub';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ErrorService } from '../../core/services/error.service';
 
 describe('GroupsComponent', () => {
   let component: GroupsComponent;
@@ -25,7 +26,8 @@ describe('GroupsComponent', () => {
       providers: [
         {provide: GroupService, useValue: {}},
         {provide: EntityListService, useValue: entityListServiceSpy},
-        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()}
+        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()},
+        {provide: ErrorService, useValue: {}}
       ]
     })
     .compileComponents();

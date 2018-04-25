@@ -7,6 +7,7 @@ import { ActivatedRouteStub } from '../../../testing/activated-route-stub';
 import { EntityListService } from '../../core/services/entity-list.service';
 import { RoleService } from '../../core/services/role.service';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ErrorService } from '../../core/services/error.service';
 
 describe('RolesComponent', () => {
   let component: RolesComponent;
@@ -25,7 +26,8 @@ describe('RolesComponent', () => {
       providers: [
         {provide: RoleService, useValue: {}},
         {provide: EntityListService, useValue: entityListServiceSpy},
-        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()}
+        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()},
+        {provide: ErrorService, useValue: {}}
       ]
     })
     .compileComponents();

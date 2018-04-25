@@ -7,6 +7,7 @@ import { ActivatedRouteStub } from '../../../testing/activated-route-stub';
 import { EntityListService } from '../../core/services/entity-list.service';
 import { UserProfileService } from '../../core/services/user-profile.service';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ErrorService } from '../../core/services/error.service';
 
 describe('UserProfilesComponent', () => {
   let component: UserProfilesComponent;
@@ -25,7 +26,8 @@ describe('UserProfilesComponent', () => {
       providers: [
         {provide: UserProfileService, useValue: {}},
         {provide: EntityListService, useValue: entityListServiceSpy},
-        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()}
+        {provide: ActivatedRoute, useValue: new ActivatedRouteStub()},
+        {provide: ErrorService, useValue: {}}
       ]
     })
     .compileComponents();

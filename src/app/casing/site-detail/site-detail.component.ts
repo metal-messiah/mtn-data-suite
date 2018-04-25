@@ -29,7 +29,7 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate, Deta
               private route: ActivatedRoute,
               private router: Router,
               private fb: FormBuilder,
-              private detailFormService: DetailFormService<Site, SimplifiedSite>) { }
+              private detailFormService: DetailFormService<Site>) { }
 
   ngOnInit() {
 

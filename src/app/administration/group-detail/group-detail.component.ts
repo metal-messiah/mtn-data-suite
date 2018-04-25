@@ -33,7 +33,7 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
               private router: Router,
               private fb: FormBuilder,
               private datePipe: DatePipe,
-              private detailFormService: DetailFormService<Group, SimplifiedGroup>) {
+              private detailFormService: DetailFormService<Group>) {
   }
 
   ngOnInit() {

@@ -44,7 +44,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
               private errorService: ErrorService,
               private fb: FormBuilder,
               private datePipe: DatePipe,
-              private detailFormService: DetailFormService<UserProfile, SimplifiedUserProfile>) {
+              private detailFormService: DetailFormService<UserProfile>) {
   }
 
   ngOnInit() {

@@ -1,6 +1,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DatabaseSearchComponent } from './database-search.component';
+import { SharedModule } from '../../shared/shared.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MapService } from '../../core/services/map.service';
+import { StoreService } from '../../core/services/store.service';
 
 describe('DatabaseSearchComponent', () => {
   let component: DatabaseSearchComponent;
@@ -8,6 +13,13 @@ describe('DatabaseSearchComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [SharedModule, BrowserAnimationsModule],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: {}},
+        {provide: MapService, useValue: {}},
+        {provide: StoreService, useValue: {}}
+      ],
       declarations: [ DatabaseSearchComponent ]
     })
     .compileComponents();

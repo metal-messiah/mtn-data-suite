@@ -17,10 +17,10 @@ describe('UserDetailComponent', () => {
   let fixture: ComponentFixture<UserDetailComponent>;
 
   beforeEach(async(() => {
-    const roleServiceSpy = jasmine.createSpyObj('RoleService', ['getAll']);
-    roleServiceSpy.getAll.and.returnValue(of({content: []}));
-    const groupServiceSpy = jasmine.createSpyObj('GroupService', ['getAll']);
-    groupServiceSpy.getAll.and.returnValue(of({content: []}));
+    const roleServiceSpy = jasmine.createSpyObj('RoleService', ['getAllRoles']);
+    roleServiceSpy.getAllRoles.and.returnValue(of({content: []}));
+    const groupServiceSpy = jasmine.createSpyObj('GroupService', ['getAllGroups']);
+    groupServiceSpy.getAllGroups.and.returnValue(of({content: []}));
     const detailFormService = jasmine.createSpyObj('DetailFormService', ['retrieveObj', 'save', 'canDeactivate']);
     // TODO Mock return of retrieveObj
     // TODO Mock return of create

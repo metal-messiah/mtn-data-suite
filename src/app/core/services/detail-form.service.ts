@@ -8,7 +8,7 @@ import { Entity } from '../../models/entity';
 import { AuditingEntity } from '../../models/auditing-entity';
 
 @Injectable()
-export class DetailFormService<T extends AuditingEntity, S extends Entity> {
+export class DetailFormService<T extends AuditingEntity> {
 
   constructor(private snackBar: MatSnackBar,
               private errorService: ErrorService,
