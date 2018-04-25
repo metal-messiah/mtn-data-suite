@@ -61,15 +61,16 @@
             <mat-card-title>
               <strong>{{mappableService.getLatestSelection().getLabel()}}</strong>
             </mat-card-title>
-            <mat-card-subtitle>
-              {{mappableService.getLatestSelection().currentStoreStatus}}
+            <mat-card-subtitle *ngIf="mappableService.getLatestSelection().currentStoreStatus != null">
+              {{mappableService.getLatestSelection().currentStoreStatus.status}}
             </mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
             <div style="display:flex; justify-content: space-between;">
               <div>
                 <p>{{mappableService.getLatestSelection().site.getIntersection()}}</p>
-                <p>{{mappableService.getLatestSelection().site.address1}}, {{mappableService.getLatestSelection().site.getPrincipality()}}</p>
+                <p>{{mappableService.getLatestSelection().site.address1}}</p>
+                <p>{{mappableService.getLatestSelection().site.getPrincipality()}}</p>
               </div>
             </div>
           </mat-card-content>

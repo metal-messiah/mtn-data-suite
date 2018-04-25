@@ -5,7 +5,7 @@ export class SimplifiedUserProfile implements Entity {
   id: number;
   email: string;
 
-  constructor(obj?) {
+  constructor(obj) {
     Object.assign(this, obj);
   }
 

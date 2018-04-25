@@ -58,7 +58,7 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate, Deta
     if (this.casingDashboardService.newSite) {
       return this.casingDashboardService.newSite;
     }
-    return new Site();
+    return new Site({});
   }
 
   getObj(): Site {

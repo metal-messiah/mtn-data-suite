@@ -408,8 +408,12 @@ export class CasingDashboardComponent implements OnInit {
 
   openDatabaseSearch() {
     const databaseSearchDialog = this.dialog.open(DatabaseSearchComponent);
-    databaseSearchDialog.afterClosed().subscribe(store => {
-      console.log(store);
+    databaseSearchDialog.afterClosed().subscribe((store: Store) => {
+      this.mappableService.deselectAll();
+      this.mappableService.selectMappable(store);
+      this.mapService.setCenter(store.getCoordinates());
+      this.defaultPointLayer.refreshOptions();
+      this.selectedCardState = CardState.SELECTED_MAPPABLE;
     });
   }
 

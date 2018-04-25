@@ -8,6 +8,7 @@ import { SimplifiedInteraction } from './simplified-interaction';
 import { SimplifiedStoreModel } from './simplified-store-model';
 import { SimplifiedStoreSurvey } from './simplified-store-survey';
 import { SimplifiedStoreVolume } from './simplified-store-volume';
+import { SimplifiedStoreStatus } from './simplified-store-status';
 
 export class Store extends AuditingEntity implements Mappable {
 
@@ -17,8 +18,8 @@ export class Store extends AuditingEntity implements Mappable {
   dateClosed: Date;
   storeNumber: string;
   legacyLocationId: number;
-  currentStoreStatus: string;
 
+  currentStoreStatus: SimplifiedStoreStatus;
   site: SimplifiedSite;
   banner: SimplifiedBanner;
 
@@ -36,6 +37,9 @@ export class Store extends AuditingEntity implements Mappable {
     }
     if (obj.banner != null) {
       this.banner = new SimplifiedBanner(obj.banner);
+    }
+    if (obj.currentStoreStatus != null) {
+      this.currentStoreStatus = new SimplifiedStoreStatus(obj.currentStoreStatus);
     }
     if (obj.casings != null) {
       this.casings = obj.casings.map(casing => new SimplifiedStoreCasing(casing));

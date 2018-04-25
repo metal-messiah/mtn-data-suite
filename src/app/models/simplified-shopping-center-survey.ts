@@ -7,7 +7,7 @@ export class SimplifiedShoppingCenterSurvey implements Entity {
   centerType: string;
   note: string;
 
-  constructor(obj?) {
+  constructor(obj) {
     Object.assign(this, obj);
   }
 }

@@ -10,7 +10,7 @@ export class AuditingEntity implements Entity {
   readonly updatedDate: Date;
   readonly version: number;
 
-  constructor(obj?) {
+  constructor(obj) {
     Object.assign(this, obj);
     if (obj.createdBy != null) {
       this.createdBy = new SimplifiedUserProfile(obj.createdBy);

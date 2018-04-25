@@ -8,7 +8,7 @@ export class StoreVolume extends AuditingEntity {
   source: string;
   legacyCasingId: number;
 
-  constructor(obj?) {
+  constructor(obj) {
     super(obj);
     Object.assign(this, obj);
   }

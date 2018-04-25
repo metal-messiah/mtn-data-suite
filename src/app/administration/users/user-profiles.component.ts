@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { UserProfile } from '../../models/user-profile';
 import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-component';
 import { EntityListService } from '../../core/services/entity-list.service';
-import { SimplifiedUserProfile } from '../../models/simplified-user-profile';
 import { ErrorService } from '../../core/services/error.service';
 import { UserProfileService } from '../../core/services/user-profile.service';
 
@@ -14,7 +13,7 @@ import { UserProfileService } from '../../core/services/user-profile.service';
 })
 export class UserProfilesComponent implements OnInit, BasicEntityListComponent<UserProfile> {
 
-  userProfiles: SimplifiedUserProfile[];
+  userProfiles: UserProfile[];
 
   isLoading = false;
   isDeleting = false;

@@ -7,7 +7,7 @@ export class SimplifiedStoreVolume implements Entity {
   volumeDate: Date;
   volumeType: string;
 
-  constructor(obj?) {
+  constructor(obj) {
     Object.assign(this, obj);
   }
 

@@ -1,12 +1,12 @@
 import { AuditingEntity } from './auditing-entity';
 import { StoreVolume } from './store-volume';
 import { SimplifiedInteraction } from './simplified-interaction';
+import { SimplifiedStoreStatus } from './simplified-store-status';
 
 export class StoreCasing extends AuditingEntity {
 
   casingDate: Date;
   note: string;
-  status: string;
   conditionCeiling: string;
   conditionCheckstands: string;
   conditionFloors: string;
@@ -33,12 +33,16 @@ export class StoreCasing extends AuditingEntity {
   volumeConfidence: string;
   legacyCasingId: number;
 
+  storeStatus: SimplifiedStoreStatus;
   storeVolume: StoreVolume;
   interactions: SimplifiedInteraction[];
 
-  constructor(obj?) {
+  constructor(obj) {
     super(obj);
     Object.assign(this, obj);
+    if (obj.storeStatus != null) {
+      this.storeStatus = new SimplifiedStoreStatus(obj.storeStatus);
+    }
     if (obj.storeVolume != null) {
       this.storeVolume = new StoreVolume(obj.storeVolume);
     }

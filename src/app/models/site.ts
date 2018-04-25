@@ -26,7 +26,7 @@ export class Site extends AuditingEntity implements Mappable {
   shoppingCenter: SimplifiedShoppingCenter;
   stores: SimplifiedStore[];
 
-  constructor(obj?) {
+  constructor(obj) {
     super(obj);
     Object.assign(this, obj);
     if (obj.shoppingCenter != null) {

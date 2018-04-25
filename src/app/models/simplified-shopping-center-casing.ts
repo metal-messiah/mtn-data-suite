@@ -6,7 +6,7 @@ export class SimplifiedShoppingCenterCasing implements Entity {
   casingDate: Date;
   note: string;
 
-  constructor(obj?) {
+  constructor(obj) {
     Object.assign(this, obj);
   }
 }

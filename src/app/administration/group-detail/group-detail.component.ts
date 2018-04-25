@@ -71,7 +71,7 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
   }
 
   getNewObj(): Group {
-    return new Group();
+    return new Group({});
   }
 
   getObj(): Group {

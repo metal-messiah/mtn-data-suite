@@ -50,3 +50,8 @@ mat-form-field {
 .box .row.footer {
   flex: 0 1 50px;
 }
+
+.list-wrapper {
+  margin: 15px auto;
+  max-width: 500px;
+}

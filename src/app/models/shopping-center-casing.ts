@@ -13,7 +13,7 @@ export class ShoppingCenterCasing extends AuditingEntity {
 
   interactions: SimplifiedInteraction[];
 
-  constructor(obj?) {
+  constructor(obj) {
     super(obj);
     Object.assign(this, obj);
     if (obj.interactions != null) {

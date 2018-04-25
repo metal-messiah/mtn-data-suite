@@ -98,7 +98,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
     return this.userProfileForm;
   }
   getNewObj(): UserProfile {
-    return new UserProfile();
+    return new UserProfile({});
   }
   getObj(): UserProfile {
     return this.userProfile;

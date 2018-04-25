@@ -10,7 +10,7 @@ export class UserProfile extends AuditingEntity {
   role: Role;
   group: Group;
 
-  constructor(obj?) {
+  constructor(obj) {
     super(obj);
     Object.assign(this, obj);
     if (obj.role != null) {

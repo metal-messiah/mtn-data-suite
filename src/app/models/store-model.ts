@@ -16,7 +16,7 @@ export class StoreModel extends AuditingEntity {
   store: SimplifiedStore;
   project: SimplifiedProject;
 
-  constructor(obj?) {
+  constructor(obj) {
     super(obj);
     Object.assign(this, obj);
     if (obj.store != null) {

@@ -5,7 +5,7 @@ export class SimplifiedShoppingCenterTenant implements Entity {
   id: number;
   name: string;
 
-  constructor(obj?) {
+  constructor(obj) {
     Object.assign(this, obj);
   }
 }

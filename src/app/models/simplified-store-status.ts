@@ -1,12 +1,12 @@
 import { Entity } from './entity';
 
-export class SimplifiedBanner implements Entity {
+export class SimplifiedStoreStatus implements Entity {
 
   id: number;
-  bannerName: string;
+  status: string;
+  statusStartDate: Date;
 
   constructor(obj) {
     Object.assign(this, obj);
   }
-
 }

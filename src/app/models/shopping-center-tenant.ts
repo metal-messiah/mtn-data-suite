@@ -8,7 +8,7 @@ export class ShoppingCenterTenant extends AuditingEntity {
   tenantSqft: number;
   legacyCasingId: number;
 
-  constructor(obj?) {
+  constructor(obj) {
     super(obj);
     Object.assign(this, obj);
   }

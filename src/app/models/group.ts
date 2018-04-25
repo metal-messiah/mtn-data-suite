@@ -8,7 +8,7 @@ export class Group extends AuditingEntity {
 
   members: SimplifiedUserProfile[] = [];
 
-  constructor(obj?) {
+  constructor(obj) {
     super(obj);
     if (obj != null) {
       Object.assign(this, obj);

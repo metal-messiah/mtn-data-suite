@@ -26,7 +26,7 @@ export class ShoppingCenterSurvey extends AuditingEntity {
   tenants: SimplifiedShoppingCenterTenant[];
   interactions: SimplifiedInteraction[];
 
-  constructor(obj?) {
+  constructor(obj) {
     super(obj);
     Object.assign(this, obj);
     if (obj.accesses != null) {

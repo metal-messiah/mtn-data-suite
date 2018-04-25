@@ -19,28 +19,29 @@ mat-card {
   pointer-events: none;
 }
 
-#siteInfoCard mat-card {
+#storeInfoCard .mat-card {
   padding: 10px;
   width: 70%;
   max-width: 360px;
 }
 
-#siteInfoCard mat-card-actions {
+#storeInfoCard .mat-card-actions {
   padding-top: 5px;
   display: flex;
   justify-content: space-around;
 }
 
-#siteInfoCard mat-card-subtitle {
+#storeInfoCard .mat-card-subtitle {
   margin-bottom: 0px;
 }
 
-#siteInfoCard mat-card-content {
+#storeInfoCard .mat-card-content {
   margin-bottom: 0px;
+  padding: 0 8px;
   font-size: small;
 }
 
-#siteInfoCard .mat-card > .mat-card-actions:last-child {
+#storeInfoCard .mat-card > .mat-card-actions:last-child {
   margin-bottom: -8px;
 }
 
