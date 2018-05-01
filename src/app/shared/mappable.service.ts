@@ -45,7 +45,7 @@ export class MappableService {
     return this.selectedMappableIds.has(mappable.id);
   }
 
-  getLatestSelection() {
+  getLatestSelection(): Mappable {
     return this.latestSelected;
   }
 }

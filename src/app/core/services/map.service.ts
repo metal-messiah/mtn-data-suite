@@ -4,6 +4,7 @@ import { Subject } from 'rxjs/Subject';
 import { MapPointLayer } from '../../models/map-point-layer';
 import { Observable } from 'rxjs/Observable';
 import { GooglePlace } from '../../models/google-place';
+import { Coordinates } from '../../models/coordinates';
 
 /*
   The MapService should
@@ -16,12 +17,12 @@ import { GooglePlace } from '../../models/google-place';
 export class MapService {
 
   map: google.maps.Map;
-  boundsChanged$ = new Subject<any>();
-  mapClick$ = new Subject<object>();
+  boundsChanged$: Subject<any>;
+  mapClick$: Subject<Coordinates>;
 
   drawingManager: google.maps.drawing.DrawingManager;
   drawingEvents: any[];
-  drawingComplete$ = new Subject<any>();
+  drawingComplete$: Subject<any>;
 
   placesService: google.maps.places.PlacesService;
 
@@ -35,6 +36,8 @@ export class MapService {
       zoom: 8
     });
     this.placesService = new google.maps.places.PlacesService(this.map);
+    this.boundsChanged$ = new Subject<any>();
+    this.mapClick$ = new Subject<Coordinates>();
 
     // Listen to events and pass them on via subjects
     this.map.addListener('bounds_changed', () => {
@@ -48,6 +51,16 @@ export class MapService {
 
     // Setup Drawing Manager
     this.drawingManager = new google.maps.drawing.DrawingManager();
+  }
+
+  destroy(): void {
+    console.log('Destroying Map');
+    google.maps.event.clearListeners(this.map, 'bounds_changed');
+    google.maps.event.clearListeners(this.map, 'click');
+    this.map = null;
+    this.placesService = null;
+    this.drawingManager = null;
+    this.boundsChanged$ = null;
   }
 
   setCenter(position: google.maps.LatLngLiteral) {
@@ -84,6 +97,8 @@ export class MapService {
 
   activateDrawingTools() {
     this.drawingEvents = [];
+    this.drawingComplete$ = new Subject<any>();
+
     // Create drawing manager
     const multiSelectDrawingOptions = {
       drawingControl: false,

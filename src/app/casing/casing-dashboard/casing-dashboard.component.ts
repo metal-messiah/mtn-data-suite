@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { debounceTime } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -151,19 +151,23 @@ export class CasingDashboardComponent implements OnInit {
     this.mapService.mapClick$.subscribe((coords: object) => {
       this.ngZone.run(() => this.selectedCardState = CardState.HIDDEN);
     });
-    this.defaultPointLayer.markerClick$.subscribe((store: Store) => {
+    this.defaultPointLayer.markerClick$.subscribe((selectedStore: Store) => {
       if (this.selectedDashboardMode === CasingDashboardMode.MULTI_SELECT) {
         if (this.selectedMultiSelectMode === MultiSelectMode.SELECT) {
-          this.mappableService.selectMappable(store);
+          this.mappableService.selectMappable(selectedStore);
         } else {
-          this.mappableService.deselectMappable(store);
+          this.mappableService.deselectMappable(selectedStore);
         }
-        this.defaultPointLayer.refreshOptionsForMappable(store);
+        this.defaultPointLayer.refreshOptionsForMappable(selectedStore);
         this.ngZone.run(() => true);
       } else if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) { // Don't select while moving, creating or following
+        const prevSelectedStore = this.mappableService.getLatestSelection();
         this.mappableService.deselectAll();
-        this.mappableService.selectMappable(store);
-        this.defaultPointLayer.refreshOptions();
+        this.mappableService.selectMappable(selectedStore);
+        if (prevSelectedStore != null) {
+          this.defaultPointLayer.refreshOptionsForMappable(prevSelectedStore);
+        }
+        this.defaultPointLayer.refreshOptionsForMappable(selectedStore);
         this.ngZone.run(() => this.selectedCardState = CardState.SELECTED_MAPPABLE);
       }
     });

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import {MapService} from '../../core/services/map.service';
 
 @Component({
@@ -6,7 +6,7 @@ import {MapService} from '../../core/services/map.service';
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css']
 })
-export class MapComponent implements OnInit {
+export class MapComponent implements OnInit, OnDestroy {
 
   map: any;
 
@@ -21,6 +21,10 @@ export class MapComponent implements OnInit {
   ngOnInit() {
     this.mapService.initialize(document.getElementById('map'));
     this.ready.emit('Hooray!');
+  }
+
+  ngOnDestroy() {
+    this.mapService.destroy();
   }
 
 }
