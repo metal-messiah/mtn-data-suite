@@ -11,7 +11,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { CoreModule } from './core/core.module';
 import { HomeComponent } from './home/home.component';
 import { SharedModule } from './shared/shared.module';
-import { DatabaseSupportModule } from './database-support/database-support.module';
+import { DbSupportModule } from './db-support/db-support.module';
 import { CasingModule } from './casing/casing.module';
 
 @NgModule({
@@ -23,7 +23,7 @@ import { CasingModule } from './casing/casing.module';
     SharedModule,
     AdministrationModule,
     CasingModule,
-    DatabaseSupportModule,
+    DbSupportModule,
     AppRoutingModule // must come last?
   ],
   declarations: [AppComponent, HomeComponent],
