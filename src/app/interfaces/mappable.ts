@@ -1,7 +1,6 @@
 import { Coordinates } from '../models/coordinates';
+import { Entity } from '../models/entity';
 
-export interface Mappable {
+export interface Mappable extends Entity {
   getCoordinates: () => Coordinates;
-  getLabel: () => string;
-  getId: () => number;
 }

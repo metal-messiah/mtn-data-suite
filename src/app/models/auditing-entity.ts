@@ -1,16 +1,22 @@
-import {UserProfile} from './user-profile';
+import { Entity } from './entity';
+import { SimplifiedUserProfile } from './simplified-user-profile';
 
-export class AuditingEntity {
-  createdBy: UserProfile;
-  createdDate: Date;
-  updatedBy: UserProfile;
-  updatedDate: Date;
-  version: number;
+export class AuditingEntity implements Entity {
 
-  constructor(obj?: AuditingEntity) {
-    if (obj) {
-      Object.keys(obj).forEach(key => this[key] = obj[key]);
+  readonly id: number;
+  readonly createdBy: SimplifiedUserProfile;
+  readonly createdDate: Date;
+  readonly updatedBy: SimplifiedUserProfile;
+  readonly updatedDate: Date;
+  readonly version: number;
+
+  constructor(obj) {
+    Object.assign(this, obj);
+    if (obj.createdBy != null) {
+      this.createdBy = new SimplifiedUserProfile(obj.createdBy);
     }
-
+    if (obj.updatedBy != null) {
+      this.updatedBy = new SimplifiedUserProfile(obj.updatedBy);
+    }
   }
 }

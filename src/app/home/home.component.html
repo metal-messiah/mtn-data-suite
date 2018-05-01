@@ -10,8 +10,8 @@
     <span></span>
   </mat-toolbar>
   <div class="row content">
-    <div class="login-button-container" *ngIf="!auth.isAuthenticated()">
-      <button mat-raised-button color="primary" (click)="auth.login()" class="font-size-large">
+    <div class="sign-in-button-container" *ngIf="!auth.isAuthenticated()">
+      <button mat-raised-button color="primary" (click)="auth.signIn()" class="font-size-large">
         <i class="fas fa-sign-in-alt"></i>&nbsp;Sign in
       </button>
     </div>

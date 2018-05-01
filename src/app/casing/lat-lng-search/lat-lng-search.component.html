@@ -1,0 +1,20 @@
+<form class="lat-long-search-form box">
+  <h1 mat-dialog-title>
+    Lat/Lng Search
+  </h1>
+  <div mat-dialog-content>
+    <mat-form-field class="example-full-width">
+      <input matInput placeholder="Latitude and Longitude" [formControl]="latLngFormControl">
+      <mat-error *ngIf="latLngFormControl.hasError('pattern')">
+        Please enter two numbers separated by a comma, space, or tab
+      </mat-error>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-raised-button color="accent" type="button" (click)="closeDialog()">Close</button>
+    <button mat-raised-button color="primary" type="submit" (click)="submit()"
+            [disabled]="latLngFormControl.hasError('pattern') || latLngFormControl.value === ''">Go!
+    </button>
+  </div>
+</form>
+

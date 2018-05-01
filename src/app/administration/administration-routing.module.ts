@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { UsersComponent } from './users/users.component';
+import { UserProfilesComponent } from './users/user-profiles.component';
 import { GroupsComponent } from './groups/groups.component';
 import { RoleDetailComponent } from './role-detail/role-detail.component';
 import { UserDetailComponent } from './user-detail/user-detail.component';
@@ -21,7 +21,7 @@ const routes: Routes = [
       {path: '', component: AdminMenuComponent},
       {path: 'groups', component: GroupsComponent},
       {path: 'roles', component: RolesComponent},
-      {path: 'users', component: UsersComponent},
+      {path: 'users', component: UserProfilesComponent},
       {path: 'role-detail', component: RoleDetailComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'role-detail/:id', component: RoleDetailComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'user-detail', component: UserDetailComponent, canDeactivate: [CanDeactivateGuard]},

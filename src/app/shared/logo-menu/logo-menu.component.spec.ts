@@ -15,7 +15,7 @@ describe('LogoMenuComponent', () => {
       providers: [
         {
           provide: AuthService, useValue: {
-            login: () => {},
+            signIn: () => {},
             logout: () => {},
             isAuthenticated: () => {}
           }

@@ -1,41 +1,31 @@
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {RestService} from './rest.service';
-import {Pageable} from '../../models/pageable';
-import {Observable} from 'rxjs/Observable';
-import {Role} from '../../models/role';
-import {EntityService} from '../../interfaces/entity-service';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { RestService } from './rest.service';
+import { Role } from '../../models/role';
+import { CrudService } from '../../interfaces/crud-service';
+import { Pageable } from '../../models/pageable';
+import { Observable } from 'rxjs/Observable';
+import { SimplifiedRole } from '../../models/simplified-role';
 
 @Injectable()
-export class RoleService implements EntityService<Role> {
+export class RoleService extends CrudService<Role> {
 
-  private endpoint = '/api/role';
+  protected endpoint = '/api/role';
 
-  constructor(private http: HttpClient, private rest: RestService) {
+  constructor(protected http: HttpClient, protected  rest: RestService) {
+    super(http, rest);
   }
 
-  public getOneById(id: number): Observable<Role> {
-    const url = this.rest.getHost() + this.endpoint + `/${id}`;
-    return this.http.get<Role>(url, {headers: this.rest.getHeaders()});
+  protected createEntityFromObj(entityObj): Role {
+    return new Role(entityObj);
   }
 
-  public getAll(): Observable<Pageable<Role>> {
+  getAllRoles(): Observable<Pageable<SimplifiedRole>> {
     const url = this.rest.getHost() + this.endpoint;
-    return this.http.get<Pageable<Role>>(url, {headers: this.rest.getHeaders()});
+    return this.http.get<Pageable<SimplifiedRole>>(url, {headers: this.rest.getHeaders()})
+      .map(page => {
+        page.content = page.content.map(entityObj => new SimplifiedRole(entityObj));
+        return page;
+      });
   }
-
-  public save(role: Role): Observable<Role> {
-    let url = this.rest.getHost() + this.endpoint;
-    if (role.id === undefined || role.id === null) {
-      return this.http.post<Role>(url, role, {headers: this.rest.getHeaders()});
-    }
-    url +=  `/${role.id}`;
-    return this.http.put<Role>(url, role, {headers: this.rest.getHeaders()});
-  }
-
-  public del(role: Role): Observable<Role> {
-    const url = this.rest.getHost() + this.endpoint + `/${role.id}`;
-    return this.http.delete<Role>(url, {headers: this.rest.getHeaders()});
-  }
-
 }

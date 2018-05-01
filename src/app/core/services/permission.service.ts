@@ -1,28 +1,33 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {RestService} from '../../core/services/rest.service';
-import {Observable} from 'rxjs/Observable';
-import {Pageable} from '../../models/pageable';
-import {Permission} from '../../models/permission';
-import {tap} from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs/Observable';
+import { Pageable } from '../../models/pageable';
+import { Permission } from '../../models/permission';
+import { tap } from 'rxjs/operators';
+import { CrudService } from '../../interfaces/crud-service';
+import { SimplifiedPermission } from '../../models/simplified-permission';
+import { RestService } from './rest.service';
 
 @Injectable()
-export class PermissionService {
+export class PermissionService extends CrudService<Permission> {
 
-  private endpoint = '/api/permission';
+  protected endpoint = '/api/permission';
 
-  constructor(
-    private http: HttpClient,
-    private rest: RestService
-  ) { }
+  constructor(protected http: HttpClient, protected rest: RestService) {
+    super(http, rest);
+  }
 
   public getPermissions(): Observable<Pageable<Permission>> {
     const url = this.rest.getHost() + this.endpoint;
     const params = new HttpParams().set('size', '100');
     return this.http.get<Pageable<Permission>>(url, {headers: this.rest.getHeaders(), params: params})
       .pipe(
-        tap( p => console.log(`Fetched ${p['content'].length} permissions.`))
+        tap(p => console.log(`Fetched ${p['content'].length} permissions.`))
       );
+  }
+
+  protected createEntityFromObj(entityObj): Permission {
+    return new Permission(entityObj);
   }
 
 }

@@ -29,7 +29,7 @@ export class AuthService {
               private dialog: MatDialog) {
   }
 
-  public login(): void {
+  public signIn(): void {
     localStorage.clear();
     localStorage.setItem('loggingInFrom', this.location.path());
     this.auth0.authorize();
@@ -68,8 +68,8 @@ export class AuthService {
       width: '250px'
     });
     dialogRef.afterClosed().subscribe(response => {
-      if (response === 'login') {
-        this.login();
+      if (response === 'signIn') {
+        this.signIn();
       } else {
         this.router.navigate(['/']);
       }

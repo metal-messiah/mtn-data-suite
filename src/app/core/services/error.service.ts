@@ -64,8 +64,8 @@ export class ErrorService {
     dialogRef.afterClosed().subscribe(response => {
       if (response === 'retry') {
         retry();
-      } else if (response === 'login') {
-        this.auth.login();
+      } else if (response === 'signIn') {
+        this.auth.signIn();
       } else {
         cancel();
       }

@@ -33,23 +33,27 @@ export class MapPointLayer {
     // Preserve relationship between marker and mappable
     marker.set('mappable', mappable);
     this.markers.push(marker);
-    this.setMarkerStyle(marker);
+    this.setMarkerOptions(marker);
   }
 
   refreshOptionsForMappable(mappable: Mappable): void {
     const marker = this.getMarkerForMappable(mappable);
-    this.setMarkerStyle(marker);
+    this.setMarkerOptions(marker);
+  }
+
+  refreshOptionsForMappables(mappables: Mappable[]): void {
+    mappables.forEach(mappable => this.refreshOptionsForMappable(mappable));
   }
 
   getMarkerForMappable(mappable: Mappable) {
-    return this.markers.find(marker => marker.get('mappable').getId() === mappable.getId());
+    return this.markers.find(marker => marker.get('mappable').id === mappable.id);
   }
 
   refreshOptions(): void {
-    this.markers.forEach(marker => this.setMarkerStyle(marker));
+    this.markers.forEach(marker => this.setMarkerOptions(marker));
   }
 
-  setMarkerStyle(marker: google.maps.Marker): void {
+  setMarkerOptions(marker: google.maps.Marker): void {
     const mappable = marker.get('mappable');
     marker.setDraggable(this.layerOptions.getMappableIsDraggable(mappable));
     marker.setIcon(this.layerOptions.getMappableIcon(mappable));
@@ -73,7 +77,7 @@ export class MapPointLayer {
 
   getCoordinatesOfMappableMarker(mappable: Mappable): google.maps.LatLngLiteral {
     const marker = this.markers.find(m => {
-      return m.get('mappable').getId() === mappable.getId();
+      return m.get('mappable').id === mappable.id;
     });
     return marker.getPosition().toJSON();
   }

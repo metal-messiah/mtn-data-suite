@@ -10,7 +10,7 @@ describe('ErrorService', () => {
       imports: [ SharedModule ],
       providers: [
         ErrorService,
-        {provide: AuthService, useValue: {login: () => {}}}
+        {provide: AuthService, useValue: {signIn: () => {}}}
       ]
     });
   });

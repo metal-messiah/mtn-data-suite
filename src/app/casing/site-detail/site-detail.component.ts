@@ -8,6 +8,7 @@ import { SiteService } from '../../core/services/site.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DetailFormService } from '../../core/services/detail-form.service';
 import { Observable } from 'rxjs/Observable';
+import { SimplifiedSite } from '../../models/simplified-site';
 
 @Component({
   selector: 'mds-site-detail',
@@ -57,14 +58,14 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate, Deta
     if (this.casingDashboardService.newSite) {
       return this.casingDashboardService.newSite;
     }
-    return new Site();
+    return new Site({});
   }
 
   getObj(): Site {
     return this.site;
   }
 
-  getObjService(): SiteService {
+  getEntityService(): SiteService {
     return this.siteService;
   }
 

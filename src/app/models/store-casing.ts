@@ -1,14 +1,12 @@
 import { AuditingEntity } from './auditing-entity';
-import { Store } from './store';
-import { Interaction } from './interaction';
 import { StoreVolume } from './store-volume';
+import { SimplifiedInteraction } from './simplified-interaction';
+import { SimplifiedStoreStatus } from './simplified-store-status';
 
 export class StoreCasing extends AuditingEntity {
-  id: number;
-  store: Store;
+
   casingDate: Date;
   note: string;
-  status: string;
   conditionCeiling: string;
   conditionCheckstands: string;
   conditionFloors: string;
@@ -35,19 +33,21 @@ export class StoreCasing extends AuditingEntity {
   volumeConfidence: string;
   legacyCasingId: number;
 
+  storeStatus: SimplifiedStoreStatus;
   storeVolume: StoreVolume;
-  interactions: Interaction[];
+  interactions: SimplifiedInteraction[];
 
-  constructor(obj?: StoreCasing) {
-    if (obj != null) {
-      super(obj);
-      Object.keys(obj).forEach(key => this[key] = obj[key]);
-      if (obj.storeVolume != null) {
-        this.storeVolume = new StoreVolume(obj.storeVolume);
-      }
-      if (obj.interactions != null) {
-        this.interactions = obj.interactions.map(interaction => new Interaction(interaction));
-      }
+  constructor(obj) {
+    super(obj);
+    Object.assign(this, obj);
+    if (obj.storeStatus != null) {
+      this.storeStatus = new SimplifiedStoreStatus(obj.storeStatus);
+    }
+    if (obj.storeVolume != null) {
+      this.storeVolume = new StoreVolume(obj.storeVolume);
+    }
+    if (obj.interactions != null) {
+      this.interactions = obj.interactions.map(interaction => new SimplifiedInteraction(interaction));
     }
   }
 }

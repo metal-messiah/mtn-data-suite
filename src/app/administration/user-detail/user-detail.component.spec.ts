@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { GroupService } from '../../core/services/group.service';
 import { ActivatedRouteStub } from '../../../testing/activated-route-stub';
 import { DetailFormService } from '../../core/services/detail-form.service';
-import { UserProfileService } from '../../core/services/user.service';
+import { UserProfileService } from '../../core/services/user-profile.service';
 import { RoleService } from '../../core/services/role.service';
 import { ErrorService } from '../../core/services/error.service';
 import { of } from 'rxjs/observable/of';
@@ -17,13 +17,13 @@ describe('UserDetailComponent', () => {
   let fixture: ComponentFixture<UserDetailComponent>;
 
   beforeEach(async(() => {
-    const roleServiceSpy = jasmine.createSpyObj('RoleService', ['getAll']);
-    roleServiceSpy.getAll.and.returnValue(of({content: []}));
-    const groupServiceSpy = jasmine.createSpyObj('GroupService', ['getAll']);
-    groupServiceSpy.getAll.and.returnValue(of({content: []}));
+    const roleServiceSpy = jasmine.createSpyObj('RoleService', ['getAllRoles']);
+    roleServiceSpy.getAllRoles.and.returnValue(of({content: []}));
+    const groupServiceSpy = jasmine.createSpyObj('GroupService', ['getAllGroups']);
+    groupServiceSpy.getAllGroups.and.returnValue(of({content: []}));
     const detailFormService = jasmine.createSpyObj('DetailFormService', ['retrieveObj', 'save', 'canDeactivate']);
     // TODO Mock return of retrieveObj
-    // TODO Mock return of save
+    // TODO Mock return of create
     // TODO Mock return of canDeactivate
     const errorServiceSpy = jasmine.createSpyObj('ErrorService', ['handleServerError']);
 

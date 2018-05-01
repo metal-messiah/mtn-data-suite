@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Color } from '../enums/Color';
+import { Color } from '../functionalEnums/Color';
 
 @Injectable()
 export class LabelService {
