@@ -15,6 +15,7 @@ export class SimplifiedSite implements Entity, Mappable {
   quad: string;
   intersectionStreetPrimary: string;
   intersectionStreetSecondary: string;
+  duplicate: boolean;
 
   constructor(obj) {
     Object.assign(this, obj);

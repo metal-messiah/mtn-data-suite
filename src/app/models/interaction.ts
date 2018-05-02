@@ -6,6 +6,7 @@ import { SimplifiedShoppingCenterCasing } from './simplified-shopping-center-cas
 import { SimplifiedShoppingCenterSurvey } from './simplified-shopping-center-survey';
 import { SimplifiedShoppingCenter } from './simplified-shopping-center';
 import { SimplifiedStoreSurvey } from './simplified-store-survey';
+import { SimplifiedSite } from './simplified-site';
 
 export class Interaction extends AuditingEntity {
 
@@ -14,6 +15,7 @@ export class Interaction extends AuditingEntity {
   shoppingCenterSurvey: SimplifiedShoppingCenterSurvey;
   shoppingCenterCasing: SimplifiedShoppingCenterCasing;
   store: SimplifiedStore;
+  site: SimplifiedSite;
   storeSurvey: SimplifiedStoreSurvey;
   storeCasing: SimplifiedStoreCasing;
   interactionDate: Date;
@@ -36,6 +38,9 @@ export class Interaction extends AuditingEntity {
     }
     if (obj.store != null) {
       this.store = new SimplifiedStore(obj.store);
+    }
+    if (obj.site != null) {
+      this.site = new SimplifiedSite(obj.site);
     }
     if (obj.storeSurvey != null) {
       this.storeSurvey = new SimplifiedStoreSurvey(obj.storeSurvey);

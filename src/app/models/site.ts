@@ -3,6 +3,7 @@ import { Mappable } from '../interfaces/mappable';
 import { Coordinates } from './coordinates';
 import { SimplifiedShoppingCenter } from './simplified-shopping-center';
 import { SimplifiedStore } from './simplified-store';
+import { SimplifiedInteraction } from './simplified-interaction';
 
 export class Site extends AuditingEntity implements Mappable {
 
@@ -22,9 +23,11 @@ export class Site extends AuditingEntity implements Mappable {
   quad: string;
   intersectionStreetPrimary: string;
   intersectionStreetSecondary: string;
+  duplicate: boolean;
 
   shoppingCenter: SimplifiedShoppingCenter;
   stores: SimplifiedStore[];
+  interactions: SimplifiedInteraction[];
 
   constructor(obj) {
     super(obj);
@@ -34,6 +37,9 @@ export class Site extends AuditingEntity implements Mappable {
     }
     if (obj.stores != null) {
       this.stores = obj.stores.map(store => new SimplifiedStore(store));
+    }
+    if (obj.interactions != null) {
+      this.interactions = obj.interactions.map(interaction => new SimplifiedInteraction(interaction));
     }
   }
 

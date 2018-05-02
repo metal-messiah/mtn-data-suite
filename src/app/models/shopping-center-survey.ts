@@ -1,5 +1,4 @@
 import { AuditingEntity } from './auditing-entity';
-import { ShoppingCenterTenant } from './shopping-center-tenant';
 import { SimplifiedInteraction } from './simplified-interaction';
 import { SimplifiedShoppingCenterAccess } from './simplified-shopping-center-access';
 import { SimplifiedShoppingCenterTenant } from './simplified-shopping-center-tenant';
