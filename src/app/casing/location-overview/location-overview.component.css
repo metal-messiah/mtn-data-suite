@@ -1,0 +1,14 @@
+#action-button-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#action-button-container button {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.list-wrapper mat-card {
+  margin: 8px 5px;
+}
