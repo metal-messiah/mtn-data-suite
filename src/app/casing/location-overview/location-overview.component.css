@@ -9,6 +9,6 @@
   margin-bottom: 5px;
 }
 
-.list-wrapper mat-card {
+.list-wrapper mat-expansion-panel {
   margin: 8px 5px;
 }

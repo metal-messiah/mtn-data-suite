@@ -9,39 +9,77 @@
   </mat-toolbar>
   <div class="row content">
     <div class="list-wrapper">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Actions</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div id="action-button-container">
-            <button mat-raised-button color="accent">Pin</button>
-            <button mat-raised-button color="accent">Assign</button>
-            <button mat-raised-button color="accent">Flag as Duplicate</button>
-          </div>
-        </mat-card-content>
-      </mat-card>
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Site</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-        </mat-card-content>
-      </mat-card>
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Shopping Center</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-        </mat-card-content>
-      </mat-card>
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Stores</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-        </mat-card-content>
-      </mat-card>
+      <div *ngIf="this.site == null">Loading Site</div>
+      <div *ngIf="this.site != null">
+        <mat-accordion>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Actions</mat-panel-title>
+              <mat-panel-description>Pin, Assign, or Flag</mat-panel-description>
+            </mat-expansion-panel-header>
+            <div id="action-button-container">
+              <button mat-raised-button color="accent">Pin</button>
+              <button mat-raised-button color="accent">Assign</button>
+              <button mat-raised-button color="accent">Flag as Duplicate</button>
+            </div>
+          </mat-expansion-panel>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Site</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div>
+              <mat-form-field class="example-full-width">
+                <input readonly matInput placeholder="Address" [value]="site.address1">
+              </mat-form-field>
+              <mat-form-field class="example-full-width">
+                <input readonly matInput placeholder="City" [value]="site.city">
+              </mat-form-field>
+              <mat-form-field class="example-full-width">
+                <input readonly matInput placeholder="County" [value]="site.county">
+              </mat-form-field>
+              <mat-form-field class="example-full-width">
+                <input readonly matInput placeholder="State" [value]="site.state">
+              </mat-form-field>
+              <mat-form-field class="example-full-width">
+                <input readonly matInput placeholder="Postal Code" [value]="site.postalCode">
+              </mat-form-field>
+              <mat-form-field class="example-full-width">
+                <input readonly matInput placeholder="Intersection Type" [value]="site.intersectionType">
+              </mat-form-field>
+              <mat-form-field class="example-full-width">
+                <input readonly matInput placeholder="Quad" [value]="site.quad">
+              </mat-form-field>
+              <mat-form-field class="example-full-width">
+                <input readonly matInput placeholder="Primary Intersection Street"
+                       [value]="site.intersectionStreetPrimary">
+              </mat-form-field>
+              <mat-form-field class="example-full-width">
+                <input readonly matInput placeholder="Secondary Intersection Street"
+                       [value]="site.intersectionStreetSecondary">
+              </mat-form-field>
+              <mat-form-field class="example-full-width">
+                <input readonly matInput placeholder="Position in Center"
+                       [value]="site.positionInCenter">
+              </mat-form-field>
+            </div>
+            <mat-action-row>
+              <button mat-raised-button color="accent">Edit Site Details</button>
+            </mat-action-row>
+          </mat-expansion-panel>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Shopping Center</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div></div>
+          </mat-expansion-panel>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Stores</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div></div>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </div>
     </div>
   </div>
 </div>
