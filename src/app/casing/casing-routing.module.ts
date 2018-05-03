@@ -11,6 +11,7 @@ import { ProjectDetailComponent } from './project-detail/project-detail.componen
 import { SiteListComponent } from './site-list/site-list.component';
 import { SiteDetailComponent } from './site-detail/site-detail.component';
 import { LocationOverviewComponent } from './location-overview/location-overview.component';
+import { ShoppingCenterDetailComponent } from './shopping-center-detail/shopping-center-detail.component';
 
 const routes: Routes = [
   {
@@ -22,6 +23,8 @@ const routes: Routes = [
       {path: 'site-list', component: SiteListComponent},
       {path: 'site-detail/:id', component: SiteDetailComponent},
       {path: 'site-detail', component: SiteDetailComponent},
+      {path: 'shopping-center-detail/:id', component: ShoppingCenterDetailComponent},
+      {path: 'shopping-center-detail', component: ShoppingCenterDetailComponent},
       {path: 'projects', component: CasingProjectsComponent},
       {path: 'project-summary/:projectId', component: ProjectSummaryComponent},
       {path: 'project-detail/:id', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]},

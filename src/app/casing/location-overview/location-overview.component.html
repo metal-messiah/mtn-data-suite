@@ -70,7 +70,26 @@
             <mat-expansion-panel-header>
               <mat-panel-title>Shopping Center</mat-panel-title>
             </mat-expansion-panel-header>
-            <div></div>
+            <div *ngIf="site.shoppingCenter != null">
+              <mat-form-field class="example-full-width">
+                <input readonly matInput placeholder="Shopping Center Name"
+                       [value]="site.shoppingCenter.name">
+              </mat-form-field>
+              <mat-form-field class="example-full-width">
+                <input readonly matInput placeholder="Owner"
+                       [value]="site.shoppingCenter.owner">
+              </mat-form-field>
+            </div>
+            <div *ngIf="site.shoppingCenter == null">
+              No Shopping Center
+            </div>
+            <mat-action-row *ngIf="site.shoppingCenter == null" style="justify-content: space-between">
+              <button mat-raised-button color="accent">Select Existing</button>
+              <button mat-raised-button color="accent">Create New</button>
+            </mat-action-row>
+            <mat-action-row *ngIf="site.shoppingCenter != null">
+              <button mat-raised-button color="accent" [routerLink]="['/casing/shopping-center-detail', site.id]">Edit Shopping Center Details</button>
+            </mat-action-row>
           </mat-expansion-panel>
           <mat-expansion-panel>
             <mat-expansion-panel-header>

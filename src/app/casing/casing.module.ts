@@ -14,6 +14,7 @@ import { LocationOverviewComponent } from './location-overview/location-overview
 import { LatLngSearchComponent } from './lat-lng-search/lat-lng-search.component';
 import { GoogleSearchComponent } from './google-search/google-search.component';
 import { DatabaseSearchComponent } from './database-search/database-search.component';
+import { ShoppingCenterDetailComponent } from './shopping-center-detail/shopping-center-detail.component';
 
 @NgModule({
   imports: [
@@ -32,7 +33,8 @@ import { DatabaseSearchComponent } from './database-search/database-search.compo
     LocationOverviewComponent,
     LatLngSearchComponent,
     GoogleSearchComponent,
-    DatabaseSearchComponent
+    DatabaseSearchComponent,
+    ShoppingCenterDetailComponent
   ],
   entryComponents: [
     LatLngSearchComponent,
