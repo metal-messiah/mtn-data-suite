@@ -22,7 +22,7 @@ export class LocationOverviewComponent implements OnInit {
     this.siteId = parseInt(this.route.snapshot.paramMap.get('siteId'), 10);
     this.siteService.getOneById(this.siteId).subscribe(site => {
       this.site = site;
-      // this.site.shoppingCenter = null;
+      this.site.shoppingCenter = null;
     });
   }
 

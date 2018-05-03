@@ -85,7 +85,7 @@
             </div>
             <mat-action-row *ngIf="site.shoppingCenter == null" style="justify-content: space-between">
               <button mat-raised-button color="accent">Select Existing</button>
-              <button mat-raised-button color="accent">Create New</button>
+              <button mat-raised-button color="accent" routerLink="/casing/shopping-center-detail">Create New</button>
             </mat-action-row>
             <mat-action-row *ngIf="site.shoppingCenter != null">
               <button mat-raised-button color="accent" [routerLink]="['/casing/shopping-center-detail', site.id]">Edit Shopping Center Details</button>
