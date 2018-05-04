@@ -12,3 +12,11 @@
 .list-wrapper mat-expansion-panel {
   margin: 8px 5px;
 }
+
+.centered {
+  margin: 0 auto;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
