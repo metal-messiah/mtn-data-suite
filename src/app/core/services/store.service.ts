@@ -7,7 +7,6 @@ import { CrudService } from '../../interfaces/crud-service';
 import { Store } from '../../models/store';
 import { Pageable } from '../../models/pageable';
 import { Observable } from 'rxjs/Observable';
-import { SimplifiedStore } from '../../models/simplified-store';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {

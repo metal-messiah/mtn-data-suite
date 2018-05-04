@@ -12,6 +12,11 @@ export class ActivatedRouteStub {
 
   /** The mock paramMap observable */
   readonly paramMap = this.subject.asObservable();
+  readonly snapshot = {
+    paramMap: {
+      get: (name: string) => 999
+    }
+  };
 
   constructor(initialParams?: Params) {
     this.setParamMap(initialParams);

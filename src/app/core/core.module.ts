@@ -18,6 +18,8 @@ import { LabelService } from './services/label.service';
 import { NavigatorService } from './services/navigator.service';
 import { MapService } from './services/map.service';
 import { StoreService } from './services/store.service';
+import { ShoppingCenterService } from './services/shopping-center.service';
+import { ShoppingCenterCasingService } from './services/shopping-center-casing.service';
 
 @NgModule({
   imports: [
@@ -42,7 +44,9 @@ import { StoreService } from './services/store.service';
     RoleService,
     SiteService,
     UserProfileService,
-    StoreService
+    StoreService,
+    ShoppingCenterService,
+    ShoppingCenterCasingService
   ]
 })
 export class CoreModule {

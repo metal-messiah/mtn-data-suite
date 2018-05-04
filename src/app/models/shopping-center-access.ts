@@ -4,7 +4,7 @@ export class ShoppingCenterAccess extends AuditingEntity {
 
   accessType: string;
   hasLeftIn = false;
-  hasOneWayRoad = false;
+  oneWayRoad = false;
   hasLeftOut = false;
   hasTrafficLight = false;
   hasRightIn = false;

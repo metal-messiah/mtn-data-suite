@@ -1,7 +1,9 @@
 import { AuditingEntity } from './auditing-entity';
-import { SimplifiedInteraction } from './simplified-interaction';
 import { SimplifiedShoppingCenterAccess } from './simplified-shopping-center-access';
 import { SimplifiedShoppingCenterTenant } from './simplified-shopping-center-tenant';
+import { SimplifiedShoppingCenterCasing } from './simplified-shopping-center-casing';
+import { ShoppingCenterAccess } from './shopping-center-access';
+import { ShoppingCenterTenant } from './shopping-center-tenant';
 
 export class ShoppingCenterSurvey extends AuditingEntity {
 
@@ -21,21 +23,26 @@ export class ShoppingCenterSurvey extends AuditingEntity {
   sqFtPercentOccupied: number;
   legacyCasingId;
 
-  accesses: SimplifiedShoppingCenterAccess[];
-  tenants: SimplifiedShoppingCenterTenant[];
-  interactions: SimplifiedInteraction[];
+  accesses: ShoppingCenterAccess[];
+  tenants: ShoppingCenterTenant[];
+  shoppingCenterCasings: SimplifiedShoppingCenterCasing[];
 
   constructor(obj) {
     super(obj);
     Object.assign(this, obj);
     if (obj.accesses != null) {
-      this.accesses = obj.accesses.map(access => new SimplifiedShoppingCenterAccess(access));
+      this.accesses = obj.accesses.map(access => new ShoppingCenterAccess(access));
     }
     if (obj.tenants != null) {
-      this.tenants = obj.tenants.map(tenant => new SimplifiedShoppingCenterTenant(tenant));
+      this.tenants = obj.tenants.map(tenant => new ShoppingCenterTenant(tenant))
+        .sort((a: ShoppingCenterTenant, b: ShoppingCenterTenant) => {
+          return a.name.localeCompare(b.name);
+        });
     }
-    if (obj.interactions != null) {
-      this.interactions = obj.interactions.map(interaction => new SimplifiedInteraction(interaction));
+    if (obj.shoppingCenterCasings != null) {
+      this.shoppingCenterCasings = obj.shoppingCenterCasings.map(shoppingCenterCasing => {
+        new SimplifiedShoppingCenterCasing(shoppingCenterCasing);
+      });
     }
   }
 }

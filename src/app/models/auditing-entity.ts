@@ -15,8 +15,14 @@ export class AuditingEntity implements Entity {
     if (obj.createdBy != null) {
       this.createdBy = new SimplifiedUserProfile(obj.createdBy);
     }
+    if (obj.createdDate != null) {
+      this.createdDate = new Date(this.createdDate);
+    }
     if (obj.updatedBy != null) {
       this.updatedBy = new SimplifiedUserProfile(obj.updatedBy);
+    }
+    if (obj.updatedDate != null) {
+      this.updatedDate = new Date(this.updatedDate);
     }
   }
 }

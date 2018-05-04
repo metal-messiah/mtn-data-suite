@@ -1,5 +1,6 @@
 import { AuditingEntity } from './auditing-entity';
-import { SimplifiedInteraction } from './simplified-interaction';
+import { SimplifiedProject } from './simplified-project';
+import { ShoppingCenterSurvey } from './shopping-center-survey';
 
 export class ShoppingCenterCasing extends AuditingEntity {
 
@@ -11,13 +12,17 @@ export class ShoppingCenterCasing extends AuditingEntity {
   ratingSynergy: string;
   legacyCasingId: number;
 
-  interactions: SimplifiedInteraction[];
+  projects: SimplifiedProject[];
+  shoppingCenterSurvey: ShoppingCenterSurvey;
 
   constructor(obj) {
     super(obj);
     Object.assign(this, obj);
-    if (obj.interactions != null) {
-      this.interactions = obj.interactions.map(interaction => new SimplifiedInteraction(interaction));
+    if (obj.projects != null) {
+      this.projects = obj.projects.map(project => new SimplifiedProject(project));
+    }
+    if (obj.shoppingCenterSurvey != null) {
+      this.shoppingCenterSurvey = new ShoppingCenterSurvey(obj.shoppingCenterSurvey);
     }
   }
 }

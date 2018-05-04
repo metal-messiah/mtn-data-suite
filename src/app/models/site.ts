@@ -1,9 +1,8 @@
 import { AuditingEntity } from './auditing-entity';
 import { Mappable } from '../interfaces/mappable';
 import { Coordinates } from './coordinates';
-import { SimplifiedShoppingCenter } from './simplified-shopping-center';
-import { SimplifiedStore } from './simplified-store';
-import { SimplifiedInteraction } from './simplified-interaction';
+import { ShoppingCenter } from './shopping-center';
+import { Store } from './store';
 
 export class Site extends AuditingEntity implements Mappable {
 
@@ -25,21 +24,17 @@ export class Site extends AuditingEntity implements Mappable {
   intersectionStreetSecondary: string;
   duplicate: boolean;
 
-  shoppingCenter: SimplifiedShoppingCenter;
-  stores: SimplifiedStore[];
-  interactions: SimplifiedInteraction[];
+  shoppingCenter: ShoppingCenter;
+  stores: Store[];
 
   constructor(obj) {
     super(obj);
     Object.assign(this, obj);
     if (obj.shoppingCenter != null) {
-      this.shoppingCenter = new SimplifiedShoppingCenter(obj.shoppingCenter);
+      this.shoppingCenter = new ShoppingCenter(obj.shoppingCenter);
     }
     if (obj.stores != null) {
-      this.stores = obj.stores.map(store => new SimplifiedStore(store));
-    }
-    if (obj.interactions != null) {
-      this.interactions = obj.interactions.map(interaction => new SimplifiedInteraction(interaction));
+      this.stores = obj.stores.map(store => new Store(store));
     }
   }
 

@@ -1,7 +1,9 @@
 import { AuditingEntity } from './auditing-entity';
 import { StoreVolume } from './store-volume';
-import { SimplifiedInteraction } from './simplified-interaction';
 import { SimplifiedStoreStatus } from './simplified-store-status';
+import { StoreSurvey } from './store-survey';
+import { SimplifiedStoreSurvey } from './simplified-store-survey';
+import { SimplifiedProject } from './simplified-project';
 
 export class StoreCasing extends AuditingEntity {
 
@@ -35,7 +37,8 @@ export class StoreCasing extends AuditingEntity {
 
   storeStatus: SimplifiedStoreStatus;
   storeVolume: StoreVolume;
-  interactions: SimplifiedInteraction[];
+  storeSurvey: SimplifiedStoreSurvey;
+  projects: SimplifiedProject[];
 
   constructor(obj) {
     super(obj);
@@ -46,8 +49,11 @@ export class StoreCasing extends AuditingEntity {
     if (obj.storeVolume != null) {
       this.storeVolume = new StoreVolume(obj.storeVolume);
     }
-    if (obj.interactions != null) {
-      this.interactions = obj.interactions.map(interaction => new SimplifiedInteraction(interaction));
+    if (obj.storeSurvey != null) {
+      this.storeSurvey = new SimplifiedStoreSurvey(obj.storeSurvey);
+    }
+    if (obj.projects != null) {
+      this.projects = obj.projects.map(project => new SimplifiedProject(project));
     }
   }
 }

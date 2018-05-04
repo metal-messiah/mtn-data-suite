@@ -1,6 +1,7 @@
 import { AuditingEntity } from './auditing-entity';
 import { SimplifiedStoreModel } from './simplified-store-model';
-import { SimplifiedInteraction } from './simplified-interaction';
+import { SimplifiedStoreCasing } from './simplified-store-casing';
+import { SimplifiedShoppingCenterCasing } from './simplified-shopping-center-casing';
 
 export class Project extends AuditingEntity {
 
@@ -16,17 +17,23 @@ export class Project extends AuditingEntity {
   source: string;
   legacyProjectId: number;
 
-  interactions: SimplifiedInteraction[];
   models: SimplifiedStoreModel[];
+  storeCasings: SimplifiedStoreCasing[];
+  shoppingCenterCasings: SimplifiedShoppingCenterCasing[];
 
   constructor(obj) {
     super(obj);
     Object.assign(this, obj);
-    if (obj.interactions != null) {
-      this.interactions = obj.interactions.map(interaction => new SimplifiedInteraction(interaction));
-    }
     if (obj.models != null) {
       this.models = obj.models.map(model => new SimplifiedStoreModel(model));
+    }
+    if (obj.storeCasings != null) {
+      this.storeCasings = obj.storeCasings.map(storeCasing => new SimplifiedStoreCasing(storeCasing));
+    }
+    if (obj.shoppingCenterCasings != null) {
+      this.shoppingCenterCasings = obj.shoppingCenterCasings.map(shoppingCenterCasing => {
+        new SimplifiedShoppingCenterCasing(shoppingCenterCasing);
+      });
     }
   }
 }

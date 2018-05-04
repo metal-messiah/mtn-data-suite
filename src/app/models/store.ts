@@ -4,9 +4,7 @@ import { Coordinates } from './coordinates';
 import { SimplifiedStoreCasing } from './simplified-store-casing';
 import { SimplifiedBanner } from './simplified-banner';
 import { SimplifiedSite } from './simplified-site';
-import { SimplifiedInteraction } from './simplified-interaction';
 import { SimplifiedStoreModel } from './simplified-store-model';
-import { SimplifiedStoreSurvey } from './simplified-store-survey';
 import { SimplifiedStoreVolume } from './simplified-store-volume';
 import { SimplifiedStoreStatus } from './simplified-store-status';
 
@@ -23,10 +21,8 @@ export class Store extends AuditingEntity implements Mappable {
   site: SimplifiedSite;
   banner: SimplifiedBanner;
 
-  casings: SimplifiedStoreCasing[];
-  interactions: SimplifiedInteraction[];
+  storeCasings: SimplifiedStoreCasing[];
   models: SimplifiedStoreModel[];
-  surveys: SimplifiedStoreSurvey[];
   volumes: SimplifiedStoreVolume[];
 
   constructor(obj) {
@@ -41,17 +37,11 @@ export class Store extends AuditingEntity implements Mappable {
     if (obj.currentStoreStatus != null) {
       this.currentStoreStatus = new SimplifiedStoreStatus(obj.currentStoreStatus);
     }
-    if (obj.casings != null) {
-      this.casings = obj.casings.map(casing => new SimplifiedStoreCasing(casing));
-    }
-    if (obj.interactions != null) {
-      this.interactions = obj.interactions.map(interaction => new SimplifiedInteraction(interaction));
+    if (obj.shoppingCenterCasings != null) {
+      this.storeCasings = obj.shoppingCenterCasings.map(casing => new SimplifiedStoreCasing(casing));
     }
     if (obj.models != null) {
       this.models = obj.models.map(model => new SimplifiedStoreModel(model));
-    }
-    if (obj.surveys != null) {
-      this.surveys = obj.surveys.map(survey => new SimplifiedStoreSurvey(survey));
     }
     if (obj.volumes != null) {
       this.volumes = obj.volumes.map(volume => new SimplifiedStoreVolume(volume));
