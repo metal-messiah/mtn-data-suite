@@ -9,11 +9,11 @@ import { ShoppingCenterCasing } from '../../models/shopping-center-casing';
 import { Store } from '../../models/store';
 
 @Component({
-  selector: 'mds-location-overview',
-  templateUrl: './location-overview.component.html',
-  styleUrls: ['./location-overview.component.css']
+  selector: 'mds-site-overview',
+  templateUrl: './site-overview.component.html',
+  styleUrls: ['./site-overview.component.css']
 })
-export class LocationOverviewComponent implements OnInit {
+export class SiteOverviewComponent implements OnInit {
 
   readOnly = true;
   siteId: number;

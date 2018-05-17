@@ -10,7 +10,7 @@ import { CanDeactivateGuard } from '../core/services/can-deactivate.guard';
 import { ProjectDetailComponent } from './project-detail/project-detail.component';
 import { SiteListComponent } from './site-list/site-list.component';
 import { SiteDetailComponent } from './site-detail/site-detail.component';
-import { LocationOverviewComponent } from './location-overview/location-overview.component';
+import { SiteOverviewComponent } from './site-overview/site-overview.component';
 import { ShoppingCenterDetailComponent } from './shopping-center-detail/shopping-center-detail.component';
 import { ShoppingCenterCasingDetailComponent } from './shopping-center-casing-detail/shopping-center-casing-detail.component';
 import { StoreDetailComponent } from './store-detail/store-detail.component';
@@ -35,7 +35,7 @@ const routes: Routes = [
       {path: 'project-summary/:projectId', component: ProjectSummaryComponent},
       {path: 'project-detail/:id', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'project-detail/', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'location-overview/:siteId', component: LocationOverviewComponent}
+      {path: 'site-overview/:siteId', component: SiteOverviewComponent}
     ]
   }
 ];

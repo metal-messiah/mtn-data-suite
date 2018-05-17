@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LocationOverviewComponent } from './location-overview.component';
+import { SiteOverviewComponent } from './site-overview.component';
 import { CasingModule } from '../casing.module';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SiteService } from '../../core/services/site.service';
@@ -13,14 +13,14 @@ import { ShoppingCenterCasing } from '../../models/shopping-center-casing';
 import { SharedModule } from '../../shared/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-describe('LocationOverviewComponent', () => {
-  let component: LocationOverviewComponent;
-  let fixture: ComponentFixture<LocationOverviewComponent>;
+describe('SiteOverviewComponent', () => {
+  let component: SiteOverviewComponent;
+  let fixture: ComponentFixture<SiteOverviewComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [SharedModule, BrowserAnimationsModule, RouterTestingModule],
-      declarations: [LocationOverviewComponent],
+      declarations: [SiteOverviewComponent],
       providers: [
         {
           provide: SiteService, useValue: {
@@ -39,7 +39,7 @@ describe('LocationOverviewComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LocationOverviewComponent);
+    fixture = TestBed.createComponent(SiteOverviewComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

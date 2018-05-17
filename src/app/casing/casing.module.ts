@@ -10,7 +10,7 @@ import { ProjectDetailComponent } from './project-detail/project-detail.componen
 import { SiteListComponent } from './site-list/site-list.component';
 import { CasingDashboardService } from './casing-dashboard/casing-dashboard.service';
 import { SiteDetailComponent } from './site-detail/site-detail.component';
-import { LocationOverviewComponent } from './location-overview/location-overview.component';
+import { SiteOverviewComponent } from './site-overview/site-overview.component';
 import { LatLngSearchComponent } from './lat-lng-search/lat-lng-search.component';
 import { GoogleSearchComponent } from './google-search/google-search.component';
 import { DatabaseSearchComponent } from './database-search/database-search.component';
@@ -37,7 +37,7 @@ import { StoreSummaryCardComponent } from './store-summary-card/store-summary-ca
     ProjectDetailComponent,
     SiteListComponent,
     SiteDetailComponent,
-    LocationOverviewComponent,
+    SiteOverviewComponent,
     LatLngSearchComponent,
     GoogleSearchComponent,
     DatabaseSearchComponent,

@@ -339,10 +339,10 @@ export class CasingDashboardComponent implements OnInit {
     // TODO create the location data to the device
   }
 
-  goToLocationOverview(): void {
+  goToSiteOverview(): void {
     if (this.mappableService.latestSelected != null) {
       const latestSelected: Store = this.mappableService.latestSelected as Store;
-      this.router.navigate(['location-overview', latestSelected.site.id], {relativeTo: this.route});
+      this.router.navigate(['site-overview', latestSelected.site.id], {relativeTo: this.route});
     } else {
       throw new Error('Trying to navigate to mappable before it was selected');
     }
