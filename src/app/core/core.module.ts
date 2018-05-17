@@ -20,6 +20,7 @@ import { MapService } from './services/map.service';
 import { StoreService } from './services/store.service';
 import { ShoppingCenterService } from './services/shopping-center.service';
 import { ShoppingCenterCasingService } from './services/shopping-center-casing.service';
+import { StoreCasingService } from './services/store-casing.service';
 
 @NgModule({
   imports: [
@@ -46,7 +47,8 @@ import { ShoppingCenterCasingService } from './services/shopping-center-casing.s
     UserProfileService,
     StoreService,
     ShoppingCenterService,
-    ShoppingCenterCasingService
+    ShoppingCenterCasingService,
+    StoreCasingService
   ]
 })
 export class CoreModule {

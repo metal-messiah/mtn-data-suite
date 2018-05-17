@@ -7,12 +7,11 @@ import { RestService } from './rest.service';
 @Injectable()
 export class ShoppingCenterCasingService extends CrudService<ShoppingCenterCasing>{
 
-  protected endpoint = '/api/shopping-center-casing';
+  protected endpoint = '/api/shopping-center-storeCasing';
 
   constructor(protected http: HttpClient, protected rest: RestService) {
     super(http, rest);
   }
-
 
   protected createEntityFromObj(entityObj): ShoppingCenterCasing {
     return new ShoppingCenterCasing(entityObj);

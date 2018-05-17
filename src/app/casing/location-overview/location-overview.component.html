@@ -7,6 +7,7 @@
     <div>
     </div>
   </mat-toolbar>
+  <mat-divider></mat-divider>
   <div class="row content">
     <div class="list-wrapper">
       <div *ngIf="this.site == null">
@@ -14,6 +15,7 @@
       </div>
       <div *ngIf="this.site != null">
         <mat-accordion>
+          <!-- Actions -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title><h3>Actions</h3></mat-panel-title>
@@ -24,6 +26,8 @@
               <button mat-raised-button color="accent">Flag as Duplicate</button>
             </div>
           </mat-expansion-panel>
+
+          <!-- Site Details -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title><h3>Site</h3></mat-panel-title>
@@ -69,6 +73,8 @@
               </button>
             </mat-action-row>
           </mat-expansion-panel>
+
+          <!-- Shopping Center-->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
@@ -84,7 +90,7 @@
                 <input readonly matInput placeholder="Owner"
                        [value]="site.shoppingCenter.owner">
               </mat-form-field>
-              <mat-toolbar class="flex-space-between" color="primary">
+              <mat-toolbar class="flex-space-between filling-toolbar" color="primary">
                 <button mat-icon-button [mat-menu-trigger-for]="shoppingCenterActionMenu">
                   <i class="fas fa-ellipsis-v"></i>
                 </button>
@@ -101,7 +107,6 @@
                   Edit Shopping Center
                 </button>
               </mat-toolbar>
-              <mat-divider></mat-divider>
               <h3>Shopping Center Casings</h3>
               <mat-toolbar>
                 <button class="centered" mat-raised-button color="accent"
@@ -110,7 +115,7 @@
               </mat-toolbar>
               <mat-accordion>
                 <mat-expansion-panel *ngFor="let casing of site.shoppingCenter.shoppingCenterCasings"
-                                     (opened)="casingOpened(casing)">
+                                     (opened)="onShoppingCenterCasingOpened(casing)">
                   <mat-expansion-panel-header>
                     <h4>{{casing.casingDate | date}}</h4>
                   </mat-expansion-panel-header>
@@ -148,84 +153,11 @@
                         </button>
                       </mat-list-item>
                     </div>
-                    <div *ngIf="selectedSCCasing.shoppingCenterSurvey != null">
-                      <h3>Survey</h3>
-                      <p>Survey Date: {{selectedSCCasing.shoppingCenterSurvey.surveyDate | date}}</p>
-                      <p>Center Type: {{selectedSCCasing.shoppingCenterSurvey.centerType}}</p>
-                      <div *ngIf="selectedSCCasing.shoppingCenterSurvey.note != null">
-                        <h4>Survey Notes</h4>
-                        <p>{{selectedSCCasing.shoppingCenterSurvey.note}}</p>
-                      </div>
-                      <h4 *ngIf="selectedSCCasing.shoppingCenterSurvey.note == null">No Survey Notes</h4>
-                      <h4>Flow</h4>
-                      <mat-selection-list disabled="true">
-                        <mat-list-option [selected]="selectedSCCasing.shoppingCenterSurvey.flowHasLandscaping">
-                          Has Landscaping
-                        </mat-list-option>
-                        <mat-list-option [selected]="selectedSCCasing.shoppingCenterSurvey.flowHasSpeedBumps">
-                          Has Speed Bumps
-                        </mat-list-option>
-                        <mat-list-option [selected]="selectedSCCasing.shoppingCenterSurvey.flowHasStopSigns">
-                          Has Stop Signs
-                        </mat-list-option>
-                        <mat-list-option [selected]="selectedSCCasing.shoppingCenterSurvey.flowHasOneWayAisles">
-                          Has One Way Aisles
-                        </mat-list-option>
-                      </mat-selection-list>
-                      <h4>Parking</h4>
-                      <mat-selection-list disabled="true">
-                        <mat-list-option [selected]="selectedSCCasing.shoppingCenterSurvey.parkingHasAngledSpaces">
-                          Has Angled Spaces
-                        </mat-list-option>
-                        <mat-list-option [selected]="selectedSCCasing.shoppingCenterSurvey.parkingHasParkingHog">
-                          Has Parking Hog
-                        </mat-list-option>
-                        <mat-list-option [selected]="selectedSCCasing.shoppingCenterSurvey.parkingIsPoorlyLit">
-                          Is Poorly Lit
-                        </mat-list-option>
-                      </mat-selection-list>
-                      <p># Parking Spaces: {{selectedSCCasing.shoppingCenterSurvey.parkingSpaceCount}}</p>
-                      <h4>Tenant Summary</h4>
-                      <p># Occupied: {{selectedSCCasing.shoppingCenterSurvey.tenantOccupiedCount}}</p>
-                      <p># Vacant: {{selectedSCCasing.shoppingCenterSurvey.tenantVacantCount}}</p>
-                      <p>Sqft % Occupied: {{selectedSCCasing.shoppingCenterSurvey.sqFtPercentOccupied | percent}}</p>
-                      <h4
-                        *ngIf="selectedSCCasing.shoppingCenterSurvey.tenants == null || selectedSCCasing.shoppingCenterSurvey.tenants.length == 0">
-                        No Tenants</h4>
-                      <mat-accordion
-                        *ngIf="selectedSCCasing.shoppingCenterSurvey.tenants != null && selectedSCCasing.shoppingCenterSurvey.tenants.length > 0">
-                        <mat-expansion-panel>
-                          <mat-expansion-panel-header>
-                            <h4>Tenant List</h4>
-                          </mat-expansion-panel-header>
-                          <ul>
-                            <li *ngFor="let tenant of selectedSCCasing.shoppingCenterSurvey.tenants">
-                              {{tenant.name}}<span *ngIf="tenant.outparcel">&nbsp;(Outparcel)</span>
-                            </li>
-                          </ul>
-                        </mat-expansion-panel>
-                      </mat-accordion>
-                      <h4
-                        *ngIf="selectedSCCasing.shoppingCenterSurvey.accesses == null || selectedSCCasing.shoppingCenterSurvey.accesses.length == 0">
-                        No Accesses</h4>
-                      <div
-                        *ngIf="selectedSCCasing.shoppingCenterSurvey.accesses != null && selectedSCCasing.shoppingCenterSurvey.accesses.length > 0">
-                        <h4>Acceses</h4>
-                        <mat-accordion>
-                          <mat-expansion-panel *ngFor="let access of selectedSCCasing.shoppingCenterSurvey.accesses">
-                            <mat-expansion-panel-header>{{access.accessType}}</mat-expansion-panel-header>
-                            <mat-selection-list>
-                              <mat-list-option [selected]="access.hasLeftIn">Has Left In</mat-list-option>
-                              <mat-list-option [selected]="access.hasLeftOut">Has Left Out</mat-list-option>
-                              <mat-list-option [selected]="access.hasRightIn">Has Right In</mat-list-option>
-                              <mat-list-option [selected]="access.hasRightOut">Has Right Out</mat-list-option>
-                              <mat-list-option [selected]="access.oneWayRoad">One Way Road</mat-list-option>
-                              <mat-list-option [selected]="access.hasTrafficLight">Has Traffic Light</mat-list-option>
-                            </mat-selection-list>
-                          </mat-expansion-panel>
-                        </mat-accordion>
-                      </div>
-                    </div>
+                    <mds-shopping-center-survey-form
+                      *ngIf="selectedSCCasing.shoppingCenterSurvey != null"
+                      [survey]="selectedSCCasing.shoppingCenterSurvey"
+                      [isDisabled]="true">
+                    </mds-shopping-center-survey-form>
                   </div>
                 </mat-expansion-panel>
               </mat-accordion>
@@ -243,13 +175,47 @@
               </mat-list>
             </div>
           </mat-expansion-panel>
+
+          <!-- Stores -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
                 <h3>Stores</h3>
               </mat-panel-title>
             </mat-expansion-panel-header>
-            <div></div>
+            <div class="widened">
+              <mat-tab-group>
+                <mat-tab label="Active">
+                  <mds-store-summary-card *ngIf="activeStore != null" [store]="activeStore"></mds-store-summary-card>
+                  <mat-card *ngIf="activeStore == null">
+                    <mat-card-header>
+                      <mat-card-title><strong>No Active Store</strong></mat-card-title>
+                    </mat-card-header>
+                    <mat-card-actions>
+                      <button mat-raised-button color="accent">Create New Store</button>
+                      <button mat-raised-button color="accent">Transition Future to Active</button>
+                    </mat-card-actions>
+                  </mat-card>
+                </mat-tab>
+
+                <mat-tab label="Future">
+                  <mds-store-summary-card *ngIf="futureStore != null" [store]="futureStore"></mds-store-summary-card>
+                  <div class="mds-card" *ngIf="futureStore == null">
+                    <div class="header">
+                      <div class="title">No Future Store</div>
+                    </div>
+                    <mat-toolbar color="primary">
+                      <button mat-raised-button color="accent" class="centered">Create New Store</button>
+                    </mat-toolbar>
+                  </div>
+                </mat-tab>
+
+                <mat-tab label="Historical">
+                  <mds-store-summary-card *ngFor="let store of historicalStores" [store]="store"></mds-store-summary-card>
+                </mat-tab>
+              </mat-tab-group>
+
+            </div>
           </mat-expansion-panel>
         </mat-accordion>
       </div>

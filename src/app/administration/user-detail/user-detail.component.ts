@@ -1,23 +1,20 @@
-import {Component, OnInit} from '@angular/core';
-import {DatePipe} from '@angular/common';
-import {ActivatedRoute, Router} from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 
-import {UserProfile} from '../../models/user-profile';
-import {Role} from '../../models/role';
-import {Group} from '../../models/group';
+import { UserProfile } from '../../models/user-profile';
 
-import {UserProfileService} from '../../core/services/user-profile.service';
-import {RoleService} from '../../core/services/role.service';
-import {GroupService} from '../../core/services/group.service';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ErrorService} from '../../core/services/error.service';
-import {Observable} from 'rxjs/Observable';
-import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
-import {DetailFormComponent} from '../../interfaces/detail-form-component';
-import {DetailFormService} from '../../core/services/detail-form.service';
+import { UserProfileService } from '../../core/services/user-profile.service';
+import { RoleService } from '../../core/services/role.service';
+import { GroupService } from '../../core/services/group.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ErrorService } from '../../core/services/error.service';
+import { Observable } from 'rxjs/Observable';
+import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
+import { DetailFormComponent } from '../../interfaces/detail-form-component';
+import { DetailFormService } from '../../core/services/detail-form.service';
 import { SimplifiedGroup } from '../../models/simplified-group';
 import { SimplifiedRole } from '../../models/simplified-role';
-import { SimplifiedUserProfile } from '../../models/simplified-user-profile';
 
 @Component({
   selector: 'mds-user-detail',
@@ -57,7 +54,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
       this.groupService.getAllGroups()
     ).subscribe(
       pair => {
-        const compareDisplayNames = function(object1, object2) {
+        const compareDisplayNames = function (object1, object2) {
           return object1['displayName'].localeCompare(object2['displayName']);
         };
         this.roles = pair[0].content.sort(compareDisplayNames);
@@ -97,18 +94,23 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
   getForm(): FormGroup {
     return this.userProfileForm;
   }
+
   getNewObj(): UserProfile {
     return new UserProfile({});
   }
+
   getObj(): UserProfile {
     return this.userProfile;
   }
+
   getEntityService(): UserProfileService {
     return this.userProfileService;
   }
+
   getRoute(): ActivatedRoute {
     return this.route;
   }
+
   getSavableObj(): UserProfile {
     const formModel = this.userProfileForm.value;
 
@@ -126,12 +128,15 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
       version: this.userProfile.version
     });
   }
+
   getTypeName(): string {
     return 'user profile';
   }
+
   goBack() {
     this.router.navigate(['/admin/users']);
   }
+
   onObjectChange() {
     this.userProfileForm.reset({
       email: this.userProfile.email,
@@ -150,6 +155,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
       });
     }
   }
+
   setObj(obj: UserProfile) {
     this.userProfile = obj;
     this.onObjectChange();
@@ -159,6 +165,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
   saveUser() {
     this.detailFormService.save(this);
   }
+
   canDeactivate(): Observable<boolean> | boolean {
     return this.detailFormService.canDeactivate(this);
   }

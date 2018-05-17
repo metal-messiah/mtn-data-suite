@@ -16,6 +16,12 @@ import { GoogleSearchComponent } from './google-search/google-search.component';
 import { DatabaseSearchComponent } from './database-search/database-search.component';
 import { ShoppingCenterDetailComponent } from './shopping-center-detail/shopping-center-detail.component';
 import { ShoppingCenterCasingDetailComponent } from './shopping-center-casing-detail/shopping-center-casing-detail.component';
+import { StoreDetailComponent } from './store-detail/store-detail.component';
+import { StoreEntityFormComponent } from './store-entity-form/store-entity-form.component';
+import { ShoppingCenterSurveyFormComponent } from './shopping-center-survey-form/shopping-center-survey-form.component';
+import { StoreOverviewComponent } from './store-overview/store-overview.component';
+import { StoreCasingEntityFormComponent } from './store-casing-entity-form/store-casing-entity-form.component';
+import { StoreSummaryCardComponent } from './store-summary-card/store-summary-card.component';
 
 @NgModule({
   imports: [
@@ -36,7 +42,13 @@ import { ShoppingCenterCasingDetailComponent } from './shopping-center-casing-de
     GoogleSearchComponent,
     DatabaseSearchComponent,
     ShoppingCenterDetailComponent,
-    ShoppingCenterCasingDetailComponent
+    ShoppingCenterCasingDetailComponent,
+    StoreDetailComponent,
+    StoreEntityFormComponent,
+    ShoppingCenterSurveyFormComponent,
+    StoreOverviewComponent,
+    StoreCasingEntityFormComponent,
+    StoreSummaryCardComponent
   ],
   entryComponents: [
     LatLngSearchComponent,

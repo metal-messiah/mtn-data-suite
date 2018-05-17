@@ -1,0 +1,23 @@
+<div class="mds-card">
+  <div class="header" color="primary">
+    <div class="title">
+      {{store.storeName}}<span *ngIf="store.storeNumber != null">&nbsp;({{store.storeNumber}})</span>
+    </div>
+    <div class="subtitle" *ngIf="store.currentStoreStatus">{{store.currentStoreStatus.status}}</div>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="content" *ngIf="store.dateOpened != null || store.dateClosed != null">
+    <mat-list>
+      <mds-data-field *ngIf="store.dateOpened != null" title="Date Opened"
+                      [value]="store.dateOpened"></mds-data-field>
+      <mds-data-field *ngIf="store.dateClosed != null" title="Date Closed"
+                      [value]="store.dateClosed"></mds-data-field>
+    </mat-list>
+  </div>
+  <mat-toolbar color="primary" class="flex-space-between">
+    <button mat-raised-button color="accent">History</button>
+    <div></div>
+    <button mat-raised-button color="accent">Edit</button>
+  </mat-toolbar>
+</div>
+

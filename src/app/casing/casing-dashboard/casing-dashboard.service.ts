@@ -30,13 +30,13 @@ export class CasingDashboardService {
 
   navigateToProjectSummary(): void {
     if (this.selectedProject != null) {
-      this.router.navigate(['/casing/project-summary', this.selectedProject.id]);
+      this.router.navigate(['/storeCasing/project-summary', this.selectedProject.id]);
     }
   }
 
   navigateToProjectDetail(): void {
     if (this.selectedProject != null) {
-      this.router.navigate(['/casing/project-detail', this.selectedProject.id]);
+      this.router.navigate(['/storeCasing/project-detail', this.selectedProject.id]);
     }
   }
 

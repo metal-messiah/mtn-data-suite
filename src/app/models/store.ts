@@ -11,10 +11,10 @@ import { SimplifiedStoreStatus } from './simplified-store-status';
 export class Store extends AuditingEntity implements Mappable {
 
   storeName: string;
+  storeNumber: string;
   storeType: string;
   dateOpened: Date;
   dateClosed: Date;
-  storeNumber: string;
   legacyLocationId: number;
 
   currentStoreStatus: SimplifiedStoreStatus;
@@ -23,7 +23,7 @@ export class Store extends AuditingEntity implements Mappable {
 
   storeCasings: SimplifiedStoreCasing[];
   models: SimplifiedStoreModel[];
-  volumes: SimplifiedStoreVolume[];
+  storeVolumes: SimplifiedStoreVolume[];
 
   constructor(obj) {
     super(obj);
@@ -37,14 +37,18 @@ export class Store extends AuditingEntity implements Mappable {
     if (obj.currentStoreStatus != null) {
       this.currentStoreStatus = new SimplifiedStoreStatus(obj.currentStoreStatus);
     }
-    if (obj.shoppingCenterCasings != null) {
-      this.storeCasings = obj.shoppingCenterCasings.map(casing => new SimplifiedStoreCasing(casing));
+    if (obj.storeCasings != null) {
+      this.storeCasings = obj.storeCasings
+        .map(casing => new SimplifiedStoreCasing(casing))
+        .sort((a: SimplifiedStoreCasing, b: SimplifiedStoreCasing) => {
+          return new Date(b.casingDate).getTime() - new Date(a.casingDate).getTime();
+        });
     }
     if (obj.models != null) {
       this.models = obj.models.map(model => new SimplifiedStoreModel(model));
     }
-    if (obj.volumes != null) {
-      this.volumes = obj.volumes.map(volume => new SimplifiedStoreVolume(volume));
+    if (obj.storeVolumes != null) {
+      this.storeVolumes = obj.storeVolumes.map(volume => new SimplifiedStoreVolume(volume));
     }
   }
 

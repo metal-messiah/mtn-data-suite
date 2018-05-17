@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ErrorDialogComponent } from './error-dialog/error-dialog.component';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
@@ -11,6 +11,7 @@ import { PathNotFoundComponent } from './path-not-found/path-not-found.component
 import { MapComponent } from './map/map.component';
 import { LogoMenuComponent } from './logo-menu/logo-menu.component';
 import { RouterModule } from '@angular/router';
+import { DataFieldComponent } from './data-field/data-field.component';
 
 @NgModule({
   imports: [
@@ -24,7 +25,8 @@ import { RouterModule } from '@angular/router';
     CallbackComponent,
     PathNotFoundComponent,
     MapComponent,
-    LogoMenuComponent
+    LogoMenuComponent,
+    DataFieldComponent
   ],
   providers: [
     BreakpointObserver,
@@ -45,7 +47,8 @@ import { RouterModule } from '@angular/router';
     LogoMenuComponent,
     MapComponent,
     PathNotFoundComponent,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    DataFieldComponent
   ]
 })
 export class SharedModule {

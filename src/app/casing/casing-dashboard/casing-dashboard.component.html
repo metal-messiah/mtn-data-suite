@@ -130,9 +130,13 @@
           </button>
         </div>
         <div>
-          <button mat-raised-button color="accent">
+          <button mat-raised-button color="accent" [mat-menu-trigger-for]="multiSelectActionMenu">
             <span *ngIf="mappableService.numSelected > 0">({{mappableService.numSelected}})</span>&nbsp;Actions
           </button>
+          <mat-menu #multiSelectActionMenu="matMenu" [overlapTrigger]="false">
+            <button mat-menu-item>Pin</button>
+            <button mat-menu-item>Assign</button>
+          </mat-menu>
         </div>
       </mat-toolbar>
       <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.CREATING_NEW"
@@ -160,7 +164,7 @@
           </button>
         </div>
         <div>
-          <button mat-mini-fab color="primary">
+          <button mat-mini-fab color="primary" disabled="true">
             <i class="fas fa-filter"></i>
           </button>
         </div>
@@ -195,7 +199,9 @@
 <mat-menu #markerMoreMenu="matMenu" [overlapTrigger]="false">
   <div *ngIf="mappableService.getLatestSelection() != null" mat-menu-item>Store ID: #{{mappableService.getLatestSelection().id}}</div>
   <button mat-menu-item (click)="moveStore()"><i class="fas fa-arrows-alt"></i>&nbsp;Move</button>
-  <button mat-menu-item><i class="far fa-clock"></i>&nbsp;History</button>
+  <button mat-menu-item disabled="true"><i class="far fa-clock"></i>&nbsp;History</button>
+  <button mat-menu-item disabled="true"><i class="fas fa-thumbtack"></i>&nbsp;Pin</button>
+  <button mat-menu-item disabled="true"><i class="fas fa-user"></i>&nbsp;Assign</button>
 </mat-menu>
 
 <mat-menu #multiSelectToolsMenu="matMenu" [overlapTrigger]="false">

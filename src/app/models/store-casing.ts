@@ -1,7 +1,6 @@
 import { AuditingEntity } from './auditing-entity';
 import { StoreVolume } from './store-volume';
 import { SimplifiedStoreStatus } from './simplified-store-status';
-import { StoreSurvey } from './store-survey';
 import { SimplifiedStoreSurvey } from './simplified-store-survey';
 import { SimplifiedProject } from './simplified-project';
 

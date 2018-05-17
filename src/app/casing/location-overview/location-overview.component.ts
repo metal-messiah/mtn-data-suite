@@ -6,6 +6,7 @@ import { Site } from '../../models/site';
 import { SimplifiedShoppingCenterCasing } from '../../models/simplified-shopping-center-casing';
 import { ShoppingCenterCasingService } from '../../core/services/shopping-center-casing.service';
 import { ShoppingCenterCasing } from '../../models/shopping-center-casing';
+import { Store } from '../../models/store';
 
 @Component({
   selector: 'mds-location-overview',
@@ -14,9 +15,15 @@ import { ShoppingCenterCasing } from '../../models/shopping-center-casing';
 })
 export class LocationOverviewComponent implements OnInit {
 
+  readOnly = true;
   siteId: number;
   site: Site;
   selectedSCCasing: ShoppingCenterCasing;
+  activeStore: Store;
+  futureStore: Store;
+  historicalStores: Store[];
+  warningHasMultipleActiveStores = false;
+  warningHasMultipleFutureStores = false;
 
   constructor(private _location: Location,
               private route: ActivatedRoute,
@@ -28,6 +35,22 @@ export class LocationOverviewComponent implements OnInit {
     this.siteService.getOneById(this.siteId).subscribe(site => {
       this.site = site;
       console.log(site);
+      this.historicalStores = [];
+      this.site.stores.forEach(store => {
+        if (store.storeType === 'ACTIVE') {
+          if (this.activeStore != null) {
+            this.warningHasMultipleActiveStores = true;
+          }
+          this.activeStore = store;
+        } else if (store.storeType === 'FUTURE') {
+          if (this.futureStore != null) {
+            this.warningHasMultipleFutureStores = true;
+          }
+          this.futureStore = store;
+        } else {
+          this.historicalStores.push(store);
+        }
+      });
     });
   }
 
@@ -35,7 +58,7 @@ export class LocationOverviewComponent implements OnInit {
     this._location.back();
   }
 
-  casingOpened(casing: SimplifiedShoppingCenterCasing) {
+  onShoppingCenterCasingOpened(casing: SimplifiedShoppingCenterCasing) {
     this.shoppingCenterCasingService.getOneById(casing.id).subscribe(c => {
       this.selectedSCCasing = c;
       console.log(c);

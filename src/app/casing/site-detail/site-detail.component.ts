@@ -33,7 +33,7 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate, Deta
 
   ngOnInit() {
 
-    // TODO if no route param - treat as new site, attempt to retrieve from casing service
+    // TODO if no route param - treat as new site, attempt to retrieve from storeCasing service
     if (this.casingDashboardService.newSite != null) {
       this.site = this.casingDashboardService.newSite;
     }
@@ -83,7 +83,7 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate, Deta
   }
 
   goBack() {
-    this.router.navigate(['/casing']);
+    this.router.navigate(['/storeCasing']);
   }
 
   onObjectChange(): void {
