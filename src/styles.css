@@ -84,6 +84,7 @@ fieldset {
 
 .mds-card .header {
   padding: 6px 8px;
+  min-height: 40px;
 }
 
 .mds-card .title {

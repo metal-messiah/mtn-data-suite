@@ -1,5 +1,5 @@
 <div class="box">
-  <mat-toolbar class="row header flex-space-between">
+  <mat-toolbar color="primary" class="row header flex-space-between">
     <div>
       <button type="button" mat-raised-button color="accent" (click)="goBack()">Back</button>
     </div>
@@ -20,11 +20,22 @@
             <mat-expansion-panel-header>
               <mat-panel-title><h3>Actions</h3></mat-panel-title>
             </mat-expansion-panel-header>
-            <div id="action-button-container">
-              <button mat-raised-button color="accent">Pin</button>
-              <button mat-raised-button color="accent">Assign</button>
-              <button mat-raised-button color="accent">Flag as Duplicate</button>
-            </div>
+            <mat-nav-list id="action-button-container">
+              <mat-list-item>
+                <i mat-list-icon class="fas fa-thumbtack"></i>
+                <h4 mat-line>Pin</h4>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              <mat-list-item>
+                <i mat-list-icon class="fas fa-user"></i>
+                <h4 mat-line>Assign</h4>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              <mat-list-item>
+                <i mat-list-icon class="fas fa-flag"></i>
+                <h4 mat-line>Flag as Duplicate</h4>
+              </mat-list-item>
+            </mat-nav-list>
           </mat-expansion-panel>
 
           <!-- Site Details -->
@@ -114,9 +125,9 @@
                     <div class="header">
                       <div class="title">No Active Store</div>
                     </div>
-                    <mat-toolbar color="primary">
-                      <button mat-raised-button color="accent">Create New Store</button>
-                      <button mat-raised-button color="accent">Transition Future to Active</button>
+                    <mat-toolbar color="primary" class="flex-space-between">
+                      <button mat-raised-button color="accent">Create New</button>
+                      <button mat-raised-button color="accent">Active <i class="fas fa-arrow-left"></i> Future</button>
                     </mat-toolbar>
                   </div>
                 </mat-tab>
