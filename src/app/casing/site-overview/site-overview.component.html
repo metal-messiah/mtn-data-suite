@@ -32,46 +32,25 @@
             <mat-expansion-panel-header>
               <mat-panel-title><h3>Site</h3></mat-panel-title>
             </mat-expansion-panel-header>
-            <div>
-              <mat-form-field>
-                <input readonly matInput placeholder="Address" [value]="site.address1">
-              </mat-form-field>
-              <mat-form-field>
-                <input readonly matInput placeholder="City" [value]="site.city">
-              </mat-form-field>
-              <mat-form-field>
-                <input readonly matInput placeholder="County" [value]="site.county">
-              </mat-form-field>
-              <mat-form-field>
-                <input readonly matInput placeholder="State" [value]="site.state">
-              </mat-form-field>
-              <mat-form-field>
-                <input readonly matInput placeholder="Postal Code" [value]="site.postalCode">
-              </mat-form-field>
-              <mat-form-field>
-                <input readonly matInput placeholder="Intersection Type" [value]="site.intersectionType">
-              </mat-form-field>
-              <mat-form-field>
-                <input readonly matInput placeholder="Quad" [value]="site.quad">
-              </mat-form-field>
-              <mat-form-field>
-                <input readonly matInput placeholder="Primary Intersection Street"
-                       [value]="site.intersectionStreetPrimary">
-              </mat-form-field>
-              <mat-form-field>
-                <input readonly matInput placeholder="Secondary Intersection Street"
-                       [value]="site.intersectionStreetSecondary">
-              </mat-form-field>
-              <mat-form-field>
-                <input readonly matInput placeholder="Position in Center"
-                       [value]="site.positionInCenter">
-              </mat-form-field>
+            <div class="mds-card">
+              <div class="content">
+              <mds-data-field title="Address" [value]="site.address1"></mds-data-field>
+              <mds-data-field title="City" [value]="site.city"></mds-data-field>
+              <mds-data-field title="County" [value]="site.county"></mds-data-field>
+              <mds-data-field title="Postal Code" [value]="site.postalCode"></mds-data-field>
+              <mds-data-field title="Intersection Type" [value]="site.intersectionType"></mds-data-field>
+              <mds-data-field title="Quad" [value]="site.quad"></mds-data-field>
+              <mds-data-field title="1&deg; Intersection St" [value]="site.intersectionStreetPrimary"></mds-data-field>
+              <mds-data-field title="2&deg; Intersection St" [value]="site.intersectionStreetSecondary"></mds-data-field>
+              <mds-data-field title="Position in Center" [value]="site.positionInCenter"></mds-data-field>
+              </div>
+              <mat-toolbar color="primary" class="flex-space-between">
+                <div></div>
+                <button mat-raised-button color="accent" [routerLink]="['/casing/site-detail', site.id]">
+                  Edit
+                </button>
+              </mat-toolbar>
             </div>
-            <mat-action-row>
-              <button mat-raised-button color="accent" [routerLink]="['/casing/site-detail', site.id]">
-                Edit Site Details
-              </button>
-            </mat-action-row>
           </mat-expansion-panel>
 
           <!-- Shopping Center-->
@@ -81,19 +60,17 @@
                 <h3>Shopping Center</h3>
               </mat-panel-title>
             </mat-expansion-panel-header>
-            <mat-list *ngIf="site.shoppingCenter != null">
-              <mat-form-field>
-                <input readonly matInput placeholder="Shopping Center Name"
-                       [value]="site.shoppingCenter.name">
-              </mat-form-field>
-              <mat-form-field>
-                <input readonly matInput placeholder="Owner"
-                       [value]="site.shoppingCenter.owner">
-              </mat-form-field>
-              <mat-toolbar class="flex-space-between filling-toolbar" color="primary">
+            <div class="mds-card" *ngIf="site.shoppingCenter != null">
+              <div class="header">
+                <div class="title" *ngIf="site.shoppingCenter.name != null">{{site.shoppingCenter.name}}</div>
+                <div class="title" *ngIf="site.shoppingCenter.name == null"><i>Edit to add name</i></div>
+                <div class="subtitle" *ngIf="site.shoppingCenter.owner != null">Owned by: {{site.shoppingCenter.owner}}</div>
+              </div>
+              <mat-toolbar class="flex-space-between" color="primary">
                 <button mat-icon-button [mat-menu-trigger-for]="shoppingCenterActionMenu">
                   <i class="fas fa-ellipsis-v"></i>
                 </button>
+                <button mat-raised-button color="accent">Casing</button>
                 <mat-menu #shoppingCenterActionMenu="matMenu" [overlapTrigger]="false">
                   <button mat-menu-item>
                     Merge with another SC
@@ -104,64 +81,10 @@
                 </mat-menu>
                 <button mat-raised-button color="accent"
                         [routerLink]="['/casing/shopping-center-detail', site.shoppingCenter.id]">
-                  Edit Shopping Center
+                  Edit
                 </button>
               </mat-toolbar>
-              <h3>Shopping Center Casings</h3>
-              <mat-toolbar>
-                <button class="centered" mat-raised-button color="accent"
-                        routerLink="/casing/shopping-center-casing-detail">Add New Shopping Center Casing
-                </button>
-              </mat-toolbar>
-              <mat-accordion>
-                <mat-expansion-panel *ngFor="let casing of site.shoppingCenter.shoppingCenterCasings"
-                                     (opened)="onShoppingCenterCasingOpened(casing)">
-                  <mat-expansion-panel-header>
-                    <h4>{{casing.casingDate | date}}</h4>
-                  </mat-expansion-panel-header>
-                  <div *ngIf="selectedSCCasing == null">
-                    <mat-progress-spinner class="centered" mode="indeterminate"></mat-progress-spinner>
-                  </div>
-                  <div *ngIf="selectedSCCasing != null">
-                    <h3>Casing</h3>
-                    <div>
-                      <h4>Used For Projects:</h4>
-                      <ul>
-                        <li *ngFor="let project of selectedSCCasing.projects">{{project.projectName}}</li>
-                      </ul>
-                      <div *ngIf="selectedSCCasing.note != null">
-                        <h4>Casing Notes</h4>
-                        <p>{{selectedSCCasing.note}}</p>
-                      </div>
-                      <h4 *ngIf="selectedSCCasing.note == null">No Casing Notes</h4>
-                      <h4>Ratings</h4>
-                      <p>Parking Lot: {{selectedSCCasing.ratingParkingLot}}</p>
-                      <p>Buildings: {{selectedSCCasing.ratingBuildings}}</p>
-                      <p>Lighting: {{selectedSCCasing.ratingLighting}}</p>
-                      <p>Synergy: {{selectedSCCasing.ratingSynergy}}</p>
-                    </div>
-                    <div *ngIf="selectedSCCasing.shoppingCenterSurvey == null">
-                      <h3>No Survey</h3>
-                      <mat-list-item
-                        *ngIf="site.shoppingCenter.surveys != null && site.shoppingCenter.surveys.length > 0">
-                        <button class="centered" mat-raised-button color="accent">Attach Existing Survey</button>
-                      </mat-list-item>
-                      <mat-list-item>
-                        <button class="centered" mat-raised-button color="accent"
-                                routerLink="/casing/shopping-center-survey-detail">
-                          Create New Survey
-                        </button>
-                      </mat-list-item>
-                    </div>
-                    <mds-shopping-center-survey-form
-                      *ngIf="selectedSCCasing.shoppingCenterSurvey != null"
-                      [survey]="selectedSCCasing.shoppingCenterSurvey"
-                      [isDisabled]="true">
-                    </mds-shopping-center-survey-form>
-                  </div>
-                </mat-expansion-panel>
-              </mat-accordion>
-            </mat-list>
+            </div>
             <div *ngIf="site.shoppingCenter == null">
               <mat-list>
                 <mat-list-item>
@@ -187,15 +110,15 @@
               <mat-tab-group>
                 <mat-tab label="Active">
                   <mds-store-summary-card *ngIf="activeStore != null" [store]="activeStore"></mds-store-summary-card>
-                  <mat-card *ngIf="activeStore == null">
-                    <mat-card-header>
-                      <mat-card-title><strong>No Active Store</strong></mat-card-title>
-                    </mat-card-header>
-                    <mat-card-actions>
+                  <div class="mds-card" *ngIf="activeStore == null">
+                    <div class="header">
+                      <div class="title">No Active Store</div>
+                    </div>
+                    <mat-toolbar color="primary">
                       <button mat-raised-button color="accent">Create New Store</button>
                       <button mat-raised-button color="accent">Transition Future to Active</button>
-                    </mat-card-actions>
-                  </mat-card>
+                    </mat-toolbar>
+                  </div>
                 </mat-tab>
 
                 <mat-tab label="Future">
@@ -211,7 +134,8 @@
                 </mat-tab>
 
                 <mat-tab label="Historical">
-                  <mds-store-summary-card *ngFor="let store of historicalStores" [store]="store"></mds-store-summary-card>
+                  <mds-store-summary-card *ngFor="let store of historicalStores"
+                                          [store]="store"></mds-store-summary-card>
                 </mat-tab>
               </mat-tab-group>
 

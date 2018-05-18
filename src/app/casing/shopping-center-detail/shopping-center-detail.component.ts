@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ShoppingCenter } from '../../models/shopping-center';
 
 @Component({
   selector: 'mds-shopping-center-detail',
@@ -6,6 +7,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./shopping-center-detail.component.css']
 })
 export class ShoppingCenterDetailComponent implements OnInit {
+
+  shoppingCenter: ShoppingCenter;
 
   constructor() { }
 
