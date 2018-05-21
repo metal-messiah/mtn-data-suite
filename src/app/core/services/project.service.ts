@@ -5,7 +5,6 @@ import { Pageable } from '../../models/pageable';
 import { Project } from '../../models/project';
 import { Observable } from 'rxjs/Observable';
 import { CrudService } from '../../interfaces/crud-service';
-import { SimplifiedProject } from '../../models/simplified-project';
 
 @Injectable()
 export class ProjectService extends CrudService<Project> {

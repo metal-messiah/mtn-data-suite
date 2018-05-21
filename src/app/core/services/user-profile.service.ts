@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { UserProfile } from '../../models/user-profile';
 import { RestService } from './rest.service';
@@ -20,9 +20,14 @@ export class UserProfileService extends CrudService<UserProfile> {
     return new UserProfile(entityObj);
   }
 
-  getAllUserProfiles(): Observable<Pageable<UserProfile>> {
+  getAllUserProfiles(pageNumber?: number): Observable<Pageable<UserProfile>> {
     const url = this.rest.getHost() + this.endpoint;
-    return this.http.get<Pageable<UserProfile>>(url, {headers: this.rest.getHeaders()})
+    let params = new HttpParams();
+    if (pageNumber != null) {
+      params = params.set('page', pageNumber.toLocaleString());
+    }
+    params = params.set('sort', 'firstName,lastName');
+    return this.http.get<Pageable<UserProfile>>(url, {headers: this.rest.getHeaders(), params: params})
       .map(page => {
         page.content = page.content.map(entityObj => new UserProfile(entityObj));
         return page;

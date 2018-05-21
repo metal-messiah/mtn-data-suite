@@ -1,0 +1,20 @@
+<h1 mat-dialog-title>Select Assignee</h1>
+<div mat-dialog-content>
+  <h3 *ngIf="error">{{error}}</h3>
+  <mat-nav-list>
+    <mat-list-item *ngFor="let userProfile of userProfiles" (click)="selectUserProfile(userProfile)" disabled="true">
+      <i mat-list-icon="" class="fas fa-user-circle"></i>
+      <h3 mat-line>{{userProfile.firstName}}&nbsp;{{userProfile.lastName}}</h3>
+    </mat-list-item>
+    <mat-list-item *ngIf="latestPage != null && !latestPage.last && !loading" (click)="loadMore()">
+      <button mat-raised-button color="primary">Load More...</button>
+    </mat-list-item>
+    <mat-list-item *ngIf="loading">
+      <mat-progress-bar mode="indeterminate" class="centered"></mat-progress-bar>
+    </mat-list-item>
+  </mat-nav-list>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button color="accent" (click)="closeDialog()">Cancel</button>
+  <button mat-raised-button color="warn" (click)="unassign()">Unassign</button>
+</div>

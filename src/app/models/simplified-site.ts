@@ -1,6 +1,7 @@
 import { Mappable } from '../interfaces/mappable';
 import { Coordinates } from './coordinates';
 import { Entity } from './entity';
+import { SimplifiedUserProfile } from './simplified-user-profile';
 
 export class SimplifiedSite implements Entity, Mappable {
 
@@ -16,9 +17,13 @@ export class SimplifiedSite implements Entity, Mappable {
   intersectionStreetPrimary: string;
   intersectionStreetSecondary: string;
   duplicate: boolean;
+  assignee: SimplifiedUserProfile;
 
   constructor(obj) {
     Object.assign(this, obj);
+    if (obj.assignee != null) {
+      this.assignee = new SimplifiedUserProfile(obj.assignee);
+    }
   }
 
   getCoordinates(): Coordinates {

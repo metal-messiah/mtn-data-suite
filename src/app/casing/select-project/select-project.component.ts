@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { ProjectService } from '../../core/services/project.service';
 import { Project } from '../../models/project';
 import { Pageable } from '../../models/pageable';

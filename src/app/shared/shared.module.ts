@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import {  NgModule } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ErrorDialogComponent } from './error-dialog/error-dialog.component';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
@@ -12,6 +12,7 @@ import { MapComponent } from './map/map.component';
 import { LogoMenuComponent } from './logo-menu/logo-menu.component';
 import { RouterModule } from '@angular/router';
 import { DataFieldComponent } from './data-field/data-field.component';
+import { UserProfileSelectComponent } from './user-profile-select/user-profile-select.component';
 
 @NgModule({
   imports: [
@@ -26,7 +27,8 @@ import { DataFieldComponent } from './data-field/data-field.component';
     PathNotFoundComponent,
     MapComponent,
     LogoMenuComponent,
-    DataFieldComponent
+    DataFieldComponent,
+    UserProfileSelectComponent
   ],
   providers: [
     BreakpointObserver,
@@ -35,7 +37,8 @@ import { DataFieldComponent } from './data-field/data-field.component';
   ],
   entryComponents: [
     ErrorDialogComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    UserProfileSelectComponent
   ],
   exports: [
     CallbackComponent,

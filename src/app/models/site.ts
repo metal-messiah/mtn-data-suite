@@ -3,6 +3,7 @@ import { Mappable } from '../interfaces/mappable';
 import { Coordinates } from './coordinates';
 import { ShoppingCenter } from './shopping-center';
 import { Store } from './store';
+import { SimplifiedUserProfile } from './simplified-user-profile';
 
 export class Site extends AuditingEntity implements Mappable {
 
@@ -26,6 +27,7 @@ export class Site extends AuditingEntity implements Mappable {
 
   shoppingCenter: ShoppingCenter;
   stores: Store[];
+  assignee: SimplifiedUserProfile;
 
   constructor(obj) {
     super(obj);
@@ -37,6 +39,9 @@ export class Site extends AuditingEntity implements Mappable {
       this.stores = obj.stores.map(store => new Store(store));
     } else {
       this.stores = [];
+    }
+    if (obj.assignee != null) {
+      this.assignee = new SimplifiedUserProfile(obj.assignee);
     }
   }
 

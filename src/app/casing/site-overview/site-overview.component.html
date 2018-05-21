@@ -12,7 +12,7 @@
         <button mat-menu-item disabled="true">
           <i class="fas fa-thumbtack"></i>&nbsp;Pin to Device
         </button>
-        <button mat-menu-item>
+        <button mat-menu-item (click)="assignToAnalyst()">
           <i class="fas fa-user"></i>&nbsp;Assign to Analyst
         </button>
         <button mat-menu-item>
@@ -24,10 +24,13 @@
   <mat-divider></mat-divider>
   <div class="row content">
     <div class="list-wrapper">
-      <div *ngIf="this.site == null">
-        <mat-progress-spinner class="centered" mode="indeterminate"></mat-progress-spinner>
+      <div *ngIf="this.site == null || this.saving">
+        <mat-progress-bar class="centered" mode="indeterminate"></mat-progress-bar>
       </div>
       <div *ngIf="this.site != null">
+        <mat-card *ngIf="this.site.assignee != null && !saving" id="assignment-card">
+          Assigned to <strong>{{this.site.assignee.email}}</strong>
+        </mat-card>
         <mat-accordion>
 
           <!-- Site Details -->
