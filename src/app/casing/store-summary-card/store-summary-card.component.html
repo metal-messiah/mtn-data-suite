@@ -6,17 +6,53 @@
     <div class="subtitle" *ngIf="store.currentStoreStatus">{{store.currentStoreStatus.status}}</div>
   </div>
   <mat-divider></mat-divider>
-  <div class="content" *ngIf="store.dateOpened != null || store.dateClosed != null">
+  <div class="content">
     <mat-list>
+      <mds-data-field *ngIf="store.currentStoreSurvey != null" title="Sales Area"
+                      [sqft]="store.currentStoreSurvey.areaSales"></mds-data-field>
+      <mds-data-field *ngIf="store.currentStoreSurvey != null" title="Total Area"
+                      [sqft]="store.currentStoreSurvey.areaTotal"></mds-data-field>
       <mds-data-field *ngIf="store.dateOpened != null" title="Date Opened"
                       [dateValue]="store.dateOpened"></mds-data-field>
       <mds-data-field *ngIf="store.dateClosed != null" title="Date Closed"
                       [dateValue]="store.dateClosed"></mds-data-field>
     </mat-list>
+    <div *ngIf="store.storeVolumes != null && store.storeVolumes.length > 0">
+      <mds-data-field title="Volumes" [value]=""></mds-data-field>
+      <ul>
+        <li *ngFor="let volume of store.storeVolumes">
+          <strong>{{volume.volumeDate | date }}:</strong>&nbsp;
+          <span>{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}&nbsp;k</span>
+          <span *ngIf="store.currentStoreSurvey != null && store.currentStoreSurvey.areaSales != null">({{volume.volumeTotal/store.currentStoreSurvey.areaSales | currency}}&nbsp;psf)</span>
+        </li>
+      </ul>
+    </div>
   </div>
   <mat-toolbar color="primary" class="flex-space-between">
-    <button mat-raised-button color="accent">History</button>
-    <button mat-raised-button color="accent">Casing</button>
+    <button mat-icon-button [mat-menu-trigger-for]="storeCenterActionMenu">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <mat-menu #storeCenterActionMenu="matMenu" [overlapTrigger]="false">
+      <button mat-menu-item>
+        <i class="fas fa-copy"></i>&nbsp;Merge with another Store
+      </button>
+      <button mat-menu-item *ngIf="store.storeType != 'ACTIVE'">
+        <i class="fas fa-play"></i>&nbsp;Change to Active
+      </button>
+      <button mat-menu-item *ngIf="store.storeType != 'FUTURE'">
+        <i class="fas fa-forward"></i>&nbsp;Change to Future
+      </button>
+      <button mat-menu-item *ngIf="store.storeType != 'HISTORICAL'">
+        <i class="fas fa-backward"></i>&nbsp;Change to Historical
+      </button>
+      <button mat-menu-item>
+        <i class="fas fa-dollar-sign"></i>&nbsp;Add Volume
+      </button>
+      <button mat-menu-item>
+        <i class="fas fa-calendar-plus"></i>&nbsp;Update Status
+      </button>
+    </mat-menu>
+    <button mat-raised-button color="warn">Casings</button>
     <button mat-raised-button color="accent" [routerLink]="['/casing/store-detail/', store.id]">Edit</button>
   </mat-toolbar>
 </div>

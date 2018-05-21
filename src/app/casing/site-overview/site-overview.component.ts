@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SiteService } from '../../core/services/site.service';
 import { Site } from '../../models/site';
 import { SimplifiedShoppingCenterCasing } from '../../models/simplified-shopping-center-casing';
@@ -26,9 +26,11 @@ export class SiteOverviewComponent implements OnInit {
   warningHasMultipleFutureStores = false;
 
   constructor(private _location: Location,
+              private router: Router,
               private route: ActivatedRoute,
               private siteService: SiteService,
-              private shoppingCenterCasingService: ShoppingCenterCasingService) { }
+              private shoppingCenterCasingService: ShoppingCenterCasingService) {
+  }
 
   ngOnInit() {
     this.siteId = parseInt(this.route.snapshot.paramMap.get('siteId'), 10);
@@ -55,7 +57,7 @@ export class SiteOverviewComponent implements OnInit {
   }
 
   goBack() {
-    this._location.back();
+    this.router.navigate(['/casing']);
   }
 
   onShoppingCenterCasingOpened(casing: SimplifiedShoppingCenterCasing) {

@@ -35,6 +35,8 @@ export class Site extends AuditingEntity implements Mappable {
     }
     if (obj.stores != null) {
       this.stores = obj.stores.map(store => new Store(store));
+    } else {
+      this.stores = [];
     }
   }
 

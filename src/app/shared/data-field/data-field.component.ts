@@ -9,6 +9,8 @@ export class DataFieldComponent implements OnInit {
 
   @Input() title;
   @Input() value;
+  @Input() sqft;
+  @Input() currencyValue;
   @Input() dateValue;
 
   constructor() { }

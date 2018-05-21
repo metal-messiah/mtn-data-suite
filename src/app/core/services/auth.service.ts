@@ -83,10 +83,13 @@ export class AuthService {
 
   private setSession(authResult): void {
     // Set the time that the access token will expire at
-    const expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime());
+    const expirationTime = (authResult.expiresIn * 1000) + new Date().getTime();
+    const expirationDate = new Date();
+    expirationDate.setTime(expirationTime);
+    console.log(`Session expires at ${expirationDate}`);
     localStorage.setItem('access_token', authResult.accessToken);
     localStorage.setItem('id_token', authResult.idToken);
-    localStorage.setItem('expires_at', expiresAt);
+    localStorage.setItem('expires_at', JSON.stringify(expirationTime));
   }
 
   public logout(): void {
