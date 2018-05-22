@@ -79,7 +79,8 @@
                     [matMenuTriggerFor]="markerMoreMenu">
               <i class="fas fa-ellipsis-v"></i>&nbsp;More
             </button>
-            <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
+            <!-- TODO Enable Pinning-->
+            <button mat-button [disabled]="true || selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
                     (click)="pinLocation()">
               <i class="fas fa-thumbtack"></i>&nbsp;Pin
             </button>
@@ -90,90 +91,94 @@
           </mat-card-actions>
         </mat-card>
       </div>
-      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" class="row footer flex-space-between"
-                   color="primary">
-        <div></div>
-        <div>
-          <button mat-raised-button color="accent" (click)="deactivateFollowMe()">Stop Follow Me</button>
-        </div>
-        <div></div>
-      </mat-toolbar>
-      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
-                   class="row footer flex-space-between" color="primary">
-        <div>
-          <button mat-raised-button color="accent" (click)="cancelStoreMove()">Cancel</button>
-        </div>
-        <div>
-          Drag Marker
-        </div>
-        <div>
-          <button mat-raised-button color="accent" (click)="saveStoreMove()">Save</button>
-        </div>
-      </mat-toolbar>
-      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MULTI_SELECT"
-                   class="row footer flex-space-between" color="primary">
-        <div>
-          <button mat-raised-button color="warn" (click)="cancelMultiSelect()">Cancel</button>
-        </div>
-        <div>
-          <button mat-mini-fab [mat-menu-trigger-for]="multiSelectToolsMenu" color="primary">
-            <i *ngIf="selectedMultiSelectTool === multiSelectToolType.CLICK" class="far fa-hand-pointer"></i>
-            <i *ngIf="selectedMultiSelectTool === multiSelectToolType.CIRCLE" class="far fa-circle"></i>
-            <i *ngIf="selectedMultiSelectTool === multiSelectToolType.RECTANGLE" class="far fa-square"></i>
-            <i *ngIf="selectedMultiSelectTool === multiSelectToolType.POLYGON" class="far fa-star"></i>
-          </button>
-        </div>
-        <div>
-          <button mat-mini-fab [mat-menu-trigger-for]="multiSelectModeMenu" color="primary">
-            <i *ngIf="selectedMultiSelectMode === multiSelectMode.SELECT" class="fas fa-plus"></i>
-            <i *ngIf="selectedMultiSelectMode === multiSelectMode.DESELECT" class="fas fa-minus"></i>
-          </button>
-        </div>
-        <div>
-          <button mat-raised-button color="accent" [mat-menu-trigger-for]="multiSelectActionMenu">
-            <span *ngIf="mappableService.numSelected > 0">({{mappableService.numSelected}})</span>&nbsp;Actions
-          </button>
-          <mat-menu #multiSelectActionMenu="matMenu" [overlapTrigger]="false">
-            <button mat-menu-item>Pin</button>
-            <button mat-menu-item>Assign</button>
-          </mat-menu>
-        </div>
-      </mat-toolbar>
-      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.CREATING_NEW"
-                   class="row footer flex-space-between" color="primary">
-        <div>
-          <button mat-raised-button color="warn" (click)="cancelLocationCreation()">Cancel</button>
-        </div>
-        <div>
-          <span>Drag Pin</span>
-        </div>
-        <div>
-          <button mat-raised-button color="accent" (click)="editNewLocation()">Edit Details</button>
-        </div>
-      </mat-toolbar>
-      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" class="row footer flex-space-between"
-                   color="primary">
-        <div>
-          <button mat-mini-fab color="primary" (click)="sideNavIsOpen = !sideNavIsOpen">
-            <i class="fas fa-ellipsis-v"></i>
-          </button>
-        </div>
-        <div>
-          <button mat-mini-fab color="primary" [matMenuTriggerFor]="searchMenu">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
-        <div>
-          <button mat-mini-fab color="primary" disabled="true">
-            <i class="fas fa-filter"></i>
-          </button>
-        </div>
-        <div>
-          <button mat-mini-fab color="primary" routerLink="site-list">
-            <i class="fas fa-list"></i>
-          </button>
-        </div>
-      </mat-toolbar>
+      <div class="row footer">
+        <!--<div *ngIf="page != null">Showing {{page.numberOfElements}} of {{page.totalElements}}</div>-->
+        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING"
+                     class="flex-space-between"
+                     color="primary">
+          <div></div>
+          <div>
+            <button mat-raised-button color="accent" (click)="deactivateFollowMe()">Stop Follow Me</button>
+          </div>
+          <div></div>
+        </mat-toolbar>
+        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
+                     class="flex-space-between" color="primary">
+          <div>
+            <button mat-raised-button color="accent" (click)="cancelStoreMove()">Cancel</button>
+          </div>
+          <div>
+            Drag Marker
+          </div>
+          <div>
+            <button mat-raised-button color="accent" (click)="saveStoreMove()">Save</button>
+          </div>
+        </mat-toolbar>
+        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MULTI_SELECT"
+                     class="flex-space-between" color="primary">
+          <div>
+            <button mat-raised-button color="warn" (click)="cancelMultiSelect()">Cancel</button>
+          </div>
+          <div>
+            <button mat-mini-fab [mat-menu-trigger-for]="multiSelectToolsMenu" color="primary">
+              <i *ngIf="selectedMultiSelectTool === multiSelectToolType.CLICK" class="far fa-hand-pointer"></i>
+              <i *ngIf="selectedMultiSelectTool === multiSelectToolType.CIRCLE" class="far fa-circle"></i>
+              <i *ngIf="selectedMultiSelectTool === multiSelectToolType.RECTANGLE" class="far fa-square"></i>
+              <i *ngIf="selectedMultiSelectTool === multiSelectToolType.POLYGON" class="far fa-star"></i>
+            </button>
+          </div>
+          <div>
+            <button mat-mini-fab [mat-menu-trigger-for]="multiSelectModeMenu" color="primary">
+              <i *ngIf="selectedMultiSelectMode === multiSelectMode.SELECT" class="fas fa-plus"></i>
+              <i *ngIf="selectedMultiSelectMode === multiSelectMode.DESELECT" class="fas fa-minus"></i>
+            </button>
+          </div>
+          <div>
+            <button mat-raised-button color="accent" [mat-menu-trigger-for]="multiSelectActionMenu">
+              <span *ngIf="mappableService.numSelected > 0">({{mappableService.numSelected}})</span>&nbsp;Actions
+            </button>
+            <mat-menu #multiSelectActionMenu="matMenu" [overlapTrigger]="false">
+              <button mat-menu-item>Pin</button>
+              <button mat-menu-item>Assign</button>
+            </mat-menu>
+          </div>
+        </mat-toolbar>
+        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.CREATING_NEW"
+                     class="flex-space-between" color="primary">
+          <div>
+            <button mat-raised-button color="warn" (click)="cancelLocationCreation()">Cancel</button>
+          </div>
+          <div>
+            <span>Drag Pin</span>
+          </div>
+          <div>
+            <button mat-raised-button color="accent" (click)="editNewLocation()">Edit Details</button>
+          </div>
+        </mat-toolbar>
+        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" class="flex-space-between"
+                     color="primary">
+          <div>
+            <button mat-mini-fab color="primary" (click)="sideNavIsOpen = !sideNavIsOpen">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+          </div>
+          <div>
+            <button mat-mini-fab color="primary" [matMenuTriggerFor]="searchMenu">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+          <div>
+            <button mat-mini-fab color="primary" disabled="true">
+              <i class="fas fa-filter"></i>
+            </button>
+          </div>
+          <div>
+            <button mat-mini-fab color="primary" routerLink="site-list">
+              <i class="fas fa-list"></i>
+            </button>
+          </div>
+        </mat-toolbar>
+      </div>
     </form>
   </mat-sidenav-content>
 </mat-sidenav-container>
@@ -197,11 +202,14 @@
 </mat-menu>
 
 <mat-menu #markerMoreMenu="matMenu" [overlapTrigger]="false">
-  <div *ngIf="mappableService.getLatestSelection() != null" mat-menu-item>Store ID: #{{mappableService.getLatestSelection().id}}</div>
+  <div *ngIf="mappableService.getLatestSelection() != null" mat-menu-item>Store ID:
+    #{{mappableService.getLatestSelection().id}}
+  </div>
   <button mat-menu-item (click)="moveStore()"><i class="fas fa-arrows-alt"></i>&nbsp;Move</button>
   <button mat-menu-item disabled="true"><i class="far fa-clock"></i>&nbsp;History</button>
-  <button mat-menu-item disabled="true"><i class="fas fa-thumbtack"></i>&nbsp;Pin</button>
-  <button mat-menu-item disabled="true"><i class="fas fa-user"></i>&nbsp;Assign</button>
+  <button mat-menu-item (click)="flagAsDuplicate()" *ngIf="mappableService.getLatestSelection() != null && !mappableService.getLatestSelection().site.duplicate"><i class="fas fa-flag"></i>&nbsp;Flag as Duplicate</button>
+  <button mat-menu-item (click)="unflagAsDuplicate()" *ngIf="mappableService.getLatestSelection() != null && mappableService.getLatestSelection().site.duplicate"><i class="fas fa-flag"></i>&nbsp;Unflag as Duplicate</button>
+  <button mat-menu-item><i class="fas fa-user"></i>&nbsp;Assign to Analyst</button>
 </mat-menu>
 
 <mat-menu #multiSelectToolsMenu="matMenu" [overlapTrigger]="false">

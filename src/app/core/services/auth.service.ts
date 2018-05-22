@@ -13,6 +13,12 @@ import {MatDialog} from '@angular/material';
 @Injectable()
 export class AuthService {
 
+  sessionUser: UserProfile;
+  accessToken: string;
+  idToken: string;
+  tokenExpirationTime: number;
+  latestPath: string;
+
   auth0 = new auth0.WebAuth({
     clientID: environment.AUTH_CONFIG.clientID,
     domain: environment.AUTH_CONFIG.domain,
@@ -27,11 +33,31 @@ export class AuthService {
               private http: HttpClient,
               private rest: RestService,
               private dialog: MatDialog) {
+    const storedSessionUser = localStorage.getItem('session_user');
+    const storedAccessToken = localStorage.getItem('access_token');
+    const storedIdToken = localStorage.getItem('id_token');
+    const storedTokenExpirationTime = localStorage.getItem('expiration_time');
+    const storedLatestPath = localStorage.getItem('latest_path');
+    if (storedSessionUser != null) {
+      this.sessionUser = JSON.parse(storedSessionUser);
+    }
+    if (storedAccessToken != null) {
+      this.accessToken = storedAccessToken;
+    }
+    if (storedIdToken != null) {
+      this.idToken = storedIdToken;
+    }
+    if (storedTokenExpirationTime != null) {
+      this.tokenExpirationTime = JSON.parse(storedTokenExpirationTime);
+    }
+    if (storedLatestPath != null) {
+      this.latestPath = storedLatestPath;
+    }
   }
 
   public signIn(): void {
     localStorage.clear();
-    localStorage.setItem('loggingInFrom', this.location.path());
+    localStorage.setItem('latest_path', this.location.path());
     this.auth0.authorize();
   }
 
@@ -42,9 +68,9 @@ export class AuthService {
         this.setSession(authResult);
         this.getUserProfile().subscribe(
           userProfile => {
-            localStorage.setItem('user_profile', JSON.stringify(userProfile));
-            const redirectTo = localStorage.getItem('loggingInFrom');
-            this.router.navigate([redirectTo]);
+            this.sessionUser = userProfile;
+            localStorage.setItem('session_user', JSON.stringify(userProfile));
+            this.router.navigate([localStorage.getItem('latest_path')]);
           },
           error => this.onError(error)
         );
@@ -89,7 +115,7 @@ export class AuthService {
     console.log(`Session expires at ${expirationDate}`);
     localStorage.setItem('access_token', authResult.accessToken);
     localStorage.setItem('id_token', authResult.idToken);
-    localStorage.setItem('expires_at', JSON.stringify(expirationTime));
+    localStorage.setItem('expiration_time', JSON.stringify(expirationTime));
   }
 
   public logout(): void {
@@ -102,7 +128,7 @@ export class AuthService {
   public isAuthenticated(): boolean {
     // Check whether the current time is past the
     // access token's expiry time
-    const expiresAt = JSON.parse(localStorage.getItem('expires_at'));
+    const expiresAt = JSON.parse(localStorage.getItem('expiration_time'));
     return new Date().getTime() < expiresAt;
   }
 

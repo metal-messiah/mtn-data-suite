@@ -1,5 +1,5 @@
-import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { Component, NgZone, OnInit } from '@angular/core';
+import { MatDialog, MatSnackBar, MatSnackBarConfig, MatSnackBarVerticalPosition } from '@angular/material';
 import { debounceTime } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -27,6 +27,9 @@ import { StoreService } from '../../core/services/store.service';
 import { Store } from '../../models/store';
 import { MappableService } from '../../shared/mappable.service';
 import { DatabaseSearchComponent } from '../database-search/database-search.component';
+import { AuthService } from '../../core/services/auth.service';
+import { ErrorService } from '../../core/services/error.service';
+import { Pageable } from '../../models/pageable';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -67,6 +70,7 @@ export class CasingDashboardComponent implements OnInit {
   // Flags
   showingBoundaries = false;
   sideNavIsOpen = false;
+  saving = false;
 
   // Modes
   selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
@@ -84,6 +88,8 @@ export class CasingDashboardComponent implements OnInit {
 
   googleSearchSubscription: Subscription;
 
+  page: Pageable<any>;
+
   constructor(public mapService: MapService,
               public geocoderService: GeocoderService,
               public casingDashboardService: CasingDashboardService,
@@ -97,7 +103,9 @@ export class CasingDashboardComponent implements OnInit {
               private labelService: LabelService,
               private iconService: IconService,
               private navigatorService: NavigatorService,
-              private dialog: MatDialog) {
+              private dialog: MatDialog,
+              private authService: AuthService,
+              private errorService: ErrorService) {
   }
 
   ngOnInit() {
@@ -106,16 +114,33 @@ export class CasingDashboardComponent implements OnInit {
         return this.storeIsMoving(store);
       },
       getMappableIcon: (store: Store) => {
-        let fillColor = Color.RED;
+        let fillColor = Color.BLUE;
+        if (store.site.assignee != null) {
+          if (this.authService.sessionUser.id === store.site.assignee.id) {
+            fillColor = Color.GREEN;
+          } else {
+            fillColor = Color.RED;
+          }
+        }
+
         if (this.storeIsMoving(store)) {
           fillColor = Color.PURPLE;
         } else if (this.mappableService.mappableIsSelected(store)) {
-          fillColor = Color.BLUE;
+          fillColor = Color.BLUE_DARK;
+          if (store.site.assignee != null) {
+            if (this.authService.sessionUser.id === store.site.assignee.id) {
+              fillColor = Color.GREEN_DARK;
+            } else {
+              fillColor = Color.RED_DARK;
+            }
+          }
         }
 
         let shape: MarkerShape | google.maps.SymbolPath = MarkerShape.FILLED;
         if (this.selectedMarkerType === MarkerType.LABEL) {
           shape = google.maps.SymbolPath.CIRCLE;
+        } else if (store.site.duplicate) {
+          shape = MarkerShape.FLAGGED;
         }
 
         return this.iconService.getIcon(fillColor, Color.WHITE, shape);
@@ -181,15 +206,21 @@ export class CasingDashboardComponent implements OnInit {
 
   getActiveStores(bounds): void {
     console.log('Getting Stores');
-    this.storeService.getStoresOfTypeInBounds(bounds).subscribe(
-      page => {
-        this.mappableService.setMappables(page.content);
-        this.defaultPointLayer.clearMarkers();
-        this.defaultPointLayer.createMarkersFromMappables(this.mappableService.mappables);
-        this.mapService.addPointLayer(this.defaultPointLayer);
-        // TODO Show snackbar notfication of number of mappables pulled, filtered, etc.
-      }
-    );
+    this.storeService.getStoresOfTypeInBounds(bounds).subscribe(page => {
+      this.page = page;
+      this.mappableService.setMappables(page.content);
+      this.defaultPointLayer.clearMarkers();
+      this.defaultPointLayer.createMarkersFromMappables(this.mappableService.mappables);
+      this.mapService.addPointLayer(this.defaultPointLayer);
+      this.ngZone.run(() => {
+        this.openSnackBar(`Showing ${page.numberOfElements} items of ${page.totalElements}`, null, 1000);
+      });
+    }, err => {
+      this.ngZone.run(() => {
+        this.errorService.handleServerError(`Failed to retrieve stores!`, err,
+          () => this.router.navigate(['/']));
+      });
+    });
   }
 
   toggleSelectedProjectBoundaries(show: boolean): void {
@@ -517,4 +548,55 @@ export class CasingDashboardComponent implements OnInit {
       }
     });
   }
+
+  unflagAsDuplicate() {
+    const latestSelected: Store = this.mappableService.latestSelected as Store;
+    // Get full site
+    this.siteService.getOneById(latestSelected.site.id).subscribe(site => {
+      site.duplicate = false;
+      this.saving = true;
+      this.siteService.update(site).subscribe(s => {
+        latestSelected.site = s;
+        this.defaultPointLayer.refreshOptionsForMappable(latestSelected);
+        this.openSnackBar(`Successfully unflagged`, null, 1500);
+      }, err => {
+        console.log(err);
+        site.duplicate = !site.duplicate;
+        this.openSnackBar(err.error.message, 'Acknowledge', null);
+      }, () => this.saving = false);
+    }, err => {
+      // TODO Cannot find site
+    });
+  }
+
+  flagAsDuplicate() {
+    const latestSelected: Store = this.mappableService.latestSelected as Store;
+    // Get full site
+    this.siteService.getOneById(latestSelected.site.id).subscribe(site => {
+      site.duplicate = true;
+      this.saving = true;
+      this.siteService.update(site).subscribe(s => {
+        latestSelected.site = s;
+        this.defaultPointLayer.refreshOptionsForMappable(latestSelected);
+        this.openSnackBar(`Successfully flagged`, null, 1500);
+      }, err => {
+        console.log(err);
+        site.duplicate = !site.duplicate;
+        this.openSnackBar(err.error.message, 'Acknowledge', null);
+      }, () => this.saving = false);
+    }, err => {
+      // TODO Cannot find site
+    });
+  }
+
+  openSnackBar(message: string, action: string, duration: number) {
+    const config: MatSnackBarConfig = {
+      verticalPosition: 'bottom'
+    };
+    if (duration != null) {
+      config['duration'] = duration;
+    }
+    return this.snackBar.open(message, action, config);
+  }
+
 }
