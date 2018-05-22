@@ -67,29 +67,33 @@ export class SiteOverviewComponent implements OnInit {
     this.router.navigate(['/casing']);
   }
 
-  assignToAnalyst(): void {
+  openAssignmentDialog(): void {
     const selectAssigneeDialog = this.dialog.open(UserProfileSelectComponent);
-    const previousAssignee = this.site.assignee;
     selectAssigneeDialog.afterClosed().subscribe(result => {
       if (result == null) {
         console.log('Select User Dialog Closed');
       } else {
-        this.saving = true;
-        this.site.assignee = (result === 'unassign' ? null : result);
-        this.siteService.update(this.site).subscribe(site => {
-          this.initSite(site);
-          if (site.assignee != null) {
-            this.openSnackBar(`Successfully Assigned to ${site.assignee.email}`, null, 3000);
-          } else {
-            this.openSnackBar('Successfully unassigned', null, 3000);
-          }
-        }, err => {
-          console.log(err);
-          this.site.assignee = previousAssignee;
-          this.openSnackBar(err.error.message, 'Acknowledge', null);
-        }, () => this.saving = false );
+        this.assign(result);
       }
     });
+  }
+
+  assign(analyst: SimplifiedUserProfile) {
+    this.saving = true;
+    const previousAssignee = this.site.assignee;
+    this.site.assignee = analyst;
+    this.siteService.update(this.site).subscribe(site => {
+      this.initSite(site);
+      if (site.assignee != null) {
+        this.openSnackBar(`Successfully Assigned to ${site.assignee.email}`, null, 3000);
+      } else {
+        this.openSnackBar('Successfully unassigned', null, 3000);
+      }
+    }, err => {
+      console.log(err);
+      this.site.assignee = previousAssignee;
+      this.openSnackBar(err.error.message, 'Acknowledge', null);
+    }, () => this.saving = false );
   }
 
   openSnackBar(message: string, action: string, duration: number) {
@@ -98,6 +102,30 @@ export class SiteOverviewComponent implements OnInit {
       config['duration'] = duration;
     }
     this.snackBar.open(message, action, config);
+  }
+
+  unflagAsDuplicate() {
+    this.site.duplicate = false;
+    this.siteService.update(this.site).subscribe(site => {
+      this.initSite(site);
+      this.openSnackBar(`Successfully unflagged`, null, 3000);
+    }, err => {
+      console.log(err);
+      this.site.duplicate = !this.site.duplicate;
+      this.openSnackBar(err.error.message, 'Acknowledge', null);
+    }, () => this.saving = false );
+  }
+
+  flagAsDuplicate() {
+    this.site.duplicate = true;
+    this.siteService.update(this.site).subscribe(site => {
+      this.initSite(site);
+      this.openSnackBar(`Successfully flagged`, null, 3000);
+    }, err => {
+      console.log(err);
+      this.site.duplicate = !this.site.duplicate;
+      this.openSnackBar(err.error.message, 'Acknowledge', null);
+    }, () => this.saving = false );
   }
 
 }

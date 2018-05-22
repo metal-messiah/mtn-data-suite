@@ -94,3 +94,7 @@ fieldset {
 .mds-card .content {
   padding: 8px;
 }
+
+.flex-align-center {
+  align-items: center;
+}

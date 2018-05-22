@@ -35,7 +35,20 @@
   margin: 0 -24px;
 }
 
-#assignment-card {
+.simple-card {
   margin: 4px;
   padding: 12px;
+}
+
+.error {
+  background: rgba(255, 199, 206, 0.82);
+}
+
+.notice {
+  background: lightskyblue;
+}
+
+.warning {
+  background: yellow;
+  font-weight: bold;
 }
