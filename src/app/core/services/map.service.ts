@@ -5,6 +5,7 @@ import { MapPointLayer } from '../../models/map-point-layer';
 import { Observable } from 'rxjs/Observable';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
+import { Mappable } from '../../interfaces/mappable';
 
 /*
   The MapService should
@@ -143,7 +144,7 @@ export class MapService {
     this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
   }
 
-  addPointLayer(pointLayer: MapPointLayer) {
+  addPointLayer(pointLayer: MapPointLayer<Mappable>) {
     pointLayer.addToMap(this.map);
   }
 

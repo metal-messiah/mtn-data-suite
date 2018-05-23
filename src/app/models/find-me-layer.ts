@@ -3,7 +3,7 @@ import { Coordinates } from './coordinates';
 import { Mappable } from '../interfaces/mappable';
 import { Color } from '../core/functionalEnums/Color';
 
-export class FindMeLayer extends MapPointLayer {
+export class FindMeLayer extends MapPointLayer<Mappable> {
 
   locationMarker: google.maps.Marker;
 

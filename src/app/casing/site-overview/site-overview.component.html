@@ -15,7 +15,7 @@
         <button mat-menu-item (click)="openAssignmentDialog()">
           <i class="fas fa-user"></i>&nbsp;Assign to Analyst
         </button>
-        <button mat-menu-item (click)="flagAsDuplicate()" *ngIf="site != null && !site.duplicate">
+        <button mat-menu-item (click)="setDuplicateFlag(true)" *ngIf="site != null && !site.duplicate">
           <i class="fas fa-flag"></i>&nbsp;Flag as Duplicate
         </button>
       </mat-menu>
@@ -31,13 +31,13 @@
         <mat-card *ngIf="this.site.assignee != null && !saving" class="simple-card notice">
           <div class="flex flex-space-between flex-align-center">
             <span>Assigned to <strong>{{this.site.assignee.email}}</strong></span>
-            <button mat-raised-button color="accent" (click)="assign(null)">Unassign</button>
+            <button mat-raised-button color="accent" (click)="assignToUser(null)">Unassign</button>
           </div>
         </mat-card>
         <mat-card *ngIf="this.site.duplicate && !saving" class="simple-card warning">
           <div class="flex flex-space-between flex-align-center">
            <span><i class="fas fa-flag"></i>&nbsp;Flagged As Duplicate</span>
-            <button mat-raised-button color="warn" (click)="unflagAsDuplicate()">Unflag</button>
+            <button mat-raised-button color="warn" (click)="setDuplicateFlag(false)">Unflag</button>
           </div>
         </mat-card>
         <mat-accordion>

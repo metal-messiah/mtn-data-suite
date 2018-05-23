@@ -2,50 +2,75 @@ import { Injectable } from '@angular/core';
 import { Mappable } from '../interfaces/mappable';
 
 @Injectable()
-export class MappableService {
+export class MappableService<T extends Mappable> {
 
-  mappables: Mappable[];
-  latestSelected: Mappable;
+  private mappables: T[];
+  private latestSelected: T;
+  private selectedMappables: T[];
   private selectedMappableIds: Set<(string|number)>;
-  numSelected = 0;
 
   constructor() {
     this.mappables = [];
     this.selectedMappableIds = new Set();
+    this.selectedMappables = [];
   }
 
-  setMappables(mappables: Mappable[]) {
+  setMappables(mappables: T[]) {
     this.mappables = mappables;
   }
 
   deselectAll() {
     this.selectedMappableIds = new Set();
+    this.selectedMappables = [];
   }
 
-  selectMappable(mappable: Mappable): void {
+  selectMappable(mappable: T): void {
     this.latestSelected = mappable;
-    this.selectedMappableIds.add(mappable.id);
-    this.numSelected = this.selectedMappableIds.size;
+    if (!this.selectedMappableIds.has(mappable.id)) {
+      this.selectedMappableIds.add(mappable.id);
+      this.selectedMappables.push(mappable);
+    }
   }
 
-  selectMappables(mappables: Mappable[]): void {
+  selectMappables(mappables: T[]): void {
     mappables.forEach(mappable => this.selectMappable(mappable));
   }
 
-  deselectMappable(mappable: Mappable): void {
-    this.selectedMappableIds.delete(mappable.id);
-    this.numSelected = this.selectedMappableIds.size;
+  deselectMappable(mappable: T): void {
+    if (this.selectedMappableIds.has(mappable.id)) {
+      this.selectedMappableIds.delete(mappable.id);
+      const index = this.selectedMappables.findIndex((item, i, array) => {
+        return item.id === mappable.id;
+      });
+      this.selectedMappables.splice(index, 1);
+    }
   }
 
-  deselectMappables(mappables: Mappable[]): void {
+  deselectMappables(mappables: T[]): void {
     mappables.forEach(mappable => this.deselectMappable(mappable));
   }
 
-  mappableIsSelected(mappable: Mappable): boolean {
+  mappableIsSelected(mappable: T): boolean {
     return this.selectedMappableIds.has(mappable.id);
   }
 
-  getLatestSelection(): Mappable {
+  getLatestSelection(): T {
     return this.latestSelected;
+  }
+
+  getSelectedIds(): number[] {
+    return Array.from(this.selectedMappableIds);
+  }
+
+  getSelectedMappables(): T[] {
+    return this.selectedMappables;
+  }
+
+  getNumSelected(): number {
+    return this.selectedMappableIds.size;
+  }
+
+  getMappables(): T[] {
+    return this.mappables;
   }
 }

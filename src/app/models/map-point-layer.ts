@@ -9,23 +9,23 @@ import { Subject } from 'rxjs/Subject';
   - Emits marker click events
   - Can be added to and removed from map
  */
-export class MapPointLayer {
+export class MapPointLayer<T extends Mappable> {
 
   layerOptions: MapPointLayerOptions;
   markers: google.maps.Marker[];
 
-  markerClick$ = new Subject<Mappable>();
+  markerClick$ = new Subject<T>();
 
   constructor(layerOptions: MapPointLayerOptions) {
     this.layerOptions = layerOptions;
     this.markers = [];
   }
 
-  createMarkersFromMappables(mappables: Mappable[]) {
+  createMarkersFromMappables(mappables: T[]) {
     mappables.forEach(mappable => this.createMarkerFromMappable(mappable));
   }
 
-  createMarkerFromMappable(mappable: Mappable) {
+  createMarkerFromMappable(mappable: T) {
     const marker = new google.maps.Marker({
       position: mappable.getCoordinates()
     });
@@ -36,16 +36,16 @@ export class MapPointLayer {
     this.setMarkerOptions(marker);
   }
 
-  refreshOptionsForMappable(mappable: Mappable): void {
+  refreshOptionsForMappable(mappable: T): void {
     const marker = this.getMarkerForMappable(mappable);
     this.setMarkerOptions(marker);
   }
 
-  refreshOptionsForMappables(mappables: Mappable[]): void {
+  refreshOptionsForMappables(mappables: T[]): void {
     mappables.forEach(mappable => this.refreshOptionsForMappable(mappable));
   }
 
-  getMarkerForMappable(mappable: Mappable) {
+  getMarkerForMappable(mappable: T) {
     return this.markers.find(marker => marker.get('mappable').id === mappable.id);
   }
 
@@ -75,15 +75,15 @@ export class MapPointLayer {
     this.markers = [];
   }
 
-  getCoordinatesOfMappableMarker(mappable: Mappable): google.maps.LatLngLiteral {
+  getCoordinatesOfMappableMarker(mappable: T): google.maps.LatLngLiteral {
     const marker = this.markers.find(m => {
       return m.get('mappable').id === mappable.id;
     });
     return marker.getPosition().toJSON();
   }
 
-  getMappablesInShape(shape): Mappable[] {
-    const mappablesInShape: Mappable[] = [];
+  getMappablesInShape(shape): T[] {
+    const mappablesInShape: T[] = [];
     if (shape.type === google.maps.drawing.OverlayType.CIRCLE) {
       this.markers.forEach(marker => {
         const cir: google.maps.Circle = shape.overlay;
@@ -110,7 +110,7 @@ export class MapPointLayer {
     return mappablesInShape;
   }
 
-  resetPositionOfMappable(site: Mappable) {
+  resetPositionOfMappable(site: T) {
     const marker = this.getMarkerForMappable(site);
     marker.setPosition(site.getCoordinates());
   }

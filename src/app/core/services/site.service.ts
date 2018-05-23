@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { RestService } from './rest.service';
 import { CrudService } from '../../interfaces/crud-service';
@@ -16,6 +16,18 @@ export class SiteService extends CrudService<Site> {
 
   protected createEntityFromObj(entityObj): Site {
     return new Site(entityObj);
+  }
+
+  assignToUser(siteIds: number[], userId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/assign-to-user';
+    let params = new HttpParams();
+    if (userId != null) {
+      params = params.set('user-id', String(userId));
+    }
+    return this.http.post<Site[]>(url, siteIds, {headers: this.rest.getHeaders(), params: params})
+      .map(sites => {
+        return sites.map(site => this.createEntityFromObj(site));
+      });
   }
 
 }

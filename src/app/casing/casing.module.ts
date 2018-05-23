@@ -22,6 +22,7 @@ import { ShoppingCenterSurveyFormComponent } from './shopping-center-survey-form
 import { StoreOverviewComponent } from './store-overview/store-overview.component';
 import { StoreCasingEntityFormComponent } from './store-casing-entity-form/store-casing-entity-form.component';
 import { StoreSummaryCardComponent } from './store-summary-card/store-summary-card.component';
+import { StoreInfoCardComponent } from './store-info-card/store-info-card.component';
 
 @NgModule({
   imports: [
@@ -48,7 +49,8 @@ import { StoreSummaryCardComponent } from './store-summary-card/store-summary-ca
     ShoppingCenterSurveyFormComponent,
     StoreOverviewComponent,
     StoreCasingEntityFormComponent,
-    StoreSummaryCardComponent
+    StoreSummaryCardComponent,
+    StoreInfoCardComponent
   ],
   entryComponents: [
     LatLngSearchComponent,

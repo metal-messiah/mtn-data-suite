@@ -9,6 +9,7 @@ import { Store } from '../../models/store';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
 import { SimplifiedUserProfile } from '../../models/simplified-user-profile';
+import { ErrorService } from '../../core/services/error.service';
 
 @Component({
   selector: 'mds-site-overview',
@@ -32,7 +33,8 @@ export class SiteOverviewComponent implements OnInit {
               private route: ActivatedRoute,
               private dialog: MatDialog,
               private snackBar: MatSnackBar,
-              private siteService: SiteService) {
+              private siteService: SiteService,
+              private errorService: ErrorService) {
   }
 
   ngOnInit() {
@@ -69,31 +71,27 @@ export class SiteOverviewComponent implements OnInit {
 
   openAssignmentDialog(): void {
     const selectAssigneeDialog = this.dialog.open(UserProfileSelectComponent);
-    selectAssigneeDialog.afterClosed().subscribe(result => {
-      if (result == null) {
-        console.log('Select User Dialog Closed');
-      } else {
-        this.assign(result);
+    selectAssigneeDialog.afterClosed().subscribe((user: SimplifiedUserProfile) => {
+      if (user != null) {
+        this.assignToUser(user);
       }
     });
   }
 
-  assign(analyst: SimplifiedUserProfile) {
+  assignToUser(user: SimplifiedUserProfile) {
     this.saving = true;
     const previousAssignee = this.site.assignee;
-    this.site.assignee = analyst;
+    this.site.assignee = user;
     this.siteService.update(this.site).subscribe(site => {
       this.initSite(site);
-      if (site.assignee != null) {
-        this.openSnackBar(`Successfully Assigned to ${site.assignee.email}`, null, 3000);
-      } else {
-        this.openSnackBar('Successfully unassigned', null, 3000);
-      }
+      this.openSnackBar(`Successfully updated assignment`, null, 3000);
     }, err => {
-      console.log(err);
       this.site.assignee = previousAssignee;
-      this.openSnackBar(err.error.message, 'Acknowledge', null);
-    }, () => this.saving = false );
+      this.errorService.handleServerError('Failed to update assignment', err,
+        () => {
+        },
+        () => this.assignToUser(user));
+    }, () => this.saving = false);
   }
 
   openSnackBar(message: string, action: string, duration: number) {
@@ -104,28 +102,17 @@ export class SiteOverviewComponent implements OnInit {
     this.snackBar.open(message, action, config);
   }
 
-  unflagAsDuplicate() {
-    this.site.duplicate = false;
+  setDuplicateFlag(isDuplicate: boolean) {
+    this.site.duplicate = isDuplicate;
     this.siteService.update(this.site).subscribe(site => {
       this.initSite(site);
-      this.openSnackBar(`Successfully unflagged`, null, 3000);
+      this.openSnackBar(`Successfully updated site`, null, 2000);
     }, err => {
-      console.log(err);
       this.site.duplicate = !this.site.duplicate;
-      this.openSnackBar(err.error.message, 'Acknowledge', null);
-    }, () => this.saving = false );
-  }
-
-  flagAsDuplicate() {
-    this.site.duplicate = true;
-    this.siteService.update(this.site).subscribe(site => {
-      this.initSite(site);
-      this.openSnackBar(`Successfully flagged`, null, 3000);
-    }, err => {
-      console.log(err);
-      this.site.duplicate = !this.site.duplicate;
-      this.openSnackBar(err.error.message, 'Acknowledge', null);
-    }, () => this.saving = false );
+      this.errorService.handleServerError('Failed to update site', err,
+        () => {},
+        () => this.setDuplicateFlag(isDuplicate));
+    }, () => this.saving = false);
   }
 
 }

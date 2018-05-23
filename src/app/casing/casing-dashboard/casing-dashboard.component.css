@@ -10,9 +10,7 @@ mat-card {
   pointer-events: all;
 }
 
-.infoCard {
-  display: flex;
-  justify-content: center;
+mds-store-info-card {
   width: 100%;
   position: absolute;
   bottom: 60px;
@@ -20,35 +18,9 @@ mat-card {
 }
 
 @media (min-width: 600px) {
-  .infoCard {
+  mds-store-info-card {
     bottom: 70px;
   }
-}
-
-#storeInfoCard .mat-card {
-  padding: 10px;
-  width: 70%;
-  max-width: 360px;
-}
-
-#storeInfoCard .mat-card-actions {
-  padding-top: 5px;
-  display: flex;
-  justify-content: space-around;
-}
-
-#storeInfoCard .mat-card-subtitle {
-  margin-bottom: 0px;
-}
-
-#storeInfoCard .mat-card-content {
-  margin-bottom: 0px;
-  padding: 0 8px;
-  font-size: small;
-}
-
-#storeInfoCard .mat-card > .mat-card-actions:last-child {
-  margin-bottom: -8px;
 }
 
 #casing-dash-container {

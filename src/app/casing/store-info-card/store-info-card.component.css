@@ -1,0 +1,35 @@
+.infoCard {
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+mat-card {
+  pointer-events: all;
+}
+
+.mat-card {
+  padding: 10px;
+  width: 70%;
+  max-width: 360px;
+}
+
+.mat-card-actions {
+  padding-top: 5px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.mat-card-subtitle {
+  margin-bottom: 0px;
+}
+
+.mat-card-content {
+  margin-bottom: 0px;
+  padding: 0 8px;
+  font-size: small;
+}
+
+.mat-card > .mat-card-actions:last-child {
+  margin-bottom: -8px;
+}

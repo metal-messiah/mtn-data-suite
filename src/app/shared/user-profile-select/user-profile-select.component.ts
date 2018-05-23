@@ -25,7 +25,6 @@ export class UserProfileSelectComponent implements OnInit {
   ngOnInit() {
     this.loading = true;
     this.userProfileService.getAllUserProfiles().subscribe((page: Pageable<UserProfile>) => {
-      console.log(page);
       this.latestPage = page;
       this.userProfiles = page.content;
     }, error => {
@@ -43,14 +42,9 @@ export class UserProfileSelectComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  unassign(): void {
-    this.dialogRef.close('unassign');
-  }
-
   loadMore(): void {
     this.loading = true;
     this.userProfileService.getAllUserProfiles(this.latestPage.number + 1).subscribe((page: Pageable<UserProfile>) => {
-      console.log(page);
       this.latestPage = page;
       this.userProfiles = this.userProfiles.concat(page.content);
     }, error => {
