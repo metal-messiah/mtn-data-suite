@@ -94,7 +94,9 @@
           <div class="content" id="tab-content">
             <mat-tab-group>
               <mat-tab label="Active">
-                <mds-store-summary-card *ngIf="activeStore != null" [store]="activeStore"></mds-store-summary-card>
+                <mds-store-summary-card *ngIf="activeStore != null"
+                                        [store]="activeStore"
+                                        (onStoreUpdated)="initSite(site.id)"></mds-store-summary-card>
                 <div class="mds-card" *ngIf="activeStore == null">
                   <div class="header">
                     <div class="title">No Active Store</div>
@@ -106,7 +108,9 @@
               </mat-tab>
 
               <mat-tab label="Future">
-                <mds-store-summary-card *ngIf="futureStore != null" [store]="futureStore"></mds-store-summary-card>
+                <mds-store-summary-card *ngIf="futureStore != null"
+                                        [store]="futureStore"
+                                        (onStoreUpdated)="initSite(site.id)"></mds-store-summary-card>
                 <div class="mds-card" *ngIf="futureStore == null">
                   <div class="header">
                     <div class="title">No Future Store</div>
@@ -119,7 +123,8 @@
 
               <mat-tab label="Historical">
                 <mds-store-summary-card *ngFor="let store of historicalStores"
-                                        [store]="store"></mds-store-summary-card>
+                                        [store]="store"
+                                        (onStoreUpdated)="initSite(site.id)"></mds-store-summary-card>
                 <div class="mds-card" *ngIf="historicalStores == null || historicalStores.length < 1">
                   <div class="header">
                     <div class="title">No Historical Stores</div>

@@ -41,13 +41,13 @@
   <button mat-menu-item disabled>
     <i class="fas fa-copy"></i>&nbsp;&nbsp;Merge with another Store
   </button>
-  <button mat-menu-item *ngIf="store.storeType != 'ACTIVE'">
+  <button mat-menu-item *ngIf="store.storeType != 'ACTIVE'" (click)="updateStoreType('ACTIVE')">
     <i class="fas fa-play"></i>&nbsp;&nbsp;Change to Active
   </button>
-  <button mat-menu-item *ngIf="store.storeType != 'FUTURE'">
+  <button mat-menu-item *ngIf="store.storeType != 'FUTURE'" (click)="updateStoreType('FUTURE')">
     <i class="fas fa-forward"></i>&nbsp;&nbsp;Change to Future
   </button>
-  <button mat-menu-item *ngIf="store.storeType != 'HISTORICAL'">
+  <button mat-menu-item *ngIf="store.storeType != 'HISTORICAL'" (click)="updateStoreType('HISTORICAL')">
     <i class="fas fa-backward"></i>&nbsp;&nbsp;Change to Historical
   </button>
   <button mat-menu-item>

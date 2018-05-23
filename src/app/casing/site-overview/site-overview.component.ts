@@ -18,7 +18,6 @@ import { ErrorService } from '../../core/services/error.service';
 })
 export class SiteOverviewComponent implements OnInit {
 
-  siteId: number;
   site: Site;
   selectedSCCasing: ShoppingCenterCasing;
   activeStore: Store;
@@ -38,17 +37,27 @@ export class SiteOverviewComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.siteId = parseInt(this.route.snapshot.paramMap.get('siteId'), 10);
-    this.siteService.getOneById(this.siteId).subscribe(site => {
-      this.initSite(site);
-    });
+    const siteId = parseInt(this.route.snapshot.paramMap.get('siteId'), 10);
+    this.initSite(siteId);
   }
 
-  private initSite(site: Site) {
-    this.site = site;
-    console.log(site);
+  initSite(siteId: number) {
+    if (siteId != null) {
+      console.log('getting site');
+      this.siteService.getOneById(siteId).subscribe(site => {
+        this.site = site;
+        this.setStores(this.site.stores);
+      });
+    } else {
+      this.site = new Site({});
+    }
+  }
+
+  private setStores(stores: Store[]) {
     this.historicalStores = [];
-    this.site.stores.forEach(store => {
+    this.activeStore = null;
+    this.futureStore = null;
+    stores.forEach(store => {
       if (store.storeType === 'ACTIVE') {
         if (this.activeStore != null) {
           this.warningHasMultipleActiveStores = true;
@@ -83,7 +92,8 @@ export class SiteOverviewComponent implements OnInit {
     const previousAssignee = this.site.assignee;
     this.site.assignee = user;
     this.siteService.update(this.site).subscribe(site => {
-      this.initSite(site);
+      this.site = site;
+      this.setStores(this.site.stores);
       this.openSnackBar(`Successfully updated assignment`, null, 3000);
     }, err => {
       this.site.assignee = previousAssignee;
@@ -105,7 +115,8 @@ export class SiteOverviewComponent implements OnInit {
   setDuplicateFlag(isDuplicate: boolean) {
     this.site.duplicate = isDuplicate;
     this.siteService.update(this.site).subscribe(site => {
-      this.initSite(site);
+      this.site = site;
+      this.setStores(this.site.stores);
       this.openSnackBar(`Successfully updated site`, null, 2000);
     }, err => {
       this.site.duplicate = !this.site.duplicate;
