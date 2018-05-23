@@ -8,17 +8,6 @@
       <button mat-icon-button [mat-menu-trigger-for]="siteActionMenu">
         <i class="fas fa-ellipsis-v"></i>
       </button>
-      <mat-menu #siteActionMenu="matMenu" [overlapTrigger]="false">
-        <button mat-menu-item disabled="true">
-          <i class="fas fa-thumbtack"></i>&nbsp;Pin to Device
-        </button>
-        <button mat-menu-item (click)="openAssignmentDialog()">
-          <i class="fas fa-user"></i>&nbsp;Assign to Analyst
-        </button>
-        <button mat-menu-item (click)="setDuplicateFlag(true)" *ngIf="site != null && !site.duplicate">
-          <i class="fas fa-flag"></i>&nbsp;Flag as Duplicate
-        </button>
-      </mat-menu>
     </div>
   </mat-toolbar>
   <mat-divider></mat-divider>
@@ -36,133 +25,138 @@
         </mat-card>
         <mat-card *ngIf="this.site.duplicate && !saving" class="simple-card warning">
           <div class="flex flex-space-between flex-align-center">
-           <span><i class="fas fa-flag"></i>&nbsp;Flagged As Duplicate</span>
+            <span><i class="fas fa-flag"></i>&nbsp;Flagged As Duplicate</span>
             <button mat-raised-button color="warn" (click)="setDuplicateFlag(false)">Unflag</button>
           </div>
         </mat-card>
-        <mat-accordion>
+        <div class="mds-card">
+          <div class="header">
+            <span class="title">Site</span>
+          </div>
+          <div class="content">
+            <mds-data-field title="Address" [value]="site.address1"></mds-data-field>
+            <mds-data-field title="City" [value]="site.city"></mds-data-field>
+            <mds-data-field title="County" [value]="site.county"></mds-data-field>
+            <mds-data-field title="Postal Code" [value]="site.postalCode"></mds-data-field>
+            <mds-data-field title="Intersection Type" [value]="site.intersectionType"></mds-data-field>
+            <mds-data-field title="Quad" [value]="site.quad"></mds-data-field>
+            <mds-data-field title="1&deg; Intersection St." [value]="site.intersectionStreetPrimary"></mds-data-field>
+            <mds-data-field title="2&deg; Intersection St." [value]="site.intersectionStreetSecondary"></mds-data-field>
+            <mds-data-field title="Position in Center" [value]="site.positionInCenter"></mds-data-field>
+          </div>
+          <mat-toolbar color="primary" class="flex-space-between">
+            <span></span>
+            <button mat-raised-button color="accent" [routerLink]="['/casing/site-detail', site.id]">
+              Edit
+            </button>
+          </mat-toolbar>
+        </div>
 
-          <!-- Site Details -->
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title><h3>Site</h3></mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="mds-card">
-              <div class="content">
-              <mds-data-field title="Address" [value]="site.address1"></mds-data-field>
-              <mds-data-field title="City" [value]="site.city"></mds-data-field>
-              <mds-data-field title="County" [value]="site.county"></mds-data-field>
-              <mds-data-field title="Postal Code" [value]="site.postalCode"></mds-data-field>
-              <mds-data-field title="Intersection Type" [value]="site.intersectionType"></mds-data-field>
-              <mds-data-field title="Quad" [value]="site.quad"></mds-data-field>
-              <mds-data-field title="1&deg; Intersection St" [value]="site.intersectionStreetPrimary"></mds-data-field>
-              <mds-data-field title="2&deg; Intersection St" [value]="site.intersectionStreetSecondary"></mds-data-field>
-              <mds-data-field title="Position in Center" [value]="site.positionInCenter"></mds-data-field>
-              </div>
-              <mat-toolbar color="primary" class="flex-space-between">
-                <button mat-raised-button color="accent" class="centered" [routerLink]="['/casing/site-detail', site.id]">
-                  Edit
+        <div class="mds-card">
+          <div class="header">
+            <span class="title">Shopping Center</span>
+          </div>
+          <div class="content" *ngIf="site.shoppingCenter != null">
+            <mds-data-field title="Name" [value]="site.shoppingCenter.name"></mds-data-field>
+            <mds-data-field title="Owner" [value]="site.shoppingCenter.owner"></mds-data-field>
+          </div>
+          <div class="content" *ngIf="site.shoppingCenter == null">
+            <mat-list>
+              <mat-list-item>
+                <button class="centered" mat-raised-button color="accent">Select Existing Shopping Center</button>
+              </mat-list-item>
+              <mat-list-item>
+                <button class="centered" mat-raised-button color="accent" routerLink="/casing/shopping-center-detail">
+                  Create New Shopping Center
                 </button>
-              </mat-toolbar>
-            </div>
-          </mat-expansion-panel>
+              </mat-list-item>
+            </mat-list>
+          </div>
+          <mat-toolbar class="flex-space-between" color="primary" *ngIf="site.shoppingCenter != null">
+            <button mat-icon-button [mat-menu-trigger-for]="shoppingCenterActionMenu">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <button mat-raised-button color="warn"
+                    [routerLink]="['/casing/shopping-center-casings', site.shoppingCenter.id]">
+              Casings
+            </button>
+            <button mat-raised-button color="accent"
+                    [routerLink]="['/casing/shopping-center-detail', site.shoppingCenter.id]">
+              Edit
+            </button>
+          </mat-toolbar>
+        </div>
 
-          <!-- Shopping Center-->
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <h3>Shopping Center</h3>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="mds-card" *ngIf="site.shoppingCenter != null">
-              <div class="header">
-                <div class="title" *ngIf="site.shoppingCenter.name != null">{{site.shoppingCenter.name}}</div>
-                <div class="title" *ngIf="site.shoppingCenter.name == null"><i>Edit to add name</i></div>
-                <div class="subtitle" *ngIf="site.shoppingCenter.owner != null">Owned by: {{site.shoppingCenter.owner}}</div>
-              </div>
-              <mat-toolbar class="flex-space-between" color="primary">
-                <button mat-icon-button [mat-menu-trigger-for]="shoppingCenterActionMenu">
-                  <i class="fas fa-ellipsis-v"></i>
-                </button>
-                <button mat-raised-button color="warn">Casings</button>
-                <mat-menu #shoppingCenterActionMenu="matMenu" [overlapTrigger]="false">
-                  <button mat-menu-item>
-                    Merge with another SC
-                  </button>
-                  <button mat-menu-item>
-                    View other Sites in SC
-                  </button>
-                </mat-menu>
-                <button mat-raised-button color="accent"
-                        [routerLink]="['/casing/shopping-center-detail', site.shoppingCenter.id]">
-                  Edit
-                </button>
-              </mat-toolbar>
-            </div>
-            <div *ngIf="site.shoppingCenter == null">
-              <mat-list>
-                <mat-list-item>
-                  <button class="centered" mat-raised-button color="accent">Select Existing Shopping Center</button>
-                </mat-list-item>
-                <mat-list-item>
-                  <button class="centered" mat-raised-button color="accent" routerLink="/casing/shopping-center-detail">
-                    Create New Shopping Center
-                  </button>
-                </mat-list-item>
-              </mat-list>
-            </div>
-          </mat-expansion-panel>
-
-          <!-- Stores -->
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <h3>Stores</h3>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="widened">
-              <mat-tab-group>
-                <mat-tab label="Active">
-                  <mds-store-summary-card *ngIf="activeStore != null" [store]="activeStore"></mds-store-summary-card>
-                  <div class="mds-card" *ngIf="activeStore == null">
-                    <div class="header">
-                      <div class="title">No Active Store</div>
-                    </div>
-                    <mat-toolbar color="primary" class="flex-space-between">
-                      <button mat-raised-button color="accent" class="centered">Create New Store</button>
-                    </mat-toolbar>
+        <div class="mds-card">
+          <div class="header">
+            <span class="title">Stores</span>
+          </div>
+          <div class="content" id="tab-content">
+            <mat-tab-group>
+              <mat-tab label="Active">
+                <mds-store-summary-card *ngIf="activeStore != null" [store]="activeStore"></mds-store-summary-card>
+                <div class="mds-card" *ngIf="activeStore == null">
+                  <div class="header">
+                    <div class="title">No Active Store</div>
                   </div>
-                </mat-tab>
+                  <mat-toolbar color="primary" class="flex-space-between">
+                    <button mat-raised-button color="accent" class="centered">Create New Store</button>
+                  </mat-toolbar>
+                </div>
+              </mat-tab>
 
-                <mat-tab label="Future">
-                  <mds-store-summary-card *ngIf="futureStore != null" [store]="futureStore"></mds-store-summary-card>
-                  <div class="mds-card" *ngIf="futureStore == null">
-                    <div class="header">
-                      <div class="title">No Future Store</div>
-                    </div>
-                    <mat-toolbar color="primary">
-                      <button mat-raised-button color="accent" class="centered">Create New Store</button>
-                    </mat-toolbar>
+              <mat-tab label="Future">
+                <mds-store-summary-card *ngIf="futureStore != null" [store]="futureStore"></mds-store-summary-card>
+                <div class="mds-card" *ngIf="futureStore == null">
+                  <div class="header">
+                    <div class="title">No Future Store</div>
                   </div>
-                </mat-tab>
+                  <mat-toolbar color="primary">
+                    <button mat-raised-button color="accent" class="centered">Create New Store</button>
+                  </mat-toolbar>
+                </div>
+              </mat-tab>
 
-                <mat-tab label="Historical">
-                  <mds-store-summary-card *ngFor="let store of historicalStores" [store]="store"></mds-store-summary-card>
-                  <div class="mds-card" *ngIf="historicalStores == null || historicalStores.length < 1">
-                    <div class="header">
-                      <div class="title">No Historical Stores</div>
-                    </div>
-                    <mat-toolbar color="primary">
-                      <button mat-raised-button color="accent" class="centered">Create New Store</button>
-                    </mat-toolbar>
+              <mat-tab label="Historical">
+                <mds-store-summary-card *ngFor="let store of historicalStores"
+                                        [store]="store"></mds-store-summary-card>
+                <div class="mds-card" *ngIf="historicalStores == null || historicalStores.length < 1">
+                  <div class="header">
+                    <div class="title">No Historical Stores</div>
                   </div>
-                </mat-tab>
-              </mat-tab-group>
+                  <mat-toolbar color="primary">
+                    <button mat-raised-button color="accent" class="centered">Create New Store</button>
+                  </mat-toolbar>
+                </div>
+              </mat-tab>
+            </mat-tab-group>
 
-            </div>
-          </mat-expansion-panel>
-        </mat-accordion>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+
+<mat-menu #siteActionMenu="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item disabled="true">
+    <i class="fas fa-thumbtack"></i>&nbsp;Pin to Device
+  </button>
+  <button mat-menu-item (click)="openAssignmentDialog()">
+    <i class="fas fa-user"></i>&nbsp;Assign to Analyst
+  </button>
+  <button mat-menu-item (click)="setDuplicateFlag(true)" *ngIf="site != null && !site.duplicate">
+    <i class="fas fa-flag"></i>&nbsp;Flag as Duplicate
+  </button>
+</mat-menu>
+
+
+<mat-menu #shoppingCenterActionMenu="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item disabled>
+    Merge with another SC
+  </button>
+  <button mat-menu-item disabled>
+    View other Sites in SC
+  </button>
+</mat-menu>

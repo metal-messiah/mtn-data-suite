@@ -23,6 +23,8 @@ import { StoreOverviewComponent } from './store-overview/store-overview.componen
 import { StoreCasingEntityFormComponent } from './store-casing-entity-form/store-casing-entity-form.component';
 import { StoreSummaryCardComponent } from './store-summary-card/store-summary-card.component';
 import { StoreInfoCardComponent } from './store-info-card/store-info-card.component';
+import { StoreCasingsComponent } from './store-casings/store-casings.component';
+import { ShoppingCenterCasingsComponent } from './shopping-center-casings/shopping-center-casings.component';
 
 @NgModule({
   imports: [
@@ -50,7 +52,9 @@ import { StoreInfoCardComponent } from './store-info-card/store-info-card.compon
     StoreOverviewComponent,
     StoreCasingEntityFormComponent,
     StoreSummaryCardComponent,
-    StoreInfoCardComponent
+    StoreInfoCardComponent,
+    StoreCasingsComponent,
+    ShoppingCenterCasingsComponent
   ],
   entryComponents: [
     LatLngSearchComponent,

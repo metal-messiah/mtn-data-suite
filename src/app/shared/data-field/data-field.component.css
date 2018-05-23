@@ -1,3 +1,7 @@
 .data-field-wrapper {
   margin: 4px 0 2px 0;
 }
+
+span {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}

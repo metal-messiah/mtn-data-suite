@@ -1,1 +1,12 @@
+.mds-card .title {
+  color: white;
+}
 
+.mds-card .subtitle {
+  color: white;
+  font-style: italic;
+}
+
+.mds-card .header {
+  background: #506a78;
+}

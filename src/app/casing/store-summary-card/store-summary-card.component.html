@@ -32,28 +32,28 @@
     <button mat-icon-button [mat-menu-trigger-for]="storeCenterActionMenu">
       <i class="fas fa-ellipsis-v"></i>
     </button>
-    <mat-menu #storeCenterActionMenu="matMenu" [overlapTrigger]="false">
-      <button mat-menu-item>
-        <i class="fas fa-copy"></i>&nbsp;Merge with another Store
-      </button>
-      <button mat-menu-item *ngIf="store.storeType != 'ACTIVE'">
-        <i class="fas fa-play"></i>&nbsp;Change to Active
-      </button>
-      <button mat-menu-item *ngIf="store.storeType != 'FUTURE'">
-        <i class="fas fa-forward"></i>&nbsp;Change to Future
-      </button>
-      <button mat-menu-item *ngIf="store.storeType != 'HISTORICAL'">
-        <i class="fas fa-backward"></i>&nbsp;Change to Historical
-      </button>
-      <button mat-menu-item>
-        <i class="fas fa-dollar-sign"></i>&nbsp;Add Volume
-      </button>
-      <button mat-menu-item>
-        <i class="fas fa-calendar-plus"></i>&nbsp;Update Status
-      </button>
-    </mat-menu>
-    <button mat-raised-button color="warn">Casings</button>
+    <button mat-raised-button color="warn" [routerLink]="['/casing/store-casings', store.id]">Casings</button>
     <button mat-raised-button color="accent" [routerLink]="['/casing/store-detail/', store.id]">Edit</button>
   </mat-toolbar>
 </div>
 
+<mat-menu #storeCenterActionMenu="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item disabled>
+    <i class="fas fa-copy"></i>&nbsp;&nbsp;Merge with another Store
+  </button>
+  <button mat-menu-item *ngIf="store.storeType != 'ACTIVE'">
+    <i class="fas fa-play"></i>&nbsp;&nbsp;Change to Active
+  </button>
+  <button mat-menu-item *ngIf="store.storeType != 'FUTURE'">
+    <i class="fas fa-forward"></i>&nbsp;&nbsp;Change to Future
+  </button>
+  <button mat-menu-item *ngIf="store.storeType != 'HISTORICAL'">
+    <i class="fas fa-backward"></i>&nbsp;&nbsp;Change to Historical
+  </button>
+  <button mat-menu-item>
+    <i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;Add Volume
+  </button>
+  <button mat-menu-item>
+    <i class="fas fa-calendar-plus"></i>&nbsp;&nbsp;Update Status
+  </button>
+</mat-menu>

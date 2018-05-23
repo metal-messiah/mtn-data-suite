@@ -32,7 +32,7 @@
 }
 
 .widened {
-  margin: 0 -24px;
+  margin: 0 -8px;
 }
 
 .simple-card {
@@ -51,4 +51,19 @@
 .warning {
   background: yellow;
   font-weight: bold;
+}
+
+.mds-card .title {
+  color: white;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.mds-card .header {
+  min-height: unset;
+  background: #38474e;
+}
+
+#tab-content {
+  padding: 0;
+  min-height: 323px;
 }
