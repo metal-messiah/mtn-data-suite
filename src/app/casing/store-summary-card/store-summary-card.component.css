@@ -10,3 +10,7 @@
 .mds-card .header {
   background: #506a78;
 }
+
+.mat-dialog-container {
+  padding: 0;
+}

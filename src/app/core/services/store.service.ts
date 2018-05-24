@@ -7,6 +7,7 @@ import { CrudService } from '../../interfaces/crud-service';
 import { Store } from '../../models/store';
 import { Pageable } from '../../models/pageable';
 import { Observable } from 'rxjs/Observable';
+import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {
@@ -28,6 +29,15 @@ export class StoreService extends CrudService<Store> {
       .map((page) => {
         page.content = page.content.map(store => new Store(store));
         return page;
+      });
+  }
+
+  setCurrentStatus(store: Store, status: SimplifiedStoreStatus) {
+    const url = this.rest.getHost() + this.endpoint + `/${store.id}/current-store-status/${status.id}`;
+
+    return this.http.put<Store>(url, status, {headers: this.rest.getHeaders()})
+      .map(updatedStore => {
+        return new Store(updatedStore);
       });
   }
 

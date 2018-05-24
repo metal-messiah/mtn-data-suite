@@ -26,6 +26,7 @@ export class Store extends AuditingEntity implements Mappable {
   storeCasings: SimplifiedStoreCasing[];
   models: SimplifiedStoreModel[];
   storeVolumes: SimplifiedStoreVolume[];
+  storeStatuses: SimplifiedStoreStatus[];
 
   constructor(obj) {
     super(obj);
@@ -54,6 +55,9 @@ export class Store extends AuditingEntity implements Mappable {
     }
     if (obj.storeVolumes != null) {
       this.storeVolumes = obj.storeVolumes.map(volume => new SimplifiedStoreVolume(volume));
+    }
+    if (obj.storeStatuses != null) {
+      this.storeStatuses = obj.storeStatuses.map(status => new SimplifiedStoreStatus(status));
     }
   }
 

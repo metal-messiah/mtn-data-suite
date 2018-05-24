@@ -8,5 +8,6 @@ export class SimplifiedStoreStatus implements Entity {
 
   constructor(obj) {
     Object.assign(this, obj);
+    this.statusStartDate = new Date(this.statusStartDate);
   }
 }

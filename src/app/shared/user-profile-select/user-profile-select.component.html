@@ -2,7 +2,7 @@
 <div mat-dialog-content>
   <h3 *ngIf="error">{{error}}</h3>
   <mat-nav-list>
-    <mat-list-item *ngFor="let userProfile of userProfiles" (click)="selectUserProfile(userProfile)" disabled="true">
+    <mat-list-item *ngFor="let userProfile of userProfiles" (click)="selectUserProfile(userProfile)">
       <i mat-list-icon="" class="fas fa-user-circle"></i>
       <h3 mat-line>{{userProfile.firstName}}&nbsp;{{userProfile.lastName}}</h3>
     </mat-list-item>

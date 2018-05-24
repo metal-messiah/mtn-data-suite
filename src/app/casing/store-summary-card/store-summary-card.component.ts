@@ -1,8 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Store } from '../../models/store';
 import { StoreService } from '../../core/services/store.service';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
+import { MatDialog, MatSnackBar, MatSnackBarConfig } from '@angular/material';
 import { ErrorService } from '../../core/services/error.service';
+import { SimplifiedUserProfile } from '../../models/simplified-user-profile';
+import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
+import { StoreStatusSelectComponent } from '../store-status-select/store-status-select.component';
 
 @Component({
   selector: 'mds-store-summary-card',
@@ -16,10 +19,12 @@ export class StoreSummaryCardComponent implements OnInit {
 
   constructor(private storeService: StoreService,
               private snackBar: MatSnackBar,
-              private errorService: ErrorService
+              private errorService: ErrorService,
+              private dialog: MatDialog
   ) { }
 
   ngOnInit() {
+    console.log(this.store);
   }
 
   updateStoreType(storeType: string) {
@@ -44,6 +49,13 @@ export class StoreSummaryCardComponent implements OnInit {
       config['duration'] = duration;
     }
     return this.snackBar.open(message, action, config);
+  }
+
+  openStoreStatusDialog() {
+    const storeStatusDialog = this.dialog.open(StoreStatusSelectComponent, {data: {store: this.store}});
+    storeStatusDialog.afterClosed().subscribe((store: Store) => {
+      this.store = store;
+    });
   }
 
 }

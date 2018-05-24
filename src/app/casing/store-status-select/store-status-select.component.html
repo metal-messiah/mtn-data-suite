@@ -1,0 +1,38 @@
+<h3 mat-dialog-title>Store Statuses</h3>
+<div mat-dialog-content>
+  <h3 *ngIf="error">{{error}}</h3>
+  <mat-form-field>
+    <input matInput [matDatepicker]="picker1" placeholder="Status Start Date" [formControl]="statusDate">
+    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+    <mat-datepicker #picker1></mat-datepicker>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-select placeholder="Store Status" [formControl]="selectedStatus">
+      <mat-option *ngFor="let statusOption of storeStatusOptions" [value]="statusOption">
+        {{statusOption}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-toolbar color="primary" class="widened">
+    <button mat-raised-button color="accent" class="centered" (click)="addStatus()">Add Status</button>
+  </mat-toolbar>
+  <mat-divider></mat-divider>
+  <mat-list class="widened">
+    <mat-progress-bar mode="indeterminate" *ngIf="saving"></mat-progress-bar>
+    <mat-list-item *ngFor="let storeStatus of store.storeStatuses">
+      <div class="full-width flex flex-space-between">
+        <div>
+          <div><strong>{{storeStatus.status}}</strong></div>
+          <div><em>{{storeStatus.statusStartDate | date}}</em></div>
+        </div>
+        <button mat-raised-button color="accent"
+                *ngIf="storeStatus.id === store.currentStoreStatus.id" disabled>Is Current</button>
+        <button mat-raised-button color="accent" (click)="setCurrentStatus(storeStatus)"
+                *ngIf="storeStatus.id !== store.currentStoreStatus.id" [disabled]="saving">Set Current</button>
+      </div>
+    </mat-list-item>
+  </mat-list>
+</div>
+<mat-toolbar color="primary" id="bottom-toolbar">
+  <button mat-raised-button color="accent" (click)="closeDialog()">Cancel</button>
+</mat-toolbar>
