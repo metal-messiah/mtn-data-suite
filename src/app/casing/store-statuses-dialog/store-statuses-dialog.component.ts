@@ -8,11 +8,11 @@ import { StoreService } from '../../core/services/store.service';
 import { StoreStatus } from '../../models/store-status';
 
 @Component({
-  selector: 'mds-store-status-select',
-  templateUrl: './store-status-select.component.html',
-  styleUrls: ['./store-status-select.component.css']
+  selector: 'mds-store-statuses-dialog',
+  templateUrl: './store-statuses-dialog.component.html',
+  styleUrls: ['./store-statuses-dialog.component.css']
 })
-export class StoreStatusSelectComponent implements OnInit {
+export class StoreStatusesDialogComponent implements OnInit {
 
   store: Store;
   statusDate: FormControl;

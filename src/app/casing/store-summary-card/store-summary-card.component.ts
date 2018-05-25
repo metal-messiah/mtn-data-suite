@@ -5,7 +5,7 @@ import { MatDialog, MatSnackBar, MatSnackBarConfig } from '@angular/material';
 import { ErrorService } from '../../core/services/error.service';
 import { SimplifiedUserProfile } from '../../models/simplified-user-profile';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
-import { StoreStatusSelectComponent } from '../store-status-select/store-status-select.component';
+import { StoreStatusesDialogComponent } from '../store-statuses-dialog/store-statuses-dialog.component';
 
 @Component({
   selector: 'mds-store-summary-card',
@@ -53,7 +53,7 @@ export class StoreSummaryCardComponent implements OnInit {
 
   openStoreStatusDialog() {
     const config = {data: {store: this.store}, disableClose: true};
-    const storeStatusDialog = this.dialog.open(StoreStatusSelectComponent, config);
+    const storeStatusDialog = this.dialog.open(StoreStatusesDialogComponent, config);
     storeStatusDialog.afterClosed().subscribe((store: Store) => {
       if (store != null) {
         this.store = store;
