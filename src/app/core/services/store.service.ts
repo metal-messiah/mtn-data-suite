@@ -35,7 +35,16 @@ export class StoreService extends CrudService<Store> {
   setCurrentStatus(store: Store, status: SimplifiedStoreStatus) {
     const url = this.rest.getHost() + this.endpoint + `/${store.id}/current-store-status/${status.id}`;
 
-    return this.http.put<Store>(url, status, {headers: this.rest.getHeaders()})
+    return this.http.put<Store>(url, null, {headers: this.rest.getHeaders()})
+      .map(updatedStore => {
+        return new Store(updatedStore);
+      });
+  }
+
+  createNewStatus(store: Store, status: SimplifiedStoreStatus) {
+    const url = this.rest.getHost() + this.endpoint + `/${store.id}/store-statuses`;
+
+    return this.http.post<Store>(url, status, {headers: this.rest.getHeaders()})
       .map(updatedStore => {
         return new Store(updatedStore);
       });

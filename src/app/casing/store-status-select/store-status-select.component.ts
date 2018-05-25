@@ -5,6 +5,7 @@ import { Store } from '../../models/store';
 import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
 import { FormControl } from '@angular/forms';
 import { StoreService } from '../../core/services/store.service';
+import { StoreStatus } from '../../models/store-status';
 
 @Component({
   selector: 'mds-store-status-select',
@@ -17,7 +18,8 @@ export class StoreStatusSelectComponent implements OnInit {
   statusDate: FormControl;
   selectedStatus: FormControl;
 
-  saving = false;
+  savingCurrentStatus = false;
+  savingNewStatus = false;
 
   storeStatusOptions = [
     'Closed',
@@ -33,7 +35,7 @@ export class StoreStatusSelectComponent implements OnInit {
   ];
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: {store: Store},
+              @Inject(MAT_DIALOG_DATA) public data: { store: Store },
               private storeService: StoreService) {
   }
 
@@ -55,16 +57,26 @@ export class StoreStatusSelectComponent implements OnInit {
   }
 
   addStatus() {
-    // TODO use form controls to create new Status
+    this.savingNewStatus = true;
+    const storeStatus = new StoreStatus({
+      status: this.selectedStatus.value,
+      statusStartDate: this.statusDate.value
+    });
+    this.storeService.createNewStatus(this.store, storeStatus).subscribe((store: Store) => {
+      console.log(store);
+      this.initStore(store);
+    }, err => {
+      console.log(err);
+    }, () => this.savingNewStatus = false);
   }
 
   setCurrentStatus(status: SimplifiedStoreStatus) {
-    this.saving = true;
+    this.savingCurrentStatus = true;
     this.storeService.setCurrentStatus(this.store, status).subscribe((store: Store) => {
       this.initStore(store);
     }, err => {
       console.log(err);
-    }, () => this.saving = false);
+    }, () => this.savingCurrentStatus = false);
   }
 
 }

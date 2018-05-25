@@ -14,11 +14,13 @@
     </mat-select>
   </mat-form-field>
   <mat-toolbar color="primary" class="widened">
-    <button mat-raised-button color="accent" class="centered" (click)="addStatus()">Add Status</button>
+    <button mat-raised-button color="accent" class="centered"
+            *ngIf="!savingNewStatus" (click)="addStatus()">Add Status</button>
+    <mat-progress-bar mode="indeterminate" color="accent" *ngIf="savingNewStatus"></mat-progress-bar>
   </mat-toolbar>
   <mat-divider></mat-divider>
   <mat-list class="widened">
-    <mat-progress-bar mode="indeterminate" *ngIf="saving"></mat-progress-bar>
+    <mat-progress-bar mode="indeterminate" *ngIf="savingCurrentStatus"></mat-progress-bar>
     <mat-list-item *ngFor="let storeStatus of store.storeStatuses">
       <div class="full-width flex flex-space-between">
         <div>
@@ -26,9 +28,11 @@
           <div><em>{{storeStatus.statusStartDate | date}}</em></div>
         </div>
         <button mat-raised-button color="accent"
-                *ngIf="storeStatus.id === store.currentStoreStatus.id" disabled>Is Current</button>
+                *ngIf="store.currentStoreStatus != null && storeStatus.id === store.currentStoreStatus.id" disabled>
+          Is Current</button>
         <button mat-raised-button color="accent" (click)="setCurrentStatus(storeStatus)"
-                *ngIf="storeStatus.id !== store.currentStoreStatus.id" [disabled]="saving">Set Current</button>
+                *ngIf="store.currentStoreStatus == null || storeStatus.id !== store.currentStoreStatus.id"
+                [disabled]="savingCurrentStatus">Set Current</button>
       </div>
     </mat-list-item>
   </mat-list>

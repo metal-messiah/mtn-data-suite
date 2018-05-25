@@ -52,9 +52,12 @@ export class StoreSummaryCardComponent implements OnInit {
   }
 
   openStoreStatusDialog() {
-    const storeStatusDialog = this.dialog.open(StoreStatusSelectComponent, {data: {store: this.store}});
+    const config = {data: {store: this.store}, disableClose: true};
+    const storeStatusDialog = this.dialog.open(StoreStatusSelectComponent, config);
     storeStatusDialog.afterClosed().subscribe((store: Store) => {
-      this.store = store;
+      if (store != null) {
+        this.store = store;
+      }
     });
   }
 
