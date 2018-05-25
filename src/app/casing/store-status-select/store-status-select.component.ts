@@ -70,6 +70,15 @@ export class StoreStatusSelectComponent implements OnInit {
     }, () => this.savingNewStatus = false);
   }
 
+  deleteStatus(status: SimplifiedStoreStatus) {
+    this.savingCurrentStatus = true;
+    this.storeService.deleteStatus(this.store, status).subscribe((store: Store) => {
+      this.initStore(store);
+    }, err => {
+      console.log(err);
+    }, () => this.savingCurrentStatus = false);
+  }
+
   setCurrentStatus(status: SimplifiedStoreStatus) {
     this.savingCurrentStatus = true;
     this.storeService.setCurrentStatus(this.store, status).subscribe((store: Store) => {

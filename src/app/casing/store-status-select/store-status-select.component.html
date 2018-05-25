@@ -15,7 +15,8 @@
   </mat-form-field>
   <mat-toolbar color="primary" class="widened">
     <button mat-raised-button color="accent" class="centered"
-            *ngIf="!savingNewStatus" (click)="addStatus()">Add Status</button>
+            *ngIf="!savingNewStatus" (click)="addStatus()">Add Status
+    </button>
     <mat-progress-bar mode="indeterminate" color="accent" *ngIf="savingNewStatus"></mat-progress-bar>
   </mat-toolbar>
   <mat-divider></mat-divider>
@@ -24,19 +25,26 @@
     <mat-list-item *ngFor="let storeStatus of store.storeStatuses">
       <div class="full-width flex flex-space-between">
         <div>
-          <div><strong>{{storeStatus.status}}</strong></div>
+          <div>
+            <strong>{{storeStatus.status}}</strong>
+            <span *ngIf="store.currentStoreStatus != null && storeStatus.id === store.currentStoreStatus.id">&nbsp;(Current)</span>
+          </div>
           <div><em>{{storeStatus.statusStartDate | date}}</em></div>
         </div>
-        <button mat-raised-button color="accent"
-                *ngIf="store.currentStoreStatus != null && storeStatus.id === store.currentStoreStatus.id" disabled>
-          Is Current</button>
-        <button mat-raised-button color="accent" (click)="setCurrentStatus(storeStatus)"
-                *ngIf="store.currentStoreStatus == null || storeStatus.id !== store.currentStoreStatus.id"
-                [disabled]="savingCurrentStatus">Set Current</button>
+        <button mat-icon-button [mat-menu-trigger-for]="statusMenu"><i class="fas fa-ellipsis-v"></i></button>
       </div>
+      <mat-menu #statusMenu="matMenu" [overlapTrigger]="false">
+        <button mat-menu-item (click)="setCurrentStatus(storeStatus)"
+                *ngIf="store.currentStoreStatus == null || storeStatus.id !== store.currentStoreStatus.id">
+          Set As Current
+        </button>
+        <button mat-menu-item (click)="deleteStatus(storeStatus)">
+          <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
+        </button>
+      </mat-menu>
     </mat-list-item>
   </mat-list>
 </div>
 <mat-toolbar color="primary" id="bottom-toolbar">
-  <button mat-raised-button color="accent" (click)="closeDialog()">Cancel</button>
+  <button mat-raised-button color="accent" class="centered" (click)="closeDialog()">Close</button>
 </mat-toolbar>

@@ -50,6 +50,15 @@ export class StoreService extends CrudService<Store> {
       });
   }
 
+  deleteStatus(store: Store, status: SimplifiedStoreStatus) {
+    const url = this.rest.getHost() + this.endpoint + `/${store.id}/store-statuses/${status.id}`;
+
+    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()})
+      .map(updatedStore => {
+        return new Store(updatedStore);
+      });
+  }
+
   protected createEntityFromObj(entityObj): Store {
     return new Store(entityObj);
   }
