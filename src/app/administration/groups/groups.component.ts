@@ -31,12 +31,13 @@ export class GroupsComponent implements OnInit, BasicEntityListComponent<Group> 
 
 
   loadEntities(): void {
-    this.groupService.getAllGroups().subscribe(
+    this.groupService.getAllGroups()
+      .finally(() => this.isLoading = false)
+      .subscribe(
         pageable => this.groups = pageable.content.sort(this.sortCompare),
         err => this.errorService.handleServerError(`Failed to retrieve Groups`, err,
           () => this.goBack(),
-          () => this.els.initialize(this)),
-        () => this.isLoading = false
+          () => this.els.initialize(this))
       );
   };
 

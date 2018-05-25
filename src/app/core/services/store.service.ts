@@ -8,6 +8,7 @@ import { Store } from '../../models/store';
 import { Pageable } from '../../models/pageable';
 import { Observable } from 'rxjs/Observable';
 import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
+import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {
@@ -52,6 +53,28 @@ export class StoreService extends CrudService<Store> {
 
   deleteStatus(store: Store, status: SimplifiedStoreStatus) {
     const url = this.rest.getHost() + this.endpoint + `/${store.id}/store-statuses/${status.id}`;
+
+    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()})
+      .map(updatedStore => {
+        return new Store(updatedStore);
+      });
+  }
+
+  createNewVolume(store: Store, status: SimplifiedStoreVolume) {
+    if (status.source == null) {
+      status.source = 'MTN Data Suite: Casing';
+    }
+
+    const url = this.rest.getHost() + this.endpoint + `/${store.id}/store-volumes`;
+
+    return this.http.post<Store>(url, status, {headers: this.rest.getHeaders()})
+      .map(updatedStore => {
+        return new Store(updatedStore);
+      });
+  }
+
+  deleteVolume(store: Store, volume: SimplifiedStoreVolume) {
+    const url = this.rest.getHost() + this.endpoint + `/${store.id}/store-volumes/${volume.id}`;
 
     return this.http.delete<Store>(url, {headers: this.rest.getHeaders()})
       .map(updatedStore => {

@@ -6,6 +6,7 @@ import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
 import { FormControl } from '@angular/forms';
 import { StoreService } from '../../core/services/store.service';
 import { StoreStatus } from '../../models/store-status';
+import { ErrorService } from '../../core/services/error.service';
 
 @Component({
   selector: 'mds-store-statuses-dialog',
@@ -36,7 +37,8 @@ export class StoreStatusesDialogComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: { store: Store },
-              private storeService: StoreService) {
+              private storeService: StoreService,
+              private errorService: ErrorService) {
   }
 
   ngOnInit() {
@@ -62,30 +64,35 @@ export class StoreStatusesDialogComponent implements OnInit {
       status: this.selectedStatus.value,
       statusStartDate: this.statusDate.value
     });
-    this.storeService.createNewStatus(this.store, storeStatus).subscribe((store: Store) => {
-      console.log(store);
-      this.initStore(store);
-    }, err => {
-      console.log(err);
-    }, () => this.savingNewStatus = false);
+    this.storeService.createNewStatus(this.store, storeStatus)
+      .finally(() => this.savingNewStatus = false)
+      .subscribe((store: Store) => {
+        this.initStore(store);
+      }, err => {
+        this.errorService.handleServerError('Failed to add new  Status', err, () => {});
+      });
   }
 
   deleteStatus(status: SimplifiedStoreStatus) {
     this.savingCurrentStatus = true;
-    this.storeService.deleteStatus(this.store, status).subscribe((store: Store) => {
-      this.initStore(store);
-    }, err => {
-      console.log(err);
-    }, () => this.savingCurrentStatus = false);
+    this.storeService.deleteStatus(this.store, status)
+      .finally(() => this.savingCurrentStatus = false)
+      .subscribe((store: Store) => {
+        this.initStore(store);
+      }, err => {
+        this.errorService.handleServerError('Failed to delete Status', err, () => {});
+      });
   }
 
   setCurrentStatus(status: SimplifiedStoreStatus) {
     this.savingCurrentStatus = true;
-    this.storeService.setCurrentStatus(this.store, status).subscribe((store: Store) => {
-      this.initStore(store);
-    }, err => {
-      console.log(err);
-    }, () => this.savingCurrentStatus = false);
+    this.storeService.setCurrentStatus(this.store, status)
+      .finally(() => this.savingCurrentStatus = false)
+      .subscribe((store: Store) => {
+        this.initStore(store);
+      }, err => {
+        this.errorService.handleServerError('Failed to update Store', err, () => {});
+      });
   }
 
 }

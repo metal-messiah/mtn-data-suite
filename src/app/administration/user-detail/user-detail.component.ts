@@ -49,10 +49,10 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
 
     this.isLoading = true;
 
-    Observable.zip(
-      this.roleService.getAllRoles(),
-      this.groupService.getAllGroups()
-    ).subscribe(
+    Observable.zip(this.roleService.getAllRoles(), this.groupService.getAllGroups()
+    )
+      .finally(() => this.isLoading = false)
+      .subscribe(
       pair => {
         const compareDisplayNames = function (object1, object2) {
           return object1['displayName'].localeCompare(object2['displayName']);
@@ -63,8 +63,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
       },
       err => this.errorService.handleServerError(
         'Failed to retrieve reference values! (Groups and Roles)', err,
-        () => this.goBack()),
-      () => this.isLoading = false
+        () => this.goBack())
     );
   }
 

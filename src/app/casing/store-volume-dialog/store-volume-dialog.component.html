@@ -1,0 +1,52 @@
+<h3 mat-dialog-title>Store Volumes</h3>
+<div mat-dialog-content>
+  <h3 *ngIf="error">{{error}}</h3>
+  <form [formGroup]="volumeForm">
+    <mat-form-field class="example-full-width">
+      <input matInput type="number" placeholder="Total Weekly Grocery Volume" formControlName="volumeTotal">
+      <mat-error *ngIf="volumeForm.get('volumeTotal').invalid">Required. Min: $10k, Max: $10M</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput [matDatepicker]="picker1" placeholder="Volume Date" formControlName="volumeDate">
+      <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+      <mat-datepicker #picker1></mat-datepicker>
+      <mat-error *ngIf="volumeForm.get('volumeDate').invalid">Required</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-select placeholder="Volume Type" formControlName="volumeType">
+        <mat-option *ngFor="let volumeTypeOption of volumeTypeOptions" [value]="volumeTypeOption">
+          {{volumeTypeOption}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-toolbar color="primary" class="widened">
+      <button mat-raised-button color="accent" class="centered" [disabled]="volumeForm.invalid"
+              *ngIf="!savingVolume" (click)="addVolume()">Add Volume
+      </button>
+      <mat-progress-bar mode="indeterminate" color="accent" *ngIf="savingVolume"></mat-progress-bar>
+    </mat-toolbar>
+  </form>
+  <mat-divider></mat-divider>
+  <mat-list class="widened">
+    <mat-list-item *ngFor="let storeVolume of store.storeVolumes">
+      <div class="full-width flex flex-space-between">
+        <div>
+          <div>
+            <strong>${{storeVolume.volumeTotal/1000 | number:'1.0-0'}}k</strong>
+            <span *ngIf="storeVolume.volumeType != null">&nbsp;({{storeVolume.volumeType}})</span>
+          </div>
+          <div><em>{{storeVolume.volumeDate | date}}</em></div>
+        </div>
+        <button mat-icon-button [mat-menu-trigger-for]="volumeMenu"><i class="fas fa-ellipsis-v"></i></button>
+      </div>
+      <mat-menu #volumeMenu="matMenu" [overlapTrigger]="false">
+        <button mat-menu-item (click)="deleteVolume(storeVolume)">
+          <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
+        </button>
+      </mat-menu>
+    </mat-list-item>
+  </mat-list>
+</div>
+<mat-toolbar color="primary" id="bottom-toolbar">
+  <button mat-raised-button color="accent" class="centered" (click)="closeDialog()">Close</button>
+</mat-toolbar>

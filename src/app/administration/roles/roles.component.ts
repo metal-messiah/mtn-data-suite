@@ -31,13 +31,14 @@ export class RolesComponent implements OnInit, BasicEntityListComponent<Role> {
   }
 
   loadEntities(): void {
-    this.roleService.getAllRoles().subscribe(
-      pageable => this.roles = pageable.content.sort(this.sortCompare),
-      err => this.errorService.handleServerError(`Failed to retrieve Roles`, err,
-        () => this.goBack(),
-        () => this.els.initialize(this)),
-      () => this.isLoading = false
-    );
+    this.roleService.getAllRoles()
+      .finally(() => this.isLoading = false)
+      .subscribe(
+        pageable => this.roles = pageable.content.sort(this.sortCompare),
+        err => this.errorService.handleServerError(`Failed to retrieve Roles`, err,
+          () => this.goBack(),
+          () => this.els.initialize(this))
+      );
   };
 
   confirmDelete(role: Role) {

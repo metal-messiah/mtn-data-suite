@@ -1,22 +1,22 @@
-import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
-import {DatePipe} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { DatePipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import 'rxjs/Rx';
 import * as _ from 'lodash';
-import {Observable} from 'rxjs/Observable';
+import { Observable } from 'rxjs/Observable';
 
-import {Role} from '../../models/role';
-import {Permission} from '../../models/permission';
-import {UserProfile} from '../../models/user-profile';
-import {DetailFormComponent} from '../../interfaces/detail-form-component';
+import { Role } from '../../models/role';
+import { Permission } from '../../models/permission';
+import { UserProfile } from '../../models/user-profile';
+import { DetailFormComponent } from '../../interfaces/detail-form-component';
 
-import {ErrorService} from '../../core/services/error.service';
-import {RoleService} from '../../core/services/role.service';
-import {PermissionService} from '../../core/services/permission.service';
-import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
-import {DetailFormService} from '../../core/services/detail-form.service';
+import { ErrorService } from '../../core/services/error.service';
+import { RoleService } from '../../core/services/role.service';
+import { PermissionService } from '../../core/services/permission.service';
+import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
+import { DetailFormService } from '../../core/services/detail-form.service';
 import { SimplifiedRole } from 'app/models/simplified-role';
 
 @Component({
@@ -60,17 +60,16 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
 
     this.isLoading = true;
 
-    this.permissionService.getPermissions().subscribe(
-      pageable => {
-        this.parsePermissions(pageable['content']);
-        this.detailFormService.retrieveObj(this);
-      },
-      err => this.errorService.handleServerError(
-        'Failed to retrieve permissions!',
-        err,
-        () => this.goBack()),
-      () => this.isLoading = false
-    );
+    this.permissionService.getPermissions()
+      .finally(() => this.isLoading = false)
+      .subscribe(
+        pageable => {
+          this.parsePermissions(pageable['content']);
+          this.detailFormService.retrieveObj(this);
+        },
+        err => this.errorService.handleServerError('Failed to retrieve permissions!', err,
+          () => this.goBack())
+      );
   }
 
   // Implementations for DetailFormComponent

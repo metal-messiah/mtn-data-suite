@@ -50,7 +50,7 @@
   <button mat-menu-item *ngIf="store.storeType != 'HISTORICAL'" (click)="updateStoreType('HISTORICAL')">
     <i class="fas fa-backward"></i>&nbsp;&nbsp;Change to Historical
   </button>
-  <button mat-menu-item>
+  <button mat-menu-item (click)="openVolumeDialog()">
     <i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;Add Volume
   </button>
   <button mat-menu-item (click)="openStoreStatusDialog()">

@@ -6,6 +6,7 @@ import { ErrorService } from '../../core/services/error.service';
 import { SimplifiedUserProfile } from '../../models/simplified-user-profile';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
 import { StoreStatusesDialogComponent } from '../store-statuses-dialog/store-statuses-dialog.component';
+import { StoreVolumeDialogComponent } from '../store-volume-dialog/store-volume-dialog.component';
 
 @Component({
   selector: 'mds-store-summary-card',
@@ -55,6 +56,16 @@ export class StoreSummaryCardComponent implements OnInit {
     const config = {data: {store: this.store}, disableClose: true};
     const storeStatusDialog = this.dialog.open(StoreStatusesDialogComponent, config);
     storeStatusDialog.afterClosed().subscribe((store: Store) => {
+      if (store != null) {
+        this.store = store;
+      }
+    });
+  }
+
+  openVolumeDialog() {
+    const config = {data: {store: this.store}, disableClose: true};
+    const storeVolumeDialog = this.dialog.open(StoreVolumeDialogComponent, config);
+    storeVolumeDialog.afterClosed().subscribe((store: Store) => {
       if (store != null) {
         this.store = store;
       }

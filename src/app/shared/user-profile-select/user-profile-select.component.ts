@@ -20,18 +20,19 @@ export class UserProfileSelectComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<ErrorDialogComponent>,
     private userProfileService: UserProfileService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.loading = true;
-    this.userProfileService.getAllUserProfiles().subscribe((page: Pageable<UserProfile>) => {
-      this.latestPage = page;
-      this.userProfiles = page.content;
-    }, error => {
-      this.error = error;
-    }, () => {
-      this.loading = false;
-    });
+    this.userProfileService.getAllUserProfiles()
+      .finally(() => this.loading = false)
+      .subscribe((page: Pageable<UserProfile>) => {
+        this.latestPage = page;
+        this.userProfiles = page.content;
+      }, error => {
+        this.error = error;
+      });
   }
 
   selectUserProfile(userProfile: UserProfile): void {
@@ -44,14 +45,12 @@ export class UserProfileSelectComponent implements OnInit {
 
   loadMore(): void {
     this.loading = true;
-    this.userProfileService.getAllUserProfiles(this.latestPage.number + 1).subscribe((page: Pageable<UserProfile>) => {
-      this.latestPage = page;
-      this.userProfiles = this.userProfiles.concat(page.content);
-    }, error => {
-      this.error = error;
-    }, () => {
-      this.loading = false;
-    });
+    this.userProfileService.getAllUserProfiles(this.latestPage.number + 1)
+      .finally(() => this.loading = false)
+      .subscribe((page: Pageable<UserProfile>) => {
+        this.latestPage = page;
+        this.userProfiles = this.userProfiles.concat(page.content);
+      }, error => this.error = error);
   }
 
 }

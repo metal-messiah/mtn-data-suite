@@ -39,31 +39,30 @@ export class DetailFormService<T extends AuditingEntity> {
 
     // If object is new create it, otherwise update it
     if (fc.getSavableObj().id == null) {
-      fc.getEntityService().create(fc.getSavableObj()).subscribe(
-        created => {
-          this.snackBar.open(`Successfully created ${fc.getTypeName()}!`, null, {duration: 2000});
-          fc.setObj(created);
-          fc.goBack();
-        },
-        err => this.errorService.handleServerError(
-          `Failed to create ${fc.getTypeName()}`,
-          err, reenable,
-          () => this.save(fc)),
-        reenable
-      );
+      fc.getEntityService().create(fc.getSavableObj())
+        .finally(() => reenable())
+        .subscribe(created => {
+            this.snackBar.open(`Successfully created ${fc.getTypeName()}!`, null, {duration: 2000});
+            fc.setObj(created);
+            fc.goBack();
+          },
+          err => this.errorService.handleServerError(`Failed to create ${fc.getTypeName()}`, err,
+            () => reenable(),
+            () => this.save(fc))
+        );
     } else {
-      fc.getEntityService().update(fc.getSavableObj()).subscribe(
-        updatedEntity => {
-          this.snackBar.open(`Successfully updated ${fc.getTypeName()}!`, null, {duration: 2000});
-          fc.setObj(updatedEntity);
-          fc.goBack();
-        },
-        err => this.errorService.handleServerError(
-          `Failed to update ${fc.getTypeName()}`,
-          err, reenable,
-          () => this.save(fc)),
-        reenable
-      );
+      fc.getEntityService().update(fc.getSavableObj())
+        .finally(() => reenable())
+        .subscribe(
+          updatedEntity => {
+            this.snackBar.open(`Successfully updated ${fc.getTypeName()}!`, null, {duration: 2000});
+            fc.setObj(updatedEntity);
+            fc.goBack();
+          },
+          err => this.errorService.handleServerError(`Failed to update ${fc.getTypeName()}`, err,
+            () => reenable(),
+            () => this.save(fc))
+        );
     }
   }
 
@@ -74,12 +73,13 @@ export class DetailFormService<T extends AuditingEntity> {
       fc.setObj(fc.getNewObj());
       fc.isLoading = false;
     } else {
-      fc.getEntityService().getOneById(id).subscribe(
-        obj => fc.setObj(obj),
-        err => this.errorService.handleServerError(`Failed to retrieve ${fc.getTypeName()}!`, err,
-          () => fc.goBack()),
-        () => fc.isLoading = false
-      );
+      fc.getEntityService().getOneById(id)
+        .finally(() => fc.isLoading = false)
+        .subscribe(
+          obj => fc.setObj(obj),
+          err => this.errorService.handleServerError(`Failed to retrieve ${fc.getTypeName()}!`, err,
+            () => fc.goBack())
+        );
     }
   }
 }

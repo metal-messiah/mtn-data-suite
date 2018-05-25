@@ -329,8 +329,7 @@ export class CasingDashboardComponent implements OnInit {
             break;
         }
         console.log('Error: ' + message);
-      },
-      () => console.log('Completed')
+      }
     );
   }
 

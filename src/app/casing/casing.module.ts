@@ -26,6 +26,7 @@ import { StoreInfoCardComponent } from './store-info-card/store-info-card.compon
 import { StoreCasingsComponent } from './store-casings/store-casings.component';
 import { ShoppingCenterCasingsComponent } from './shopping-center-casings/shopping-center-casings.component';
 import { StoreStatusesDialogComponent } from './store-statuses-dialog/store-statuses-dialog.component';
+import { StoreVolumeDialogComponent } from './store-volume-dialog/store-volume-dialog.component';
 
 @NgModule({
   imports: [
@@ -56,14 +57,16 @@ import { StoreStatusesDialogComponent } from './store-statuses-dialog/store-stat
     StoreInfoCardComponent,
     StoreCasingsComponent,
     ShoppingCenterCasingsComponent,
-    StoreStatusesDialogComponent
+    StoreStatusesDialogComponent,
+    StoreVolumeDialogComponent
   ],
   entryComponents: [
     LatLngSearchComponent,
     GoogleSearchComponent,
     DatabaseSearchComponent,
     SelectProjectComponent,
-    StoreStatusesDialogComponent
+    StoreStatusesDialogComponent,
+    StoreVolumeDialogComponent
   ],
   providers: [CasingDashboardService]
 })

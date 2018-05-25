@@ -37,15 +37,16 @@ export class EntityListService<T extends AuditingEntity> {
 
   deleteEntity(comp: BasicEntityListComponent<T>, entity: T) {
     comp.isDeleting = true;
-    comp.getEntityService().delete(entity).subscribe(
+    comp.getEntityService().delete(entity)
+      .finally(() => comp.isDeleting = false)
+      .subscribe(
       () => {
         this.snackBar.open(`Successfully deleted ${comp.getTypeName()}!`, null, {duration: 2000});
         this.initialize(comp);
       },
       err => this.errorService.handleServerError(`Failed to delete ${comp.getTypeName()}!`, err,
         () => comp.isDeleting = false,
-        () => this.deleteEntity(comp, entity)),
-      () => comp.isDeleting = false
+        () => this.deleteEntity(comp, entity))
     );
   }
 }

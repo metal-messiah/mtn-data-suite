@@ -29,13 +29,14 @@ export class UserProfilesComponent implements OnInit, BasicEntityListComponent<U
   }
 
   loadEntities(): void {
-    this.userProfileService.getAllUserProfiles().subscribe(
-      pageable => this.userProfiles = pageable.content.sort(this.sortCompare),
-      err => this.errorService.handleServerError(`Failed to retrieve User Profiles`, err,
-        () => this.goBack(),
-        () => this.els.initialize(this)),
-      () => this.isLoading = false
-    );
+    this.userProfileService.getAllUserProfiles()
+      .finally(() => this.isLoading = false)
+      .subscribe(
+        pageable => this.userProfiles = pageable.content.sort(this.sortCompare),
+        err => this.errorService.handleServerError(`Failed to retrieve User Profiles`, err,
+          () => this.goBack(),
+          () => this.els.initialize(this))
+      );
   };
 
   confirmDelete(userProfile: UserProfile) {

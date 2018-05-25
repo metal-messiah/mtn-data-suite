@@ -6,9 +6,11 @@ export class SimplifiedStoreVolume implements Entity {
   volumeTotal: number;
   volumeDate: Date;
   volumeType: string;
+  source: string;
 
   constructor(obj) {
     Object.assign(this, obj);
+    this.volumeDate = new Date(this.volumeDate);
   }
 
 }
