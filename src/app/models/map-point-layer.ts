@@ -56,6 +56,7 @@ export class MapPointLayer<T extends Mappable> {
   setMarkerOptions(marker: google.maps.Marker): void {
     const mappable = marker.get('mappable');
     marker.setDraggable(this.layerOptions.getMappableIsDraggable(mappable));
+    // marker.setIcon('http://res.cloudinary.com/mtn-retail-advisors/image/upload/r_0/smithsfoodanddrug.jpg');
     marker.setIcon(this.layerOptions.getMappableIcon(mappable));
     marker.setLabel(this.layerOptions.getMappableLabel(mappable));
   }
