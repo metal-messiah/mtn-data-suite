@@ -1,12 +1,13 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef, MatSnackBar } from '@angular/material';
 import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
 import { Store } from '../../models/store';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StoreService } from '../../core/services/store.service';
 import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
 import { StoreVolume } from '../../models/store-volume';
 import { ErrorService } from '../../core/services/error.service';
+import { StoreVolumeService } from '../../core/services/store-volume.service';
 
 @Component({
   selector: 'mds-store-volume-dialog',
@@ -16,6 +17,7 @@ import { ErrorService } from '../../core/services/error.service';
 export class StoreVolumeDialogComponent implements OnInit {
 
   store: Store;
+  editingVolume: StoreVolume;
 
   volumeForm: FormGroup;
 
@@ -32,6 +34,8 @@ export class StoreVolumeDialogComponent implements OnInit {
               @Inject(MAT_DIALOG_DATA) public data: { store: Store },
               private fb: FormBuilder,
               private storeService: StoreService,
+              private storeVolumeService: StoreVolumeService,
+              private snackBar: MatSnackBar,
               private errorService: ErrorService) {
     this.createForm();
   }
@@ -42,6 +46,7 @@ export class StoreVolumeDialogComponent implements OnInit {
 
   createForm() {
     this.volumeForm = this.fb.group({
+      id: null,
       volumeTotal: ['', [Validators.required, Validators.min(10000), Validators.max(10000000)]],
       volumeDate: [new Date(), Validators.required],
       volumeType: 'ESTIMATE'
@@ -66,22 +71,55 @@ export class StoreVolumeDialogComponent implements OnInit {
     this.dialogRef.close(this.store);
   }
 
+  editVolume(volume: SimplifiedStoreVolume) {
+    this.savingVolume = true;
+    this.storeVolumeService.getOneById(volume.id)
+      .finally(() => this.savingVolume = false)
+      .subscribe((v: StoreVolume) => {
+        this.editingVolume = v;
+        this.volumeForm.reset(v);
+      }, this.onError);
+  }
+
+  cancelEdit() {
+    this.editingVolume = null;
+    this.rebuildForm();
+  }
+
+  saveEditedVolume() {
+    this.savingVolume = true;
+    this.editingVolume.volumeDate = this.volumeForm.get('volumeDate').value;
+    this.editingVolume.volumeTotal = this.volumeForm.get('volumeTotal').value;
+    this.editingVolume.volumeType = this.volumeForm.get('volumeType').value;
+    this.storeVolumeService.update(this.editingVolume)
+      .finally(() => this.savingVolume = false)
+      .subscribe((storeVolume: StoreVolume) => {
+        this.snackBar.open('Successfully updated volume', null, {duration: 2000});
+        this.editingVolume = storeVolume;
+        const i = this.store.storeVolumes.findIndex((v) => v.id === storeVolume.id);
+        this.store.storeVolumes[i] = storeVolume;
+      }, this.onError);
+  }
+
   addVolume() {
     this.savingVolume = true;
     const storeVolume = new StoreVolume(this.volumeForm.value);
     this.storeService.createNewVolume(this.store, storeVolume)
       .finally(() => this.savingVolume = false)
       .subscribe((store: Store) => {
+        this.snackBar.open('Successfully added new volume', null, {duration: 2000});
         this.rebuildForm();
         this.initStore(store);
-      }, err => {
-        let message = err.message;
-        if (err.error != null) {
-          message = err.error.message;
-        }
-        this.errorService.handleServerError(message, err, () => {
-        });
-      });
+      }, (err) => this.onError(err));
+  }
+
+  onError(err) {
+    let message = err.message;
+    if (err.error != null) {
+      message = err.error.message;
+    }
+    this.errorService.handleServerError(message, err, () => {
+    });
   }
 
   deleteVolume(volume: SimplifiedStoreVolume) {
@@ -89,6 +127,7 @@ export class StoreVolumeDialogComponent implements OnInit {
     this.storeService.deleteVolume(this.store, volume)
       .finally(() => this.savingVolume = false)
       .subscribe((store: Store) => {
+        this.snackBar.open('Successfully deleted volume', null, {duration: 2000});
         this.initStore(store);
       }, err => {
         this.errorService.handleServerError('Failed to delete Volume', err, () => {

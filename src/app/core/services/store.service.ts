@@ -9,6 +9,7 @@ import { Pageable } from '../../models/pageable';
 import { Observable } from 'rxjs/Observable';
 import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
 import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
+import { StoreVolume } from '../../models/store-volume';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {
@@ -23,7 +24,7 @@ export class StoreService extends CrudService<Store> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams().set('size', '300');
     params = params.set('store_type', 'ACTIVE');
-    _.forEach(bounds, function(value, key) {
+    _.forEach(bounds, function (value, key) {
       params = params.set(key, value);
     });
     return this.http.get<Pageable<Store>>(url, {headers: this.rest.getHeaders(), params: params})
@@ -60,14 +61,14 @@ export class StoreService extends CrudService<Store> {
       });
   }
 
-  createNewVolume(store: Store, status: SimplifiedStoreVolume) {
-    if (status.source == null) {
-      status.source = 'MTN Data Suite: Casing';
+  createNewVolume(store: Store, volume: SimplifiedStoreVolume) {
+    if (volume.source == null) {
+      volume.source = 'MTN Data Suite: Casing';
     }
 
     const url = this.rest.getHost() + this.endpoint + `/${store.id}/store-volumes`;
 
-    return this.http.post<Store>(url, status, {headers: this.rest.getHeaders()})
+    return this.http.post<Store>(url, volume, {headers: this.rest.getHeaders()})
       .map(updatedStore => {
         return new Store(updatedStore);
       });

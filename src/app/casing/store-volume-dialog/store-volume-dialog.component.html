@@ -19,9 +19,15 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-toolbar color="primary" class="widened">
+    <mat-toolbar color="primary" class="widened flex-space-between">
       <button mat-raised-button color="accent" class="centered" [disabled]="volumeForm.invalid"
-              *ngIf="!savingVolume" (click)="addVolume()">Add Volume
+              *ngIf="!savingVolume && editingVolume == null" (click)="addVolume()">Add Volume
+      </button>
+      <button mat-raised-button color="warn" type="button"
+              *ngIf="!savingVolume && editingVolume != null" (click)="cancelEdit()">Cancel
+      </button>
+      <button mat-raised-button color="accent" type="submit" [disabled]="volumeForm.invalid || volumeForm.pristine"
+              *ngIf="!savingVolume && editingVolume != null" (click)="saveEditedVolume()">Save
       </button>
       <mat-progress-bar mode="indeterminate" color="accent" *ngIf="savingVolume"></mat-progress-bar>
     </mat-toolbar>
@@ -40,6 +46,9 @@
         <button mat-icon-button [mat-menu-trigger-for]="volumeMenu"><i class="fas fa-ellipsis-v"></i></button>
       </div>
       <mat-menu #volumeMenu="matMenu" [overlapTrigger]="false">
+        <button mat-menu-item (click)="editVolume(storeVolume)">
+          <i class="fas fa-edit"></i>&nbsp;&nbsp;Edit
+        </button>
         <button mat-menu-item (click)="deleteVolume(storeVolume)">
           <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
         </button>

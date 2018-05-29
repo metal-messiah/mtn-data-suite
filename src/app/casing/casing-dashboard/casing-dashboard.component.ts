@@ -553,8 +553,10 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   onStoreEdited(store: Store) {
-    this.defaultPointLayer.refreshOptionsForMappable(store);
-    this.openSnackBar(`Successfully updated store`, null, 1500);
+    this.ngZone.run(() => {
+      this.defaultPointLayer.refreshOptionsForMappable(store);
+      this.openSnackBar(`Successfully updated store`, null, 1500);
+    });
   }
 
   /*
