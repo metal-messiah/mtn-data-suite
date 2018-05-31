@@ -5,6 +5,7 @@ import { DbSupportDashboardComponent } from './db-support-dashboard/db-support-d
 import { DbSupportConsoleComponent } from './db-support-console/db-support-console.component';
 import { DbSupportComponent } from './db-support.component';
 import { MapService } from '../core/services/map.service';
+import { DbSupportActivitySelectionComponent } from './db-support-activity-selection/db-support-activity-selection.component';
 
 @NgModule({
   imports: [
@@ -14,7 +15,8 @@ import { MapService } from '../core/services/map.service';
   declarations: [
     DbSupportDashboardComponent,
     DbSupportConsoleComponent,
-    DbSupportComponent
+    DbSupportComponent,
+    DbSupportActivitySelectionComponent
   ],
   providers: [
     MapService
