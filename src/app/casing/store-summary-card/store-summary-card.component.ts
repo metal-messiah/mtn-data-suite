@@ -72,4 +72,18 @@ export class StoreSummaryCardComponent implements OnInit {
     });
   }
 
+  setFloating(floating: boolean) {
+    const prevFloating = this.store.floating;
+    this.store.floating = floating;
+    this.storeService.update(this.store).subscribe((store: Store) => {
+      this.onStoreUpdated.emit(store);
+      this.openSnackBar('Updated Store', null, 2000);
+    }, err => {
+      this.store.floating = prevFloating;
+      this.errorService.handleServerError('Failed to update store', err,
+        () => {},
+        () => this.setFloating(floating));
+    });
+  }
+
 }

@@ -4,6 +4,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { RestService } from './rest.service';
 import { CrudService } from '../../interfaces/crud-service';
 import { Site } from '../../models/site';
+import { SimplifiedSite } from '../../models/simplified-site';
+import { Coordinates } from '../../models/coordinates';
 
 @Injectable()
 export class SiteService extends CrudService<Site> {
@@ -28,6 +30,48 @@ export class SiteService extends CrudService<Site> {
       .map(sites => {
         return sites.map(site => this.createEntityFromObj(site));
       });
+  }
+
+  getFormattedIntersection(site: Site | SimplifiedSite): string {
+    let intersection = '';
+    if (site.quad !== null) {
+      intersection += site.quad;
+      if (site.intersectionStreetPrimary !== null || site.intersectionStreetSecondary !== null) {
+        intersection += ' of ';
+      }
+    }
+    if (site.intersectionStreetPrimary !== null) {
+      intersection += site.intersectionStreetPrimary;
+      if (site.intersectionStreetSecondary !== null) {
+        intersection += ' & ';
+      }
+    }
+    if (site.intersectionStreetSecondary !== null) {
+      intersection += site.intersectionStreetSecondary;
+    }
+    return intersection;
+  }
+  getFormattedPrincipality(site: Site | SimplifiedSite): string {
+    let principality = '';
+    if (site.city !== null) {
+      principality += site.city;
+      if (site.state !== null) {
+        principality += ', ';
+      }
+    }
+    if (site.state !== null) {
+      principality += site.state;
+    }
+    if (site.postalCode !== null) {
+      if (principality.length > 0) {
+        principality += ' ';
+      }
+      principality += site.postalCode;
+    }
+    return principality;
+  }
+  getCoordinates(site: Site | SimplifiedSite): Coordinates {
+    return {lat: site.latitude, lng: site.longitude};
   }
 
 }

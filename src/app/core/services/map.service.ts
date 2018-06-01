@@ -52,6 +52,7 @@ export class MapService {
 
     // Setup Drawing Manager
     this.drawingManager = new google.maps.drawing.DrawingManager();
+    return this.map;
   }
 
   destroy(): void {

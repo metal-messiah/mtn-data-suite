@@ -9,7 +9,7 @@ import { SimplifiedStoreVolume } from './simplified-store-volume';
 import { SimplifiedStoreStatus } from './simplified-store-status';
 import { SimplifiedStoreSurvey } from './simplified-store-survey';
 
-export class Store extends AuditingEntity implements Mappable {
+export class Store extends AuditingEntity {
 
   storeName: string;
   storeNumber: string;
@@ -17,6 +17,7 @@ export class Store extends AuditingEntity implements Mappable {
   dateOpened: Date;
   dateClosed: Date;
   legacyLocationId: number;
+  floating: boolean;
 
   currentStoreStatus: SimplifiedStoreStatus;
   currentStoreSurvey: SimplifiedStoreSurvey;
@@ -60,21 +61,4 @@ export class Store extends AuditingEntity implements Mappable {
       this.storeStatuses = obj.storeStatuses.map(status => new SimplifiedStoreStatus(status));
     }
   }
-
-  getLabel() {
-    let label = null;
-    if (this.banner != null) {
-      label = this.banner.bannerName;
-    } else {
-      label = this.storeName;
-    }
-    if (this.storeNumber != null) {
-      label = `${label} (${this.storeNumber})`;
-    }
-    return label;
-  }
-
-  getCoordinates(): Coordinates {
-    return this.site.getCoordinates();
-  };
 }

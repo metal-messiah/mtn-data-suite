@@ -6,8 +6,10 @@ import { SiteService } from '../../core/services/site.service';
 import { ErrorService } from '../../core/services/error.service';
 import { Site } from '../../models/site';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { UserProfile } from '../../models/user-profile';
+import { StoreService } from '../../core/services/store.service';
+import { SimplifiedStore } from '../../models/simplified-store';
 
 @Component({
   selector: 'mds-store-info-card',
@@ -16,15 +18,17 @@ import { UserProfile } from '../../models/user-profile';
 })
 export class StoreInfoCardComponent implements OnInit {
 
-  @Input() store: Store;
+  @Input() store: SimplifiedStore|Store;
   @Input() disableActions: boolean;
 
-  @Output() onStoreEdited = new EventEmitter<Store>();
-  @Output() onMoveStore = new EventEmitter<Store>();
+  @Output() onStoreUpdated = new EventEmitter<SimplifiedStore|Store>();
+  @Output() onMoveStore = new EventEmitter<SimplifiedStore|Store>();
 
   constructor(private router: Router,
-              private siteService: SiteService,
+              public siteService: SiteService,
+              public storeService: StoreService,
               private errorService: ErrorService,
+              private snackBar: MatSnackBar,
               private dialog: MatDialog) {
   }
 
@@ -39,17 +43,18 @@ export class StoreInfoCardComponent implements OnInit {
     // TODO create the location data to the device
   }
 
-  setDuplicateFlag(isDuplicate: boolean)  {
+  setDuplicateFlag(isDuplicate: boolean) {
     // Get full site
     this.siteService.getOneById(this.store.site.id).subscribe(site => {
       site.duplicate = isDuplicate;
       this.siteService.update(site).subscribe(s => {
         this.store.site = s;
-        this.onStoreEdited.emit(this.store);
+        this.onStoreUpdated.emit(this.store);
       }, err => {
         site.duplicate = !site.duplicate;
         this.errorService.handleServerError('Failed to update store', err,
-          () => {},
+          () => {
+          },
           () => this.setDuplicateFlag(isDuplicate));
       });
     }, err => {
@@ -61,7 +66,11 @@ export class StoreInfoCardComponent implements OnInit {
     const userId = (user != null) ? user.id : null;
     this.siteService.assignToUser([this.store.site.id], userId).subscribe((sites: Site[]) => {
       this.store.site = sites[0];
-      this.onStoreEdited.emit(this.store);
+      this.onStoreUpdated.emit(this.store);
+    }, err => {
+      this.errorService.handleServerError('Failed to update store', err,
+        () => {},
+        () => this.assignStoreToUser(user));
     });
   }
 
@@ -72,6 +81,22 @@ export class StoreInfoCardComponent implements OnInit {
         this.assignStoreToUser(selectedUser);
       }
     });
+  }
+
+  setFloating(floating: boolean) {
+    this.storeService.getOneById(this.store.id).subscribe((store: Store) => {
+      store.floating = floating;
+      this.storeService.update(store).subscribe((updatedStore: Store) => {
+        this.store = updatedStore;
+        this.onStoreUpdated.emit(new SimplifiedStore(updatedStore));
+        this.snackBar.open(`Updated Store`, null, {duration: 2000});
+      }, err => {
+        this.errorService.handleServerError('Failed to update store', err,
+          () => {},
+          () => this.setFloating(floating));
+      });
+    });
+
   }
 
 }

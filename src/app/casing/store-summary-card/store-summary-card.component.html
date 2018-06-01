@@ -7,6 +7,12 @@
   </div>
   <mat-divider></mat-divider>
   <div class="content">
+    <mat-card *ngIf="store.floating" class="simple-card warning">
+      <div class="flex flex-space-between flex-align-center">
+        <span><i class="far fa-life-ring"></i>&nbsp;Marked As Float</span>
+        <button mat-raised-button color="warn" (click)="setFloating(false)">Un-mark</button>
+      </div>
+    </mat-card>
     <mat-list>
       <mds-data-field *ngIf="store.currentStoreSurvey != null" title="Sales Area"
                       [sqft]="store.currentStoreSurvey.areaSales"></mds-data-field>
@@ -49,6 +55,12 @@
   </button>
   <button mat-menu-item *ngIf="store.storeType != 'HISTORICAL'" (click)="updateStoreType('HISTORICAL')">
     <i class="fas fa-backward"></i>&nbsp;&nbsp;Change to Historical
+  </button>
+  <button mat-menu-item *ngIf="!store.floating" (click)="setFloating(true)">
+    <i class="fas fa-life-ring"></i>&nbsp;&nbsp;Mark as Float
+  </button>
+  <button mat-menu-item *ngIf="store.floating" (click)="setFloating(false)">
+    <i class="far fa-life-ring"></i>&nbsp;&nbsp;Unmark as Float
   </button>
   <button mat-menu-item (click)="openVolumeDialog()">
     <i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;Volumes

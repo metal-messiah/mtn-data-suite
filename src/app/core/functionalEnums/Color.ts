@@ -8,6 +8,7 @@ export enum Color {
   WHITE = '#ffffff',
   BLACK = '#000000',
   PURPLE = '#bc54ff',
+  PURPLE_DARK = '#682b85',
   YELLOW = '#ffe448',
   PINK = '#ff80d3'
 }

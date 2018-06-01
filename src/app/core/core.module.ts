@@ -12,9 +12,7 @@ import { DetailFormService } from './services/detail-form.service';
 import { EntityListService } from './services/entity-list.service';
 import { SiteService } from './services/site.service';
 import { ProjectService } from './services/project.service';
-import { IconService } from './services/icon.service';
 import { GeocoderService } from './services/geocoder.service';
-import { LabelService } from './services/label.service';
 import { NavigatorService } from './services/navigator.service';
 import { MapService } from './services/map.service';
 import { StoreService } from './services/store.service';
@@ -36,8 +34,6 @@ import { StoreVolumeService } from './services/store-volume.service';
     ErrorService,
     GeocoderService,
     GroupService,
-    IconService,
-    LabelService,
     MapService,
     NavigatorService,
     PermissionService,

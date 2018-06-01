@@ -10,6 +10,9 @@ import { Observable } from 'rxjs/Observable';
 import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
 import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
 import { StoreVolume } from '../../models/store-volume';
+import { SimplifiedStore } from '../../models/simplified-store';
+import { Color } from '../functionalEnums/Color';
+import { MarkerType } from '../functionalEnums/MarkerType';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {
@@ -20,16 +23,16 @@ export class StoreService extends CrudService<Store> {
     super(http, rest);
   }
 
-  getStoresOfTypeInBounds(bounds: any): Observable<Pageable<Store>> {
+  getStoresOfTypeInBounds(bounds: any): Observable<Pageable<SimplifiedStore>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams().set('size', '300');
     params = params.set('store_type', 'ACTIVE');
     _.forEach(bounds, function (value, key) {
       params = params.set(key, value);
     });
-    return this.http.get<Pageable<Store>>(url, {headers: this.rest.getHeaders(), params: params})
+    return this.http.get<Pageable<SimplifiedStore>>(url, {headers: this.rest.getHeaders(), params: params})
       .map((page) => {
-        page.content = page.content.map(store => new Store(store));
+        page.content = page.content.map(store => new SimplifiedStore(store));
         return page;
       });
   }
@@ -81,6 +84,19 @@ export class StoreService extends CrudService<Store> {
       .map(updatedStore => {
         return new Store(updatedStore);
       });
+  }
+
+  getLabel(store: Store|SimplifiedStore) {
+    let label = null;
+    if (store.banner != null) {
+      label = store.banner.bannerName;
+    } else {
+      label = store.storeName;
+    }
+    if (store.storeNumber != null) {
+      label = `${label} (${store.storeNumber})`;
+    }
+    return label;
   }
 
   protected createEntityFromObj(entityObj): Store {

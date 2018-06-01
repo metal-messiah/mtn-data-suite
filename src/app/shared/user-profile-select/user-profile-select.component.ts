@@ -25,7 +25,7 @@ export class UserProfileSelectComponent implements OnInit {
 
   ngOnInit() {
     this.loading = true;
-    this.userProfileService.getAllUserProfiles()
+    this.userProfileService.getUserProfiles()
       .finally(() => this.loading = false)
       .subscribe((page: Pageable<UserProfile>) => {
         this.latestPage = page;
@@ -45,7 +45,7 @@ export class UserProfileSelectComponent implements OnInit {
 
   loadMore(): void {
     this.loading = true;
-    this.userProfileService.getAllUserProfiles(this.latestPage.number + 1)
+    this.userProfileService.getUserProfiles(this.latestPage.number + 1)
       .finally(() => this.loading = false)
       .subscribe((page: Pageable<UserProfile>) => {
         this.latestPage = page;

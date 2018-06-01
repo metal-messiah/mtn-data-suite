@@ -5,14 +5,16 @@ import { Color } from '../core/functionalEnums/Color';
 
 export class FollowMeLayer extends MapPointLayer<Mappable> {
 
-  locationMarker: google.maps.Marker;
+  followMeMappable: Mappable;
 
-  constructor() {
-    super({
-      getMappableIsDraggable: (mappable: Mappable) => {
-        return false;
-      },
-      getMappableIcon: (mappable: Mappable) => {
+  constructor(coordinates: Coordinates) {
+    super();
+
+    this.followMeMappable = {
+      id: 1,
+      getCoordinates: () => coordinates,
+      getLabel: () => '',
+      getIcon: () => {
         return {
           path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
           fillColor: Color.BLUE,
@@ -23,20 +25,12 @@ export class FollowMeLayer extends MapPointLayer<Mappable> {
           labelOrigin: new google.maps.Point(0, -2)
         };
       },
-      getMappableLabel: (mappable: Mappable) => {
-        return null;
-      }
-    });
-
-    // Create Marker
-    this.locationMarker = new google.maps.Marker({
-      position: {lat: 0, lng: 0}
-    });
-    this.markers = [ this.locationMarker ];
-    this.setMarkerOptions(this.locationMarker);
+      isDraggable: () => false
+    };
+    this.createMarkerFromMappable(this.followMeMappable);
   }
 
   updatePosition(coordinates: Coordinates) {
-    this.locationMarker.setPosition(coordinates);
+    this.getMarkerForMappable(this.followMeMappable).setPosition(coordinates);
   }
 }

@@ -13,17 +13,17 @@
   <mat-divider></mat-divider>
   <div class="row content">
     <div class="list-wrapper">
-      <div *ngIf="this.site == null || this.saving">
+      <div *ngIf="site == null || saving">
         <mat-progress-bar class="centered" mode="indeterminate"></mat-progress-bar>
       </div>
-      <div *ngIf="this.site != null">
-        <mat-card *ngIf="this.site.assignee != null && !saving" class="simple-card notice">
+      <div *ngIf="site != null">
+        <mat-card *ngIf="site.assignee != null && !saving" class="simple-card notice">
           <div class="flex flex-space-between flex-align-center">
-            <span>Assigned to <strong>{{this.site.assignee.email}}</strong></span>
+            <span>Assigned to <strong>{{site.assignee.email}}</strong></span>
             <button mat-raised-button color="accent" (click)="assignToUser(null)">Unassign</button>
           </div>
         </mat-card>
-        <mat-card *ngIf="this.site.duplicate && !saving" class="simple-card warning">
+        <mat-card *ngIf="site.duplicate && !saving" class="simple-card warning">
           <div class="flex flex-space-between flex-align-center">
             <span><i class="fas fa-flag"></i>&nbsp;Flagged As Duplicate</span>
             <button mat-raised-button color="warn" (click)="setDuplicateFlag(false)">Unflag</button>

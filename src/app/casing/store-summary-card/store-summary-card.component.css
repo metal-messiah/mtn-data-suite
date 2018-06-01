@@ -14,3 +14,15 @@
 .mat-dialog-container {
   padding: 0;
 }
+
+.simple-card {
+  margin: 4px;
+  padding: 12px;
+}
+
+.warning {
+  background: yellow;
+  font-weight: bold;
+}
+
+

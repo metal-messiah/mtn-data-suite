@@ -20,7 +20,7 @@ export class UserProfileService extends CrudService<UserProfile> {
     return new UserProfile(entityObj);
   }
 
-  getAllUserProfiles(pageNumber?: number): Observable<Pageable<UserProfile>> {
+  getUserProfiles(pageNumber?: number): Observable<Pageable<UserProfile>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams();
     if (pageNumber != null) {

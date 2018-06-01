@@ -1,5 +1,5 @@
 import { Component, NgZone, OnInit } from '@angular/core';
-import { MatDialog, MatSnackBar, MatSnackBarConfig, MatSnackBarVerticalPosition } from '@angular/material';
+import { MatDialog, MatSnackBar, MatSnackBarConfig } from '@angular/material';
 import { debounceTime } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -9,12 +9,6 @@ import { Site } from '../../models/site';
 import { CasingDashboardService } from './casing-dashboard.service';
 import { MarkerType } from '../../core/functionalEnums/MarkerType';
 import { GeocoderService } from '../../core/services/geocoder.service';
-import { Mappable } from '../../interfaces/mappable';
-import { MapPointLayer } from '../../models/map-point-layer';
-import { Color } from '../../core/functionalEnums/Color';
-import { MarkerShape } from '../../core/functionalEnums/MarkerShape';
-import { IconService } from '../../core/services/icon.service';
-import { LabelService } from '../../core/services/label.service';
 import { NavigatorService } from '../../core/services/navigator.service';
 import { FindMeLayer } from '../../models/find-me-layer';
 import { FollowMeLayer } from '../../models/follow-me-layer';
@@ -24,14 +18,18 @@ import { GoogleSearchComponent } from '../google-search/google-search.component'
 import { GooglePlace } from '../../models/google-place';
 import { Subscription } from 'rxjs/Subscription';
 import { StoreService } from '../../core/services/store.service';
-import { Store } from '../../models/store';
 import { MappableService } from '../../shared/mappable.service';
 import { DatabaseSearchComponent } from '../database-search/database-search.component';
 import { AuthService } from '../../core/services/auth.service';
 import { ErrorService } from '../../core/services/error.service';
-import { Pageable } from '../../models/pageable';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
 import { SimplifiedUserProfile } from '../../models/simplified-user-profile';
+import { SimplifiedStore } from '../../models/simplified-store';
+import { StoreMapLayer } from '../../models/store-map-layer';
+import { Store } from '../../models/store';
+import { NewSiteLayer } from '../../models/new-site-layer';
+import { GooglePlaceLayer } from '../../models/google-place-layer';
+import { StoreSelectionMode } from '../enums/store-selection-mode';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -59,51 +57,42 @@ export enum CardState {
 })
 export class CasingDashboardComponent implements OnInit {
 
-  movingStore: Store;
-  newLocation: Mappable;
-
+  selectedStore: Store | SimplifiedStore;
   selectedGooglePlace: GooglePlace;
 
-  defaultPointLayer: MapPointLayer<Store>;
-  newLocationPointLayer: MapPointLayer<Mappable>;
+  // Layers
+  storeMapLayer: StoreMapLayer;
+  newSiteLayer: NewSiteLayer;
   followMeLayer: FollowMeLayer;
-  googleLayer: MapPointLayer<GooglePlace>;
+  googlePlacesLayer: GooglePlaceLayer;
 
   // Flags
   showingBoundaries = false;
   sideNavIsOpen = false;
-  saving = false;
 
   // Modes
   selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
   selectedMultiSelectTool = MultiSelectToolTypes.CLICK;
-  selectedMultiSelectMode = MultiSelectMode.SELECT;
-  selectedMarkerType = MarkerType.PIN;
   selectedCardState = CardState.HIDDEN;
 
   // Enums for template
   casingDashboardMode = CasingDashboardMode;
   multiSelectToolType = MultiSelectToolTypes;
-  multiSelectMode = MultiSelectMode;
   markerType = MarkerType;
   cardState = CardState;
+  storeSelectionMode = StoreSelectionMode;
 
   googleSearchSubscription: Subscription;
-
-  page: Pageable<any>;
 
   constructor(public mapService: MapService,
               public geocoderService: GeocoderService,
               public casingDashboardService: CasingDashboardService,
               private siteService: SiteService,
               private storeService: StoreService,
-              public mappableService: MappableService<Store>,
               private snackBar: MatSnackBar,
               private ngZone: NgZone,
               private router: Router,
               private route: ActivatedRoute,
-              private labelService: LabelService,
-              private iconService: IconService,
               private navigatorService: NavigatorService,
               private dialog: MatDialog,
               private authService: AuthService,
@@ -111,57 +100,11 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.defaultPointLayer = new MapPointLayer({
-      getMappableIsDraggable: (store: Store) => {
-        return this.storeIsMoving(store);
-      },
-      getMappableIcon: (store: Store) => {
-        let fillColor = Color.BLUE;
-        let strokeColor = Color.WHITE;
-
-        if (store.site.assignee != null) {
-          if (this.authService.sessionUser.id === store.site.assignee.id) {
-            fillColor = Color.GREEN;
-          } else {
-            fillColor = Color.RED;
-          }
-        }
-
-        if (this.mappableService.mappableIsSelected(store)) {
-          strokeColor = Color.YELLOW;
-          fillColor = Color.BLUE_DARK;
-          if (store.site.assignee != null) {
-            if (this.authService.sessionUser.id === store.site.assignee.id) {
-              fillColor = Color.GREEN_DARK;
-            } else {
-              fillColor = Color.RED_DARK;
-            }
-          }
-        }
-        if (this.storeIsMoving(store)) {
-          fillColor = Color.PURPLE;
-        }
-
-        let shape: MarkerShape | google.maps.SymbolPath = MarkerShape.FILLED;
-        if (this.selectedMarkerType === MarkerType.LABEL) {
-          shape = google.maps.SymbolPath.CIRCLE;
-        } else if (store.site.duplicate) {
-          shape = MarkerShape.FLAGGED;
-        }
-
-        return this.iconService.getIcon(fillColor, strokeColor, shape);
-      },
-      getMappableLabel: (store: Store) => {
-        if (this.selectedMarkerType === MarkerType.PIN) {
-          return this.labelService.getLabel(store.getLabel()[0], Color.WHITE);
-        }
-        return this.labelService.getLabel(store.getLabel(), Color.BLACK);
-      }
-    });
+    this.storeMapLayer = new StoreMapLayer(this.authService.sessionUser);
   }
 
-  onMapReady(event) {
-    console.log(`Map is ready: ${event}`);
+  onMapReady(map) {
+    console.log(`Map is ready: ${map}`);
     this.casingDashboardService.getSavedPerspective().subscribe(perspective => {
       if (perspective != null) {
         this.mapService.setCenter({lat: perspective.latitude, lng: perspective.longitude});
@@ -182,44 +125,24 @@ export class CasingDashboardComponent implements OnInit {
     this.mapService.mapClick$.subscribe((coords: object) => {
       this.ngZone.run(() => this.selectedCardState = CardState.HIDDEN);
     });
-    this.defaultPointLayer.markerClick$.subscribe((selectedStore: Store) => {
-      if (this.selectedDashboardMode === CasingDashboardMode.MULTI_SELECT) {
-        if (this.selectedMultiSelectMode === MultiSelectMode.SELECT) {
-          this.mappableService.selectMappable(selectedStore);
-        } else {
-          this.mappableService.deselectMappable(selectedStore);
+    this.storeMapLayer.storeSelection$.subscribe((store: Store | SimplifiedStore) => {
+      this.ngZone.run(() => {
+        if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
+          this.selectedStore = store;
+          this.selectedCardState = CardState.SELECTED_MAPPABLE;
         }
-        this.defaultPointLayer.refreshOptionsForMappable(selectedStore);
-        this.ngZone.run(() => true);
-      } else if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) { // Don't select while moving, creating or following
-        const prevSelectedStore = this.mappableService.getLatestSelection();
-        this.mappableService.deselectAll();
-        this.mappableService.selectMappable(selectedStore);
-        if (prevSelectedStore != null) {
-          this.defaultPointLayer.refreshOptionsForMappable(prevSelectedStore);
-        }
-        this.defaultPointLayer.refreshOptionsForMappable(selectedStore);
-        this.ngZone.run(() => this.selectedCardState = CardState.SELECTED_MAPPABLE);
-      }
+      });
     });
-  }
-
-  storeIsMoving(store: Store) {
-    // If Store is new (has no store_id) or is being moved
-    return store.site.id == null ||
-      (this.movingStore != null && store.site.id === this.movingStore.site.id);
   }
 
   getActiveStores(bounds): void {
     console.log('Getting Stores');
     this.storeService.getStoresOfTypeInBounds(bounds).subscribe(page => {
-      this.page = page;
-      this.mappableService.setMappables(page.content);
-      this.defaultPointLayer.clearMarkers();
-      this.defaultPointLayer.createMarkersFromMappables(this.mappableService.getMappables());
-      this.mapService.addPointLayer(this.defaultPointLayer);
+      this.storeMapLayer.setStores(page.content);
+      this.mapService.addPointLayer(this.storeMapLayer);
       this.ngZone.run(() => {
-        this.openSnackBar(`Showing ${page.numberOfElements} items of ${page.totalElements}`, null, 1000);
+        const message = `Showing ${page.numberOfElements} items of ${page.totalElements}`;
+        this.snackBar.open(message, null, {duration: 1000, verticalPosition: 'top'});
       });
     }, err => {
       this.ngZone.run(() => {
@@ -236,49 +159,28 @@ export class CasingDashboardComponent implements OnInit {
     // TODO fit map to boundaries
   }
 
-  createNewLocation(): void {
+  createNewSite(): void {
     this.sideNavIsOpen = false;
     this.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
     // Create new Layer for new Location
-    this.newLocationPointLayer = new MapPointLayer({
-      getMappableIsDraggable: (mappable: Mappable) => {
-        return true;
-      },
-      getMappableIcon: (mappable: Mappable) => {
-        return this.iconService.getIcon(Color.PURPLE, Color.WHITE, MarkerShape.DEFAULT);
-      },
-      getMappableLabel: (mappable: Mappable) => {
-        return null;
-      }
-    });
-    // Create new location
-    this.newLocation = {
-      getCoordinates: () => {
-        return this.mapService.getCenter();
-      },
-      id: 0
-    };
-    // Add new location to layer
-    this.newLocationPointLayer.createMarkerFromMappable(this.newLocation);
+    this.newSiteLayer = new NewSiteLayer(this.mapService.getCenter());
     // Add Layer to map
-    this.mapService.addPointLayer(this.newLocationPointLayer);
+    this.mapService.addPointLayer(this.newSiteLayer);
   }
 
-  cancelLocationCreation(): void {
+  cancelSiteCreation(): void {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
     // Remove layer from map
-    this.newLocationPointLayer.removeFromMap();
+    this.newSiteLayer.removeFromMap();
     // Delete new Location layer
-    this.newLocationPointLayer = null;
-    // Delete new location
-    this.newLocation = null;
+    this.newSiteLayer = null;
   }
 
   editNewLocation(): void {
-    const coordinates = this.newLocationPointLayer.getCoordinatesOfMappableMarker(this.newLocation);
+    const coordinates = this.newSiteLayer.getCoordinatesOfNewSite();
     this.geocoderService.reverseGeocode(coordinates).subscribe((address: Site) => {
       // If reverse geocode is successful - exit creation state (moving on to site page)
-      this.cancelLocationCreation();
+      this.cancelSiteCreation();
       // Create a new site from reverse geocode - make sharable via service
       this.casingDashboardService.newSite = new Site(address);
       // Navigate to site detail to edit site before saving to DB
@@ -308,7 +210,7 @@ export class CasingDashboardComponent implements OnInit {
   activateFollowMe(): void {
     this.sideNavIsOpen = false;
     this.selectedDashboardMode = CasingDashboardMode.FOLLOWING;
-    this.followMeLayer = new FollowMeLayer();
+    this.followMeLayer = new FollowMeLayer(this.mapService.getCenter());
     this.mapService.addPointLayer(this.followMeLayer);
     this.navigatorService.watchPosition({maximumAge: 2000}).subscribe(
       position => {
@@ -347,31 +249,27 @@ export class CasingDashboardComponent implements OnInit {
    */
   moveStore(store) {
     this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
-    this.movingStore = store;
-    this.defaultPointLayer.refreshOptionsForMappable(this.movingStore);
+    this.storeMapLayer.startMovingStore(store);
   }
 
   cancelStoreMove() {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    const store = this.movingStore;
-    this.movingStore = null;
-    this.defaultPointLayer.resetPositionOfMappable(store);
-    this.defaultPointLayer.refreshOptionsForMappable(store);
+    this.storeMapLayer.cancelMovingStore();
   }
 
   saveStoreMove() {
     // Get new coordinates
-    const coordinates = this.defaultPointLayer.getCoordinatesOfMappableMarker(this.movingStore);
-
+    const movedStore = this.storeMapLayer.getMovedStore();
+    const coordinates = this.storeMapLayer.getMovedStoreCoordinates();
     // Get Full version of site
-    this.siteService.getOneById(this.movingStore.site.id).subscribe((site: Site) => {
+    this.siteService.getOneById(movedStore.site.id).subscribe((site: Site) => {
       // Save updated values
       site.latitude = coordinates.lat;
       site.longitude = coordinates.lng;
 
       this.siteService.update(site).subscribe(updatedSite => {
         this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-        this.movingStore = null;
+        this.storeMapLayer.cancelMovingStore();
         this.getActiveStores(this.mapService.getBounds());
       }, updateError => {
         // TODO handle update error
@@ -384,36 +282,30 @@ export class CasingDashboardComponent implements OnInit {
   /*
   Multi-select
    */
-  multiSelect(): void {
+  enableMultiSelect(): void {
     this.sideNavIsOpen = false;
     this.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
+    this.storeMapLayer.clearSelection();
+    this.storeMapLayer.selectionMode = StoreSelectionMode.MULTI_SELECT;
     // Activate Map Drawing Tools and listen for completed Shapes
     this.mapService.activateDrawingTools().subscribe(shape => {
-      // Get Mappaples in drawn shape
-      // TODO - Not all mappables may be mapped as user draws polygon and pans screen - need to get these from Web Service
-      const mappables = this.defaultPointLayer.getMappablesInShape(shape);
-
-      // Select or deselect mappables
-      if (this.selectedMultiSelectMode === MultiSelectMode.SELECT) {
-        this.mappableService.selectMappables(mappables);
-      } else if (this.selectedMultiSelectMode === MultiSelectMode.DESELECT) {
-        this.mappableService.deselectMappables(mappables);
+      // TODO - Not all stores may be mapped as user draws polygon and pans screen
+      if (this.storeMapLayer.selectionMode === StoreSelectionMode.MULTI_SELECT) {
+        this.storeMapLayer.selectStoresInShape(shape);
+      } else if (this.storeMapLayer.selectionMode === StoreSelectionMode.MULTI_DESELECT) {
+        this.storeMapLayer.deselectStoresInShape(shape);
       }
-      // Refresh marker Appearance
-      this.defaultPointLayer.refreshOptionsForMappables(mappables);
-      // Remove drawings from maps
-      this.mapService.clearDrawings();
+      this.ngZone.run(() => {
+        this.mapService.clearDrawings();
+      });
     });
   }
 
   cancelMultiSelect(): void {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    // Deactivate drawing tools
+    this.storeMapLayer.selectionMode = StoreSelectionMode.SINGLE_SELECT;
     this.mapService.deactivateDrawingTools();
-    // Clear Selected mappables
-    this.mappableService.deselectAll();
-    // Refresh marker Appearance
-    this.defaultPointLayer.refreshOptions();
+    this.storeMapLayer.clearSelection();
   }
 
   setMultiSelectTool(tool: MultiSelectToolTypes) {
@@ -429,25 +321,17 @@ export class CasingDashboardComponent implements OnInit {
     }
   }
 
-  setMultiSelectMode(mode: MultiSelectMode) {
-    this.selectedMultiSelectMode = mode;
-  }
-
-
   setMarkerType(markerType: MarkerType) {
     this.sideNavIsOpen = false;
-    this.selectedMarkerType = markerType;
-    this.defaultPointLayer.refreshOptions();
+    this.storeMapLayer.setMarkerType(markerType);
   }
 
   openDatabaseSearch() {
     const databaseSearchDialog = this.dialog.open(DatabaseSearchComponent);
-    databaseSearchDialog.afterClosed().subscribe((store: Store) => {
-      this.mappableService.deselectAll();
-      this.mappableService.selectMappable(store);
-      this.mapService.setCenter(store.getCoordinates());
-      this.defaultPointLayer.refreshOptions();
+    databaseSearchDialog.afterClosed().subscribe((store: SimplifiedStore) => {
+      this.mapService.setCenter(this.siteService.getCoordinates(store.site));
       this.selectedCardState = CardState.SELECTED_MAPPABLE;
+      setTimeout(() => this.storeMapLayer.selectStore(store), 1000);
     });
   }
 
@@ -456,19 +340,10 @@ export class CasingDashboardComponent implements OnInit {
     googleSearchDialog.afterClosed().subscribe(result => {
       if (result != null) {
         // Create google point layer
-        if (this.googleLayer == null) {
-          this.googleLayer = new MapPointLayer({
-            getMappableIsDraggable: (place: GooglePlace) => {
-              return false;
-            },
-            getMappableIcon: (place: GooglePlace) => {
-              return this.iconService.getIcon(Color.PINK, Color.WHITE, MarkerShape.FILLED);
-            },
-            getMappableLabel: (place: GooglePlace) => {
-              return place.name;
-            }
-          });
-          this.googleLayer.markerClick$.subscribe((googlePlace: GooglePlace) => {
+        if (this.googlePlacesLayer == null) {
+          this.googlePlacesLayer = new GooglePlaceLayer();
+          this.mapService.addPointLayer(this.googlePlacesLayer);
+          this.googlePlacesLayer.markerClick$.subscribe((googlePlace: GooglePlace) => {
             console.log(googlePlace);
             this.selectedGooglePlace = googlePlace;
             this.selectedCardState = CardState.GOOGLE;
@@ -476,7 +351,7 @@ export class CasingDashboardComponent implements OnInit {
         }
 
         if (result.place != null) {
-          this.updateGoogleLayer([result.place]);
+          this.googlePlacesLayer.setGooglePlaces([result.place]);
           this.mapService.setCenter(result.place.getCoordinates());
         } else if (result.query != null) {
           this.getGoogleLocationInView(result.query);
@@ -492,14 +367,8 @@ export class CasingDashboardComponent implements OnInit {
 
   getGoogleLocationInView(query: string) {
     this.mapService.searchFor(query).subscribe((searchResults: GooglePlace[]) => {
-      this.ngZone.run(() => this.updateGoogleLayer(searchResults));
+      this.ngZone.run(() => this.googlePlacesLayer.setGooglePlaces(searchResults));
     });
-  }
-
-  updateGoogleLayer(mappables: GooglePlace[]) {
-    this.googleLayer.clearMarkers();
-    this.googleLayer.createMarkersFromMappables(mappables);
-    this.mapService.addPointLayer(this.googleLayer);
   }
 
   clearGoogleSearch() {
@@ -508,8 +377,8 @@ export class CasingDashboardComponent implements OnInit {
       this.googleSearchSubscription.unsubscribe();
       this.googleSearchSubscription = null;
     }
-    this.googleLayer.removeFromMap();
-    this.googleLayer = null;
+    this.googlePlacesLayer.removeFromMap();
+    this.googlePlacesLayer = null;
   }
 
   saveGooglePlaceAsStore() {
@@ -552,46 +421,32 @@ export class CasingDashboardComponent implements OnInit {
     });
   }
 
-  onStoreEdited(store: Store) {
-    this.ngZone.run(() => {
-      this.defaultPointLayer.refreshOptionsForMappable(store);
-      this.openSnackBar(`Successfully updated store`, null, 1500);
-    });
+  onStoreUpdated(store: SimplifiedStore) {
+    this.ngZone.run(() => this.storeMapLayer.updateStore(store));
   }
 
   /*
   Assigning
    */
   openAssignmentDialog() {
-    const selectAssigneeDialog = this.dialog.open(UserProfileSelectComponent);
-    selectAssigneeDialog.afterClosed().subscribe(user => {
-      if (user != null) {
-        this.assignSelectedStoresToUser(user);
-      }
-    });
+    this.dialog.open(UserProfileSelectComponent).afterClosed()
+      .subscribe(user => {
+        if (user != null) {
+          this.assignSelectedStoresToUser(user);
+        }
+      });
   }
 
   assignSelectedStoresToUser(user: SimplifiedUserProfile) {
-    const selectedStores = this.mappableService.getSelectedMappables();
     const selectedSiteIds: Set<number> = new Set();
-    selectedStores.forEach(store => {
+    this.storeMapLayer.getSelectedStores().forEach(store => {
       selectedSiteIds.add(store.site.id);
     });
     const userId = (user != null) ? user.id : null;
     this.siteService.assignToUser(Array.from(selectedSiteIds), userId).subscribe((sites: Site[]) => {
-      this.openSnackBar(`Successfully updated ${sites.length} Sites`, null, 2000);
+      const message = `Successfully updated ${sites.length} Sites`;
+      this.snackBar.open(message, null, {duration: 2000});
       this.getActiveStores(this.mapService.getBounds());
     });
   }
-
-  openSnackBar(message: string, action: string, duration: number) {
-    const config: MatSnackBarConfig = {
-      verticalPosition: 'bottom'
-    };
-    if (duration != null) {
-      config['duration'] = duration;
-    }
-    return this.snackBar.open(message, action, config);
-  }
-
 }

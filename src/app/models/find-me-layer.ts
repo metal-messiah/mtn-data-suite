@@ -5,14 +5,15 @@ import { Color } from '../core/functionalEnums/Color';
 
 export class FindMeLayer extends MapPointLayer<Mappable> {
 
-  locationMarker: google.maps.Marker;
+  findMeMappable: Mappable;
 
   constructor(coordinates: Coordinates) {
-    super({
-      getMappableIsDraggable: (mappable: Mappable) => {
-        return false;
-      },
-      getMappableIcon: (mappable: Mappable) => {
+    super();
+    this.findMeMappable = {
+      id: 1,
+      getCoordinates: () => coordinates,
+      getLabel: () => '',
+      getIcon: () => {
         return {
           path: google.maps.SymbolPath.CIRCLE,
           fillColor: Color.BLUE,
@@ -23,17 +24,10 @@ export class FindMeLayer extends MapPointLayer<Mappable> {
           labelOrigin: new google.maps.Point(0, -2)
         };
       },
-      getMappableLabel: (mappable: Mappable) => {
-        return null;
-      }
-    });
+      isDraggable: () => false
+    };
+    this.createMarkerFromMappable(this.findMeMappable);
 
-    // Create Marker
-    this.locationMarker = new google.maps.Marker({
-      position: coordinates
-    });
-    this.markers = [ this.locationMarker ];
-    this.setMarkerOptions(this.locationMarker);
-    this.locationMarker.setAnimation(google.maps.Animation.BOUNCE);
+    this.getMarkerForMappable(this.findMeMappable).setAnimation(google.maps.Animation.BOUNCE);
   }
 }

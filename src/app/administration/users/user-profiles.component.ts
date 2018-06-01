@@ -5,6 +5,7 @@ import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-com
 import { EntityListService } from '../../core/services/entity-list.service';
 import { ErrorService } from '../../core/services/error.service';
 import { UserProfileService } from '../../core/services/user-profile.service';
+import { Pageable } from '../../models/pageable';
 
 @Component({
   selector: 'mds-users',
@@ -18,6 +19,8 @@ export class UserProfilesComponent implements OnInit, BasicEntityListComponent<U
   isLoading = false;
   isDeleting = false;
 
+  latestPage: Pageable<UserProfile>;
+
   constructor(private userProfileService: UserProfileService,
               private router: Router,
               private els: EntityListService<UserProfile>,
@@ -29,10 +32,13 @@ export class UserProfilesComponent implements OnInit, BasicEntityListComponent<U
   }
 
   loadEntities(): void {
-    this.userProfileService.getAllUserProfiles()
+    this.userProfileService.getUserProfiles()
       .finally(() => this.isLoading = false)
       .subscribe(
-        pageable => this.userProfiles = pageable.content.sort(this.sortCompare),
+        page => {
+          this.latestPage = page;
+          this.userProfiles = page.content;
+        },
         err => this.errorService.handleServerError(`Failed to retrieve User Profiles`, err,
           () => this.goBack(),
           () => this.els.initialize(this))
@@ -62,5 +68,17 @@ export class UserProfilesComponent implements OnInit, BasicEntityListComponent<U
   sortCompare(a: UserProfile, b: UserProfile): number {
     const getVal = (obj) => obj.firstName ? obj.firstName : obj.lastName ? obj.lastName : obj.email;
     return getVal(a).localeCompare(getVal(b));
+  }
+
+  loadMore(): void {
+    this.isLoading = true;
+    this.userProfileService.getUserProfiles(this.latestPage.number + 1)
+      .finally(() => this.isLoading = false)
+      .subscribe((page: Pageable<UserProfile>) => {
+        this.latestPage = page;
+        this.userProfiles = this.userProfiles.concat(page.content);
+      }, error => this.errorService.handleServerError('Failed to get Users', error,
+        () => this.goBack(),
+        () => this.loadMore()));
   }
 }

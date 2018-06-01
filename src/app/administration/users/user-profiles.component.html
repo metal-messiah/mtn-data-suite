@@ -16,7 +16,7 @@
       <div *ngIf="isLoading" style="text-align: center">
         <i class="fas fa-spinner fa-3x fa-spin" aria-hidden="true"></i>
       </div>
-      <mat-accordion *ngIf="!isLoading">
+      <mat-accordion>
         <mat-expansion-panel *ngFor="let userProfile of userProfiles">
           <mat-expansion-panel-header>
             <mat-panel-title>
@@ -39,6 +39,12 @@
           </mat-action-row>
         </mat-expansion-panel>
       </mat-accordion>
+      <mat-toolbar color="primary" *ngIf="latestPage != null && !latestPage.last" class="flex-space-between" (click)="loadMore()">
+        <span></span>
+        <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+        <button mat-raised-button color="primary" *ngIf="!isLoading">Load More...</button>
+        <span></span>
+      </mat-toolbar>
     </div>
   </div>
 </div>
