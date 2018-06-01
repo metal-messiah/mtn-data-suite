@@ -28,7 +28,7 @@
       <ul>
         <li *ngFor="let volume of store.storeVolumes">
           <strong>{{volume.volumeDate | date:'mediumDate':'UTC' }}:</strong>&nbsp;
-          <span>{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}&nbsp;k</span>
+          <span>{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k</span>
           <span *ngIf="store.currentStoreSurvey != null && store.currentStoreSurvey.areaSales != null">({{volume.volumeTotal/store.currentStoreSurvey.areaSales | currency}}&nbsp;psf)</span>
         </li>
       </ul>
@@ -38,7 +38,7 @@
     <button mat-icon-button [mat-menu-trigger-for]="storeCenterActionMenu">
       <i class="fas fa-ellipsis-v"></i>
     </button>
-    <button mat-raised-button color="warn" [routerLink]="['/casing/store-casings', store.id]">Casings</button>
+    <button mat-raised-button color="warn" [routerLink]="['/casing/store', store.id, 'store-casings']">Casings</button>
     <button mat-raised-button color="accent" [routerLink]="['/casing/store-detail/', store.id]">Edit</button>
   </mat-toolbar>
 </div>

@@ -1,3 +1,52 @@
-<p>
-  store-casings works!
-</p>
+<div class="box">
+  <mat-toolbar color="primary" class="row header flex-space-between">
+    <div>
+      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
+    </div>
+    <span id="title">Store Center Casings</span>
+    <div>
+    </div>
+  </mat-toolbar>
+  <mat-divider></mat-divider>
+  <div class="row content">
+    <div class="list-wrapper">
+      <div id="new-casing-button-wrapper">
+        <button mat-raised-button color="accent"><i class="fas fa-plus"></i>&nbsp;&nbsp;Create New Casing</button>
+      </div>
+      <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+      <mat-accordion *ngIf="!loading">
+        <mat-expansion-panel *ngFor="let casing of casings">
+          <mat-expansion-panel-header>
+            <mat-panel-title>{{casing.casingDate | date}}</mat-panel-title>
+            <mat-panel-description *ngIf="casing.storeVolume != null && casing.storeStatus != null">
+              {{casing.storeVolume.volumeTotal/casing.storeSurvey.areaSales | currency:'USD':'symbol':'1.0-2'}}/sqft</mat-panel-description>
+          </mat-expansion-panel-header>
+          <div>
+            <mds-data-field title="Store Status" [value]="casing.storeStatus.status"></mds-data-field>
+            <mds-data-field title="Average Weekly Volume" [currencyValue]="casing.storeVolume.volumeTotal"></mds-data-field>
+            <mds-data-field title="Sales Area" [sqft]="casing.storeSurvey.areaSales"></mds-data-field>
+            <mds-data-field title="Total Area" [sqft]="casing.storeSurvey.areaTotal"></mds-data-field>
+            <h3>Used for Projects</h3>
+            <ul>
+              <li *ngFor="let project of casing.projects">{{project.projectName}}</li>
+            </ul>
+          </div>
+          <mat-action-row class="flex-space-between">
+            <button mat-icon-button [mat-menu-trigger-for]="storeCasingMore"><i class="fas fa-ellipsis-v"></i></button>
+            <div></div>
+            <button mat-mini-fab color="primary" [routerLink]="['/casing/store-casing/', casing.id]"><i class="fas fa-pencil-alt"></i></button>
+          </mat-action-row>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+</div>
+
+<mat-menu #storeCasingMore="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item>
+    <i class="fas fa-list"></i>&nbsp;&nbsp;Projects
+  </button>
+  <button mat-menu-item>
+    <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
+  </button>
+</mat-menu>

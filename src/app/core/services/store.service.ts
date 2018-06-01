@@ -9,10 +9,8 @@ import { Pageable } from '../../models/pageable';
 import { Observable } from 'rxjs/Observable';
 import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
 import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
-import { StoreVolume } from '../../models/store-volume';
 import { SimplifiedStore } from '../../models/simplified-store';
-import { Color } from '../functionalEnums/Color';
-import { MarkerType } from '../functionalEnums/MarkerType';
+import { SimplifiedStoreCasing } from '../../models/simplified-store-casing';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {
@@ -21,6 +19,18 @@ export class StoreService extends CrudService<Store> {
 
   constructor(protected http: HttpClient, protected rest: RestService) {
     super(http, rest);
+  }
+
+  getCasingsByStoreId(storeId: number) {
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-casing`;
+
+    return this.http.get<SimplifiedStoreCasing[]>(url, {headers: this.rest.getHeaders()})
+      .map(list => {
+        return list.map((casing) => new SimplifiedStoreCasing(casing))
+          .sort((a: SimplifiedStoreCasing, b: SimplifiedStoreCasing) => {
+            return b.casingDate.getTime() - a.casingDate.getTime();
+          });
+      });
   }
 
   getStoresOfTypeInBounds(bounds: any): Observable<Pageable<SimplifiedStore>> {

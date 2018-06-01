@@ -1,7 +1,7 @@
 <div class="box">
   <mat-toolbar color="primary" class="row header flex-space-between">
     <div>
-      <button type="button" mat-raised-button color="accent" (click)="goBack()">Back</button>
+      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
     </div>
     <span id="title">Site Overview</span>
     <div>
@@ -76,15 +76,22 @@
             <button mat-icon-button [mat-menu-trigger-for]="shoppingCenterActionMenu">
               <i class="fas fa-ellipsis-v"></i>
             </button>
-            <button mat-raised-button color="warn"
-                    [routerLink]="['/casing/shopping-center-casings', site.shoppingCenter.id]">
-              Casings
-            </button>
             <button mat-raised-button color="accent"
                     [routerLink]="['/casing/shopping-center-detail', site.shoppingCenter.id]">
               Edit
             </button>
           </mat-toolbar>
+          <mat-menu #shoppingCenterActionMenu="matMenu" [overlapTrigger]="false">
+            <button mat-menu-item disabled>
+              Merge with another SC
+            </button>
+            <button mat-menu-item disabled>
+              View other Sites in SC
+            </button>
+            <button mat-menu-item [routerLink]="['/casing/shopping-center', site.shoppingCenter.id, 'shopping-center-casings']">
+              Manage Casings
+            </button>
+          </mat-menu>
         </div>
 
         <div class="mds-card">
@@ -156,12 +163,3 @@
   </button>
 </mat-menu>
 
-
-<mat-menu #shoppingCenterActionMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item disabled>
-    Merge with another SC
-  </button>
-  <button mat-menu-item disabled>
-    View other Sites in SC
-  </button>
-</mat-menu>

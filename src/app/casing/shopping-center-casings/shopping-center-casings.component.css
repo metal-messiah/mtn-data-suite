@@ -1,0 +1,10 @@
+.mat-action-row {
+  justify-content: space-between;
+}
+
+#new-casing-button-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}

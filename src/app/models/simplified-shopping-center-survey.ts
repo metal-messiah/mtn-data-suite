@@ -9,5 +9,6 @@ export class SimplifiedShoppingCenterSurvey implements Entity {
 
   constructor(obj) {
     Object.assign(this, obj);
+    this.surveyDate = new Date(obj.surveyDate);
   }
 }

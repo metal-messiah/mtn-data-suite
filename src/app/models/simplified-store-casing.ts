@@ -12,7 +12,6 @@ export class SimplifiedStoreCasing implements Entity {
   status: string;
   volumeNote: string;
   volumeConfidence: string;
-  doesNotExist: string;
 
   storeVolume: SimplifiedStoreVolume;
   storeStatus: SimplifiedStoreStatus;
@@ -21,6 +20,7 @@ export class SimplifiedStoreCasing implements Entity {
 
   constructor(obj) {
     Object.assign(this, obj);
+    this.casingDate = new Date(obj.casingDate);
     if (obj.storeVolume != null) {
       this.storeVolume = new SimplifiedStoreVolume(obj.storeVolume);
     }

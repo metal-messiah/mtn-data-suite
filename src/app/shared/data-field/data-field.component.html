@@ -2,7 +2,7 @@
   <span><strong>{{title}}</strong></span>
   <span *ngIf="value != null">{{value}}</span>
   <span *ngIf="sqft != null">{{sqft | number:'1.0-0' }}&nbsp;sqft</span>
-  <span *ngIf="currencyValue != null">{{currencyValue/1000 | currency:'USD':'symbol':'1.0-0' }}</span>
+  <span *ngIf="currencyValue != null">{{currencyValue/1000 | currency:'USD':'symbol':'1.0-0' }}k</span>
   <span *ngIf="dateValue != null">{{dateValue | date:'mediumDate':'UTC'}}</span>
 </div>
 <mat-divider></mat-divider>

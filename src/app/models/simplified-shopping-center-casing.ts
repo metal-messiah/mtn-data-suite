@@ -1,5 +1,6 @@
 import { Entity } from './entity';
 import { SimplifiedShoppingCenterSurvey } from './simplified-shopping-center-survey';
+import { SimplifiedProject } from './simplified-project';
 
 export class SimplifiedShoppingCenterCasing implements Entity {
 
@@ -8,11 +9,16 @@ export class SimplifiedShoppingCenterCasing implements Entity {
   note: string;
 
   shoppingCenterSurvey: SimplifiedShoppingCenterSurvey;
+  projects: SimplifiedProject[];
 
   constructor(obj) {
     Object.assign(this, obj);
+    this.casingDate = new Date(obj.casingDate);
     if (obj.shoppingCenterSurvey != null) {
       this.shoppingCenterSurvey = new SimplifiedShoppingCenterSurvey(obj.shoppingCenterSurvey);
+    }
+    if (obj.projects != null) {
+      this.projects = obj.projects.map((p) => new SimplifiedProject(p));
     }
   }
 }

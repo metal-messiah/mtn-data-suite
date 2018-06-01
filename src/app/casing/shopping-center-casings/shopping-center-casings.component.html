@@ -1,3 +1,46 @@
-<p>
-  shopping-center-casings works!
-</p>
+<div class="box">
+  <mat-toolbar color="primary" class="row header flex-space-between">
+    <div>
+      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
+    </div>
+    <span id="title">Shopping Center Casings</span>
+    <div>
+    </div>
+  </mat-toolbar>
+  <mat-divider></mat-divider>
+  <div class="row content">
+    <div class="list-wrapper">
+      <div id="new-casing-button-wrapper">
+        <button mat-raised-button color="accent"><i class="fas fa-plus"></i>&nbsp;&nbsp;Create New Casing</button>
+      </div>
+      <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+      <mat-accordion *ngIf="!loading">
+        <mat-expansion-panel *ngFor="let casing of casings">
+          <mat-expansion-panel-header>
+            <mat-panel-title>{{casing.casingDate | date}}</mat-panel-title>
+          </mat-expansion-panel-header>
+          <div>
+            <h3>Used for Projects</h3>
+            <ul>
+              <li *ngFor="let project of casing.projects">{{project.projectName}}</li>
+            </ul>
+          </div>
+          <mat-action-row class="flex-space-between">
+            <button mat-icon-button [mat-menu-trigger-for]="scCasingMore"><i class="fas fa-ellipsis-v"></i></button>
+            <div></div>
+            <button mat-mini-fab color="primary"><i class="fas fa-pencil-alt"></i></button>
+          </mat-action-row>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+</div>
+
+<mat-menu #scCasingMore="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item>
+    <i class="fas fa-list"></i>&nbsp;&nbsp;Projects
+  </button>
+  <button mat-menu-item>
+    <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
+  </button>
+</mat-menu>

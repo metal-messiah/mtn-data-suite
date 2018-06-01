@@ -16,6 +16,7 @@ import { ShoppingCenterCasingDetailComponent } from './shopping-center-casing-de
 import { StoreDetailComponent } from './store-detail/store-detail.component';
 import { StoreCasingsComponent } from './store-casings/store-casings.component';
 import { ShoppingCenterCasingsComponent } from './shopping-center-casings/shopping-center-casings.component';
+import { StoreCasingDetailComponent } from './store-casing-detail/store-casing-detail.component';
 
 const routes: Routes = [
   {
@@ -31,10 +32,12 @@ const routes: Routes = [
       {path: 'shopping-center-detail', component: ShoppingCenterDetailComponent},
       {path: 'store-detail/:id', component: StoreDetailComponent},
       {path: 'store-detail', component: StoreDetailComponent},
-      {path: 'store-casings/:storeId', component: StoreCasingsComponent},
-      {path: 'shopping-center-storeCasing-detail/:id', component: ShoppingCenterCasingDetailComponent},
-      {path: 'shopping-center-storeCasing-detail', component: ShoppingCenterCasingDetailComponent},
-      {path: 'shopping-center-casings/:shoppingCenterId', component: ShoppingCenterCasingsComponent},
+      {path: 'store/:storeId/store-casings', component: StoreCasingsComponent},
+      {path: 'store-casing/:id', component: StoreCasingDetailComponent},
+      {path: 'store-casing', component: StoreCasingDetailComponent},
+      {path: 'shopping-center-casing-detail/:id', component: ShoppingCenterCasingDetailComponent},
+      {path: 'shopping-center-casing-detail', component: ShoppingCenterCasingDetailComponent},
+      {path: 'shopping-center/:shoppingCenterId/shopping-center-casings', component: ShoppingCenterCasingsComponent},
       {path: 'projects', component: CasingProjectsComponent},
       {path: 'project-summary/:projectId', component: ProjectSummaryComponent},
       {path: 'project-detail/:id', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]},
