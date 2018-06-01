@@ -15,5 +15,6 @@ export class StoreStatus extends AuditingEntity {
     if (obj.store != null) {
       this.store = new SimplifiedStore(obj.store);
     }
+    this.statusStartDate = new Date(obj.statusStartDate);
   }
 }
