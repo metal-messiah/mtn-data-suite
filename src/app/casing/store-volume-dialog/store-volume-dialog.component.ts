@@ -88,7 +88,8 @@ export class StoreVolumeDialogComponent implements OnInit {
 
   saveEditedVolume() {
     this.savingVolume = true;
-    this.editingVolume.volumeDate = this.volumeForm.get('volumeDate').value;
+    const date: Date = this.volumeForm.get('volumeDate').value;
+    this.editingVolume.volumeDate = new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
     this.editingVolume.volumeTotal = this.volumeForm.get('volumeTotal').value;
     this.editingVolume.volumeType = this.volumeForm.get('volumeType').value;
     this.storeVolumeService.update(this.editingVolume)
@@ -104,6 +105,7 @@ export class StoreVolumeDialogComponent implements OnInit {
   addVolume() {
     this.savingVolume = true;
     const storeVolume = new StoreVolume(this.volumeForm.value);
+    storeVolume.volumeDate = new Date(storeVolume.volumeDate.getTime() - new Date().getTimezoneOffset() * 60 * 1000);
     this.storeService.createNewVolume(this.store, storeVolume)
       .finally(() => this.savingVolume = false)
       .subscribe((store: Store) => {

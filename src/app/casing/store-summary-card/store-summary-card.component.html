@@ -27,7 +27,7 @@
       <mds-data-field title="Volumes" [value]=""></mds-data-field>
       <ul>
         <li *ngFor="let volume of store.storeVolumes">
-          <strong>{{volume.volumeDate | date }}:</strong>&nbsp;
+          <strong>{{volume.volumeDate | date:'mediumDate':'UTC' }}:</strong>&nbsp;
           <span>{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}&nbsp;k</span>
           <span *ngIf="store.currentStoreSurvey != null && store.currentStoreSurvey.areaSales != null">({{volume.volumeTotal/store.currentStoreSurvey.areaSales | currency}}&nbsp;psf)</span>
         </li>

@@ -8,7 +8,7 @@
   <mat-expansion-panel *ngFor="let casing of shoppingCenter.shoppingCenterCasings"
                        (opened)="onShoppingCenterCasingOpened(casing)">
     <mat-expansion-panel-header>
-      <h4>{{casing.casingDate | date}}</h4>
+      <h4>{{casing.casingDate | date:'mediumDate':'UTC'}}</h4>
     </mat-expansion-panel-header>
     <div *ngIf="selectedSCCasing == null">
       <mat-progress-spinner class="centered" mode="indeterminate"></mat-progress-spinner>
