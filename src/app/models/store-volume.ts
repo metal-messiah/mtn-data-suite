@@ -1,4 +1,5 @@
 import { AuditingEntity } from './auditing-entity';
+import { DateUtil } from '../utils/date-util';
 
 export class StoreVolume extends AuditingEntity {
 
@@ -26,10 +27,9 @@ export class StoreVolume extends AuditingEntity {
 
     this.volumeTotal = obj.volumeTotal;
 
-    if (typeof obj.volumeDate === 'string') {
-      obj.volumeDate = obj.volumeDate + ' GMT-0600';
+    if (obj.volumeDate != null) {
+      this.volumeDate = DateUtil.getDate(obj.volumeDate);
     }
-    this.volumeDate = new Date(obj.volumeDate);
 
     this.volumeType = obj.volumeType;
     this.source = obj.source;

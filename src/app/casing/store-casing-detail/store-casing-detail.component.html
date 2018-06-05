@@ -22,10 +22,31 @@
             <mat-datepicker #casingDate></mat-datepicker>
           </mat-form-field>
           <mat-form-field>
-            <textarea formControlName="note" matInput placeholder="Casing Note"></textarea>
+            <textarea formControlName="note" matInput placeholder="Casing Notes"></textarea>
           </mat-form-field>
         </mat-list>
         <mat-accordion>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Projects</mat-panel-title>
+              <mat-panel-description *ngIf="casing.projects != null">({{casing.projects.length}})
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div *ngIf="casing.projects != null" id="projects">
+              <mat-list>
+                <mat-list-item *ngFor="let project of casing.projects">
+                  <div class="project-item">
+                    <div>{{project.projectName}}</div>
+                    <button mat-button color="warn" (click)="removeProject(project)">Remove</button>
+                  </div>
+                </mat-list-item>
+              </mat-list>
+            </div>
+            <mat-action-row>
+              <mat-progress-bar mode="indeterminate" *ngIf="loadingProject"></mat-progress-bar>
+              <button mat-button color="primary" (click)="showProjectSelection()" *ngIf="!loadingProject">Add Project</button>
+            </mat-action-row>
+          </mat-expansion-panel>
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>Store Conditions</mat-panel-title>
@@ -234,7 +255,8 @@
             </div>
             <mat-action-row *ngIf="casing.storeVolume != null || removingVolume">
               <button type="button" mat-button color="primary" (click)="removeVolume()"
-                      *ngIf="casing.storeVolume != null && !removingVolume">Remove Volume</button>
+                      *ngIf="casing.storeVolume != null && !removingVolume">Remove Volume
+              </button>
               <mat-progress-bar mode="indeterminate" *ngIf="removingVolume"></mat-progress-bar>
             </mat-action-row>
           </mat-expansion-panel>

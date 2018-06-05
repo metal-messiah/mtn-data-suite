@@ -10,6 +10,9 @@ import { StoreVolume } from '../../models/store-volume';
 import { StoreService } from '../../core/services/store.service';
 import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
 import { ErrorService } from '../../core/services/error.service';
+import { SelectProjectComponent } from '../select-project/select-project.component';
+import { MatDialog } from '@angular/material';
+import { SimplifiedProject } from '../../models/simplified-project';
 
 @Component({
   selector: 'mds-store-casing-detail',
@@ -28,6 +31,7 @@ export class StoreCasingDetailComponent implements OnInit {
   loadingStoreVolumes = false;
   savingVolume = false;
   removingVolume = false;
+  loadingProject = false;
 
   conditions = ['POOR', 'FAIR', 'AVERAGE', 'GOOD', 'EXCELLENT'];
   confidenceLevels = ['LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH'];
@@ -37,6 +41,7 @@ export class StoreCasingDetailComponent implements OnInit {
               private storeService: StoreService,
               private route: ActivatedRoute,
               private _location: Location,
+              private dialog: MatDialog,
               private errorService: ErrorService,
               private fb: FormBuilder) {
     this.createForm();
@@ -177,7 +182,40 @@ export class StoreCasingDetailComponent implements OnInit {
   }
 
   saveForm() {
+    // TODO
+  }
 
+  showProjectSelection() {
+    const dialogRef = this.dialog.open(SelectProjectComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'clear') {
+        console.log('Project Selection Dialog Closed');
+      } else if (result != null) {
+        const existingProject = this.casing.projects.find((p: SimplifiedProject) => p.id === result.id);
+        if (existingProject != null) {
+          console.warn('Cannot add same project twice');
+        } else {
+          this.loadingProject = true;
+          this.storeCasingService.addProject(this.casing, result)
+            .finally(() => this.loadingProject = false)
+            .subscribe((casing: StoreCasing) => {
+              this.casing = casing;
+              this.rebuildForm();
+            });
+        }
+      }
+    });
+  }
+
+  removeProject(project: SimplifiedProject) {
+    this.loadingProject = true;
+    this.storeCasingService.removeProject(this.casing, project)
+      .finally(() => this.loadingProject = false)
+      .subscribe((casing: StoreCasing) => {
+        this.casing = casing;
+        this.rebuildForm();
+      });
   }
 
 }

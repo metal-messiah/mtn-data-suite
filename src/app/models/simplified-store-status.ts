@@ -1,4 +1,5 @@
 import { Entity } from './entity';
+import { DateUtil } from '../utils/date-util';
 
 export class SimplifiedStoreStatus implements Entity {
 
@@ -8,9 +9,9 @@ export class SimplifiedStoreStatus implements Entity {
 
   constructor(obj) {
     Object.assign(this, obj);
-    if (typeof obj.statusStartDate === 'string') {
-      obj.statusStartDate = obj.statusStartDate + ' GMT-0600';
+
+    if (obj.statusStartDate != null) {
+      this.statusStartDate = DateUtil.getDate(obj.statusStartDate);
     }
-    this.statusStartDate = new Date(obj.statusStartDate);
   }
 }

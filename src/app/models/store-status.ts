@@ -1,5 +1,6 @@
 import { AuditingEntity } from './auditing-entity';
 import { SimplifiedStore } from './simplified-store';
+import { DateUtil } from '../utils/date-util';
 
 export class StoreStatus extends AuditingEntity {
 
@@ -12,13 +13,13 @@ export class StoreStatus extends AuditingEntity {
   constructor(obj) {
     super(obj);
     Object.assign(this, obj);
+
     if (obj.store != null) {
       this.store = new SimplifiedStore(obj.store);
     }
 
-    if (typeof obj.statusStartDate === 'string') {
-      obj.statusStartDate = obj.statusStartDate + ' GMT-0600';
+    if (obj.statusStartDate != null) {
+      this.statusStartDate = DateUtil.getDate(obj.statusStartDate);
     }
-    this.statusStartDate = new Date(obj.statusStartDate);
   }
 }

@@ -4,6 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { CrudService } from '../../interfaces/crud-service';
 import { StoreCasing } from '../../models/store-casing';
 import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
+import { SimplifiedProject } from '../../models/simplified-project';
+import { Project } from '../../models/project';
 
 @Injectable()
 export class StoreCasingService extends CrudService<StoreCasing> {
@@ -29,6 +31,24 @@ export class StoreCasingService extends CrudService<StoreCasing> {
 
   removeStoreVolume(casing: StoreCasing) {
     const url = this.rest.getHost() + this.endpoint + `/${casing.id}/store-volume`;
+
+    return this.http.delete<StoreCasing>(url, {headers: this.rest.getHeaders()})
+      .map(updatedCasing => {
+        return new StoreCasing(updatedCasing);
+      });
+  }
+
+  addProject(casing: StoreCasing, project: SimplifiedProject | Project) {
+    const url = this.rest.getHost() + this.endpoint + `/${casing.id}/projects/${project.id}`;
+
+    return this.http.put<StoreCasing>(url, null, {headers: this.rest.getHeaders()})
+      .map(updatedCasing => {
+        return new StoreCasing(updatedCasing);
+      });
+  }
+
+  removeProject(casing: StoreCasing, project: SimplifiedProject | Project) {
+    const url = this.rest.getHost() + this.endpoint + `/${casing.id}/projects/${project.id}`;
 
     return this.http.delete<StoreCasing>(url, {headers: this.rest.getHeaders()})
       .map(updatedCasing => {

@@ -1,6 +1,7 @@
 import { Entity } from './entity';
 import { SimplifiedShoppingCenterSurvey } from './simplified-shopping-center-survey';
 import { SimplifiedProject } from './simplified-project';
+import { DateUtil } from '../utils/date-util';
 
 export class SimplifiedShoppingCenterCasing implements Entity {
 
@@ -14,10 +15,9 @@ export class SimplifiedShoppingCenterCasing implements Entity {
   constructor(obj) {
     Object.assign(this, obj);
 
-    if (typeof obj.casingDate === 'string') {
-      obj.casingDate = obj.casingDate + ' GMT-0600';
+    if (obj.casingDate != null) {
+      this.casingDate = DateUtil.getDate(obj.casingDate);
     }
-    this.casingDate = new Date(obj.casingDate);
     if (obj.shoppingCenterSurvey != null) {
       this.shoppingCenterSurvey = new SimplifiedShoppingCenterSurvey(obj.shoppingCenterSurvey);
     }

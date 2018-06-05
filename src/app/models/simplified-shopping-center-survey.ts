@@ -1,4 +1,5 @@
 import { Entity } from './entity';
+import { DateUtil } from '../utils/date-util';
 
 export class SimplifiedShoppingCenterSurvey implements Entity {
 
@@ -10,9 +11,8 @@ export class SimplifiedShoppingCenterSurvey implements Entity {
   constructor(obj) {
     Object.assign(this, obj);
 
-    if (typeof obj.surveyDate === 'string') {
-      obj.surveyDate = obj.surveyDate + ' GMT-0600';
+    if (obj.surveyDate != null) {
+      this.surveyDate = DateUtil.getDate(obj.surveyDate);
     }
-    this.surveyDate = new Date(obj.surveyDate);
   }
 }

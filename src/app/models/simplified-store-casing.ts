@@ -3,6 +3,7 @@ import { SimplifiedStoreVolume } from './simplified-store-volume';
 import { SimplifiedStoreStatus } from './simplified-store-status';
 import { SimplifiedStoreSurvey } from './simplified-store-survey';
 import { SimplifiedProject } from './simplified-project';
+import { DateUtil } from '../utils/date-util';
 
 export class SimplifiedStoreCasing implements Entity {
 
@@ -18,10 +19,9 @@ export class SimplifiedStoreCasing implements Entity {
   constructor(obj) {
     Object.assign(this, obj);
 
-    if (typeof obj.casingDate === 'string') {
-      obj.casingDate = obj.casingDate + ' GMT-0600';
+    if (obj.casingDate != null) {
+      this.casingDate = DateUtil.getDate(obj.casingDate);
     }
-    this.casingDate = new Date(obj.casingDate);
     if (obj.storeVolume != null) {
       this.storeVolume = new SimplifiedStoreVolume(obj.storeVolume);
     }
