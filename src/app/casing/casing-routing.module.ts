@@ -26,24 +26,23 @@ const routes: Routes = [
     children: [
       {path: '', component: CasingDashboardComponent},
       {path: 'site-list', component: SiteListComponent},
-      {path: 'site-detail/:id', component: SiteDetailComponent},
-      {path: 'site-detail', component: SiteDetailComponent},
       {path: 'shopping-center-detail/:id', component: ShoppingCenterDetailComponent},
       {path: 'shopping-center-detail', component: ShoppingCenterDetailComponent},
       {path: 'store-detail/:id', component: StoreDetailComponent},
       {path: 'store-detail', component: StoreDetailComponent},
       {path: 'store/:storeId/store-casings', component: StoreCasingsComponent},
-      {path: 'store-casing/:id', component: StoreCasingDetailComponent},
-      {path: 'store-casing', component: StoreCasingDetailComponent},
+      {path: 'site/:id/edit', component: SiteDetailComponent},
+      {path: 'site', component: SiteDetailComponent},
+      {path: 'site/:siteId', component: SiteOverviewComponent},
+      {path: 'store/:storeId/store-casing/:storeCasingId', component: StoreCasingDetailComponent},
+      {path: 'store/:storeId/store-casing', component: StoreCasingDetailComponent},
       {path: 'shopping-center-casing-detail/:id', component: ShoppingCenterCasingDetailComponent},
       {path: 'shopping-center-casing-detail', component: ShoppingCenterCasingDetailComponent},
       {path: 'shopping-center/:shoppingCenterId/shopping-center-casings', component: ShoppingCenterCasingsComponent},
       {path: 'projects', component: CasingProjectsComponent},
       {path: 'project-summary/:projectId', component: ProjectSummaryComponent},
       {path: 'project-detail/:id', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'project-detail/', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'site-overview/:siteId', component: SiteOverviewComponent}
-    ]
+      {path: 'project-detail/', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]}]
   }
 ];
 

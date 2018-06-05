@@ -184,7 +184,7 @@ export class CasingDashboardComponent implements OnInit {
       // Create a new site from reverse geocode - make sharable via service
       this.casingDashboardService.newSite = new Site(address);
       // Navigate to site detail to edit site before saving to DB
-      this.router.navigate(['site-detail'], {relativeTo: this.route});
+      this.router.navigate(['site'], {relativeTo: this.route});
     }, (err) => console.error(err));
   }
 

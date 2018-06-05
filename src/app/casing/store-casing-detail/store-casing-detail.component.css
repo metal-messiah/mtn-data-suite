@@ -1,0 +1,47 @@
+.list-wrapper {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+#volume-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#volume-table td {
+  width: 50%;
+}
+
+.button-in-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.row.header {
+  min-height: 56px;
+}
+
+.volume-option {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+
+.volume-option .stacked {
+  display: flex;
+  flex-direction: column;
+}
+
+.volume-option button {
+  min-width: unset;
+}
+
+.volume-option .volume-type {
+  font-size: small;
+}
+
+.volume-option .volume-total {
+  font-weight: bold;
+}

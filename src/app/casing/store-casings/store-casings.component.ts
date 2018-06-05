@@ -11,6 +11,7 @@ import { SimplifiedStoreCasing } from '../../models/simplified-store-casing';
 })
 export class StoreCasingsComponent implements OnInit {
 
+  storeId: number;
   loading = false;
   casings: SimplifiedStoreCasing[];
 
@@ -20,10 +21,10 @@ export class StoreCasingsComponent implements OnInit {
   }
 
   ngOnInit() {
-    const storeId = parseInt(this.route.snapshot.paramMap.get('storeId'), 10);
+    this.storeId = parseInt(this.route.snapshot.paramMap.get('storeId'), 10);
 
     this.loading = true;
-    this.storeService.getCasingsByStoreId(storeId)
+    this.storeService.getCasingsByStoreId(this.storeId)
       .finally(() => this.loading = false)
       .subscribe((casings: SimplifiedStoreCasing[]) => {
         this.casings = casings;

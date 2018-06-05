@@ -1,28 +1,31 @@
 import { Entity } from './entity';
 import { SimplifiedUserProfile } from './simplified-user-profile';
+import { DateUtil } from '../utils/date-util';
 
 export class AuditingEntity implements Entity {
 
   readonly id: number;
-  readonly createdBy: SimplifiedUserProfile;
-  readonly createdDate: Date;
-  readonly updatedBy: SimplifiedUserProfile;
-  readonly updatedDate: Date;
-  readonly version: number;
+  createdBy: SimplifiedUserProfile;
+  createdDate: Date;
+  updatedBy: SimplifiedUserProfile;
+  updatedDate: Date;
+  version: number;
 
   constructor(obj) {
-    Object.assign(this, obj);
+    this.id = obj.id;
+    this.version = obj.version;
     if (obj.createdBy != null) {
       this.createdBy = new SimplifiedUserProfile(obj.createdBy);
     }
     if (obj.createdDate != null) {
-      this.createdDate = new Date(this.createdDate);
+      this.createdDate = DateUtil.getDate(obj.createdDate);
     }
     if (obj.updatedBy != null) {
       this.updatedBy = new SimplifiedUserProfile(obj.updatedBy);
     }
     if (obj.updatedDate != null) {
-      this.updatedDate = new Date(this.updatedDate);
+      this.updatedDate = DateUtil.getDate(obj.updatedDate);
+
     }
   }
 }

@@ -11,6 +11,7 @@ import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
 import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
 import { SimplifiedStore } from '../../models/simplified-store';
 import { SimplifiedStoreCasing } from '../../models/simplified-store-casing';
+import { StoreVolume } from '../../models/store-volume';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {
@@ -74,7 +75,15 @@ export class StoreService extends CrudService<Store> {
       });
   }
 
-  createNewVolume(store: Store, volume: SimplifiedStoreVolume) {
+  getAllVolumes(storeId: number) {
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-volumes`;
+    return this.http.get<SimplifiedStoreVolume[]>(url, {headers: this.rest.getHeaders()})
+      .map((volumes: SimplifiedStoreVolume[]) => {
+        return volumes.map(volume => new SimplifiedStoreVolume(volume));
+      });
+  }
+
+  createNewVolume(store: Store, volume: StoreVolume) {
     if (volume.source == null) {
       volume.source = 'MTN Data Suite: Casing';
     }

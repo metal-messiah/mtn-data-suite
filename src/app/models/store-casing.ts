@@ -1,8 +1,9 @@
 import { AuditingEntity } from './auditing-entity';
 import { StoreVolume } from './store-volume';
 import { SimplifiedStoreStatus } from './simplified-store-status';
-import { SimplifiedStoreSurvey } from './simplified-store-survey';
 import { SimplifiedProject } from './simplified-project';
+import { StoreSurvey } from './store-survey';
+import { DateUtil } from '../utils/date-util';
 
 export class StoreCasing extends AuditingEntity {
 
@@ -19,29 +20,20 @@ export class StoreCasing extends AuditingEntity {
   pharmacyAvgDollarsPerScript: number;
   pharmacyPharmacistCount: number;
   pharmacyTechnicianCount: number;
-  volumeGrocery: number;
-  volumePercentGrocery: number;
-  volumeMeat: number;
-  volumePercentMeat: number;
-  volumeNonFood: number;
-  volumePercentNonFood: number;
-  volumeOther: number;
-  volumePercentOther: number;
-  volumeProduce: number;
-  volumePercentProduce: number;
-  volumePlusMinus: number;
-  volumeNote: string;
-  volumeConfidence: string;
   legacyCasingId: number;
 
   storeStatus: SimplifiedStoreStatus;
   storeVolume: StoreVolume;
-  storeSurvey: SimplifiedStoreSurvey;
+  storeSurvey: StoreSurvey;
   projects: SimplifiedProject[];
 
   constructor(obj) {
     super(obj);
     Object.assign(this, obj);
+
+    if (obj.casingDate != null) {
+      this.casingDate = DateUtil.getDate(obj.casingDate);
+    }
     if (obj.storeStatus != null) {
       this.storeStatus = new SimplifiedStoreStatus(obj.storeStatus);
     }
@@ -49,7 +41,7 @@ export class StoreCasing extends AuditingEntity {
       this.storeVolume = new StoreVolume(obj.storeVolume);
     }
     if (obj.storeSurvey != null) {
-      this.storeSurvey = new SimplifiedStoreSurvey(obj.storeSurvey);
+      this.storeSurvey = new StoreSurvey(obj.storeSurvey);
     }
     if (obj.projects != null) {
       this.projects = obj.projects.map(project => new SimplifiedProject(project));

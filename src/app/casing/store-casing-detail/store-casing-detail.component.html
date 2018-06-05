@@ -1,3 +1,254 @@
-<p>
-  store-casing-detail works!
-</p>
+<div class="box">
+  <mat-toolbar color="primary" class="row header flex-space-between">
+    <div>
+      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
+    </div>
+    <span id="title">Store Casing</span>
+    <div>
+      <button type="submit" mat-mini-fab color="accent" (click)="saveForm()"
+              [disabled]="casingForm.pristine || casingForm.invalid">
+        <i class="fas fa-save"></i>
+      </button>
+    </div>
+  </mat-toolbar>
+  <mat-divider></mat-divider>
+  <div class="row content">
+    <div class="list-wrapper">
+      <form [formGroup]="casingForm" *ngIf="casing != null">
+        <mat-list>
+          <mat-form-field>
+            <input matInput [matDatepicker]="casingDate" placeholder="Casing Date" formControlName="casingDate">
+            <mat-datepicker-toggle matSuffix [for]="casingDate"></mat-datepicker-toggle>
+            <mat-datepicker #casingDate></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field>
+            <textarea formControlName="note" matInput placeholder="Casing Note"></textarea>
+          </mat-form-field>
+        </mat-list>
+        <mat-accordion>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Store Conditions</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div>
+              <mat-form-field>
+                <mat-select placeholder="Ceiling" formControlName="conditionCeiling">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-select placeholder="Checkstands" formControlName="conditionCheckstands">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-select placeholder="Floors" formControlName="conditionFloors">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-select placeholder="Frozen/Refrigerated" formControlName="conditionFrozenRefrigerated">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-select placeholder="Shelving & Gondolas" formControlName="conditionShelvingGondolas">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-select placeholder="Walls" formControlName="conditionWalls">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Fuel</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div>
+              <mat-form-field>
+                <input matInput type="number" placeholder="Estimated Weekly Gallons"
+                       formControlName="fuelGallonsWeekly">
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Pharmacy</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div>
+              <mat-form-field>
+                <input matInput type="number" placeholder="Estimated Weekly Prescriptions"
+                       formControlName="pharmacyScriptsWeekly">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="Estimated Avg. Prescription Price"
+                       formControlName="pharmacyAvgDollarsPerScript">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="Number of Pharmacists"
+                       formControlName="pharmacyPharmacistCount">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="Number of Technicians"
+                       formControlName="pharmacyTechnicianCount">
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Volume</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div *ngIf="casing.storeVolume == null">
+              <div class="button-in-row">
+                <button mat-raised-button color="accent" (click)="createNewVolume()">Create New Volume</button>
+              </div>
+              <div class="button-in-row" *ngIf="storeVolumes == null">
+                <button mat-raised-button (click)="showExistingVolumes()"
+                        *ngIf="!loadingStoreVolumes" color="accent">Show Existing Volumes
+                </button>
+              </div>
+              <mat-progress-bar mode="indeterminate"
+                                *ngIf="loadingStoreVolumes || savingVolume"></mat-progress-bar>
+              <div *ngIf="storeVolumes != null && !savingVolume">
+                <mat-list>
+                  <mat-list-item *ngFor="let volume of storeVolumes">
+                    <div class="volume-option">
+                      <div class="stacked">
+                        <div class="volume-date">{{volume.volumeDate | date}}</div>
+                        <div class="volume-type">{{volume.volumeType}}</div>
+                      </div>
+                      <div class="volume-total">{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k</div>
+                      <button mat-raised-button color="primary" (click)="useVolume(volume)">Use</button>
+                    </div>
+                  </mat-list-item>
+                </mat-list>
+              </div>
+            </div>
+            <div *ngIf="casingForm.get('storeVolume') != null" formGroupName="storeVolume">
+              <mat-form-field>
+                <mat-select placeholder="Volume Type" formControlName="volumeType">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let volumeTypeOption of volumeTypeOptions" [value]="volumeTypeOption">
+                    {{volumeTypeOption}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <div *ngIf="casingForm.get('storeVolume.volumeType').value === 'ESTIMATE'">
+                <table id="volume-table">
+                  <tr>
+                    <td>
+                      <mat-form-field>
+                        <input matInput placeholder="Meat Volume" type="number" formControlName="volumeMeat">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field>
+                        <input matInput placeholder="% of Total" type="number" formControlName="volumePercentMeat">
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <mat-form-field>
+                        <input matInput placeholder="Produce Volume" type="number" formControlName="volumeProduce">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field>
+                        <input matInput placeholder="% of Total" type="number" formControlName="volumePercentProduce">
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <mat-form-field>
+                        <input matInput placeholder="Grocery Volume" type="number" formControlName="volumeGrocery">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field>
+                        <input matInput placeholder="% of Total" type="number" formControlName="volumePercentGrocery">
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <mat-form-field>
+                        <input matInput placeholder="Non-Food Volume" type="number" formControlName="volumeNonFood">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field>
+                        <input matInput placeholder="% of Total" type="number" formControlName="volumePercentNonFood">
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <mat-form-field>
+                        <input matInput placeholder="Other Volume" type="number" formControlName="volumeOther">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field>
+                        <input matInput placeholder="% of Total" type="number" formControlName="volumePercentOther">
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                </table>
+                <mat-form-field>
+                  <input matInput type="number" placeholder="+/- Adjustment" formControlName="volumePlusMinus">
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-select placeholder="Volume Confidence" formControlName="volumeConfidence">
+                    <mat-option>Clear Selection</mat-option>
+                    <mat-option *ngFor="let confidenceLevel of confidenceLevels" [value]="confidenceLevel">
+                      {{confidenceLevel}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <mat-form-field class="example-full-width">
+                <input matInput type="number" placeholder="Total Weekly Grocery Volume" formControlName="volumeTotal">
+                <mat-error *ngIf="casingForm.get('storeVolume.volumeTotal').invalid">Min: $10k, Max: $10M
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput [matDatepicker]="picker1" placeholder="Volume Date" formControlName="volumeDate">
+                <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                <mat-datepicker #picker1></mat-datepicker>
+                <mat-error *ngIf="casingForm.get('storeVolume.volumeDate').invalid">Required</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <textarea placeholder="Volume Notes" formControlName="volumeNote" matInput></textarea>
+              </mat-form-field>
+            </div>
+            <mat-action-row *ngIf="casing.storeVolume != null || removingVolume">
+              <button type="button" mat-button color="primary" (click)="removeVolume()"
+                      *ngIf="casing.storeVolume != null && !removingVolume">Remove Volume</button>
+              <mat-progress-bar mode="indeterminate" *ngIf="removingVolume"></mat-progress-bar>
+            </mat-action-row>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </form>
+    </div>
+  </div>
+</div>
+
+<mat-menu #storeCasingMore="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item>
+    <i class="fas fa-list"></i>&nbsp;&nbsp;Projects
+  </button>
+  <button mat-menu-item>
+    <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
+  </button>
+</mat-menu>

@@ -29,7 +29,7 @@
             <strong>{{storeStatus.status}}</strong>
             <span *ngIf="store.currentStoreStatus != null && storeStatus.id === store.currentStoreStatus.id">&nbsp;(Current)</span>
           </div>
-          <div><em>{{storeStatus.statusStartDate | date:'mediumDate':'UTC'}}</em></div>
+          <div><em>{{storeStatus.statusStartDate | date}}</em></div>
         </div>
         <button mat-icon-button [mat-menu-trigger-for]="statusMenu"><i class="fas fa-ellipsis-v"></i></button>
       </div>

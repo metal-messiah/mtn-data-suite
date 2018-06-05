@@ -41,7 +41,7 @@
             <strong>${{storeVolume.volumeTotal/1000 | number:'1.0-0'}}k</strong>
             <span *ngIf="storeVolume.volumeType != null">&nbsp;({{storeVolume.volumeType}})</span>
           </div>
-          <div><em>{{storeVolume.volumeDate | date:'mediumDate':'UTC'}}</em></div>
+          <div><em>{{storeVolume.volumeDate | date}}</em></div>
         </div>
         <button mat-icon-button [mat-menu-trigger-for]="volumeMenu"><i class="fas fa-ellipsis-v"></i></button>
       </div>

@@ -13,6 +13,10 @@ export class SimplifiedShoppingCenterCasing implements Entity {
 
   constructor(obj) {
     Object.assign(this, obj);
+
+    if (typeof obj.casingDate === 'string') {
+      obj.casingDate = obj.casingDate + ' GMT-0600';
+    }
     this.casingDate = new Date(obj.casingDate);
     if (obj.shoppingCenterSurvey != null) {
       this.shoppingCenterSurvey = new SimplifiedShoppingCenterSurvey(obj.shoppingCenterSurvey);

@@ -36,7 +36,7 @@ export class StoreInfoCardComponent implements OnInit {
   }
 
   goToSiteOverview(): void {
-    this.router.navigate(['casing/site-overview', this.store.site.id]);
+    this.router.navigate(['casing/site', this.store.site.id]);
   }
 
   pinLocation(): void {

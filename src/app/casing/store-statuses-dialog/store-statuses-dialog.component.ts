@@ -60,7 +60,6 @@ export class StoreStatusesDialogComponent implements OnInit {
 
   addStatus() {
     this.savingNewStatus = true;
-    // TODO Adjust date by timezone offset (stored in DB as UTC)
     const date: Date = this.statusDate.value;
     const storeStatus = new StoreStatus({
       status: this.selectedStatus.value,

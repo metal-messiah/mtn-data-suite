@@ -26,7 +26,7 @@
   <mat-accordion>
     <mat-expansion-panel *ngFor="let casing of store.storeCasings" (opened)="onCasingOpened(casing)">
       <mat-expansion-panel-header>
-        <mat-panel-title>{{casing.casingDate | date:'mediumDate':'UTC'}}</mat-panel-title>
+        <mat-panel-title>{{casing.casingDate | date}}</mat-panel-title>
         <mat-panel-description *ngIf="casing.storeStatus != null">{{casing.storeStatus.status}}</mat-panel-description>
       </mat-expansion-panel-header>
       <div *ngIf="selectedStoreCasing == null">
