@@ -15,3 +15,7 @@
   margin: 0 -24px -24px -24px;
   width: auto;
 }
+
+button {
+  min-width: unset;
+}

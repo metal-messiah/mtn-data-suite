@@ -13,6 +13,9 @@ import { ErrorService } from '../../core/services/error.service';
 import { SelectProjectComponent } from '../select-project/select-project.component';
 import { MatDialog } from '@angular/material';
 import { SimplifiedProject } from '../../models/simplified-project';
+import { StoreStatusesDialogComponent } from '../store-statuses-dialog/store-statuses-dialog.component';
+import { Store } from '../../models/store';
+import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
 
 @Component({
   selector: 'mds-store-casing-detail',
@@ -23,6 +26,7 @@ export class StoreCasingDetailComponent implements OnInit {
 
   casingForm: FormGroup;
   storeVolumeForm: FormGroup;
+  storeStatusForm: FormGroup;
 
   casing: StoreCasing;
   storeVolumes: SimplifiedStoreVolume[];
@@ -32,7 +36,10 @@ export class StoreCasingDetailComponent implements OnInit {
   savingVolume = false;
   removingVolume = false;
   loadingProject = false;
+  editingStoreStatus = false;
 
+  statusOptions = ['Closed', 'Dead', 'Dead Deal', 'Float', 'New Under Construction', 'Open', 'Planned', 'Proposed',
+    'Remodel', 'Rumored', 'Strong Rumor', 'Temporarily Closed'];
   conditions = ['POOR', 'FAIR', 'AVERAGE', 'GOOD', 'EXCELLENT'];
   confidenceLevels = ['LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH'];
   volumeTypeOptions = ['ACTUAL', 'ESTIMATE', 'PLACEHOLDER', 'PROJECTION', 'THIRD_PARTY'];
@@ -62,6 +69,11 @@ export class StoreCasingDetailComponent implements OnInit {
       pharmacyAvgDollarsPerScript: '',
       pharmacyPharmacistCount: '',
       pharmacyTechnicianCount: ''
+    });
+
+    this.storeStatusForm = this.fb.group({
+      status: ['', [Validators.required]],
+      statusStartDate: new Date()
     });
 
     this.storeVolumeForm = this.fb.group({
@@ -97,32 +109,40 @@ export class StoreCasingDetailComponent implements OnInit {
         });
     } else {
       this.casing = new StoreCasing({
-        casingDate: new Date(),
-        storeStatus: new StoreStatus({})
+        casingDate: new Date()
       });
       console.log(this.casing);
       this.rebuildForm();
     }
   }
 
-  rebuildForm() {
+  rebuildForm(doPreserveChanges?: boolean) {
     const preserveChanges = {};
-    Object.keys(this.casingForm.controls).forEach(name => {
-      if (this.casingForm.controls[name].dirty) {
-        preserveChanges[name] = this.casingForm.controls[name].value;
-      }
-    });
+    if (doPreserveChanges) {
+      Object.keys(this.casingForm.controls).forEach(name => {
+        if (this.casingForm.controls[name].dirty) {
+          preserveChanges[name] = this.casingForm.controls[name].value;
+        }
+      });
+    }
     if (this.casing.storeVolume != null) {
       this.casingForm.addControl('storeVolume', this.storeVolumeForm);
     } else {
       this.casingForm.removeControl('storeVolume');
     }
+    if (this.casing.storeStatus != null) {
+      this.casingForm.addControl('storeStatus', this.storeStatusForm);
+    } else {
+      this.casingForm.removeControl('storeStatus');
+    }
     this.casingForm.reset(this.casing);
-    Object.keys(preserveChanges).forEach(name => {
-      const control = this.casingForm.controls[name];
-      control.patchValue(preserveChanges[name]);
-      control.markAsDirty();
-    });
+    if (doPreserveChanges) {
+      Object.keys(preserveChanges).forEach(name => {
+        const control = this.casingForm.controls[name];
+        control.patchValue(preserveChanges[name]);
+        control.markAsDirty();
+      });
+    }
   }
 
   goBack(): void {
@@ -135,7 +155,7 @@ export class StoreCasingDetailComponent implements OnInit {
       volumeType: 'ESTIMATE',
       source: 'MTN Casing App'
     });
-    this.rebuildForm();
+    this.rebuildForm(true);
   }
 
   showExistingVolumes() {
@@ -148,7 +168,8 @@ export class StoreCasingDetailComponent implements OnInit {
           return b.volumeDate.getTime() - a.volumeDate.getTime();
         });
       }, error1 => this.errorService.handleServerError('Failed to retrieve store volumes', error1,
-        () => {}, () => this.showExistingVolumes()));
+        () => {
+        }, () => this.showExistingVolumes()));
   }
 
   useVolume(volume: SimplifiedStoreVolume) {
@@ -158,7 +179,7 @@ export class StoreCasingDetailComponent implements OnInit {
       .subscribe((casing: StoreCasing) => {
         this.storeVolumes = null;
         this.casing = casing;
-        this.rebuildForm();
+        this.rebuildForm(true);
       });
   }
 
@@ -168,14 +189,14 @@ export class StoreCasingDetailComponent implements OnInit {
     } else {
       if (this.casing.storeVolume != null && this.casing.storeVolume.id == null) {
         this.casing.storeVolume = null;
-        this.rebuildForm();
+        this.rebuildForm(true);
       } else {
         this.removingVolume = true;
         this.storeCasingService.removeStoreVolume(this.casing)
           .finally(() => this.removingVolume = false)
           .subscribe((casing: StoreCasing) => {
             this.casing = casing;
-            this.rebuildForm();
+            this.rebuildForm(true);
           });
       }
     }
@@ -201,7 +222,7 @@ export class StoreCasingDetailComponent implements OnInit {
             .finally(() => this.loadingProject = false)
             .subscribe((casing: StoreCasing) => {
               this.casing = casing;
-              this.rebuildForm();
+              this.rebuildForm(true);
             });
         }
       }
@@ -214,8 +235,31 @@ export class StoreCasingDetailComponent implements OnInit {
       .finally(() => this.loadingProject = false)
       .subscribe((casing: StoreCasing) => {
         this.casing = casing;
-        this.rebuildForm();
+        this.rebuildForm(true);
       });
+  }
+
+  showStatusDialog() {
+    const storeId = parseInt(this.route.snapshot.paramMap.get('storeId'), 10);
+    this.editingStoreStatus = true;
+    this.storeService.getOneById(storeId)
+      .subscribe((store: Store) => {
+        const config = {data: {store: store, allowStatusSelection: true}, disableClose: true};
+        const storeStatusDialog = this.dialog.open(StoreStatusesDialogComponent, config);
+        storeStatusDialog.afterClosed().subscribe(result => {
+          if (result instanceof StoreStatus || result instanceof SimplifiedStoreStatus) {
+            this.storeCasingService.setStoreStatus(this.casing, result)
+              .finally(() => this.editingStoreStatus = false)
+              .subscribe((casing: StoreCasing) => {
+                this.casing = casing;
+                this.rebuildForm();
+              });
+          } else {
+            this.editingStoreStatus = false;
+          }
+        });
+      });
+
   }
 
 }

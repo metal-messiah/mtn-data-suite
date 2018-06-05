@@ -31,7 +31,12 @@
           </div>
           <div><em>{{storeStatus.statusStartDate | date}}</em></div>
         </div>
-        <button mat-icon-button [mat-menu-trigger-for]="statusMenu"><i class="fas fa-ellipsis-v"></i></button>
+        <div>
+          <button mat-icon-button type="button" *ngIf="!this.data.allowStatusSelection"
+                  [mat-menu-trigger-for]="statusMenu" ><i class="fas fa-ellipsis-v"></i></button>
+          <button mat-raised-button type="button" *ngIf="this.data.allowStatusSelection" color="accent"
+                  (click)="useForCasing(storeStatus)">Select</button>
+        </div>
       </div>
       <mat-menu #statusMenu="matMenu" [overlapTrigger]="false">
         <button mat-menu-item (click)="setCurrentStatus(storeStatus)"

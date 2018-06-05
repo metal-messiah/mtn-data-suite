@@ -15,17 +15,22 @@
   <div class="row content">
     <div class="list-wrapper">
       <form [formGroup]="casingForm" *ngIf="casing != null">
-        <mat-list>
-          <mat-form-field>
-            <input matInput [matDatepicker]="casingDate" placeholder="Casing Date" formControlName="casingDate">
-            <mat-datepicker-toggle matSuffix [for]="casingDate"></mat-datepicker-toggle>
-            <mat-datepicker #casingDate></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field>
-            <textarea formControlName="note" matInput placeholder="Casing Notes"></textarea>
-          </mat-form-field>
-        </mat-list>
         <mat-accordion>
+          <!-- Casing Date -->
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Casing Date</mat-panel-title>
+              <mat-panel-description>{{casing.casingDate | date}}</mat-panel-description>
+            </mat-expansion-panel-header>
+            <div>
+              <mat-form-field>
+                <input matInput [matDatepicker]="casingDate" placeholder="Casing Date" formControlName="casingDate">
+                <mat-datepicker-toggle matSuffix [for]="casingDate"></mat-datepicker-toggle>
+                <mat-datepicker #casingDate></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
+          <!-- Projects -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>Projects</mat-panel-title>
@@ -44,9 +49,45 @@
             </div>
             <mat-action-row>
               <mat-progress-bar mode="indeterminate" *ngIf="loadingProject"></mat-progress-bar>
-              <button mat-button color="primary" (click)="showProjectSelection()" *ngIf="!loadingProject">Add Project</button>
+              <button mat-button color="primary" (click)="showProjectSelection()" *ngIf="!loadingProject">Add Project
+              </button>
             </mat-action-row>
           </mat-expansion-panel>
+          <!-- Store Status -->
+          <mat-expansion-panel >
+            <mat-expansion-panel-header>
+              <mat-panel-title>Store Status</mat-panel-title>
+              <mat-panel-description *ngIf="casing.storeStatus != null">({{casing.storeStatus.status}})
+              </mat-panel-description>
+              <mat-panel-description *ngIf="casing.storeStatus == null">Select a Status
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div *ngIf="casing.storeStatus != null && !editingStoreStatus" formGroupName="storeStatus">
+              <mds-data-field title="Status" [value]="casing.storeStatus.status"></mds-data-field>
+              <mds-data-field title="Status Start Date" [dateValue]="casing.storeStatus.statusStartDate"></mds-data-field>
+            </div>
+            <mat-progress-bar mode="indeterminate" *ngIf="editingStoreStatus"></mat-progress-bar>
+            <mat-action-row *ngIf="!editingStoreStatus">
+              <button *ngIf="casing.storeStatus != null"  mat-button color="primary" (click)="showStatusDialog()">
+                Update Status
+              </button>
+              <button *ngIf="casing.storeStatus == null"  mat-raised-button color="accent" (click)="showStatusDialog()">
+                Select Status
+              </button>
+            </mat-action-row>
+          </mat-expansion-panel>
+          <!-- Notes -->
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Notes</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div>
+              <mat-form-field>
+                <textarea formControlName="note" matInput placeholder="Casing Notes"></textarea>
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
+          <!-- Store Conditions -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>Store Conditions</mat-panel-title>
@@ -90,6 +131,7 @@
               </mat-form-field>
             </div>
           </mat-expansion-panel>
+          <!-- Fuel -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>Fuel</mat-panel-title>
@@ -101,6 +143,7 @@
               </mat-form-field>
             </div>
           </mat-expansion-panel>
+          <!-- Pharmacy -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>Pharmacy</mat-panel-title>
@@ -124,6 +167,7 @@
               </mat-form-field>
             </div>
           </mat-expansion-panel>
+          <!-- Volume -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>Volume</mat-panel-title>

@@ -36,7 +36,7 @@ export class StoreStatusesDialogComponent implements OnInit {
   ];
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: { store: Store },
+              @Inject(MAT_DIALOG_DATA) public data: { store: Store, allowStatusSelection?: boolean },
               private storeService: StoreService,
               private errorService: ErrorService) {
   }
@@ -94,6 +94,10 @@ export class StoreStatusesDialogComponent implements OnInit {
       }, err => {
         this.errorService.handleServerError('Failed to update Store', err, () => {});
       });
+  }
+
+  useForCasing(status: SimplifiedStoreStatus) {
+    this.dialogRef.close(status);
   }
 
 }
