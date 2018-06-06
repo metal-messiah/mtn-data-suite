@@ -22,30 +22,6 @@
   min-height: 56px;
 }
 
-.volume-option {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  align-items: center;
-}
-
-.volume-option .stacked {
-  display: flex;
-  flex-direction: column;
-}
-
-.volume-option button {
-  min-width: unset;
-}
-
-.volume-option .volume-type {
-  font-size: small;
-}
-
-.volume-option .volume-total {
-  font-weight: bold;
-}
-
 .project-item {
   width: 100%;
   display: flex;
@@ -60,10 +36,6 @@
 #projects {
   margin-left: -24px;
   margin-right: -24px;
-}
-
-.mat-slider {
-  width: 100%;
 }
 
 #departments {

@@ -391,33 +391,18 @@
             <mat-expansion-panel-header>
               <mat-panel-title>Volume</mat-panel-title>
             </mat-expansion-panel-header>
-            <div *ngIf="casing.storeVolume == null">
+            <mat-progress-bar mode="indeterminate" *ngIf="savingVolume"></mat-progress-bar>
+            <div *ngIf="casing.storeVolume == null && !savingVolume">
               <div class="button-in-row">
-                <button mat-raised-button color="accent" (click)="createNewVolume()">Create New Volume</button>
+                <button mat-raised-button color="accent" [disabled]="savingVolume"
+                        (click)="createNewVolume()">Create New Volume</button>
               </div>
-              <div class="button-in-row" *ngIf="storeVolumes == null">
-                <button mat-raised-button (click)="showExistingVolumes()"
-                        *ngIf="!loadingStoreVolumes" color="accent">Show Existing Volumes
-                </button>
-              </div>
-              <mat-progress-bar mode="indeterminate"
-                                *ngIf="loadingStoreVolumes || savingVolume"></mat-progress-bar>
-              <div *ngIf="storeVolumes != null && !savingVolume">
-                <mat-list>
-                  <mat-list-item *ngFor="let volume of storeVolumes">
-                    <div class="volume-option">
-                      <div class="stacked">
-                        <div class="volume-date">{{volume.volumeDate | date}}</div>
-                        <div class="volume-type">{{volume.volumeType}}</div>
-                      </div>
-                      <div class="volume-total">{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k</div>
-                      <button mat-raised-button color="primary" (click)="useVolume(volume)">Use</button>
-                    </div>
-                  </mat-list-item>
-                </mat-list>
+              <div class="button-in-row">
+                <button mat-raised-button color="accent" [disabled]="savingVolume"
+                        (click)="showExistingVolumes()">Show Existing Volumes</button>
               </div>
             </div>
-            <div *ngIf="casingForm.get('storeVolume') != null" formGroupName="storeVolume">
+            <div *ngIf="!savingVolume && casingForm.get('storeVolume') != null" formGroupName="storeVolume">
               <mat-form-field>
                 <mat-select placeholder="Volume Type" formControlName="volumeType" required>
                   <mat-option>Clear Selection</mat-option>
@@ -499,24 +484,25 @@
                     </td>
                   </tr>
                 </table>
-                <mat-form-field>
-                  <input matInput type="number" placeholder="+/- Adjustment" formControlName="volumePlusMinus">
-                  <span matPrefix>$&nbsp;</span>
-                </mat-form-field>
-                <mat-form-field>
-                  <mat-select placeholder="Volume Confidence" formControlName="volumeConfidence">
-                    <mat-option>Clear Selection</mat-option>
-                    <mat-option *ngFor="let confidenceLevel of confidenceLevels" [value]="confidenceLevel">
-                      {{confidenceLevel}}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
               </div>
-              <mat-form-field class="example-full-width">
-                <input matInput type="number" placeholder="Total Weekly Grocery Volume" formControlName="volumeTotal">
-                <span matPrefix>$&nbsp;</span>
-                <mat-error *ngIf="casingForm.get('storeVolume.volumeTotal').invalid">Min: $10k, Max: $10M
-                </mat-error>
+              <div class="flex flex-space-between">
+                <mat-form-field class="example-full-width">
+                  <input matInput type="number" placeholder="Total Weekly Volume" formControlName="volumeTotal">
+                  <span matPrefix>$&nbsp;</span>
+                  <mat-error *ngIf="casingForm.get('storeVolume.volumeTotal').invalid">Min: $10k, Max: $10M
+                  </mat-error>
+                </mat-form-field>
+                <button type="button" mat-mini-fab color="primary" [mat-menu-trigger-for]="volumeMore">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+              </div>
+              <mat-form-field *ngIf="casingForm.get('storeVolume.volumeType').value === 'ESTIMATE'">
+                <mat-select placeholder="Volume Confidence" formControlName="volumeConfidence">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let confidenceLevel of confidenceLevels" [value]="confidenceLevel">
+                    {{confidenceLevel}}
+                  </mat-option>
+                </mat-select>
               </mat-form-field>
               <mat-form-field>
                 <input matInput [matDatepicker]="picker1" placeholder="Volume Date" formControlName="volumeDate">
@@ -624,6 +610,18 @@
   <button mat-menu-item (click)="openAreaCalculator()">
     <i class="fas fa-calculator"></i>&nbsp;&nbsp;Area Calculator
   </button>
-  <button mat-menu-item (click)="calculateSalesAreaFromTotal()">&nbsp;&nbsp;Calculate Sales from Total</button>
-  <button mat-menu-item (click)="calculateTotalAreaFromSales()">&nbsp;&nbsp;Calculate Total from Sales</button>
+  <button mat-menu-item (click)="calculateSalesAreaFromTotal()">Calculate Sales from Total</button>
+  <button mat-menu-item (click)="calculateTotalAreaFromSales()">Calculate Total from Sales</button>
+</mat-menu>
+
+<mat-menu #volumeMore="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item (click)="calculateDepartmentVolumesFromTotal()">
+    Calculate Depts. from Total
+  </button>
+  <button mat-menu-item (click)="calculateTotalVolumeFromDepartments()">
+    Calculate Total from Depts.
+  </button>
+  <button mat-menu-item (click)="showExistingVolumes()">
+    <i class="fas fa-clock"></i>&nbsp;&nbsp;See All Store Volumes
+  </button>
 </mat-menu>

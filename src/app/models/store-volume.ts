@@ -17,7 +17,6 @@ export class StoreVolume extends AuditingEntity {
   volumePercentOther: number;
   volumeProduce: number;
   volumePercentProduce: number;
-  volumePlusMinus: number;
   volumeNote: string;
   volumeConfidence: string;
   legacyCasingId: number;
@@ -43,7 +42,6 @@ export class StoreVolume extends AuditingEntity {
     this.volumePercentOther = obj.volumePercentOther;
     this.volumeProduce = obj.volumeProduce;
     this.volumePercentProduce = obj.volumePercentProduce;
-    this.volumePlusMinus = obj.volumePlusMinus;
     this.volumeNote = obj.volumeNote;
     this.volumeConfidence = obj.volumeConfidence;
     this.legacyCasingId = obj.legacyCasingId;

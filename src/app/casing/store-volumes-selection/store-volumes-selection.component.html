@@ -1,0 +1,22 @@
+<h3 mat-dialog-title>Store Statuses</h3>
+<div mat-dialog-content>
+  <h3 *ngIf="error != null">{{error}}</h3>
+  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+  <mat-list *ngIf="!loading">
+    <mat-list-item *ngFor="let volume of storeVolumes">
+      <div class="volume-option">
+        <div class="stacked">
+          <div class="volume-date">{{volume.volumeDate | date}}</div>
+          <div class="volume-type">{{volume.volumeType}}</div>
+        </div>
+        <div class="volume-total">{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k</div>
+        <button mat-raised-button color="primary" (click)="useVolume(volume)">Use</button>
+      </div>
+    </mat-list-item>
+  </mat-list>
+</div>
+<div mat-dialog-actions>
+  <button type="submit" mat-button color="primary" (click)="close()">
+    Close
+  </button>
+</div>

@@ -14,7 +14,7 @@ export class AreaCalculatorComponent implements OnInit {
   depth: FormControl;
   plusMinus: FormControl;
 
-  constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>, private fb: FormBuilder) {
+  constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>) {
     this.createForm();
   }
 

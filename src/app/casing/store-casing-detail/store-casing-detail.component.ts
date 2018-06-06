@@ -19,8 +19,9 @@ import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
 import { DataFieldInfoDialogComponent } from '../../shared/data-field-info-dialog/data-field-info-dialog.component';
 import { CasingDashboardService } from '../casing-dashboard/casing-dashboard.service';
 import { Project } from '../../models/project';
-import { isNumber } from 'util';
 import { AreaCalculatorComponent } from '../area-calculator/area-calculator.component';
+import { StoreVolumesSelectionComponent } from '../store-volumes-selection/store-volumes-selection.component';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'mds-store-casing-detail',
@@ -34,10 +35,8 @@ export class StoreCasingDetailComponent implements OnInit {
   storeSurveyForm: FormGroup;
 
   casing: StoreCasing;
-  storeVolumes: SimplifiedStoreVolume[];
 
   loading = false;
-  loadingStoreVolumes = false;
   savingVolume = false;
   removingVolume = false;
   loadingProject = false;
@@ -123,7 +122,6 @@ export class StoreCasingDetailComponent implements OnInit {
       volumePercentOther: ['', [Validators.min(0), Validators.max(100)]],
       volumeProduce: ['', [Validators.min(0), Validators.max(10000000)]],
       volumePercentProduce: ['', [Validators.min(0), Validators.max(100)]],
-      volumePlusMinus: ['', [Validators.min(0), Validators.max(10000000)]],
       volumeNote: '',
       volumeConfidence: ''
     });
@@ -227,8 +225,9 @@ export class StoreCasingDetailComponent implements OnInit {
     const preserveChanges = {};
     if (doPreserveChanges) {
       Object.keys(this.casingForm.controls).forEach(name => {
-        if (this.casingForm.controls[name].dirty) {
-          preserveChanges[name] = this.casingForm.controls[name].value;
+        const control = this.casingForm.controls[name];
+        if (control.dirty) {
+          preserveChanges[name] = control.value;
         }
       });
     }
@@ -266,17 +265,26 @@ export class StoreCasingDetailComponent implements OnInit {
   }
 
   showExistingVolumes() {
-    this.loadingStoreVolumes = true;
     const storeId = parseInt(this.route.snapshot.paramMap.get('storeId'), 10);
-    this.storeService.getAllVolumes(storeId)
-      .finally(() => this.loadingStoreVolumes = false)
-      .subscribe((volumes: SimplifiedStoreVolume[]) => {
-        this.storeVolumes = volumes.sort((a: SimplifiedStoreVolume, b: SimplifiedStoreVolume) => {
-          return b.volumeDate.getTime() - a.volumeDate.getTime();
-        });
-      }, error1 => this.errorService.handleServerError('Failed to retrieve store volumes', error1,
-        () => {
-        }, () => this.showExistingVolumes()));
+    const volumesDialog = this.dialog.open(StoreVolumesSelectionComponent, {data: {storeId: storeId}});
+    volumesDialog.afterClosed().subscribe(result => {
+      if (result != null) {
+        if (this.casing.storeVolume != null) {
+          const data = {
+            title: 'Replace Volume',
+            question: 'This will replace the current casing volume, losing any unsaved changes. Are you sure?'
+          };
+          const confirmDialog = this.dialog.open(ConfirmDialogComponent, {data: data});
+          confirmDialog.afterClosed().subscribe(confirmation => {
+            if (confirmation) {
+              this.useVolume(result);
+            }
+          });
+        } else {
+          this.useVolume(result);
+        }
+      }
+    });
   }
 
   useVolume(volume: SimplifiedStoreVolume) {
@@ -284,9 +292,9 @@ export class StoreCasingDetailComponent implements OnInit {
     this.storeCasingService.setStoreVolume(this.casing, volume)
       .finally(() => this.savingVolume = false)
       .subscribe((casing: StoreCasing) => {
-        this.storeVolumes = null;
         this.casing = casing;
         this.rebuildForm(true);
+        this.storeVolumeForm.reset(this.casing.storeVolume);
       });
   }
 
@@ -426,6 +434,81 @@ export class StoreCasingDetailComponent implements OnInit {
         }
       }
     });
+  }
+
+  calculateDepartmentVolumesFromTotal() {
+    const totalVolumeControl = this.casingForm.get('storeVolume.volumeTotal');
+    if (totalVolumeControl != null && totalVolumeControl.valid) {
+      const totalVolume = parseFloat(totalVolumeControl.value);
+      this.calculateDepartmentVolume(totalVolume, 'Meat');
+      this.calculateDepartmentVolume(totalVolume, 'Produce');
+      this.calculateDepartmentVolume(totalVolume, 'Grocery');
+      this.calculateDepartmentVolume(totalVolume, 'NonFood');
+      this.calculateDepartmentVolume(totalVolume, 'Other');
+    }
+  }
+
+  private calculateDepartmentVolume(totalVolume: number, departmentName: string) {
+    const percentControl = this.casingForm.get(`storeVolume.volumePercent${departmentName}`);
+    if (percentControl.valid) {
+      const percent = parseFloat(percentControl.value);
+      if (!isNaN(percent)) {
+        const calculatedDeptVolume = totalVolume * (percent / 100);
+        const volumeControl = this.casingForm.get(`storeVolume.volume${departmentName}`);
+        volumeControl.setValue(calculatedDeptVolume);
+        volumeControl.markAsDirty();
+      }
+    }
+  }
+
+  calculateTotalVolumeFromDepartments() {
+    const meatEstimate = this.getDeptEstimateOfTotal('Meat');
+    const produceEstimate = this.getDeptEstimateOfTotal('Produce');
+    const groceryEstimate = this.getDeptEstimateOfTotal('Grocery');
+    const nonFoodEstimate = this.getDeptEstimateOfTotal('NonFood');
+    const otherEstimate = this.getDeptEstimateOfTotal('Other');
+    let sum = 0;
+    let count = 0;
+    if (meatEstimate != null) {
+      sum += meatEstimate;
+      count++;
+    }
+    if (produceEstimate != null) {
+      sum += produceEstimate;
+      count++;
+    }
+    if (groceryEstimate != null) {
+      sum += groceryEstimate;
+      count++;
+    }
+    if (nonFoodEstimate != null) {
+      sum += nonFoodEstimate;
+      count++;
+    }
+    if (otherEstimate != null) {
+      sum += otherEstimate;
+      count++;
+    }
+    if (count > 0) {
+      const averageEstimate = sum / count;
+      const roundedEstimate = Math.round(averageEstimate / 5000) * 5000;
+      const totalVolumeControl = this.casingForm.get('storeVolume.volumeTotal');
+      totalVolumeControl.setValue(roundedEstimate);
+      totalVolumeControl.markAsDirty();
+    }
+  }
+
+  private getDeptEstimateOfTotal(departmentName: string) {
+    const volumeControl = this.casingForm.get(`storeVolume.volume${departmentName}`);
+    const percentControl = this.casingForm.get(`storeVolume.volumePercent${departmentName}`);
+    if (volumeControl.valid && percentControl.valid) {
+      const deptVolume = parseFloat(volumeControl.value);
+      const percent = parseFloat(percentControl.value);
+      if (!isNaN(deptVolume) && !isNaN(percent)) {
+        return deptVolume / (percent / 100);
+      }
+    }
+    return null;
   }
 
 }

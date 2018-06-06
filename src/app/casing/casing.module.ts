@@ -29,6 +29,7 @@ import { StoreStatusesDialogComponent } from './store-statuses-dialog/store-stat
 import { StoreVolumeDialogComponent } from './store-volume-dialog/store-volume-dialog.component';
 import { StoreCasingDetailComponent } from './store-casing-detail/store-casing-detail.component';
 import { AreaCalculatorComponent } from './area-calculator/area-calculator.component';
+import { StoreVolumesSelectionComponent } from './store-volumes-selection/store-volumes-selection.component';
 
 @NgModule({
   imports: [
@@ -62,7 +63,8 @@ import { AreaCalculatorComponent } from './area-calculator/area-calculator.compo
     StoreStatusesDialogComponent,
     StoreVolumeDialogComponent,
     StoreCasingDetailComponent,
-    AreaCalculatorComponent
+    AreaCalculatorComponent,
+    StoreVolumesSelectionComponent
   ],
   entryComponents: [
     LatLngSearchComponent,
@@ -71,7 +73,8 @@ import { AreaCalculatorComponent } from './area-calculator/area-calculator.compo
     SelectProjectComponent,
     StoreStatusesDialogComponent,
     StoreVolumeDialogComponent,
-    AreaCalculatorComponent
+    AreaCalculatorComponent,
+    StoreVolumesSelectionComponent
   ],
   providers: [CasingDashboardService]
 })

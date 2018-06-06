@@ -15,3 +15,7 @@
   margin: 0 -24px -24px -24px;
   width: auto;
 }
+
+.mat-dialog-title {
+  margin-bottom: 0;
+}
