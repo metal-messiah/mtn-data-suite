@@ -49,12 +49,149 @@
             </div>
             <mat-action-row>
               <mat-progress-bar mode="indeterminate" *ngIf="loadingProject"></mat-progress-bar>
-              <button mat-button color="primary" (click)="showProjectSelection()" *ngIf="!loadingProject">Add Project
+              <button id="add-dashboard-project-button" mat-raised-button color="accent" type="button"
+                      (click)="addDashboardProject()" *ngIf="casingDashboardService.selectedProject != null">
+                Add {{casingDashboardService.selectedProject.projectName}}
+              </button>
+              <button id="add-project-button" mat-raised-button color="primary" (click)="showProjectSelection()"
+                      *ngIf="!loadingProject">
+                Add Project
               </button>
             </mat-action-row>
           </mat-expansion-panel>
+          <!-- Accessibility -->
+          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+            <mat-expansion-panel-header>
+              <mat-panel-title>Accessibility</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="checklist">
+              <div class="checklist-item">
+                <mat-checkbox formControlName="accessibilityFarthestFromEntrance">Farthest from entrance
+                </mat-checkbox>
+              </div>
+              <div class="checklist-item">
+                <mat-checkbox formControlName="accessibilityMainIntersectionHasTrafficLight">
+                  Main intersection has traffic light
+                </mat-checkbox>
+              </div>
+              <div class="checklist-item">
+                <mat-checkbox formControlName="accessibilityMainIntersectionNeedsTrafficLight">
+                  Main intersection needs traffic light
+                </mat-checkbox>
+              </div>
+              <div class="checklist-item">
+                <mat-checkbox formControlName="accessibilityMultipleRetailersBeforeSite">
+                  Multiple other retailers before store
+                </mat-checkbox>
+              </div>
+              <div class="checklist-item">
+                <mat-checkbox formControlName="accessibilitySetBackTwiceParkingLength">
+                  Set back 2x the length of parking lot
+                </mat-checkbox>
+              </div>
+              <mat-form-field>
+                <mat-select placeholder="Accessibility Rating" formControlName="accessibilityRating">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
+          <!-- Parking -->
+          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+            <mat-expansion-panel-header>
+              <mat-panel-title>Parking</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="checklist">
+              <div class="checklist-item">
+                <mat-checkbox formControlName="parkingOutparcelsInterfereWithParking">
+                  Outparcels interfere with parking
+                </mat-checkbox>
+              </div>
+              <div class="checklist-item">
+                <mat-checkbox formControlName="parkingDirectAccessToParking">
+                  Direct access to parking
+                </mat-checkbox>
+              </div>
+              <div class="checklist-item">
+                <mat-checkbox formControlName="parkingSmallParkingField">Small parking field</mat-checkbox>
+              </div>
+              <div class="checklist-item">
+                <mat-checkbox formControlName="parkingHasTSpaces">Has T Spaces</mat-checkbox>
+              </div>
+              <mat-form-field>
+                <mat-select placeholder="Parking Rating" formControlName="parkingRating">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
+          <!-- Visibility -->
+          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+            <mat-expansion-panel-header>
+              <mat-panel-title>Visibility</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="checklist">
+              <div class="checklist-item">
+                <mat-checkbox formControlName="visibilityHillDepressionBlocksView">
+                  Hill/Depression blocks view of store
+                </mat-checkbox>
+              </div>
+              <div class="checklist-item">
+                <mat-checkbox formControlName="visibilityTreesBlockView">
+                  Trees block view of store
+                </mat-checkbox>
+              </div>
+              <div class="checklist-item">
+                <mat-checkbox formControlName="visibilityOutparcelsBlockView">
+                  Outparcels block view of store
+                </mat-checkbox>
+              </div>
+              <div class="checklist-item">
+                <mat-checkbox formControlName="visibilitySignOnMain">
+                  Store has sign on major cross-street
+                </mat-checkbox>
+              </div>
+              <div class="checklist-item">
+                <mat-checkbox formControlName="visibilityStoreFacesMainRoad">
+                  Store faces major cross-street
+                </mat-checkbox>
+              </div>
+              <mat-form-field>
+                <mat-select placeholder="Visibility Rating" formControlName="visibilityRating">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
+          <!-- Fuel -->
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Fuel</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div>
+              <mat-form-field>
+                <input matInput type="number" placeholder="Estimated Weekly Gallons"
+                       formControlName="fuelGallonsWeekly">
+              </mat-form-field>
+            </div>
+            <div *ngIf="casing.storeSurvey == null">
+              Add Store Survey for more fields
+            </div>
+            <div formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+              <mat-form-field>
+                <input matInput type="number" placeholder="Number of Dispensers" formControlName="fuelDispenserCount">
+                <mat-hint>Maximum number of cars that can fuel simultaneously</mat-hint>
+              </mat-form-field>
+              <div style="margin-top: 8px;">
+                <mat-checkbox formControlName="fuelIsOpen24">Fuel is Open 24hrs</mat-checkbox>
+              </div>
+            </div>
+          </mat-expansion-panel>
           <!-- Store Status -->
-          <mat-expansion-panel >
+          <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>Store Status</mat-panel-title>
               <mat-panel-description *ngIf="casing.storeStatus != null">({{casing.storeStatus.status}})
@@ -62,29 +199,49 @@
               <mat-panel-description *ngIf="casing.storeStatus == null">Select a Status
               </mat-panel-description>
             </mat-expansion-panel-header>
-            <div *ngIf="casing.storeStatus != null && !editingStoreStatus" formGroupName="storeStatus">
+            <div *ngIf="casing.storeStatus != null && !editingStoreStatus">
               <mds-data-field title="Status" [value]="casing.storeStatus.status"></mds-data-field>
-              <mds-data-field title="Status Start Date" [dateValue]="casing.storeStatus.statusStartDate"></mds-data-field>
+              <mds-data-field title="Status Start Date"
+                              [dateValue]="casing.storeStatus.statusStartDate"></mds-data-field>
             </div>
             <mat-progress-bar mode="indeterminate" *ngIf="editingStoreStatus"></mat-progress-bar>
             <mat-action-row *ngIf="!editingStoreStatus">
-              <button *ngIf="casing.storeStatus != null"  mat-button color="primary" (click)="showStatusDialog()">
+              <button *ngIf="casing.storeStatus != null" mat-raised-button color="primary" (click)="showStatusDialog()">
                 Update Status
               </button>
-              <button *ngIf="casing.storeStatus == null"  mat-raised-button color="accent" (click)="showStatusDialog()">
+              <button *ngIf="casing.storeStatus == null" mat-raised-button color="accent" (click)="showStatusDialog()">
                 Select Status
               </button>
             </mat-action-row>
           </mat-expansion-panel>
-          <!-- Notes -->
-          <mat-expansion-panel>
+          <!-- Fit/Format -->
+          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
             <mat-expansion-panel-header>
-              <mat-panel-title>Notes</mat-panel-title>
+              <mat-panel-title>Fit/Format</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
               <mat-form-field>
-                <textarea formControlName="note" matInput placeholder="Casing Notes"></textarea>
+                <mat-select placeholder="Fit" formControlName="fit">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let fitOption of fitOptions" [value]="fitOption">{{fitOption}}</mat-option>
+                </mat-select>
               </mat-form-field>
+              <mat-form-field>
+                <mat-select placeholder="Format" formControlName="format">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let formatOption of formatOptions" [value]="formatOption">{{formatOption}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
+          <!-- Hours -->
+          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+            <mat-expansion-panel-header>
+              <mat-panel-title>Hours</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div>
+              <mat-checkbox formControlName="storeIsOpen24">Open 24hrs</mat-checkbox>
             </div>
           </mat-expansion-panel>
           <!-- Store Conditions -->
@@ -131,18 +288,6 @@
               </mat-form-field>
             </div>
           </mat-expansion-panel>
-          <!-- Fuel -->
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>Fuel</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div>
-              <mat-form-field>
-                <input matInput type="number" placeholder="Estimated Weekly Gallons"
-                       formControlName="fuelGallonsWeekly">
-              </mat-form-field>
-            </div>
-          </mat-expansion-panel>
           <!-- Pharmacy -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
@@ -156,6 +301,7 @@
               <mat-form-field>
                 <input matInput type="number" placeholder="Estimated Avg. Prescription Price"
                        formControlName="pharmacyAvgDollarsPerScript">
+                <span matPrefix>$&nbsp;</span>
               </mat-form-field>
               <mat-form-field>
                 <input matInput type="number" placeholder="Number of Pharmacists"
@@ -165,6 +311,79 @@
                 <input matInput type="number" placeholder="Number of Technicians"
                        formControlName="pharmacyTechnicianCount">
               </mat-form-field>
+            </div>
+            <div *ngIf="casing.storeSurvey == null">
+              Add Store Survey for more fields
+            </div>
+            <div formGroupName="storeSurvey" class="checklist" *ngIf="casing.storeSurvey != null">
+              <div class="checklist-item">
+                <mat-checkbox formControlName="pharmacyIsOpen24">Pharmacy is Open 24hrs</mat-checkbox>
+              </div>
+              <div class="checklist-item">
+                <mat-checkbox formControlName="pharmacyHasDriveThrough">Pharmacy has drive-through</mat-checkbox>
+              </div>
+            </div>
+          </mat-expansion-panel>
+          <!-- Registers -->
+          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+            <mat-expansion-panel-header>
+              <mat-panel-title>Registers</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div>
+              <mat-form-field>
+                <input matInput type="number" placeholder="Normal" formControlName="registerCountNormal">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="Express" formControlName="registerCountExpress">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="Self Checkout" formControlName="registerCountSelfCheckout">
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
+          <!-- Departments -->
+          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+            <mat-expansion-panel-header>
+              <mat-panel-title>Departments</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div id="departments">
+              <div *ngFor="let departmentControl of departmentControls">
+                <mat-checkbox [formControlName]="departmentControl.name">{{departmentControl.title}}</mat-checkbox>
+                <button mat-icon-button color="primary" type="button"
+                        (click)="showFieldInfo(departmentControl.title, departmentControl.info)">
+                  <i class="fas fa-info-circle"></i></button>
+              </div>
+            </div>
+          </mat-expansion-panel>
+          <!-- Area -->
+          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+            <mat-expansion-panel-header>
+              <mat-panel-title>Area</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div>
+              <mat-form-field>
+                <input matInput type="number" placeholder="Sales Area" formControlName="areaSales">
+                <span matSuffix>sqft</span>
+              </mat-form-field>
+              <div class="flex flex-space-between">
+                <mat-form-field id="area-percent-input">
+                  <input matInput type="number" placeholder="Percent of Total Area"
+                         formControlName="areaSalesPercentOfTotal">
+                  <span matSuffix>%</span>
+                  <mat-hint>Between 0.01% and 100%</mat-hint>
+                  <mat-error *ngIf="storeSurveyForm.get('areaSalesPercentOfTotal').invalid">Between 0.01% and 100%
+                  </mat-error>
+                </mat-form-field>
+                <button mat-mini-fab color="primary" [matMenuTriggerFor]="areaMore">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+              </div>
+              <mat-form-field>
+                <input matInput type="number" placeholder="Total Area" formControlName="areaTotal">
+                <span matSuffix>sqft</span>
+              </mat-form-field>
+              <mat-checkbox formControlName="areaIsEstimate">Area Is Estimate</mat-checkbox>
+              <mat-checkbox formControlName="naturalFoodsAreIntegrated">Natural Foods are Integrated</mat-checkbox>
             </div>
           </mat-expansion-panel>
           <!-- Volume -->
@@ -200,7 +419,7 @@
             </div>
             <div *ngIf="casingForm.get('storeVolume') != null" formGroupName="storeVolume">
               <mat-form-field>
-                <mat-select placeholder="Volume Type" formControlName="volumeType">
+                <mat-select placeholder="Volume Type" formControlName="volumeType" required>
                   <mat-option>Clear Selection</mat-option>
                   <mat-option *ngFor="let volumeTypeOption of volumeTypeOptions" [value]="volumeTypeOption">
                     {{volumeTypeOption}}
@@ -213,11 +432,13 @@
                     <td>
                       <mat-form-field>
                         <input matInput placeholder="Meat Volume" type="number" formControlName="volumeMeat">
+                        <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
                         <input matInput placeholder="% of Total" type="number" formControlName="volumePercentMeat">
+                        <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
                   </tr>
@@ -225,11 +446,13 @@
                     <td>
                       <mat-form-field>
                         <input matInput placeholder="Produce Volume" type="number" formControlName="volumeProduce">
+                        <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
                         <input matInput placeholder="% of Total" type="number" formControlName="volumePercentProduce">
+                        <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
                   </tr>
@@ -237,11 +460,13 @@
                     <td>
                       <mat-form-field>
                         <input matInput placeholder="Grocery Volume" type="number" formControlName="volumeGrocery">
+                        <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
                         <input matInput placeholder="% of Total" type="number" formControlName="volumePercentGrocery">
+                        <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
                   </tr>
@@ -249,11 +474,13 @@
                     <td>
                       <mat-form-field>
                         <input matInput placeholder="Non-Food Volume" type="number" formControlName="volumeNonFood">
+                        <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
                         <input matInput placeholder="% of Total" type="number" formControlName="volumePercentNonFood">
+                        <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
                   </tr>
@@ -261,17 +488,20 @@
                     <td>
                       <mat-form-field>
                         <input matInput placeholder="Other Volume" type="number" formControlName="volumeOther">
+                        <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
                         <input matInput placeholder="% of Total" type="number" formControlName="volumePercentOther">
+                        <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
                   </tr>
                 </table>
                 <mat-form-field>
                   <input matInput type="number" placeholder="+/- Adjustment" formControlName="volumePlusMinus">
+                  <span matPrefix>$&nbsp;</span>
                 </mat-form-field>
                 <mat-form-field>
                   <mat-select placeholder="Volume Confidence" formControlName="volumeConfidence">
@@ -284,6 +514,7 @@
               </div>
               <mat-form-field class="example-full-width">
                 <input matInput type="number" placeholder="Total Weekly Grocery Volume" formControlName="volumeTotal">
+                <span matPrefix>$&nbsp;</span>
                 <mat-error *ngIf="casingForm.get('storeVolume.volumeTotal').invalid">Min: $10k, Max: $10M
                 </mat-error>
               </mat-form-field>
@@ -304,17 +535,95 @@
               <mat-progress-bar mode="indeterminate" *ngIf="removingVolume"></mat-progress-bar>
             </mat-action-row>
           </mat-expansion-panel>
+          <!-- Notes -->
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Notes</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div>
+              <mat-form-field>
+                <textarea formControlName="note" matInput placeholder="Casing Notes"></textarea>
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
+          <!-- Seasonality -->
+          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+            <mat-expansion-panel-header>
+              <mat-panel-title>Seasonality</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div>
+              <mat-form-field>
+                <input matInput type="number" placeholder="January" formControlName="seasonalityJan">
+                <span matSuffix>%</span>
+                <mat-error>Between -100% and 200%</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="February" formControlName="seasonalityFeb">
+                <span matSuffix>%</span>
+                <mat-error>Between -100% and 200%</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="March" formControlName="seasonalityMar">
+                <span matSuffix>%</span>
+                <mat-error>Between -100% and 200%</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="April" formControlName="seasonalityApr">
+                <span matSuffix>%</span>
+                <mat-error>Between -100% and 200%</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="May" formControlName="seasonalityMay">
+                <span matSuffix>%</span>
+                <mat-error>Between -100% and 200%</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="June" formControlName="seasonalityJun">
+                <span matSuffix>%</span>
+                <mat-error>Between -100% and 200%</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="July" formControlName="seasonalityJul">
+                <span matSuffix>%</span>
+                <mat-error>Between -100% and 200%</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="August" formControlName="seasonalityAug">
+                <span matSuffix>%</span>
+                <mat-error>Between -100% and 200%</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="September" formControlName="seasonalitySep">
+                <span matSuffix>%</span>
+                <mat-error>Between -100% and 200%</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="October" formControlName="seasonalityOct">
+                <span matSuffix>%</span>
+                <mat-error>Between -100% and 200%</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="November" formControlName="seasonalityNov">
+                <span matSuffix>%</span>
+                <mat-error>Between -100% and 200%</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="December" formControlName="seasonalityDec">
+                <span matSuffix>%</span>
+                <mat-error>Between -100% and 200%</mat-error>
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
         </mat-accordion>
       </form>
     </div>
   </div>
 </div>
 
-<mat-menu #storeCasingMore="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item>
-    <i class="fas fa-list"></i>&nbsp;&nbsp;Projects
+<mat-menu #areaMore="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item (click)="openAreaCalculator()">
+    <i class="fas fa-calculator"></i>&nbsp;&nbsp;Area Calculator
   </button>
-  <button mat-menu-item>
-    <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
-  </button>
+  <button mat-menu-item (click)="calculateSalesAreaFromTotal()">&nbsp;&nbsp;Calculate Sales from Total</button>
+  <button mat-menu-item (click)="calculateTotalAreaFromSales()">&nbsp;&nbsp;Calculate Total from Sales</button>
 </mat-menu>

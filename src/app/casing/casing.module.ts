@@ -28,6 +28,7 @@ import { ShoppingCenterCasingsComponent } from './shopping-center-casings/shoppi
 import { StoreStatusesDialogComponent } from './store-statuses-dialog/store-statuses-dialog.component';
 import { StoreVolumeDialogComponent } from './store-volume-dialog/store-volume-dialog.component';
 import { StoreCasingDetailComponent } from './store-casing-detail/store-casing-detail.component';
+import { AreaCalculatorComponent } from './area-calculator/area-calculator.component';
 
 @NgModule({
   imports: [
@@ -60,7 +61,8 @@ import { StoreCasingDetailComponent } from './store-casing-detail/store-casing-d
     ShoppingCenterCasingsComponent,
     StoreStatusesDialogComponent,
     StoreVolumeDialogComponent,
-    StoreCasingDetailComponent
+    StoreCasingDetailComponent,
+    AreaCalculatorComponent
   ],
   entryComponents: [
     LatLngSearchComponent,
@@ -68,7 +70,8 @@ import { StoreCasingDetailComponent } from './store-casing-detail/store-casing-d
     DatabaseSearchComponent,
     SelectProjectComponent,
     StoreStatusesDialogComponent,
-    StoreVolumeDialogComponent
+    StoreVolumeDialogComponent,
+    AreaCalculatorComponent
   ],
   providers: [CasingDashboardService]
 })

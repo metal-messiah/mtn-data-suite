@@ -16,6 +16,11 @@ import { SimplifiedProject } from '../../models/simplified-project';
 import { StoreStatusesDialogComponent } from '../store-statuses-dialog/store-statuses-dialog.component';
 import { Store } from '../../models/store';
 import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
+import { DataFieldInfoDialogComponent } from '../../shared/data-field-info-dialog/data-field-info-dialog.component';
+import { CasingDashboardService } from '../casing-dashboard/casing-dashboard.service';
+import { Project } from '../../models/project';
+import { isNumber } from 'util';
+import { AreaCalculatorComponent } from '../area-calculator/area-calculator.component';
 
 @Component({
   selector: 'mds-store-casing-detail',
@@ -26,7 +31,7 @@ export class StoreCasingDetailComponent implements OnInit {
 
   casingForm: FormGroup;
   storeVolumeForm: FormGroup;
-  storeStatusForm: FormGroup;
+  storeSurveyForm: FormGroup;
 
   casing: StoreCasing;
   storeVolumes: SimplifiedStoreVolume[];
@@ -38,11 +43,43 @@ export class StoreCasingDetailComponent implements OnInit {
   loadingProject = false;
   editingStoreStatus = false;
 
-  statusOptions = ['Closed', 'Dead', 'Dead Deal', 'Float', 'New Under Construction', 'Open', 'Planned', 'Proposed',
-    'Remodel', 'Rumored', 'Strong Rumor', 'Temporarily Closed'];
   conditions = ['POOR', 'FAIR', 'AVERAGE', 'GOOD', 'EXCELLENT'];
   confidenceLevels = ['LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH'];
   volumeTypeOptions = ['ACTUAL', 'ESTIMATE', 'PLACEHOLDER', 'PROJECTION', 'THIRD_PARTY'];
+  fitOptions = ['Aldi', 'Asian', 'Club', 'Conventional', 'Discount', 'Hispanic', 'Natural Foods', 'Quality/Service',
+    'Save A Lot', 'Sprouts', 'Supercenter', 'Trader Joe\'s', 'Warehouse', 'Whole Foods'];
+  formatOptions = ['Asian', 'Club', 'Combo', 'Conventional', 'Conventional Mass Merchandiser', 'Discount', 'Ethnic',
+    'Food/Drug Combo', 'Hispanic', 'Independent', 'International', 'Limited Assortment', 'Natural Foods',
+    'Natural/Gourmet Foods', 'Super Combo', 'Supercenter', 'Superette/Small Grocery', 'Supermarket', 'Superstore',
+    'Trader Joe\'s', 'Warehouse'];
+
+  departmentControls = [
+    {name: 'departmentBakery', title: 'Bakery', info: 'Service Bakery will usually have x'},
+    {name: 'departmentBank', title: 'Bank', info: 'Customers must be able to access the bank from within the store'},
+    {name: 'departmentBeer', title: 'Beer', info: 'Sells Beer'},
+    {name: 'departmentBulk', title: 'Bulk', info: 'Sells food in bulk'},
+    {name: 'departmentCheese', title: 'Cheese', info: 'Service Cheese will usually have x'},
+    {name: 'departmentCoffee', title: 'Coffee', info: '???'},
+    {name: 'departmentDeli', title: 'Deli', info: '???'},
+    {name: 'departmentExpandedGm', title: 'ExpandedGm', info: '???'},
+    {name: 'departmentExtensivePreparedFoods', title: 'ExtensivePreparedFoods', info: '???'},
+    {name: 'departmentFloral', title: 'Floral', info: '???'},
+    {name: 'departmentFuel', title: 'Fuel', info: '???'},
+    {name: 'departmentHotBar', title: 'HotBar', info: '???'},
+    {name: 'departmentInStoreRestaurant', title: 'InStoreRestaurant', info: '???'},
+    {name: 'departmentLiquor', title: 'Liquor', info: '???'},
+    {name: 'departmentMeat', title: 'Meat', info: '???'},
+    {name: 'departmentNatural', title: 'Natural', info: '???'},
+    {name: 'departmentOliveBar', title: 'OliveBar', info: '???'},
+    {name: 'departmentOnlinePickup', title: 'OnlinePickup', info: '???'},
+    {name: 'departmentPharmacy', title: 'Pharmacy', info: '???'},
+    {name: 'departmentPreparedFoods', title: 'PreparedFoods', info: '???'},
+    {name: 'departmentSaladBar', title: 'SaladBar', info: '???'},
+    {name: 'departmentSeafood', title: 'Seafood', info: '???'},
+    {name: 'departmentSeating', title: 'Seating', info: '???'},
+    {name: 'departmentSushi', title: 'Sushi', info: '???'},
+    {name: 'departmentWine', title: 'Wine', info: '???'}
+  ];
 
   constructor(private storeCasingService: StoreCasingService,
               private storeService: StoreService,
@@ -50,6 +87,7 @@ export class StoreCasingDetailComponent implements OnInit {
               private _location: Location,
               private dialog: MatDialog,
               private errorService: ErrorService,
+              public casingDashboardService: CasingDashboardService,
               private fb: FormBuilder) {
     this.createForm();
   }
@@ -64,35 +102,104 @@ export class StoreCasingDetailComponent implements OnInit {
       conditionFrozenRefrigerated: '',
       conditionShelvingGondolas: '',
       conditionWalls: '',
-      fuelGallonsWeekly: '',
-      pharmacyScriptsWeekly: '',
-      pharmacyAvgDollarsPerScript: '',
-      pharmacyPharmacistCount: '',
-      pharmacyTechnicianCount: ''
-    });
-
-    this.storeStatusForm = this.fb.group({
-      status: ['', [Validators.required]],
-      statusStartDate: new Date()
+      fuelGallonsWeekly: ['', [Validators.min(0)]],
+      pharmacyScriptsWeekly: ['', [Validators.min(0)]],
+      pharmacyAvgDollarsPerScript: ['', [Validators.min(0)]],
+      pharmacyPharmacistCount: ['', [Validators.min(0)]],
+      pharmacyTechnicianCount: ['', [Validators.min(0)]],
     });
 
     this.storeVolumeForm = this.fb.group({
       volumeTotal: ['', [Validators.min(1000), Validators.max(10000000)]],
       volumeDate: new Date(),
       volumeType: ['', [Validators.required]],
-      volumeGrocery: '',
-      volumePercentGrocery: '',
-      volumeMeat: '',
-      volumePercentMeat: '',
-      volumeNonFood: '',
-      volumePercentNonFood: '',
-      volumeOther: '',
-      volumePercentOther: '',
-      volumeProduce: '',
-      volumePercentProduce: '',
-      volumePlusMinus: '',
+      volumeGrocery: ['', [Validators.min(0), Validators.max(10000000)]],
+      volumePercentGrocery: ['', [Validators.min(0), Validators.max(100)]],
+      volumeMeat: ['', [Validators.min(0), Validators.max(10000000)]],
+      volumePercentMeat: ['', [Validators.min(0), Validators.max(100)]],
+      volumeNonFood: ['', [Validators.min(0), Validators.max(10000000)]],
+      volumePercentNonFood: ['', [Validators.min(0), Validators.max(100)]],
+      volumeOther: ['', [Validators.min(0), Validators.max(10000000)]],
+      volumePercentOther: ['', [Validators.min(0), Validators.max(100)]],
+      volumeProduce: ['', [Validators.min(0), Validators.max(10000000)]],
+      volumePercentProduce: ['', [Validators.min(0), Validators.max(100)]],
+      volumePlusMinus: ['', [Validators.min(0), Validators.max(10000000)]],
       volumeNote: '',
       volumeConfidence: ''
+    });
+
+    this.storeSurveyForm = this.fb.group({
+      surveyDate: [new Date(), [Validators.required]],
+      note: '',
+      fit: '',
+      format: '',
+      areaSales: '',
+      areaSalesPercentOfTotal: ['', [Validators.min(0.01), Validators.max(100)]],
+      areaTotal: '',
+      areaIsEstimate: '',
+      naturalFoodsAreIntegrated: '',
+      storeIsOpen24: '',
+      registerCountNormal: '',
+      registerCountExpress: '',
+      registerCountSelfCheckout: '',
+      fuelDispenserCount: '',
+      fuelIsOpen24: '',
+      pharmacyIsOpen24: '',
+      pharmacyHasDriveThrough: '',
+      departmentBakery: '',
+      departmentBank: '',
+      departmentBeer: '',
+      departmentBulk: '',
+      departmentCheese: '',
+      departmentCoffee: '',
+      departmentDeli: '',
+      departmentExpandedGm: '',
+      departmentExtensivePreparedFoods: '',
+      departmentFloral: '',
+      departmentFuel: '',
+      departmentHotBar: '',
+      departmentInStoreRestaurant: '',
+      departmentLiquor: '',
+      departmentMeat: '',
+      departmentNatural: '',
+      departmentOliveBar: '',
+      departmentOnlinePickup: '',
+      departmentPharmacy: '',
+      departmentPreparedFoods: '',
+      departmentSaladBar: '',
+      departmentSeafood: '',
+      departmentSeating: '',
+      departmentSushi: '',
+      departmentWine: '',
+      accessibilityFarthestFromEntrance: '',
+      accessibilityMainIntersectionHasTrafficLight: '',
+      accessibilityMainIntersectionNeedsTrafficLight: '',
+      accessibilityMultipleRetailersBeforeSite: '',
+      accessibilitySetBackTwiceParkingLength: '',
+      accessibilityRating: '',
+      parkingOutparcelsInterfereWithParking: '',
+      parkingDirectAccessToParking: '',
+      parkingSmallParkingField: '',
+      parkingHasTSpaces: '',
+      parkingRating: '',
+      visibilityHillDepressionBlocksView: '',
+      visibilityOutparcelsBlockView: '',
+      visibilitySignOnMain: '',
+      visibilityStoreFacesMainRoad: '',
+      visibilityTreesBlockView: '',
+      visibilityRating: '',
+      seasonalityJan: ['', [Validators.min(-100), Validators.max(200)]],
+      seasonalityFeb: ['', [Validators.min(-100), Validators.max(200)]],
+      seasonalityMar: ['', [Validators.min(-100), Validators.max(200)]],
+      seasonalityApr: ['', [Validators.min(-100), Validators.max(200)]],
+      seasonalityMay: ['', [Validators.min(-100), Validators.max(200)]],
+      seasonalityJun: ['', [Validators.min(-100), Validators.max(200)]],
+      seasonalityJul: ['', [Validators.min(-100), Validators.max(200)]],
+      seasonalityAug: ['', [Validators.min(-100), Validators.max(200)]],
+      seasonalitySep: ['', [Validators.min(-100), Validators.max(200)]],
+      seasonalityOct: ['', [Validators.min(-100), Validators.max(200)]],
+      seasonalityNov: ['', [Validators.min(-100), Validators.max(200)]],
+      seasonalityDec: ['', [Validators.min(-100), Validators.max(200)]]
     });
   }
 
@@ -130,10 +237,10 @@ export class StoreCasingDetailComponent implements OnInit {
     } else {
       this.casingForm.removeControl('storeVolume');
     }
-    if (this.casing.storeStatus != null) {
-      this.casingForm.addControl('storeStatus', this.storeStatusForm);
+    if (this.casing.storeSurvey != null) {
+      this.casingForm.addControl('storeSurvey', this.storeSurveyForm);
     } else {
-      this.casingForm.removeControl('storeStatus');
+      this.casingForm.removeControl('storeSurvey');
     }
     this.casingForm.reset(this.casing);
     if (doPreserveChanges) {
@@ -206,6 +313,10 @@ export class StoreCasingDetailComponent implements OnInit {
     // TODO
   }
 
+  addDashboardProject() {
+    this.addProject(this.casingDashboardService.selectedProject);
+  }
+
   showProjectSelection() {
     const dialogRef = this.dialog.open(SelectProjectComponent);
 
@@ -213,20 +324,24 @@ export class StoreCasingDetailComponent implements OnInit {
       if (result === 'clear') {
         console.log('Project Selection Dialog Closed');
       } else if (result != null) {
-        const existingProject = this.casing.projects.find((p: SimplifiedProject) => p.id === result.id);
-        if (existingProject != null) {
-          console.warn('Cannot add same project twice');
-        } else {
-          this.loadingProject = true;
-          this.storeCasingService.addProject(this.casing, result)
-            .finally(() => this.loadingProject = false)
-            .subscribe((casing: StoreCasing) => {
-              this.casing = casing;
-              this.rebuildForm(true);
-            });
-        }
+        this.addProject(result);
       }
     });
+  }
+
+  private addProject(project: Project | SimplifiedProject) {
+    const existingProject = this.casing.projects.find((p: SimplifiedProject) => p.id === project.id);
+    if (existingProject != null) {
+      console.warn('Cannot add same project twice');
+    } else {
+      this.loadingProject = true;
+      this.storeCasingService.addProject(this.casing, project)
+        .finally(() => this.loadingProject = false)
+        .subscribe((casing: StoreCasing) => {
+          this.casing = casing;
+          this.rebuildForm(true);
+        });
+    }
   }
 
   removeProject(project: SimplifiedProject) {
@@ -252,14 +367,65 @@ export class StoreCasingDetailComponent implements OnInit {
               .finally(() => this.editingStoreStatus = false)
               .subscribe((casing: StoreCasing) => {
                 this.casing = casing;
-                this.rebuildForm();
+                this.rebuildForm(true);
               });
           } else {
             this.editingStoreStatus = false;
           }
         });
       });
+  }
 
+  showFieldInfo(title: string, message: string) {
+    this.dialog.open(DataFieldInfoDialogComponent, {data: {title: title, message: message}});
+  }
+
+  calculateTotalAreaFromSales() {
+    const salesControl = this.casingForm.get('storeSurvey.areaSales');
+    const percentControl = this.casingForm.get('storeSurvey.areaSalesPercentOfTotal');
+    if (salesControl.valid && percentControl.valid) {
+      const salesArea = parseFloat(salesControl.value);
+      const percent = parseFloat(percentControl.value);
+      if (!isNaN(salesArea) && !isNaN(percent)) {
+        const calculatedTotal = Math.round(salesArea / (percent / 100));
+        const control = this.casingForm.get('storeSurvey.areaTotal');
+        control.setValue(calculatedTotal);
+        control.markAsDirty();
+      }
+    }
+  }
+
+  calculateSalesAreaFromTotal() {
+    const totalControl = this.casingForm.get('storeSurvey.areaTotal');
+    const percentControl = this.casingForm.get('storeSurvey.areaSalesPercentOfTotal');
+    if (totalControl.valid && percentControl.valid) {
+      const totalArea = parseFloat(totalControl.value);
+      const percent = parseFloat(percentControl.value);
+      if (!isNaN(totalArea) && !isNaN(percent)) {
+        const calculatedSales = Math.round(totalArea * (percent / 100));
+        const control = this.casingForm.get('storeSurvey.areaSales');
+        control.setValue(calculatedSales);
+        control.markAsDirty();
+      }
+    }
+  }
+
+  openAreaCalculator() {
+    const dialogRef = this.dialog.open(AreaCalculatorComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result != null) {
+        if (result.salesArea != null) {
+          const control = this.casingForm.get('storeSurvey.areaSales');
+          control.setValue(result.salesArea);
+          control.markAsDirty();
+        } else if (result.totalArea != null) {
+          const control = this.casingForm.get('storeSurvey.areaTotal');
+          control.setValue(result.totalArea);
+          control.markAsDirty();
+        }
+      }
+    });
   }
 
 }

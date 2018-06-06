@@ -13,6 +13,7 @@ import { LogoMenuComponent } from './logo-menu/logo-menu.component';
 import { RouterModule } from '@angular/router';
 import { DataFieldComponent } from './data-field/data-field.component';
 import { UserProfileSelectComponent } from './user-profile-select/user-profile-select.component';
+import { DataFieldInfoDialogComponent } from './data-field-info-dialog/data-field-info-dialog.component';
 
 @NgModule({
   imports: [
@@ -28,7 +29,8 @@ import { UserProfileSelectComponent } from './user-profile-select/user-profile-s
     MapComponent,
     LogoMenuComponent,
     DataFieldComponent,
-    UserProfileSelectComponent
+    UserProfileSelectComponent,
+    DataFieldInfoDialogComponent
   ],
   providers: [
     BreakpointObserver,
@@ -38,7 +40,8 @@ import { UserProfileSelectComponent } from './user-profile-select/user-profile-s
   entryComponents: [
     ErrorDialogComponent,
     ConfirmDialogComponent,
-    UserProfileSelectComponent
+    UserProfileSelectComponent,
+    DataFieldInfoDialogComponent
   ],
   exports: [
     CallbackComponent,
@@ -51,7 +54,8 @@ import { UserProfileSelectComponent } from './user-profile-select/user-profile-s
     MapComponent,
     PathNotFoundComponent,
     ReactiveFormsModule,
-    DataFieldComponent
+    DataFieldComponent,
+    DataFieldInfoDialogComponent
   ]
 })
 export class SharedModule {

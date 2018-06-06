@@ -62,3 +62,38 @@
   margin-right: -24px;
 }
 
+.mat-slider {
+  width: 100%;
+}
+
+#departments {
+  display: flex;
+  flex-direction: column;
+}
+
+#departments div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.checklist .checklist-item {
+  margin-bottom: 8px;
+}
+
+#add-dashboard-project-button {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 4px;
+}
+
+#add-project-button {
+  min-width: 104px;
+}
+
+#area-percent-input {
+  max-width: 75%;
+}

@@ -1,6 +1,6 @@
 import { AuditingEntity } from './auditing-entity';
 import { SimplifiedStoreCasing } from './simplified-store-casing';
-import { SimplifiedShoppingCenterCasing } from './simplified-shopping-center-casing';
+import { DateUtil } from '../utils/date-util';
 
 export class StoreSurvey extends AuditingEntity {
 
@@ -82,6 +82,10 @@ export class StoreSurvey extends AuditingEntity {
   constructor(obj) {
     super(obj);
     Object.assign(this, obj);
+
+    if (obj.surveyDate != null) {
+      this.surveyDate = DateUtil.getDate(obj.surveyDate);
+    }
     if (obj.storeCasings != null) {
       this.storeCasings = obj.storeCasings.map(storeCasing => new SimplifiedStoreCasing(storeCasing));
     }
