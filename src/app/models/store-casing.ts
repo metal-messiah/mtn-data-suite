@@ -4,6 +4,7 @@ import { SimplifiedStoreStatus } from './simplified-store-status';
 import { SimplifiedProject } from './simplified-project';
 import { StoreSurvey } from './store-survey';
 import { DateUtil } from '../utils/date-util';
+import { ShoppingCenterCasing } from './shopping-center-casing';
 
 export class StoreCasing extends AuditingEntity {
 
@@ -25,6 +26,7 @@ export class StoreCasing extends AuditingEntity {
   storeStatus: SimplifiedStoreStatus;
   storeVolume: StoreVolume;
   storeSurvey: StoreSurvey;
+  shoppingCenterCasing: ShoppingCenterCasing;
   projects: SimplifiedProject[];
 
   constructor(obj) {
@@ -45,6 +47,9 @@ export class StoreCasing extends AuditingEntity {
     }
     if (obj.projects != null) {
       this.projects = obj.projects.map(project => new SimplifiedProject(project));
+    }
+    if (obj.shoppingCenterCasing != null) {
+      this.shoppingCenterCasing = new ShoppingCenterCasing(obj.shoppingCenterCasing);
     }
   }
 }

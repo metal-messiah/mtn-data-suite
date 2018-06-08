@@ -5,8 +5,11 @@
     </div>
     <span id="title">Store Casing</span>
     <div>
+      <button type="button" mat-icon-button color="warn" *ngIf="validatingForms.invalid">
+        <i class="fas fa-exclamation-triangle fa-2x"></i>
+      </button>
       <button type="submit" mat-mini-fab color="accent" (click)="saveForm()"
-              [disabled]="casingForm.pristine || casingForm.invalid">
+              [disabled]="validatingForms.pristine || validatingForms.invalid">
         <i class="fas fa-save"></i>
       </button>
     </div>
@@ -14,13 +17,13 @@
   <mat-divider></mat-divider>
   <div class="row content">
     <div class="list-wrapper">
-      <form [formGroup]="casingForm" *ngIf="casing != null">
+      <form [formGroup]="storeCasingForm" *ngIf="storeCasing != null">
         <mat-accordion>
           <!-- Casing Date -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>Casing Date</mat-panel-title>
-              <mat-panel-description>{{casing.casingDate | date}}</mat-panel-description>
+              <mat-panel-description>{{storeCasing.casingDate | date}}</mat-panel-description>
             </mat-expansion-panel-header>
             <div>
               <mat-form-field>
@@ -34,12 +37,12 @@
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>Projects</mat-panel-title>
-              <mat-panel-description *ngIf="casing.projects != null">({{casing.projects.length}})
+              <mat-panel-description *ngIf="storeCasing.projects != null">({{storeCasing.projects.length}})
               </mat-panel-description>
             </mat-expansion-panel-header>
-            <div *ngIf="casing.projects != null" id="projects">
+            <div *ngIf="storeCasing.projects != null" id="projects">
               <mat-list>
-                <mat-list-item *ngFor="let project of casing.projects">
+                <mat-list-item *ngFor="let project of storeCasing.projects">
                   <div class="project-item">
                     <div>{{project.projectName}}</div>
                     <button mat-button color="warn" (click)="removeProject(project)">Remove</button>
@@ -60,7 +63,7 @@
             </mat-action-row>
           </mat-expansion-panel>
           <!-- Accessibility -->
-          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+          <mat-expansion-panel [formGroup]="storeSurveyForm" *ngIf="storeCasing.storeSurvey != null">
             <mat-expansion-panel-header>
               <mat-panel-title>Accessibility</mat-panel-title>
             </mat-expansion-panel-header>
@@ -98,7 +101,7 @@
             </div>
           </mat-expansion-panel>
           <!-- Parking -->
-          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+          <mat-expansion-panel [formGroup]="storeSurveyForm" *ngIf="storeCasing.storeSurvey != null">
             <mat-expansion-panel-header>
               <mat-panel-title>Parking</mat-panel-title>
             </mat-expansion-panel-header>
@@ -128,7 +131,7 @@
             </div>
           </mat-expansion-panel>
           <!-- Visibility -->
-          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+          <mat-expansion-panel [formGroup]="storeSurveyForm" *ngIf="storeCasing.storeSurvey != null">
             <mat-expansion-panel-header>
               <mat-panel-title>Visibility</mat-panel-title>
             </mat-expansion-panel-header>
@@ -177,10 +180,10 @@
                        formControlName="fuelGallonsWeekly">
               </mat-form-field>
             </div>
-            <div *ngIf="casing.storeSurvey == null">
+            <div *ngIf="storeCasing.storeSurvey == null">
               Add Store Survey for more fields
             </div>
-            <div formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+            <div [formGroup]="storeSurveyForm" *ngIf="storeCasing.storeSurvey != null">
               <mat-form-field>
                 <input matInput type="number" placeholder="Number of Dispensers" formControlName="fuelDispenserCount">
                 <mat-hint>Maximum number of cars that can fuel simultaneously</mat-hint>
@@ -194,28 +197,28 @@
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>Store Status</mat-panel-title>
-              <mat-panel-description *ngIf="casing.storeStatus != null">({{casing.storeStatus.status}})
+              <mat-panel-description *ngIf="storeCasing.storeStatus != null">({{storeCasing.storeStatus.status}})
               </mat-panel-description>
-              <mat-panel-description *ngIf="casing.storeStatus == null">Select a Status
+              <mat-panel-description *ngIf="storeCasing.storeStatus == null">Select a Status
               </mat-panel-description>
             </mat-expansion-panel-header>
-            <div *ngIf="casing.storeStatus != null && !editingStoreStatus">
-              <mds-data-field title="Status" [value]="casing.storeStatus.status"></mds-data-field>
+            <div *ngIf="storeCasing.storeStatus != null && !editingStoreStatus">
+              <mds-data-field title="Status" [value]="storeCasing.storeStatus.status"></mds-data-field>
               <mds-data-field title="Status Start Date"
-                              [dateValue]="casing.storeStatus.statusStartDate"></mds-data-field>
+                              [dateValue]="storeCasing.storeStatus.statusStartDate"></mds-data-field>
             </div>
             <mat-progress-bar mode="indeterminate" *ngIf="editingStoreStatus"></mat-progress-bar>
             <mat-action-row *ngIf="!editingStoreStatus">
-              <button *ngIf="casing.storeStatus != null" mat-raised-button color="primary" (click)="showStatusDialog()">
+              <button *ngIf="storeCasing.storeStatus != null" mat-raised-button color="primary" (click)="showStatusDialog()">
                 Update Status
               </button>
-              <button *ngIf="casing.storeStatus == null" mat-raised-button color="accent" (click)="showStatusDialog()">
+              <button *ngIf="storeCasing.storeStatus == null" mat-raised-button color="accent" (click)="showStatusDialog()">
                 Select Status
               </button>
             </mat-action-row>
           </mat-expansion-panel>
           <!-- Fit/Format -->
-          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+          <mat-expansion-panel [formGroup]="storeSurveyForm" *ngIf="storeCasing.storeSurvey != null">
             <mat-expansion-panel-header>
               <mat-panel-title>Fit/Format</mat-panel-title>
             </mat-expansion-panel-header>
@@ -236,7 +239,7 @@
             </div>
           </mat-expansion-panel>
           <!-- Hours -->
-          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+          <mat-expansion-panel [formGroup]="storeSurveyForm" *ngIf="storeCasing.storeSurvey != null">
             <mat-expansion-panel-header>
               <mat-panel-title>Hours</mat-panel-title>
             </mat-expansion-panel-header>
@@ -312,10 +315,10 @@
                        formControlName="pharmacyTechnicianCount">
               </mat-form-field>
             </div>
-            <div *ngIf="casing.storeSurvey == null">
+            <div *ngIf="storeCasing.storeSurvey == null">
               Add Store Survey for more fields
             </div>
-            <div formGroupName="storeSurvey" class="checklist" *ngIf="casing.storeSurvey != null">
+            <div [formGroup]="storeSurveyForm" class="checklist" *ngIf="storeCasing.storeSurvey != null">
               <div class="checklist-item">
                 <mat-checkbox formControlName="pharmacyIsOpen24">Pharmacy is Open 24hrs</mat-checkbox>
               </div>
@@ -325,7 +328,7 @@
             </div>
           </mat-expansion-panel>
           <!-- Registers -->
-          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+          <mat-expansion-panel [formGroup]="storeSurveyForm" *ngIf="storeCasing.storeSurvey != null">
             <mat-expansion-panel-header>
               <mat-panel-title>Registers</mat-panel-title>
             </mat-expansion-panel-header>
@@ -342,7 +345,7 @@
             </div>
           </mat-expansion-panel>
           <!-- Departments -->
-          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+          <mat-expansion-panel [formGroup]="storeSurveyForm" *ngIf="storeCasing.storeSurvey != null">
             <mat-expansion-panel-header>
               <mat-panel-title>Departments</mat-panel-title>
             </mat-expansion-panel-header>
@@ -356,7 +359,7 @@
             </div>
           </mat-expansion-panel>
           <!-- Area -->
-          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+          <mat-expansion-panel [formGroup]="storeSurveyForm" *ngIf="storeCasing.storeSurvey != null">
             <mat-expansion-panel-header>
               <mat-panel-title>Area</mat-panel-title>
             </mat-expansion-panel-header>
@@ -392,7 +395,7 @@
               <mat-panel-title>Volume</mat-panel-title>
             </mat-expansion-panel-header>
             <mat-progress-bar mode="indeterminate" *ngIf="savingVolume"></mat-progress-bar>
-            <div *ngIf="casing.storeVolume == null && !savingVolume">
+            <div *ngIf="storeCasing.storeVolume == null && !savingVolume">
               <div class="button-in-row">
                 <button mat-raised-button color="accent" [disabled]="savingVolume"
                         (click)="createNewVolume()">Create New Volume</button>
@@ -402,7 +405,7 @@
                         (click)="showExistingVolumes()">Show Existing Volumes</button>
               </div>
             </div>
-            <div *ngIf="!savingVolume && casingForm.get('storeVolume') != null" formGroupName="storeVolume">
+            <div [formGroup]="storeVolumeForm" *ngIf="!savingVolume && storeCasing.storeVolume != null">
               <mat-form-field>
                 <mat-select placeholder="Volume Type" formControlName="volumeType" required>
                   <mat-option>Clear Selection</mat-option>
@@ -411,7 +414,7 @@
                   </mat-option>
                 </mat-select>
               </mat-form-field>
-              <div *ngIf="casingForm.get('storeVolume.volumeType').value === 'ESTIMATE'">
+              <div *ngIf="storeVolumeForm.get('volumeType').value === 'ESTIMATE'">
                 <table id="volume-table">
                   <tr>
                     <td>
@@ -489,14 +492,14 @@
                 <mat-form-field class="example-full-width">
                   <input matInput type="number" placeholder="Total Weekly Volume" formControlName="volumeTotal">
                   <span matPrefix>$&nbsp;</span>
-                  <mat-error *ngIf="casingForm.get('storeVolume.volumeTotal').invalid">Min: $10k, Max: $10M
+                  <mat-error *ngIf="storeVolumeForm.get('volumeTotal').invalid">Min: $10k, Max: $10M
                   </mat-error>
                 </mat-form-field>
                 <button type="button" mat-mini-fab color="primary" [mat-menu-trigger-for]="volumeMore">
                   <i class="fas fa-ellipsis-v"></i>
                 </button>
               </div>
-              <mat-form-field *ngIf="casingForm.get('storeVolume.volumeType').value === 'ESTIMATE'">
+              <mat-form-field *ngIf="storeVolumeForm.get('volumeType').value === 'ESTIMATE'">
                 <mat-select placeholder="Volume Confidence" formControlName="volumeConfidence">
                   <mat-option>Clear Selection</mat-option>
                   <mat-option *ngFor="let confidenceLevel of confidenceLevels" [value]="confidenceLevel">
@@ -508,15 +511,15 @@
                 <input matInput [matDatepicker]="picker1" placeholder="Volume Date" formControlName="volumeDate">
                 <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                 <mat-datepicker #picker1></mat-datepicker>
-                <mat-error *ngIf="casingForm.get('storeVolume.volumeDate').invalid">Required</mat-error>
+                <mat-error *ngIf="storeVolumeForm.get('volumeDate').invalid">Required</mat-error>
               </mat-form-field>
               <mat-form-field>
                 <textarea placeholder="Volume Notes" formControlName="volumeNote" matInput></textarea>
               </mat-form-field>
             </div>
-            <mat-action-row *ngIf="casing.storeVolume != null || removingVolume">
+            <mat-action-row *ngIf="storeCasing.storeVolume != null || removingVolume">
               <button type="button" mat-button color="primary" (click)="removeVolume()"
-                      *ngIf="casing.storeVolume != null && !removingVolume">Remove Volume
+                      *ngIf="storeCasing.storeVolume != null && !removingVolume">Remove Volume
               </button>
               <mat-progress-bar mode="indeterminate" *ngIf="removingVolume"></mat-progress-bar>
             </mat-action-row>
@@ -533,7 +536,7 @@
             </div>
           </mat-expansion-panel>
           <!-- Seasonality -->
-          <mat-expansion-panel formGroupName="storeSurvey" *ngIf="casing.storeSurvey != null">
+          <mat-expansion-panel [formGroup]="storeSurveyForm" *ngIf="storeCasing.storeSurvey != null">
             <mat-expansion-panel-header>
               <mat-panel-title>Seasonality</mat-panel-title>
             </mat-expansion-panel-header>

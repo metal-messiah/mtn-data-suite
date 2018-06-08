@@ -4,6 +4,7 @@ import { SimplifiedStoreStatus } from './simplified-store-status';
 import { SimplifiedStoreSurvey } from './simplified-store-survey';
 import { SimplifiedProject } from './simplified-project';
 import { DateUtil } from '../utils/date-util';
+import { SimplifiedShoppingCenterCasing } from './simplified-shopping-center-casing';
 
 export class SimplifiedStoreCasing implements Entity {
 
@@ -15,6 +16,7 @@ export class SimplifiedStoreCasing implements Entity {
   storeStatus: SimplifiedStoreStatus;
   storeSurvey: SimplifiedStoreSurvey;
   projects: SimplifiedProject[];
+  shoppingCenterCasing: SimplifiedShoppingCenterCasing;
 
   constructor(obj) {
     Object.assign(this, obj);
@@ -33,6 +35,9 @@ export class SimplifiedStoreCasing implements Entity {
     }
     if (obj.projects != null) {
       this.projects = obj.projects.map(project => new SimplifiedProject(project));
+    }
+    if (obj.shoppingCenterCasing != null) {
+      this.shoppingCenterCasing = new SimplifiedShoppingCenterCasing(obj.shoppingCenterCasing);
     }
   }
 

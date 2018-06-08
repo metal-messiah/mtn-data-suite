@@ -30,11 +30,14 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 })
 export class StoreCasingDetailComponent implements OnInit {
 
-  casingForm: FormGroup;
+  validatingForms: FormGroup;
+  storeCasingForm: FormGroup;
   storeVolumeForm: FormGroup;
   storeSurveyForm: FormGroup;
+  shoppingCenterCasingForm: FormGroup;
+  shoppingCenterSurveyForm: FormGroup;
 
-  casing: StoreCasing;
+  storeCasing: StoreCasing;
 
   loading = false;
   savingVolume = false;
@@ -88,11 +91,11 @@ export class StoreCasingDetailComponent implements OnInit {
               private errorService: ErrorService,
               public casingDashboardService: CasingDashboardService,
               private fb: FormBuilder) {
-    this.createForm();
+    this.createForms();
   }
 
-  createForm() {
-    this.casingForm = this.fb.group({
+  createForms() {
+    this.storeCasingForm = this.fb.group({
       casingDate: [new Date(), [Validators.required]],
       note: '',
       conditionCeiling: '',
@@ -199,6 +202,40 @@ export class StoreCasingDetailComponent implements OnInit {
       seasonalityNov: ['', [Validators.min(-100), Validators.max(200)]],
       seasonalityDec: ['', [Validators.min(-100), Validators.max(200)]]
     });
+
+    this.shoppingCenterCasingForm = this.fb.group({
+      casingDate: ['', [Validators.required]],
+      note: '',
+      ratingParkingLot: '',
+      ratingBuildings: '',
+      ratingLighting: '',
+      ratingSynergy: ''
+    });
+
+    this.shoppingCenterSurveyForm = this.fb.group({
+      surveyDate: ['', [Validators.required]],
+      centerType: '',
+      note: '',
+      flowHasLandscaping: '',
+      flowHasSpeedBumps: '',
+      flowHasStopSigns: '',
+      flowHasOneWayAisles: '',
+      parkingHasAngledSpaces: '',
+      parkingHasParkingHog: '',
+      parkingIsPoorlyLit: '',
+      parkingSpaceCount: '',
+      tenantOccupiedCount: '',
+      tenantVacantCount: '',
+      sqFtPercentOccupied: ''
+    });
+
+    this.validatingForms = this.fb.group({
+      storeCasing: this.storeCasingForm,
+      storeVolume: this.storeVolumeForm,
+      storeSurvey: this.storeSurveyForm,
+      shoppingCenterCasing: this.shoppingCenterCasingForm,
+      shoppingCenterSurvey: this.shoppingCenterSurveyForm
+    });
   }
 
   ngOnInit() {
@@ -208,46 +245,32 @@ export class StoreCasingDetailComponent implements OnInit {
       this.storeCasingService.getOneById(storeCasingId)
         .finally(() => this.loading = false)
         .subscribe((casing: StoreCasing) => {
-          this.casing = casing;
-          console.log(this.casing);
-          this.rebuildForm();
+          this.storeCasing = casing;
+          console.log(this.storeCasing);
+          this.rebuildAllForms();
         });
     } else {
-      this.casing = new StoreCasing({
+      this.storeCasing = new StoreCasing({
         casingDate: new Date()
       });
-      console.log(this.casing);
-      this.rebuildForm();
+      console.log(this.storeCasing);
+      this.rebuildAllForms();
     }
   }
 
-  rebuildForm(doPreserveChanges?: boolean) {
-    const preserveChanges = {};
-    if (doPreserveChanges) {
-      Object.keys(this.casingForm.controls).forEach(name => {
-        const control = this.casingForm.controls[name];
-        if (control.dirty) {
-          preserveChanges[name] = control.value;
-        }
-      });
+  rebuildAllForms() {
+    this.storeCasingForm.reset(this.storeCasing);
+    if (this.storeCasing.storeSurvey != null) {
+      this.storeSurveyForm.reset(this.storeCasing.storeSurvey);
     }
-    if (this.casing.storeVolume != null) {
-      this.casingForm.addControl('storeVolume', this.storeVolumeForm);
-    } else {
-      this.casingForm.removeControl('storeVolume');
+    if (this.storeCasing.storeVolume != null) {
+      this.storeVolumeForm.reset(this.storeCasing.storeVolume);
     }
-    if (this.casing.storeSurvey != null) {
-      this.casingForm.addControl('storeSurvey', this.storeSurveyForm);
-    } else {
-      this.casingForm.removeControl('storeSurvey');
-    }
-    this.casingForm.reset(this.casing);
-    if (doPreserveChanges) {
-      Object.keys(preserveChanges).forEach(name => {
-        const control = this.casingForm.controls[name];
-        control.patchValue(preserveChanges[name]);
-        control.markAsDirty();
-      });
+    if (this.storeCasing.shoppingCenterCasing != null) {
+      this.shoppingCenterCasingForm.reset(this.storeCasing.shoppingCenterCasing);
+      if (this.storeCasing.shoppingCenterCasing.shoppingCenterSurvey != null) {
+        this.shoppingCenterSurveyForm.reset(this.storeCasing.shoppingCenterCasing.shoppingCenterSurvey);
+      }
     }
   }
 
@@ -256,12 +279,12 @@ export class StoreCasingDetailComponent implements OnInit {
   };
 
   createNewVolume(): void {
-    this.casing.storeVolume = new StoreVolume({
+    this.storeCasing.storeVolume = new StoreVolume({
       volumeDate: new Date(),
       volumeType: 'ESTIMATE',
       source: 'MTN Casing App'
     });
-    this.rebuildForm(true);
+    this.storeSurveyForm.reset(this.storeCasing.storeVolume);
   }
 
   showExistingVolumes() {
@@ -269,7 +292,7 @@ export class StoreCasingDetailComponent implements OnInit {
     const volumesDialog = this.dialog.open(StoreVolumesSelectionComponent, {data: {storeId: storeId}});
     volumesDialog.afterClosed().subscribe(result => {
       if (result != null) {
-        if (this.casing.storeVolume != null) {
+        if (this.storeCasing.storeVolume != null) {
           const data = {
             title: 'Replace Volume',
             question: 'This will replace the current casing volume, losing any unsaved changes. Are you sure?'
@@ -289,29 +312,30 @@ export class StoreCasingDetailComponent implements OnInit {
 
   useVolume(volume: SimplifiedStoreVolume) {
     this.savingVolume = true;
-    this.storeCasingService.setStoreVolume(this.casing, volume)
+    this.storeCasingService.setStoreVolume(this.storeCasing, volume)
       .finally(() => this.savingVolume = false)
       .subscribe((casing: StoreCasing) => {
-        this.casing = casing;
-        this.rebuildForm(true);
-        this.storeVolumeForm.reset(this.casing.storeVolume);
+        this.storeCasing = casing;
+        this.storeVolumeForm.reset(this.storeCasing.storeVolume);
+        this.validatingForms.addControl('storeVolume', this.storeVolumeForm);
       });
   }
 
   removeVolume() {
     if (this.storeVolumeForm.dirty) {
+      // TODO Confirm removal of dirty volume
       console.error('Dirty volume form');
     } else {
-      if (this.casing.storeVolume != null && this.casing.storeVolume.id == null) {
-        this.casing.storeVolume = null;
-        this.rebuildForm(true);
+      if (this.storeCasing.storeVolume != null && this.storeCasing.storeVolume.id == null) {
+        this.storeCasing.storeVolume = null;
+        this.validatingForms.removeControl('storeVolume');
       } else {
         this.removingVolume = true;
-        this.storeCasingService.removeStoreVolume(this.casing)
+        this.storeCasingService.removeStoreVolume(this.storeCasing)
           .finally(() => this.removingVolume = false)
           .subscribe((casing: StoreCasing) => {
-            this.casing = casing;
-            this.rebuildForm(true);
+            this.storeCasing = casing;
+            this.validatingForms.removeControl('storeVolume');
           });
       }
     }
@@ -338,27 +362,25 @@ export class StoreCasingDetailComponent implements OnInit {
   }
 
   private addProject(project: Project | SimplifiedProject) {
-    const existingProject = this.casing.projects.find((p: SimplifiedProject) => p.id === project.id);
+    const existingProject = this.storeCasing.projects.find((p: SimplifiedProject) => p.id === project.id);
     if (existingProject != null) {
       console.warn('Cannot add same project twice');
     } else {
       this.loadingProject = true;
-      this.storeCasingService.addProject(this.casing, project)
+      this.storeCasingService.addProject(this.storeCasing, project)
         .finally(() => this.loadingProject = false)
         .subscribe((casing: StoreCasing) => {
-          this.casing = casing;
-          this.rebuildForm(true);
+          this.storeCasing = casing;
         });
     }
   }
 
   removeProject(project: SimplifiedProject) {
     this.loadingProject = true;
-    this.storeCasingService.removeProject(this.casing, project)
+    this.storeCasingService.removeProject(this.storeCasing, project)
       .finally(() => this.loadingProject = false)
       .subscribe((casing: StoreCasing) => {
-        this.casing = casing;
-        this.rebuildForm(true);
+        this.storeCasing = casing;
       });
   }
 
@@ -371,11 +393,11 @@ export class StoreCasingDetailComponent implements OnInit {
         const storeStatusDialog = this.dialog.open(StoreStatusesDialogComponent, config);
         storeStatusDialog.afterClosed().subscribe(result => {
           if (result instanceof StoreStatus || result instanceof SimplifiedStoreStatus) {
-            this.storeCasingService.setStoreStatus(this.casing, result)
+            this.storeCasingService.setStoreStatus(this.storeCasing, result)
               .finally(() => this.editingStoreStatus = false)
               .subscribe((casing: StoreCasing) => {
-                this.casing = casing;
-                this.rebuildForm(true);
+                this.storeCasing = casing;
+                this.storeCasingForm.reset(this.storeCasing);
               });
           } else {
             this.editingStoreStatus = false;
@@ -389,14 +411,14 @@ export class StoreCasingDetailComponent implements OnInit {
   }
 
   calculateTotalAreaFromSales() {
-    const salesControl = this.casingForm.get('storeSurvey.areaSales');
-    const percentControl = this.casingForm.get('storeSurvey.areaSalesPercentOfTotal');
+    const salesControl = this.storeCasingForm.get('storeSurvey.areaSales');
+    const percentControl = this.storeCasingForm.get('storeSurvey.areaSalesPercentOfTotal');
     if (salesControl.valid && percentControl.valid) {
       const salesArea = parseFloat(salesControl.value);
       const percent = parseFloat(percentControl.value);
       if (!isNaN(salesArea) && !isNaN(percent)) {
         const calculatedTotal = Math.round(salesArea / (percent / 100));
-        const control = this.casingForm.get('storeSurvey.areaTotal');
+        const control = this.storeCasingForm.get('storeSurvey.areaTotal');
         control.setValue(calculatedTotal);
         control.markAsDirty();
       }
@@ -404,14 +426,14 @@ export class StoreCasingDetailComponent implements OnInit {
   }
 
   calculateSalesAreaFromTotal() {
-    const totalControl = this.casingForm.get('storeSurvey.areaTotal');
-    const percentControl = this.casingForm.get('storeSurvey.areaSalesPercentOfTotal');
+    const totalControl = this.storeCasingForm.get('storeSurvey.areaTotal');
+    const percentControl = this.storeCasingForm.get('storeSurvey.areaSalesPercentOfTotal');
     if (totalControl.valid && percentControl.valid) {
       const totalArea = parseFloat(totalControl.value);
       const percent = parseFloat(percentControl.value);
       if (!isNaN(totalArea) && !isNaN(percent)) {
         const calculatedSales = Math.round(totalArea * (percent / 100));
-        const control = this.casingForm.get('storeSurvey.areaSales');
+        const control = this.storeCasingForm.get('storeSurvey.areaSales');
         control.setValue(calculatedSales);
         control.markAsDirty();
       }
@@ -424,11 +446,11 @@ export class StoreCasingDetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result != null) {
         if (result.salesArea != null) {
-          const control = this.casingForm.get('storeSurvey.areaSales');
+          const control = this.storeCasingForm.get('storeSurvey.areaSales');
           control.setValue(result.salesArea);
           control.markAsDirty();
         } else if (result.totalArea != null) {
-          const control = this.casingForm.get('storeSurvey.areaTotal');
+          const control = this.storeCasingForm.get('storeSurvey.areaTotal');
           control.setValue(result.totalArea);
           control.markAsDirty();
         }
@@ -437,7 +459,7 @@ export class StoreCasingDetailComponent implements OnInit {
   }
 
   calculateDepartmentVolumesFromTotal() {
-    const totalVolumeControl = this.casingForm.get('storeVolume.volumeTotal');
+    const totalVolumeControl = this.storeCasingForm.get('storeVolume.volumeTotal');
     if (totalVolumeControl != null && totalVolumeControl.valid) {
       const totalVolume = parseFloat(totalVolumeControl.value);
       this.calculateDepartmentVolume(totalVolume, 'Meat');
@@ -449,12 +471,12 @@ export class StoreCasingDetailComponent implements OnInit {
   }
 
   private calculateDepartmentVolume(totalVolume: number, departmentName: string) {
-    const percentControl = this.casingForm.get(`storeVolume.volumePercent${departmentName}`);
+    const percentControl = this.storeCasingForm.get(`storeVolume.volumePercent${departmentName}`);
     if (percentControl.valid) {
       const percent = parseFloat(percentControl.value);
       if (!isNaN(percent)) {
         const calculatedDeptVolume = totalVolume * (percent / 100);
-        const volumeControl = this.casingForm.get(`storeVolume.volume${departmentName}`);
+        const volumeControl = this.storeCasingForm.get(`storeVolume.volume${departmentName}`);
         volumeControl.setValue(calculatedDeptVolume);
         volumeControl.markAsDirty();
       }
@@ -492,15 +514,15 @@ export class StoreCasingDetailComponent implements OnInit {
     if (count > 0) {
       const averageEstimate = sum / count;
       const roundedEstimate = Math.round(averageEstimate / 5000) * 5000;
-      const totalVolumeControl = this.casingForm.get('storeVolume.volumeTotal');
+      const totalVolumeControl = this.storeCasingForm.get('storeVolume.volumeTotal');
       totalVolumeControl.setValue(roundedEstimate);
       totalVolumeControl.markAsDirty();
     }
   }
 
   private getDeptEstimateOfTotal(departmentName: string) {
-    const volumeControl = this.casingForm.get(`storeVolume.volume${departmentName}`);
-    const percentControl = this.casingForm.get(`storeVolume.volumePercent${departmentName}`);
+    const volumeControl = this.storeCasingForm.get(`storeVolume.volume${departmentName}`);
+    const percentControl = this.storeCasingForm.get(`storeVolume.volumePercent${departmentName}`);
     if (volumeControl.valid && percentControl.valid) {
       const deptVolume = parseFloat(volumeControl.value);
       const percent = parseFloat(percentControl.value);

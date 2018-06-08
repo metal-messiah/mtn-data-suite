@@ -4,7 +4,7 @@ export class ShoppingCenterTenant extends AuditingEntity {
 
   name: string;
   isAnchor = false;
-  isOutparcel = false;
+  outparcel = false;
   tenantSqft: number;
   legacyCasingId: number;
 

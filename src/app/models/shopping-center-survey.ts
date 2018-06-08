@@ -1,9 +1,8 @@
 import { AuditingEntity } from './auditing-entity';
-import { SimplifiedShoppingCenterAccess } from './simplified-shopping-center-access';
 import { SimplifiedShoppingCenterTenant } from './simplified-shopping-center-tenant';
 import { SimplifiedShoppingCenterCasing } from './simplified-shopping-center-casing';
 import { ShoppingCenterAccess } from './shopping-center-access';
-import { ShoppingCenterTenant } from './shopping-center-tenant';
+import { DateUtil } from '../utils/date-util';
 
 export class ShoppingCenterSurvey extends AuditingEntity {
 
@@ -24,18 +23,22 @@ export class ShoppingCenterSurvey extends AuditingEntity {
   legacyCasingId;
 
   accesses: ShoppingCenterAccess[];
-  tenants: ShoppingCenterTenant[];
+  tenants: SimplifiedShoppingCenterTenant[];
   shoppingCenterCasings: SimplifiedShoppingCenterCasing[];
 
   constructor(obj) {
     super(obj);
     Object.assign(this, obj);
+
+    if (obj.surveyDate != null) {
+      this.surveyDate = DateUtil.getDate(obj.surveyDate);
+    }
     if (obj.accesses != null) {
       this.accesses = obj.accesses.map(access => new ShoppingCenterAccess(access));
     }
     if (obj.tenants != null) {
-      this.tenants = obj.tenants.map(tenant => new ShoppingCenterTenant(tenant))
-        .sort((a: ShoppingCenterTenant, b: ShoppingCenterTenant) => {
+      this.tenants = obj.tenants.map(tenant => new SimplifiedShoppingCenterTenant(tenant))
+        .sort((a: SimplifiedShoppingCenterTenant, b: SimplifiedShoppingCenterTenant) => {
           return a.name.localeCompare(b.name);
         });
     }
