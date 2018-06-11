@@ -1,0 +1,24 @@
+
+
+.options-menu{
+    width:50%;
+    margin: 0 auto;
+    padding: 25px 0 0 0;
+}
+
+.options-menu > a{
+    margin: 5px 0;
+    padding: 25px 10px;
+    background: #607d8b;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    color: white;
+    font-size: large;
+    transition: all ease-in-out 0.1s;
+}
+
+.options-menu > a:hover{
+    background: orange;
+    color: #333;
+}
