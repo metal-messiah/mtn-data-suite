@@ -1,18 +1,18 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { UserProfileService } from './user.service';
+import { StoreService } from './store.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RestService } from './rest.service';
 
-describe('UserProfileService', () => {
+describe('StoreService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [UserProfileService, RestService]
+      imports: [ HttpClientTestingModule ],
+      providers: [StoreService, RestService]
     });
   });
 
-  it('should be created', inject([UserProfileService], (service: UserProfileService) => {
+  it('should be created', inject([StoreService], (service: StoreService) => {
     expect(service).toBeTruthy();
   }));
 });

@@ -1,10 +1,12 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
-import {Group} from '../../models/group';
-import {BasicEntityListComponent} from '../../interfaces/basic-entity-list-component';
-import {GroupService} from '../../core/services/group.service';
-import {EntityListService} from '../../core/services/entity-list.service';
-import {Router} from '@angular/router';
+import { Group } from '../../models/group';
+import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-component';
+import { GroupService } from '../../core/services/group.service';
+import { EntityListService } from '../../core/services/entity-list.service';
+import { Router } from '@angular/router';
+import { SimplifiedGroup } from '../../models/simplified-group';
+import { ErrorService } from '../../core/services/error.service';
 
 @Component({
   selector: 'mds-groups',
@@ -13,18 +15,30 @@ import {Router} from '@angular/router';
 })
 export class GroupsComponent implements OnInit, BasicEntityListComponent<Group> {
 
-  groups: Group[];
+  groups: SimplifiedGroup[];
   isLoading: false;
   isDeleting: false;
 
   constructor(private groupService: GroupService,
               private router: Router,
-              private els: EntityListService<Group>) {
+              private els: EntityListService<Group>,
+              private errorService: ErrorService) {
   }
 
   ngOnInit() {
     this.els.initialize(this);
   }
+
+
+  loadEntities(): void {
+    this.groupService.getAllGroups().subscribe(
+        pageable => this.groups = pageable.content.sort(this.sortCompare),
+        err => this.errorService.handleServerError(`Failed to retrieve Groups`, err,
+          () => this.goBack(),
+          () => this.els.initialize(this)),
+        () => this.isLoading = false
+      );
+  };
 
   confirmDelete(group: Group) {
     this.els.confirmDelete(this, group);
@@ -46,11 +60,8 @@ export class GroupsComponent implements OnInit, BasicEntityListComponent<Group> 
     return 'group';
   }
 
-  setEntities(groups: Group[]): void {
-    this.groups = groups;
-  }
-
   sortCompare(a: Group, b: Group): number {
     return a.displayName.localeCompare(b.displayName);
   }
+
 }

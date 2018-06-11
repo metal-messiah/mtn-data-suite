@@ -11,28 +11,30 @@
     </div>
   </mat-toolbar>
   <div class="row content">
-    <h3 *ngIf="roles && roles.length < 1">No Roles</h3>
-    <div *ngIf="isLoading" style="text-align: center">
-      <i class="fas fa-spinner fa-3x fa-spin" aria-hidden="true"></i>
+    <div class="list-wrapper">
+      <h3 *ngIf="roles && roles.length < 1">No Roles</h3>
+      <div *ngIf="isLoading" style="text-align: center">
+        <i class="fas fa-spinner fa-3x fa-spin" aria-hidden="true"></i>
+      </div>
+      <mat-accordion *ngIf="!isLoading">
+        <mat-expansion-panel *ngFor="let role of roles">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{role.displayName}}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <p>{{role.description}}</p>
+          <mat-action-row>
+            <button [disabled]="isDeleting" mat-button color="warn" (click)="confirmDelete(role)">
+              <span *ngIf="isDeleting"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></span>
+              <span>Delete</span>
+            </button>
+            <button [disabled]="isDeleting" mat-button color="primary" [routerLink]="['../role-detail/', role.id]">
+              Edit
+            </button>
+          </mat-action-row>
+        </mat-expansion-panel>
+      </mat-accordion>
     </div>
-    <mat-accordion *ngIf="!isLoading">
-      <mat-expansion-panel *ngFor="let role of roles">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            {{role.displayName}}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <p>{{role.description}}</p>
-        <mat-action-row>
-          <button [disabled]="isDeleting" mat-button color="warn"(click)="confirmDelete(role)">
-            <span *ngIf="isDeleting"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></span>
-            <span>Delete</span>
-          </button>
-          <button [disabled]="isDeleting" mat-button color="primary" [routerLink]="['../role-detail/', role.id]" >
-            Edit
-          </button>
-        </mat-action-row>
-      </mat-expansion-panel>
-    </mat-accordion>
   </div>
 </div>

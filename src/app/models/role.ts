@@ -1,12 +1,23 @@
-import {Permission} from './permission';
-import {UserProfile} from './user-profile';
-import {AuditingEntity} from './auditing-entity';
+import { AuditingEntity } from './auditing-entity';
+import { SimplifiedUserProfile } from './simplified-user-profile';
+import { SimplifiedPermission } from './simplified-permission';
 
-export class Role extends AuditingEntity{
-  id: number;
+export class Role extends AuditingEntity {
+
   displayName: string;
   description: string;
 
-  members: UserProfile[] = [];
-  permissions: Permission[] = [];
+  permissions: SimplifiedPermission[] = [];
+  members: SimplifiedUserProfile[] = [];
+
+  constructor(obj) {
+    super(obj);
+    Object.assign(this, obj);
+    if (obj.permissions != null) {
+      this.permissions = obj.permissions.map(permission => new SimplifiedPermission(permission));
+    }
+    if (obj.members != null) {
+      this.members = obj.members.map(member => new SimplifiedUserProfile(member));
+    }
+  }
 }

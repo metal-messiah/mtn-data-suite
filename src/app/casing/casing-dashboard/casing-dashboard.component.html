@@ -21,11 +21,13 @@
       <mat-divider></mat-divider>
       <h3 mat-subheader>Geolocation</h3>
       <mat-list-item role="listitem" (click)="findMe()">Find Me</mat-list-item>
-      <mat-list-item *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" role="listitem" (click)="deactivateFollowMe()">
+      <mat-list-item *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" role="listitem"
+                     (click)="deactivateFollowMe()">
         <h4 mat-line>Follow Me</h4>
         <p mat-line>Deactivate</p>
       </mat-list-item>
-      <mat-list-item *ngIf="selectedDashboardMode !== casingDashboardMode.FOLLOWING" role="listitem" (click)="activateFollowMe()">
+      <mat-list-item *ngIf="selectedDashboardMode !== casingDashboardMode.FOLLOWING" role="listitem"
+                     (click)="activateFollowMe()">
         <h4 mat-line>Follow Me</h4>
         <p mat-line>Activate</p>
       </mat-list-item>
@@ -34,64 +36,82 @@
   <mat-sidenav-content>
     <form class="box">
       <mds-map #casingMap class="row content" (ready)="onMapReady($event)"></mds-map>
-      <div id="infoCard" *ngIf="showCard">
+      <div class="infoCard" *ngIf="selectedCardState === cardState.GOOGLE && selectedGooglePlace != null">
         <mat-card>
           <mat-card-header>
             <mat-card-title>
-              <strong>{{selectedSites[0].getLabel()}}</strong>
+              <strong>{{selectedGooglePlace.name}}</strong>
             </mat-card-title>
-            <mat-card-subtitle>{{selectedSites[0].getActiveStore().currentStoreStatus}}</mat-card-subtitle>
+            <mat-card-subtitle>Provided by Google</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            {{selectedGooglePlace.vicinity}}
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
+                    (click)="saveGooglePlaceAsStore()">
+              <i class="fas fa-save"></i>&nbsp;Save To DB
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+      <div id="storeInfoCard" class="infoCard" *ngIf="selectedCardState === cardState.SELECTED_MAPPABLE">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+              <strong>{{mappableService.getLatestSelection().getLabel()}}</strong>
+            </mat-card-title>
+            <mat-card-subtitle *ngIf="mappableService.getLatestSelection().currentStoreStatus != null">
+              {{mappableService.getLatestSelection().currentStoreStatus.status}}
+            </mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
             <div style="display:flex; justify-content: space-between;">
               <div>
-                <p>{{selectedSites[0].getIntersection()}}</p>
-                <p>{{selectedSites[0].address1}}</p>
-                <p>{{selectedSites[0].getPrincipality()}}</p>
-              </div>
-              <div>
-                <p>Site #{{selectedSites[0].getId()}}</p>
-                <p *ngIf="selectedSites[0].getActiveStore().latestSalesArea != null">
-                  {{selectedSites[0].getActiveStore().latestSalesArea / 1000 | number}}k sqft
-                </p>
-                <p *ngIf="selectedSites[0].getActiveStore().latestVolume != null">
-                  ${{selectedSites[0].getActiveStore().latestVolume / 1000 | number}}k
-                </p>
+                <p>{{mappableService.getLatestSelection().site.getIntersection()}}</p>
+                <p>{{mappableService.getLatestSelection().site.address1}}</p>
+                <p>{{mappableService.getLatestSelection().site.getPrincipality()}}</p>
               </div>
             </div>
           </mat-card-content>
-          <mat-card-actions disabled="true">
-            <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_SITE" [matMenuTriggerFor]="markerMoreMenu">
+          <mat-card-actions>
+            <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
+                    [matMenuTriggerFor]="markerMoreMenu">
               <i class="fas fa-ellipsis-v"></i>&nbsp;More
             </button>
-            <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_SITE" (click)="pinLocation()">
+            <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
+                    (click)="pinLocation()">
               <i class="fas fa-thumbtack"></i>&nbsp;Pin
             </button>
-            <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_SITE" (click)="goToLocationOverview()">
+            <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
+                    (click)="goToLocationOverview()">
               <i class="fas fa-pencil-alt"></i>&nbsp;Edit
             </button>
           </mat-card-actions>
         </mat-card>
       </div>
-      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" class="row footer flex-space-between" color="primary">
+      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" class="row footer flex-space-between"
+                   color="primary">
         <div></div>
         <div>
           <button mat-raised-button color="accent" (click)="deactivateFollowMe()">Stop Follow Me</button>
         </div>
         <div></div>
       </mat-toolbar>
-      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MOVING_SITE" class="row footer flex-space-between" color="primary">
+      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
+                   class="row footer flex-space-between" color="primary">
         <div>
-          <button mat-raised-button color="accent" (click)="cancelSiteMove()">Cancel</button>
+          <button mat-raised-button color="accent" (click)="cancelStoreMove()">Cancel</button>
         </div>
         <div>
           Drag Marker
         </div>
         <div>
-          <button mat-raised-button color="accent" (click)="saveSiteMove()">Save</button>
+          <button mat-raised-button color="accent" (click)="saveStoreMove()">Save</button>
         </div>
       </mat-toolbar>
-      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MULTI_SELECT" class="row footer flex-space-between" color="primary">
+      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MULTI_SELECT"
+                   class="row footer flex-space-between" color="primary">
         <div>
           <button mat-raised-button color="warn" (click)="cancelMultiSelect()">Cancel</button>
         </div>
@@ -110,10 +130,13 @@
           </button>
         </div>
         <div>
-          <button mat-raised-button color="accent">({{selectedSites.length}})&nbsp;Actions</button>
+          <button mat-raised-button color="accent">
+            <span *ngIf="mappableService.numSelected > 0">({{mappableService.numSelected}})</span>&nbsp;Actions
+          </button>
         </div>
       </mat-toolbar>
-      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.CREATING_SITE" class="row footer flex-space-between" color="primary">
+      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.CREATING_NEW"
+                   class="row footer flex-space-between" color="primary">
         <div>
           <button mat-raised-button color="warn" (click)="cancelLocationCreation()">Cancel</button>
         </div>
@@ -124,14 +147,15 @@
           <button mat-raised-button color="accent" (click)="editNewLocation()">Edit Details</button>
         </div>
       </mat-toolbar>
-      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" class="row footer flex-space-between" color="primary">
+      <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" class="row footer flex-space-between"
+                   color="primary">
         <div>
           <button mat-mini-fab color="primary" (click)="sideNavIsOpen = !sideNavIsOpen">
             <i class="fas fa-ellipsis-v"></i>
           </button>
         </div>
         <div>
-          <button mat-mini-fab color="primary">
+          <button mat-mini-fab color="primary" [matMenuTriggerFor]="searchMenu">
             <i class="fas fa-search"></i>
           </button>
         </div>
@@ -169,7 +193,8 @@
 </mat-menu>
 
 <mat-menu #markerMoreMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="moveSite()"><i class="fas fa-arrows-alt"></i>&nbsp;Move</button>
+  <div *ngIf="mappableService.getLatestSelection() != null" mat-menu-item>Store ID: #{{mappableService.getLatestSelection().id}}</div>
+  <button mat-menu-item (click)="moveStore()"><i class="fas fa-arrows-alt"></i>&nbsp;Move</button>
   <button mat-menu-item><i class="far fa-clock"></i>&nbsp;History</button>
 </mat-menu>
 
@@ -194,5 +219,20 @@
   </button>
   <button mat-menu-item (click)="setMultiSelectMode(multiSelectMode.DESELECT)">
     <i class="fas fa-minus-circle"></i>&nbsp;Deselect
+  </button>
+</mat-menu>
+
+<mat-menu #searchMenu="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item (click)="openDatabaseSearch()">
+    <i class="fas fa-database"></i>&nbsp;Database
+  </button>
+  <button mat-menu-item (click)="openLatLngSearch()">
+    <i class="fas fa-crosshairs"></i>&nbsp;Lat/Lng
+  </button>
+  <button mat-menu-item (click)="openGoogleSearch()">
+    <i class="fab fa-google"></i>&nbsp;Google
+  </button>
+  <button mat-menu-item (click)="clearGoogleSearch()" *ngIf="googleLayer != null">
+    <i class="fas ban"></i>&nbsp;Clear Google Search
   </button>
 </mat-menu>

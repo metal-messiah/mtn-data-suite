@@ -17,6 +17,7 @@ import {RoleService} from '../../core/services/role.service';
 import {PermissionService} from '../../core/services/permission.service';
 import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
 import {DetailFormService} from '../../core/services/detail-form.service';
+import { SimplifiedRole } from 'app/models/simplified-role';
 
 @Component({
   selector: 'mds-role-detail',
@@ -99,14 +100,14 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
   }
 
   getNewObj(): Role {
-    return new Role();
+    return new Role({});
   }
 
   getObj(): Role {
     return this.role;
   }
 
-  getObjService(): RoleService {
+  getEntityService(): RoleService {
     return this.roleService;
   }
 
@@ -133,7 +134,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
       (member: UserProfile) => Object.assign({}, member)
     );
 
-    return {
+    return new Role({
       id: this.role.id,
       displayName: formModel.displayName,
       description: formModel.description,
@@ -144,7 +145,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
       updatedBy: this.role.updatedBy,
       updatedDate: this.role.updatedDate,
       version: this.role.version
-    };
+    });
   }
 
   getTypeName(): string {
@@ -167,9 +168,9 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
 
     if (this.role.id !== undefined) {
       this.roleForm.patchValue({
-        createdBy: `${this.role.createdBy.firstName} ${this.role.createdBy.lastName}`,
+        createdBy: this.role.createdBy.email,
         createdDate: this.datePipe.transform(this.role.createdDate, 'medium'),
-        updatedBy: `${this.role.updatedBy.firstName} ${this.role.updatedBy.lastName}`,
+        updatedBy: this.role.updatedBy.email,
         updatedDate: this.datePipe.transform(this.role.updatedDate, 'medium'),
       });
     }

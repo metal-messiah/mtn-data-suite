@@ -8,7 +8,7 @@
   <button mat-menu-item *ngIf="auth.isAuthenticated()" (click)="auth.logout()">
     <i class="fas fa-sign-out-alt"></i>&nbsp;Sign Out
   </button>
-  <button mat-menu-item *ngIf="!auth.isAuthenticated()" (click)="auth.login()">
+  <button mat-menu-item *ngIf="!auth.isAuthenticated()" (click)="auth.signIn()">
     <i class="fas fa-sign-in-alt"></i>&nbsp;Sign In
   </button>
 </mat-menu>

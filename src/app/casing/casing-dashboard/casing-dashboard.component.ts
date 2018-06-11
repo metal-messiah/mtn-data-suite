@@ -1,5 +1,5 @@
-import { Component, NgZone, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
+import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { debounceTime } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -7,17 +7,26 @@ import { MapService } from '../../core/services/map.service';
 import { SiteService } from '../../core/services/site.service';
 import { Site } from '../../models/site';
 import { CasingDashboardService } from './casing-dashboard.service';
-import { MarkerType } from '../../core/enums/MarkerType';
+import { MarkerType } from '../../core/functionalEnums/MarkerType';
 import { GeocoderService } from '../../core/services/geocoder.service';
 import { Mappable } from '../../interfaces/mappable';
 import { MapPointLayer } from '../../models/map-point-layer';
-import { Color } from '../../core/enums/Color';
-import { MarkerShape } from '../../core/enums/MarkerShape';
+import { Color } from '../../core/functionalEnums/Color';
+import { MarkerShape } from '../../core/functionalEnums/MarkerShape';
 import { IconService } from '../../core/services/icon.service';
 import { LabelService } from '../../core/services/label.service';
 import { NavigatorService } from '../../core/services/navigator.service';
 import { FindMeLayer } from '../../models/find-me-layer';
 import { FollowMeLayer } from '../../models/follow-me-layer';
+import { LatLngSearchComponent } from '../lat-lng-search/lat-lng-search.component';
+import { Coordinates } from '../../models/coordinates';
+import { GoogleSearchComponent } from '../google-search/google-search.component';
+import { GooglePlace } from '../../models/google-place';
+import { Subscription } from 'rxjs/Subscription';
+import { StoreService } from '../../core/services/store.service';
+import { Store } from '../../models/store';
+import { MappableService } from '../../shared/mappable.service';
+import { DatabaseSearchComponent } from '../database-search/database-search.component';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -28,28 +37,34 @@ export enum MultiSelectMode {
 }
 
 export enum CasingDashboardMode {
-  DEFAULT, FOLLOWING, MOVING_SITE, CREATING_SITE, MULTI_SELECT
+  DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT
+}
+
+export enum CardState {
+  HIDDEN,
+  SELECTED_MAPPABLE,
+  GOOGLE
 }
 
 @Component({
   selector: 'mds-casing-dashboard',
   templateUrl: './casing-dashboard.component.html',
   styleUrls: ['./casing-dashboard.component.css'],
-  providers: [MapService]
+  providers: [MappableService]
 })
 export class CasingDashboardComponent implements OnInit {
 
-  sites: Site[];
-  selectedSites: Mappable[];
-  movingSite: Mappable;
+  movingStore: Store;
   newLocation: Mappable;
+
+  selectedGooglePlace: GooglePlace;
 
   defaultPointLayer: MapPointLayer;
   newLocationPointLayer: MapPointLayer;
   followMeLayer: FollowMeLayer;
+  googleLayer: MapPointLayer;
 
   // Flags
-  showCard = false;
   showingBoundaries = false;
   sideNavIsOpen = false;
 
@@ -58,37 +73,58 @@ export class CasingDashboardComponent implements OnInit {
   selectedMultiSelectTool = MultiSelectToolTypes.CLICK;
   selectedMultiSelectMode = MultiSelectMode.SELECT;
   selectedMarkerType = MarkerType.PIN;
+  selectedCardState = CardState.HIDDEN;
 
   // Enums for template
   casingDashboardMode = CasingDashboardMode;
   multiSelectToolType = MultiSelectToolTypes;
   multiSelectMode = MultiSelectMode;
   markerType = MarkerType;
+  cardState = CardState;
+
+  googleSearchSubscription: Subscription;
 
   constructor(public mapService: MapService,
               public geocoderService: GeocoderService,
               public casingDashboardService: CasingDashboardService,
               private siteService: SiteService,
+              private storeService: StoreService,
+              public mappableService: MappableService,
               private snackBar: MatSnackBar,
               private ngZone: NgZone,
               private router: Router,
               private route: ActivatedRoute,
               private labelService: LabelService,
               private iconService: IconService,
-              private navigatorService: NavigatorService) {
-    this.selectedSites = [];
+              private navigatorService: NavigatorService,
+              private dialog: MatDialog) {
   }
 
   ngOnInit() {
     this.defaultPointLayer = new MapPointLayer({
-      getMappableIsDraggable: (site: Site) => {
-        return this.siteIsDraggable(site);
+      getMappableIsDraggable: (store: Store) => {
+        return this.storeIsMoving(store);
       },
-      getMappableIcon: (site: Site) => {
-        return this.getSiteIcon(site);
+      getMappableIcon: (store: Store) => {
+        let fillColor = Color.RED;
+        if (this.storeIsMoving(store)) {
+          fillColor = Color.PURPLE;
+        } else if (this.mappableService.mappableIsSelected(store)) {
+          fillColor = Color.BLUE;
+        }
+
+        let shape: MarkerShape | google.maps.SymbolPath = MarkerShape.FILLED;
+        if (this.selectedMarkerType === MarkerType.LABEL) {
+          shape = google.maps.SymbolPath.CIRCLE;
+        }
+
+        return this.iconService.getIcon(fillColor, Color.WHITE, shape);
       },
-      getMappableLabel: (site: Site) => {
-        return this.getSiteLabel(site);
+      getMappableLabel: (store: Store) => {
+        if (this.selectedMarkerType === MarkerType.PIN) {
+          return this.labelService.getLabel(store.getLabel()[0], Color.WHITE);
+        }
+        return this.labelService.getLabel(store.getLabel(), Color.BLACK);
       }
     });
   }
@@ -106,94 +142,52 @@ export class CasingDashboardComponent implements OnInit {
     });
 
     this.mapService.boundsChanged$.pipe(debounceTime(750)).subscribe(bounds => {
-        const perspective = this.mapService.getPerspective();
-        this.casingDashboardService.savePerspective(perspective).subscribe();
-        if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_SITE) {
-          this.getSites(bounds);
-        }
-      });
-    this.mapService.mapClick$.subscribe((coords: object) => {
-      this.showCard = false;
-      this.ngZone.run(() => this.showCard = false);
+      const perspective = this.mapService.getPerspective();
+      this.casingDashboardService.savePerspective(perspective).subscribe();
+      if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
+        this.getActiveStores(bounds);
+      }
     });
-    this.defaultPointLayer.markerClick$.subscribe((site: Site) => {
+    this.mapService.mapClick$.subscribe((coords: object) => {
+      this.ngZone.run(() => this.selectedCardState = CardState.HIDDEN);
+    });
+    this.defaultPointLayer.markerClick$.subscribe((selectedStore: Store) => {
       if (this.selectedDashboardMode === CasingDashboardMode.MULTI_SELECT) {
         if (this.selectedMultiSelectMode === MultiSelectMode.SELECT) {
-          this.selectSite(site);
+          this.mappableService.selectMappable(selectedStore);
         } else {
-          this.deselectSite(site);
+          this.mappableService.deselectMappable(selectedStore);
         }
-        this.defaultPointLayer.refreshOptionsForMappable(site);
+        this.defaultPointLayer.refreshOptionsForMappable(selectedStore);
         this.ngZone.run(() => true);
       } else if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) { // Don't select while moving, creating or following
-        this.selectedSites = [];
-        this.selectSite(site);
-        this.defaultPointLayer.refreshOptions();
-        this.ngZone.run(() => this.showCard = true);
+        const prevSelectedStore = this.mappableService.getLatestSelection();
+        this.mappableService.deselectAll();
+        this.mappableService.selectMappable(selectedStore);
+        if (prevSelectedStore != null) {
+          this.defaultPointLayer.refreshOptionsForMappable(prevSelectedStore);
+        }
+        this.defaultPointLayer.refreshOptionsForMappable(selectedStore);
+        this.ngZone.run(() => this.selectedCardState = CardState.SELECTED_MAPPABLE);
       }
     });
   }
 
-  selectSite(site: Mappable) {
-    this.selectedSites.push(site);
+  storeIsMoving(store: Store) {
+    // If Store is new (has no store_id) or is being moved
+    return store.site.id == null ||
+      (this.movingStore != null && store.site.id === this.movingStore.site.id);
   }
 
-  selectSites(sites: Mappable[]) {
-    sites.forEach(site => this.selectSite(site));
-  }
-
-  deselectSite(site: Mappable) {
-    const index = this.selectedSites.findIndex(s => s.getId() === site.getId());
-    this.selectedSites.splice(index, 1);
-  }
-
-  deselectSites(sites: Mappable[]) {
-    sites.forEach(site => this.deselectSite(site));
-  }
-
-  siteIsSelected(site: Site) {
-    const selectedSite = this.selectedSites.find(s => s.getId() === site.getId());
-    return selectedSite != null;
-  }
-
-  siteIsDraggable(site: Site) {
-    // If Site is new (has no location ID) or is being moved
-    return site.getId() == null ||
-      (this.movingSite != null && site.getId() === this.movingSite.getId());
-  }
-
-  getSiteLabel(site: Site): any {
-    if (this.selectedMarkerType === MarkerType.PIN) {
-      return this.labelService.getLabel(site.getLabel()[0], Color.WHITE);
-    }
-    return this.labelService.getLabel(site.getLabel(), Color.BLACK);
-  }
-
-  getSiteIcon(site: Site) {
-    let fillColor = Color.RED;
-    if (this.siteIsDraggable(site)) {
-      fillColor = Color.PURPLE;
-    } else if (this.siteIsSelected(site)) {
-      fillColor = Color.BLUE;
-    }
-
-    let shape: MarkerShape | google.maps.SymbolPath = MarkerShape.FILLED;
-    if (this.selectedMarkerType === MarkerType.LABEL) {
-      shape = google.maps.SymbolPath.CIRCLE;
-    }
-
-    return this.iconService.getIcon( fillColor, Color.WHITE, shape);
-  }
-
-  getSites(bounds): void {
-    console.log('Getting Sites');
-    this.siteService.getAllInBounds(bounds).subscribe(
+  getActiveStores(bounds): void {
+    console.log('Getting Stores');
+    this.storeService.getStoresOfTypeInBounds(bounds).subscribe(
       page => {
-        this.sites = page.content.map(site => new Site(site));
+        this.mappableService.setMappables(page.content);
         this.defaultPointLayer.clearMarkers();
-        this.defaultPointLayer.createMarkersFromMappables(this.sites);
+        this.defaultPointLayer.createMarkersFromMappables(this.mappableService.mappables);
         this.mapService.addPointLayer(this.defaultPointLayer);
-        // TODO Show snackbar notfication of number of sites pulled, filtered, etc.
+        // TODO Show snackbar notfication of number of mappables pulled, filtered, etc.
       }
     );
   }
@@ -207,16 +201,16 @@ export class CasingDashboardComponent implements OnInit {
 
   createNewLocation(): void {
     this.sideNavIsOpen = false;
-    this.selectedDashboardMode = CasingDashboardMode.CREATING_SITE;
+    this.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
     // Create new Layer for new Location
     this.newLocationPointLayer = new MapPointLayer({
-      getMappableIsDraggable: (site: Site) => {
+      getMappableIsDraggable: (mappable: Mappable) => {
         return true;
       },
-      getMappableIcon: (site: Site) => {
+      getMappableIcon: (mappable: Mappable) => {
         return this.iconService.getIcon(Color.PURPLE, Color.WHITE, MarkerShape.DEFAULT);
       },
-      getMappableLabel: (site: Site) => {
+      getMappableLabel: (mappable: Mappable) => {
         return null;
       }
     });
@@ -225,12 +219,7 @@ export class CasingDashboardComponent implements OnInit {
       getCoordinates: () => {
         return this.mapService.getCenter();
       },
-      getLabel: () => {
-        return null;
-      },
-      getId: () => {
-        return 0;
-      }
+      id: 0
     };
     // Add new location to layer
     this.newLocationPointLayer.createMarkerFromMappable(this.newLocation);
@@ -265,18 +254,18 @@ export class CasingDashboardComponent implements OnInit {
     this.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
     // Activate Map Drawing Tools and listen for completed Shapes
     this.mapService.activateDrawingTools().subscribe(shape => {
-      // Get Sites in drawn shape
-      // TODO - Not all sites may be mapped as user draws polygon and pans screen - need to get these from Web Service
-      const sites = this.defaultPointLayer.getMappablesInShape(shape);
+      // Get Mappaples in drawn shape
+      // TODO - Not all mappables may be mapped as user draws polygon and pans screen - need to get these from Web Service
+      const mappables = this.defaultPointLayer.getMappablesInShape(shape);
 
-      // Select or deselect sites
+      // Select or deselect mappables
       if (this.selectedMultiSelectMode === MultiSelectMode.SELECT) {
-        this.selectSites(sites);
+        this.mappableService.selectMappables(mappables);
       } else if (this.selectedMultiSelectMode === MultiSelectMode.DESELECT) {
-        this.deselectSites(sites);
+        this.mappableService.deselectMappables(mappables);
       }
       // Refresh marker Appearance
-      this.defaultPointLayer.refreshOptions();
+      this.defaultPointLayer.refreshOptionsForMappables(mappables);
       // Remove drawings from maps
       this.mapService.clearDrawings();
     });
@@ -286,8 +275,8 @@ export class CasingDashboardComponent implements OnInit {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
     // Deactivate drawing tools
     this.mapService.deactivateDrawingTools();
-    // Clear Selected sites
-    this.selectedSites = [];
+    // Clear Selected mappables
+    this.mappableService.deselectAll();
     // Refresh marker Appearance
     this.defaultPointLayer.refreshOptions();
   }
@@ -347,34 +336,51 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   pinLocation(): void {
-    // TODO save the location data to the device
+    // TODO create the location data to the device
   }
 
   goToLocationOverview(): void {
-    this.router.navigate(['location-overview', this.selectedSites[0].getId()], {relativeTo: this.route});
+    if (this.mappableService.latestSelected != null) {
+      this.router.navigate(['location-overview', this.mappableService.latestSelected.id], {relativeTo: this.route});
+    } else {
+      throw new Error('Trying to navigate to mappable before it was selected');
+    }
   }
 
-  moveSite() {
-    this.selectedDashboardMode = CasingDashboardMode.MOVING_SITE;
-    this.movingSite = this.selectedSites[0];
-    this.defaultPointLayer.refreshOptionsForMappable(this.movingSite);
+  moveStore() {
+    this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
+    this.movingStore = this.mappableService.latestSelected as Store;
+    this.defaultPointLayer.refreshOptionsForMappable(this.movingStore);
   }
 
-  cancelSiteMove() {
+  cancelStoreMove() {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    const site = this.movingSite;
-    this.movingSite = null;
-    this.defaultPointLayer.resetPositionOfMappable(site);
-    this.defaultPointLayer.refreshOptionsForMappable(site);
+    const store = this.movingStore;
+    this.movingStore = null;
+    this.defaultPointLayer.resetPositionOfMappable(store);
+    this.defaultPointLayer.refreshOptionsForMappable(store);
   }
 
-  saveSiteMove() {
-    const coordinates = this.defaultPointLayer.getCoordinatesOfMappableMarker(this.movingSite);
-    this.siteService.updateCoordinates(this.selectedSites[0].getId(), coordinates)
-      .subscribe( updatedSite => {
-        this.cancelSiteMove();
-        this.getSites(this.mapService.getBounds());
+  saveStoreMove() {
+    // Get new coordinates
+    const coordinates = this.defaultPointLayer.getCoordinatesOfMappableMarker(this.movingStore);
+
+    // Get Full version of site
+    this.siteService.getOneById(this.movingStore.site.id).subscribe((site: Site) => {
+      // Save updated values
+      site.latitude = coordinates.lat;
+      site.longitude = coordinates.lng;
+
+      this.siteService.update(site).subscribe(updatedSite => {
+        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        this.movingStore = null;
+        this.getActiveStores(this.mapService.getBounds());
+      }, updateError => {
+        // TODO handle update error
       });
+    }, findError => {
+      // TODO handle findError
+    });
   }
 
   setMultiSelectTool(tool: MultiSelectToolTypes) {
@@ -398,5 +404,116 @@ export class CasingDashboardComponent implements OnInit {
     this.sideNavIsOpen = false;
     this.selectedMarkerType = markerType;
     this.defaultPointLayer.refreshOptions();
+  }
+
+  openDatabaseSearch() {
+    const databaseSearchDialog = this.dialog.open(DatabaseSearchComponent);
+    databaseSearchDialog.afterClosed().subscribe((store: Store) => {
+      this.mappableService.deselectAll();
+      this.mappableService.selectMappable(store);
+      this.mapService.setCenter(store.getCoordinates());
+      this.defaultPointLayer.refreshOptions();
+      this.selectedCardState = CardState.SELECTED_MAPPABLE;
+    });
+  }
+
+  openGoogleSearch() {
+    const googleSearchDialog = this.dialog.open(GoogleSearchComponent);
+    googleSearchDialog.afterClosed().subscribe(result => {
+      if (result != null) {
+        // Create google point layer
+        if (this.googleLayer == null) {
+          this.googleLayer = new MapPointLayer({
+            getMappableIsDraggable: (place: GooglePlace) => {
+              return false;
+            },
+            getMappableIcon: (place: GooglePlace) => {
+              return this.iconService.getIcon(Color.PINK, Color.WHITE, MarkerShape.FILLED);
+            },
+            getMappableLabel: (place: GooglePlace) => {
+              return place.name;
+            }
+          });
+          this.googleLayer.markerClick$.subscribe((googlePlace: GooglePlace) => {
+            console.log(googlePlace);
+            this.selectedGooglePlace = googlePlace;
+            this.selectedCardState = CardState.GOOGLE;
+          });
+        }
+
+        if (result.place != null) {
+          this.updateGoogleLayer([result.place]);
+          this.mapService.setCenter(result.place.getCoordinates());
+        } else if (result.query != null) {
+          this.getGoogleLocationInView(result.query);
+          if (this.googleSearchSubscription != null) {
+            this.googleSearchSubscription.unsubscribe();
+          }
+          this.googleSearchSubscription = this.mapService.boundsChanged$.pipe(debounceTime(750))
+            .subscribe(bounds => this.getGoogleLocationInView(result.query));
+        }
+      }
+    });
+  }
+
+  getGoogleLocationInView(query: string) {
+    this.mapService.searchFor(query).subscribe((searchResults: GooglePlace[]) => {
+      this.ngZone.run(() => this.updateGoogleLayer(searchResults));
+    });
+  }
+
+  updateGoogleLayer(mappables: Mappable[]) {
+    this.googleLayer.clearMarkers();
+    this.googleLayer.createMarkersFromMappables(mappables);
+    this.mapService.addPointLayer(this.googleLayer);
+  }
+
+  clearGoogleSearch() {
+    this.selectedCardState = CardState.HIDDEN;
+    if (this.googleSearchSubscription != null) {
+      this.googleSearchSubscription.unsubscribe();
+      this.googleSearchSubscription = null;
+    }
+    this.googleLayer.removeFromMap();
+    this.googleLayer = null;
+  }
+
+  saveGooglePlaceAsStore() {
+    this.mapService.getDetailedGooglePlace(this.selectedGooglePlace).subscribe(googlePlace => {
+      console.log(googlePlace);
+      // const newSite = new Site({
+      //   latitude: googlePlace.getCoordinates().lat,
+      //   longitude: googlePlace.getCoordinates().lng,
+      //   type: 'ACTIVE',
+      //   address1: googlePlace.address_components.,
+      //   city: string,
+      //   county: string,
+      //   state: string,
+      //   postalCode: string,
+      //   country: string,
+      //   intersectionType: string,
+      //   quad: string,
+      //   intersectionStreetPrimary: string,
+      //   intersectionStreetSecondary: string
+      // });
+    });
+  }
+
+  openLatLngSearch() {
+    const latLngSearchDialog = this.dialog.open(LatLngSearchComponent);
+    latLngSearchDialog.afterClosed().subscribe((coordinates: Coordinates) => {
+      console.log(coordinates);
+      if (coordinates != null) {
+        this.mapService.setCenter(coordinates);
+        // Create layer
+        const fm = new FindMeLayer(coordinates);
+        // Add it to the map
+        this.mapService.addPointLayer(fm);
+        // After 5 seconds remove it from the map
+        setTimeout(() => {
+          fm.removeFromMap();
+        }, 3000);
+      }
+    });
   }
 }

@@ -1,7 +1,7 @@
 import { MapPointLayer } from './map-point-layer';
 import { Coordinates } from './coordinates';
 import { Mappable } from '../interfaces/mappable';
-import { Color } from '../core/enums/Color';
+import { Color } from '../core/functionalEnums/Color';
 
 export class FollowMeLayer extends MapPointLayer {
 
@@ -33,7 +33,7 @@ export class FollowMeLayer extends MapPointLayer {
       position: {lat: 0, lng: 0}
     });
     this.markers = [ this.locationMarker ];
-    this.setMarkerStyle(this.locationMarker);
+    this.setMarkerOptions(this.locationMarker);
   }
 
   updatePosition(coordinates: Coordinates) {

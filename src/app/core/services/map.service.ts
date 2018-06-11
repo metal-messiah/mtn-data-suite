@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import {} from '@types/googlemaps';
 import { Subject } from 'rxjs/Subject';
 import { MapPointLayer } from '../../models/map-point-layer';
+import { Observable } from 'rxjs/Observable';
+import { GooglePlace } from '../../models/google-place';
+import { Coordinates } from '../../models/coordinates';
 
 /*
   The MapService should
@@ -14,12 +17,14 @@ import { MapPointLayer } from '../../models/map-point-layer';
 export class MapService {
 
   map: google.maps.Map;
-  boundsChanged$ = new Subject<any>();
-  mapClick$ = new Subject<object>();
+  boundsChanged$: Subject<any>;
+  mapClick$: Subject<Coordinates>;
 
   drawingManager: google.maps.drawing.DrawingManager;
   drawingEvents: any[];
-  drawingComplete$ = new Subject<any>();
+  drawingComplete$: Subject<any>;
+
+  placesService: google.maps.places.PlacesService;
 
   constructor() {
   }
@@ -30,6 +35,9 @@ export class MapService {
       center: {lat: 39.8283, lng: -98.5795},
       zoom: 8
     });
+    this.placesService = new google.maps.places.PlacesService(this.map);
+    this.boundsChanged$ = new Subject<any>();
+    this.mapClick$ = new Subject<Coordinates>();
 
     // Listen to events and pass them on via subjects
     this.map.addListener('bounds_changed', () => {
@@ -45,9 +53,16 @@ export class MapService {
     this.drawingManager = new google.maps.drawing.DrawingManager();
   }
 
-  /*
-  Mutators
-   */
+  destroy(): void {
+    console.log('Destroying Map');
+    google.maps.event.clearListeners(this.map, 'bounds_changed');
+    google.maps.event.clearListeners(this.map, 'click');
+    this.map = null;
+    this.placesService = null;
+    this.drawingManager = null;
+    this.boundsChanged$ = null;
+  }
+
   setCenter(position: google.maps.LatLngLiteral) {
     this.map.setCenter(position);
   }
@@ -82,6 +97,8 @@ export class MapService {
 
   activateDrawingTools() {
     this.drawingEvents = [];
+    this.drawingComplete$ = new Subject<any>();
+
     // Create drawing manager
     const multiSelectDrawingOptions = {
       drawingControl: false,
@@ -130,4 +147,31 @@ export class MapService {
     pointLayer.addToMap(this.map);
   }
 
+  searchFor(queryString: string): Observable<GooglePlace[]> {
+    return Observable.create(observer => {
+      const request = {
+        bounds: this.getBounds(),
+        name: queryString
+      };
+      this.placesService.nearbySearch(request, (response) => {
+          observer.next(response.map(place => new GooglePlace(place)));
+        }
+      );
+    });
+  }
+
+  getDetailedGooglePlace(requestPlace: GooglePlace) {
+    return Observable.create(observer => {
+      const request = {
+        placeId: requestPlace.id
+      };
+      this.placesService.getDetails(request, (resultPlace, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          observer.next(new GooglePlace(resultPlace));
+        } else {
+          observer.error(status);
+        }
+      });
+    });
+  }
 }

@@ -12,6 +12,7 @@ import {GroupService} from '../../core/services/group.service';
 import {DetailFormComponent} from '../../interfaces/detail-form-component';
 import {Group} from '../../models/group';
 import {UserProfile} from '../../models/user-profile';
+import { SimplifiedGroup } from '../../models/simplified-group';
 
 @Component({
   selector: 'mds-group-detail',
@@ -70,14 +71,14 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
   }
 
   getNewObj(): Group {
-    return new Group();
+    return new Group({});
   }
 
   getObj(): Group {
     return this.group;
   }
 
-  getObjService(): GroupService {
+  getEntityService(): GroupService {
     return this.groupService;
   }
 
@@ -93,7 +94,7 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
       (member: UserProfile) => Object.assign({}, member)
     );
 
-    return {
+    return new Group({
       id: this.group.id,
       displayName: formModel.displayName,
       description: formModel.description,
@@ -102,8 +103,9 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
       createdDate: this.group.createdDate,
       updatedBy: this.group.updatedBy,
       updatedDate: this.group.updatedDate,
-      version: this.group.version
-    };
+      version: this.group.version,
+      jiffy: 'blag'
+    });
   }
 
   getTypeName(): string {
@@ -126,9 +128,9 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
 
     if (this.group.id !== undefined) {
       this.groupForm.patchValue({
-        createdBy: `${this.group.createdBy.firstName} ${this.group.createdBy.lastName}`,
+        createdBy: this.group.createdBy.email,
         createdDate: this.datePipe.transform(this.group.createdDate, 'medium'),
-        updatedBy: `${this.group.updatedBy.firstName} ${this.group.updatedBy.lastName}`,
+        updatedBy: this.group.updatedBy.email,
         updatedDate: this.datePipe.transform(this.group.updatedDate, 'medium'),
       });
     }

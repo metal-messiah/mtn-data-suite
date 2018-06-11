@@ -34,14 +34,14 @@ export class SelectProjectComponent implements OnInit {
       map((e: KeyboardEvent) => e.target['value']),
       debounceTime(300),
       distinctUntilChanged(),
-      switchMap((value: any, index: number) => this.projectService.getAll(value, this.active, this.primaryData))
+      switchMap((value: any, index: number) => this.projectService.getAllByQuery(value, this.active, this.primaryData))
     );
 
     typeAhead.subscribe((pageable: Pageable<Project>) => this.update(pageable));
   }
 
   loadMore(): void {
-    this.projectService.getAll(this.projectQuery, this.active, this.primaryData, ++this.pageNumber)
+    this.projectService.getAllByQuery(this.projectQuery, this.active, this.primaryData, ++this.pageNumber)
       .subscribe((pageable: Pageable<Project>) => {
         this.projects = this.projects.concat(pageable.content);
         this.totalPages = pageable.totalPages;
@@ -50,7 +50,7 @@ export class SelectProjectComponent implements OnInit {
   }
 
   getProjects(): void {
-    this.projectService.getAll(this.projectQuery, this.active, this.primaryData)
+    this.projectService.getAllByQuery(this.projectQuery, this.active, this.primaryData)
       .subscribe(
         (pageable: Pageable<Project>) => {
           this.update(pageable);
