@@ -20,6 +20,9 @@ import { ShoppingCenterService } from './services/shopping-center.service';
 import { ShoppingCenterCasingService } from './services/shopping-center-casing.service';
 import { StoreCasingService } from './services/store-casing.service';
 import { StoreVolumeService } from './services/store-volume.service';
+import { ShoppingCenterSurveyService } from './services/shopping-center-survey.service';
+import { ShoppingCenterTenantService } from './services/shopping-center-tenant.service';
+import { ShoppingCenterAccessService } from './services/shopping-center-access.service';
 
 @NgModule({
   imports: [
@@ -46,7 +49,10 @@ import { StoreVolumeService } from './services/store-volume.service';
     ShoppingCenterService,
     ShoppingCenterCasingService,
     StoreCasingService,
-    StoreVolumeService
+    StoreVolumeService,
+    ShoppingCenterSurveyService,
+    ShoppingCenterTenantService,
+    ShoppingCenterAccessService
   ]
 })
 export class CoreModule {

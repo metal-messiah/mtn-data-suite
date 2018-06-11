@@ -5,13 +5,13 @@ import { ActivatedRoute } from '@angular/router';
 import { StoreCasingService } from '../../core/services/store-casing.service';
 import { StoreCasing } from '../../models/store-casing';
 import { StoreStatus } from '../../models/store-status';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { StoreVolume } from '../../models/store-volume';
 import { StoreService } from '../../core/services/store.service';
 import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
 import { ErrorService } from '../../core/services/error.service';
 import { SelectProjectComponent } from '../select-project/select-project.component';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { SimplifiedProject } from '../../models/simplified-project';
 import { StoreStatusesDialogComponent } from '../store-statuses-dialog/store-statuses-dialog.component';
 import { Store } from '../../models/store';
@@ -22,6 +22,13 @@ import { Project } from '../../models/project';
 import { AreaCalculatorComponent } from '../area-calculator/area-calculator.component';
 import { StoreVolumesSelectionComponent } from '../store-volumes-selection/store-volumes-selection.component';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { ShoppingCenterTenant } from '../../models/shopping-center-tenant';
+import { SimplifiedShoppingCenterTenant } from '../../models/simplified-shopping-center-tenant';
+import { ShoppingCenterSurveyService } from '../../core/services/shopping-center-survey.service';
+import { ShoppingCenterSurvey } from '../../models/shopping-center-survey';
+import { ShoppingCenterTenantService } from '../../core/services/shopping-center-tenant.service';
+import { ShoppingCenterAccess } from '../../models/shopping-center-access';
+import { ShoppingCenterAccessService } from '../../core/services/shopping-center-access.service';
 
 @Component({
   selector: 'mds-store-casing-detail',
@@ -36,6 +43,7 @@ export class StoreCasingDetailComponent implements OnInit {
   storeSurveyForm: FormGroup;
   shoppingCenterCasingForm: FormGroup;
   shoppingCenterSurveyForm: FormGroup;
+  newTenantsControl: FormControl;
 
   storeCasing: StoreCasing;
 
@@ -44,6 +52,8 @@ export class StoreCasingDetailComponent implements OnInit {
   removingVolume = false;
   loadingProject = false;
   editingStoreStatus = false;
+  loadingTenants = false;
+  loadingAccesses = false;
 
   conditions = ['POOR', 'FAIR', 'AVERAGE', 'GOOD', 'EXCELLENT'];
   confidenceLevels = ['LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH'];
@@ -54,6 +64,7 @@ export class StoreCasingDetailComponent implements OnInit {
     'Food/Drug Combo', 'Hispanic', 'Independent', 'International', 'Limited Assortment', 'Natural Foods',
     'Natural/Gourmet Foods', 'Super Combo', 'Supercenter', 'Superette/Small Grocery', 'Supermarket', 'Superstore',
     'Trader Joe\'s', 'Warehouse'];
+  accessTypeOptions = ['FRONT_MAIN', 'SIDE_MAIN', 'NON_MAIN'];
 
   departmentControls = [
     {name: 'departmentBakery', title: 'Bakery', info: 'Service Bakery will usually have x'},
@@ -85,10 +96,14 @@ export class StoreCasingDetailComponent implements OnInit {
 
   constructor(private storeCasingService: StoreCasingService,
               private storeService: StoreService,
+              private shoppingCenterSurveyService: ShoppingCenterSurveyService,
+              private shoppingCenterTenantService: ShoppingCenterTenantService,
+              private shoppingCenterAccessService: ShoppingCenterAccessService,
               private route: ActivatedRoute,
               private _location: Location,
               private dialog: MatDialog,
               private errorService: ErrorService,
+              private snackBar: MatSnackBar,
               public casingDashboardService: CasingDashboardService,
               private fb: FormBuilder) {
     this.createForms();
@@ -226,8 +241,12 @@ export class StoreCasingDetailComponent implements OnInit {
       parkingSpaceCount: '',
       tenantOccupiedCount: '',
       tenantVacantCount: '',
-      sqFtPercentOccupied: ''
+      sqFtPercentOccupied: ['', [Validators.min(0), Validators.max(100)]],
+      tenants: this.fb.array([]),
+      accesses: this.fb.array([])
     });
+
+    this.newTenantsControl = this.fb.control('');
 
     this.validatingForms = this.fb.group({
       storeCasing: this.storeCasingForm,
@@ -270,7 +289,80 @@ export class StoreCasingDetailComponent implements OnInit {
       this.shoppingCenterCasingForm.reset(this.storeCasing.shoppingCenterCasing);
       if (this.storeCasing.shoppingCenterCasing.shoppingCenterSurvey != null) {
         this.shoppingCenterSurveyForm.reset(this.storeCasing.shoppingCenterCasing.shoppingCenterSurvey);
+        // Tenants
+        const tenantFGs = this.storeCasing.shoppingCenterCasing.shoppingCenterSurvey.tenants
+          .map(tenant => this.fb.group(tenant));
+        const tenantFormArray = this.fb.array(tenantFGs);
+        this.shoppingCenterSurveyForm.setControl('tenants', tenantFormArray);
+        // Accesses
+        const accessFGs = this.storeCasing.shoppingCenterCasing.shoppingCenterSurvey.accesses
+          .map(access => this.fb.group(access));
+        const accessFormArray = this.fb.array(accessFGs);
+        this.shoppingCenterSurveyForm.setControl('accesses', accessFormArray);
       }
+    }
+  }
+
+  get tenants(): FormArray {
+    return this.shoppingCenterSurveyForm.get('tenants') as FormArray;
+  };
+
+  get accesses(): FormArray {
+    return this.shoppingCenterSurveyForm.get('accesses') as FormArray;
+  }
+
+  parseTenants(isOutparcel: boolean) {
+    const names: string[] = this.newTenantsControl.value.split(',')
+      .map((name: string) => name.trim())
+      .filter(name => name !== '');
+    if (names.length > 0) {
+      names.forEach(name => this.addCotenant(name, isOutparcel));
+      this.newTenantsControl.reset();
+      this.tenants.markAsDirty();
+      this.tenants.controls.sort((a: FormControl, b: FormControl) => {
+        return a.get('name').value.localeCompare(b.get('name').value);
+      });
+    }
+  }
+
+  deleteTenant(tenant: ShoppingCenterTenant, index: number) {
+    if (tenant.id == null) {
+      this.tenants.removeAt(index);
+    } else {
+      this.loadingTenants = true;
+      this.shoppingCenterTenantService.delete(tenant)
+        .finally(() => this.loadingTenants = false)
+        .subscribe((response) => {
+          this.tenants.removeAt(index);
+          this.snackBar.open('Successfully Deleted Tenant', null, {duration: 1000});
+        });
+    }
+  }
+
+  addCotenant(name: string, isOutparcel: boolean) {
+    this.tenants.push(this.fb.group(new ShoppingCenterTenant({name: name, outparcel: isOutparcel})));
+  }
+
+  addAccess() {
+    const newAccess = new ShoppingCenterAccess({
+      hasRightIn: true,
+      hasRightOut: true,
+      accessType: this.accessTypeOptions[0]
+    });
+    this.accesses.push(this.fb.group(newAccess));
+  }
+
+  deleteAccess(access: ShoppingCenterAccess, index: number) {
+    if (access.id == null) {
+      this.accesses.removeAt(index);
+    } else {
+      this.loadingAccesses = true;
+      this.shoppingCenterAccessService.delete(access)
+        .finally(() => this.loadingAccesses = false)
+        .subscribe((response) => {
+          this.accesses.removeAt(index);
+          this.snackBar.open('Successfully Deleted Access', null, {duration: 1000});
+        });
     }
   }
 

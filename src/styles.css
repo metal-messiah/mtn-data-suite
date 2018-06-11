@@ -17,6 +17,10 @@ mds-root {
   justify-content: flex-end;
 }
 
+.flex-justify-center {
+  justify-content: center;
+}
+
 .full-width {
   width: 100%;
 }

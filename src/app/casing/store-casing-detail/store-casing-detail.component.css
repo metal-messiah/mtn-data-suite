@@ -50,7 +50,12 @@
   justify-content: space-between;
 }
 
-.checklist .checklist-item {
+.checklist {
+  display: flex;
+  flex-direction: column;
+}
+
+.checklist mat-checkbox {
   margin-bottom: 8px;
 }
 
@@ -68,4 +73,12 @@
 
 #area-percent-input {
   max-width: 75%;
+}
+
+.new {
+  color: forestgreen;
+}
+
+.edited {
+  color: gold;
 }
