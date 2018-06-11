@@ -1,8 +1,9 @@
-
-<div class='options-menu'>
-  <a>Upload a Spreadsheet</a>
-  <a href="/data-upload/planned-grocery">Upload from Planned Grocery</a>
-  <a>Upload from ChainXY</a>
-  <a>Upload Commissary Data</a>
-
-</div>
+<mat-nav-list>
+  <mat-list-item *ngFor="let option of options" routerLink="/data-upload/{{option.link}}">
+    <div mat-list-icon>
+      <i class="{{option.icon}}"></i>
+    </div>
+    <h3 mat-line>{{option.label}}</h3>
+    <mat-divider></mat-divider>
+  </mat-list-item>
+</mat-nav-list>
