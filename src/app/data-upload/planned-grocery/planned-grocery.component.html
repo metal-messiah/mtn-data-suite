@@ -1,3 +1,20 @@
-<p>
-  planned-grocery works!
-</p>
+<div class='pg-wrapper'>
+  <div class='left-panel'>
+    <h2>{{currentRecordIndex + 1 }}/{{records.length.toLocaleString()}}</h2>
+    <mat-list>
+      <mat-list-item *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex}" (click)="handleRecordClick(i)">
+        <div>
+          <span class='list-item-header'>{{record.source_store_name}}</span>
+            <br>
+            <span class="list-item-desc">{{record.source_address}}</span>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <div class="center-panel hidden-sm">
+    MAP
+  </div>
+  <div class="right-panel">
+    DATA
+  </div>
+</div>

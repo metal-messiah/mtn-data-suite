@@ -9,6 +9,7 @@ export class OptionsMenuComponent implements OnInit {
   options: object[];
 
   constructor() {
+    // disabled hides list-item if true
     this.options = [
       {
         label: "Upload a Spreadsheet",
