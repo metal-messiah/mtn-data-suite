@@ -39,5 +39,4 @@ export class SourceService {
   getSourceTable(){
     return this.dummyData;
   }
-
 }

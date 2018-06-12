@@ -2,19 +2,23 @@
   <div class='left-panel'>
     <h2>{{currentRecordIndex + 1 }}/{{records.length.toLocaleString()}}</h2>
     <mat-list>
-      <mat-list-item *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex}" (click)="handleRecordClick(i)">
+      <mat-list-item *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex}" (click)="setCurrentRecord(i)">
         <div>
           <span class='list-item-header'>{{record.source_store_name}}</span>
-            <br>
-            <span class="list-item-desc">{{record.source_address}}</span>
+          <br>
+          <span class="list-item-desc">{{record.source_address}}</span>
         </div>
       </mat-list-item>
     </mat-list>
   </div>
   <div class="center-panel hidden-sm">
-    MAP
+    <mds-map #pgMap class="row content" (ready)="onMapReady($event)"></mds-map>
   </div>
   <div class="right-panel">
-    DATA
+    {{currentRecordData ? currentRecordData.attributes.NAME : ''}}
+    <br> {{currentRecordData ? currentRecordData.attributes.DESCLOCATION : ''}}
+    <br>SF: {{currentRecordData ? currentRecordData.attributes.SIZESF : ''}}
+    <br>Status: {{currentRecordData ? currentRecordData.attributes.STATUS : ''}}
+    <br>
   </div>
 </div>

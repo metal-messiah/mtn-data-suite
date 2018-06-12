@@ -1,14 +1,19 @@
 import { Injectable } from '@angular/core';
-import { Project } from '../../models/project';
-import { MatDialog } from '@angular/material';
-import { Router } from '@angular/router';
-import { Site } from '../../models/site';
-import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
+
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
-export class PlannedGroceryServiceService {
+export class PlannedGroceryService {
 
-  constructor() { }
+  http: HttpClient;
+
+  constructor(http: HttpClient) {
+      this.http = http;
+   }
+
+   get(url){
+    return this.http.get(url)
+    
+   }
 
 }

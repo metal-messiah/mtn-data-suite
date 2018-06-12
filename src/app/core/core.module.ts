@@ -19,6 +19,7 @@ import { NavigatorService } from "./services/navigator.service";
 import { MapService } from "./services/map.service";
 import { StoreService } from "./services/store.service";
 import { SourceService } from "./services/source.service";
+import { PGTokenService } from "./services/pgtoken.service";
 
 @NgModule({
   imports: [CommonModule],
@@ -42,7 +43,8 @@ import { SourceService } from "./services/source.service";
     SiteService,
     UserProfileService,
     StoreService,
-    SourceService
+    SourceService,
+    PGTokenService
   ]
 })
 export class CoreModule {
