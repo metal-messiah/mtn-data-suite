@@ -59,7 +59,7 @@
 .right-panel{
     flex: 1;
     min-width: 45vw;
-    background: gray;
+    padding: 25px;
 }
 
 @media screen and (max-width: 800px){
