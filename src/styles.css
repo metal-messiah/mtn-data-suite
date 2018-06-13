@@ -102,3 +102,9 @@ fieldset {
 .flex-align-center {
   align-items: center;
 }
+
+.component-title {
+  padding: 0 7px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

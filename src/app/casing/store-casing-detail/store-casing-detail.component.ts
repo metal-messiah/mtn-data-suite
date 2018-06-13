@@ -23,12 +23,16 @@ import { AreaCalculatorComponent } from '../area-calculator/area-calculator.comp
 import { StoreVolumesSelectionComponent } from '../store-volumes-selection/store-volumes-selection.component';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { ShoppingCenterTenant } from '../../models/shopping-center-tenant';
-import { SimplifiedShoppingCenterTenant } from '../../models/simplified-shopping-center-tenant';
 import { ShoppingCenterSurveyService } from '../../core/services/shopping-center-survey.service';
-import { ShoppingCenterSurvey } from '../../models/shopping-center-survey';
 import { ShoppingCenterTenantService } from '../../core/services/shopping-center-tenant.service';
 import { ShoppingCenterAccess } from '../../models/shopping-center-access';
 import { ShoppingCenterAccessService } from '../../core/services/shopping-center-access.service';
+import { Observable } from 'rxjs/Observable';
+import { ShoppingCenterCasing } from '../../models/shopping-center-casing';
+import { StoreSurvey } from '../../models/store-survey';
+import { of } from 'rxjs/observable/of';
+import { ShoppingCenterSurvey } from '../../models/shopping-center-survey';
+import { ShoppingCenterService } from '../../core/services/shopping-center.service';
 
 @Component({
   selector: 'mds-store-casing-detail',
@@ -45,6 +49,7 @@ export class StoreCasingDetailComponent implements OnInit {
   shoppingCenterSurveyForm: FormGroup;
   newTenantsControl: FormControl;
 
+  store: Store;
   storeCasing: StoreCasing;
 
   loading = false;
@@ -96,6 +101,7 @@ export class StoreCasingDetailComponent implements OnInit {
 
   constructor(private storeCasingService: StoreCasingService,
               private storeService: StoreService,
+              private shoppingCenterService: ShoppingCenterService,
               private shoppingCenterSurveyService: ShoppingCenterSurveyService,
               private shoppingCenterTenantService: ShoppingCenterTenantService,
               private shoppingCenterAccessService: ShoppingCenterAccessService,
@@ -109,7 +115,7 @@ export class StoreCasingDetailComponent implements OnInit {
     this.createForms();
   }
 
-  createForms() {
+  private createForms() {
     this.storeCasingForm = this.fb.group({
       casingDate: [new Date(), [Validators.required]],
       note: '',
@@ -258,22 +264,58 @@ export class StoreCasingDetailComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.route.snapshot.paramMap.has('storeCasingId')) {
-      this.loading = true;
-      const storeCasingId = parseInt(this.route.snapshot.paramMap.get('storeCasingId'), 10);
-      this.storeCasingService.getOneById(storeCasingId)
-        .finally(() => this.loading = false)
-        .subscribe((casing: StoreCasing) => {
-          this.storeCasing = casing;
-          console.log(this.storeCasing);
-          this.rebuildAllForms();
-        });
-    } else {
-      this.storeCasing = new StoreCasing({
-        casingDate: new Date()
+    const storeId = parseInt(this.route.snapshot.paramMap.get('storeId'), 10);
+    const storeCasingIdParam = this.route.snapshot.paramMap.get('storeCasingId');
+    const storeCasingId = parseInt(storeCasingIdParam, 10);
+
+    this.loading = true;
+
+    this.storeService.getOneById(storeId)
+      .subscribe((store: Store) => {
+        this.store = store;
+        this.loadCasing(storeCasingId, storeId)
+          .finally(() => {
+            this.loading = false;
+            this.rebuildAllForms();
+          })
+          .subscribe((storeCasing: StoreCasing) => {
+            this.storeCasing = storeCasing;
+          });
       });
-      console.log(this.storeCasing);
-      this.rebuildAllForms();
+  }
+
+  private loadCasing(storeCasingId: number, storeId: number) {
+    if (storeCasingId != null && !isNaN(storeCasingId)) {
+      return this.storeCasingService.getOneById(storeCasingId);
+    } else {
+      return Observable.create(observer => {
+        const newCasing = new StoreCasing({
+          casingDate: new Date(),
+          shoppingCenterCasing: new ShoppingCenterCasing({
+            casingDate: new Date()
+          })
+        });
+        this.storeService.getLatestStoreSurvey(storeId)
+          .subscribe((storeSurvey: StoreSurvey) => {
+            if (storeSurvey != null) {
+              newCasing.storeSurvey = storeSurvey;
+            } else {
+              newCasing.storeSurvey = new StoreSurvey({surveyDate: new Date()});
+            }
+            this.storeService.getLatestShoppingCenterSurvey(storeId)
+              .subscribe((shoppingCenterSurvey: ShoppingCenterSurvey) => {
+                if (shoppingCenterSurvey != null) {
+                  newCasing.shoppingCenterCasing.shoppingCenterSurvey = shoppingCenterSurvey;
+                } else {
+                  newCasing.shoppingCenterCasing.shoppingCenterSurvey = new ShoppingCenterSurvey({
+                    surveyDate: new Date()
+                  });
+                }
+                observer.next(newCasing);
+                observer.complete();
+              });
+          });
+      });
     }
   }
 
@@ -284,6 +326,8 @@ export class StoreCasingDetailComponent implements OnInit {
     }
     if (this.storeCasing.storeVolume != null) {
       this.storeVolumeForm.reset(this.storeCasing.storeVolume);
+    } else {
+      this.validatingForms.removeControl('storeVolume');
     }
     if (this.storeCasing.shoppingCenterCasing != null) {
       this.shoppingCenterCasingForm.reset(this.storeCasing.shoppingCenterCasing);

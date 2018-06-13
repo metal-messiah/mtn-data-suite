@@ -12,6 +12,8 @@ import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
 import { SimplifiedStore } from '../../models/simplified-store';
 import { SimplifiedStoreCasing } from '../../models/simplified-store-casing';
 import { StoreVolume } from '../../models/store-volume';
+import { StoreSurvey } from '../../models/store-survey';
+import { ShoppingCenterSurvey } from '../../models/shopping-center-survey';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {
@@ -102,6 +104,24 @@ export class StoreService extends CrudService<Store> {
     return this.http.delete<Store>(url, {headers: this.rest.getHeaders()})
       .map(updatedStore => {
         return new Store(updatedStore);
+      });
+  }
+
+  getLatestStoreSurvey(storeId: number) {
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-surveys/latest`;
+    return this.http.get<StoreSurvey>(url, {headers: this.rest.getHeaders()})
+      .map((storeSurvey: StoreSurvey) => {
+        return new StoreSurvey(storeSurvey);
+      });
+  }
+
+
+
+  getLatestShoppingCenterSurvey(storeId: number) {
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/shopping-center-surveys/latest`;
+    return this.http.get<ShoppingCenterSurvey>(url, {headers: this.rest.getHeaders()})
+      .map((shoppingCenterSurvey: ShoppingCenterSurvey) => {
+        return new ShoppingCenterSurvey(shoppingCenterSurvey);
       });
   }
 

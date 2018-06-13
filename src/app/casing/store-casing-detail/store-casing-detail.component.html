@@ -3,7 +3,8 @@
     <div>
       <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
     </div>
-    <span id="title">Store Casing</span>
+    <span class="component-title" *ngIf="store == null">Store Casing</span>
+    <span class="component-title" *ngIf="store != null">{{store.storeName}}</span>
     <div>
       <button type="button" mat-icon-button color="warn" *ngIf="validatingForms.invalid">
         <i class="fas fa-exclamation-triangle fa-2x"></i>
@@ -17,6 +18,14 @@
   <mat-divider></mat-divider>
   <div class="row content">
     <div class="list-wrapper">
+      <div>
+        <p>Store Casing Form: {{storeCasingForm.status}}</p>
+        <p>Store Volume Form: {{storeVolumeForm.status}}</p>
+        <p>Store Survey Form: {{storeSurveyForm.status}}</p>
+        <p>SC Casing Form: {{shoppingCenterCasingForm.status}}</p>
+        <p>SC Survey Form: {{shoppingCenterSurveyForm.status}}</p>
+        <p><strong>Validating Forms: {{validatingForms.status}}</strong></p>
+      </div>
       <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
       <form *ngIf="!loading">
         <mat-accordion>
