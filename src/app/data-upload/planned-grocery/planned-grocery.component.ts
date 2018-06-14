@@ -50,7 +50,7 @@ export class PlannedGroceryComponent implements OnInit {
         `https://services1.arcgis.com/aUqH6d4IMis39TBB/arcgis/rest/services/BD_FUTURE_RETAIL/FeatureServer/0/query?where=OBJECTID=${
           this.currentRecord["OBJECTID"]
         }&outFields=*&returnGeometry=true&outSR=4326&f=pjson&token=${
-          this.pgToken.access_token
+          this.pgToken["access_token"]
         }`
       )
       .subscribe(record => {
