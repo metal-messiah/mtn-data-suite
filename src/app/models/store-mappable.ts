@@ -1,7 +1,7 @@
-import { Store } from './store';
+import { Store } from './full/store';
 import { Mappable } from '../interfaces/mappable';
-import { SimplifiedStore } from './simplified-store';
-import { UserProfile } from './user-profile';
+import { SimplifiedStore } from './simplified/simplified-store';
+import { UserProfile } from './full/user-profile';
 import { Color } from '../core/functionalEnums/Color';
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { MarkerShape } from '../core/functionalEnums/MarkerShape';

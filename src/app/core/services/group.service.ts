@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RestService } from './rest.service';
-import { Group } from '../../models/group';
+import { Group } from '../../models/full/group';
 import { CrudService } from '../../interfaces/crud-service';
 import { Pageable } from '../../models/pageable';
 import { Observable } from 'rxjs/Observable';
-import { SimplifiedGroup } from '../../models/simplified-group';
+import { SimplifiedGroup } from '../../models/simplified/simplified-group';
 
 @Injectable()
 export class GroupService extends CrudService<Group> {

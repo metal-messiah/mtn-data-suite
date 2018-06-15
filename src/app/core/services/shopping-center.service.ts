@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { CrudService } from '../../interfaces/crud-service';
-import { ShoppingCenter } from '../../models/shopping-center';
+import { ShoppingCenter } from '../../models/full/shopping-center';
 import { RestService } from './rest.service';
 import { HttpClient } from '@angular/common/http';
-import { SimplifiedShoppingCenterCasing } from '../../models/simplified-shopping-center-casing';
+import { SimplifiedShoppingCenterCasing } from '../../models/simplified/simplified-shopping-center-casing';
 
 @Injectable()
 export class ShoppingCenterService extends CrudService<ShoppingCenter> {

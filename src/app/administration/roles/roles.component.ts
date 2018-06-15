@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Role } from '../../models/role';
+import { Role } from '../../models/full/role';
 import { RoleService } from '../../core/services/role.service';
 import { Router } from '@angular/router';
 import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-component';
 import { EntityListService } from '../../core/services/entity-list.service';
 import { ErrorService } from '../../core/services/error.service';
-import { SimplifiedRole } from '../../models/simplified-role';
+import { SimplifiedRole } from '../../models/simplified/simplified-role';
 
 @Component({
   selector: 'mds-roles',

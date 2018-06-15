@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { MapService } from '../../core/services/map.service';
 import { SiteService } from '../../core/services/site.service';
-import { Site } from '../../models/site';
+import { Site } from '../../models/full/site';
 import { CasingDashboardService } from './casing-dashboard.service';
 import { MarkerType } from '../../core/functionalEnums/MarkerType';
 import { GeocoderService } from '../../core/services/geocoder.service';
@@ -23,10 +23,10 @@ import { DatabaseSearchComponent } from '../database-search/database-search.comp
 import { AuthService } from '../../core/services/auth.service';
 import { ErrorService } from '../../core/services/error.service';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
-import { SimplifiedUserProfile } from '../../models/simplified-user-profile';
-import { SimplifiedStore } from '../../models/simplified-store';
+import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-profile';
+import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { StoreMapLayer } from '../../models/store-map-layer';
-import { Store } from '../../models/store';
+import { Store } from '../../models/full/store';
 import { NewSiteLayer } from '../../models/new-site-layer';
 import { GooglePlaceLayer } from '../../models/google-place-layer';
 import { StoreSelectionMode } from '../enums/store-selection-mode';

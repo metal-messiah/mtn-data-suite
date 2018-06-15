@@ -23,6 +23,7 @@ import { StoreVolumeService } from './services/store-volume.service';
 import { ShoppingCenterSurveyService } from './services/shopping-center-survey.service';
 import { ShoppingCenterTenantService } from './services/shopping-center-tenant.service';
 import { ShoppingCenterAccessService } from './services/shopping-center-access.service';
+import { StoreSurveyService } from './services/store-survey.service';
 
 @NgModule({
   imports: [
@@ -52,7 +53,8 @@ import { ShoppingCenterAccessService } from './services/shopping-center-access.s
     StoreVolumeService,
     ShoppingCenterSurveyService,
     ShoppingCenterTenantService,
-    ShoppingCenterAccessService
+    ShoppingCenterAccessService,
+    StoreSurveyService
   ]
 })
 export class CoreModule {

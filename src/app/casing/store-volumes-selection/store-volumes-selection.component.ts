@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
-import { StoreVolume } from '../../models/store-volume';
+import { SimplifiedStoreVolume } from '../../models/simplified/simplified-store-volume';
+import { StoreVolume } from '../../models/full/store-volume';
 import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { StoreService } from '../../core/services/store.service';

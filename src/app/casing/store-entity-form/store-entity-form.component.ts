@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Store } from '../../models/store';
+import { Store } from '../../models/full/store';
 
 @Component({
   selector: 'mds-store-entity-form',

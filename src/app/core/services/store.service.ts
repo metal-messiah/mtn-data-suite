@@ -4,16 +4,16 @@ import * as _ from 'lodash';
 
 import { RestService } from './rest.service';
 import { CrudService } from '../../interfaces/crud-service';
-import { Store } from '../../models/store';
+import { Store } from '../../models/full/store';
 import { Pageable } from '../../models/pageable';
 import { Observable } from 'rxjs/Observable';
-import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
-import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
-import { SimplifiedStore } from '../../models/simplified-store';
-import { SimplifiedStoreCasing } from '../../models/simplified-store-casing';
-import { StoreVolume } from '../../models/store-volume';
-import { StoreSurvey } from '../../models/store-survey';
-import { ShoppingCenterSurvey } from '../../models/shopping-center-survey';
+import { SimplifiedStoreStatus } from '../../models/simplified/simplified-store-status';
+import { SimplifiedStoreVolume } from '../../models/simplified/simplified-store-volume';
+import { SimplifiedStore } from '../../models/simplified/simplified-store';
+import { SimplifiedStoreCasing } from '../../models/simplified/simplified-store-casing';
+import { StoreVolume } from '../../models/full/store-volume';
+import { StoreSurvey } from '../../models/full/store-survey';
+import { ShoppingCenterSurvey } from '../../models/full/shopping-center-survey';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RestService } from './rest.service';
-import { Role } from '../../models/role';
+import { Role } from '../../models/full/role';
 import { CrudService } from '../../interfaces/crud-service';
 import { Pageable } from '../../models/pageable';
 import { Observable } from 'rxjs/Observable';
-import { SimplifiedRole } from '../../models/simplified-role';
+import { SimplifiedRole } from '../../models/simplified/simplified-role';
 
 @Injectable()
 export class RoleService extends CrudService<Role> {

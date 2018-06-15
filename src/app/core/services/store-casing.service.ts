@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { RestService } from './rest.service';
 import { HttpClient } from '@angular/common/http';
 import { CrudService } from '../../interfaces/crud-service';
-import { StoreCasing } from '../../models/store-casing';
-import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
-import { SimplifiedProject } from '../../models/simplified-project';
-import { Project } from '../../models/project';
-import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
-import { StoreStatus } from '../../models/store-status';
+import { StoreCasing } from '../../models/full/store-casing';
+import { SimplifiedStoreVolume } from '../../models/simplified/simplified-store-volume';
+import { SimplifiedProject } from '../../models/simplified/simplified-project';
+import { Project } from '../../models/full/project';
+import { SimplifiedStoreStatus } from '../../models/simplified/simplified-store-status';
+import { StoreStatus } from '../../models/full/store-status';
+import { StoreVolume } from '../../models/full/store-volume';
 
 @Injectable()
 export class StoreCasingService extends CrudService<StoreCasing> {
@@ -22,49 +23,46 @@ export class StoreCasingService extends CrudService<StoreCasing> {
     return new StoreCasing(entityObj);
   }
 
+  createNewVolume(storeCasingId: number, volume: StoreVolume) {
+    const url = this.rest.getHost() + this.endpoint + `/${storeCasingId}/store-volume`;
+
+    return this.http.post<StoreVolume>(url, volume, {headers: this.rest.getHeaders()})
+      .map(newVolume => new StoreVolume(newVolume));
+  }
+
   setStoreVolume(casing: StoreCasing, volume: SimplifiedStoreVolume) {
     const url = this.rest.getHost() + this.endpoint + `/${casing.id}/store-volume/${volume.id}`;
 
     return this.http.put<StoreCasing>(url, null, {headers: this.rest.getHeaders()})
-      .map(updatedCasing => {
-        return new StoreCasing(updatedCasing);
-      });
+      .map(updatedCasing => new StoreCasing(updatedCasing));
   }
 
   removeStoreVolume(casing: StoreCasing) {
     const url = this.rest.getHost() + this.endpoint + `/${casing.id}/store-volume`;
 
     return this.http.delete<StoreCasing>(url, {headers: this.rest.getHeaders()})
-      .map(updatedCasing => {
-        return new StoreCasing(updatedCasing);
-      });
+      .map(updatedCasing => new StoreCasing(updatedCasing));
   }
 
   addProject(casing: StoreCasing, project: SimplifiedProject | Project) {
     const url = this.rest.getHost() + this.endpoint + `/${casing.id}/projects/${project.id}`;
 
     return this.http.put<StoreCasing>(url, null, {headers: this.rest.getHeaders()})
-      .map(updatedCasing => {
-        return new StoreCasing(updatedCasing);
-      });
+      .map(updatedCasing => new StoreCasing(updatedCasing));
   }
 
   removeProject(casing: StoreCasing, project: SimplifiedProject | Project) {
     const url = this.rest.getHost() + this.endpoint + `/${casing.id}/projects/${project.id}`;
 
     return this.http.delete<StoreCasing>(url, {headers: this.rest.getHeaders()})
-      .map(updatedCasing => {
-        return new StoreCasing(updatedCasing);
-      });
+      .map(updatedCasing => new StoreCasing(updatedCasing));
   }
 
   setStoreStatus(casing: StoreCasing, status: SimplifiedStoreStatus | StoreStatus) {
     const url = this.rest.getHost() + this.endpoint + `/${casing.id}/store-status/${status.id}`;
 
     return this.http.put<StoreCasing>(url, null, {headers: this.rest.getHeaders()})
-      .map(updatedCasing => {
-        return new StoreCasing(updatedCasing);
-      });
+      .map(updatedCasing => new StoreCasing(updatedCasing));
   }
 
 }

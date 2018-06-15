@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CrudService } from '../../interfaces/crud-service';
-import { ShoppingCenterTenant } from '../../models/shopping-center-tenant';
+import { ShoppingCenterTenant } from '../../models/full/shopping-center-tenant';
 import { HttpClient } from '@angular/common/http';
 import { RestService } from './rest.service';
 

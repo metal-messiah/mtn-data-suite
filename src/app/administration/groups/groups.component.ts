@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Group } from '../../models/group';
+import { Group } from '../../models/full/group';
 import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-component';
 import { GroupService } from '../../core/services/group.service';
 import { EntityListService } from '../../core/services/entity-list.service';
 import { Router } from '@angular/router';
-import { SimplifiedGroup } from '../../models/simplified-group';
+import { SimplifiedGroup } from '../../models/simplified/simplified-group';
 import { ErrorService } from '../../core/services/error.service';
 
 @Component({

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserProfile } from '../../models/user-profile';
+import { UserProfile } from '../../models/full/user-profile';
 import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-component';
 import { EntityListService } from '../../core/services/entity-list.service';
 import { ErrorService } from '../../core/services/error.service';

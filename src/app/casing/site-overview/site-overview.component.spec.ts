@@ -7,9 +7,9 @@ import { SiteService } from '../../core/services/site.service';
 import { ShoppingCenterCasingService } from '../../core/services/shopping-center-casing.service';
 import { ActivatedRouteStub } from '../../../testing/activated-route-stub';
 import { ActivatedRoute } from '@angular/router';
-import { Site } from '../../models/site';
+import { Site } from '../../models/full/site';
 import { of } from 'rxjs/observable/of';
-import { ShoppingCenterCasing } from '../../models/shopping-center-casing';
+import { ShoppingCenterCasing } from '../../models/full/shopping-center-casing';
 import { SharedModule } from '../../shared/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 

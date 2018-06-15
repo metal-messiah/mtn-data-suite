@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { StoreService } from '../../core/services/store.service';
-import { SimplifiedStoreCasing } from '../../models/simplified-store-casing';
+import { SimplifiedStoreCasing } from '../../models/simplified/simplified-store-casing';
 
 @Component({
   selector: 'mds-store-casings',

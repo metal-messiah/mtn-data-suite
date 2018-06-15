@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { RestService } from './rest.service';
 import { Pageable } from '../../models/pageable';
-import { Project } from '../../models/project';
+import { Project } from '../../models/full/project';
 import { Observable } from 'rxjs/Observable';
 import { CrudService } from '../../interfaces/crud-service';
 

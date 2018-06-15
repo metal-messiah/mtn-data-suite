@@ -3,12 +3,12 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { SiteService } from '../../core/services/site.service';
-import { Site } from '../../models/site';
-import { ShoppingCenterCasing } from '../../models/shopping-center-casing';
-import { Store } from '../../models/store';
+import { Site } from '../../models/full/site';
+import { ShoppingCenterCasing } from '../../models/full/shopping-center-casing';
+import { Store } from '../../models/full/store';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
-import { SimplifiedUserProfile } from '../../models/simplified-user-profile';
+import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-profile';
 import { ErrorService } from '../../core/services/error.service';
 
 @Component({

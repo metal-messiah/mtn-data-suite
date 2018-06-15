@@ -5,7 +5,7 @@ import {environment} from '../../../environments/environment';
 import {Location} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {RestService} from './rest.service';
-import {UserProfile} from '../../models/user-profile';
+import {UserProfile} from '../../models/full/user-profile';
 import {Observable} from 'rxjs/Observable';
 import {ErrorDialogComponent} from '../../shared/error-dialog/error-dialog.component';
 import {MatDialog} from '@angular/material';

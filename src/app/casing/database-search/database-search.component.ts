@@ -1,5 +1,5 @@
 import { Component, NgZone, OnInit } from '@angular/core';
-import { Store } from '../../models/store';
+import { Store } from '../../models/full/store';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material';
 import { StoreService } from '../../core/services/store.service';

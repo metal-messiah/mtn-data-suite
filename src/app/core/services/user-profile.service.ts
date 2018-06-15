@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
-import { UserProfile } from '../../models/user-profile';
+import { UserProfile } from '../../models/full/user-profile';
 import { RestService } from './rest.service';
 import { CrudService } from '../../interfaces/crud-service';
 import { Pageable } from '../../models/pageable';

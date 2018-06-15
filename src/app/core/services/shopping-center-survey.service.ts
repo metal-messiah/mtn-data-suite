@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { CrudService } from '../../interfaces/crud-service';
-import { ShoppingCenterSurvey } from '../../models/shopping-center-survey';
+import { ShoppingCenterSurvey } from '../../models/full/shopping-center-survey';
 import { HttpClient } from '@angular/common/http';
 import { RestService } from './rest.service';
-import { ShoppingCenterTenant } from '../../models/shopping-center-tenant';
+import { ShoppingCenterTenant } from '../../models/full/shopping-center-tenant';
+import { ShoppingCenterAccess } from '../../models/full/shopping-center-access';
 
 @Injectable()
 export class ShoppingCenterSurveyService extends CrudService<ShoppingCenterSurvey> {
@@ -18,21 +19,37 @@ export class ShoppingCenterSurveyService extends CrudService<ShoppingCenterSurve
     return new ShoppingCenterSurvey(entityObj);
   }
 
-  createNewTenant(survey: ShoppingCenterSurvey, tenant: ShoppingCenterTenant) {
-    const url = this.rest.getHost() + this.endpoint + `/${survey.id}/tenants`;
+  getAllTenants(surveyId: number) {
+    const url = this.rest.getHost() + this.endpoint + `/${surveyId}/tenants`;
 
-    return this.http.post<ShoppingCenterSurvey>(url, tenant, {headers: this.rest.getHeaders()})
-      .map(updatedSurvey => {
-        return new ShoppingCenterSurvey(updatedSurvey);
+    return this.http.get<ShoppingCenterTenant[]>(url, {headers: this.rest.getHeaders()})
+      .map(tenants => {
+        return tenants.map(tenant => new ShoppingCenterTenant(tenant));
       });
   }
 
-  deleteTenant(survey: ShoppingCenterSurvey, tenantId: number) {
-    const url = this.rest.getHost() + this.endpoint + `/${survey.id}/tenants/${tenantId}`;
+  getAllAccesses(surveyId: number) {
+    const url = this.rest.getHost() + this.endpoint + `/${surveyId}/accesses`;
 
-    return this.http.delete<ShoppingCenterSurvey>(url, {headers: this.rest.getHeaders()})
-      .map(updatedSurvey => {
-        return new ShoppingCenterSurvey(updatedSurvey);
+    return this.http.get<ShoppingCenterAccess[]>(url, {headers: this.rest.getHeaders()})
+      .map(accesses => {
+        return accesses.map(access => new ShoppingCenterAccess(access));
       });
+  }
+
+  createNewTenants(surveyId: number, tenants: ShoppingCenterTenant[]) {
+    const url = this.rest.getHost() + this.endpoint + `/${surveyId}/tenants`;
+
+    return this.http.post<ShoppingCenterTenant[]>(url, tenants, {headers: this.rest.getHeaders()})
+      .map(ts => {
+        return ts.map(tenant => new ShoppingCenterTenant(tenant));
+      });
+  }
+
+  createNewAccess(surveyId: number, access: ShoppingCenterAccess) {
+    const url = this.rest.getHost() + this.endpoint + `/${surveyId}/accesses`;
+
+    return this.http.post<ShoppingCenterAccess>(url, access, {headers: this.rest.getHeaders()})
+      .map(a => new ShoppingCenterAccess(a));
   }
 }

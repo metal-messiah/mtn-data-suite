@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CasingDashboardService } from '../casing-dashboard/casing-dashboard.service';
 import { DetailFormComponent } from '../../interfaces/detail-form-component';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
-import { Site } from '../../models/site';
+import { Site } from '../../models/full/site';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { SiteService } from '../../core/services/site.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DetailFormService } from '../../core/services/detail-form.service';
 import { Observable } from 'rxjs/Observable';
-import { SimplifiedSite } from '../../models/simplified-site';
+import { SimplifiedSite } from '../../models/simplified/simplified-site';
 
 @Component({
   selector: 'mds-site-detail',

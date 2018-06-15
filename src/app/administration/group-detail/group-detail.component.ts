@@ -10,9 +10,9 @@ import {DetailFormService} from '../../core/services/detail-form.service';
 import {GroupService} from '../../core/services/group.service';
 
 import {DetailFormComponent} from '../../interfaces/detail-form-component';
-import {Group} from '../../models/group';
-import {UserProfile} from '../../models/user-profile';
-import { SimplifiedGroup } from '../../models/simplified-group';
+import {Group} from '../../models/full/group';
+import {UserProfile} from '../../models/full/user-profile';
+import { SimplifiedGroup } from '../../models/simplified/simplified-group';
 
 @Component({
   selector: 'mds-group-detail',

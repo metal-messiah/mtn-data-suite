@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { StoreCasing } from '../../models/store-casing';
+import { StoreCasing } from '../../models/full/store-casing';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { DetailFormComponent } from '../../interfaces/detail-form-component';
 import { CrudService } from '../../interfaces/crud-service';

@@ -18,21 +18,21 @@
   <mat-divider></mat-divider>
   <div class="row content">
     <div class="list-wrapper">
-      <div>
-        <p>Store Casing Form: {{storeCasingForm.status}}</p>
-        <p>Store Volume Form: {{storeVolumeForm.status}}</p>
-        <p>Store Survey Form: {{storeSurveyForm.status}}</p>
-        <p>SC Casing Form: {{shoppingCenterCasingForm.status}}</p>
-        <p>SC Survey Form: {{shoppingCenterSurveyForm.status}}</p>
-        <p><strong>Validating Forms: {{validatingForms.status}}</strong></p>
-      </div>
+      <!--<div>-->
+        <!--<p>Store Casing Form: {{storeCasingForm.status}}</p>-->
+        <!--<p>Store Volume Form: {{storeVolumeForm.status}}</p>-->
+        <!--<p>Store Survey Form: {{storeSurveyForm.status}}</p>-->
+        <!--<p>SC Casing Form: {{shoppingCenterCasingForm.status}}</p>-->
+        <!--<p>SC Survey Form: {{shoppingCenterSurveyForm.status}}</p>-->
+        <!--<p><strong>Validating Forms: {{validatingForms.status}}</strong></p>-->
+      <!--</div>-->
       <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
       <form *ngIf="!loading">
         <mat-accordion>
           <!-- Casing Date -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
-              <mat-panel-title>Casing Date</mat-panel-title>
+              <mat-panel-title><i class="fas fa-calendar"></i>&nbsp;&nbsp;Casing Date</mat-panel-title>
               <mat-panel-description>{{storeCasing.casingDate | date}}</mat-panel-description>
             </mat-expansion-panel-header>
             <div>
@@ -53,7 +53,7 @@
           <!-- Projects -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
-              <mat-panel-title>Projects</mat-panel-title>
+              <mat-panel-title><i class="fas fa-clipboard"></i>&nbsp;&nbsp;Projects</mat-panel-title>
               <mat-panel-description *ngIf="storeCasing.projects != null && storeCasing.projects.length > 0">
                 ({{storeCasing.projects.length}})
               </mat-panel-description>
@@ -87,7 +87,7 @@
           <!-- Visibility -->
           <mat-expansion-panel [formGroup]="storeSurveyForm">
             <mat-expansion-panel-header>
-              <mat-panel-title>Visibility</mat-panel-title>
+              <mat-panel-title><i class="fas fa-eye"></i>&nbsp;&nbsp;Visibility</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
               <div class="checklist">
@@ -118,7 +118,7 @@
           <!-- Accessibility -->
           <mat-expansion-panel [formGroup]="storeSurveyForm">
             <mat-expansion-panel-header>
-              <mat-panel-title>Accessibility</mat-panel-title>
+              <mat-panel-title><i class="fas fa-road"></i>&nbsp;&nbsp;Accessibility</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
               <div class="checklist">
@@ -148,7 +148,7 @@
           <!-- Flow -->
           <mat-expansion-panel [formGroup]="shoppingCenterSurveyForm">
             <mat-expansion-panel-header>
-              <mat-panel-title>SC Flow</mat-panel-title>
+              <mat-panel-title><i class="fas fa-car"></i>&nbsp;&nbsp;Flow</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
               <div class="checklist">
@@ -170,7 +170,7 @@
           <!-- Parking -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
-              <mat-panel-title>Parking</mat-panel-title>
+              <mat-panel-title><i class="fas fa-parking"></i>&nbsp;&nbsp;Parking</mat-panel-title>
             </mat-expansion-panel-header>
             <div [formGroup]="shoppingCenterSurveyForm">
               <h3>Shopping Center</h3>
@@ -208,7 +208,7 @@
           <!-- SC Ratings -->
           <mat-expansion-panel [formGroup]="shoppingCenterCasingForm">
             <mat-expansion-panel-header>
-              <mat-panel-title>SC Ratings</mat-panel-title>
+              <mat-panel-title><i class="fas fa-star"></i>&nbsp;&nbsp;Ratings</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
               <mat-form-field>
@@ -240,7 +240,7 @@
           <!-- SC Tenants -->
           <mat-expansion-panel [formGroup]="shoppingCenterSurveyForm">
             <mat-expansion-panel-header>
-              <mat-panel-title>SC Tenants</mat-panel-title>
+              <mat-panel-title><i class="fas fa-store-alt"></i>&nbsp;&nbsp;Tenants</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
               <mat-form-field>
@@ -254,104 +254,24 @@
                 <span matSuffix>%</span>
                 <mat-error>Must be between 0 and 100%</mat-error>
               </mat-form-field>
-              <mat-form-field>
-                <textarea [formControl]="newTenantsControl" placeholder="Add Tenants (comma separated list)"
-                          matInput></textarea>
-              </mat-form-field>
-              <div class="flex flex-space-between">
-                <button type="button" mat-raised-button color="primary" [disabled]="newTenantsControl.pristine"
-                        (click)="parseTenants(false)">
-                  Add as Inline
-                </button>
-                <button type="button" mat-raised-button color="primary" [disabled]="newTenantsControl.pristine"
-                        (click)="parseTenants(true)">
-                  Add as Outparcel
-                </button>
+              <div class="flex flex-justify-center">
+                <button type="button" mat-raised-button color="primary" (click)="openTenantDialog()">Tenant List</button>
               </div>
-              <mat-accordion formArrayName="tenants">
-                <mat-expansion-panel *ngFor="let tenant of tenants.controls; let i=index" [formGroupName]="i">
-                  <mat-expansion-panel-header>
-                    <mat-panel-title>
-                      <span *ngIf="tenant.dirty && tenant.get('id').value != null">
-                        <i class="fas fa-pencil-alt edited"></i>&nbsp;&nbsp;</span>
-                      <span *ngIf="tenant.get('id').value == null">
-                        <i class="fas fa-asterisk new"></i>&nbsp;&nbsp;</span>
-                      <span>{{tenant.get('name').value}}</span>
-                    </mat-panel-title>
-                    <mat-panel-description *ngIf="tenant.get('outparcel').value">Outparcel</mat-panel-description>
-                  </mat-expansion-panel-header>
-                  <div>
-                    <mat-form-field>
-                      <input matInput placeholder="Tenant Name" formControlName="name">
-                    </mat-form-field>
-                    <mat-checkbox formControlName="outparcel" labelPosition="before">Is Outparcel</mat-checkbox>
-                  </div>
-                  <mat-action-row>
-                    <mat-progress-bar mode="indeterminate" *ngIf="loadingTenants"></mat-progress-bar>
-                    <button *ngIf="!loadingTenants" type="button" mat-raised-button color="warn"
-                            (click)="deleteTenant(tenant.value, i)">
-                      <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
-                    </button>
-                  </mat-action-row>
-                </mat-expansion-panel>
-              </mat-accordion>
             </div>
           </mat-expansion-panel>
           <!-- SC Accesses -->
           <mat-expansion-panel [formGroup]="shoppingCenterSurveyForm">
             <mat-expansion-panel-header>
-              <mat-panel-title>SC Accesses</mat-panel-title>
+              <mat-panel-title><i class="fas fa-exchange-alt"></i>&nbsp;&nbsp;Accesses</mat-panel-title>
             </mat-expansion-panel-header>
-            <div>
-              <div class="flex flex-justify-center">
-                <button type="button" mat-raised-button color="primary" (click)="addAccess()">
-                  Add New Access
-                </button>
-              </div>
-              <mat-accordion formArrayName="accesses">
-                <mat-expansion-panel *ngFor="let access of accesses.controls; let i=index" [formGroupName]="i">
-                  <mat-expansion-panel-header>
-                    <mat-panel-title>
-                      <span *ngIf="access.dirty && access.get('id').value != null">
-                        <i class="fas fa-pencil-alt edited"></i>&nbsp;&nbsp;</span>
-                      <span *ngIf="access.get('id').value == null">
-                        <i class="fas fa-asterisk new"></i>&nbsp;&nbsp;</span>
-                      <span>{{i + 1}}&nbsp;-&nbsp;{{access.get('accessType').value}}</span>
-                    </mat-panel-title>
-                  </mat-expansion-panel-header>
-                  <div>
-                    <mat-form-field>
-                      <mat-select placeholder="Access Type" formControlName="accessType">
-                        <mat-option>Clear Selection</mat-option>
-                        <mat-option *ngFor="let accessTypeOption of accessTypeOptions" [value]="accessTypeOption">
-                          {{accessTypeOption}}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                    <div class="checklist">
-                      <mat-checkbox formControlName="hasLeftIn">Has Left In</mat-checkbox>
-                      <mat-checkbox formControlName="hasLeftOut">Has Left Out</mat-checkbox>
-                      <mat-checkbox formControlName="hasRightIn">Has Right In</mat-checkbox>
-                      <mat-checkbox formControlName="hasRightOut">Has Right Out</mat-checkbox>
-                      <mat-checkbox formControlName="hasTrafficLight">Has Traffic Light</mat-checkbox>
-                      <mat-checkbox formControlName="oneWayRoad">One Way Road</mat-checkbox>
-                    </div>
-                  </div>
-                  <mat-action-row>
-                    <mat-progress-bar mode="indeterminate" *ngIf="loadingAccesses"></mat-progress-bar>
-                    <button *ngIf="!loadingAccesses" type="button" mat-raised-button color="warn"
-                            (click)="deleteAccess(access.value, i)">
-                      <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
-                    </button>
-                  </mat-action-row>
-                </mat-expansion-panel>
-              </mat-accordion>
+            <div class="flex flex-justify-center">
+              <button type="button" mat-raised-button color="primary" (click)="openAccessDialog()">Access List</button>
             </div>
           </mat-expansion-panel>
           <!-- Fuel -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
-              <mat-panel-title>Fuel</mat-panel-title>
+              <mat-panel-title><i class="fas fa-gas-pump"></i>&nbsp;&nbsp;Fuel</mat-panel-title>
             </mat-expansion-panel-header>
             <div [formGroup]="storeCasingForm">
               <mat-form-field>
@@ -372,7 +292,7 @@
           <!-- Store Status -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
-              <mat-panel-title>Store Status</mat-panel-title>
+              <mat-panel-title><i class="fas fa-door-open"></i>&nbsp;&nbsp;Store Status</mat-panel-title>
               <mat-panel-description *ngIf="storeCasing.storeStatus != null">({{storeCasing.storeStatus.status}})
               </mat-panel-description>
               <mat-panel-description *ngIf="storeCasing.storeStatus == null">Select a Status
@@ -398,7 +318,7 @@
           <!-- Fit/Format -->
           <mat-expansion-panel [formGroup]="storeSurveyForm">
             <mat-expansion-panel-header>
-              <mat-panel-title>Fit/Format</mat-panel-title>
+              <mat-panel-title><i class="fas fa-tag"></i>&nbsp;&nbsp;Fit/Format</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
               <mat-form-field>
@@ -419,7 +339,7 @@
           <!-- Hours -->
           <mat-expansion-panel [formGroup]="storeSurveyForm">
             <mat-expansion-panel-header>
-              <mat-panel-title>Hours</mat-panel-title>
+              <mat-panel-title><i class="fas fa-clock"></i>&nbsp;&nbsp;Hours</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
               <mat-checkbox formControlName="storeIsOpen24">Open 24hrs</mat-checkbox>
@@ -428,7 +348,7 @@
           <!-- Store Conditions -->
           <mat-expansion-panel [formGroup]="storeCasingForm">
             <mat-expansion-panel-header>
-              <mat-panel-title>Store Conditions</mat-panel-title>
+              <mat-panel-title><i class="fas fa-star"></i>&nbsp;&nbsp;Store Conditions</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
               <mat-form-field>
@@ -472,7 +392,7 @@
           <!-- Pharmacy -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
-              <mat-panel-title>Pharmacy</mat-panel-title>
+              <mat-panel-title><i class="fas fa-prescription-bottle"></i>&nbsp;&nbsp;Pharmacy</mat-panel-title>
             </mat-expansion-panel-header>
             <div [formGroup]="storeCasingForm">
               <mat-form-field>
@@ -508,24 +428,27 @@
           <!-- Registers -->
           <mat-expansion-panel [formGroup]="storeSurveyForm">
             <mat-expansion-panel-header>
-              <mat-panel-title>Registers</mat-panel-title>
+              <mat-panel-title><i class="fas fa-barcode"></i>&nbsp;&nbsp;Registers</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
               <mat-form-field>
                 <input matInput type="number" placeholder="Normal" formControlName="registerCountNormal">
+                <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
               <mat-form-field>
                 <input matInput type="number" placeholder="Express" formControlName="registerCountExpress">
+                <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
               <mat-form-field>
                 <input matInput type="number" placeholder="Self Checkout" formControlName="registerCountSelfCheckout">
+                <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
             </div>
           </mat-expansion-panel>
           <!-- Departments -->
           <mat-expansion-panel [formGroup]="storeSurveyForm">
             <mat-expansion-panel-header>
-              <mat-panel-title>Departments</mat-panel-title>
+              <mat-panel-title><i class="fas fa-wine-glass"></i>&nbsp;&nbsp;Departments</mat-panel-title>
             </mat-expansion-panel-header>
             <div id="departments">
               <div *ngFor="let departmentControl of departmentControls">
@@ -539,12 +462,13 @@
           <!-- Area -->
           <mat-expansion-panel [formGroup]="storeSurveyForm">
             <mat-expansion-panel-header>
-              <mat-panel-title>Area</mat-panel-title>
+              <mat-panel-title><i class="fas fa-ruler-combined"></i>&nbsp;&nbsp;Area</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
               <mat-form-field>
                 <input matInput type="number" placeholder="Sales Area" formControlName="areaSales">
                 <span matSuffix>sqft</span>
+                <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
               <div class="flex flex-space-between">
                 <mat-form-field id="area-percent-input">
@@ -562,6 +486,7 @@
               <mat-form-field>
                 <input matInput type="number" placeholder="Total Area" formControlName="areaTotal">
                 <span matSuffix>sqft</span>
+                <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
               <mat-checkbox formControlName="areaIsEstimate">Area Is Estimate</mat-checkbox>
               <mat-checkbox formControlName="naturalFoodsAreIntegrated">Natural Foods are Integrated</mat-checkbox>
@@ -570,7 +495,7 @@
           <!-- Volume -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
-              <mat-panel-title>Volume</mat-panel-title>
+              <mat-panel-title><i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;Volume</mat-panel-title>
             </mat-expansion-panel-header>
             <mat-progress-bar mode="indeterminate" *ngIf="savingVolume"></mat-progress-bar>
             <div *ngIf="storeCasing.storeVolume == null && !savingVolume">
@@ -670,7 +595,7 @@
               </div>
               <div class="flex flex-space-between">
                 <mat-form-field class="example-full-width">
-                  <input matInput type="number" placeholder="Total Weekly Volume" formControlName="volumeTotal">
+                  <input matInput type="number" placeholder="Total Weekly Volume" formControlName="volumeTotal" required>
                   <span matPrefix>$&nbsp;</span>
                   <mat-error *ngIf="storeVolumeForm.get('volumeTotal').invalid">Min: $10k, Max: $10M
                   </mat-error>
@@ -707,7 +632,7 @@
           <!-- Notes -->
           <mat-expansion-panel>
             <mat-expansion-panel-header>
-              <mat-panel-title>Notes</mat-panel-title>
+              <mat-panel-title><i class="fas fa-sticky-note"></i>&nbsp;&nbsp;Notes</mat-panel-title>
             </mat-expansion-panel-header>
             <div [formGroup]="storeCasingForm">
               <mat-form-field>
@@ -733,7 +658,7 @@
           <!-- Seasonality -->
           <mat-expansion-panel [formGroup]="storeSurveyForm">
             <mat-expansion-panel-header>
-              <mat-panel-title>Seasonality</mat-panel-title>
+              <mat-panel-title><i class="fas fa-sun"></i>&nbsp;&nbsp;Seasonality</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
               <mat-form-field>

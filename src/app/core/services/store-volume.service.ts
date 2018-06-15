@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { StoreVolume } from '../../models/store-volume';
+import { StoreVolume } from '../../models/full/store-volume';
 import { CrudService } from '../../interfaces/crud-service';
 import { HttpClient } from '@angular/common/http';
 import { RestService } from './rest.service';

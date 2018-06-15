@@ -1,5 +1,5 @@
 import { Entity } from './entity';
-import { SimplifiedUserProfile } from './simplified-user-profile';
+import { SimplifiedUserProfile } from './simplified/simplified-user-profile';
 import { DateUtil } from '../utils/date-util';
 
 export class AuditingEntity implements Entity {

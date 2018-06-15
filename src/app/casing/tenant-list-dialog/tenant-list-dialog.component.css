@@ -1,0 +1,17 @@
+.mat-dialog-title {
+  margin-bottom: 0;
+}
+
+#add-buttons {
+  width: auto;
+  margin: 0 -16px 8px -16px;
+}
+
+.mat-action-row {
+  justify-content: space-between;
+}
+
+#accordion-wrapper {
+  width: auto;
+  margin: 0 -16px;
+}

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { StoreCasing } from '../../models/store-casing';
-import { SimplifiedStoreCasing } from '../../models/simplified-store-casing';
+import { StoreCasing } from '../../models/full/store-casing';
+import { SimplifiedStoreCasing } from '../../models/simplified/simplified-store-casing';
 import { StoreCasingService } from '../../core/services/store-casing.service';
 
 @Component({

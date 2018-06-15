@@ -1,9 +1,9 @@
 import { MapPointLayer } from './map-point-layer';
 import { StoreMappable } from './store-mappable';
-import { SimplifiedStore } from './simplified-store';
-import { Store } from './store';
+import { SimplifiedStore } from './simplified/simplified-store';
+import { Store } from './full/store';
 import { Subject } from 'rxjs/Subject';
-import { UserProfile } from './user-profile';
+import { UserProfile } from './full/user-profile';
 import { Coordinates } from './coordinates';
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { StoreSelectionMode } from '../casing/enums/store-selection-mode';

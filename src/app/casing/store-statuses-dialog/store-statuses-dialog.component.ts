@@ -1,11 +1,11 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
-import { Store } from '../../models/store';
-import { SimplifiedStoreStatus } from '../../models/simplified-store-status';
+import { Store } from '../../models/full/store';
+import { SimplifiedStoreStatus } from '../../models/simplified/simplified-store-status';
 import { FormControl } from '@angular/forms';
 import { StoreService } from '../../core/services/store.service';
-import { StoreStatus } from '../../models/store-status';
+import { StoreStatus } from '../../models/full/store-status';
 import { ErrorService } from '../../core/services/error.service';
 
 @Component({

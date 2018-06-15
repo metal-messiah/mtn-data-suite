@@ -1,0 +1,53 @@
+<h2 mat-dialog-title>Shopping Center Tenants</h2>
+<div mat-dialog-content [formGroup]="form">
+  <mat-form-field>
+    <textarea formControlName="newTenantNames" placeholder="Add Tenants (comma separated list)" matInput></textarea>
+  </mat-form-field>
+  <div id="add-buttons" class="flex flex-space-between">
+    <button type="button" mat-raised-button color="primary" [disabled]="newTenantNames.pristine"
+            (click)="parseTenants(false)">
+      Add as Inline
+    </button>
+    <button type="button" mat-raised-button color="primary" [disabled]="newTenantNames.pristine"
+            (click)="parseTenants(true)">
+      Add as Outparcel
+    </button>
+  </div>
+  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+  <div id="accordion-wrapper">
+    <mat-accordion formArrayName="tenants">
+      <mat-expansion-panel *ngFor="let tenant of tenants.controls; let i = index" [formGroupName]="i">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span *ngIf="tenant.dirty && tenant.get('id').value != null">
+              <i class="fas fa-pencil-alt edited"></i>&nbsp;&nbsp;
+            </span>
+            <span>{{tenant.get('name').value}}</span>
+          </mat-panel-title>
+          <mat-panel-description *ngIf="tenant.get('outparcel').value">Outparcel
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div>
+          <mat-form-field>
+            <input matInput placeholder="Tenant Name" formControlName="name">
+          </mat-form-field>
+          <mat-checkbox formControlName="outparcel" labelPosition="before">Is Outparcel</mat-checkbox>
+        </div>
+        <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+        <mat-action-row *ngIf="!loading">
+          <button type="button" mat-raised-button color="warn"
+                  (click)="deleteTenant(tenant.value, i)">
+            <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
+          </button>
+          <button type="button" mat-raised-button color="accent"
+                  [disabled]="tenant.pristine || tenant.invalid" (click)="updateTenant(tenant)">
+            <i class="fas fa-save"></i>&nbsp;&nbsp;Save
+          </button>
+        </mat-action-row>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>
+<div mat-dialog-actions class="flex-justify-center">
+  <button type="button" mat-raised-button mat-dialog-close color="primary">Close</button>
+</div>

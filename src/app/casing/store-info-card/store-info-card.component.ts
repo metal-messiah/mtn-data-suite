@@ -1,15 +1,15 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Store } from '../../models/store';
+import { Store } from '../../models/full/store';
 import { Router } from '@angular/router';
 import { CasingDashboardMode } from '../casing-dashboard/casing-dashboard.component';
 import { SiteService } from '../../core/services/site.service';
 import { ErrorService } from '../../core/services/error.service';
-import { Site } from '../../models/site';
+import { Site } from '../../models/full/site';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
 import { MatDialog, MatSnackBar } from '@angular/material';
-import { UserProfile } from '../../models/user-profile';
+import { UserProfile } from '../../models/full/user-profile';
 import { StoreService } from '../../core/services/store.service';
-import { SimplifiedStore } from '../../models/simplified-store';
+import { SimplifiedStore } from '../../models/simplified/simplified-store';
 
 @Component({
   selector: 'mds-store-info-card',

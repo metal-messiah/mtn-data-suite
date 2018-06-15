@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Pageable } from '../../models/pageable';
-import { ShoppingCenterCasing } from '../../models/shopping-center-casing';
+import { ShoppingCenterCasing } from '../../models/full/shopping-center-casing';
 import { ShoppingCenterService } from '../../core/services/shopping-center.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SimplifiedShoppingCenterCasing } from '../../models/simplified-shopping-center-casing';
+import { SimplifiedShoppingCenterCasing } from '../../models/simplified/simplified-shopping-center-casing';
 import { Location } from '@angular/common';
 
 @Component({

@@ -1,11 +1,11 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatSnackBar } from '@angular/material';
 import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
-import { Store } from '../../models/store';
+import { Store } from '../../models/full/store';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StoreService } from '../../core/services/store.service';
-import { SimplifiedStoreVolume } from '../../models/simplified-store-volume';
-import { StoreVolume } from '../../models/store-volume';
+import { SimplifiedStoreVolume } from '../../models/simplified/simplified-store-volume';
+import { StoreVolume } from '../../models/full/store-volume';
 import { ErrorService } from '../../core/services/error.service';
 import { StoreVolumeService } from '../../core/services/store-volume.service';
 

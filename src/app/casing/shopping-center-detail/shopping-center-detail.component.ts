@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ShoppingCenter } from '../../models/shopping-center';
+import { ShoppingCenter } from '../../models/full/shopping-center';
 
 @Component({
   selector: 'mds-shopping-center-detail',

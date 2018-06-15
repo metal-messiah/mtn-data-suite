@@ -1,6 +1,6 @@
 import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { ProjectService } from '../../core/services/project.service';
-import { Project } from '../../models/project';
+import { Project } from '../../models/full/project';
 import { Pageable } from '../../models/pageable';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { fromEvent } from 'rxjs/observable/fromEvent';

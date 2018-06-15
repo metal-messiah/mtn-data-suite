@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Project } from '../../models/project';
+import { Project } from '../../models/full/project';
 import { SelectProjectComponent } from '../select-project/select-project.component';
 import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
-import { Site } from '../../models/site';
+import { Site } from '../../models/full/site';
 import { Observable } from 'rxjs/Observable';
 
 @Injectable()

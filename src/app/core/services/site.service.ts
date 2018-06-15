@@ -3,8 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { RestService } from './rest.service';
 import { CrudService } from '../../interfaces/crud-service';
-import { Site } from '../../models/site';
-import { SimplifiedSite } from '../../models/simplified-site';
+import { Site } from '../../models/full/site';
+import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { Coordinates } from '../../models/coordinates';
 
 @Injectable()

@@ -7,9 +7,9 @@ import 'rxjs/Rx';
 import * as _ from 'lodash';
 import { Observable } from 'rxjs/Observable';
 
-import { Role } from '../../models/role';
-import { Permission } from '../../models/permission';
-import { UserProfile } from '../../models/user-profile';
+import { Role } from '../../models/full/role';
+import { Permission } from '../../models/full/permission';
+import { UserProfile } from '../../models/full/user-profile';
 import { DetailFormComponent } from '../../interfaces/detail-form-component';
 
 import { ErrorService } from '../../core/services/error.service';
@@ -17,7 +17,7 @@ import { RoleService } from '../../core/services/role.service';
 import { PermissionService } from '../../core/services/permission.service';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
 import { DetailFormService } from '../../core/services/detail-form.service';
-import { SimplifiedRole } from 'app/models/simplified-role';
+import { SimplifiedRole } from 'app/models/simplified/simplified-role';
 
 @Component({
   selector: 'mds-role-detail',

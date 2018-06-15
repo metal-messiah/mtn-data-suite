@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { UserProfile } from '../../models/user-profile';
+import { UserProfile } from '../../models/full/user-profile';
 
 import { UserProfileService } from '../../core/services/user-profile.service';
 import { RoleService } from '../../core/services/role.service';
@@ -13,8 +13,8 @@ import { Observable } from 'rxjs/Observable';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
 import { DetailFormComponent } from '../../interfaces/detail-form-component';
 import { DetailFormService } from '../../core/services/detail-form.service';
-import { SimplifiedGroup } from '../../models/simplified-group';
-import { SimplifiedRole } from '../../models/simplified-role';
+import { SimplifiedGroup } from '../../models/simplified/simplified-group';
+import { SimplifiedRole } from '../../models/simplified/simplified-role';
 
 @Component({
   selector: 'mds-user-detail',

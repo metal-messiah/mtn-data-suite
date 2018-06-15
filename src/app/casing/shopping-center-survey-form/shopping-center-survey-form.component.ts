@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ShoppingCenterSurvey } from '../../models/shopping-center-survey';
+import { ShoppingCenterSurvey } from '../../models/full/shopping-center-survey';
 
 @Component({
   selector: 'mds-shopping-center-survey-form',

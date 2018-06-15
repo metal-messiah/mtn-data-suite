@@ -10,13 +10,13 @@
           <div class="volume-type">{{volume.volumeType}}</div>
         </div>
         <div class="volume-total">{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k</div>
-        <button mat-raised-button color="primary" (click)="useVolume(volume)">Use</button>
+        <button mat-raised-button color="accent" (click)="useVolume(volume)">Use</button>
       </div>
     </mat-list-item>
   </mat-list>
 </div>
-<div mat-dialog-actions>
-  <button type="submit" mat-button color="primary" (click)="close()">
+<div mat-dialog-actions class="flex-justify-center">
+  <button type="submit" mat-raised-button color="primary" (click)="close()">
     Close
   </button>
 </div>

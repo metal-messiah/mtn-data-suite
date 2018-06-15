@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { Pageable } from '../../models/pageable';
-import { Permission } from '../../models/permission';
+import { Permission } from '../../models/full/permission';
 import { tap } from 'rxjs/operators';
 import { CrudService } from '../../interfaces/crud-service';
-import { SimplifiedPermission } from '../../models/simplified-permission';
+import { SimplifiedPermission } from '../../models/simplified/simplified-permission';
 import { RestService } from './rest.service';
 
 @Injectable()
