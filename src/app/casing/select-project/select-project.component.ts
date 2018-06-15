@@ -20,6 +20,8 @@ export class SelectProjectComponent implements OnInit {
   active = true;
   primaryData = true;
 
+  loading = false;
+
   @ViewChild('projectSearchBox') projectSearchBoxElement: ElementRef;
 
   constructor(public dialogRef: MatDialogRef<SelectProjectComponent>,
@@ -41,7 +43,9 @@ export class SelectProjectComponent implements OnInit {
   }
 
   loadMore(): void {
+    this.loading = true;
     this.projectService.getAllByQuery(this.projectQuery, this.active, this.primaryData, ++this.pageNumber)
+      .finally(() => this.loading = false)
       .subscribe((pageable: Pageable<Project>) => {
         this.projects = this.projects.concat(pageable.content);
         this.totalPages = pageable.totalPages;
@@ -50,7 +54,9 @@ export class SelectProjectComponent implements OnInit {
   }
 
   getProjects(): void {
+    this.loading = true;
     this.projectService.getAllByQuery(this.projectQuery, this.active, this.primaryData)
+      .finally(() => this.loading = false)
       .subscribe(
         (pageable: Pageable<Project>) => {
           this.update(pageable);

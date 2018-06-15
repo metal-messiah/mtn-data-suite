@@ -14,6 +14,7 @@ import { SimplifiedStoreCasing } from '../../models/simplified/simplified-store-
 import { StoreVolume } from '../../models/full/store-volume';
 import { StoreSurvey } from '../../models/full/store-survey';
 import { ShoppingCenterSurvey } from '../../models/full/shopping-center-survey';
+import { StoreCasing } from '../../models/full/store-casing';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {
@@ -25,7 +26,7 @@ export class StoreService extends CrudService<Store> {
   }
 
   getCasingsByStoreId(storeId: number) {
-    const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-casing`;
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-casings`;
 
     return this.http.get<SimplifiedStoreCasing[]>(url, {headers: this.rest.getHeaders()})
       .map(list => {
@@ -33,6 +34,16 @@ export class StoreService extends CrudService<Store> {
           .sort((a: SimplifiedStoreCasing, b: SimplifiedStoreCasing) => {
             return b.casingDate.getTime() - a.casingDate.getTime();
           });
+      });
+  }
+
+  createNewCasing(storeId: number, casing: StoreCasing, storeRemodeled: boolean, shoppingCenterRedeveloped: boolean) {
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-casings`;
+    let params = new HttpParams().set('store_remodeled', String(storeRemodeled));
+    params = params.set('shopping_center_redeveloped', String(shoppingCenterRedeveloped));
+    return this.http.post<StoreCasing>(url, casing, {headers: this.rest.getHeaders(), params: params})
+      .map(newCasing => {
+        return new StoreCasing(newCasing);
       });
   }
 

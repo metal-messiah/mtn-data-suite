@@ -32,6 +32,7 @@ import { AreaCalculatorComponent } from './area-calculator/area-calculator.compo
 import { StoreVolumesSelectionComponent } from './store-volumes-selection/store-volumes-selection.component';
 import { TenantListDialogComponent } from './tenant-list-dialog/tenant-list-dialog.component';
 import { AccessListDialogComponent } from './access-list-dialog/access-list-dialog.component';
+import { CreateCasingDialogComponent } from './create-casing-dialog/create-casing-dialog.component';
 
 @NgModule({
   imports: [
@@ -68,7 +69,8 @@ import { AccessListDialogComponent } from './access-list-dialog/access-list-dial
     AreaCalculatorComponent,
     StoreVolumesSelectionComponent,
     TenantListDialogComponent,
-    AccessListDialogComponent
+    AccessListDialogComponent,
+    CreateCasingDialogComponent
   ],
   entryComponents: [
     LatLngSearchComponent,
@@ -80,7 +82,8 @@ import { AccessListDialogComponent } from './access-list-dialog/access-list-dial
     AreaCalculatorComponent,
     StoreVolumesSelectionComponent,
     TenantListDialogComponent,
-    AccessListDialogComponent
+    AccessListDialogComponent,
+    CreateCasingDialogComponent
   ],
   providers: [CasingDashboardService]
 })

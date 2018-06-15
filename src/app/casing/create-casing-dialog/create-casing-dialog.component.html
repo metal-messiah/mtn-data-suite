@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Since Last Casing</h2>
+<div mat-dialog-content>
+  <div class="checklist">
+    <mat-checkbox [(ngModel)]="storeRemodeled">Store remodeled?</mat-checkbox>
+    <mat-checkbox [(ngModel)]="shoppingCenterRedeveloped">SC Redeveloped?</mat-checkbox>
+  </div>
+</div>
+<div mat-dialog-actions class="flex-space-between">
+  <button type="button" mat-raised-button [mat-dialog-close]="null" color="primary">Cancel</button>
+  <button type="button" mat-raised-button color="accent" cdkFocusInitial
+          [mat-dialog-close]="{storeRemodeled: storeRemodeled, shoppingCenterRedeveloped: shoppingCenterRedeveloped}">
+    Create</button>
+</div>

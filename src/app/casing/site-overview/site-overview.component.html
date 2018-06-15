@@ -13,10 +13,10 @@
   <mat-divider></mat-divider>
   <div class="row content">
     <div class="list-wrapper">
-      <div *ngIf="site == null || saving">
+      <div *ngIf="loading || saving">
         <mat-progress-bar class="centered" mode="indeterminate"></mat-progress-bar>
       </div>
-      <div *ngIf="site != null">
+      <div *ngIf="!loading && site != null">
         <mat-card *ngIf="site.assignee != null && !saving" class="simple-card notice">
           <div class="flex flex-space-between flex-align-center">
             <span>Assigned to <strong>{{site.assignee.email}}</strong></span>
@@ -103,7 +103,7 @@
               <mat-tab label="Active">
                 <mds-store-summary-card *ngIf="activeStore != null"
                                         [store]="activeStore"
-                                        (onStoreUpdated)="initSite(site.id)"></mds-store-summary-card>
+                                        (onStoreUpdated)="loadSite(site.id)"></mds-store-summary-card>
                 <div class="mds-card" *ngIf="activeStore == null">
                   <div class="header">
                     <div class="title">No Active Store</div>
@@ -117,7 +117,7 @@
               <mat-tab label="Future">
                 <mds-store-summary-card *ngIf="futureStore != null"
                                         [store]="futureStore"
-                                        (onStoreUpdated)="initSite(site.id)"></mds-store-summary-card>
+                                        (onStoreUpdated)="loadSite(site.id)"></mds-store-summary-card>
                 <div class="mds-card" *ngIf="futureStore == null">
                   <div class="header">
                     <div class="title">No Future Store</div>
@@ -131,7 +131,7 @@
               <mat-tab label="Historical">
                 <mds-store-summary-card *ngFor="let store of historicalStores"
                                         [store]="store"
-                                        (onStoreUpdated)="initSite(site.id)"></mds-store-summary-card>
+                                        (onStoreUpdated)="loadSite(site.id)"></mds-store-summary-card>
                 <div class="mds-card" *ngIf="historicalStores == null || historicalStores.length < 1">
                   <div class="header">
                     <div class="title">No Historical Stores</div>

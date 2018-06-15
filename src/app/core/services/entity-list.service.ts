@@ -37,7 +37,7 @@ export class EntityListService<T extends AuditingEntity> {
 
   deleteEntity(comp: BasicEntityListComponent<T>, entity: T) {
     comp.isDeleting = true;
-    comp.getEntityService().delete(entity)
+    comp.getEntityService().delete(entity.id)
       .finally(() => comp.isDeleting = false)
       .subscribe(
       () => {

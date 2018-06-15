@@ -26,6 +26,7 @@ export class SiteOverviewComponent implements OnInit {
   warningHasMultipleActiveStores = false;
   warningHasMultipleFutureStores = false;
   saving = false;
+  loading = false;
 
   constructor(private _location: Location,
               private router: Router,
@@ -38,19 +39,19 @@ export class SiteOverviewComponent implements OnInit {
 
   ngOnInit() {
     const siteId = parseInt(this.route.snapshot.paramMap.get('siteId'), 10);
-    this.initSite(siteId);
+    this.loadSite(siteId);
   }
 
-  initSite(siteId: number) {
-    if (siteId != null) {
-      console.log('getting site');
-      this.siteService.getOneById(siteId).subscribe(site => {
+  loadSite(siteId: number) {
+    this.loading = true;
+    this.siteService.getOneById(siteId)
+      .finally(() => this.loading = false)
+      .subscribe(site => {
         this.site = site;
         this.setStores(this.site.stores);
-      });
-    } else {
-      this.site = new Site({});
-    }
+      }, err => this.errorService.handleServerError('Failed to load site!', err,
+        () => this.goBack(),
+        () => this.loadSite(siteId)));
   }
 
   private setStores(stores: Store[]) {
@@ -121,7 +122,8 @@ export class SiteOverviewComponent implements OnInit {
     }, err => {
       this.site.duplicate = !this.site.duplicate;
       this.errorService.handleServerError('Failed to update site', err,
-        () => {},
+        () => {
+        },
         () => this.setDuplicateFlag(isDuplicate));
     }, () => this.saving = false);
   }

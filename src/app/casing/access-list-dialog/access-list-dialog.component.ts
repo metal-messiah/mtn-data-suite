@@ -77,7 +77,7 @@ export class AccessListDialogComponent implements OnInit {
 
   deleteAccess(access: ShoppingCenterAccess, index: number) {
     this.loading = true;
-    this.shoppingCenterAccessService.delete(access)
+    this.shoppingCenterAccessService.delete(access.id)
       .finally(() => this.loading = false)
       .subscribe((response) => {
         this.accesses.removeAt(index);

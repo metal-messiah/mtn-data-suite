@@ -86,7 +86,7 @@ export class TenantListDialogComponent implements OnInit {
 
   deleteTenant(tenant: ShoppingCenterTenant, index: number) {
     this.loading = true;
-    this.shoppingCenterTenantService.delete(tenant)
+    this.shoppingCenterTenantService.delete(tenant.id)
       .finally(() => this.loading = false)
       .subscribe(() => {
         this.tenants.removeAt(index);

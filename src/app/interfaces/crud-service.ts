@@ -36,8 +36,8 @@ export abstract class CrudService<T extends Entity> {
       });
   }
 
-  delete(entity: T): Observable<any> {
-    const url = this.rest.getHost() + this.endpoint + `/${entity.id}`;
+  delete(id: number): Observable<any> {
+    const url = this.rest.getHost() + this.endpoint + `/${id}`;
     return this.http.delete<T>(url, {headers: this.rest.getHeaders()});
   }
 }

@@ -268,80 +268,55 @@ export class StoreCasingDetailComponent implements OnInit {
     this.storeService.getOneById(storeId)
       .subscribe((store: Store) => {
         this.store = store;
-        this.loadCasing(storeCasingId, storeId)
-          .finally(() => {
-            this.loading = false;
-            this.rebuildAllForms();
-          })
-          .subscribe((storeCasing: StoreCasing) => {
-            this.storeCasing = storeCasing;
-          });
+      }, err => {
       });
-  }
-
-  private loadCasing(storeCasingId: number, storeId: number) {
-    if (storeCasingId != null && !isNaN(storeCasingId)) {
-      return this.storeCasingService.getOneById(storeCasingId);
+    if (storeCasingId == null || isNaN(storeCasingId)) {
+      this.loading = false;
+      this.errorService.handleServerError('Valid storeCasingId must be provided!', {}, () => this.goBack());
     } else {
-      // TODO have web service build the new casing with all of its components
-      return Observable.create(observer => {
-        const newCasing = new StoreCasing({
-          casingDate: new Date(),
-          shoppingCenterCasing: new ShoppingCenterCasing({
-            casingDate: new Date()
-          })
-        });
-        this.storeService.getLatestStoreSurvey(storeId)
-          .subscribe((storeSurvey: StoreSurvey) => {
-            if (storeSurvey != null) {
-              newCasing.storeSurvey = storeSurvey;
-            } else {
-              newCasing.storeSurvey = new StoreSurvey({surveyDate: new Date()});
-            }
-            this.storeService.getLatestShoppingCenterSurvey(storeId)
-              .subscribe((shoppingCenterSurvey: ShoppingCenterSurvey) => {
-                if (shoppingCenterSurvey != null) {
-                  newCasing.shoppingCenterCasing.shoppingCenterSurvey = shoppingCenterSurvey;
-                } else {
-                  newCasing.shoppingCenterCasing.shoppingCenterSurvey = new ShoppingCenterSurvey({
-                    surveyDate: new Date()
-                  });
-                }
-                observer.next(newCasing);
-                observer.complete();
-              });
-          });
-      });
+      this.storeCasingService.getOneById(storeCasingId)
+        .finally(() => {
+          this.loading = false;
+        })
+        .subscribe((storeCasing: StoreCasing) => {
+          this.storeCasing = storeCasing;
+          this.rebuildAllForms();
+        }, err => this.errorService.handleServerError('Failed to retrieve Store Casing!', err,
+          () => this.goBack()));
     }
   }
 
   rebuildAllForms() {
     this.storeCasingForm.reset(this.storeCasing);
-    if (this.storeCasing.storeSurvey != null) {
-      this.storeSurveyForm.reset(this.storeCasing.storeSurvey);
-    }
+    this.storeSurveyForm.reset(this.storeSurvey);
+    this.shoppingCenterCasingForm.reset(this.shoppingCenterCasing);
+    this.shoppingCenterSurveyForm.reset(this.shoppingCenterSurvey);
+
     if (this.storeCasing.storeVolume != null) {
       this.storeVolumeForm.reset(this.storeCasing.storeVolume);
     } else {
       this.validatingForms.removeControl('storeVolume');
     }
-    if (this.storeCasing.shoppingCenterCasing != null) {
-      this.shoppingCenterCasingForm.reset(this.storeCasing.shoppingCenterCasing);
-      if (this.shoppingCenterSurvey != null) {
-        this.shoppingCenterSurveyForm.reset(this.shoppingCenterSurvey);
-      }
-    }
   }
 
   get storeSurvey(): StoreSurvey {
+    if (this.storeCasing.storeSurvey == null) {
+      this.errorService.handleServerError('Invalid State: Missing Store Survey', {}, () => this.goBack());
+    }
     return this.storeCasing.storeSurvey;
   }
 
   get shoppingCenterCasing(): ShoppingCenterCasing {
+    if (this.storeCasing.shoppingCenterCasing == null) {
+      this.errorService.handleServerError('Invalid State: Missing Shopping Center Casing', {}, () => this.goBack());
+    }
     return this.storeCasing.shoppingCenterCasing;
   }
 
   get shoppingCenterSurvey(): ShoppingCenterSurvey {
+    if (this.shoppingCenterCasing.shoppingCenterSurvey == null) {
+      this.errorService.handleServerError('Invalid State: Missing Shopping Center Survey', {}, () => this.goBack());
+    }
     return this.shoppingCenterCasing.shoppingCenterSurvey;
   }
 
