@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+  enableServiceWorker: true,
   envName: 'prod',
   WEB_SERVICE_HOST: 'https://localhost:8080',
   AUTH_CONFIG: {

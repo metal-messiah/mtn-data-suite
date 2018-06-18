@@ -10,7 +10,7 @@ if (environment.production) {
 
 platformBrowserDynamic().bootstrapModule(AppModule)
   .then(() => {
-    if (environment.production === true && 'serviceWorker' in navigator) {
+    if (environment.enableServiceWorker && navigator.serviceWorker != null) {
       navigator.serviceWorker.register('/ngsw-worker.js');
       console.log('SW registered');
     }
