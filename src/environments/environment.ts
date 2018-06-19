@@ -5,7 +5,6 @@
 
 export const environment = {
   production: false,
-  enableServiceWorker: false,
   envName: 'dev',
   WEB_SERVICE_HOST: 'http://localhost:8080',
   AUTH_CONFIG: {

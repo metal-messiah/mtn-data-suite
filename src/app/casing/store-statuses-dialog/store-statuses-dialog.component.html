@@ -1,6 +1,5 @@
 <h3 mat-dialog-title>Store Statuses</h3>
 <div mat-dialog-content>
-  <h3 *ngIf="error">{{error}}</h3>
   <mat-form-field>
     <input matInput [matDatepicker]="picker1" placeholder="Status Start Date" [formControl]="statusDate">
     <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
