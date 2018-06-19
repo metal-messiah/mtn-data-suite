@@ -219,7 +219,8 @@ export class StoreCasingDetailComponent implements OnInit {
       seasonalitySep: ['', [Validators.min(-100), Validators.max(200)]],
       seasonalityOct: ['', [Validators.min(-100), Validators.max(200)]],
       seasonalityNov: ['', [Validators.min(-100), Validators.max(200)]],
-      seasonalityDec: ['', [Validators.min(-100), Validators.max(200)]]
+      seasonalityDec: ['', [Validators.min(-100), Validators.max(200)]],
+      seasonalityNotes: ''
     });
 
     this.shoppingCenterCasingForm = this.fb.group({

@@ -76,6 +76,7 @@ export class StoreSurvey extends AuditingEntity {
   seasonalityNov: number;
   seasonalityDec: number;
   legacyCasingId: number;
+  seasonalityNotes: string;
 
   storeCasings: SimplifiedStoreCasing[];
 

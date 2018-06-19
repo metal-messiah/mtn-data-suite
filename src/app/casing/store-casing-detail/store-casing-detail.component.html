@@ -632,6 +632,9 @@
             </mat-expansion-panel-header>
             <div>
               <mat-form-field>
+                <textarea formControlName="seasonalityNotes" matInput placeholder="Seasonality Notes"></textarea>
+              </mat-form-field>
+              <mat-form-field>
                 <input matInput type="number" placeholder="January" formControlName="seasonalityJan">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
