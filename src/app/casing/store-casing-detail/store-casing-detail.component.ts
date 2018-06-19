@@ -151,7 +151,6 @@ export class StoreCasingDetailComponent implements OnInit {
 
     this.storeSurveyForm = this.fb.group({
       surveyDate: [new Date(), [Validators.required]],
-      note: '',
       fit: '',
       format: '',
       areaSales: ['', [Validators.min(1)]],
@@ -235,7 +234,6 @@ export class StoreCasingDetailComponent implements OnInit {
     this.shoppingCenterSurveyForm = this.fb.group({
       surveyDate: ['', [Validators.required]],
       centerType: '',
-      note: '',
       flowHasLandscaping: '',
       flowHasSpeedBumps: '',
       flowHasStopSigns: '',

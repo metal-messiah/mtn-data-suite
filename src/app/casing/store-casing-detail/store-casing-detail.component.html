@@ -625,32 +625,6 @@
               <mat-progress-bar mode="indeterminate" *ngIf="removingVolume"></mat-progress-bar>
             </mat-action-row>
           </mat-expansion-panel>
-          <!-- Notes -->
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title><i class="fas fa-sticky-note"></i>&nbsp;&nbsp;Notes</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div [formGroup]="storeCasingForm">
-              <mat-form-field>
-                <textarea formControlName="note" matInput placeholder="Store Casing Notes"></textarea>
-              </mat-form-field>
-            </div>
-            <div [formGroup]="storeSurveyForm">
-              <mat-form-field>
-                <textarea formControlName="note" matInput placeholder="Store Notes"></textarea>
-              </mat-form-field>
-            </div>
-            <div [formGroup]="shoppingCenterCasingForm">
-              <mat-form-field>
-                <textarea formControlName="note" matInput placeholder="Shopping Center Casing Notes"></textarea>
-              </mat-form-field>
-            </div>
-            <div [formGroup]="shoppingCenterSurveyForm">
-              <mat-form-field>
-                <textarea formControlName="note" matInput placeholder="Shopping Center Notes"></textarea>
-              </mat-form-field>
-            </div>
-          </mat-expansion-panel>
           <!-- Seasonality -->
           <mat-expansion-panel [formGroup]="storeSurveyForm">
             <mat-expansion-panel-header>
@@ -716,6 +690,22 @@
                 <input matInput type="number" placeholder="December" formControlName="seasonalityDec">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
+          <!-- Notes -->
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title><i class="fas fa-sticky-note"></i>&nbsp;&nbsp;General Notes</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div [formGroup]="storeCasingForm">
+              <mat-form-field>
+                <textarea formControlName="note" matInput placeholder="Store Notes"></textarea>
+              </mat-form-field>
+            </div>
+            <div [formGroup]="shoppingCenterCasingForm">
+              <mat-form-field>
+                <textarea formControlName="note" matInput placeholder="Shopping Center Notes"></textarea>
               </mat-form-field>
             </div>
           </mat-expansion-panel>
