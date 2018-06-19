@@ -243,7 +243,6 @@ export class StoreCasingDetailComponent implements OnInit {
       parkingHasAngledSpaces: '',
       parkingHasParkingHog: '',
       parkingIsPoorlyLit: '',
-      parkingSpaceCount: '',
       tenantOccupiedCount: '',
       tenantVacantCount: '',
       sqFtPercentOccupied: ['', [Validators.min(0), Validators.max(100)]]
