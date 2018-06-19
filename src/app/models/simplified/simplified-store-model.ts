@@ -1,4 +1,5 @@
 import { Entity } from '../entity';
+import { DateUtil } from '../../utils/date-util';
 
 export class SimplifiedStoreModel implements Entity {
 
@@ -9,5 +10,6 @@ export class SimplifiedStoreModel implements Entity {
 
   constructor(obj) {
     Object.assign(this, obj);
+    this.modelDate = DateUtil.getDate(obj.modelType);
   }
 }

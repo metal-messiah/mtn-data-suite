@@ -1,6 +1,7 @@
 import { AuditingEntity } from '../auditing-entity';
 import { SimplifiedProject } from '../simplified/simplified-project';
 import { SimplifiedStore } from '../simplified/simplified-store';
+import { DateUtil } from '../../utils/date-util';
 
 export class StoreModel extends AuditingEntity {
 
@@ -19,6 +20,7 @@ export class StoreModel extends AuditingEntity {
   constructor(obj) {
     super(obj);
     Object.assign(this, obj);
+    this.modelDate = DateUtil.getDate(obj.modelDate);
     if (obj.store != null) {
       this.store = new SimplifiedStore(obj.store);
     }

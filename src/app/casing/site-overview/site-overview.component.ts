@@ -73,6 +73,12 @@ export class SiteOverviewComponent implements OnInit {
         this.historicalStores.push(store);
       }
     });
+    this.historicalStores = this.historicalStores.sort((a: Store, b: Store) => {
+      if (a.currentStoreStatus != null && b.currentStoreStatus != null) {
+        return b.currentStoreStatus.statusStartDate.getTime() - a.currentStoreStatus.statusStartDate.getTime();
+      }
+      return 0;
+    });
   }
 
   goBack() {

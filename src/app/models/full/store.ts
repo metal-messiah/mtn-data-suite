@@ -52,13 +52,25 @@ export class Store extends AuditingEntity {
         });
     }
     if (obj.models != null) {
-      this.models = obj.models.map(model => new SimplifiedStoreModel(model));
+      this.models = obj.models
+        .map(model => new SimplifiedStoreModel(model))
+        .sort((a: SimplifiedStoreModel, b: SimplifiedStoreModel) => {
+          return b.modelDate.getTime() - a.modelDate.getTime();
+      });
     }
     if (obj.storeVolumes != null) {
-      this.storeVolumes = obj.storeVolumes.map(volume => new SimplifiedStoreVolume(volume));
+      this.storeVolumes = obj.storeVolumes
+        .map(volume => new SimplifiedStoreVolume(volume))
+        .sort((a: SimplifiedStoreVolume, b: SimplifiedStoreVolume) => {
+          return b.volumeDate.getTime() - a.volumeDate.getTime();
+        });
     }
     if (obj.storeStatuses != null) {
-      this.storeStatuses = obj.storeStatuses.map(status => new SimplifiedStoreStatus(status));
+      this.storeStatuses = obj.storeStatuses
+        .map(status => new SimplifiedStoreStatus(status))
+        .sort((a: SimplifiedStoreStatus, b: SimplifiedStoreStatus) => {
+          return b.statusStartDate.getTime() - a.statusStartDate.getTime();
+        });
     }
   }
 }
