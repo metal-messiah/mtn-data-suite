@@ -82,8 +82,8 @@ export class SiteOverviewComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/casing']);
-  }
+    this._location.back();
+  };
 
   openAssignmentDialog(): void {
     const selectAssigneeDialog = this.dialog.open(UserProfileSelectComponent);

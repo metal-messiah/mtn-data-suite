@@ -8,7 +8,7 @@ import { SiteService } from '../../core/services/site.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DetailFormService } from '../../core/services/detail-form.service';
 import { Observable } from 'rxjs/Observable';
-import { SimplifiedSite } from '../../models/simplified/simplified-site';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'mds-site-detail',
@@ -28,15 +28,12 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate, Deta
               private casingDashboardService: CasingDashboardService,
               private route: ActivatedRoute,
               private router: Router,
+              private _location: Location,
               private fb: FormBuilder,
               private detailFormService: DetailFormService<Site>) { }
 
   ngOnInit() {
 
-    // TODO if no route param - treat as new site, attempt to retrieve from storeCasing service
-    if (this.casingDashboardService.newSite != null) {
-      this.site = this.casingDashboardService.newSite;
-    }
   }
 
   createForm(): void {
@@ -83,8 +80,8 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate, Deta
   }
 
   goBack() {
-    this.router.navigate(['/storeCasing']);
-  }
+    this._location.back();
+  };
 
   onObjectChange(): void {
     // TODO Update the form data with new site

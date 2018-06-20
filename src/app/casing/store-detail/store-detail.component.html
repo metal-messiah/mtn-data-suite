@@ -1,3 +1,61 @@
-<p>
-  store-detail works!
-</p>
+<div class="box">
+  <mat-toolbar color="primary" class="row header flex-space-between">
+    <div>
+      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
+    </div>
+    <span id="title">Store Details</span>
+    <div>
+      <button type="button" mat-icon-button color="warn" *ngIf="form.invalid">
+        <i class="fas fa-exclamation-triangle fa-2x"></i>
+      </button>
+      <button type="submit" mat-mini-fab color="accent" (click)="saveForm()"
+              [disabled]="form.pristine || form.invalid">
+        <i class="fas fa-save"></i>
+      </button>
+    </div>
+  </mat-toolbar>
+  <div class="row content">
+    <div class="list-wrapper" [formGroup]="form">
+      <mat-form-field>
+        <input matInput type="text" placeholder="Store Name" formControlName="storeName" required>
+      </mat-form-field>
+      <!--<mat-form-field class="example-full-width" formGroupName="banner">-->
+        <!--<input matInput placeholder="Banner" aria-label="Banner" [matAutocomplete]="auto" formControlName="bannerName">-->
+        <!--<mat-autocomplete #auto="matAutocomplete">-->
+          <!--<mat-option *ngFor="let bannerOption of bannerOptions | async" [value]="bannerOption.bannerName">-->
+            <!--<img style="vertical-align:middle;" aria-hidden src="https://cdn.corporate.walmart.com/dims4/WMT/6db4b02/2147483647/resize/1200x%3E/quality/90/?url=https%3A%2F%2Fcdn.corporate.walmart.com%2F6a%2F98%2Ff5799ae9449c96601ea85585c8eb%2Fwalmart-spark.png" height="25" />&nbsp;&nbsp;-->
+            <!--<span>{{ bannerOption.bannerName }}</span>-->
+          <!--</mat-option>-->
+        <!--</mat-autocomplete>-->
+      <!--</mat-form-field>-->
+      <mat-form-field>
+        <input matInput type="text" placeholder="Store Number" formControlName="storeNumber">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-select placeholder="Type" formControlName="storeType" required>
+          <mat-option>Clear Selection</mat-option>
+          <mat-option *ngFor="let storeTypeOption of storeTypeOptions" [value]="storeTypeOption">
+            {{storeTypeOption}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [matDatepicker]="dateOpened" placeholder="Store Opening Date"
+               formControlName="dateOpened">
+        <mat-datepicker-toggle matSuffix [for]="dateOpened"></mat-datepicker-toggle>
+        <mat-datepicker #dateOpened></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [matDatepicker]="dateClosed" placeholder="Store Closing Date"
+               formControlName="dateClosed">
+        <mat-datepicker-toggle matSuffix [for]="dateClosed"></mat-datepicker-toggle>
+        <mat-datepicker #dateClosed></mat-datepicker>
+      </mat-form-field>
+      <div class="checklist">
+        <mat-checkbox formControlName="floating">
+          Is a Float store?
+        </mat-checkbox>
+      </div>
+    </div>
+  </div>
+</div>

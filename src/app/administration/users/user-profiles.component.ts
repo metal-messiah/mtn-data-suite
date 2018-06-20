@@ -6,6 +6,7 @@ import { EntityListService } from '../../core/services/entity-list.service';
 import { ErrorService } from '../../core/services/error.service';
 import { UserProfileService } from '../../core/services/user-profile.service';
 import { Pageable } from '../../models/pageable';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'mds-users',
@@ -23,6 +24,7 @@ export class UserProfilesComponent implements OnInit, BasicEntityListComponent<U
 
   constructor(private userProfileService: UserProfileService,
               private router: Router,
+              private _location: Location,
               private els: EntityListService<UserProfile>,
               private errorService: ErrorService) {
   }
@@ -50,8 +52,8 @@ export class UserProfilesComponent implements OnInit, BasicEntityListComponent<U
   }
 
   goBack() {
-    this.router.navigate(['admin']);
-  }
+    this._location.back();
+  };
 
   getPluralTypeName(): string {
     return 'user profiles';

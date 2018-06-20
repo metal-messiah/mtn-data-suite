@@ -34,13 +34,15 @@ import { StoreSurveyService } from '../../core/services/store-survey.service';
 import { TenantListDialogComponent } from '../tenant-list-dialog/tenant-list-dialog.component';
 import { AccessListDialogComponent } from '../access-list-dialog/access-list-dialog.component';
 import { StoreVolumeService } from '../../core/services/store-volume.service';
+import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
+import { RoutingStateService } from '../../core/services/routing-state.service';
 
 @Component({
   selector: 'mds-store-casing-detail',
   templateUrl: './store-casing-detail.component.html',
   styleUrls: ['./store-casing-detail.component.css']
 })
-export class StoreCasingDetailComponent implements OnInit {
+export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivate {
 
   validatingForms: FormGroup;
   storeCasingForm: FormGroup;
@@ -105,6 +107,7 @@ export class StoreCasingDetailComponent implements OnInit {
               private shoppingCenterSurveyService: ShoppingCenterSurveyService,
               private route: ActivatedRoute,
               private _location: Location,
+              private routingState: RoutingStateService,
               private dialog: MatDialog,
               private errorService: ErrorService,
               private snackBar: MatSnackBar,
@@ -267,7 +270,9 @@ export class StoreCasingDetailComponent implements OnInit {
       .subscribe((store: Store) => {
         this.store = store;
       }, err => {
+        // Don't worry about it because not dependent on Store
       });
+
     if (storeCasingId == null || isNaN(storeCasingId)) {
       this.loading = false;
       this.errorService.handleServerError('Valid storeCasingId must be provided!', {}, () => this.goBack());
@@ -318,7 +323,7 @@ export class StoreCasingDetailComponent implements OnInit {
     return this.shoppingCenterCasing.shoppingCenterSurvey;
   }
 
-  goBack(): void {
+  goBack() {
     this._location.back();
   };
 
@@ -688,6 +693,21 @@ export class StoreCasingDetailComponent implements OnInit {
     const dialogRef = this.dialog.open(AccessListDialogComponent, {data: data});
     dialogRef.afterClosed().subscribe(result => {
     });
+  }
+
+  canDeactivate(): Observable<boolean> | boolean {
+    if (this.validatingForms.pristine) {
+      return true;
+    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
+    });
+    return dialogRef.afterClosed().do(result => {
+      // Corrects for a bug between the router and CanDeactivateGuard that pops the state even if user says no
+      if (!result) {
+        history.pushState({}, 'site', this.routingState.getPreviousUrl());
+      }
+    });;
   }
 
 }

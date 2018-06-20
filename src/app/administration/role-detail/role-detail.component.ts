@@ -1,5 +1,5 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { DatePipe } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -43,6 +43,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
               private permissionService: PermissionService,
               private route: ActivatedRoute,
               private router: Router,
+              private _location: Location,
               private errorService: ErrorService,
               private fb: FormBuilder,
               private datePipe: DatePipe,
@@ -152,8 +153,8 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
   }
 
   goBack() {
-    this.router.navigate(['/admin/roles']);
-  }
+    this._location.back();
+  };
 
   onObjectChange(): void {
     this.roleForm.reset({

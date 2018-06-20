@@ -1,4 +1,4 @@
-import {DatePipe} from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -31,6 +31,7 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
   constructor(private groupService: GroupService,
               private route: ActivatedRoute,
               private router: Router,
+              private _location: Location,
               private fb: FormBuilder,
               private datePipe: DatePipe,
               private detailFormService: DetailFormService<Group>) {
@@ -113,8 +114,8 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
   }
 
   goBack() {
-    this.router.navigate(['/admin/groups']);
-  }
+    this._location.back();
+  };
 
   onObjectChange(): void {
     this.groupForm.reset({

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { UserProfile } from '../../models/full/user-profile';
@@ -38,6 +38,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
               private groupService: GroupService,
               private route: ActivatedRoute,
               private router: Router,
+              private _location: Location,
               private errorService: ErrorService,
               private fb: FormBuilder,
               private datePipe: DatePipe,
@@ -133,8 +134,8 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
   }
 
   goBack() {
-    this.router.navigate(['/admin/users']);
-  }
+    this._location.back();
+  };
 
   onObjectChange() {
     this.userProfileForm.reset({

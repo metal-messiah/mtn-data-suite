@@ -68,7 +68,7 @@ export class StoreCasingEntityFormComponent implements OnInit, DetailFormCompone
     return 'store casing';
   };
 
-  goBack(): void {
+  goBack() {
     this._location.back();
   };
 

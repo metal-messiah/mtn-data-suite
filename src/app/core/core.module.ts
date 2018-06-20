@@ -24,6 +24,8 @@ import { ShoppingCenterSurveyService } from './services/shopping-center-survey.s
 import { ShoppingCenterTenantService } from './services/shopping-center-tenant.service';
 import { ShoppingCenterAccessService } from './services/shopping-center-access.service';
 import { StoreSurveyService } from './services/store-survey.service';
+import { RoutingStateService } from './services/routing-state.service';
+import { BannerService } from './services/banner.service';
 
 @NgModule({
   imports: [
@@ -54,7 +56,9 @@ import { StoreSurveyService } from './services/store-survey.service';
     ShoppingCenterSurveyService,
     ShoppingCenterTenantService,
     ShoppingCenterAccessService,
-    StoreSurveyService
+    StoreSurveyService,
+    RoutingStateService,
+    BannerService
   ]
 })
 export class CoreModule {

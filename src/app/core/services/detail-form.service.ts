@@ -6,12 +6,14 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 import { Observable } from 'rxjs/Observable';
 import { Entity } from '../../models/entity';
 import { AuditingEntity } from '../../models/auditing-entity';
+import { RoutingStateService } from './routing-state.service';
 
 @Injectable()
 export class DetailFormService<T extends AuditingEntity> {
 
   constructor(private snackBar: MatSnackBar,
               private errorService: ErrorService,
+              private routingState: RoutingStateService,
               private dialog: MatDialog) {
   }
 
@@ -22,7 +24,12 @@ export class DetailFormService<T extends AuditingEntity> {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
     });
-    return dialogRef.afterClosed();
+    return dialogRef.afterClosed().do(result => {
+      // Corrects for a bug between the router and CanDeactivateGuard that pops the state even if user says no
+      if (!result) {
+        history.pushState({}, 'site', this.routingState.getPreviousUrl());
+      }
+    });
   }
 
   save(fc: DetailFormComponent<T>) {

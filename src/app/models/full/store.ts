@@ -1,6 +1,4 @@
 import { AuditingEntity } from '../auditing-entity';
-import { Mappable } from '../../interfaces/mappable';
-import { Coordinates } from '../coordinates';
 import { SimplifiedStoreCasing } from '../simplified/simplified-store-casing';
 import { SimplifiedBanner } from '../simplified/simplified-banner';
 import { SimplifiedSite } from '../simplified/simplified-site';
@@ -16,14 +14,15 @@ export class Store extends AuditingEntity {
   storeType: string;
   dateOpened: Date;
   dateClosed: Date;
-  legacyLocationId: number;
   floating: boolean;
+  legacyLocationId: number;
 
-  currentStoreStatus: SimplifiedStoreStatus;
-  currentStoreSurvey: SimplifiedStoreSurvey;
-  site: SimplifiedSite;
   banner: SimplifiedBanner;
 
+  currentStoreStatus: SimplifiedStoreStatus;
+
+  currentStoreSurvey: SimplifiedStoreSurvey;
+  site: SimplifiedSite;
   storeCasings: SimplifiedStoreCasing[];
   models: SimplifiedStoreModel[];
   storeVolumes: SimplifiedStoreVolume[];

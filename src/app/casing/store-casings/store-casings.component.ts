@@ -101,7 +101,7 @@ export class StoreCasingsComponent implements OnInit {
     }
   }
 
-  goBack(): void {
+  goBack() {
     this._location.back();
   };
 

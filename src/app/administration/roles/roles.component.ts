@@ -7,6 +7,7 @@ import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-com
 import { EntityListService } from '../../core/services/entity-list.service';
 import { ErrorService } from '../../core/services/error.service';
 import { SimplifiedRole } from '../../models/simplified/simplified-role';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'mds-roles',
@@ -22,6 +23,7 @@ export class RolesComponent implements OnInit, BasicEntityListComponent<Role> {
 
   constructor(private roleService: RoleService,
               private router: Router,
+              private _location: Location,
               private els: EntityListService<Role>,
               private errorService: ErrorService) {
   }
@@ -46,8 +48,8 @@ export class RolesComponent implements OnInit, BasicEntityListComponent<Role> {
   }
 
   goBack() {
-    this.router.navigate(['admin']);
-  }
+    this._location.back();
+  };
 
   getPluralTypeName(): string {
     return 'roles';
