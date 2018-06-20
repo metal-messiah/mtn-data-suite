@@ -27,7 +27,7 @@ const routes: Routes = [
       {path: '', component: CasingDashboardComponent},
       {path: 'site-list', component: SiteListComponent},
       {path: 'site/:siteId', component: SiteOverviewComponent},
-      {path: 'site/:siteId/edit', component: SiteDetailComponent},
+      {path: 'site/:siteId/edit', component: SiteDetailComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'store/:storeId', component: StoreDetailComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'store/:storeId/store-casings', component: StoreCasingsComponent},
       {path: 'store/:storeId/store-casings/:storeCasingId', component: StoreCasingDetailComponent, canDeactivate: [CanDeactivateGuard]},

@@ -33,6 +33,7 @@ import { StoreVolumesSelectionComponent } from './store-volumes-selection/store-
 import { TenantListDialogComponent } from './tenant-list-dialog/tenant-list-dialog.component';
 import { AccessListDialogComponent } from './access-list-dialog/access-list-dialog.component';
 import { CreateCasingDialogComponent } from './create-casing-dialog/create-casing-dialog.component';
+import { QuadDialogComponent } from './quad-dialog/quad-dialog.component';
 
 @NgModule({
   imports: [
@@ -70,7 +71,8 @@ import { CreateCasingDialogComponent } from './create-casing-dialog/create-casin
     StoreVolumesSelectionComponent,
     TenantListDialogComponent,
     AccessListDialogComponent,
-    CreateCasingDialogComponent
+    CreateCasingDialogComponent,
+    QuadDialogComponent
   ],
   entryComponents: [
     LatLngSearchComponent,
@@ -83,7 +85,8 @@ import { CreateCasingDialogComponent } from './create-casing-dialog/create-casin
     StoreVolumesSelectionComponent,
     TenantListDialogComponent,
     AccessListDialogComponent,
-    CreateCasingDialogComponent
+    CreateCasingDialogComponent,
+    QuadDialogComponent
   ],
   providers: [CasingDashboardService]
 })
