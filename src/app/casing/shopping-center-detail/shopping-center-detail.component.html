@@ -1,54 +1,27 @@
-<h3>Shopping Center Casings</h3>
-<mat-toolbar>
-  <button class="centered" mat-raised-button color="accent"
-          routerLink="/casing/shopping-center-casing-detail">Add New Shopping Center Casing
-  </button>
-</mat-toolbar>
-<mat-accordion *ngIf="shoppingCenter != null && shoppingCenter.shoppingCenterCasings != null">
-  <mat-expansion-panel *ngFor="let casing of shoppingCenter.shoppingCenterCasings"
-                       (opened)="onShoppingCenterCasingOpened(casing)">
-    <mat-expansion-panel-header>
-      <h4>{{casing.casingDate | date}}</h4>
-    </mat-expansion-panel-header>
-    <div *ngIf="selectedSCCasing == null">
-      <mat-progress-spinner class="centered" mode="indeterminate"></mat-progress-spinner>
+<div class="box">
+  <mat-toolbar color="primary" class="row header flex-space-between">
+    <div>
+      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
     </div>
-    <div *ngIf="selectedSCCasing != null">
-      <h3>Casing</h3>
-      <div>
-        <h4>Used For Projects:</h4>
-        <ul>
-          <li *ngFor="let project of selectedSCCasing.projects">{{project.projectName}}</li>
-        </ul>
-        <div *ngIf="selectedSCCasing.note != null">
-          <h4>Casing Notes</h4>
-          <p>{{selectedSCCasing.note}}</p>
-        </div>
-        <h4 *ngIf="selectedSCCasing.note == null">No Casing Notes</h4>
-        <h4>Ratings</h4>
-        <p>Parking Lot: {{selectedSCCasing.ratingParkingLot}}</p>
-        <p>Buildings: {{selectedSCCasing.ratingBuildings}}</p>
-        <p>Lighting: {{selectedSCCasing.ratingLighting}}</p>
-        <p>Synergy: {{selectedSCCasing.ratingSynergy}}</p>
-      </div>
-      <div *ngIf="selectedSCCasing.shoppingCenterSurvey == null">
-        <h3>No Survey</h3>
-        <mat-list-item
-          *ngIf="shoppingCenter.surveys != null && shoppingCenter.surveys.length > 0">
-          <button class="centered" mat-raised-button color="accent">Attach Existing Survey</button>
-        </mat-list-item>
-        <mat-list-item>
-          <button class="centered" mat-raised-button color="accent"
-                  routerLink="/casing/shopping-center-survey-detail">
-            Create New Survey
-          </button>
-        </mat-list-item>
-      </div>
-      <mds-shopping-center-survey-form
-        *ngIf="selectedSCCasing.shoppingCenterSurvey != null"
-        [survey]="selectedSCCasing.shoppingCenterSurvey"
-        [isDisabled]="true">
-      </mds-shopping-center-survey-form>
+    <span id="title">SC Details</span>
+    <div>
+      <button type="button" mat-icon-button color="warn" *ngIf="form.invalid">
+        <i class="fas fa-exclamation-triangle fa-2x"></i>
+      </button>
+      <button type="submit" mat-mini-fab color="accent" (click)="saveForm()"
+              [disabled]="form.pristine || form.invalid">
+        <i class="fas fa-save"></i>
+      </button>
     </div>
-  </mat-expansion-panel>
-</mat-accordion>
+  </mat-toolbar>
+  <div class="row content">
+    <div class="list-wrapper" [formGroup]="form">
+      <mat-form-field>
+        <input matInput type="text" placeholder="Shopping Center Name" formControlName="name">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="text" placeholder="Shopping Center Owner" formControlName="owner">
+      </mat-form-field>
+    </div>
+  </div>
+</div>
