@@ -74,8 +74,8 @@
             <mat-action-row>
               <mat-progress-bar mode="indeterminate" *ngIf="loadingProject"></mat-progress-bar>
               <button type="button" id="add-dashboard-project-button" mat-raised-button color="accent"
-                      (click)="addDashboardProject()" *ngIf="casingDashboardService.selectedProject != null">
-                Add {{casingDashboardService.selectedProject.projectName}}
+                      (click)="addDashboardProject()" *ngIf="casingDashboardService.getSelectedProject() != null">
+                Add {{casingDashboardService.getSelectedProject().projectName}}
               </button>
               <button type="button" id="add-project-button" mat-raised-button color="primary"
                       (click)="showProjectSelection()"

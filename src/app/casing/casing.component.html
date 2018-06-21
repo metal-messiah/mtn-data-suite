@@ -5,14 +5,14 @@
   </div>
   <div class="project-button-container">
     <button class="project-button" mat-raised-button
-            *ngIf="casingDashboardService.selectedProject == null" color="warn"
+            *ngIf="casingDashboardService.getSelectedProject() == null" color="warn"
             (click)="casingDashboardService.openProjectSelectionDialog()">
       Select Project
     </button>
     <button class="project-button" mat-raised-button
-            *ngIf="casingDashboardService.selectedProject != null" color="accent"
+            *ngIf="casingDashboardService.getSelectedProject() != null" color="accent"
             [matMenuTriggerFor]="projectMenu">
-      {{casingDashboardService.selectedProject.projectName}}
+      {{casingDashboardService.getSelectedProject().projectName}}
     </button>
     <mat-menu #projectMenu="matMenu">
       <button mat-menu-item (click)="casingDashboardService.openProjectSelectionDialog()">Change Selected Project</button>

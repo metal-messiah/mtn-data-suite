@@ -391,7 +391,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   }
 
   addDashboardProject() {
-    this.addProject(this.casingDashboardService.selectedProject);
+    this.addProject(this.casingDashboardService.getSelectedProject());
   }
 
   showProjectSelection() {

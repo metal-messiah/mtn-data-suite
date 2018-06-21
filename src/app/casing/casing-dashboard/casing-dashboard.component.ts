@@ -67,10 +67,6 @@ export class CasingDashboardComponent implements OnInit {
   googlePlacesLayer: GooglePlaceLayer;
 
   // Flags
-  includeActive = true;
-  includeFuture = false;
-  includeHistorical = false;
-
   showingBoundaries = false;
   sideNavIsOpen = false;
   filterSideNavIsOpen = false;
@@ -106,13 +102,6 @@ export class CasingDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.storeMapLayer = new StoreMapLayer(this.authService.sessionUser);
-    this.casingDashboardService.getSavedFilters().subscribe(filters => {
-      if (filters != null) {
-        this.includeActive = filters.includeActive;
-        this.includeFuture = filters.includeFuture;
-        this.includeHistorical = filters.includeHistorical;
-      }
-    });
   }
 
   onMapReady(map) {
@@ -149,13 +138,13 @@ export class CasingDashboardComponent implements OnInit {
 
   private getFilteredStoreTypes(): string[] {
     const types = [];
-    if (this.includeActive) {
+    if (this.casingDashboardService.includeActive) {
       types.push('ACTIVE');
     }
-    if (this.includeFuture) {
+    if (this.casingDashboardService.includeFuture) {
       types.push('FUTURE');
     }
-    if (this.includeHistorical) {
+    if (this.casingDashboardService.includeHistorical) {
       types.push('HISTORICAL');
     }
     return types;
@@ -477,11 +466,7 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   filterClosed() {
-    this.casingDashboardService.saveFilters({
-      includeActive: this.includeActive,
-      includeFuture: this.includeFuture,
-      includeHistorical: this.includeHistorical
-    }).subscribe(r => console.log('Saved Filters'));
+    this.casingDashboardService.saveFilters().subscribe(r => console.log('Saved Filters'));
     this.getStores(this.mapService.getBounds());
   }
 }

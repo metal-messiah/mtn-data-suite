@@ -93,8 +93,8 @@ export class StoreCasingsComponent implements OnInit {
   }
 
   private getProject(): Observable<SimplifiedProject> {
-    if (this.casingDashboardService.selectedProject != null) {
-      return of(this.casingDashboardService.selectedProject);
+    if (this.casingDashboardService.getSelectedProject() != null) {
+      return of(this.casingDashboardService.getSelectedProject());
     } else {
       const dialogRef = this.dialog.open(SelectProjectComponent);
       return dialogRef.afterClosed();

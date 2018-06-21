@@ -3,12 +3,12 @@
     <mat-nav-list role="list">
       <h3 mat-subheader>Project</h3>
       <mat-list-item routerLink="/casing/projects">Manage Projects</mat-list-item>
-      <mat-list-item *ngIf="casingDashboardService.selectedProject == null"
+      <mat-list-item *ngIf="casingDashboardService.getSelectedProject() == null"
                      (click)="casingDashboardService.openProjectSelectionDialog()">Select Project
       </mat-list-item>
-      <mat-list-item *ngIf="casingDashboardService.selectedProject != null"
+      <mat-list-item *ngIf="casingDashboardService.getSelectedProject() != null"
                      [matMenuTriggerFor]="selectedProjectMenu">
-        {{casingDashboardService.selectedProject.projectName}}&nbsp;<i class="fas fa-chevron-right"></i>
+        {{casingDashboardService.getSelectedProject().projectName}}&nbsp;<i class="fas fa-chevron-right"></i>
       </mat-list-item>
       <mat-divider></mat-divider>
       <h3 mat-subheader>Sites</h3>
@@ -39,9 +39,9 @@
     <mat-list role="list" id="filter-side-nav">
       <h3 mat-subheader>Store Type</h3>
       <div class="checklist">
-        <mat-checkbox [(ngModel)]="includeActive">Active</mat-checkbox>
-        <mat-checkbox [(ngModel)]="includeFuture">Future</mat-checkbox>
-        <mat-checkbox [(ngModel)]="includeHistorical">Historical</mat-checkbox>
+        <mat-checkbox [(ngModel)]="casingDashboardService.includeActive">Active</mat-checkbox>
+        <mat-checkbox [(ngModel)]="casingDashboardService.includeFuture">Future</mat-checkbox>
+        <mat-checkbox [(ngModel)]="casingDashboardService.includeHistorical">Historical</mat-checkbox>
       </div>
     </mat-list>
   </mat-sidenav>
