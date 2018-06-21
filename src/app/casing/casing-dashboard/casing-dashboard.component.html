@@ -35,7 +35,7 @@
       </mat-list-item>
     </mat-nav-list>
   </mat-sidenav>
-  <mat-sidenav mode="over" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end">
+  <mat-sidenav mode="over" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end" (closedStart)="filterClosed()">
     <mat-list role="list" id="filter-side-nav">
       <h3 mat-subheader>Store Type</h3>
       <div class="checklist">

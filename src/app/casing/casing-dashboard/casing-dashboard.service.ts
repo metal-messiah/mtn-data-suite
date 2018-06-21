@@ -58,11 +58,33 @@ export class CasingDashboardService {
     });
   }
 
+  saveFilters(filters): Observable<boolean> {
+    return Observable.create( observer => {
+      try {
+        localStorage.setItem('casingDashboardFilters', JSON.stringify(filters));
+        observer.next(true);
+      } catch (e) {
+        observer.error(e);
+      }
+    });
+  }
+
   getSavedPerspective(): Observable<any> {
     return Observable.create( observer => {
       try {
         const perspective = JSON.parse(localStorage.getItem('casingDashboardPerspective'));
         observer.next(perspective);
+      } catch (e) {
+        observer.error(e);
+      }
+    });
+  }
+
+  getSavedFilters(): Observable<any> {
+    return Observable.create( observer => {
+      try {
+        const filters = JSON.parse(localStorage.getItem('casingDashboardFilters'));
+        observer.next(filters);
       } catch (e) {
         observer.error(e);
       }

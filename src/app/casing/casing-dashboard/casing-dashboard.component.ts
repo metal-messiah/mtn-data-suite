@@ -1,5 +1,5 @@
 import { Component, NgZone, OnInit } from '@angular/core';
-import { MatDialog, MatSnackBar, MatSnackBarConfig } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { debounceTime } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -68,8 +68,8 @@ export class CasingDashboardComponent implements OnInit {
 
   // Flags
   includeActive = true;
-  includeFuture = true;
-  includeHistorical = true;
+  includeFuture = false;
+  includeHistorical = false;
 
   showingBoundaries = false;
   sideNavIsOpen = false;
@@ -106,10 +106,17 @@ export class CasingDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.storeMapLayer = new StoreMapLayer(this.authService.sessionUser);
+    this.casingDashboardService.getSavedFilters().subscribe(filters => {
+      if (filters != null) {
+        this.includeActive = filters.includeActive;
+        this.includeFuture = filters.includeFuture;
+        this.includeHistorical = filters.includeHistorical;
+      }
+    });
   }
 
   onMapReady(map) {
-    console.log(`Map is ready: ${map}`);
+    console.log(`Map is ready`);
     this.casingDashboardService.getSavedPerspective().subscribe(perspective => {
       if (perspective != null) {
         this.mapService.setCenter({lat: perspective.latitude, lng: perspective.longitude});
@@ -122,7 +129,7 @@ export class CasingDashboardComponent implements OnInit {
 
     this.mapService.boundsChanged$.pipe(debounceTime(750)).subscribe(bounds => {
       const perspective = this.mapService.getPerspective();
-      this.casingDashboardService.savePerspective(perspective).subscribe();
+      this.casingDashboardService.savePerspective(perspective).subscribe(r => console.log('Saved perspective'));
       if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
         this.getStores(bounds);
       }
@@ -467,5 +474,14 @@ export class CasingDashboardComponent implements OnInit {
       this.snackBar.open(message, null, {duration: 2000});
       this.getStores(this.mapService.getBounds());
     });
+  }
+
+  filterClosed() {
+    this.casingDashboardService.saveFilters({
+      includeActive: this.includeActive,
+      includeFuture: this.includeFuture,
+      includeHistorical: this.includeHistorical
+    }).subscribe(r => console.log('Saved Filters'));
+    this.getStores(this.mapService.getBounds());
   }
 }

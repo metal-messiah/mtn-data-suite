@@ -63,7 +63,7 @@ export class StoreMappable implements Mappable {
     const strokeWeight = this.getStrokeWeight(shape);
     const fillOpacity = this.getFillOpacity(markerType);
     const rotation = this.getRotation();
-    const labelOrigin = this.getLabelOrigin(shape, rotation);
+    const labelOrigin = this.getLabelOrigin(shape);
 
     return {
       path: shape,
@@ -168,11 +168,11 @@ export class StoreMappable implements Mappable {
     return 0;
   }
 
-  private getLabelOrigin(shape: any, rotation: any) {
+  private getLabelOrigin(shape: any) {
     if (shape === MarkerShape.FLAGGED) {
       return new google.maps.Point(255, 220);
     }
-    if (this.store.storeType === 'HISTORICAL') {
+    if (this.store.storeType === 'HISTORICAL' || this.store.storeType === 'FUTURE') {
       return new google.maps.Point(255, 190);
     }
     return new google.maps.Point(255, 230);
