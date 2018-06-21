@@ -44,3 +44,18 @@ form {
 .casing-side-nav {
   max-width: 300px;
 }
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+}
+
+.checklist mat-checkbox {
+  margin-bottom: 8px;
+}
+
+#filter-side-nav {
+  min-width: 150px;
+  margin-left: 16px;
+}
+

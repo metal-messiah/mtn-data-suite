@@ -35,6 +35,16 @@
       </mat-list-item>
     </mat-nav-list>
   </mat-sidenav>
+  <mat-sidenav mode="over" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end">
+    <mat-list role="list" id="filter-side-nav">
+      <h3 mat-subheader>Store Type</h3>
+      <div class="checklist">
+        <mat-checkbox [(ngModel)]="includeActive">Active</mat-checkbox>
+        <mat-checkbox [(ngModel)]="includeFuture">Future</mat-checkbox>
+        <mat-checkbox [(ngModel)]="includeHistorical">Historical</mat-checkbox>
+      </div>
+    </mat-list>
+  </mat-sidenav>
   <mat-sidenav-content>
     <form class="box">
       <mds-map #casingMap class="row content" (ready)="onMapReady($event)"></mds-map>
@@ -126,7 +136,7 @@
           <button mat-mini-fab color="primary" [matMenuTriggerFor]="searchMenu">
             <i class="fas fa-search"></i>
           </button>
-          <button mat-mini-fab color="primary" [disabled]="true">
+          <button mat-mini-fab color="primary" (click)="filterSideNavIsOpen = !filterSideNavIsOpen">
             <i class="fas fa-filter"></i>
           </button>
           <button mat-mini-fab color="primary" routerLink="site-list">

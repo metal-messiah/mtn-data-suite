@@ -47,10 +47,10 @@ export class StoreService extends CrudService<Store> {
       });
   }
 
-  getStoresOfTypeInBounds(bounds: any): Observable<Pageable<SimplifiedStore>> {
+  getStoresOfTypeInBounds(bounds: any, types: string[]): Observable<Pageable<SimplifiedStore>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams().set('size', '300');
-    params = params.set('store_type', 'ACTIVE');
+    params = params.set('store_types', types.toString());
     _.forEach(bounds, function (value, key) {
       params = params.set(key, value);
     });

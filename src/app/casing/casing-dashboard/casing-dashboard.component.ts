@@ -67,8 +67,13 @@ export class CasingDashboardComponent implements OnInit {
   googlePlacesLayer: GooglePlaceLayer;
 
   // Flags
+  includeActive = true;
+  includeFuture = true;
+  includeHistorical = true;
+
   showingBoundaries = false;
   sideNavIsOpen = false;
+  filterSideNavIsOpen = false;
 
   // Modes
   selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
@@ -119,7 +124,7 @@ export class CasingDashboardComponent implements OnInit {
       const perspective = this.mapService.getPerspective();
       this.casingDashboardService.savePerspective(perspective).subscribe();
       if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
-        this.getActiveStores(bounds);
+        this.getStores(bounds);
       }
     });
     this.mapService.mapClick$.subscribe((coords: object) => {
@@ -135,9 +140,23 @@ export class CasingDashboardComponent implements OnInit {
     });
   }
 
-  getActiveStores(bounds): void {
+  private getFilteredStoreTypes(): string[] {
+    const types = [];
+    if (this.includeActive) {
+      types.push('ACTIVE');
+    }
+    if (this.includeFuture) {
+      types.push('FUTURE');
+    }
+    if (this.includeHistorical) {
+      types.push('HISTORICAL');
+    }
+    return types;
+  }
+
+  getStores(bounds): void {
     console.log('Getting Stores');
-    this.storeService.getStoresOfTypeInBounds(bounds).subscribe(page => {
+    this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes()).subscribe(page => {
       this.storeMapLayer.setStores(page.content);
       this.mapService.addPointLayer(this.storeMapLayer);
       this.ngZone.run(() => {
@@ -270,7 +289,7 @@ export class CasingDashboardComponent implements OnInit {
       this.siteService.update(site).subscribe(updatedSite => {
         this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
         this.storeMapLayer.cancelMovingStore();
-        this.getActiveStores(this.mapService.getBounds());
+        this.getStores(this.mapService.getBounds());
       }, updateError => {
         // TODO handle update error
       });
@@ -446,7 +465,7 @@ export class CasingDashboardComponent implements OnInit {
     this.siteService.assignToUser(Array.from(selectedSiteIds), userId).subscribe((sites: Site[]) => {
       const message = `Successfully updated ${sites.length} Sites`;
       this.snackBar.open(message, null, {duration: 2000});
-      this.getActiveStores(this.mapService.getBounds());
+      this.getStores(this.mapService.getBounds());
     });
   }
 }

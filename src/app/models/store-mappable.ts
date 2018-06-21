@@ -160,12 +160,20 @@ export class StoreMappable implements Mappable {
 
   private getRotation() {
     // TODO Set Rotation for Future and Historical
+    if (this.store.storeType === 'HISTORICAL') {
+      return -90;
+    } else if (this.store.storeType === 'FUTURE') {
+      return 90;
+    }
     return 0;
   }
 
   private getLabelOrigin(shape: any, rotation: any) {
     if (shape === MarkerShape.FLAGGED) {
-      new google.maps.Point(255, 220);
+      return new google.maps.Point(255, 220);
+    }
+    if (this.store.storeType === 'HISTORICAL') {
+      return new google.maps.Point(255, 190);
     }
     return new google.maps.Point(255, 230);
   }

@@ -11,6 +11,7 @@ export class SimplifiedStore implements Entity {
   banner: SimplifiedBanner;
   currentStoreStatus: string;
   floating: boolean;
+  storeType: string;
 
   constructor(obj) {
     Object.assign(this, obj);
