@@ -1,6 +1,6 @@
 {
   "name": "mtn-data-suite",
-  "version": "0.0.0",
+  "version": "0.0.1 (Beta)",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -27,6 +27,7 @@
     "@angular/service-worker": "^5.2.5",
     "@types/googlemaps": "^3.30.7",
     "@types/lodash": "^4.14.104",
+    "@types/node": "^10.3.4",
     "angular2-jwt": "^0.2.3",
     "auth0-js": "^8.12.2",
     "bootstrap": "^4.0.0",
@@ -41,7 +42,6 @@
     "@angular/cli": "^1.7.0",
     "@angular/compiler-cli": "^5.2.5",
     "@types/jasmine": "^2.8.6",
-    "@types/node": "^6.0.101",
     "codelyzer": "~2.0.0",
     "jasmine-core": "~2.5.2",
     "jasmine-spec-reporter": "~3.2.0",

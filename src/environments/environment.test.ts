@@ -6,5 +6,6 @@ export const environment = {
     clientID: 'UTgiibU2z7Honoinje5bVRbhUwyneFN4',
     domain: 'mtnra.auth0.com',
     callbackURL: 'http://localhost:4200/callback'
-  }
+  },
+  VERSION: require('../../package.json').version
 };

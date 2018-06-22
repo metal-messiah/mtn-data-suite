@@ -17,7 +17,7 @@
           <h4 mat-line>Marker Type</h4>&nbsp;<i class="fas fa-chevron-right"></i>
           <p mat-line>{{storeMapLayer.markerType.valueOf()}}</p>
         </mat-list-item>
-        <mat-list-item role="listitem" (click)="createNewSite()">Create New Site</mat-list-item>
+        <mat-list-item role="listitem" (click)="createNewSite()" disabled>Create New Site</mat-list-item>
         <mat-list-item role="listitem" (click)="enableMultiSelect()">Multi Select</mat-list-item>
         <mat-divider></mat-divider>
       </div>

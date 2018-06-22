@@ -14,6 +14,7 @@ import { RouterModule } from '@angular/router';
 import { DataFieldComponent } from './data-field/data-field.component';
 import { UserProfileSelectComponent } from './user-profile-select/user-profile-select.component';
 import { DataFieldInfoDialogComponent } from './data-field-info-dialog/data-field-info-dialog.component';
+import { AppInfoDialogComponent } from './app-info-dialog/app-info-dialog.component';
 
 @NgModule({
   imports: [
@@ -30,7 +31,8 @@ import { DataFieldInfoDialogComponent } from './data-field-info-dialog/data-fiel
     LogoMenuComponent,
     DataFieldComponent,
     UserProfileSelectComponent,
-    DataFieldInfoDialogComponent
+    DataFieldInfoDialogComponent,
+    AppInfoDialogComponent
   ],
   providers: [
     BreakpointObserver,
@@ -41,7 +43,8 @@ import { DataFieldInfoDialogComponent } from './data-field-info-dialog/data-fiel
     ErrorDialogComponent,
     ConfirmDialogComponent,
     UserProfileSelectComponent,
-    DataFieldInfoDialogComponent
+    DataFieldInfoDialogComponent,
+    AppInfoDialogComponent
   ],
   exports: [
     CallbackComponent,

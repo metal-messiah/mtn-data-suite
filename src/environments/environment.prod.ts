@@ -6,5 +6,6 @@ export const environment = {
     clientID: 'UTgiibU2z7Honoinje5bVRbhUwyneFN4',
     domain: 'mtnra.auth0.com',
     callbackURL: 'https://mtn-app-suite.firebaseapp.com/callback'
-  }
+  },
+  VERSION: require('../../package.json').version
 };
