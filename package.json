@@ -1,6 +1,6 @@
 {
   "name": "mtn-data-suite",
-  "version": "0.0.2 (Beta)",
+  "version": "0.0.3 (Beta)",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
