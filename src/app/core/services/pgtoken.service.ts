@@ -1,18 +1,23 @@
-import { Injectable } from "@angular/core";
+
+
+import { Injectable } from '@angular/core';
+
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class PGTokenService {
-  dummyData: object;
 
-  constructor() {
-    this.dummyData = {
-      access_token:
-        "8m4e0dgb3X1q3AIQRh9Tmuue60kUEMDSp-oValYozXx0mWJUVGcyntwHmnqu8aEQSlCvJMeS816te95wUH6kb6oIBlPx1ZmQKdaohW07vhYRpoYyZf60CH0WLHpEpHJMskjEpnn5cQUGXvSGdQDJGw..",
-      expires_in: 1209600
-    };
-  }
+  http: HttpClient;
+  tokenURL: string = "https://www.arcgis.com/sharing/rest/oauth2/token/?client_id=LT6WmxqA9lqbrGOR&client_secret=ca783148e98d45f29798a9d1ec1f75e1&grant_type=client_credentials&expiration=20160";
 
-  getToken() {
-    return this.dummyData;
-  }
+  constructor(http: HttpClient) {
+      this.http = http;
+   }
+
+   getToken(){
+     console.log("GET TOKEN!")
+    return this.http.get(this.tokenURL)
+    
+   }
+
 }
