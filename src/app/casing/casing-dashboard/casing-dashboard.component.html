@@ -17,7 +17,7 @@
           <h4 mat-line>Marker Type</h4>&nbsp;<i class="fas fa-chevron-right"></i>
           <p mat-line>{{storeMapLayer.markerType.valueOf()}}</p>
         </mat-list-item>
-        <mat-list-item role="listitem" (click)="createNewSite()" disabled>Create New Site</mat-list-item>
+        <mat-list-item role="listitem" (click)="initSiteCreation()">Create New Site</mat-list-item>
         <mat-list-item role="listitem" (click)="enableMultiSelect()">Multi Select</mat-list-item>
         <mat-divider></mat-divider>
       </div>
@@ -69,9 +69,14 @@
       </div>
       <mds-store-info-card [store]="selectedStore"
                            [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
-                           (onStoreUpdated)="onStoreUpdated($event)"
-                           (onMoveStore)="moveStore($event)"
-                           *ngIf="selectedCardState === cardState.SELECTED_MAPPABLE && selectedStore != null"></mds-store-info-card>
+                           (onUpdate)="onStoreUpdated($event)"
+                           (initiateMove)="moveStore($event)"
+                           *ngIf="selectedCardState === cardState.SELECTED_STORE && selectedStore != null"></mds-store-info-card>
+      <mds-site-info-card [site]="selectedSite"
+                           [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
+                           (onUpdate)="onSiteUpdated($event)"
+                           (initiateMove)="moveSite($event)"
+                           *ngIf="selectedCardState === cardState.SELECTED_SITE && selectedSite != null"></mds-site-info-card>
       <div class="row footer">
         <!--<div *ngIf="page != null">Showing {{page.numberOfElements}} of {{page.totalElements}}</div>-->
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING"
@@ -86,13 +91,13 @@
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
                      class="flex-space-between" color="primary">
           <div>
-            <button mat-raised-button color="accent" (click)="cancelStoreMove()">Cancel</button>
+            <button mat-raised-button color="accent" (click)="cancelMove()">Cancel</button>
           </div>
           <div>
             Drag Marker
           </div>
           <div>
-            <button mat-raised-button color="accent" (click)="saveStoreMove()">Save</button>
+            <button mat-raised-button color="accent" (click)="saveMove()">Save</button>
           </div>
         </mat-toolbar>
 
@@ -118,7 +123,7 @@
           <div>
             <button mat-raised-button color="accent" [mat-menu-trigger-for]="multiSelectActionMenu">
               <span
-                *ngIf="storeMapLayer.getSelectedStores().length > 0">({{storeMapLayer.getSelectedStores().length}})</span>&nbsp;Actions
+                *ngIf="storeMapLayer.getSelectedEntities().length > 0">({{storeMapLayer.getSelectedEntities().length}})</span>&nbsp;Actions
             </button>
           </div>
         </mat-toolbar>
@@ -126,7 +131,7 @@
                      class="flex-space-between" color="primary">
           <button mat-raised-button color="warn" (click)="cancelSiteCreation()">Cancel</button>
           <span>Drag Pin</span>
-          <button mat-raised-button color="accent" (click)="editNewLocation()">Edit Details</button>
+          <button mat-raised-button color="accent" (click)="editNewLocation()">Create</button>
         </mat-toolbar>
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" class="flex-space-between"
                      color="primary">

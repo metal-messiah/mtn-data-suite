@@ -25,11 +25,15 @@ import { ErrorService } from '../../core/services/error.service';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
 import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-profile';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
-import { StoreMapLayer } from '../../models/store-map-layer';
+import { EntityMapLayer } from '../../models/entity-map-layer';
 import { Store } from '../../models/full/store';
 import { NewSiteLayer } from '../../models/new-site-layer';
 import { GooglePlaceLayer } from '../../models/google-place-layer';
-import { StoreSelectionMode } from '../enums/store-selection-mode';
+import { MapSelectionMode } from '../enums/map-selection-mode';
+import { StoreMappable } from 'app/models/store-mappable';
+import { SiteMappable } from '../../models/site-mappable';
+import { SimplifiedSite } from '../../models/simplified/simplified-site';
+import { Observable } from 'rxjs/Observable';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -45,7 +49,8 @@ export enum CasingDashboardMode {
 
 export enum CardState {
   HIDDEN,
-  SELECTED_MAPPABLE,
+  SELECTED_STORE,
+  SELECTED_SITE,
   GOOGLE
 }
 
@@ -58,10 +63,12 @@ export enum CardState {
 export class CasingDashboardComponent implements OnInit {
 
   selectedStore: Store | SimplifiedStore;
+  selectedSite: Site | SimplifiedSite;
   selectedGooglePlace: GooglePlace;
 
   // Layers
-  storeMapLayer: StoreMapLayer;
+  storeMapLayer: EntityMapLayer<StoreMappable>;
+  siteMapLayer: EntityMapLayer<SiteMappable>;
   newSiteLayer: NewSiteLayer;
   followMeLayer: FollowMeLayer;
   googlePlacesLayer: GooglePlaceLayer;
@@ -81,7 +88,7 @@ export class CasingDashboardComponent implements OnInit {
   multiSelectToolType = MultiSelectToolTypes;
   markerType = MarkerType;
   cardState = CardState;
-  storeSelectionMode = StoreSelectionMode;
+  storeSelectionMode = MapSelectionMode;
 
   googleSearchSubscription: Subscription;
 
@@ -101,7 +108,8 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.storeMapLayer = new StoreMapLayer(this.authService.sessionUser);
+    this.storeMapLayer = new EntityMapLayer<StoreMappable>(StoreMappable, this.authService.sessionUser);
+    this.siteMapLayer = new EntityMapLayer<SiteMappable>(SiteMappable, this.authService.sessionUser);
   }
 
   onMapReady(map) {
@@ -120,17 +128,27 @@ export class CasingDashboardComponent implements OnInit {
       const perspective = this.mapService.getPerspective();
       this.casingDashboardService.savePerspective(perspective).subscribe(r => console.log('Saved perspective'));
       if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
-        this.getStores(bounds);
+        this.getEntities(bounds);
       }
     });
     this.mapService.mapClick$.subscribe((coords: object) => {
       this.ngZone.run(() => this.selectedCardState = CardState.HIDDEN);
     });
-    this.storeMapLayer.storeSelection$.subscribe((store: Store | SimplifiedStore) => {
+    this.storeMapLayer.selection$.subscribe((store: Store | SimplifiedStore) => {
       this.ngZone.run(() => {
         if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
+          this.siteMapLayer.clearSelection();
           this.selectedStore = store;
-          this.selectedCardState = CardState.SELECTED_MAPPABLE;
+          this.selectedCardState = CardState.SELECTED_STORE;
+        }
+      });
+    });
+    this.siteMapLayer.selection$.subscribe((site: Site | SimplifiedSite) => {
+      this.ngZone.run(() => {
+        if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
+          this.storeMapLayer.clearSelection();
+          this.selectedSite = site;
+          this.selectedCardState = CardState.SELECTED_SITE;
         }
       });
     });
@@ -150,10 +168,10 @@ export class CasingDashboardComponent implements OnInit {
     return types;
   }
 
-  getStores(bounds): void {
-    console.log('Getting Stores');
+  getEntities(bounds): void {
+    console.log('Getting Stores and Sites');
     this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes()).subscribe(page => {
-      this.storeMapLayer.setStores(page.content);
+      this.storeMapLayer.setEntities(page.content);
       this.mapService.addPointLayer(this.storeMapLayer);
       this.ngZone.run(() => {
         const message = `Showing ${page.numberOfElements} items of ${page.totalElements}`;
@@ -162,6 +180,16 @@ export class CasingDashboardComponent implements OnInit {
     }, err => {
       this.ngZone.run(() => {
         this.errorService.handleServerError(`Failed to retrieve stores!`, err,
+          () => this.router.navigate(['/']));
+      });
+    });
+    // Get Sites without stores
+    this.siteService.getSitesWithoutStoresInBounds(bounds).subscribe(page => {
+      this.siteMapLayer.setEntities(page.content);
+      this.mapService.addPointLayer(this.siteMapLayer);
+    }, err => {
+      this.ngZone.run(() => {
+        this.errorService.handleServerError(`Failed to retrieve sites!`, err,
           () => this.router.navigate(['/']));
       });
     });
@@ -174,7 +202,7 @@ export class CasingDashboardComponent implements OnInit {
     // TODO fit map to boundaries
   }
 
-  createNewSite(): void {
+  initSiteCreation(): void {
     this.sideNavIsOpen = false;
     this.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
     // Create new Layer for new Location
@@ -193,14 +221,37 @@ export class CasingDashboardComponent implements OnInit {
 
   editNewLocation(): void {
     const coordinates = this.newSiteLayer.getCoordinatesOfNewSite();
-    this.geocoderService.reverseGeocode(coordinates).subscribe((address: Site) => {
-      // If reverse geocode is successful - exit creation state (moving on to site page)
-      this.cancelSiteCreation();
-      // Create a new site from reverse geocode - make sharable via service
-      this.casingDashboardService.newSite = new Site(address);
-      // Navigate to site detail to edit site before saving to DB
-      this.router.navigate(['site'], {relativeTo: this.route});
-    }, (err) => console.error(err));
+    const snackBarRef = this.snackBar.open('Reverse Geocoding...', null);
+    this.geocoderService.reverseGeocode(coordinates)
+      .finally(() => snackBarRef.dismiss())
+      .subscribe((newSite: Site) => {
+        // If reverse geocode is successful - exit creation state (moving on to site page)
+        newSite.latitude = coordinates.lat;
+        newSite.longitude = coordinates.lng;
+        newSite.type = 'ANCHOR';
+        this.createNewSite(new Site(newSite));
+      }, (err) => {
+        this.cancelSiteCreation();
+        console.error(err);
+      });
+  }
+
+  private createNewSite(site: Site) {
+    // Create a new site from reverse geocode - make sharable via service
+    const snackBarRef2 = this.snackBar.open('Creating new site...', null);
+    this.siteService.create(site)
+      .finally(() => this.cancelSiteCreation())
+      .subscribe((createdSite: Site) => {
+        this.snackBar.open('Successfully created new Site', null, {duration: 1500});
+        // TODO show in site layer
+      }, err => {
+        snackBarRef2.dismiss();
+        this.cancelSiteCreation();
+        this.errorService.handleServerError('Failed to create new Site!', err,
+          () => {
+          },
+          () => this.createNewSite(site));
+      });
   }
 
   /*
@@ -262,36 +313,66 @@ export class CasingDashboardComponent implements OnInit {
   /*
   Move Store
    */
-  moveStore(store) {
+  moveStore(store: SimplifiedStore) {
     this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
-    this.storeMapLayer.startMovingStore(store);
+    this.storeMapLayer.startMovingEntity(store);
   }
 
-  cancelStoreMove() {
+  moveSite(site: SimplifiedSite) {
+    this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
+    this.siteMapLayer.startMovingEntity(site);
+  }
+
+  cancelMove() {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.storeMapLayer.cancelMovingStore();
+    this.storeMapLayer.cancelMovingEntity();
+    this.siteMapLayer.cancelMovingEntity();
   }
 
-  saveStoreMove() {
-    // Get new coordinates
-    const movedStore = this.storeMapLayer.getMovedStore();
-    const coordinates = this.storeMapLayer.getMovedStoreCoordinates();
-    // Get Full version of site
-    this.siteService.getOneById(movedStore.site.id).subscribe((site: Site) => {
-      // Save updated values
-      site.latitude = coordinates.lat;
-      site.longitude = coordinates.lng;
+  saveMove() {
+    if (this.storeMapLayer.isMoving()) {
+      this.saveMovedStore();
+    } else if (this.siteMapLayer.isMoving()) {
+      this.saveMovedSite();
+    }
+  }
 
-      this.siteService.update(site).subscribe(updatedSite => {
+  saveMovedStore() {
+    // Get new coordinates
+    const movedStore: Store = this.storeMapLayer.getMovedEntity() as Store;
+    const coordinates = this.storeMapLayer.getMovedEntityCoordinates();
+    this.updateSiteCoordinates(movedStore.site.id, coordinates)
+      .subscribe(updatedSite => {
         this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-        this.storeMapLayer.cancelMovingStore();
-        this.getStores(this.mapService.getBounds());
-      }, updateError => {
-        // TODO handle update error
+        this.storeMapLayer.finishMovingEntity();
+        this.getEntities(this.mapService.getBounds());
+      }, err => this.errorService.handleServerError('Failed to update new Store location!', err,
+        () => console.log('Cancel'),
+        () => this.saveMovedStore()));
+  }
+
+  saveMovedSite() {
+    // Get new coordinates
+    const movedSite: Site = this.siteMapLayer.getMovedEntity() as Site;
+    const coordinates = this.siteMapLayer.getMovedEntityCoordinates();
+    this.updateSiteCoordinates(movedSite.id, coordinates)
+      .subscribe(updatedSite => {
+        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        this.siteMapLayer.finishMovingEntity();
+        this.getEntities(this.mapService.getBounds());
+      }, err => this.errorService.handleServerError('Failed to update new Site location!', err,
+        () => console.log('Cancel'),
+        () => this.saveMovedSite()));
+  }
+
+  updateSiteCoordinates(siteId: number, coordinates: Coordinates): Observable<Site> {
+    return this.siteService.getOneById(siteId)
+      .flatMap((site: Site) => {
+        // Save updated values
+        site.latitude = coordinates.lat;
+        site.longitude = coordinates.lng;
+        return this.siteService.update(site);
       });
-    }, findError => {
-      // TODO handle findError
-    });
   }
 
   /*
@@ -301,14 +382,14 @@ export class CasingDashboardComponent implements OnInit {
     this.sideNavIsOpen = false;
     this.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
     this.storeMapLayer.clearSelection();
-    this.storeMapLayer.selectionMode = StoreSelectionMode.MULTI_SELECT;
+    this.storeMapLayer.selectionMode = MapSelectionMode.MULTI_SELECT;
     // Activate Map Drawing Tools and listen for completed Shapes
     this.mapService.activateDrawingTools().subscribe(shape => {
       // TODO - Not all stores may be mapped as user draws polygon and pans screen
-      if (this.storeMapLayer.selectionMode === StoreSelectionMode.MULTI_SELECT) {
-        this.storeMapLayer.selectStoresInShape(shape);
-      } else if (this.storeMapLayer.selectionMode === StoreSelectionMode.MULTI_DESELECT) {
-        this.storeMapLayer.deselectStoresInShape(shape);
+      if (this.storeMapLayer.selectionMode === MapSelectionMode.MULTI_SELECT) {
+        this.storeMapLayer.selectEntitiesInShape(shape);
+      } else if (this.storeMapLayer.selectionMode === MapSelectionMode.MULTI_DESELECT) {
+        this.storeMapLayer.deselectEntitiesInShape(shape);
       }
       this.ngZone.run(() => {
         this.mapService.clearDrawings();
@@ -318,7 +399,7 @@ export class CasingDashboardComponent implements OnInit {
 
   cancelMultiSelect(): void {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.storeMapLayer.selectionMode = StoreSelectionMode.SINGLE_SELECT;
+    this.storeMapLayer.selectionMode = MapSelectionMode.SINGLE_SELECT;
     this.mapService.deactivateDrawingTools();
     this.storeMapLayer.clearSelection();
   }
@@ -345,8 +426,8 @@ export class CasingDashboardComponent implements OnInit {
     const databaseSearchDialog = this.dialog.open(DatabaseSearchComponent);
     databaseSearchDialog.afterClosed().subscribe((store: SimplifiedStore) => {
       this.mapService.setCenter(this.siteService.getCoordinates(store.site));
-      this.selectedCardState = CardState.SELECTED_MAPPABLE;
-      setTimeout(() => this.storeMapLayer.selectStore(store), 1000);
+      this.selectedCardState = CardState.SELECTED_STORE;
+      setTimeout(() => this.storeMapLayer.selectEntity(store), 1000);
     });
   }
 
@@ -437,7 +518,11 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   onStoreUpdated(store: SimplifiedStore) {
-    this.ngZone.run(() => this.storeMapLayer.updateStore(store));
+    this.ngZone.run(() => this.storeMapLayer.updateEntity(store));
+  }
+
+  onSiteUpdated(site: SimplifiedSite) {
+    this.ngZone.run(() => this.siteMapLayer.updateEntity(site));
   }
 
   /*
@@ -454,19 +539,19 @@ export class CasingDashboardComponent implements OnInit {
 
   assignSelectedStoresToUser(user: SimplifiedUserProfile) {
     const selectedSiteIds: Set<number> = new Set();
-    this.storeMapLayer.getSelectedStores().forEach(store => {
+    this.storeMapLayer.getSelectedEntities().forEach((store: Store) => {
       selectedSiteIds.add(store.site.id);
     });
     const userId = (user != null) ? user.id : null;
     this.siteService.assignToUser(Array.from(selectedSiteIds), userId).subscribe((sites: Site[]) => {
       const message = `Successfully updated ${sites.length} Sites`;
       this.snackBar.open(message, null, {duration: 2000});
-      this.getStores(this.mapService.getBounds());
+      this.getEntities(this.mapService.getBounds());
     });
   }
 
   filterClosed() {
     this.casingDashboardService.saveFilters().subscribe(r => console.log('Saved Filters'));
-    this.getStores(this.mapService.getBounds());
+    this.getEntities(this.mapService.getBounds());
   }
 }

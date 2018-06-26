@@ -34,6 +34,7 @@ import { TenantListDialogComponent } from './tenant-list-dialog/tenant-list-dial
 import { AccessListDialogComponent } from './access-list-dialog/access-list-dialog.component';
 import { CreateCasingDialogComponent } from './create-casing-dialog/create-casing-dialog.component';
 import { QuadDialogComponent } from './quad-dialog/quad-dialog.component';
+import { SiteInfoCardComponent } from './site-info-card/site-info-card.component';
 
 @NgModule({
   imports: [
@@ -72,21 +73,22 @@ import { QuadDialogComponent } from './quad-dialog/quad-dialog.component';
     TenantListDialogComponent,
     AccessListDialogComponent,
     CreateCasingDialogComponent,
-    QuadDialogComponent
+    QuadDialogComponent,
+    SiteInfoCardComponent
   ],
   entryComponents: [
-    LatLngSearchComponent,
-    GoogleSearchComponent,
+    AccessListDialogComponent,
+    AreaCalculatorComponent,
+    CreateCasingDialogComponent,
     DatabaseSearchComponent,
+    GoogleSearchComponent,
+    LatLngSearchComponent,
+    QuadDialogComponent,
     SelectProjectComponent,
     StoreStatusesDialogComponent,
     StoreVolumeDialogComponent,
-    AreaCalculatorComponent,
     StoreVolumesSelectionComponent,
-    TenantListDialogComponent,
-    AccessListDialogComponent,
-    CreateCasingDialogComponent,
-    QuadDialogComponent
+    TenantListDialogComponent
   ],
   providers: [CasingDashboardService]
 })

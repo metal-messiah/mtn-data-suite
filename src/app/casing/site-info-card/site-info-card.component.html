@@ -2,18 +2,13 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title>
-        <strong>{{storeService.getLabel(store)}}</strong>
+        <strong>Empty Site</strong>
       </mat-card-title>
-      <mat-card-subtitle *ngIf="store.currentStoreStatus != null">
-        <span>{{store.currentStoreStatus.status}}</span>
-        <span *ngIf="store.site.duplicate">&nbsp;&nbsp;<strong>DUPLICATE!</strong></span>
-        <span *ngIf="store.floating">&nbsp;&nbsp;<strong>FLOAT!</strong></span>
-      </mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <div>{{siteService.getFormattedIntersection(store.site)}}</div>
-      <div>{{store.site.address1}}</div>
-      <div>{{siteService.getFormattedPrincipality(store.site)}}</div>
+      <div>{{siteService.getFormattedIntersection(site)}}</div>
+      <div>{{site.address1}}</div>
+      <div>{{siteService.getFormattedPrincipality(site)}}</div>
     </mat-card-content>
     <mat-card-actions>
       <button mat-button [disabled]="disableActions" [matMenuTriggerFor]="markerMoreMenu">
@@ -31,24 +26,18 @@
 </div>
 
 <mat-menu #markerMoreMenu="matMenu" [overlapTrigger]="false">
-  <div mat-menu-item>Store ID: #{{store.id}}</div>
-  <button mat-menu-item (click)="moveStore()">
+  <div mat-menu-item>Site ID: #{{site.id}}</div>
+  <button mat-menu-item (click)="moveSite()">
     <i class="fas fa-arrows-alt"></i>&nbsp;Move
   </button>
   <button mat-menu-item [disabled]="true"><i class="far fa-clock"></i>&nbsp;History</button>
-  <button mat-menu-item (click)="setDuplicateFlag(true)" *ngIf="!store.site.duplicate">
+  <button mat-menu-item (click)="setDuplicateFlag(true)" *ngIf="!site.duplicate">
     <i class="fas fa-flag"></i>&nbsp;Flag as Duplicate
   </button>
-  <button mat-menu-item (click)="setDuplicateFlag(false)" *ngIf="store.site.duplicate">
+  <button mat-menu-item (click)="setDuplicateFlag(false)" *ngIf="site.duplicate">
     <i class="fas fa-flag"></i>&nbsp;Unflag as Duplicate
   </button>
-  <button mat-menu-item (click)="setFloating(true)" *ngIf="!store.floating">
-    <i class="fas fa-life-ring"></i>&nbsp;Mark as Float
-  </button>
-  <button mat-menu-item (click)="setFloating(false)" *ngIf="store.floating">
-    <i class="far fa-life-ring"></i>&nbsp;Unmark as Float
-  </button>
-  <button mat-menu-item (click)="assignToUser(null)" *ngIf="store.site.assignee != null">
+  <button mat-menu-item (click)="assignToUser(null)" *ngIf="site.assignee != null">
     <i class="fas fa-ban"></i>&nbsp;Unassign
   </button>
   <button mat-menu-item (click)="openAssignmentDialog()">

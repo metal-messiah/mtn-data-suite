@@ -1,8 +1,9 @@
 import { Coordinates } from '../models/coordinates';
 import { Entity } from '../models/entity';
+import { MarkerType } from '../core/functionalEnums/MarkerType';
+
 import Symbol = google.maps.Symbol;
 import Icon = google.maps.Icon;
-import { MarkerType } from '../core/functionalEnums/MarkerType';
 import MarkerLabel = google.maps.MarkerLabel;
 
 export interface Mappable extends Entity {
