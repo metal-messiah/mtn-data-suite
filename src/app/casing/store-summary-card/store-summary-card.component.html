@@ -1,9 +1,11 @@
 <div class="mds-card">
   <div class="header" color="primary">
     <div class="title">
-      {{store.storeName}}<span *ngIf="store.storeNumber != null">&nbsp;({{store.storeNumber}})</span>
+      <span *ngIf="store.storeName != null">{{store.storeName}}</span>
+      <span *ngIf="store.storeName == null">(Please edit to add name)</span>
+      <span *ngIf="store.storeNumber != null">&nbsp;({{store.storeNumber}})</span>
     </div>
-    <div class="subtitle" *ngIf="store.currentStoreStatus">{{store.currentStoreStatus.status}}</div>
+    <div class="subtitle" *ngIf="store.currentStoreStatus != null">{{store.currentStoreStatus.status}}</div>
   </div>
   <mat-divider></mat-divider>
   <div class="content">

@@ -9,6 +9,7 @@ import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { Coordinates } from '../../models/coordinates';
 import { Pageable } from '../../models/pageable';
 import { Observable } from 'rxjs/Observable';
+import { Store } from '../../models/full/store';
 
 @Injectable()
 export class SiteService extends CrudService<Site> {
@@ -21,6 +22,12 @@ export class SiteService extends CrudService<Site> {
 
   protected createEntityFromObj(entityObj): Site {
     return new Site(entityObj);
+  }
+
+  addNewStore(siteId: number, store: Store) {
+    const url = this.rest.getHost() + this.endpoint + '/' + siteId + '/store';
+    return this.http.post<Store>(url, store, {headers: this.rest.getHeaders()})
+      .map((savedStore) => new Store(savedStore));
   }
 
   getSitesWithoutStoresInBounds(bounds: any): Observable<Pageable<SimplifiedSite>> {

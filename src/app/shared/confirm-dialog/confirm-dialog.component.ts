@@ -10,11 +10,15 @@ export class ConfirmDialogComponent implements OnInit {
 
   title: string;
   question: string;
+  options: string[];
 
   constructor(public dialogRef: MatDialogRef<ConfirmDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any) {
     this.title = data.title;
     this.question = data.question;
+    if (data.options != null) {
+      this.options = data.options;
+    }
   }
 
   ngOnInit() {

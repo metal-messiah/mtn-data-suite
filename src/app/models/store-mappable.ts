@@ -41,6 +41,9 @@ export class StoreMappable implements EntityMappable {
     } else {
       label = this.store.storeName;
     }
+    if (label == null) {
+      label = '?';
+    }
     if (markerType !== MarkerType.LOGO) {
       label = label[0];
     } else if (this.store.storeNumber != null) {

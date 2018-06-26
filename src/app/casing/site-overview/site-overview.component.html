@@ -100,29 +100,32 @@
           <div class="content" id="tab-content">
             <mat-tab-group>
               <mat-tab label="Active">
+                <h3 *ngIf="warningHasMultipleActiveStores">Warning! Site has multiple Active Stores!</h3>
                 <mds-store-summary-card *ngIf="activeStore != null"
                                         [store]="activeStore"
-                                        (onStoreUpdated)="loadSite(site.id)"></mds-store-summary-card>
+                                        (onStoreUpdated)="updateStoreView($event)"></mds-store-summary-card>
                 <div class="mds-card" *ngIf="activeStore == null">
                   <div class="header">
                     <div class="title">No Active Store</div>
                   </div>
                   <mat-toolbar color="primary" class="flex-space-between">
-                    <button mat-raised-button color="accent" class="centered">Create New Store</button>
+                    <button mat-raised-button color="accent" class="centered" (click)="createNewStore('ACTIVE')">
+                      Create New Store</button>
                   </mat-toolbar>
                 </div>
               </mat-tab>
 
               <mat-tab label="Future">
-                <mds-store-summary-card *ngIf="futureStore != null"
-                                        [store]="futureStore"
-                                        (onStoreUpdated)="loadSite(site.id)"></mds-store-summary-card>
-                <div class="mds-card" *ngIf="futureStore == null">
+                <mds-store-summary-card *ngFor="let store of futureStores"
+                                        [store]="store"
+                                        (onStoreUpdated)="updateStoreView($event)"></mds-store-summary-card>
+                <div class="mds-card" *ngIf="futureStores == null || futureStores.length < 1">
                   <div class="header">
                     <div class="title">No Future Store</div>
                   </div>
                   <mat-toolbar color="primary">
-                    <button mat-raised-button color="accent" class="centered">Create New Store</button>
+                    <button mat-raised-button color="accent" class="centered" (click)="createNewStore('FUTURE')">
+                      Create New Store</button>
                   </mat-toolbar>
                 </div>
               </mat-tab>
@@ -130,13 +133,14 @@
               <mat-tab label="Historical">
                 <mds-store-summary-card *ngFor="let store of historicalStores"
                                         [store]="store"
-                                        (onStoreUpdated)="loadSite(site.id)"></mds-store-summary-card>
+                                        (onStoreUpdated)="updateStoreView($event)"></mds-store-summary-card>
                 <div class="mds-card" *ngIf="historicalStores == null || historicalStores.length < 1">
                   <div class="header">
                     <div class="title">No Historical Stores</div>
                   </div>
                   <mat-toolbar color="primary">
-                    <button mat-raised-button color="accent" class="centered">Create New Store</button>
+                    <button mat-raised-button color="accent" class="centered" (click)="createNewStore('HISTORICAL')">
+                      Create New Store</button>
                   </mat-toolbar>
                 </div>
               </mat-tab>

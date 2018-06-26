@@ -46,7 +46,7 @@
     </mat-list>
   </mat-sidenav>
   <mat-sidenav-content>
-    <form class="box">
+    <div class="box">
       <mds-map #casingMap class="row content" (ready)="onMapReady($event)"></mds-map>
       <div class="infoCard" *ngIf="selectedCardState === cardState.GOOGLE && selectedGooglePlace != null">
         <mat-card>
@@ -149,7 +149,7 @@
           </button>
         </mat-toolbar>
       </div>
-    </form>
+    </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
 

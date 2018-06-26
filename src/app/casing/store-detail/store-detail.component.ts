@@ -40,7 +40,7 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
 
   private createForm() {
     this.form = this.fb.group({
-      storeName: ['', [Validators.required]],
+      storeName: '',
       storeNumber: '',
       storeType: ['', [Validators.required]],
       dateOpened: new Date(),

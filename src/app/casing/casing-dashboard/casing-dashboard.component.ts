@@ -170,19 +170,25 @@ export class CasingDashboardComponent implements OnInit {
 
   getEntities(bounds): void {
     console.log('Getting Stores and Sites');
-    this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes()).subscribe(page => {
-      this.storeMapLayer.setEntities(page.content);
+    const storeTypes = this.getFilteredStoreTypes();
+    if (storeTypes.length > 0) {
+      this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes()).subscribe(page => {
+        this.storeMapLayer.setEntities(page.content);
+        this.mapService.addPointLayer(this.storeMapLayer);
+        this.ngZone.run(() => {
+          const message = `Showing ${page.numberOfElements} items of ${page.totalElements}`;
+          this.snackBar.open(message, null, {duration: 1000, verticalPosition: 'top'});
+        });
+      }, err => {
+        this.ngZone.run(() => {
+          this.errorService.handleServerError(`Failed to retrieve stores!`, err,
+            () => this.router.navigate(['/']));
+        });
+      });
+    } else {
+      this.storeMapLayer.setEntities([]);
       this.mapService.addPointLayer(this.storeMapLayer);
-      this.ngZone.run(() => {
-        const message = `Showing ${page.numberOfElements} items of ${page.totalElements}`;
-        this.snackBar.open(message, null, {duration: 1000, verticalPosition: 'top'});
-      });
-    }, err => {
-      this.ngZone.run(() => {
-        this.errorService.handleServerError(`Failed to retrieve stores!`, err,
-          () => this.router.navigate(['/']));
-      });
-    });
+    }
     // Get Sites without stores
     this.siteService.getSitesWithoutStoresInBounds(bounds).subscribe(page => {
       this.siteMapLayer.setEntities(page.content);

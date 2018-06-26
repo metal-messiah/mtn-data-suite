@@ -10,6 +10,8 @@ import { MatDialog, MatSnackBar } from '@angular/material';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
 import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-profile';
 import { ErrorService } from '../../core/services/error.service';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { StoreService } from '../../core/services/store.service';
 
 @Component({
   selector: 'mds-site-overview',
@@ -19,12 +21,10 @@ import { ErrorService } from '../../core/services/error.service';
 export class SiteOverviewComponent implements OnInit {
 
   site: Site;
-  selectedSCCasing: ShoppingCenterCasing;
   activeStore: Store;
-  futureStore: Store;
+  futureStores: Store[];
   historicalStores: Store[];
   warningHasMultipleActiveStores = false;
-  warningHasMultipleFutureStores = false;
   saving = false;
   loading = false;
 
@@ -34,6 +34,7 @@ export class SiteOverviewComponent implements OnInit {
               private dialog: MatDialog,
               private snackBar: MatSnackBar,
               private siteService: SiteService,
+              private storeService: StoreService,
               private errorService: ErrorService) {
   }
 
@@ -57,7 +58,7 @@ export class SiteOverviewComponent implements OnInit {
   private setStores(stores: Store[]) {
     this.historicalStores = [];
     this.activeStore = null;
-    this.futureStore = null;
+    this.futureStores = [];
     stores.forEach(store => {
       if (store.storeType === 'ACTIVE') {
         if (this.activeStore != null) {
@@ -65,10 +66,7 @@ export class SiteOverviewComponent implements OnInit {
         }
         this.activeStore = store;
       } else if (store.storeType === 'FUTURE') {
-        if (this.futureStore != null) {
-          this.warningHasMultipleFutureStores = true;
-        }
-        this.futureStore = store;
+        this.futureStores.push(store);
       } else {
         this.historicalStores.push(store);
       }
@@ -101,22 +99,13 @@ export class SiteOverviewComponent implements OnInit {
     this.siteService.update(this.site).subscribe(site => {
       this.site = site;
       this.setStores(this.site.stores);
-      this.openSnackBar(`Successfully updated assignment`, null, 3000);
+      this.snackBar.open('Successfully updated assignment', null, {duration: 2000});
     }, err => {
       this.site.assignee = previousAssignee;
       this.errorService.handleServerError('Failed to update assignment', err,
-        () => {
-        },
+        () => console.log('Cancelled'),
         () => this.assignToUser(user));
     }, () => this.saving = false);
-  }
-
-  openSnackBar(message: string, action: string, duration: number) {
-    const config = {};
-    if (duration != null) {
-      config['duration'] = duration;
-    }
-    this.snackBar.open(message, action, config);
   }
 
   setDuplicateFlag(isDuplicate: boolean) {
@@ -124,7 +113,7 @@ export class SiteOverviewComponent implements OnInit {
     this.siteService.update(this.site).subscribe(site => {
       this.site = site;
       this.setStores(this.site.stores);
-      this.openSnackBar(`Successfully updated site`, null, 2000);
+      this.snackBar.open('Successfully updated Site', null, {duration: 2000});
     }, err => {
       this.site.duplicate = !this.site.duplicate;
       this.errorService.handleServerError('Failed to update site', err,
@@ -132,6 +121,65 @@ export class SiteOverviewComponent implements OnInit {
         },
         () => this.setDuplicateFlag(isDuplicate));
     }, () => this.saving = false);
+  }
+
+  createNewStore(storeType: string) {
+    const newStore = new Store({
+      storeType: storeType
+    });
+    if (storeType === 'ACTIVE' && this.futureStores.length > 0) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: 'Future store exists',
+          question: `Create: Create a new active store.\nMove: Transition the current future store 
+          (${this.futureStores[0].storeName}) to be the active store.`,
+          options: ['Create', 'Move']
+        }
+      });
+      dialogRef.afterClosed().subscribe((result: string) => {
+        if (result === 'Create') {
+          this.saveNewStore(newStore);
+        } else if (result === 'Move') {
+          this.transitionFutureToActive();
+        }
+      });
+    } else {
+      this.saveNewStore(newStore);
+    }
+  }
+
+  private transitionFutureToActive() {
+    const prevStoreType = this.futureStores[0].storeType;
+    this.futureStores[0].storeType = 'ACTIVE';
+    this.saving = true;
+    this.storeService.update(this.futureStores[0])
+      .finally(() => this.saving = false)
+      .subscribe((store: Store) => {
+        this.snackBar.open('Updated Store Type', null, {duration: 2000});
+        this.updateStoreView(store);
+      }, err => {
+        this.futureStores[0].storeType = prevStoreType;
+        this.errorService.handleServerError('Failed to update store type', err,
+          () => console.log('Cancelled'),
+          () => this.transitionFutureToActive());
+      });
+  }
+
+  private updateStoreView(store: Store) {
+    const index = this.site.stores.findIndex((st: Store) => st.id === store.id);
+    this.site.stores[index] = store;
+    this.setStores(this.site.stores);
+  }
+
+  private saveNewStore(newStore: Store) {
+    this.saving = true;
+    this.siteService.addNewStore(this.site.id, newStore)
+      .finally(() => this.saving = false)
+      .subscribe((store: Store) => {
+        this.snackBar.open('Successfully created Store', null, {duration: 2000});
+        this.router.navigate(['/casing/store', store.id], {relativeTo: this.route});
+      }, err => this.errorService.handleServerError('Failed to create new store!', err,
+        () => console.log('Cancelled'), () => this.saveNewStore(newStore)));
   }
 
 }
