@@ -14,7 +14,8 @@
       </button>
     </div>
   </mat-toolbar>
-  <div class="row content">
+  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+  <div class="row content" *ngIf="!loading">
     <div class="list-wrapper" [formGroup]="form">
       <mat-form-field>
         <mat-select placeholder="Position In Center" formControlName="positionInCenter">

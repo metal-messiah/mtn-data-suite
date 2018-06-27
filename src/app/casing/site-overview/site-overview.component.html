@@ -10,11 +10,9 @@
       </button>
     </div>
   </mat-toolbar>
+  <mat-progress-bar *ngIf="loading || saving" class="centered" mode="indeterminate"></mat-progress-bar>
   <div class="row content">
     <div class="list-wrapper">
-      <div *ngIf="loading || saving">
-        <mat-progress-bar class="centered" mode="indeterminate"></mat-progress-bar>
-      </div>
       <div *ngIf="!loading && site != null">
         <mat-card *ngIf="site.assignee != null && !saving" class="simple-card notice">
           <div class="flex flex-space-between flex-align-center">

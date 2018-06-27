@@ -15,8 +15,8 @@
       </button>
     </div>
   </mat-toolbar>
-  <mat-divider></mat-divider>
-  <div class="row content">
+  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+  <div class="row content" *ngIf="!loading">
     <div class="list-wrapper">
       <!--<div>-->
         <!--<p>Store Casing Form: {{storeCasingForm.status}}</p>-->
@@ -26,8 +26,7 @@
         <!--<p>SC Survey Form: {{shoppingCenterSurveyForm.status}}</p>-->
         <!--<p><strong>Validating Forms: {{validatingForms.status}}</strong></p>-->
       <!--</div>-->
-      <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-      <form *ngIf="!loading">
+      <form>
         <mat-accordion>
           <!-- Casing Date -->
           <mat-expansion-panel>
