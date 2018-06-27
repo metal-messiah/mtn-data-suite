@@ -121,20 +121,9 @@ export class CasingDashboardComponent implements OnInit {
 
   onMapReady() {
     console.log(`Map is ready`);
-    this.casingDashboardService.getSavedPerspective().subscribe(perspective => {
-      if (perspective != null) {
-        this.mapService.setCenter({lat: perspective.latitude, lng: perspective.longitude});
-        this.mapService.setZoom(perspective.zoom);
-      } else {
-        this.mapService.setCenter({lat: 40.356714, lng: -111.770421});
-        this.mapService.setZoom(10);
-      }
-    });
 
     this.mapService.boundsChanged$.pipe(this.getDebounce())
       .subscribe(bounds => {
-        const perspective = this.mapService.getPerspective();
-        this.casingDashboardService.savePerspective(perspective).subscribe();
         if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
           this.getEntities(bounds);
         }

@@ -4,7 +4,7 @@ import { MapPointLayer } from '../../models/map-point-layer';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
 import { Mappable } from '../../interfaces/mappable';
-import { Observable, Subject } from 'rxjs/index';
+import { Observable, of, Subject } from 'rxjs/index';
 import { Color } from '../functionalEnums/Color';
 
 /*
@@ -52,15 +52,18 @@ export class MapService {
     this.boundsChanged$ = new Subject<any>();
     this.mapClick$ = new Subject<Coordinates>();
     this.setMapDataStyle();
+    this.loadPerspective();
 
     // Listen to events and pass them on via subjects
     this.map.addListener('bounds_changed', () => {
       if (this.map != null) {
+        this.savePerspective();
         this.boundsChanged$.next(this.map.getBounds().toJSON());
       } else {
         console.warn('Map not yet initialized!');
       }
     });
+    this.map.addListener('maptypeid_changed', () => this.savePerspective());
     this.map.addListener('click', (event) => this.mapClick$.next(event.latLng.toJSON()));
 
     // Setup Drawing Manager
@@ -101,19 +104,34 @@ export class MapService {
     return this.map.getCenter().toJSON();
   }
 
-  getPerspective() {
+  private loadPerspective() {
+    of(localStorage.getItem('mapPerspective'))
+      .subscribe(perspective => {
+        if (perspective != null) {
+          perspective = JSON.parse(perspective);
+          this.map.setCenter(perspective['center']);
+          this.map.setZoom(perspective['zoom']);
+          this.map.setMapTypeId(perspective['mapTypeId']);
+        }
+      });
+  }
+
+  savePerspective() {
+    of(localStorage.setItem('mapPerspective', JSON.stringify(this.getPerspective()))).subscribe();
+  }
+
+  private getPerspective() {
     if (this.map != null) {
-      const center = this.map.getCenter();
       return {
         zoom: this.map.getZoom(),
-        latitude: center.lat(),
-        longitude: center.lng()
+        center: this.map.getCenter(),
+        mapTypeId: this.map.getMapTypeId()
       };
     }
     return {
       zoom: 10,
-      latitude: 39.8283,
-      longitude: -98.5795
+      center: {lat: 39.8283, lng: -98.5795},
+      mapTypeId: google.maps.MapTypeId.ROADMAP
     };
   }
 
