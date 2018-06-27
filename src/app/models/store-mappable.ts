@@ -145,6 +145,9 @@ export class StoreMappable implements EntityMappable {
     if (shape === MarkerShape.LIFE_RING) {
       return 0.06;
     }
+    if (this.store.storeType === 'HISTORICAL' || this.store.storeType === 'FUTURE') {
+      return 0.05;
+    }
     return 0.075;
   }
 

@@ -192,7 +192,7 @@ export class CasingDashboardComponent implements OnInit {
         duration: 1000,
         verticalPosition: 'top'
       }));
-      this.pointLayer.clearMarkers();
+      this.mapService.clearDataPoints();
       this.storeMapLayer.setEntities([]);
       this.mapService.addPointLayer(this.storeMapLayer);
       this.siteMapLayer.setEntities([]);

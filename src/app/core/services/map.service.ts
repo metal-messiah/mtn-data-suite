@@ -242,9 +242,13 @@ export class MapService {
   }
 
   addDataPoints(coordinateList: Coordinates[]) {
-    this.dataPointFeatures.forEach(f => this.map.data.remove(f));
+    this.clearDataPoints();
     coordinateList.forEach(coordinates => {
       this.dataPointFeatures.push(this.map.data.add(new google.maps.Data.Feature({geometry: coordinates})))
-    })
+    });
+  }
+
+  clearDataPoints() {
+    this.dataPointFeatures.forEach(f => this.map.data.remove(f));
   }
 }

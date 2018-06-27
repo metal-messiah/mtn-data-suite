@@ -61,17 +61,6 @@ export class CasingDashboardService {
     }
   }
 
-  savePerspective(perspective: object): Observable<boolean> {
-    return Observable.create(observer => {
-      try {
-        localStorage.setItem('casingDashboardPerspective', JSON.stringify(perspective));
-        observer.next(true);
-      } catch (e) {
-        observer.error(e);
-      }
-    });
-  }
-
   saveFilters(): Observable<boolean> {
     return Observable.create(observer => {
       try {
@@ -81,17 +70,6 @@ export class CasingDashboardService {
           includeHistorical: this.includeHistorical
         }));
         observer.next(true);
-      } catch (e) {
-        observer.error(e);
-      }
-    });
-  }
-
-  getSavedPerspective(): Observable<any> {
-    return Observable.create(observer => {
-      try {
-        const perspective = JSON.parse(localStorage.getItem('casingDashboardPerspective'));
-        observer.next(perspective);
       } catch (e) {
         observer.error(e);
       }
