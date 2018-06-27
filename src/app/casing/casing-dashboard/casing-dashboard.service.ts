@@ -4,7 +4,7 @@ import { SelectProjectComponent } from '../select-project/select-project.compone
 import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
-import { Observable } from 'rxjs/index';
+import { Observable, Subject } from 'rxjs/index';
 
 @Injectable()
 export class CasingDashboardService {
@@ -13,6 +13,8 @@ export class CasingDashboardService {
   includeActive = true;
   includeFuture = false;
   includeHistorical = false;
+
+  projectChanged$: Subject<Project | SimplifiedProject>;
 
   private selectedProject: Project | SimplifiedProject;
 
@@ -28,6 +30,7 @@ export class CasingDashboardService {
     if (selectedProject != null) {
       this.selectedProject = new SimplifiedProject(selectedProject);
     }
+    this.projectChanged$ = new Subject<Project>();
   }
 
   openProjectSelectionDialog(): void {
@@ -41,18 +44,20 @@ export class CasingDashboardService {
         this.selectedProject = result;
         localStorage.setItem('selectedProject', JSON.stringify(this.selectedProject));
       }
+      this.projectChanged$.next(this.selectedProject);
     });
   }
 
   navigateToProjectSummary(): void {
-    if (this.selectedProject != null) {
-      this.router.navigate(['/storeCasing/project-summary', this.selectedProject.id]);
-    }
+    // TODO Change to dialog
+    // if (this.selectedProject != null) {
+    //   this.router.navigate(['/storeCasing/project-summary', this.selectedProject.id]);
+    // }
   }
 
   navigateToProjectDetail(): void {
     if (this.selectedProject != null) {
-      this.router.navigate(['/storeCasing/project-detail', this.selectedProject.id]);
+      this.router.navigate(['casing', 'project', this.selectedProject.id]);
     }
   }
 

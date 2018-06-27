@@ -45,6 +45,15 @@ export class SiteService extends CrudService<Site> {
       }));
   }
 
+  getSitePointsInBounds(bounds: any): Observable<Coordinates[]> {
+    const url = this.rest.getHost() + this.endpoint + '/points';
+    let params = new HttpParams();
+    _.forEach(bounds, function (value, key) {
+      params = params.set(key, value);
+    });
+    return this.http.get<Coordinates[]>(url, {headers: this.rest.getHeaders(), params: params})
+  }
+
   assignToUser(siteIds: number[], userId: number) {
     const url = this.rest.getHost() + this.endpoint + '/assign-to-user';
     let params = new HttpParams();

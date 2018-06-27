@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { RestService } from './rest.service';
 import { Pageable } from '../../models/pageable';
 import { Project } from '../../models/full/project';
 import { CrudService } from '../../interfaces/crud-service';
 import { Observable } from 'rxjs/index';
 import { map } from 'rxjs/internal/operators';
+import { Boundary } from '../../models/full/boundary';
 
 @Injectable()
 export class ProjectService extends CrudService<Project> {
@@ -16,7 +17,8 @@ export class ProjectService extends CrudService<Project> {
     super(http, rest);
   }
 
-  public getAllByQuery(projectQuery: string, active: boolean, primaryData: boolean, pageNumber?: number): Observable<Pageable<Project>> {
+  public getAllByQuery(projectQuery: string, active: boolean, primaryData:
+    boolean, pageNumber?: number): Observable<Pageable<Project>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams();
     if (projectQuery != null && projectQuery.length > 0) {
@@ -35,6 +37,19 @@ export class ProjectService extends CrudService<Project> {
       .pipe(map((page) => {
         page.content = page.content.map(site => new Project(site));
         return page;
+      }));
+  }
+
+  getBoundaryForProject(projectId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/boundary';
+    return this.http.get(url, {observe: 'response', headers: this.rest.getHeaders()})
+      .pipe(map((response: HttpResponse<Boundary>) => {
+        console.log(response);
+        if (response.status === 204) {
+          return null;
+        } else {
+          return new Boundary(response.body);
+        }
       }));
   }
 

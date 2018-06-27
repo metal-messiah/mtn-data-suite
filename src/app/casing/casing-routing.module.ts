@@ -35,9 +35,8 @@ const routes: Routes = [
       {path: 'shopping-center/:shoppingCenterId/shopping-center-casings', component: ShoppingCenterCasingsComponent},
       {path: 'shopping-center/:shoppingCenterId/shopping-center-casings/:casingId', component: ShoppingCenterCasingDetailComponent},
       {path: 'projects', component: CasingProjectsComponent},
-      {path: 'project-summary/:projectId', component: ProjectSummaryComponent},
-      {path: 'project-detail/:id', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'project-detail/', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]}]
+      {path: 'project/:projectId', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]}
+      ]
   }
 ];
 

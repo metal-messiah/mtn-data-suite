@@ -5,6 +5,7 @@ import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
 import { Mappable } from '../../interfaces/mappable';
 import { Observable, Subject } from 'rxjs/index';
+import { Color } from '../functionalEnums/Color';
 
 /*
   The MapService should
@@ -16,6 +17,15 @@ import { Observable, Subject } from 'rxjs/index';
 @Injectable()
 export class MapService {
 
+  defaultIcon = {
+    path: google.maps.SymbolPath.CIRCLE,
+    fillColor: Color.BLUE,
+    fillOpacity: 0.5,
+    scale: 3,
+    strokeColor: Color.WHITE,
+    strokeWeight: 1
+  };
+
   map: google.maps.Map;
   boundsChanged$: Subject<any>;
   mapClick$: Subject<Coordinates>;
@@ -26,7 +36,10 @@ export class MapService {
 
   placesService: google.maps.places.PlacesService;
 
+  dataPointFeatures: google.maps.Data.Feature[];
+
   constructor() {
+    this.dataPointFeatures = [];
   }
 
   initialize(element: HTMLElement) {
@@ -38,6 +51,7 @@ export class MapService {
     this.placesService = new google.maps.places.PlacesService(this.map);
     this.boundsChanged$ = new Subject<any>();
     this.mapClick$ = new Subject<Coordinates>();
+    this.setMapDataStyle();
 
     // Listen to events and pass them on via subjects
     this.map.addListener('bounds_changed', () => {
@@ -52,6 +66,21 @@ export class MapService {
     // Setup Drawing Manager
     this.drawingManager = new google.maps.drawing.DrawingManager();
     return this.map;
+  }
+
+  private setMapDataStyle() {
+    this.map.data.setStyle(feature => {
+      return {
+        fillColor: 'green',
+        fillOpacity: this.map.getZoom() > 11 ? 0.05 : 0.2,
+        strokeWeight: 1,
+        icon: this.defaultIcon
+      }
+    });
+  }
+
+  getZoom() {
+    return this.map.getZoom();
   }
 
   destroy(): void {
@@ -177,5 +206,27 @@ export class MapService {
         }
       });
     });
+  }
+
+  setGeoJsonBoundary(geoJson: Object): google.maps.Data.Feature[] {
+    this.clearGeoJsonBoundaries();
+    const features = this.map.data.addGeoJson(geoJson);
+    const bounds = new google.maps.LatLngBounds();
+    features.forEach(feature => {
+      feature.getGeometry().forEachLatLng(latLng => bounds.extend(latLng));
+    });
+    this.map.fitBounds(bounds);
+    return features;
+  }
+
+  clearGeoJsonBoundaries() {
+    this.map.data.forEach(feature => this.map.data.remove(feature));
+  }
+
+  addDataPoints(coordinateList: Coordinates[]) {
+    this.dataPointFeatures.forEach(f => this.map.data.remove(f));
+    coordinateList.forEach(coordinates => {
+      this.dataPointFeatures.push(this.map.data.add(new google.maps.Data.Feature({geometry: coordinates})))
+    })
   }
 }

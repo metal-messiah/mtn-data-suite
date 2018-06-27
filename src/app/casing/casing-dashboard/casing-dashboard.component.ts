@@ -31,8 +31,13 @@ import { MapSelectionMode } from '../enums/map-selection-mode';
 import { StoreMappable } from 'app/models/store-mappable';
 import { SiteMappable } from '../../models/site-mappable';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
-import { Observable, Subscription } from 'rxjs/index';
-import { debounceTime, finalize, mergeMap } from 'rxjs/internal/operators';
+import { Observable, of, Subscription } from 'rxjs/index';
+import { debounce, debounceTime, delay, finalize, mergeMap } from 'rxjs/internal/operators';
+import { ProjectService } from '../../core/services/project.service';
+import { Boundary } from '../../models/full/boundary';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { MapPointLayer } from '../../models/map-point-layer';
+import { CoordinateMappable } from '../../models/coordinate-mappable';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -62,6 +67,7 @@ export class CasingDashboardComponent implements OnInit {
   selectedGooglePlace: GooglePlace;
 
   // Layers
+  pointLayer: MapPointLayer<CoordinateMappable>;
   storeMapLayer: EntityMapLayer<StoreMappable>;
   siteMapLayer: EntityMapLayer<SiteMappable>;
   newSiteLayer: NewSiteLayer;
@@ -92,6 +98,7 @@ export class CasingDashboardComponent implements OnInit {
               public casingDashboardService: CasingDashboardService,
               private siteService: SiteService,
               private storeService: StoreService,
+              private projectService: ProjectService,
               private snackBar: MatSnackBar,
               private ngZone: NgZone,
               private router: Router,
@@ -103,8 +110,13 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.pointLayer = new MapPointLayer<CoordinateMappable>();
     this.storeMapLayer = new EntityMapLayer<StoreMappable>(StoreMappable, this.authService.sessionUser);
     this.siteMapLayer = new EntityMapLayer<SiteMappable>(SiteMappable, this.authService.sessionUser);
+    this.casingDashboardService.projectChanged$.subscribe(project => {
+      this.showingBoundaries = false;
+      this.mapService.clearGeoJsonBoundaries();
+    })
   }
 
   onMapReady() {
@@ -119,13 +131,14 @@ export class CasingDashboardComponent implements OnInit {
       }
     });
 
-    this.mapService.boundsChanged$.pipe(debounceTime(750)).subscribe(bounds => {
-      const perspective = this.mapService.getPerspective();
-      this.casingDashboardService.savePerspective(perspective).subscribe(() => console.log('Saved perspective'));
-      if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
-        this.getEntities(bounds);
-      }
-    });
+    this.mapService.boundsChanged$.pipe(this.getDebounce())
+      .subscribe(bounds => {
+        const perspective = this.mapService.getPerspective();
+        this.casingDashboardService.savePerspective(perspective).subscribe();
+        if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
+          this.getEntities(bounds);
+        }
+      });
     this.mapService.mapClick$.subscribe(() => {
       this.ngZone.run(() => this.selectedCardState = CardState.HIDDEN);
     });
@@ -149,6 +162,11 @@ export class CasingDashboardComponent implements OnInit {
     });
   }
 
+  private getDebounce() {
+    return debounce(val => of(true)
+      .pipe(delay(this.followMeLayer != null ? 10000 : 1000)));
+  }
+
   private getFilteredStoreTypes(): string[] {
     const types = [];
     if (this.casingDashboardService.includeActive) {
@@ -164,26 +182,49 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   getEntities(bounds): void {
-    console.log('Getting Stores and Sites');
-    const storeTypes = this.getFilteredStoreTypes();
-    if (storeTypes.length > 0) {
-      this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes()).subscribe(page => {
-        this.storeMapLayer.setEntities(page.content);
+    if (this.mapService.getZoom() > 10) {
+      this.pointLayer.clearMarkers();
+      const storeTypes = this.getFilteredStoreTypes();
+      if (storeTypes.length > 0) {
+        this.getStoresInBounds(bounds);
+      } else {
+        this.storeMapLayer.setEntities([]);
         this.mapService.addPointLayer(this.storeMapLayer);
-        this.ngZone.run(() => {
-          const message = `Showing ${page.numberOfElements} items of ${page.totalElements}`;
-          this.snackBar.open(message, null, {duration: 1000, verticalPosition: 'top'});
-        });
-      }, err => {
-        this.ngZone.run(() => {
-          this.errorService.handleServerError(`Failed to retrieve stores!`, err,
-            () => this.router.navigate(['/']));
-        });
-      });
-    } else {
+      }
+      this.getSitesInBounds(bounds);
+    } else if (this.mapService.getZoom() > 7) {
+      this.getPoints(bounds);
       this.storeMapLayer.setEntities([]);
       this.mapService.addPointLayer(this.storeMapLayer);
+      this.siteMapLayer.setEntities([]);
+      this.mapService.addPointLayer(this.siteMapLayer);
+    } else {
+      this.ngZone.run(() => this.snackBar.open('Zoom in for location data', null, {
+        duration: 1000,
+        verticalPosition: 'top'
+      }));
+      this.pointLayer.clearMarkers();
+      this.storeMapLayer.setEntities([]);
+      this.mapService.addPointLayer(this.storeMapLayer);
+      this.siteMapLayer.setEntities([]);
+      this.mapService.addPointLayer(this.siteMapLayer);
     }
+  }
+
+  private getPoints(bounds) {
+    this.siteService.getSitePointsInBounds(bounds).subscribe((sitePoints: Coordinates[]) => {
+      this.mapService.addDataPoints(sitePoints);
+      // const mappables = sitePoints.map(p => new CoordinateMappable({lat: p.latitude, lng: p.longitude}))
+      // this.pointLayer.createMarkersFromMappables(mappables);
+      // this.mapService.addPointLayer(this.pointLayer);
+      this.ngZone.run(() => {
+        const message = `Showing ${sitePoints.length} items`;
+        this.snackBar.open(message, null, {duration: 2000, verticalPosition: 'top'});
+      });
+    })
+  }
+
+  private getSitesInBounds(bounds) {
     // Get Sites without stores
     this.siteService.getSitesWithoutStoresInBounds(bounds).subscribe(page => {
       this.siteMapLayer.setEntities(page.content);
@@ -191,16 +232,53 @@ export class CasingDashboardComponent implements OnInit {
     }, err => {
       this.ngZone.run(() => {
         this.errorService.handleServerError(`Failed to retrieve sites!`, err,
-          () => this.router.navigate(['/']));
+          () => this.router.navigate(['/']),
+          () => this.getSitesInBounds(bounds));
+      });
+    });
+  }
+
+  private getStoresInBounds(bounds) {
+    this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes()).subscribe(page => {
+      this.storeMapLayer.setEntities(page.content);
+      this.mapService.addPointLayer(this.storeMapLayer);
+      this.ngZone.run(() => {
+        const message = `Showing ${page.numberOfElements} items of ${page.totalElements}`;
+        this.snackBar.open(message, null, {duration: 1000, verticalPosition: 'top'});
+      });
+    }, err => {
+      this.ngZone.run(() => {
+        this.errorService.handleServerError(`Failed to retrieve stores!`, err,
+          () => this.router.navigate(['/']),
+          () => this.getStoresInBounds(bounds));
       });
     });
   }
 
   toggleSelectedProjectBoundaries(show: boolean): void {
-    this.showingBoundaries = show;
-    // TODO get boundaries
-    // TODO map boundaries
-    // TODO fit map to boundaries
+    this.sideNavIsOpen = false;
+
+    if (show) {
+      this.projectService.getBoundaryForProject(this.casingDashboardService.getSelectedProject().id)
+        .subscribe((boundary: Boundary) => {
+          if (boundary == null) {
+            const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+              data: {
+                title: 'No Boundary',
+                question: 'This project has no boundary',
+                options: []
+              }
+            });
+            this.showingBoundaries = false;
+          } else {
+            this.mapService.setGeoJsonBoundary(JSON.parse(boundary.geojson));
+            this.showingBoundaries = true;
+          }
+        });
+    } else {
+      this.mapService.clearGeoJsonBoundaries();
+      this.showingBoundaries = false;
+    }
   }
 
   initSiteCreation(): void {

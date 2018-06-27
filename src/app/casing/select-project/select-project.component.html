@@ -35,7 +35,7 @@
         <mat-list-item *ngFor="let project of projects" (click)="selectProject(project)">
           <span class="icon-container">
             <i *ngIf="project.active" class="fas fa-briefcase active"></i>
-            <i *ngIf="project.primary" class="fas fa-star yellow"></i>
+            <i *ngIf="project.primaryData" class="fas fa-star yellow"></i>
           </span>
           <span class="project-name">{{project.projectName}}</span>
         </mat-list-item>

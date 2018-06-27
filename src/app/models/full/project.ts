@@ -11,7 +11,7 @@ export class Project extends AuditingEntity {
   projectYear: number;
   projectMonth: number;
   active: boolean;
-  primary: boolean;
+  primaryData: boolean;
   dateStarted: Date;
   dateCompleted: Date;
   source: string;
@@ -31,9 +31,8 @@ export class Project extends AuditingEntity {
       this.storeCasings = obj.storeCasings.map(storeCasing => new SimplifiedStoreCasing(storeCasing));
     }
     if (obj.shoppingCenterCasings != null) {
-      this.shoppingCenterCasings = obj.shoppingCenterCasings.map(shoppingCenterCasing => {
-        new SimplifiedShoppingCenterCasing(shoppingCenterCasing);
-      });
+      this.shoppingCenterCasings = obj.shoppingCenterCasings.map(shoppingCenterCasing =>
+        new SimplifiedShoppingCenterCasing(shoppingCenterCasing));
     }
   }
 }
