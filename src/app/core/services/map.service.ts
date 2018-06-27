@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import {} from '@types/googlemaps';
-import { Subject } from 'rxjs/Subject';
 import { MapPointLayer } from '../../models/map-point-layer';
-import { Observable } from 'rxjs/Observable';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
 import { Mappable } from '../../interfaces/mappable';
+import { Observable, Subject } from 'rxjs/index';
 
 /*
   The MapService should
@@ -135,12 +134,15 @@ export class MapService {
   setDrawingModeToClick() {
     this.drawingManager.setDrawingMode(null);
   }
+
   setDrawingModeToCircle() {
     this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.CIRCLE);
   }
+
   setDrawingModeToRectangle() {
     this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.RECTANGLE);
   }
+
   setDrawingModeToPolygon() {
     this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
   }

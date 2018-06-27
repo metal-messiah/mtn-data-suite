@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { SimplifiedGroup } from '../../models/simplified/simplified-group';
 import { ErrorService } from '../../core/services/error.service';
 import { Location } from '@angular/common';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-groups',
@@ -34,7 +35,7 @@ export class GroupsComponent implements OnInit, BasicEntityListComponent<Group> 
 
   loadEntities(): void {
     this.groupService.getAllGroups()
-      .finally(() => this.isLoading = false)
+      .pipe(finalize(() => this.isLoading = false))
       .subscribe(
         pageable => this.groups = pageable.content.sort(this.sortCompare),
         err => this.errorService.handleServerError(`Failed to retrieve Groups`, err,

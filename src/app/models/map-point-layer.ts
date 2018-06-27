@@ -1,5 +1,5 @@
 import { Mappable } from '../interfaces/mappable';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs/index';
 
 /*
   The Map Point Layer should represent a list of Mappables on a map.

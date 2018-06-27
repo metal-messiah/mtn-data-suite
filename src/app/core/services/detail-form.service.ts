@@ -3,10 +3,10 @@ import { DetailFormComponent } from '../../interfaces/detail-form-component';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ErrorService } from './error.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
-import { Observable } from 'rxjs/Observable';
-import { Entity } from '../../models/entity';
 import { AuditingEntity } from '../../models/auditing-entity';
 import { RoutingStateService } from './routing-state.service';
+import { Observable } from 'rxjs/index';
+import { finalize, tap } from 'rxjs/internal/operators';
 
 @Injectable()
 export class DetailFormService<T extends AuditingEntity> {
@@ -24,12 +24,12 @@ export class DetailFormService<T extends AuditingEntity> {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
     });
-    return dialogRef.afterClosed().do(result => {
+    return dialogRef.afterClosed().pipe(tap(result => {
       // Corrects for a bug between the router and CanDeactivateGuard that pops the state even if user says no
       if (!result) {
         history.pushState({}, 'site', this.routingState.getPreviousUrl());
       }
-    });
+    }));
   }
 
   save(fc: DetailFormComponent<T>) {
@@ -47,7 +47,7 @@ export class DetailFormService<T extends AuditingEntity> {
     // If object is new create it, otherwise update it
     if (fc.getSavableObj().id == null) {
       fc.getEntityService().create(fc.getSavableObj())
-        .finally(() => reenable())
+        .pipe(finalize(reenable))
         .subscribe(created => {
             this.snackBar.open(`Successfully created ${fc.getTypeName()}!`, null, {duration: 2000});
             fc.setObj(created);
@@ -59,7 +59,7 @@ export class DetailFormService<T extends AuditingEntity> {
         );
     } else {
       fc.getEntityService().update(fc.getSavableObj())
-        .finally(() => reenable())
+        .pipe(finalize(reenable))
         .subscribe(
           updatedEntity => {
             this.snackBar.open(`Successfully updated ${fc.getTypeName()}!`, null, {duration: 2000});
@@ -81,7 +81,7 @@ export class DetailFormService<T extends AuditingEntity> {
       fc.isLoading = false;
     } else {
       fc.getEntityService().getOneById(id)
-        .finally(() => fc.isLoading = false)
+        .pipe(finalize(() => fc.isLoading = false))
         .subscribe(
           obj => fc.setObj(obj),
           err => this.errorService.handleServerError(`Failed to retrieve ${fc.getTypeName()}!`, err,

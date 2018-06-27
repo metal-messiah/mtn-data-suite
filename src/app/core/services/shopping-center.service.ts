@@ -4,6 +4,7 @@ import { ShoppingCenter } from '../../models/full/shopping-center';
 import { RestService } from './rest.service';
 import { HttpClient } from '@angular/common/http';
 import { SimplifiedShoppingCenterCasing } from '../../models/simplified/simplified-shopping-center-casing';
+import { map } from 'rxjs/internal/operators';
 
 @Injectable()
 export class ShoppingCenterService extends CrudService<ShoppingCenter> {
@@ -18,12 +19,12 @@ export class ShoppingCenterService extends CrudService<ShoppingCenter> {
     const url = this.rest.getHost() + this.endpoint + `/${shoppingCenterId}/shopping-center-casing`;
 
     return this.http.get<SimplifiedShoppingCenterCasing[]>(url, {headers: this.rest.getHeaders()})
-      .map(list => {
+      .pipe(map(list => {
         return list.map((casing) => new SimplifiedShoppingCenterCasing(casing))
           .sort((a: SimplifiedShoppingCenterCasing, b: SimplifiedShoppingCenterCasing) => {
             return b.casingDate.getTime() - a.casingDate.getTime();
           });
-      });
+      }));
   }
 
   protected createEntityFromObj(entityObj): ShoppingCenter {

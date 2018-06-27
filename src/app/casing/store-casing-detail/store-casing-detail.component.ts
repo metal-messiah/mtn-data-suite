@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Observable } from 'rxjs/Observable';
 import { MatDialog, MatSnackBar } from '@angular/material';
 
 import { AuditingEntity } from '../../models/auditing-entity';
@@ -36,6 +35,8 @@ import { AccessListDialogComponent } from '../access-list-dialog/access-list-dia
 import { StoreVolumeService } from '../../core/services/store-volume.service';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
 import { RoutingStateService } from '../../core/services/routing-state.service';
+import { finalize, tap } from 'rxjs/internal/operators';
+import { concat, Observable } from 'rxjs/index';
 
 @Component({
   selector: 'mds-store-casing-detail',
@@ -278,9 +279,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       this.errorService.handleServerError('Valid storeCasingId must be provided!', {}, () => this.goBack());
     } else {
       this.storeCasingService.getOneById(storeCasingId)
-        .finally(() => {
-          this.loading = false;
-        })
+        .pipe(finalize(() => this.loading = false))
         .subscribe((storeCasing: StoreCasing) => {
           this.storeCasing = storeCasing;
           this.rebuildAllForms();
@@ -367,7 +366,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   useVolume(volume: SimplifiedStoreVolume) {
     this.savingVolume = true;
     this.storeCasingService.setStoreVolume(this.storeCasing, volume)
-      .finally(() => this.savingVolume = false)
+      .pipe(finalize(() => this.savingVolume = false))
       .subscribe((casing: StoreCasing) => {
         this.storeCasing = casing;
         this.storeVolumeForm.reset(this.storeCasing.storeVolume);
@@ -382,7 +381,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     } else {
       this.removingVolume = true;
       this.storeCasingService.removeStoreVolume(this.storeCasing)
-        .finally(() => this.removingVolume = false)
+        .pipe(finalize(() => this.removingVolume = false))
         .subscribe((casing: StoreCasing) => {
           this.storeCasing = casing;
           this.validatingForms.removeControl('storeVolume');
@@ -413,7 +412,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     } else {
       this.loadingProject = true;
       this.storeCasingService.addProject(this.storeCasing, project)
-        .finally(() => this.loadingProject = false)
+        .pipe(finalize(() => this.loadingProject = false))
         .subscribe((casing: StoreCasing) => {
           this.storeCasing = casing;
         });
@@ -423,7 +422,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   removeProject(project: SimplifiedProject) {
     this.loadingProject = true;
     this.storeCasingService.removeProject(this.storeCasing, project)
-      .finally(() => this.loadingProject = false)
+      .pipe(finalize(() => this.loadingProject = false))
       .subscribe((casing: StoreCasing) => {
         this.storeCasing = casing;
       });
@@ -439,7 +438,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
         storeStatusDialog.afterClosed().subscribe(result => {
           if (result instanceof StoreStatus || result instanceof SimplifiedStoreStatus) {
             this.storeCasingService.setStoreStatus(this.storeCasing, result)
-              .finally(() => this.editingStoreStatus = false)
+              .pipe(finalize(() => this.editingStoreStatus = false))
               .subscribe((casing: StoreCasing) => {
                 this.storeCasing = casing;
               });
@@ -616,39 +615,39 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     const updates: Observable<any>[] = [];
     if (this.storeCasingForm.dirty) {
       updates.push(this.storeCasingService.update(this.prepareSaveStoreCasing())
-        .do((storeCasing: StoreCasing) => {
+        .pipe(tap((storeCasing: StoreCasing) => {
           this.storeCasing = storeCasing;
           this.storeCasingForm.reset(storeCasing);
-        }));
+        })));
     }
     if (this.storeSurveyForm.dirty) {
       updates.push(this.storeSurveyService.update(this.prepareSaveStoreSurvey())
-        .do((storeSurvey: StoreSurvey) => {
+        .pipe(tap((storeSurvey: StoreSurvey) => {
           this.storeCasing.storeSurvey = storeSurvey;
           this.storeSurveyForm.reset(storeSurvey);
-        }));
+        })));
     }
     if (this.shoppingCenterCasingForm.dirty) {
       updates.push(this.shoppingCenterCasingService.update(this.prepareSaveShoppingCenterCasing())
-        .do((scCasing: ShoppingCenterCasing) => {
+        .pipe(tap((scCasing: ShoppingCenterCasing) => {
           this.storeCasing.shoppingCenterCasing = scCasing;
           this.shoppingCenterCasingForm.reset(scCasing);
-        }));
+        })));
     }
     if (this.shoppingCenterSurveyForm.dirty) {
       updates.push(this.shoppingCenterSurveyService.update(this.prepareSaveShoppingCenterSurvey())
-        .do((scSurvey: ShoppingCenterSurvey) => {
+        .pipe(tap((scSurvey: ShoppingCenterSurvey) => {
           this.shoppingCenterCasing.shoppingCenterSurvey = scSurvey;
           this.shoppingCenterSurveyForm.reset(scSurvey);
-        }));
+        })));
     }
     if (this.validatingForms.get('storeVolume') != null && this.storeVolumeForm.dirty) {
       if (this.storeCasing.storeVolume.id != null) {
         updates.push(this.storeVolumeService.update(this.prepareStoreVolume())
-          .do((storeVolume: StoreVolume) => this.setStoreVolume(storeVolume)));
+          .pipe(tap((storeVolume: StoreVolume) => this.setStoreVolume(storeVolume))));
       } else {
         updates.push(this.storeCasingService.createNewVolume(this.storeCasing.id, this.prepareStoreVolume())
-          .do((storeVolume: StoreVolume) => this.setStoreVolume(storeVolume)));
+          .pipe(tap((storeVolume: StoreVolume) => this.setStoreVolume(storeVolume))));
       }
     }
 
@@ -658,7 +657,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       if (updateObservable == null) {
         updateObservable = update;
       } else {
-        updateObservable = updateObservable.concat(update);
+        updateObservable = concat(updateObservable, update);
       }
     });
 
@@ -702,12 +701,12 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
     });
-    return dialogRef.afterClosed().do(result => {
+    return dialogRef.afterClosed().pipe(tap(result => {
       // Corrects for a bug between the router and CanDeactivateGuard that pops the state even if user says no
       if (!result) {
         history.pushState({}, 'site', this.routingState.getPreviousUrl());
       }
-    });;
+    }));
   }
 
 }

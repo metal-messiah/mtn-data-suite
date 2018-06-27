@@ -1,6 +1,5 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
-import { debounceTime } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { MapService } from '../../core/services/map.service';
@@ -16,7 +15,6 @@ import { LatLngSearchComponent } from '../lat-lng-search/lat-lng-search.componen
 import { Coordinates } from '../../models/coordinates';
 import { GoogleSearchComponent } from '../google-search/google-search.component';
 import { GooglePlace } from '../../models/google-place';
-import { Subscription } from 'rxjs/Subscription';
 import { StoreService } from '../../core/services/store.service';
 import { MappableService } from '../../shared/mappable.service';
 import { DatabaseSearchComponent } from '../database-search/database-search.component';
@@ -33,14 +31,11 @@ import { MapSelectionMode } from '../enums/map-selection-mode';
 import { StoreMappable } from 'app/models/store-mappable';
 import { SiteMappable } from '../../models/site-mappable';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
-import { Observable } from 'rxjs/Observable';
+import { Observable, Subscription } from 'rxjs/index';
+import { debounceTime, finalize, mergeMap } from 'rxjs/internal/operators';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
-}
-
-export enum MultiSelectMode {
-  SELECT, DESELECT
 }
 
 export enum CasingDashboardMode {
@@ -112,7 +107,7 @@ export class CasingDashboardComponent implements OnInit {
     this.siteMapLayer = new EntityMapLayer<SiteMappable>(SiteMappable, this.authService.sessionUser);
   }
 
-  onMapReady(map) {
+  onMapReady() {
     console.log(`Map is ready`);
     this.casingDashboardService.getSavedPerspective().subscribe(perspective => {
       if (perspective != null) {
@@ -126,12 +121,12 @@ export class CasingDashboardComponent implements OnInit {
 
     this.mapService.boundsChanged$.pipe(debounceTime(750)).subscribe(bounds => {
       const perspective = this.mapService.getPerspective();
-      this.casingDashboardService.savePerspective(perspective).subscribe(r => console.log('Saved perspective'));
+      this.casingDashboardService.savePerspective(perspective).subscribe(() => console.log('Saved perspective'));
       if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
         this.getEntities(bounds);
       }
     });
-    this.mapService.mapClick$.subscribe((coords: object) => {
+    this.mapService.mapClick$.subscribe(() => {
       this.ngZone.run(() => this.selectedCardState = CardState.HIDDEN);
     });
     this.storeMapLayer.selection$.subscribe((store: Store | SimplifiedStore) => {
@@ -229,7 +224,7 @@ export class CasingDashboardComponent implements OnInit {
     const coordinates = this.newSiteLayer.getCoordinatesOfNewSite();
     const snackBarRef = this.snackBar.open('Reverse Geocoding...', null);
     this.geocoderService.reverseGeocode(coordinates)
-      .finally(() => snackBarRef.dismiss())
+      .pipe(finalize(() => snackBarRef.dismiss()))
       .subscribe((newSite: Site) => {
         // If reverse geocode is successful - exit creation state (moving on to site page)
         newSite.latitude = coordinates.lat;
@@ -246,8 +241,8 @@ export class CasingDashboardComponent implements OnInit {
     // Create a new site from reverse geocode - make sharable via service
     const snackBarRef2 = this.snackBar.open('Creating new site...', null);
     this.siteService.create(site)
-      .finally(() => this.cancelSiteCreation())
-      .subscribe((createdSite: Site) => {
+      .pipe(finalize(() => this.cancelSiteCreation()))
+      .subscribe(() => {
         this.snackBar.open('Successfully created new Site', null, {duration: 1500});
         // TODO show in site layer
       }, err => {
@@ -348,7 +343,7 @@ export class CasingDashboardComponent implements OnInit {
     const movedStore: Store = this.storeMapLayer.getMovedEntity() as Store;
     const coordinates = this.storeMapLayer.getMovedEntityCoordinates();
     this.updateSiteCoordinates(movedStore.site.id, coordinates)
-      .subscribe(updatedSite => {
+      .subscribe(() => {
         this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
         this.storeMapLayer.finishMovingEntity();
         this.getEntities(this.mapService.getBounds());
@@ -362,7 +357,7 @@ export class CasingDashboardComponent implements OnInit {
     const movedSite: Site = this.siteMapLayer.getMovedEntity() as Site;
     const coordinates = this.siteMapLayer.getMovedEntityCoordinates();
     this.updateSiteCoordinates(movedSite.id, coordinates)
-      .subscribe(updatedSite => {
+      .subscribe(() => {
         this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
         this.siteMapLayer.finishMovingEntity();
         this.getEntities(this.mapService.getBounds());
@@ -373,12 +368,12 @@ export class CasingDashboardComponent implements OnInit {
 
   updateSiteCoordinates(siteId: number, coordinates: Coordinates): Observable<Site> {
     return this.siteService.getOneById(siteId)
-      .flatMap((site: Site) => {
+      .pipe(mergeMap((site: Site) => {
         // Save updated values
         site.latitude = coordinates.lat;
         site.longitude = coordinates.lng;
         return this.siteService.update(site);
-      });
+      }));
   }
 
   /*
@@ -461,7 +456,7 @@ export class CasingDashboardComponent implements OnInit {
             this.googleSearchSubscription.unsubscribe();
           }
           this.googleSearchSubscription = this.mapService.boundsChanged$.pipe(debounceTime(750))
-            .subscribe(bounds => this.getGoogleLocationInView(result.query));
+            .subscribe(() => this.getGoogleLocationInView(result.query));
         }
       }
     });
@@ -557,7 +552,7 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   filterClosed() {
-    this.casingDashboardService.saveFilters().subscribe(r => console.log('Saved Filters'));
+    this.casingDashboardService.saveFilters().subscribe(() => console.log('Saved Filters'));
     this.getEntities(this.mapService.getBounds());
   }
 }

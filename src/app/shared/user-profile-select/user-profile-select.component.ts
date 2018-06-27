@@ -4,6 +4,7 @@ import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
 import { UserProfileService } from '../../core/services/user-profile.service';
 import { UserProfile } from '../../models/full/user-profile';
 import { Pageable } from '../../models/pageable';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-user-profile-select',
@@ -26,7 +27,7 @@ export class UserProfileSelectComponent implements OnInit {
   ngOnInit() {
     this.loading = true;
     this.userProfileService.getUserProfiles()
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe((page: Pageable<UserProfile>) => {
         this.latestPage = page;
         this.userProfiles = page.content;
@@ -46,7 +47,7 @@ export class UserProfileSelectComponent implements OnInit {
   loadMore(): void {
     this.loading = true;
     this.userProfileService.getUserProfiles(this.latestPage.number + 1)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe((page: Pageable<UserProfile>) => {
         this.latestPage = page;
         this.userProfiles = this.userProfiles.concat(page.content);

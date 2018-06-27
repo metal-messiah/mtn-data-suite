@@ -8,9 +8,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { AuditingEntity } from '../../models/auditing-entity';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
-import { Observable } from 'rxjs/Observable';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { RoutingStateService } from '../../core/services/routing-state.service';
+import { finalize, tap } from 'rxjs/internal/operators';
+import { Observable } from 'rxjs/index';
 
 @Component({
   selector: 'mds-store-detail',
@@ -58,7 +59,7 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
   private loadStore(storeId: number) {
     this.loading = true;
     this.storeService.getOneById(storeId)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe((store: Store) => {
           this.store = store;
           this.rebuildForm();
@@ -103,12 +104,12 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
     });
-    return dialogRef.afterClosed().do(result => {
+    return dialogRef.afterClosed().pipe(tap(result => {
       // Corrects for a bug between the router and CanDeactivateGuard that pops the state even if user says no
       if (!result) {
         history.pushState({}, 'site', this.routingState.getPreviousUrl());
       }
-    });
+    }));
   }
 
 

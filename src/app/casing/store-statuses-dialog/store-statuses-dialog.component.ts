@@ -7,6 +7,7 @@ import { FormControl } from '@angular/forms';
 import { StoreService } from '../../core/services/store.service';
 import { StoreStatus } from '../../models/full/store-status';
 import { ErrorService } from '../../core/services/error.service';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-store-statuses-dialog',
@@ -66,7 +67,7 @@ export class StoreStatusesDialogComponent implements OnInit {
       statusStartDate: new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000)
     });
     this.storeService.createNewStatus(this.store, storeStatus)
-      .finally(() => this.savingNewStatus = false)
+      .pipe(finalize(() => this.savingNewStatus = false))
       .subscribe((store: Store) => {
         this.initStore(store);
       }, err => {
@@ -77,7 +78,7 @@ export class StoreStatusesDialogComponent implements OnInit {
   deleteStatus(status: SimplifiedStoreStatus) {
     this.savingCurrentStatus = true;
     this.storeService.deleteStatus(this.store, status)
-      .finally(() => this.savingCurrentStatus = false)
+      .pipe(finalize(() => this.savingCurrentStatus = false))
       .subscribe((store: Store) => {
         this.initStore(store);
       }, err => {
@@ -88,7 +89,7 @@ export class StoreStatusesDialogComponent implements OnInit {
   setCurrentStatus(status: SimplifiedStoreStatus) {
     this.savingCurrentStatus = true;
     this.storeService.setCurrentStatus(this.store, status)
-      .finally(() => this.savingCurrentStatus = false)
+      .pipe(finalize(() => this.savingCurrentStatus = false))
       .subscribe((store: Store) => {
         this.initStore(store);
       }, err => {

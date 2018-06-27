@@ -3,9 +3,7 @@ import { DatePipe, Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import 'rxjs/Rx';
 import * as _ from 'lodash';
-import { Observable } from 'rxjs/Observable';
 
 import { Role } from '../../models/full/role';
 import { Permission } from '../../models/full/permission';
@@ -17,7 +15,8 @@ import { RoleService } from '../../core/services/role.service';
 import { PermissionService } from '../../core/services/permission.service';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
 import { DetailFormService } from '../../core/services/detail-form.service';
-import { SimplifiedRole } from 'app/models/simplified/simplified-role';
+import { finalize } from 'rxjs/internal/operators';
+import { Observable } from 'rxjs/index';
 
 @Component({
   selector: 'mds-role-detail',
@@ -62,7 +61,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
     this.isLoading = true;
 
     this.permissionService.getPermissions()
-      .finally(() => this.isLoading = false)
+      .pipe(finalize(() => this.isLoading = false))
       .subscribe(
         pageable => {
           this.parsePermissions(pageable['content']);
@@ -175,16 +174,12 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
       });
     }
 
-    _.forEach(this.role.permissions, function (permission) {
+    this.role.permissions.forEach(permission => {
       this.roleForm.get(`permissions.${permission.subject}.${permission.action}`).setValue(true);
-    }.bind(this));
+    });
 
-    _.forEach(this.subjects, subject => {
-      this.updateSubjectControls(subject);
-    });
-    _.forEach(this.actions, action => {
-      this.updateActionControls(action);
-    });
+    this.subjects.forEach(subject =>  this.updateSubjectControls(subject));
+    this.actions.forEach(action => this.updateActionControls(action));
 
     this.updateAllSelected();
   }

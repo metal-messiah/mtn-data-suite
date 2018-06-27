@@ -3,9 +3,8 @@ import { Project } from '../../models/full/project';
 import { SelectProjectComponent } from '../select-project/select-project.component';
 import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
-import { Site } from '../../models/full/site';
-import { Observable } from 'rxjs/Observable';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
+import { Observable } from 'rxjs/index';
 
 @Injectable()
 export class CasingDashboardService {
@@ -16,7 +15,6 @@ export class CasingDashboardService {
   includeHistorical = false;
 
   private selectedProject: Project | SimplifiedProject;
-  private _newSite: Site;
 
   constructor(private dialog: MatDialog,
               private router: Router) {
@@ -56,14 +54,6 @@ export class CasingDashboardService {
     if (this.selectedProject != null) {
       this.router.navigate(['/storeCasing/project-detail', this.selectedProject.id]);
     }
-  }
-
-  get newSite(): Site {
-    return this._newSite;
-  }
-
-  set newSite(value: Site) {
-    this._newSite = value;
   }
 
   savePerspective(perspective: object): Observable<boolean> {

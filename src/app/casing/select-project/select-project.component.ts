@@ -3,8 +3,9 @@ import { ProjectService } from '../../core/services/project.service';
 import { Project } from '../../models/full/project';
 import { Pageable } from '../../models/pageable';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
-import { fromEvent } from 'rxjs/observable/fromEvent';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { fromEvent } from 'rxjs/index';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-select-project',
@@ -36,7 +37,7 @@ export class SelectProjectComponent implements OnInit {
       map((e: KeyboardEvent) => e.target['value']),
       debounceTime(300),
       distinctUntilChanged(),
-      switchMap((value: any, index: number) => this.projectService.getAllByQuery(value, this.active, this.primaryData))
+      switchMap((value: any) => this.projectService.getAllByQuery(value, this.active, this.primaryData))
     );
 
     typeAhead.subscribe((pageable: Pageable<Project>) => this.update(pageable));
@@ -45,7 +46,7 @@ export class SelectProjectComponent implements OnInit {
   loadMore(): void {
     this.loading = true;
     this.projectService.getAllByQuery(this.projectQuery, this.active, this.primaryData, ++this.pageNumber)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe((pageable: Pageable<Project>) => {
         this.projects = this.projects.concat(pageable.content);
         this.totalPages = pageable.totalPages;
@@ -56,7 +57,7 @@ export class SelectProjectComponent implements OnInit {
   getProjects(): void {
     this.loading = true;
     this.projectService.getAllByQuery(this.projectQuery, this.active, this.primaryData)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe(
         (pageable: Pageable<Project>) => {
           this.update(pageable);

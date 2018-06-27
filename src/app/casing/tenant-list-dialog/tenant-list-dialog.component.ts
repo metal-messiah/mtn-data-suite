@@ -5,6 +5,7 @@ import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Valida
 import { ShoppingCenterSurveyService } from '../../core/services/shopping-center-survey.service';
 import { ShoppingCenterTenant } from '../../models/full/shopping-center-tenant';
 import { ShoppingCenterTenantService } from '../../core/services/shopping-center-tenant.service';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-tenant-list-dialog',
@@ -38,7 +39,7 @@ export class TenantListDialogComponent implements OnInit {
     this.shoppingCenterSurveyId = this.data.shoppingCenterSurveyId;
     this.loading = true;
     this.shoppingCenterSurveyService.getAllTenants(this.shoppingCenterSurveyId)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe((tenants: ShoppingCenterTenant[]) => this.setTenants(tenants));
   }
 
@@ -74,7 +75,7 @@ export class TenantListDialogComponent implements OnInit {
     if (newTenants.length > 0) {
       this.loading = true;
       this.shoppingCenterSurveyService.createNewTenants(this.shoppingCenterSurveyId, newTenants)
-        .finally(() => this.loading = false)
+        .pipe(finalize(() => this.loading = false))
         .subscribe((tenants: ShoppingCenterTenant[]) => {
           tenants.forEach(tenant => this.tenants.push(this.createTenantFormGroup(tenant)));
           this.newTenantNames.reset();
@@ -87,7 +88,7 @@ export class TenantListDialogComponent implements OnInit {
   deleteTenant(tenant: ShoppingCenterTenant, index: number) {
     this.loading = true;
     this.shoppingCenterTenantService.delete(tenant.id)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe(() => {
         this.tenants.removeAt(index);
         this.snackBar.open('Successfully Deleted Tenant', null, {duration: 1000});

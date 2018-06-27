@@ -1,14 +1,14 @@
-import {Injectable} from '@angular/core';
-import {Router} from '@angular/router';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import * as auth0 from 'auth0-js';
-import {environment} from '../../../environments/environment';
-import {Location} from '@angular/common';
-import {HttpClient} from '@angular/common/http';
-import {RestService} from './rest.service';
-import {UserProfile} from '../../models/full/user-profile';
-import {Observable} from 'rxjs/Observable';
-import {ErrorDialogComponent} from '../../shared/error-dialog/error-dialog.component';
-import {MatDialog} from '@angular/material';
+import { environment } from '../../../environments/environment';
+import { Location } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { RestService } from './rest.service';
+import { UserProfile } from '../../models/full/user-profile';
+import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
+import { MatDialog } from '@angular/material';
+import { Observable } from 'rxjs/index';
 
 @Injectable()
 export class AuthService {

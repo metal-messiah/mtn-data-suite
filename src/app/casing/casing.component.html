@@ -4,13 +4,13 @@
     <h2><i class="fas fa-briefcase"></i>&nbsp;Casing</h2>
   </div>
   <div class="project-button-container">
-    <button class="project-button" mat-raised-button
-            *ngIf="casingDashboardService.getSelectedProject() == null" color="warn"
+    <button class="project-button" mat-raised-button color="warn"
+            *ngIf="casingDashboardService.getSelectedProject() == null"
             (click)="casingDashboardService.openProjectSelectionDialog()">
       Select Project
     </button>
-    <button class="project-button" mat-raised-button
-            *ngIf="casingDashboardService.getSelectedProject() != null" color="accent"
+    <button class="project-button" mat-raised-button color="accent"
+            *ngIf="casingDashboardService.getSelectedProject() != null"
             [matMenuTriggerFor]="projectMenu">
       {{casingDashboardService.getSelectedProject().projectName}}
     </button>

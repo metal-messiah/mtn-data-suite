@@ -3,8 +3,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { RestService } from './rest.service';
 import { Pageable } from '../../models/pageable';
 import { Project } from '../../models/full/project';
-import { Observable } from 'rxjs/Observable';
 import { CrudService } from '../../interfaces/crud-service';
+import { Observable } from 'rxjs/index';
+import { map } from 'rxjs/internal/operators';
 
 @Injectable()
 export class ProjectService extends CrudService<Project> {
@@ -30,7 +31,11 @@ export class ProjectService extends CrudService<Project> {
     if (pageNumber != null) {
       params = params.set('page', pageNumber.toLocaleString());
     }
-    return this.http.get<Pageable<Project>>(url, {headers: this.rest.getHeaders(), params: params});
+    return this.http.get<Pageable<Project>>(url, {headers: this.rest.getHeaders(), params: params})
+      .pipe(map((page) => {
+        page.content = page.content.map(site => new Project(site));
+        return page;
+      }));
   }
 
   protected createEntityFromObj(entityObj): Project {

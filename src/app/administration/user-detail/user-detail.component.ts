@@ -9,12 +9,14 @@ import { RoleService } from '../../core/services/role.service';
 import { GroupService } from '../../core/services/group.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ErrorService } from '../../core/services/error.service';
-import { Observable } from 'rxjs/Observable';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
 import { DetailFormComponent } from '../../interfaces/detail-form-component';
 import { DetailFormService } from '../../core/services/detail-form.service';
 import { SimplifiedGroup } from '../../models/simplified/simplified-group';
 import { SimplifiedRole } from '../../models/simplified/simplified-role';
+import { Observable } from 'rxjs/index';
+import { mergeMap, tap } from 'rxjs/internal/operators';
+import { Pageable } from '../../models/pageable';
 
 @Component({
   selector: 'mds-user-detail',
@@ -50,22 +52,28 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
 
     this.isLoading = true;
 
-    Observable.zip(this.roleService.getAllRoles(), this.groupService.getAllGroups()
-    )
-      .finally(() => this.isLoading = false)
-      .subscribe(
-      pair => {
-        const compareDisplayNames = function (object1, object2) {
-          return object1['displayName'].localeCompare(object2['displayName']);
-        };
-        this.roles = pair[0].content.sort(compareDisplayNames);
-        this.groups = pair[1].content.sort(compareDisplayNames);
-        this.detailFormService.retrieveObj(this);
-      },
-      err => this.errorService.handleServerError(
-        'Failed to retrieve reference values! (Groups and Roles)', err,
-        () => this.goBack())
-    );
+    const compareDisplayNames = function (object1, object2) {
+      return object1['displayName'].localeCompare(object2['displayName']);
+    };
+
+    // First get Roles
+    this.roleService.getAllRoles().pipe(
+      mergeMap((page: Pageable<SimplifiedRole>) => {
+        // When Roles returns, save results in component
+        this.roles = page.content.sort(compareDisplayNames);
+        // Then get groups
+        return this.groupService.getAllGroups();
+      }),
+      // When group request returns save it
+      tap((page: Pageable<SimplifiedGroup>) => this.groups = page.content.sort(compareDisplayNames)))
+      .subscribe(() => {
+          // Finally get the user profile
+          this.detailFormService.retrieveObj(this);
+        },
+        err => this.errorService.handleServerError(
+          'Failed to retrieve reference values! (Groups and Roles)', err,
+          () => this.goBack())
+      );
   }
 
   // Implementations for DetailFormComponent

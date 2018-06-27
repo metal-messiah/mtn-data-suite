@@ -5,7 +5,8 @@ import { UserProfile } from '../../models/full/user-profile';
 import { RestService } from './rest.service';
 import { CrudService } from '../../interfaces/crud-service';
 import { Pageable } from '../../models/pageable';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs/index';
+import { map } from 'rxjs/internal/operators';
 
 @Injectable()
 export class UserProfileService extends CrudService<UserProfile> {
@@ -28,10 +29,10 @@ export class UserProfileService extends CrudService<UserProfile> {
     }
     params = params.set('sort', 'firstName,lastName');
     return this.http.get<Pageable<UserProfile>>(url, {headers: this.rest.getHeaders(), params: params})
-      .map(page => {
+      .pipe(map(page => {
         page.content = page.content.map(entityObj => new UserProfile(entityObj));
         return page;
-      });
+      }));
   }
 
 }

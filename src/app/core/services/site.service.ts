@@ -8,8 +8,9 @@ import { Site } from '../../models/full/site';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { Coordinates } from '../../models/coordinates';
 import { Pageable } from '../../models/pageable';
-import { Observable } from 'rxjs/Observable';
 import { Store } from '../../models/full/store';
+import { Observable } from 'rxjs/index';
+import { map } from 'rxjs/internal/operators';
 
 @Injectable()
 export class SiteService extends CrudService<Site> {
@@ -27,7 +28,7 @@ export class SiteService extends CrudService<Site> {
   addNewStore(siteId: number, store: Store) {
     const url = this.rest.getHost() + this.endpoint + '/' + siteId + '/store';
     return this.http.post<Store>(url, store, {headers: this.rest.getHeaders()})
-      .map((savedStore) => new Store(savedStore));
+      .pipe(map((savedStore) => new Store(savedStore)));
   }
 
   getSitesWithoutStoresInBounds(bounds: any): Observable<Pageable<SimplifiedSite>> {
@@ -38,10 +39,10 @@ export class SiteService extends CrudService<Site> {
       params = params.set(key, value);
     });
     return this.http.get<Pageable<SimplifiedSite>>(url, {headers: this.rest.getHeaders(), params: params})
-      .map((page) => {
+      .pipe(map((page) => {
         page.content = page.content.map(site => new SimplifiedSite(site));
         return page;
-      });
+      }));
   }
 
   assignToUser(siteIds: number[], userId: number) {
@@ -51,9 +52,7 @@ export class SiteService extends CrudService<Site> {
       params = params.set('user-id', String(userId));
     }
     return this.http.post<Site[]>(url, siteIds, {headers: this.rest.getHeaders(), params: params})
-      .map(sites => {
-        return sites.map(site => this.createEntityFromObj(site));
-      });
+      .pipe(map(sites => sites.map(site => this.createEntityFromObj(site))));
   }
 
   getFormattedIntersection(site: Site | SimplifiedSite): string {

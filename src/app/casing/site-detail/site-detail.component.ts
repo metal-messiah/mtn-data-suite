@@ -8,11 +8,11 @@ import { Location } from '@angular/common';
 import { ErrorService } from '../../core/services/error.service';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { AuditingEntity } from '../../models/auditing-entity';
-import { Observable } from 'rxjs/Observable';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { RoutingStateService } from '../../core/services/routing-state.service';
-import { isString } from 'util';
 import { QuadDialogComponent } from '../quad-dialog/quad-dialog.component';
+import { finalize, tap } from 'rxjs/internal/operators';
+import { Observable } from 'rxjs/index';
 
 @Component({
   selector: 'mds-site-detail',
@@ -71,7 +71,7 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate {
   private loadSite(siteId: number) {
     this.loading = true;
     this.siteService.getOneById(siteId)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe((site: Site) => {
           this.site = site;
           this.rebuildForm();
@@ -119,12 +119,12 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
     });
-    return dialogRef.afterClosed().do(result => {
+    return dialogRef.afterClosed().pipe(tap(result => {
       // Corrects for a bug between the router and CanDeactivateGuard that pops the state even if user says no
       if (!result) {
         history.pushState({}, 'site', this.routingState.getPreviousUrl());
       }
-    });
+    }));
   }
 
   showQuadDialog() {
@@ -132,7 +132,7 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate {
 
     dialogRef.afterClosed().subscribe(quad => {
       console.log(quad);
-      if (isString(quad) && quad !== '') {
+      if (typeof quad === 'string' && quad !== '') {
         const ctrl = this.form.get('quad');
         ctrl.setValue(quad);
         ctrl.markAsDirty();

@@ -47,7 +47,7 @@
   </mat-sidenav>
   <mat-sidenav-content>
     <div class="box">
-      <mds-map #casingMap class="row content" (ready)="onMapReady($event)"></mds-map>
+      <mds-map #casingMap class="row content" (ready)="onMapReady()"></mds-map>
       <div class="infoCard" *ngIf="selectedCardState === cardState.GOOGLE && selectedGooglePlace != null">
         <mat-card>
           <mat-card-header>
@@ -79,17 +79,16 @@
                            *ngIf="selectedCardState === cardState.SELECTED_SITE && selectedSite != null"></mds-site-info-card>
       <div class="row footer">
         <!--<div *ngIf="page != null">Showing {{page.numberOfElements}} of {{page.totalElements}}</div>-->
-        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING"
-                     class="flex-space-between"
-                     color="primary">
+        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" color="primary"
+                     class="flex-space-between">
           <div></div>
           <div>
             <button mat-raised-button color="accent" (click)="deactivateFollowMe()">Stop Follow Me</button>
           </div>
           <div></div>
         </mat-toolbar>
-        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
-                     class="flex-space-between" color="primary">
+        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE" color="primary"
+                     class="flex-space-between">
           <div>
             <button mat-raised-button color="accent" (click)="cancelMove()">Cancel</button>
           </div>
@@ -101,8 +100,8 @@
           </div>
         </mat-toolbar>
 
-        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MULTI_SELECT"
-                     class="flex-space-between" color="primary">
+        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MULTI_SELECT" color="primary"
+                     class="flex-space-between">
           <div>
             <button mat-raised-button color="warn" (click)="cancelMultiSelect()">Cancel</button>
           </div>
@@ -127,14 +126,14 @@
             </button>
           </div>
         </mat-toolbar>
-        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.CREATING_NEW"
-                     class="flex-space-between" color="primary">
+        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.CREATING_NEW" color="primary"
+                     class="flex-space-between">
           <button mat-raised-button color="warn" (click)="cancelSiteCreation()">Cancel</button>
           <span>Drag Pin</span>
           <button mat-raised-button color="accent" (click)="editNewLocation()">Create</button>
         </mat-toolbar>
-        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" class="flex-space-between"
-                     color="primary">
+        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" color="primary"
+                     class="flex-space-between">
           <button mat-mini-fab color="primary" (click)="sideNavIsOpen = !sideNavIsOpen">
             <i class="fas fa-ellipsis-v"></i>
           </button>

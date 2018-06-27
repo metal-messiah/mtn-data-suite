@@ -8,6 +8,7 @@ import { EntityListService } from '../../core/services/entity-list.service';
 import { ErrorService } from '../../core/services/error.service';
 import { SimplifiedRole } from '../../models/simplified/simplified-role';
 import { Location } from '@angular/common';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-roles',
@@ -34,7 +35,7 @@ export class RolesComponent implements OnInit, BasicEntityListComponent<Role> {
 
   loadEntities(): void {
     this.roleService.getAllRoles()
-      .finally(() => this.isLoading = false)
+      .pipe(finalize(() => this.isLoading = false))
       .subscribe(
         pageable => this.roles = pageable.content.sort(this.sortCompare),
         err => this.errorService.handleServerError(`Failed to retrieve Roles`, err,

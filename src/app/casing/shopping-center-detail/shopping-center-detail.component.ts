@@ -8,6 +8,7 @@ import { RoutingStateService } from '../../core/services/routing-state.service';
 import { ErrorService } from '../../core/services/error.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuditingEntity } from '../../models/auditing-entity';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-shopping-center-detail',
@@ -48,7 +49,7 @@ export class ShoppingCenterDetailComponent implements OnInit {
   private loadShoppingCenter(shoppingCenterId: number) {
     this.loading = true;
     this.shoppingCenterService.getOneById(shoppingCenterId)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe((shoppingCenter: ShoppingCenter) => {
           this.shoppingCenter = shoppingCenter;
           this.rebuildForm();

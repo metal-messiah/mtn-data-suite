@@ -1,18 +1,16 @@
 import { DatePipe, Location } from '@angular/common';
-import {Component, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 
-import {Observable} from 'rxjs/Observable';
+import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
+import { DetailFormService } from '../../core/services/detail-form.service';
+import { GroupService } from '../../core/services/group.service';
 
-import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
-import {DetailFormService} from '../../core/services/detail-form.service';
-import {GroupService} from '../../core/services/group.service';
-
-import {DetailFormComponent} from '../../interfaces/detail-form-component';
-import {Group} from '../../models/full/group';
-import {UserProfile} from '../../models/full/user-profile';
-import { SimplifiedGroup } from '../../models/simplified/simplified-group';
+import { DetailFormComponent } from '../../interfaces/detail-form-component';
+import { Group } from '../../models/full/group';
+import { UserProfile } from '../../models/full/user-profile';
+import { Observable } from 'rxjs/index';
 
 @Component({
   selector: 'mds-group-detail',

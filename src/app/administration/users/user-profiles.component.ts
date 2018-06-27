@@ -7,6 +7,7 @@ import { ErrorService } from '../../core/services/error.service';
 import { UserProfileService } from '../../core/services/user-profile.service';
 import { Pageable } from '../../models/pageable';
 import { Location } from '@angular/common';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-users',
@@ -35,7 +36,7 @@ export class UserProfilesComponent implements OnInit, BasicEntityListComponent<U
 
   loadEntities(): void {
     this.userProfileService.getUserProfiles()
-      .finally(() => this.isLoading = false)
+      .pipe(finalize(() => this.isLoading = false))
       .subscribe(
         page => {
           this.latestPage = page;
@@ -75,7 +76,7 @@ export class UserProfilesComponent implements OnInit, BasicEntityListComponent<U
   loadMore(): void {
     this.isLoading = true;
     this.userProfileService.getUserProfiles(this.latestPage.number + 1)
-      .finally(() => this.isLoading = false)
+      .pipe(finalize(() => this.isLoading = false))
       .subscribe((page: Pageable<UserProfile>) => {
         this.latestPage = page;
         this.userProfiles = this.userProfiles.concat(page.content);

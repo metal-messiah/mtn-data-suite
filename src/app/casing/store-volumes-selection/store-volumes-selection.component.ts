@@ -5,6 +5,7 @@ import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.com
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { StoreService } from '../../core/services/store.service';
 import { ErrorService } from '../../core/services/error.service';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-store-volumes-selection',
@@ -34,7 +35,7 @@ export class StoreVolumesSelectionComponent implements OnInit {
   loadVolumes(storeId: number) {
     this.loading = true;
     this.storeService.getAllVolumes(this.data.storeId)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe((storeVolumes: SimplifiedStoreVolume[]) => {
         this.storeVolumes = storeVolumes.sort((a: SimplifiedStoreVolume, b: SimplifiedStoreVolume) => {
           return b.volumeDate.getTime() - a.volumeDate.getTime();

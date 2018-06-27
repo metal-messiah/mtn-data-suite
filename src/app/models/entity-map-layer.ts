@@ -1,11 +1,11 @@
 import { MapPointLayer } from './map-point-layer';
-import { Subject } from 'rxjs/Subject';
 import { UserProfile } from './full/user-profile';
 import { Coordinates } from './coordinates';
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { MapSelectionMode } from '../casing/enums/map-selection-mode';
 import { Entity } from './entity';
 import { EntityMappable } from '../interfaces/entity-mappable';
+import { Subject } from 'rxjs/index';
 
 export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<EntityMappable> {
 
@@ -131,16 +131,6 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
     const mappable = this.mappables.find((marker: EntityMappable) => marker.id === entity.id);
     this.selectMappable(mappable);
     this.refreshOptionsForMappable(mappable);
-  }
-
-  deselectEntity(entity: Entity) {
-    const mappable = this.mappables.find((marker: EntityMappable) => marker.id === entity.id);
-    if (mappable) {
-      this.deselectMappable(mappable);
-      this.refreshOptionsForMappable(mappable);
-    } else {
-      // Entity is no longer on the screen - mappable was deleted
-    }
   }
 
   updateEntity(entity: Entity) {

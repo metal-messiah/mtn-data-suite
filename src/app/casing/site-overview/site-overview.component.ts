@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { SiteService } from '../../core/services/site.service';
 import { Site } from '../../models/full/site';
-import { ShoppingCenterCasing } from '../../models/full/shopping-center-casing';
 import { Store } from '../../models/full/store';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
@@ -12,6 +11,7 @@ import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-p
 import { ErrorService } from '../../core/services/error.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { StoreService } from '../../core/services/store.service';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-site-overview',
@@ -46,7 +46,7 @@ export class SiteOverviewComponent implements OnInit {
   loadSite(siteId: number) {
     this.loading = true;
     this.siteService.getOneById(siteId)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe(site => {
         this.site = site;
         this.setStores(this.site.stores);
@@ -153,7 +153,7 @@ export class SiteOverviewComponent implements OnInit {
     this.futureStores[0].storeType = 'ACTIVE';
     this.saving = true;
     this.storeService.update(this.futureStores[0])
-      .finally(() => this.saving = false)
+      .pipe(finalize(() => this.saving = false))
       .subscribe((store: Store) => {
         this.snackBar.open('Updated Store Type', null, {duration: 2000});
         this.updateStoreView(store);
@@ -174,7 +174,7 @@ export class SiteOverviewComponent implements OnInit {
   private saveNewStore(newStore: Store) {
     this.saving = true;
     this.siteService.addNewStore(this.site.id, newStore)
-      .finally(() => this.saving = false)
+      .pipe(finalize(() => this.saving = false))
       .subscribe((store: Store) => {
         this.snackBar.open('Successfully created Store', null, {duration: 2000});
         this.router.navigate(['/casing/store', store.id], {relativeTo: this.route});

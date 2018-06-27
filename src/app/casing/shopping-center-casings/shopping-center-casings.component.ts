@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SimplifiedShoppingCenterCasing } from '../../models/simplified/simplified-shopping-center-casing';
 import { Location } from '@angular/common';
 import { ErrorService } from '../../core/services/error.service';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-shopping-center-casings',
@@ -31,7 +32,7 @@ export class ShoppingCenterCasingsComponent implements OnInit {
   private loadCasings(shoppingCenterId: number) {
     this.loading = true;
     this.shoppingCenterService.getCasingsByShoppingCenterId(shoppingCenterId)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe((casings: SimplifiedShoppingCenterCasing[]) => {
         this.casings = casings;
       }, err => this.errorService.handleServerError('Failed to get SC Casings!', err,

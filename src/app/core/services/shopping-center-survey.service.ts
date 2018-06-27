@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { RestService } from './rest.service';
 import { ShoppingCenterTenant } from '../../models/full/shopping-center-tenant';
 import { ShoppingCenterAccess } from '../../models/full/shopping-center-access';
+import { map } from 'rxjs/internal/operators';
 
 @Injectable()
 export class ShoppingCenterSurveyService extends CrudService<ShoppingCenterSurvey> {
@@ -23,33 +24,27 @@ export class ShoppingCenterSurveyService extends CrudService<ShoppingCenterSurve
     const url = this.rest.getHost() + this.endpoint + `/${surveyId}/tenants`;
 
     return this.http.get<ShoppingCenterTenant[]>(url, {headers: this.rest.getHeaders()})
-      .map(tenants => {
-        return tenants.map(tenant => new ShoppingCenterTenant(tenant));
-      });
+      .pipe(map(tenants => tenants.map(tenant => new ShoppingCenterTenant(tenant))));
   }
 
   getAllAccesses(surveyId: number) {
     const url = this.rest.getHost() + this.endpoint + `/${surveyId}/accesses`;
 
     return this.http.get<ShoppingCenterAccess[]>(url, {headers: this.rest.getHeaders()})
-      .map(accesses => {
-        return accesses.map(access => new ShoppingCenterAccess(access));
-      });
+      .pipe(map(accesses => accesses.map(access => new ShoppingCenterAccess(access))));
   }
 
   createNewTenants(surveyId: number, tenants: ShoppingCenterTenant[]) {
     const url = this.rest.getHost() + this.endpoint + `/${surveyId}/tenants`;
 
     return this.http.post<ShoppingCenterTenant[]>(url, tenants, {headers: this.rest.getHeaders()})
-      .map(ts => {
-        return ts.map(tenant => new ShoppingCenterTenant(tenant));
-      });
+      .pipe(map(ts => ts.map(tenant => new ShoppingCenterTenant(tenant))));
   }
 
   createNewAccess(surveyId: number, access: ShoppingCenterAccess) {
     const url = this.rest.getHost() + this.endpoint + `/${surveyId}/accesses`;
 
     return this.http.post<ShoppingCenterAccess>(url, access, {headers: this.rest.getHeaders()})
-      .map(a => new ShoppingCenterAccess(a));
+      .pipe(map(a => new ShoppingCenterAccess(a)));
   }
 }

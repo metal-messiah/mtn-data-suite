@@ -6,6 +6,7 @@ import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '
 import { ShoppingCenterSurveyService } from '../../core/services/shopping-center-survey.service';
 import { ShoppingCenterAccessService } from '../../core/services/shopping-center-access.service';
 import { ErrorService } from '../../core/services/error.service';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-access-list-dialog',
@@ -45,7 +46,7 @@ export class AccessListDialogComponent implements OnInit {
   private loadAccesses() {
     this.loading = true;
     this.shoppingCenterSurveyService.getAllAccesses(this.shoppingCenterSurveyId)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe((accesses: ShoppingCenterAccess[]) => this.setAccesses(accesses),
         err => this.errorService.handleServerError('Failed to load accesses!', err,
           () => {
@@ -82,7 +83,7 @@ export class AccessListDialogComponent implements OnInit {
   private saveNewAccess(newAccess: ShoppingCenterAccess) {
     this.loading = true;
     this.shoppingCenterSurveyService.createNewAccess(this.shoppingCenterSurveyId, newAccess)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe((savedAccess: ShoppingCenterAccess) => {
         this.accesses.push(this.createAccessFormGroup(savedAccess));
         this.snackBar.open('Successfully Added Access', null, {duration: 1000});
@@ -95,7 +96,7 @@ export class AccessListDialogComponent implements OnInit {
   deleteAccess(access: ShoppingCenterAccess, index: number) {
     this.loading = true;
     this.shoppingCenterAccessService.delete(access.id)
-      .finally(() => this.loading = false)
+      .pipe(finalize(() => this.loading = false))
       .subscribe((response) => {
         this.accesses.removeAt(index);
         this.snackBar.open('Successfully Deleted Access', null, {duration: 1000});

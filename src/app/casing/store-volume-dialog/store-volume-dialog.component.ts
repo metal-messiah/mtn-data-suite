@@ -8,6 +8,7 @@ import { SimplifiedStoreVolume } from '../../models/simplified/simplified-store-
 import { StoreVolume } from '../../models/full/store-volume';
 import { ErrorService } from '../../core/services/error.service';
 import { StoreVolumeService } from '../../core/services/store-volume.service';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-store-volume-dialog',
@@ -74,7 +75,7 @@ export class StoreVolumeDialogComponent implements OnInit {
   editVolume(volume: SimplifiedStoreVolume) {
     this.savingVolume = true;
     this.storeVolumeService.getOneById(volume.id)
-      .finally(() => this.savingVolume = false)
+      .pipe(finalize(() => this.savingVolume = false))
       .subscribe((v: StoreVolume) => {
         this.editingVolume = v;
         this.volumeForm.reset(v);
@@ -93,7 +94,7 @@ export class StoreVolumeDialogComponent implements OnInit {
     this.editingVolume.volumeTotal = this.volumeForm.get('volumeTotal').value;
     this.editingVolume.volumeType = this.volumeForm.get('volumeType').value;
     this.storeVolumeService.update(this.editingVolume)
-      .finally(() => this.savingVolume = false)
+      .pipe(finalize(() => this.savingVolume = false))
       .subscribe((storeVolume: StoreVolume) => {
         this.snackBar.open('Successfully updated volume', null, {duration: 2000});
         this.editingVolume = storeVolume;
@@ -107,7 +108,7 @@ export class StoreVolumeDialogComponent implements OnInit {
     const storeVolume = new StoreVolume(this.volumeForm.value);
     storeVolume.volumeDate = new Date(storeVolume.volumeDate.getTime() - new Date().getTimezoneOffset() * 60 * 1000);
     this.storeService.createNewVolume(this.store, storeVolume)
-      .finally(() => this.savingVolume = false)
+      .pipe(finalize(() => this.savingVolume = false))
       .subscribe((store: Store) => {
         this.snackBar.open('Successfully added new volume', null, {duration: 2000});
         this.rebuildForm();
@@ -127,7 +128,7 @@ export class StoreVolumeDialogComponent implements OnInit {
   deleteVolume(volume: SimplifiedStoreVolume) {
     this.savingVolume = true;
     this.storeService.deleteVolume(this.store, volume)
-      .finally(() => this.savingVolume = false)
+      .pipe(finalize(() => this.savingVolume = false))
       .subscribe((store: Store) => {
         this.snackBar.open('Successfully deleted volume', null, {duration: 2000});
         this.initStore(store);

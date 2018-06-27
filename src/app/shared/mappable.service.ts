@@ -58,7 +58,7 @@ export class MappableService<T extends Mappable> {
     return this.latestSelected;
   }
 
-  getSelectedIds(): number[] {
+  getSelectedIds(): (number | string)[] {
     return Array.from(this.selectedMappableIds);
   }
 
