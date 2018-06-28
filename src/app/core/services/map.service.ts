@@ -240,12 +240,9 @@ export class MapService {
       });
 
       touchMoveListener = google.maps.event.addDomListener(mapDiv, 'touchmove', (touchEvent) => {
-        console.log(touchEvent);
-        console.log('touchmove');
         eventListener$.next(new google.maps.Point(touchEvent.touches[0].clientX, touchEvent.touches[0].clientY - 56));
       });
       mouseMoveListener = google.maps.event.addDomListener(mapDiv, 'mousemove', (mouseEvent) => {
-        console.log('mousemove');
         eventListener$.next(new google.maps.Point(mouseEvent.offsetX, mouseEvent.offsetY));
       });
 

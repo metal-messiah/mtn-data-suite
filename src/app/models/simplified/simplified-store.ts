@@ -1,17 +1,20 @@
 import { SimplifiedBanner } from './simplified-banner';
 import { SimplifiedSite } from './simplified-site';
 import { Entity } from 'app/models/entity';
+import { SimplifiedStoreVolume } from './simplified-store-volume';
 
 export class SimplifiedStore implements Entity {
 
   id: number;
-  site: SimplifiedSite;
   storeName: string;
   storeNumber: string;
-  banner: SimplifiedBanner;
   currentStoreStatus: string;
   floating: boolean;
   storeType: string;
+
+  site: SimplifiedSite;
+  banner: SimplifiedBanner;
+  latestStoreVolume: SimplifiedStoreVolume;
 
   constructor(obj) {
     Object.assign(this, obj);
@@ -20,6 +23,9 @@ export class SimplifiedStore implements Entity {
     }
     if (obj.banner != null) {
       this.banner = new SimplifiedBanner(obj.banner);
+    }
+    if (obj.latestStoreVolume != null) {
+      this.latestStoreVolume = new SimplifiedStoreVolume(obj.latestStoreVolume);
     }
   }
 }

@@ -8,6 +8,9 @@
         <span>{{store.currentStoreStatus.status}}</span>
         <span *ngIf="store.site.duplicate">&nbsp;&nbsp;<strong>DUPLICATE!</strong></span>
         <span *ngIf="store.floating">&nbsp;&nbsp;<strong>FLOAT!</strong></span>
+        <span *ngIf="store.latestStoreVolume!= null">
+          (Latest: {{store.latestStoreVolume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k&nbsp;&nbsp;{{store.latestStoreVolume.volumeDate | date}})
+        </span>
       </mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>

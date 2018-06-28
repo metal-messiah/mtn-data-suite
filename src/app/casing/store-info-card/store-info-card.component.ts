@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Store } from '../../models/full/store';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { SiteInfoCardComponent } from '../site-info-card/site-info-card.component';
