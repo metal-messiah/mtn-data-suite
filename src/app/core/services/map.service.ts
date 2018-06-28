@@ -30,6 +30,8 @@ export class MapService {
   boundsChanged$: Subject<any>;
   mapClick$: Subject<Coordinates>;
 
+  circleRadiusListener: google.maps.MapsEventListener;
+
   drawingManager: google.maps.drawing.DrawingManager;
   drawingEvents: any[];
   drawingComplete$: Subject<any>;
@@ -170,6 +172,7 @@ export class MapService {
   }
 
   deactivateDrawingTools() {
+    this.clearCircleRadiusListener();
     this.clearDrawings();
     this.drawingManager.setMap(null);
   }
@@ -178,19 +181,110 @@ export class MapService {
     this.drawingEvents.forEach(event => event.overlay.setMap(null));
   }
 
+  private clearCircleRadiusListener() {
+    if (this.circleRadiusListener != null) {
+      this.circleRadiusListener.remove();
+      this.circleRadiusListener = null;
+    }
+  }
+
   setDrawingModeToClick() {
+    this.clearCircleRadiusListener();
     this.drawingManager.setDrawingMode(null);
   }
 
   setDrawingModeToCircle() {
     this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.CIRCLE);
+    // this.drawingManager.addListener('', (e) => {
+    //  // TODO on drawing type change
+    // });
+    const mapDiv = document.getElementById('map');
+    let startPoint: google.maps.LatLng;
+    let startMarker: google.maps.Marker;
+    let touchMoveListener: google.maps.MapsEventListener;
+    let mouseMoveListener: google.maps.MapsEventListener;
+
+    this.circleRadiusListener = this.map.addListener('mousedown', (e) => {
+      startPoint = e.latLng;
+      startMarker = new google.maps.Marker({
+        position: startPoint,
+        map: this.map,
+        title: 'distance',
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          fillColor: 'blue',
+          fillOpacity: 0.5,
+          scale: 3,
+          strokeColor: 'white',
+          strokeWeight: 1,
+          labelOrigin: new google.maps.Point(-8, -12)
+        },
+        label: {
+          text: '0m',
+          color: 'white',
+          fontWeight: 'bold'
+        }
+      });
+
+      const eventListener$ = new Subject<google.maps.Point>();
+      eventListener$.subscribe((point) => {
+        const latLng = this.point2LatLng(point, this.map);
+        startMarker.setPosition(latLng);
+        const distance = google.maps.geometry.spherical.computeDistanceBetween(startPoint, latLng);
+        const label = {
+          text: this.getDistanceLabel(distance),
+          color: 'black',
+          fontWeight: 'bold'
+        };
+        startMarker.setLabel(label);
+      });
+
+      touchMoveListener = google.maps.event.addDomListener(mapDiv, 'touchmove', (touchEvent) => {
+        console.log(touchEvent);
+        console.log('touchmove');
+        eventListener$.next(new google.maps.Point(touchEvent.touches[0].clientX, touchEvent.touches[0].clientY - 56));
+      });
+      mouseMoveListener = google.maps.event.addDomListener(mapDiv, 'mousemove', (mouseEvent) => {
+        console.log('mousemove');
+        eventListener$.next(new google.maps.Point(mouseEvent.offsetX, mouseEvent.offsetY));
+      });
+
+      const overlayCompleteListener = this.drawingManager.addListener('overlaycomplete', (overlaycompleteEvent) => {
+        touchMoveListener.remove();
+        mouseMoveListener.remove();
+        eventListener$.complete();
+        startMarker.setMap(null);
+        startMarker = null;
+        startPoint = null;
+        overlayCompleteListener.remove();
+      })
+    })
+  }
+
+  private point2LatLng(point: google.maps.Point, map: google.maps.Map) {
+    const topRight = map.getProjection().fromLatLngToPoint(map.getBounds().getNorthEast());
+    const bottomLeft = map.getProjection().fromLatLngToPoint(map.getBounds().getSouthWest());
+    const scale = Math.pow(2, map.getZoom());
+    const worldPoint = new google.maps.Point(point.x / scale + bottomLeft.x, point.y / scale + topRight.y);
+    return map.getProjection().fromPointToLatLng(worldPoint);
+  }
+
+  private getDistanceLabel(distance: number) {
+    if (distance < 1000) {
+      return Math.round(distance * 3.28084) + ' ft';
+    } else {
+      const miles: number = distance * 0.000621371;
+      return miles.toFixed(2) + ' mi';
+    }
   }
 
   setDrawingModeToRectangle() {
+    this.clearCircleRadiusListener();
     this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.RECTANGLE);
   }
 
   setDrawingModeToPolygon() {
+    this.clearCircleRadiusListener();
     this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
   }
 
