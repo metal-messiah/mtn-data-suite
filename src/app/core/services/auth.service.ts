@@ -56,7 +56,7 @@ export class AuthService {
   }
 
   public signIn(): void {
-    localStorage.clear();
+    // localStorage.clear();
     localStorage.setItem('latest_path', this.location.path());
     this.auth0.authorize();
   }
