@@ -1,7 +1,7 @@
 <div class="box">
   <mat-toolbar class="row header flex-space-between">
     <div>
-      <button type="button" mat-raised-button color="accent" (click)="goBack()">Back</button>
+      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
     </div>
     <span><i class="fas fa-address-book"></i> Users</span>
     <div>
@@ -16,7 +16,7 @@
       <div *ngIf="isLoading" style="text-align: center">
         <i class="fas fa-spinner fa-3x fa-spin" aria-hidden="true"></i>
       </div>
-      <mat-accordion *ngIf="!isLoading">
+      <mat-accordion>
         <mat-expansion-panel *ngFor="let userProfile of userProfiles">
           <mat-expansion-panel-header>
             <mat-panel-title>
@@ -39,6 +39,12 @@
           </mat-action-row>
         </mat-expansion-panel>
       </mat-accordion>
+      <mat-toolbar color="primary" *ngIf="latestPage != null && !latestPage.last" class="flex-space-between" (click)="loadMore()">
+        <span></span>
+        <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+        <button mat-raised-button color="primary" *ngIf="!isLoading">Load More...</button>
+        <span></span>
+      </mat-toolbar>
     </div>
   </div>
 </div>

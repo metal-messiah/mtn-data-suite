@@ -12,4 +12,12 @@ export class CasingComponent implements OnInit {
 
   ngOnInit() {
   }
+
+  navigateToProjectSummary() {
+    // TODO
+  }
+
+  navigateToProjectDetail() {
+    // TODO
+  }
 }

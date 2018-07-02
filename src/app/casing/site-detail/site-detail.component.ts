@@ -1,105 +1,142 @@
 import { Component, OnInit } from '@angular/core';
-import { CasingDashboardService } from '../casing-dashboard/casing-dashboard.service';
-import { DetailFormComponent } from '../../interfaces/detail-form-component';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
-import { Site } from '../../models/site';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { Site } from '../../models/full/site';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SiteService } from '../../core/services/site.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DetailFormService } from '../../core/services/detail-form.service';
-import { Observable } from 'rxjs/Observable';
-import { SimplifiedSite } from '../../models/simplified-site';
+import { Location } from '@angular/common';
+import { ErrorService } from '../../core/services/error.service';
+import { MatDialog, MatSnackBar } from '@angular/material';
+import { AuditingEntity } from '../../models/auditing-entity';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { RoutingStateService } from '../../core/services/routing-state.service';
+import { QuadDialogComponent } from '../quad-dialog/quad-dialog.component';
+import { finalize, tap } from 'rxjs/internal/operators';
+import { Observable } from 'rxjs/index';
 
 @Component({
   selector: 'mds-site-detail',
   templateUrl: './site-detail.component.html',
   styleUrls: ['./site-detail.component.css']
 })
-export class SiteDetailComponent implements OnInit, CanComponentDeactivate, DetailFormComponent<Site> {
+export class SiteDetailComponent implements OnInit, CanComponentDeactivate {
 
-  siteForm: FormGroup;
-
+  loading = false;
   site: Site;
 
-  isLoading = false;
-  isSaving = false;
+  form: FormGroup;
+
+  intersectionTypeOptions = ['Hard Corner', 'Mid Block', 'Soft Corner'];
+  positionInCenterOptions = ['End Cap', 'Free Standing', 'Inside Corner', 'Mid-Center', 'N/A'];
 
   constructor(private siteService: SiteService,
-              private casingDashboardService: CasingDashboardService,
-              private route: ActivatedRoute,
               private router: Router,
-              private fb: FormBuilder,
-              private detailFormService: DetailFormService<Site>) { }
+              private route: ActivatedRoute,
+              private routingState: RoutingStateService,
+              private errorService: ErrorService,
+              private snackBar: MatSnackBar,
+              private dialog: MatDialog,
+              private _location: Location,
+              private fb: FormBuilder) {
+    this.createForm();
+  }
+
+  private createForm() {
+    this.form = this.fb.group({
+      latitude: ['', [Validators.required]],
+      longitude: ['', [Validators.required]],
+      type: '',
+      footprintSqft: '',
+      positionInCenter: '',
+      address1: '',
+      address2: '',
+      city: '',
+      county: '',
+      state: ['', [Validators.maxLength(2)]],
+      postalCode: '',
+      country: '',
+      intersectionType: '',
+      quad: '',
+      intersectionStreetPrimary: '',
+      intersectionStreetSecondary: '',
+      duplicate: false
+    });
+  }
 
   ngOnInit() {
-
-    // TODO if no route param - treat as new site, attempt to retrieve from casing service
-    if (this.casingDashboardService.newSite != null) {
-      this.site = this.casingDashboardService.newSite;
-    }
+    const siteId = parseInt(this.route.snapshot.paramMap.get('siteId'), 10);
+    this.loadSite(siteId);
   }
 
-  createForm(): void {
-    // TODO build form
+  private loadSite(siteId: number) {
+    this.loading = true;
+    this.siteService.getOneById(siteId)
+      .pipe(finalize(() => this.loading = false))
+      .subscribe((site: Site) => {
+          this.site = site;
+          this.rebuildForm();
+        },
+        err => this.errorService.handleServerError('Failed to load Site!', err,
+          () => this.goBack(),
+          () => this.loadSite(siteId))
+      );
   }
 
-  setDisabledFields(): void {
-    this.siteForm.get('createdBy').disable();
-    this.siteForm.get('createdDate').disable();
-    this.siteForm.get('updatedBy').disable();
-    this.siteForm.get('updatedDate').disable();
-  }
-
-  getForm(): FormGroup {
-    return this.siteForm;
-  }
-
-  getNewObj(): Site {
-    if (this.casingDashboardService.newSite) {
-      return this.casingDashboardService.newSite;
-    }
-    return new Site({});
-  }
-
-  getObj(): Site {
-    return this.site;
-  }
-
-  getEntityService(): SiteService {
-    return this.siteService;
-  }
-
-  getRoute(): ActivatedRoute {
-    return this.route;
-  }
-
-  getSavableObj(): Site {
-    // TODO build savable site
-    return null;
-  }
-
-  getTypeName(): string {
-    return 'site';
+  private rebuildForm() {
+    this.form.reset(this.site);
   }
 
   goBack() {
-    this.router.navigate(['/casing']);
+    this._location.back();
+  };
+
+  private prepareSaveSite(): Site {
+    const saveSite = new Site(this.form.value);
+    if (saveSite.state != null) {
+      saveSite.state = saveSite.state.toUpperCase();
+    }
+    const strippedAE = new AuditingEntity(this.site);
+    Object.assign(saveSite, strippedAE);
+    return saveSite;
   }
 
-  onObjectChange(): void {
-    // TODO Update the form data with new site
-  }
-
-  setObj(obj: Site) {
-    this.site = obj;
-    this.onObjectChange();
-  }
-
-  saveSite() {
-    this.detailFormService.save(this);
+  saveForm() {
+    this.siteService.update(this.prepareSaveSite())
+      .subscribe((site: Site) => {
+        this.site = site;
+        this.rebuildForm();
+        this.snackBar.open(`Successfully updated Site`, null, {duration: 1000});
+      }, err => this.errorService.handleServerError('Failed to update Site!', err,
+        () => {
+        },
+        () => this.saveForm()));
   }
 
   canDeactivate(): Observable<boolean> | boolean {
-    return this.detailFormService.canDeactivate(this);
+    if (this.form.pristine) {
+      return true;
+    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {title: 'Warning!', question: 'Are you sure you wish to abandon unsaved changes?'}
+    });
+    return dialogRef.afterClosed().pipe(tap(result => {
+      // Corrects for a bug between the router and CanDeactivateGuard that pops the state even if user says no
+      if (!result) {
+        history.pushState({}, 'site', this.routingState.getPreviousUrl());
+      }
+    }));
+  }
+
+  showQuadDialog() {
+    const dialogRef = this.dialog.open(QuadDialogComponent);
+
+    dialogRef.afterClosed().subscribe(quad => {
+      console.log(quad);
+      if (typeof quad === 'string' && quad !== '') {
+        const ctrl = this.form.get('quad');
+        ctrl.setValue(quad);
+        ctrl.markAsDirty();
+      }
+    });
   }
 }

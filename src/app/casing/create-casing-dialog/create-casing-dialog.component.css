@@ -1,0 +1,8 @@
+.checklist {
+  display: flex;
+  flex-direction: column;
+}
+
+.checklist mat-checkbox {
+  margin-bottom: 8px;
+}

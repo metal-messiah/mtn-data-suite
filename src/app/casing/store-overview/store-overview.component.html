@@ -1,0 +1,38 @@
+<mds-store-entity-form [store]="store" [isReadOnly]="true"></mds-store-entity-form>
+<mat-toolbar class="flex-space-between filling-toolbar" color="primary">
+  <button mat-icon-button [mat-menu-trigger-for]="storeActionMenu">
+    <i class="fas fa-ellipsis-v"></i>
+  </button>
+  <mat-menu #storeActionMenu="matMenu" [overlapTrigger]="false">
+    <button mat-menu-item>
+      Merge with another Store
+    </button>
+    <button mat-menu-item>
+      Transition to Historical
+    </button>
+  </mat-menu>
+  <button mat-raised-button color="accent"
+          [routerLink]="['/casing/store-detail', store.id]">
+    Edit Store
+  </button>
+</mat-toolbar>
+<h3>Store Casings</h3>
+<div id="casings-wrapper">
+  <mat-toolbar>
+    <button class="centered" mat-raised-button color="accent"
+            routerLink="/casing/store-casing-detail">Add New Store Casing
+    </button>
+  </mat-toolbar>
+  <mat-accordion>
+    <mat-expansion-panel *ngFor="let casing of store.storeCasings" (opened)="onCasingOpened(casing)">
+      <mat-expansion-panel-header>
+        <mat-panel-title>{{casing.casingDate | date}}</mat-panel-title>
+        <mat-panel-description *ngIf="casing.storeStatus != null">{{casing.storeStatus.status}}</mat-panel-description>
+      </mat-expansion-panel-header>
+      <div *ngIf="selectedStoreCasing == null">
+        <mat-progress-spinner class="centered" mode="indeterminate"></mat-progress-spinner>
+      </div>
+      <mds-store-casing-entity-form *ngIf="selectedStoreCasing != null" [storeCasing]="casing" [isReadOnly]="isReadOnly"></mds-store-casing-entity-form>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

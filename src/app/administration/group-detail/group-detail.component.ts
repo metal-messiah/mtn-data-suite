@@ -1,18 +1,16 @@
-import {DatePipe} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
+import { DatePipe, Location } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 
-import {Observable} from 'rxjs/Observable';
+import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
+import { DetailFormService } from '../../core/services/detail-form.service';
+import { GroupService } from '../../core/services/group.service';
 
-import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
-import {DetailFormService} from '../../core/services/detail-form.service';
-import {GroupService} from '../../core/services/group.service';
-
-import {DetailFormComponent} from '../../interfaces/detail-form-component';
-import {Group} from '../../models/group';
-import {UserProfile} from '../../models/user-profile';
-import { SimplifiedGroup } from '../../models/simplified-group';
+import { DetailFormComponent } from '../../interfaces/detail-form-component';
+import { Group } from '../../models/full/group';
+import { UserProfile } from '../../models/full/user-profile';
+import { Observable } from 'rxjs/index';
 
 @Component({
   selector: 'mds-group-detail',
@@ -31,6 +29,7 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
   constructor(private groupService: GroupService,
               private route: ActivatedRoute,
               private router: Router,
+              private _location: Location,
               private fb: FormBuilder,
               private datePipe: DatePipe,
               private detailFormService: DetailFormService<Group>) {
@@ -113,8 +112,8 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
   }
 
   goBack() {
-    this.router.navigate(['/admin/groups']);
-  }
+    this._location.back();
+  };
 
   onObjectChange(): void {
     this.groupForm.reset({

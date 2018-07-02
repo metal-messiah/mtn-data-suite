@@ -1,5 +1,5 @@
 <div class='pg-wrapper'>
-  <div class='left-panel'>
+  <div class='left-panel' *ngIf="records != null">
     <h2>{{currentRecordIndex + 1 }}/{{records.length.toLocaleString()}}</h2>
     <mat-list>
       <mat-list-item *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex}" (click)="setCurrentRecord(i)">

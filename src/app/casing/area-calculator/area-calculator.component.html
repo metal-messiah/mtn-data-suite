@@ -1,0 +1,27 @@
+<h1 mat-dialog-title>Area Calculator</h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <input matInput type="number" placeholder="Width" [formControl]="width">
+    <span matSuffix>ft</span>
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" placeholder="Depth" [formControl]="depth">
+    <span matSuffix>ft</span>
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" placeholder="+/- Adjustment" [formControl]="plusMinus">
+    <span matSuffix>sqft</span>
+  </mat-form-field>
+  <mds-data-field title="Calculated Area" [sqft]="getCalculatedArea()"></mds-data-field>
+</div>
+<div mat-dialog-actions>
+  <button type="submit" mat-icon-button color="primary" (click)="close()">
+    <i class="fas fa-times-circle fa-2x"></i>
+  </button>
+  <button mat-raised-button color="accent" (click)="setAsSalesArea()" [disabled]="width.invalid || depth.invalid">
+    <i class="fas fa-arrow-right"></i>&nbsp;Sales
+  </button>
+  <button mat-raised-button color="accent" (click)="setAsTotalArea()" [disabled]="width.invalid || depth.invalid">
+    <i class="fas fa-arrow-right"></i>&nbsp;Total
+  </button>
+</div>

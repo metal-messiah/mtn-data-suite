@@ -1,0 +1,21 @@
+.centered {
+  margin: 0 auto;
+}
+
+.mat-dialog-container {
+  padding: 0;
+}
+
+.widened {
+  margin: 0 -24px;
+  width: auto;
+}
+
+#bottom-toolbar {
+  margin: 0 -24px -24px -24px;
+  width: auto;
+}
+
+button {
+  min-width: unset;
+}

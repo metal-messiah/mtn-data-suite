@@ -3,8 +3,8 @@ import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-com
 import { ErrorService } from './error.service';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
-import { Entity } from '../../models/entity';
 import { AuditingEntity } from '../../models/auditing-entity';
+import { finalize } from 'rxjs/internal/operators';
 
 @Injectable()
 export class EntityListService<T extends AuditingEntity> {
@@ -37,15 +37,16 @@ export class EntityListService<T extends AuditingEntity> {
 
   deleteEntity(comp: BasicEntityListComponent<T>, entity: T) {
     comp.isDeleting = true;
-    comp.getEntityService().delete(entity).subscribe(
+    comp.getEntityService().delete(entity.id)
+      .pipe(finalize(() => comp.isDeleting = false))
+      .subscribe(
       () => {
         this.snackBar.open(`Successfully deleted ${comp.getTypeName()}!`, null, {duration: 2000});
         this.initialize(comp);
       },
       err => this.errorService.handleServerError(`Failed to delete ${comp.getTypeName()}!`, err,
         () => comp.isDeleting = false,
-        () => this.deleteEntity(comp, entity)),
-      () => comp.isDeleting = false
+        () => this.deleteEntity(comp, entity))
     );
   }
 }

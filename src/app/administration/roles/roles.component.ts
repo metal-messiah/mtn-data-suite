@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Role } from '../../models/role';
+import { Role } from '../../models/full/role';
 import { RoleService } from '../../core/services/role.service';
 import { Router } from '@angular/router';
 import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-component';
 import { EntityListService } from '../../core/services/entity-list.service';
 import { ErrorService } from '../../core/services/error.service';
-import { SimplifiedRole } from '../../models/simplified-role';
+import { SimplifiedRole } from '../../models/simplified/simplified-role';
+import { Location } from '@angular/common';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-roles',
@@ -22,6 +24,7 @@ export class RolesComponent implements OnInit, BasicEntityListComponent<Role> {
 
   constructor(private roleService: RoleService,
               private router: Router,
+              private _location: Location,
               private els: EntityListService<Role>,
               private errorService: ErrorService) {
   }
@@ -31,13 +34,14 @@ export class RolesComponent implements OnInit, BasicEntityListComponent<Role> {
   }
 
   loadEntities(): void {
-    this.roleService.getAllRoles().subscribe(
-      pageable => this.roles = pageable.content.sort(this.sortCompare),
-      err => this.errorService.handleServerError(`Failed to retrieve Roles`, err,
-        () => this.goBack(),
-        () => this.els.initialize(this)),
-      () => this.isLoading = false
-    );
+    this.roleService.getAllRoles()
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe(
+        pageable => this.roles = pageable.content.sort(this.sortCompare),
+        err => this.errorService.handleServerError(`Failed to retrieve Roles`, err,
+          () => this.goBack(),
+          () => this.els.initialize(this))
+      );
   };
 
   confirmDelete(role: Role) {
@@ -45,8 +49,8 @@ export class RolesComponent implements OnInit, BasicEntityListComponent<Role> {
   }
 
   goBack() {
-    this.router.navigate(['admin']);
-  }
+    this._location.back();
+  };
 
   getPluralTypeName(): string {
     return 'roles';

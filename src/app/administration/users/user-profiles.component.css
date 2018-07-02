@@ -5,3 +5,7 @@
 .list-wrapper h3 {
   text-align: center;
 }
+
+.centered {
+  margin: 0 auto;
+}

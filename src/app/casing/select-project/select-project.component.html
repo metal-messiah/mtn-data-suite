@@ -30,11 +30,12 @@
     </div>
     <mat-divider></mat-divider>
     <div class="row content">
+      <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
       <mat-nav-list>
         <mat-list-item *ngFor="let project of projects" (click)="selectProject(project)">
           <span class="icon-container">
             <i *ngIf="project.active" class="fas fa-briefcase active"></i>
-            <i *ngIf="project.primary" class="fas fa-star yellow"></i>
+            <i *ngIf="project.primaryData" class="fas fa-star yellow"></i>
           </span>
           <span class="project-name">{{project.projectName}}</span>
         </mat-list-item>
@@ -45,11 +46,7 @@
     </div>
   </div>
 </div>
-<div mat-dialog-actions>
-  <button mat-raised-button color="accent" (click)="closeDialog()">
-    Cancel
-  </button>
-  <button mat-raised-button color="primary" (click)="clearSelectedProject()">
-    Select None
-  </button>
+<div mat-dialog-actions class="flex-space-between">
+  <button mat-raised-button color="accent" (click)="closeDialog()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="clearSelectedProject()">Select None</button>
 </div>

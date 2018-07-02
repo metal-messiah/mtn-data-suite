@@ -1,23 +1,22 @@
-import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
-import {DatePipe} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import 'rxjs/Rx';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { DatePipe, Location } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import * as _ from 'lodash';
-import {Observable} from 'rxjs/Observable';
 
-import {Role} from '../../models/role';
-import {Permission} from '../../models/permission';
-import {UserProfile} from '../../models/user-profile';
-import {DetailFormComponent} from '../../interfaces/detail-form-component';
+import { Role } from '../../models/full/role';
+import { Permission } from '../../models/full/permission';
+import { UserProfile } from '../../models/full/user-profile';
+import { DetailFormComponent } from '../../interfaces/detail-form-component';
 
-import {ErrorService} from '../../core/services/error.service';
-import {RoleService} from '../../core/services/role.service';
-import {PermissionService} from '../../core/services/permission.service';
-import {CanComponentDeactivate} from '../../core/services/can-deactivate.guard';
-import {DetailFormService} from '../../core/services/detail-form.service';
-import { SimplifiedRole } from 'app/models/simplified-role';
+import { ErrorService } from '../../core/services/error.service';
+import { RoleService } from '../../core/services/role.service';
+import { PermissionService } from '../../core/services/permission.service';
+import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
+import { DetailFormService } from '../../core/services/detail-form.service';
+import { finalize } from 'rxjs/internal/operators';
+import { Observable } from 'rxjs/index';
 
 @Component({
   selector: 'mds-role-detail',
@@ -43,6 +42,7 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
               private permissionService: PermissionService,
               private route: ActivatedRoute,
               private router: Router,
+              private _location: Location,
               private errorService: ErrorService,
               private fb: FormBuilder,
               private datePipe: DatePipe,
@@ -60,17 +60,16 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
 
     this.isLoading = true;
 
-    this.permissionService.getPermissions().subscribe(
-      pageable => {
-        this.parsePermissions(pageable['content']);
-        this.detailFormService.retrieveObj(this);
-      },
-      err => this.errorService.handleServerError(
-        'Failed to retrieve permissions!',
-        err,
-        () => this.goBack()),
-      () => this.isLoading = false
-    );
+    this.permissionService.getPermissions()
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe(
+        pageable => {
+          this.parsePermissions(pageable['content']);
+          this.detailFormService.retrieveObj(this);
+        },
+        err => this.errorService.handleServerError('Failed to retrieve permissions!', err,
+          () => this.goBack())
+      );
   }
 
   // Implementations for DetailFormComponent
@@ -153,8 +152,8 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
   }
 
   goBack() {
-    this.router.navigate(['/admin/roles']);
-  }
+    this._location.back();
+  };
 
   onObjectChange(): void {
     this.roleForm.reset({
@@ -175,16 +174,12 @@ export class RoleDetailComponent implements OnInit, CanComponentDeactivate, Deta
       });
     }
 
-    _.forEach(this.role.permissions, function (permission) {
+    this.role.permissions.forEach(permission => {
       this.roleForm.get(`permissions.${permission.subject}.${permission.action}`).setValue(true);
-    }.bind(this));
+    });
 
-    _.forEach(this.subjects, subject => {
-      this.updateSubjectControls(subject);
-    });
-    _.forEach(this.actions, action => {
-      this.updateActionControls(action);
-    });
+    this.subjects.forEach(subject =>  this.updateSubjectControls(subject));
+    this.actions.forEach(action => this.updateActionControls(action));
 
     this.updateAllSelected();
   }

@@ -1,0 +1,71 @@
+#action-button-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#action-button-container button {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.list-wrapper mat-expansion-panel {
+  margin: 8px 5px;
+}
+
+.centered {
+  margin: 0 auto;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.filling-toolbar {
+  width: auto;
+  margin: 0 -24px;
+}
+
+::ng-deep .mat-tab-label {
+  flex-basis: 0;
+  flex-grow: 1;
+}
+
+.widened {
+  margin: 0 -8px;
+}
+
+.simple-card {
+  margin: 4px;
+  padding: 12px;
+}
+
+.error {
+  background: rgba(255, 199, 206, 0.82);
+}
+
+.notice {
+  background: lightskyblue;
+}
+
+.warning {
+  background: yellow;
+  font-weight: bold;
+}
+
+.mds-card .title {
+  color: white;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.mds-card .header {
+  min-height: unset;
+  background: #38474e;
+}
+
+#tab-content {
+  padding: 0;
+  min-height: 323px;
+}
+
+

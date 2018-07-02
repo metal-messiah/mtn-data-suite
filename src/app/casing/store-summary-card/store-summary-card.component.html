@@ -1,0 +1,73 @@
+<div class="mds-card">
+  <div class="header" color="primary">
+    <div class="title">
+      <span *ngIf="store.storeName != null">{{store.storeName}}</span>
+      <span *ngIf="store.storeName == null">(Please edit to add name)</span>
+      <span *ngIf="store.storeNumber != null">&nbsp;({{store.storeNumber}})</span>
+    </div>
+    <div class="subtitle" *ngIf="store.currentStoreStatus != null">{{store.currentStoreStatus.status}}</div>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="content">
+    <mat-card *ngIf="store.floating" class="simple-card warning">
+      <div class="flex flex-space-between flex-align-center">
+        <span><i class="far fa-life-ring"></i>&nbsp;Marked As Float</span>
+        <button mat-raised-button color="warn" (click)="setFloating(false)">Un-mark</button>
+      </div>
+    </mat-card>
+    <mat-list>
+      <mds-data-field *ngIf="store.currentStoreSurvey != null" title="Sales Area"
+                      [sqft]="store.currentStoreSurvey.areaSales"></mds-data-field>
+      <mds-data-field *ngIf="store.currentStoreSurvey != null" title="Total Area"
+                      [sqft]="store.currentStoreSurvey.areaTotal"></mds-data-field>
+      <mds-data-field *ngIf="store.dateOpened != null" title="Date Opened"
+                      [dateValue]="store.dateOpened"></mds-data-field>
+      <mds-data-field *ngIf="store.dateClosed != null" title="Date Closed"
+                      [dateValue]="store.dateClosed"></mds-data-field>
+    </mat-list>
+    <div *ngIf="store.storeVolumes != null && store.storeVolumes.length > 0">
+      <mds-data-field title="Volumes" [value]=""></mds-data-field>
+      <ul>
+        <li *ngFor="let volume of store.storeVolumes">
+          <strong>{{volume.volumeDate | date}}:</strong>&nbsp;
+          <span>{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k</span>
+          <span *ngIf="store.currentStoreSurvey != null && store.currentStoreSurvey.areaSales != null">({{volume.volumeTotal/store.currentStoreSurvey.areaSales | currency}}&nbsp;psf)</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <mat-toolbar color="primary" class="flex-space-between">
+    <button mat-icon-button [mat-menu-trigger-for]="storeCenterActionMenu">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <button mat-raised-button color="warn" [routerLink]="['/casing/store', store.id, 'store-casings']">Casings</button>
+    <button mat-raised-button color="accent" [routerLink]="['/casing/store', store.id]">Edit</button>
+  </mat-toolbar>
+</div>
+
+<mat-menu #storeCenterActionMenu="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item disabled>
+    <i class="fas fa-copy"></i>&nbsp;&nbsp;Merge with another Store
+  </button>
+  <button mat-menu-item *ngIf="store.storeType != 'ACTIVE'" (click)="updateStoreType('ACTIVE')">
+    <i class="fas fa-play"></i>&nbsp;&nbsp;Change to Active
+  </button>
+  <button mat-menu-item *ngIf="store.storeType != 'FUTURE'" (click)="updateStoreType('FUTURE')">
+    <i class="fas fa-forward"></i>&nbsp;&nbsp;Change to Future
+  </button>
+  <button mat-menu-item *ngIf="store.storeType != 'HISTORICAL'" (click)="updateStoreType('HISTORICAL')">
+    <i class="fas fa-backward"></i>&nbsp;&nbsp;Change to Historical
+  </button>
+  <button mat-menu-item *ngIf="!store.floating" (click)="setFloating(true)">
+    <i class="fas fa-life-ring"></i>&nbsp;&nbsp;Mark as Float
+  </button>
+  <button mat-menu-item *ngIf="store.floating" (click)="setFloating(false)">
+    <i class="far fa-life-ring"></i>&nbsp;&nbsp;Unmark as Float
+  </button>
+  <button mat-menu-item (click)="openVolumeDialog()">
+    <i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;Volumes
+  </button>
+  <button mat-menu-item (click)="openStoreStatusDialog()">
+    <i class="fas fa-calendar-plus"></i>&nbsp;&nbsp;Update Status
+  </button>
+</mat-menu>

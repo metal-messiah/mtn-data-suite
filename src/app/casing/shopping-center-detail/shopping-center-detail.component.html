@@ -1,0 +1,28 @@
+<div class="box">
+  <mat-toolbar color="primary" class="row header flex-space-between">
+    <div>
+      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
+    </div>
+    <span id="title">SC Details</span>
+    <div>
+      <button type="button" mat-icon-button color="warn" *ngIf="form.invalid">
+        <i class="fas fa-exclamation-triangle fa-2x"></i>
+      </button>
+      <button type="submit" mat-mini-fab color="accent" (click)="saveForm()"
+              [disabled]="form.pristine || form.invalid">
+        <i class="fas fa-save"></i>
+      </button>
+    </div>
+  </mat-toolbar>
+  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+  <div class="row content" *ngIf="!loading">
+    <div class="list-wrapper" [formGroup]="form">
+      <mat-form-field>
+        <input matInput type="text" placeholder="Shopping Center Name" formControlName="name">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="text" placeholder="Shopping Center Owner" formControlName="owner">
+      </mat-form-field>
+    </div>
+  </div>
+</div>

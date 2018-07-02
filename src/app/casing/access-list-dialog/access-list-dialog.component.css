@@ -1,0 +1,28 @@
+.mat-dialog-title {
+  margin-bottom: 10px;
+  font-size: large;
+  font-weight: bold;
+}
+
+#add-buttons {
+  width: auto;
+  margin: 0 -16px 8px -16px;
+}
+
+.mat-action-row {
+  justify-content: space-between;
+}
+
+#accordion-wrapper {
+  width: auto;
+  margin: 0 -16px;
+}
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+}
+
+.checklist mat-checkbox {
+  margin-bottom: 8px;
+}

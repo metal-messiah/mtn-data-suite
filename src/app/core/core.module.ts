@@ -1,25 +1,33 @@
-import { NgModule, Optional, SkipSelf } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { AuthService } from "./services/auth.service";
-import { ErrorService } from "./services/error.service";
-import { RestService } from "./services/rest.service";
-import { GroupService } from "./services/group.service";
-import { PermissionService } from "./services/permission.service";
-import { RoleService } from "./services/role.service";
-import { UserProfileService } from "./services/user-profile.service";
-import { AuthGuard } from "./services/auth.guard";
-import { DetailFormService } from "./services/detail-form.service";
-import { EntityListService } from "./services/entity-list.service";
-import { SiteService } from "./services/site.service";
-import { ProjectService } from "./services/project.service";
-import { IconService } from "./services/icon.service";
-import { GeocoderService } from "./services/geocoder.service";
-import { LabelService } from "./services/label.service";
-import { NavigatorService } from "./services/navigator.service";
-import { MapService } from "./services/map.service";
-import { StoreService } from "./services/store.service";
-import { SourceService } from "./services/source.service";
-import { PGTokenService } from "./services/pgtoken.service";
+import { NgModule, Optional, SkipSelf } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { AuthService } from './services/auth.service';
+import { ErrorService } from './services/error.service';
+import { RestService } from './services/rest.service';
+import { GroupService } from './services/group.service';
+import { PermissionService } from './services/permission.service';
+import { RoleService } from './services/role.service';
+import { UserProfileService } from './services/user-profile.service';
+import { AuthGuard } from './services/auth.guard';
+import { DetailFormService } from './services/detail-form.service';
+import { EntityListService } from './services/entity-list.service';
+import { SiteService } from './services/site.service';
+import { ProjectService } from './services/project.service';
+import { GeocoderService } from './services/geocoder.service';
+import { NavigatorService } from './services/navigator.service';
+import { MapService } from './services/map.service';
+import { StoreService } from './services/store.service';
+import { ShoppingCenterService } from './services/shopping-center.service';
+import { ShoppingCenterCasingService } from './services/shopping-center-casing.service';
+import { StoreCasingService } from './services/store-casing.service';
+import { StoreVolumeService } from './services/store-volume.service';
+import { ShoppingCenterSurveyService } from './services/shopping-center-survey.service';
+import { ShoppingCenterTenantService } from './services/shopping-center-tenant.service';
+import { ShoppingCenterAccessService } from './services/shopping-center-access.service';
+import { StoreSurveyService } from './services/store-survey.service';
+import { RoutingStateService } from './services/routing-state.service';
+import { BannerService } from './services/banner.service';
+import { PGTokenService } from './services/pgtoken.service';
+import { SourceService } from './services/source.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -27,24 +35,32 @@ import { PGTokenService } from "./services/pgtoken.service";
   providers: [
     AuthService,
     AuthGuard,
+    BannerService,
     DetailFormService,
     EntityListService,
     ErrorService,
     GeocoderService,
     GroupService,
-    IconService,
-    LabelService,
     MapService,
     NavigatorService,
     PermissionService,
+    PGTokenService,
     ProjectService,
     RestService,
     RoleService,
+    RoutingStateService,
+    ShoppingCenterAccessService,
+    ShoppingCenterCasingService,
+    ShoppingCenterService,
+    ShoppingCenterSurveyService,
+    ShoppingCenterTenantService,
     SiteService,
-    UserProfileService,
-    StoreService,
     SourceService,
-    PGTokenService
+    StoreCasingService,
+    StoreService,
+    StoreSurveyService,
+    StoreVolumeService,
+    UserProfileService
   ]
 })
 export class CoreModule {
@@ -55,7 +71,7 @@ export class CoreModule {
   ) {
     if (parentModule) {
       throw new Error(
-        "CoreModule is already loaded. Import it in the AppModule only"
+        'CoreModule is already loaded. Import it in the AppModule only'
       );
     }
   }

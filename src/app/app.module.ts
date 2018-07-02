@@ -19,7 +19,7 @@ import { DataUploadModule } from './data-upload/data-upload.module';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    environment.production ? ServiceWorkerModule.register('/ngsw-worker.js') : [],
+    ServiceWorkerModule.register('/ngsw-worker.js', {enabled: environment.production}),
     CoreModule,
     SharedModule,
     AdministrationModule,

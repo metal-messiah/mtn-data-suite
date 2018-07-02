@@ -11,4 +11,7 @@
   <button mat-menu-item *ngIf="!auth.isAuthenticated()" (click)="auth.signIn()">
     <i class="fas fa-sign-in-alt"></i>&nbsp;Sign In
   </button>
+  <button mat-menu-item (click)="openAppInfoDialog()">
+    <i class="fas fa-info-circle"></i>&nbsp;App Info
+  </button>
 </mat-menu>

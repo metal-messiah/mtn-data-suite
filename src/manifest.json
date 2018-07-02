@@ -1,6 +1,6 @@
 {
-  "short_name": "MTN Admin",
-  "name": "MTN Administration app",
+  "short_name": "MTN",
+  "name": "MTN App Suite",
   "start_url": "/",
   "theme_color": "#f48c5b",
   "background_color": "#ffffff",

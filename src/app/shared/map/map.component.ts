@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import {MapService} from '../../core/services/map.service';
+import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { MapService } from '../../core/services/map.service';
+import { Subject } from 'rxjs/index';
 
 @Component({
   selector: 'mds-map',
@@ -13,14 +14,15 @@ export class MapComponent implements OnInit, OnDestroy {
   @Input() latitude = 0;
   @Input() longitude = 0;
   @Input() zoom = 8;
-  @Output() ready = new EventEmitter();
+
+  @Output() ready = new Subject<google.maps.Map>();
 
   constructor(private mapService: MapService) {
   }
 
   ngOnInit() {
-    this.mapService.initialize(document.getElementById('map'));
-    this.ready.emit('Hooray!');
+    const map = this.mapService.initialize(document.getElementById('map'));
+    this.ready.next(map);
   }
 
   ngOnDestroy() {
