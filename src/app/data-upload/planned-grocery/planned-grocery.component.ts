@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { SourceService } from '../../core/services/source.service';
+import { StoreSourceService } from '../../core/services/store-source.service';
 import { MapService } from '../../core/services/map.service';
-import { PGTokenService } from '../../core/services/pgtoken.service';
 import { PlannedGroceryService } from './planned-grocery-service.service';
 import { FormBuilder } from '@angular/forms';
 import { MapPointLayer } from '../../models/map-point-layer';
 import { StoreMappable } from '../../models/store-mappable';
 import { PgMappable } from '../../models/pg-mappable';
 import { finalize } from 'rxjs/internal/operators';
+import { SimplifiedStoreSource } from '../../models/simplified/simplified-store-source';
+import { Pageable } from '../../models/pageable';
 
 enum Actions {
   add_site = 'ADD_SITE',
@@ -25,15 +26,13 @@ export class PlannedGroceryComponent implements OnInit {
   pgMapLayer: MapPointLayer<PgMappable>;
   dbMapLayer: MapPointLayer<StoreMappable>;
 
-  records: object[];
-  currentRecord: object;
+  records: SimplifiedStoreSource[];
+  currentRecord: SimplifiedStoreSource;
   currentRecordIndex: number;
 
   currentRecordData: object;
 
   currentDBResults: object;
-
-  pgToken: object;
 
   // firstFormGroup: FormGroup;
   // secondFormGroup: FormGroup;
@@ -47,21 +46,21 @@ export class PlannedGroceryComponent implements OnInit {
   step2Action: string;
 
   constructor(
-    private sourceService: SourceService,
+    private sourceService: StoreSourceService,
     private mapService: MapService,
-    private pgTokenService: PGTokenService,
     private pgService: PlannedGroceryService,
     private _formBuilder: FormBuilder
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
-    this.pgTokenService.getToken().subscribe(resp => {
-      this.pgToken = resp;
-      this.records = this.sourceService.getSourceTable();
-      this.setCurrentRecord(0);
-
-      this.currentDBResults = this.sourceService.getDBTable();
-    });
+    let retrievingSources = true;
+    this.sourceService.getSourcesNotValidated().pipe(finalize(() => retrievingSources = false))
+      .subscribe((page: Pageable<SimplifiedStoreSource>) => {
+        this.records = page.content;
+        this.setCurrentRecord(0);
+        this.currentDBResults = this.sourceService.getDBTable();
+      });
   }
 
   setStepCompleted(step, action, stepper) {
@@ -90,17 +89,10 @@ export class PlannedGroceryComponent implements OnInit {
 
   setCurrentRecord(index: number) {
     this.currentRecordIndex = index;
-    this.currentRecord = Object.assign({}, this.records[index]);
+    this.currentRecord = this.records[index];
 
     this.isFetching = true;
-    this.pgService
-      .get(
-        `https://services1.arcgis.com/aUqH6d4IMis39TBB/arcgis/rest/services/BD_FUTURE_RETAIL/FeatureServer/0/query?where=OBJECTID=${
-          this.currentRecord['OBJECTID']
-        }&outFields=*&returnGeometry=true&outSR=4326&f=pjson&token=${
-          this.pgToken['access_token']
-        }`
-      )
+    this.pgService.getFeatureByObjectId(this.currentRecord.sourceNativeId)
       .pipe(finalize(() => this.isFetching = false))
       .subscribe(record => {
         console.log(record);

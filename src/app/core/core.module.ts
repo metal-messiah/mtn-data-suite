@@ -26,8 +26,7 @@ import { ShoppingCenterAccessService } from './services/shopping-center-access.s
 import { StoreSurveyService } from './services/store-survey.service';
 import { RoutingStateService } from './services/routing-state.service';
 import { BannerService } from './services/banner.service';
-import { PGTokenService } from './services/pgtoken.service';
-import { SourceService } from './services/source.service';
+import { StoreSourceService } from './services/store-source.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -44,7 +43,6 @@ import { SourceService } from './services/source.service';
     MapService,
     NavigatorService,
     PermissionService,
-    PGTokenService,
     ProjectService,
     RestService,
     RoleService,
@@ -55,7 +53,7 @@ import { SourceService } from './services/source.service';
     ShoppingCenterSurveyService,
     ShoppingCenterTenantService,
     SiteService,
-    SourceService,
+    StoreSourceService,
     StoreCasingService,
     StoreService,
     StoreSurveyService,
