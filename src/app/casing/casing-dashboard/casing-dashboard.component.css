@@ -10,39 +10,30 @@ mat-card {
   pointer-events: all;
 }
 
-.infoCard {
-  display: flex;
-  justify-content: center;
+mds-store-info-card {
   width: 100%;
   position: absolute;
-  bottom: 50px;
+  bottom: 60px;
   pointer-events: none;
 }
 
-#storeInfoCard .mat-card {
-  padding: 10px;
-  width: 70%;
-  max-width: 360px;
+@media (min-width: 600px) {
+  mds-store-info-card {
+    bottom: 70px;
+  }
 }
 
-#storeInfoCard .mat-card-actions {
-  padding-top: 5px;
-  display: flex;
-  justify-content: space-around;
+mds-site-info-card {
+  width: 100%;
+  position: absolute;
+  bottom: 60px;
+  pointer-events: none;
 }
 
-#storeInfoCard .mat-card-subtitle {
-  margin-bottom: 0px;
-}
-
-#storeInfoCard .mat-card-content {
-  margin-bottom: 0px;
-  padding: 0 8px;
-  font-size: small;
-}
-
-#storeInfoCard .mat-card > .mat-card-actions:last-child {
-  margin-bottom: -8px;
+@media (min-width: 600px) {
+  mds-site-info-card {
+    bottom: 70px;
+  }
 }
 
 #casing-dash-container {
@@ -66,3 +57,18 @@ form {
 .casing-side-nav {
   max-width: 300px;
 }
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+}
+
+.checklist mat-checkbox {
+  margin-bottom: 8px;
+}
+
+#filter-side-nav {
+  min-width: 150px;
+  margin-left: 16px;
+}
+

@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import {  NgModule } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ErrorDialogComponent } from './error-dialog/error-dialog.component';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
@@ -11,6 +11,10 @@ import { PathNotFoundComponent } from './path-not-found/path-not-found.component
 import { MapComponent } from './map/map.component';
 import { LogoMenuComponent } from './logo-menu/logo-menu.component';
 import { RouterModule } from '@angular/router';
+import { DataFieldComponent } from './data-field/data-field.component';
+import { UserProfileSelectComponent } from './user-profile-select/user-profile-select.component';
+import { DataFieldInfoDialogComponent } from './data-field-info-dialog/data-field-info-dialog.component';
+import { AppInfoDialogComponent } from './app-info-dialog/app-info-dialog.component';
 
 @NgModule({
   imports: [
@@ -24,7 +28,11 @@ import { RouterModule } from '@angular/router';
     CallbackComponent,
     PathNotFoundComponent,
     MapComponent,
-    LogoMenuComponent
+    LogoMenuComponent,
+    DataFieldComponent,
+    UserProfileSelectComponent,
+    DataFieldInfoDialogComponent,
+    AppInfoDialogComponent
   ],
   providers: [
     BreakpointObserver,
@@ -33,7 +41,10 @@ import { RouterModule } from '@angular/router';
   ],
   entryComponents: [
     ErrorDialogComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    UserProfileSelectComponent,
+    DataFieldInfoDialogComponent,
+    AppInfoDialogComponent
   ],
   exports: [
     CallbackComponent,
@@ -45,7 +56,9 @@ import { RouterModule } from '@angular/router';
     LogoMenuComponent,
     MapComponent,
     PathNotFoundComponent,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    DataFieldComponent,
+    DataFieldInfoDialogComponent
   ]
 })
 export class SharedModule {

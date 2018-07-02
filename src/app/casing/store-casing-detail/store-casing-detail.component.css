@@ -1,0 +1,84 @@
+.list-wrapper {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+#volume-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#volume-table td {
+  width: 50%;
+}
+
+.button-in-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.row.header {
+  min-height: 56px;
+}
+
+.project-item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.project-item button {
+  min-width: unset;
+}
+
+#projects {
+  margin-left: -24px;
+  margin-right: -24px;
+}
+
+#departments {
+  display: flex;
+  flex-direction: column;
+}
+
+#departments div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+}
+
+.checklist mat-checkbox {
+  margin-bottom: 8px;
+}
+
+#add-dashboard-project-button {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 4px;
+}
+
+#add-project-button {
+  min-width: 104px;
+}
+
+#area-percent-input {
+  max-width: 75%;
+}
+
+.new {
+  color: forestgreen;
+}
+
+.edited {
+  color: gold;
+}

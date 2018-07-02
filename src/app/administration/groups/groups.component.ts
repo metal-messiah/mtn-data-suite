@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Group } from '../../models/group';
+import { Group } from '../../models/full/group';
 import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-component';
 import { GroupService } from '../../core/services/group.service';
 import { EntityListService } from '../../core/services/entity-list.service';
 import { Router } from '@angular/router';
-import { SimplifiedGroup } from '../../models/simplified-group';
+import { SimplifiedGroup } from '../../models/simplified/simplified-group';
 import { ErrorService } from '../../core/services/error.service';
+import { Location } from '@angular/common';
+import { finalize } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'mds-groups',
@@ -21,6 +23,7 @@ export class GroupsComponent implements OnInit, BasicEntityListComponent<Group> 
 
   constructor(private groupService: GroupService,
               private router: Router,
+              private _location: Location,
               private els: EntityListService<Group>,
               private errorService: ErrorService) {
   }
@@ -31,12 +34,13 @@ export class GroupsComponent implements OnInit, BasicEntityListComponent<Group> 
 
 
   loadEntities(): void {
-    this.groupService.getAllGroups().subscribe(
+    this.groupService.getAllGroups()
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe(
         pageable => this.groups = pageable.content.sort(this.sortCompare),
         err => this.errorService.handleServerError(`Failed to retrieve Groups`, err,
           () => this.goBack(),
-          () => this.els.initialize(this)),
-        () => this.isLoading = false
+          () => this.els.initialize(this))
       );
   };
 
@@ -45,8 +49,8 @@ export class GroupsComponent implements OnInit, BasicEntityListComponent<Group> 
   }
 
   goBack() {
-    this.router.navigate(['admin']);
-  }
+    this._location.back();
+  };
 
   getPluralTypeName(): string {
     return 'groups';

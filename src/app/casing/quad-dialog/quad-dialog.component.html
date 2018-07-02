@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>Select Quad</h2>
+<div mat-dialog-content>
+  <div class="flex flex-space-between button-row">
+    <button type="button" mat-raised-button color="primary" mat-dialog-close="NWC">NWC</button>
+    <button type="button" mat-raised-button color="primary" mat-dialog-close="NC">NC</button>
+    <button type="button" mat-raised-button color="primary" mat-dialog-close="NEC">NEC</button>
+  </div>
+  <div class="flex flex-space-between button-row">
+    <button type="button" mat-raised-button color="primary" mat-dialog-close="WC">WC</button>
+    <button type="button" mat-raised-button color="primary" mat-dialog-close="NONE">None</button>
+    <button type="button" mat-raised-button color="primary" mat-dialog-close="EC">EC</button>
+  </div>
+  <div class="flex flex-space-between button-row">
+    <button type="button" mat-raised-button color="primary" mat-dialog-close="SWC">SWC</button>
+    <button type="button" mat-raised-button color="primary" mat-dialog-close="SC">SC</button>
+    <button type="button" mat-raised-button color="primary" mat-dialog-close="SEC">SEC</button>
+  </div>
+  <div class="flex flex-space-between flex-align-center">
+    <div id="other-input-wrapper">
+      <mat-form-field>
+        <input matInput type="text" placeholder="Other" [(ngModel)]="other">
+      </mat-form-field>
+    </div>
+    <div>
+      <button type="submit" mat-raised-button color="accent" [mat-dialog-close]="other">Use</button>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button type="button" mat-raised-button [mat-dialog-close]="false" color="primary">Cancel</button>
+</div>

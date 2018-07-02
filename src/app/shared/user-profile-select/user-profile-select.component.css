@@ -1,0 +1,15 @@
+.centered {
+  margin: 0 auto;
+}
+
+mat-nav-list {
+  flex-grow: 1;
+  overflow: auto;
+  max-height: 100%;
+  padding-top: unset;
+}
+
+.wrapper {
+  height: 400px;
+  overflow: auto;
+}

@@ -1,31 +1,27 @@
 import { Mappable } from '../interfaces/mappable';
-import { MapPointLayerOptions } from '../interfaces/map-point-layer-options';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs/index';
 
 /*
   The Map Point Layer should represent a list of Mappables on a map.
   - Mappables is not added to or reduced, but rather replaced (managed externally)
-  - Takes a MapPointLayerOptions object to determine the marker style
   - Emits marker click events
   - Can be added to and removed from map
  */
-export class MapPointLayer {
+export class MapPointLayer<T extends Mappable> {
 
-  layerOptions: MapPointLayerOptions;
   markers: google.maps.Marker[];
 
-  markerClick$ = new Subject<Mappable>();
+  markerClick$ = new Subject<T>();
 
-  constructor(layerOptions: MapPointLayerOptions) {
-    this.layerOptions = layerOptions;
+  constructor() {
     this.markers = [];
   }
 
-  createMarkersFromMappables(mappables: Mappable[]) {
+  createMarkersFromMappables(mappables: T[]) {
     mappables.forEach(mappable => this.createMarkerFromMappable(mappable));
   }
 
-  createMarkerFromMappable(mappable: Mappable) {
+  protected createMarkerFromMappable(mappable: T) {
     const marker = new google.maps.Marker({
       position: mappable.getCoordinates()
     });
@@ -36,28 +32,19 @@ export class MapPointLayer {
     this.setMarkerOptions(marker);
   }
 
-  refreshOptionsForMappable(mappable: Mappable): void {
+  protected refreshOptionsForMappable(mappable: T): void {
     const marker = this.getMarkerForMappable(mappable);
-    this.setMarkerOptions(marker);
+    if (marker != null) {
+      this.setMarkerOptions(marker);
+    }
   }
 
-  refreshOptionsForMappables(mappables: Mappable[]): void {
+  refreshOptionsForMappables(mappables: T[]): void {
     mappables.forEach(mappable => this.refreshOptionsForMappable(mappable));
-  }
-
-  getMarkerForMappable(mappable: Mappable) {
-    return this.markers.find(marker => marker.get('mappable').id === mappable.id);
   }
 
   refreshOptions(): void {
     this.markers.forEach(marker => this.setMarkerOptions(marker));
-  }
-
-  setMarkerOptions(marker: google.maps.Marker): void {
-    const mappable = marker.get('mappable');
-    marker.setDraggable(this.layerOptions.getMappableIsDraggable(mappable));
-    marker.setIcon(this.layerOptions.getMappableIcon(mappable));
-    marker.setLabel(this.layerOptions.getMappableLabel(mappable));
   }
 
   addToMap(map: google.maps.Map) {
@@ -75,15 +62,13 @@ export class MapPointLayer {
     this.markers = [];
   }
 
-  getCoordinatesOfMappableMarker(mappable: Mappable): google.maps.LatLngLiteral {
-    const marker = this.markers.find(m => {
-      return m.get('mappable').id === mappable.id;
-    });
+  getCoordinatesOfMappableMarker(mappable: T): google.maps.LatLngLiteral {
+    const marker = this.getMarkerForMappable(mappable);
     return marker.getPosition().toJSON();
   }
 
-  getMappablesInShape(shape): Mappable[] {
-    const mappablesInShape: Mappable[] = [];
+  getMappablesInShape(shape): T[] {
+    const mappablesInShape: T[] = [];
     if (shape.type === google.maps.drawing.OverlayType.CIRCLE) {
       this.markers.forEach(marker => {
         const cir: google.maps.Circle = shape.overlay;
@@ -110,8 +95,19 @@ export class MapPointLayer {
     return mappablesInShape;
   }
 
-  resetPositionOfMappable(site: Mappable) {
-    const marker = this.getMarkerForMappable(site);
-    marker.setPosition(site.getCoordinates());
+  protected resetPositionOfMappable(mappable: T) {
+    const marker = this.getMarkerForMappable(mappable);
+    marker.setPosition(mappable.getCoordinates());
+  }
+
+  protected getMarkerForMappable(mappable: T) {
+    return this.markers.find(marker => marker.get('mappable').id === mappable.id);
+  }
+
+  private setMarkerOptions(marker: google.maps.Marker): void {
+    const mappable: Mappable = marker.get('mappable');
+    marker.setDraggable(mappable.isDraggable());
+    marker.setIcon(mappable.getIcon());
+    marker.setLabel(mappable.getLabel());
   }
 }

@@ -1,0 +1,98 @@
+<h3>Survey</h3>
+<mat-form-field>
+  <input [readonly]="isDisabled" matInput placeholder="Survey Date"
+         [value]="survey.surveyDate">
+</mat-form-field>
+<mat-form-field>
+  <input [readonly]="isDisabled" matInput placeholder="Center Type"
+         [value]="survey.centerType">
+</mat-form-field>
+<mat-form-field>
+  <textarea [readonly]="isDisabled" matInput placeholder="Survey Notes"
+            [value]="survey.note"></textarea>
+</mat-form-field>
+
+<!-- Flow -->
+
+<h4>Flow</h4>
+<mat-selection-list [disabled]="isDisabled">
+  <mat-list-option [selected]="survey.flowHasLandscaping">
+    Has Landscaping
+  </mat-list-option>
+  <mat-list-option [selected]="survey.flowHasSpeedBumps">
+    Has Speed Bumps
+  </mat-list-option>
+  <mat-list-option [selected]="survey.flowHasStopSigns">
+    Has Stop Signs
+  </mat-list-option>
+  <mat-list-option [selected]="survey.flowHasOneWayAisles">
+    Has One Way Aisles
+  </mat-list-option>
+</mat-selection-list>
+
+<!-- Parking -->
+
+<h4>Parking</h4>
+<mat-selection-list [disabled]="isDisabled">
+  <mat-list-option [selected]="survey.parkingHasAngledSpaces">
+    Has Angled Spaces
+  </mat-list-option>
+  <mat-list-option [selected]="survey.parkingHasParkingHog">
+    Has Parking Hog
+  </mat-list-option>
+  <mat-list-option [selected]="survey.parkingIsPoorlyLit">
+    Is Poorly Lit
+  </mat-list-option>
+</mat-selection-list>
+<p># Parking Spaces: {{survey.parkingSpaceCount}}</p>
+
+<!-- Tenants -->
+
+<h4>Tenant Summary</h4>
+<mat-form-field>
+  <input [readonly]="isDisabled" matInput type="number" placeholder="# Occupied"
+            [value]="survey.tenantOccupiedCount">
+</mat-form-field>
+<mat-form-field>
+  <input [readonly]="isDisabled" matInput type="number" placeholder="# Vacant"
+            [value]="survey.tenantVacantCount">
+</mat-form-field>
+<mat-form-field>
+  <input [readonly]="isDisabled" matInput type="number" placeholder="Sqft % Occupied"
+            [value]="survey.sqFtPercentOccupied">
+</mat-form-field>
+<h4 *ngIf="survey.tenants == null || survey.tenants.length == 0">No Tenants</h4>
+<mat-accordion *ngIf="survey.tenants != null && survey.tenants.length > 0">
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <h4>Tenant List</h4>
+    </mat-expansion-panel-header>
+    <ul>
+      <li *ngFor="let tenant of survey.tenants">
+        {{tenant.name}}<span *ngIf="tenant.outparcel">&nbsp;(Outparcel)</span>
+      </li>
+    </ul>
+  </mat-expansion-panel>
+</mat-accordion>
+
+<!-- Accesses -->
+
+<h4 *ngIf="survey.accesses == null || survey.accesses.length == 0">
+  No Accesses
+</h4>
+<div *ngIf="survey.accesses != null && survey.accesses.length > 0">
+  <h4>Acceses</h4>
+  <mat-accordion>
+    <mat-expansion-panel *ngFor="let access of survey.accesses">
+      <mat-expansion-panel-header>{{access.accessType}}</mat-expansion-panel-header>
+      <mat-selection-list [disabled]="isDisabled">
+        <mat-list-option [selected]="access.hasLeftIn">Has Left In</mat-list-option>
+        <mat-list-option [selected]="access.hasLeftOut">Has Left Out</mat-list-option>
+        <mat-list-option [selected]="access.hasRightIn">Has Right In</mat-list-option>
+        <mat-list-option [selected]="access.hasRightOut">Has Right Out</mat-list-option>
+        <mat-list-option [selected]="access.oneWayRoad">One Way Road</mat-list-option>
+        <mat-list-option [selected]="access.hasTrafficLight">Has Traffic Light</mat-list-option>
+      </mat-selection-list>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

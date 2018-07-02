@@ -1,0 +1,14 @@
+.checklist {
+  display: flex;
+  flex-direction: column;
+  padding-left: 16px;
+}
+
+.content {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+#quad-button-wrapper {
+  margin-bottom: 10px;
+}

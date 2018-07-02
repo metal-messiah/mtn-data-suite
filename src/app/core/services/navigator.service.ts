@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
 import { Coordinates } from '../../models/coordinates';
+import { Observable } from 'rxjs/index';
 
 @Injectable()
 export class NavigatorService {

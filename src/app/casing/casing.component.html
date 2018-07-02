@@ -4,20 +4,20 @@
     <h2><i class="fas fa-briefcase"></i>&nbsp;Casing</h2>
   </div>
   <div class="project-button-container">
-    <button class="project-button" mat-raised-button
-            *ngIf="casingDashboardService.selectedProject == null" color="warn"
+    <button class="project-button" mat-raised-button color="warn"
+            *ngIf="casingDashboardService.getSelectedProject() == null"
             (click)="casingDashboardService.openProjectSelectionDialog()">
       Select Project
     </button>
-    <button class="project-button" mat-raised-button
-            *ngIf="casingDashboardService.selectedProject != null" color="accent"
+    <button class="project-button" mat-raised-button color="accent"
+            *ngIf="casingDashboardService.getSelectedProject() != null"
             [matMenuTriggerFor]="projectMenu">
-      {{casingDashboardService.selectedProject.projectName}}
+      {{casingDashboardService.getSelectedProject().projectName}}
     </button>
     <mat-menu #projectMenu="matMenu">
       <button mat-menu-item (click)="casingDashboardService.openProjectSelectionDialog()">Change Selected Project</button>
-      <button mat-menu-item (click)="navigateToProjectSummary()">View Project Summary</button>
-      <button mat-menu-item (click)="navigateToProjectDetail()">Edit Project</button>
+      <button mat-menu-item (click)="navigateToProjectSummary()" disabled>View Project Summary</button>
+      <button mat-menu-item (click)="navigateToProjectDetail()" disabled>Edit Project</button>
     </mat-menu>
   </div>
 </mat-toolbar>

@@ -12,12 +12,20 @@ import { DetailFormService } from './services/detail-form.service';
 import { EntityListService } from './services/entity-list.service';
 import { SiteService } from './services/site.service';
 import { ProjectService } from './services/project.service';
-import { IconService } from './services/icon.service';
 import { GeocoderService } from './services/geocoder.service';
-import { LabelService } from './services/label.service';
 import { NavigatorService } from './services/navigator.service';
 import { MapService } from './services/map.service';
 import { StoreService } from './services/store.service';
+import { ShoppingCenterService } from './services/shopping-center.service';
+import { ShoppingCenterCasingService } from './services/shopping-center-casing.service';
+import { StoreCasingService } from './services/store-casing.service';
+import { StoreVolumeService } from './services/store-volume.service';
+import { ShoppingCenterSurveyService } from './services/shopping-center-survey.service';
+import { ShoppingCenterTenantService } from './services/shopping-center-tenant.service';
+import { ShoppingCenterAccessService } from './services/shopping-center-access.service';
+import { StoreSurveyService } from './services/store-survey.service';
+import { RoutingStateService } from './services/routing-state.service';
+import { BannerService } from './services/banner.service';
 
 @NgModule({
   imports: [
@@ -32,8 +40,6 @@ import { StoreService } from './services/store.service';
     ErrorService,
     GeocoderService,
     GroupService,
-    IconService,
-    LabelService,
     MapService,
     NavigatorService,
     PermissionService,
@@ -42,7 +48,17 @@ import { StoreService } from './services/store.service';
     RoleService,
     SiteService,
     UserProfileService,
-    StoreService
+    StoreService,
+    ShoppingCenterService,
+    ShoppingCenterCasingService,
+    StoreCasingService,
+    StoreVolumeService,
+    ShoppingCenterSurveyService,
+    ShoppingCenterTenantService,
+    ShoppingCenterAccessService,
+    StoreSurveyService,
+    RoutingStateService,
+    BannerService
   ]
 })
 export class CoreModule {

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Site } from '../../models/site';
+import { Site } from '../../models/full/site';
 import { Duplicate } from '../../models/duplicate';
 
 @Component({

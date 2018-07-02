@@ -1,3 +1,64 @@
-<p>
-  project-detail works!
-</p>
+<div class="box">
+  <mat-toolbar color="primary" class="row header flex-space-between">
+    <div>
+      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
+    </div>
+    <span id="title">Project Details</span>
+    <div>
+      <button type="button" mat-icon-button color="warn" *ngIf="form.invalid">
+        <i class="fas fa-exclamation-triangle fa-2x"></i>
+      </button>
+      <button type="submit" mat-mini-fab color="accent" (click)="saveForm()"
+              [disabled]="form.pristine || form.invalid">
+        <i class="fas fa-save"></i>
+      </button>
+    </div>
+  </mat-toolbar>
+  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+  <div class="row content" *ngIf="!loading">
+    <div class="list-wrapper" [formGroup]="form">
+      <mat-form-field>
+        <input matInput type="text" placeholder="Project Name" formControlName="projectName">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="text" placeholder="Metro Area" formControlName="metroArea">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="text" placeholder="Client Name" formControlName="clientName">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="number" placeholder="Project Year" formControlName="projectYear">
+        <mat-error>Must be between 1900 and 3000</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-select placeholder="Project Month" formControlName="projectMonth">
+          <mat-option>None</mat-option>
+          <mat-option *ngFor="let month of months" [value]="month.value">{{month.name}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div class="checklist">
+        <mat-checkbox formControlName="active">
+          Project is Active
+        </mat-checkbox>
+        <mat-checkbox formControlName="primaryData" >
+          Project consists of Primary data
+        </mat-checkbox>
+      </div>
+      <mat-form-field>
+        <input matInput [matDatepicker]="dateStarted" placeholder="Start Date"
+               formControlName="dateStarted">
+        <mat-datepicker-toggle matSuffix [for]="dateStarted"></mat-datepicker-toggle>
+        <mat-datepicker #dateStarted></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [matDatepicker]="dateCompleted" placeholder="Completion Date"
+               formControlName="dateCompleted">
+        <mat-datepicker-toggle matSuffix [for]="dateCompleted"></mat-datepicker-toggle>
+        <mat-datepicker #dateCompleted></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="text" placeholder="Source" formControlName="source">
+      </mat-form-field>
+    </div>
+  </div>
+</div>

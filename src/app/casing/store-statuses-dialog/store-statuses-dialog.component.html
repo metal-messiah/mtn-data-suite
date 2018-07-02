@@ -1,0 +1,54 @@
+<h3 mat-dialog-title>Store Statuses</h3>
+<div mat-dialog-content>
+  <mat-form-field>
+    <input matInput [matDatepicker]="picker1" placeholder="Status Start Date" [formControl]="statusDate">
+    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+    <mat-datepicker #picker1></mat-datepicker>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-select placeholder="Store Status" [formControl]="selectedStatus">
+      <mat-option *ngFor="let statusOption of storeStatusOptions" [value]="statusOption">
+        {{statusOption}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-toolbar color="primary" class="widened">
+    <button mat-raised-button color="accent" class="centered"
+            *ngIf="!savingNewStatus" (click)="addStatus()">Add Status
+    </button>
+    <mat-progress-bar mode="indeterminate" color="accent" *ngIf="savingNewStatus"></mat-progress-bar>
+  </mat-toolbar>
+  <mat-divider></mat-divider>
+  <mat-list class="widened">
+    <mat-progress-bar mode="indeterminate" *ngIf="savingCurrentStatus"></mat-progress-bar>
+    <mat-list-item *ngFor="let storeStatus of store.storeStatuses">
+      <div class="full-width flex flex-space-between">
+        <div>
+          <div>
+            <strong>{{storeStatus.status}}</strong>
+            <span *ngIf="store.currentStoreStatus != null && storeStatus.id === store.currentStoreStatus.id">&nbsp;(Current)</span>
+          </div>
+          <div><em>{{storeStatus.statusStartDate | date}}</em></div>
+        </div>
+        <div>
+          <button mat-icon-button type="button" *ngIf="!this.data.allowStatusSelection"
+                  [mat-menu-trigger-for]="statusMenu" ><i class="fas fa-ellipsis-v"></i></button>
+          <button mat-raised-button type="button" *ngIf="this.data.allowStatusSelection" color="accent"
+                  (click)="useForCasing(storeStatus)">Select</button>
+        </div>
+      </div>
+      <mat-menu #statusMenu="matMenu" [overlapTrigger]="false">
+        <button mat-menu-item (click)="setCurrentStatus(storeStatus)"
+                *ngIf="store.currentStoreStatus == null || storeStatus.id !== store.currentStoreStatus.id">
+          Set As Current
+        </button>
+        <button mat-menu-item (click)="deleteStatus(storeStatus)">
+          <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
+        </button>
+      </mat-menu>
+    </mat-list-item>
+  </mat-list>
+</div>
+<mat-toolbar color="primary" id="bottom-toolbar">
+  <button mat-raised-button color="accent" class="centered" (click)="closeDialog()">Close</button>
+</mat-toolbar>
