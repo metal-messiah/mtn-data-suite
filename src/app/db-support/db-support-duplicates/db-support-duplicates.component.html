@@ -1,3 +1,43 @@
 <div class="duplicates-wrapper">
-  db-support-duplicates works!
+  <mat-panel-title>
+      db-support-duplicates works! <- This accounts for the "Title" since I'll be adapting Jordan's formatting that
+      hasn't been merged to master yet.
+  </mat-panel-title>
+  <mat-horizontal-stepper [linear]="isLinear" #stepper>
+
+    <mat-step [stepControl]="firstFormGroup" [editable]="isEditable">
+      <form [formGroup]="firstFormGroup">
+        <ng-template matStepLabel>Select</ng-template>
+        <mat-form-field>
+          <input matInput placeholder="Location A Placeholder" formControlName="firstCtrl" required>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="secondFormGroup" [editable]="isEditable">
+      <form [formGroup]="secondFormGroup">
+        <ng-template matStepLabel>Match</ng-template>
+        <mat-form-field>
+          <input matInput placeholder="Location B Placeholder" formControlName="secondCtrl" required>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step>
+      <ng-template matStepLabel>Merge</ng-template>
+      Merge?
+      <div>
+        <button mat-button matStepperPrevious>No</button>
+        <button mat-button (click)="stepper.reset()">Back to Beginning</button>
+        <button mat-button matStepper="Save">Save & Continue</button>
+      </div>
+    </mat-step>
+  </mat-horizontal-stepper>
 </div>
