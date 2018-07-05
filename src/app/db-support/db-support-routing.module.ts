@@ -15,15 +15,11 @@ const routes: Routes = [
     component: DbSupportComponent,
     canActivate: [AuthGuard],
     children: [
-      {
-        path: 'dashboard', component: DbSupportDashboardComponent,
-        children: [
-          {path: '', component: DbSupportActivitySelectionComponent},
-          {path: 'duplicates', component: DbSupportDuplicatesComponent},
-          {path: 'missing-data', component: DbSupportMissingDataComponent},
-          {path: 'outliers', component: DbSupportOutliersComponent}
-        ]
-      }
+      {path: '', component: DbSupportActivitySelectionComponent, data: { title: 'Activity Selection'} },
+      {path: 'dashboard', component: DbSupportDashboardComponent},
+      {path: 'duplicates', component: DbSupportDuplicatesComponent, data: { title: 'Duplicates'} },
+      {path: 'missing-data', component: DbSupportMissingDataComponent, data: { title: 'Missing Data'} },
+      {path: 'outliers', component: DbSupportOutliersComponent, data: { title: 'Outliers'} }
     ]
   }
 ];

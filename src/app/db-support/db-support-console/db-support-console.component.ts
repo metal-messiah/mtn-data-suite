@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'mds-db-support-console',
@@ -7,10 +8,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DbSupportConsoleComponent implements OnInit {
 
-  constructor() {
+  constructor(
+    private _location: Location,
+  ) {
   }
 
   ngOnInit() {
 
   }
+
+  goBack() {
+    this._location.back();
+  };
 }
