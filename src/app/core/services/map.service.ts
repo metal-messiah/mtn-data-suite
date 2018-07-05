@@ -4,7 +4,7 @@ import { MapPointLayer } from '../../models/map-point-layer';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
 import { Mappable } from '../../interfaces/mappable';
-import { Observable, of, Subject } from 'rxjs/index';
+import { Observable, Observer, of, Subject } from 'rxjs/index';
 import { Color } from '../functionalEnums/Color';
 
 /*
@@ -290,15 +290,26 @@ export class MapService {
   }
 
   searchFor(queryString: string, bounds?: google.maps.LatLngBoundsLiteral): Observable<GooglePlace[]> {
-    return Observable.create(observer => {
-      const request = {
-        bounds: this.getBounds(),
-        name: queryString
-      };
-      this.placesService.nearbySearch(request, (response) => {
-          observer.next(response.map(place => new GooglePlace(place)));
-        }
-      );
+    return Observable.create((observer: Observer<any>) => {
+      if (bounds == null) {
+        const fields = ['formatted_address', 'geometry', 'icon', 'id', 'name', 'place_id'];
+        this.placesService.findPlaceFromQuery({fields: fields, query: queryString}, (results, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK) {
+            observer.next(results.map(place => new GooglePlace(place)));
+          } else {
+            observer.error(status);
+          }
+        });
+      } else {
+        const request = {
+          bounds: bounds,
+          name: queryString
+        };
+        this.placesService.nearbySearch(request, (response) => {
+            observer.next(response.map(place => new GooglePlace(place)));
+          }
+        );
+      }
     });
   }
 

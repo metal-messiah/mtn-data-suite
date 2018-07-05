@@ -7,27 +7,27 @@ import { Color } from '../core/functionalEnums/Color';
 
 export class GooglePlace implements PlaceResult, Mappable {
 
+  place_id: string;
+  id: string;
+  geometry: google.maps.places.PlaceGeometry;
+  icon: string;
+  name: string;
+  types: string[];
+  url: string;
+  vicinity: string;
   address_components: google.maps.GeocoderAddressComponent[];
   adr_address: string;
   formatted_address: string;
   formatted_phone_number: string;
-  geometry: google.maps.places.PlaceGeometry;
   html_attributions: string[];
-  icon: string;
-  id: string;
   international_phone_number: string;
-  name: string;
   opening_hours: google.maps.places.OpeningHours;
   permanently_closed: boolean;
   photos: google.maps.places.PlacePhoto[];
-  place_id: string;
   price_level: number;
   rating: number;
   reviews: google.maps.places.PlaceReview[];
-  types: string[];
-  url: string;
   utc_offset: number;
-  vicinity: string;
   website: string;
 
   constructor(obj) {
@@ -40,9 +40,12 @@ export class GooglePlace implements PlaceResult, Mappable {
   };
 
   getIcon(zoom: number, markerType?: MarkerType): (string | google.maps.Icon | google.maps.Symbol) {
-    if (this.icon != null) {
-      return this.icon;
-    }
+    // if (this.icon != null) {
+    //   return {
+    //     url: this.icon,
+    //     scale: 0.5
+    //   };
+    // }
     return {
       path: MarkerShape.FILLED,
       fillColor: Color.PINK,

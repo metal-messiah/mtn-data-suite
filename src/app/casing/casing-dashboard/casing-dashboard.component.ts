@@ -497,9 +497,11 @@ export class CasingDashboardComponent implements OnInit {
   openDatabaseSearch() {
     const databaseSearchDialog = this.dialog.open(DatabaseSearchComponent);
     databaseSearchDialog.afterClosed().subscribe((store: SimplifiedStore) => {
-      this.mapService.setCenter(this.siteService.getCoordinates(store.site));
-      this.selectedCardState = CardState.SELECTED_STORE;
-      setTimeout(() => this.storeMapLayer.selectEntity(store), 1000);
+      if (store != null) {
+        this.mapService.setCenter(this.siteService.getCoordinates(store.site));
+        this.selectedCardState = CardState.SELECTED_STORE;
+        setTimeout(() => this.storeMapLayer.selectEntity(store), 1500);
+      }
     });
   }
 
@@ -522,12 +524,14 @@ export class CasingDashboardComponent implements OnInit {
           this.googlePlacesLayer.setGooglePlaces([result.place]);
           this.mapService.setCenter(result.place.getCoordinates());
         } else if (result.query != null) {
-          this.getGoogleLocationsInView(result.query);
+          this.getGoogleLocationsInView(result.query, this.mapService.getBounds());
           if (this.googleSearchSubscription != null) {
             this.googleSearchSubscription.unsubscribe();
           }
           this.googleSearchSubscription = this.mapService.boundsChanged$.pipe(debounceTime(750))
-            .subscribe(() => this.getGoogleLocationsInView(result.query, this.mapService.getBounds()));
+            .subscribe(() => {
+              this.getGoogleLocationsInView(result.query, this.mapService.getBounds());
+            });
         }
       }
     });
@@ -535,7 +539,10 @@ export class CasingDashboardComponent implements OnInit {
 
   getGoogleLocationsInView(query: string, bounds?: any) {
     this.mapService.searchFor(query, bounds).subscribe((searchResults: GooglePlace[]) => {
-      this.ngZone.run(() => this.googlePlacesLayer.setGooglePlaces(searchResults));
+      this.ngZone.run(() => {
+        this.googlePlacesLayer.setGooglePlaces(searchResults);
+        this.mapService.addPointLayer(this.googlePlacesLayer);
+      });
     });
   }
 
