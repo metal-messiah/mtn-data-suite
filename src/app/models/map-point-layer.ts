@@ -10,10 +10,12 @@ import { Subject } from 'rxjs/index';
 export class MapPointLayer<T extends Mappable> {
 
   markers: google.maps.Marker[];
+  map: google.maps.Map;
 
   markerClick$ = new Subject<T>();
 
-  constructor() {
+  constructor(map: google.maps.Map) {
+    this.map = map;
     this.markers = [];
   }
 
@@ -107,7 +109,7 @@ export class MapPointLayer<T extends Mappable> {
   private setMarkerOptions(marker: google.maps.Marker): void {
     const mappable: Mappable = marker.get('mappable');
     marker.setDraggable(mappable.isDraggable());
-    marker.setIcon(mappable.getIcon());
-    marker.setLabel(mappable.getLabel());
+    marker.setIcon(mappable.getIcon(this.map.getZoom()));
+    marker.setLabel(mappable.getLabel(this.map.getZoom()));
   }
 }

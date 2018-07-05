@@ -289,7 +289,7 @@ export class MapService {
     pointLayer.addToMap(this.map);
   }
 
-  searchFor(queryString: string): Observable<GooglePlace[]> {
+  searchFor(queryString: string, bounds?: google.maps.LatLngBoundsLiteral): Observable<GooglePlace[]> {
     return Observable.create(observer => {
       const request = {
         bounds: this.getBounds(),
@@ -341,5 +341,9 @@ export class MapService {
 
   clearDataPoints() {
     this.dataPointFeatures.forEach(f => this.map.data.remove(f));
+  }
+
+  getMap() {
+    return this.map;
   }
 }

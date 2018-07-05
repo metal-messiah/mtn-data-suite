@@ -13,10 +13,10 @@ export class PlannedGroceryService {
               private rest: RestService) {
   }
 
-  getFeatureByObjectId(objectId: string): Observable<{features}> {
+  getFeatureByObjectId(objectId: string): Observable<any> {
     const url = this.rest.getHost() + this.endpoint + '/' + objectId;
 
-    return this.http.get<{features}>(url, {headers: this.rest.getHeaders()});
+    return this.http.get<any>(url, {headers: this.rest.getHeaders()});
   }
 
 }

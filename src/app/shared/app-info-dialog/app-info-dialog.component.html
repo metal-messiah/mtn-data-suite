@@ -1,3 +1,10 @@
-<h3>
-  Version: {{version}}
-</h3>
+<div>
+  <h2 mat-dialog-title>MTN Data Suite</h2>
+  <div mat-dialog-content>
+    Version: {{version}}
+  </div>
+  <div mat-dialog-actions>
+    <button mat-raised-button color="primary" mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="accent" (click)="checkForUpdate()">Check For Update</button>
+  </div>
+</div>

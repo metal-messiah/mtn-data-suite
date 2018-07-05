@@ -26,9 +26,9 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
 
   private latestSelectedMappable: EntityMappable;
 
-  constructor(private mappableType: new (entity: Entity, userProfile: UserProfile) => T,
+  constructor(map: google.maps.Map, private mappableType: new (entity: Entity, userProfile: UserProfile) => T,
               currentUser: UserProfile) {
-    super();
+    super(map);
     this.currentUser = currentUser;
     this.mappables = [];
     this.selectedEntityIds = new Set<number>();

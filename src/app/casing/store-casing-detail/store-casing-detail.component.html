@@ -41,12 +41,12 @@
                 <mat-datepicker-toggle matSuffix [for]="storeCasingDate"></mat-datepicker-toggle>
                 <mat-datepicker #storeCasingDate></mat-datepicker>
               </mat-form-field>
-              <mat-form-field [formGroup]="shoppingCenterCasingForm">
-                <input matInput [matDatepicker]="shoppingCenterCasingDate" placeholder="Shopping Center Casing Date"
-                       formControlName="casingDate">
-                <mat-datepicker-toggle matSuffix [for]="shoppingCenterCasingDate"></mat-datepicker-toggle>
-                <mat-datepicker #shoppingCenterCasingDate></mat-datepicker>
-              </mat-form-field>
+              <!--<mat-form-field [formGroup]="shoppingCenterCasingForm">-->
+                <!--<input matInput [matDatepicker]="shoppingCenterCasingDate" placeholder="Shopping Center Casing Date"-->
+                       <!--formControlName="casingDate">-->
+                <!--<mat-datepicker-toggle matSuffix [for]="shoppingCenterCasingDate"></mat-datepicker-toggle>-->
+                <!--<mat-datepicker #shoppingCenterCasingDate></mat-datepicker>-->
+              <!--</mat-form-field>-->
             </div>
           </mat-expansion-panel>
           <!-- Projects -->
@@ -171,18 +171,20 @@
             <mat-expansion-panel-header>
               <mat-panel-title><i class="fas fa-parking"></i>&nbsp;&nbsp;Parking</mat-panel-title>
             </mat-expansion-panel-header>
-            <div [formGroup]="shoppingCenterSurveyForm">
+            <div >
               <h3>Shopping Center</h3>
-              <div class="checklist">
+              <div class="checklist" [formGroup]="shoppingCenterSurveyForm" >
                 <mat-checkbox formControlName="parkingHasAngledSpaces">Has Angled Spaces</mat-checkbox>
                 <mat-checkbox formControlName="parkingHasParkingHog">Has Parking Hog</mat-checkbox>
                 <mat-checkbox formControlName="parkingIsPoorlyLit">Is poorly Lit</mat-checkbox>
               </div>
             </div>
             <mat-divider></mat-divider>
-            <div [formGroup]="storeSurveyForm">
               <h3>Store</h3>
-              <div class="checklist">
+              <mat-form-field [formGroup]="shoppingCenterSurveyForm">
+                <input matInput type="number" placeholder="# Parking Spaces" formControlName="parkingSpaceCount">
+              </mat-form-field>
+              <div class="checklist" [formGroup]="storeSurveyForm">
                 <mat-checkbox formControlName="parkingOutparcelsInterfereWithParking">
                   Outparcels interfere with parking
                 </mat-checkbox>
@@ -192,13 +194,12 @@
                 <mat-checkbox formControlName="parkingSmallParkingField">Small parking field</mat-checkbox>
                 <mat-checkbox formControlName="parkingHasTSpaces">Has T Spaces</mat-checkbox>
               </div>
-              <mat-form-field>
+              <mat-form-field [formGroup]="storeSurveyForm">
                 <mat-select placeholder="Parking Rating" formControlName="parkingRating">
                   <mat-option>Clear Selection</mat-option>
                   <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
                 </mat-select>
               </mat-form-field>
-            </div>
           </mat-expansion-panel>
           <!-- SC Ratings -->
           <mat-expansion-panel [formGroup]="shoppingCenterCasingForm">

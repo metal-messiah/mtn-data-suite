@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
-import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { RoutingStateService } from './core/services/routing-state.service';
+import { UpdateService } from '../../e2e/app/core/services/update.service';
 
 @Component({
   selector: 'mds-root',
@@ -16,7 +17,8 @@ export class AppComponent {
     public auth: AuthService,
     private route: ActivatedRoute,
     private router: Router,
-    private routingState: RoutingStateService
+    private routingState: RoutingStateService,
+    private updateService: UpdateService
   ) {
     auth.handleAuthentication();
     routingState.loadRouting();

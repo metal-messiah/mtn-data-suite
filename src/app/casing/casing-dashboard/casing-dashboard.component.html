@@ -11,15 +11,13 @@
         {{casingDashboardService.getSelectedProject().projectName}}&nbsp;<i class="fas fa-chevron-right"></i>
       </mat-list-item>
       <mat-divider></mat-divider>
-      <div *ngIf="storeMapLayer != null">
-        <mat-list-item role="listitem" [matMenuTriggerFor]="markerTypeMenu">
-          <h4 mat-line>Marker Type</h4>&nbsp;<i class="fas fa-chevron-right"></i>
-          <p mat-line>{{storeMapLayer.markerType.valueOf()}}</p>
-        </mat-list-item>
-        <mat-list-item role="listitem" (click)="initSiteCreation()">Create New Site</mat-list-item>
-        <mat-list-item role="listitem" (click)="enableMultiSelect()">Multi Select</mat-list-item>
-        <mat-divider></mat-divider>
-      </div>
+      <mat-list-item role="listitem" [matMenuTriggerFor]="markerTypeMenu">
+        <h4 mat-line>Marker Type</h4>&nbsp;<i class="fas fa-chevron-right"></i>
+        <p mat-line>{{storeMapLayer.markerType.valueOf()}}</p>
+      </mat-list-item>
+      <mat-list-item role="listitem" (click)="initSiteCreation()">Create New Site</mat-list-item>
+      <mat-list-item role="listitem" (click)="enableMultiSelect()">Multi Select</mat-list-item>
+      <mat-divider></mat-divider>
       <h3 mat-subheader>Geolocation</h3>
       <mat-list-item role="listitem" (click)="findMe()">Find Me</mat-list-item>
       <mat-list-item *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" role="listitem"
@@ -34,7 +32,8 @@
       </mat-list-item>
     </mat-nav-list>
   </mat-sidenav>
-  <mat-sidenav mode="over" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end" (closedStart)="filterClosed()">
+  <mat-sidenav mode="over" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end"
+               (closedStart)="filterClosed()">
     <mat-list role="list" id="filter-side-nav">
       <h3 mat-subheader>Store Type</h3>
       <div class="checklist">
@@ -72,10 +71,10 @@
                            (initiateMove)="moveStore($event)"
                            *ngIf="selectedCardState === cardState.SELECTED_STORE && selectedStore != null"></mds-store-info-card>
       <mds-site-info-card [site]="selectedSite"
-                           [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
-                           (onUpdate)="onSiteUpdated($event)"
-                           (initiateMove)="moveSite($event)"
-                           *ngIf="selectedCardState === cardState.SELECTED_SITE && selectedSite != null"></mds-site-info-card>
+                          [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
+                          (onUpdate)="onSiteUpdated($event)"
+                          (initiateMove)="moveSite($event)"
+                          *ngIf="selectedCardState === cardState.SELECTED_SITE && selectedSite != null"></mds-site-info-card>
       <div class="row footer">
         <!--<div *ngIf="page != null">Showing {{page.numberOfElements}} of {{page.totalElements}}</div>-->
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" color="primary"

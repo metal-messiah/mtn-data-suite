@@ -7,8 +7,8 @@ export class FindMeLayer extends MapPointLayer<Mappable> {
 
   findMeMappable: Mappable;
 
-  constructor(coordinates: Coordinates) {
-    super();
+  constructor(map: google.maps.Map, coordinates: Coordinates) {
+    super(map);
     this.findMeMappable = {
       id: 1,
       getCoordinates: () => coordinates,

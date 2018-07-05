@@ -39,7 +39,7 @@ export class GooglePlace implements PlaceResult, Mappable {
     return this.geometry.location.toJSON();
   };
 
-  getIcon(markerType?: MarkerType): (string | google.maps.Icon | google.maps.Symbol) {
+  getIcon(zoom: number, markerType?: MarkerType): (string | google.maps.Icon | google.maps.Symbol) {
     if (this.icon != null) {
       return this.icon;
     }
@@ -56,7 +56,7 @@ export class GooglePlace implements PlaceResult, Mappable {
     };
   };
 
-  getLabel(markerType?: MarkerType): string {
+  getLabel(zoom: number, markerType?: MarkerType): string {
     if (markerType !== MarkerType.LOGO) {
       return name[0];
     }

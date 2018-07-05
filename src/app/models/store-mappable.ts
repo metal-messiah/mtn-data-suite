@@ -20,6 +20,8 @@ export class StoreMappable implements EntityMappable {
   private selected = false;
   private moving = false;
 
+  private readonly HIGH_ZOOM = 13;
+
   constructor(store: SimplifiedStore | Store, currentUser: UserProfile) {
     this.store = store;
     this.id = store.id;
@@ -34,7 +36,7 @@ export class StoreMappable implements EntityMappable {
     return this.moving;
   }
 
-  getLabel(markerType?: MarkerType): string|MarkerLabel {
+  getLabel(zoom: number, markerType?: MarkerType): string|MarkerLabel {
     let label = null;
     if (this.store.banner != null) {
       label = this.store.banner.bannerName;
@@ -44,7 +46,14 @@ export class StoreMappable implements EntityMappable {
     if (label == null) {
       label = '?';
     }
-    if (markerType !== MarkerType.LOGO) {
+    if (zoom > this.HIGH_ZOOM) {
+      return {
+        color: Color.BLACK,
+        fontWeight: 'bold',
+        text: label
+      };
+    }
+    if (zoom < 16 && markerType !== MarkerType.LOGO) {
       label = label[0];
     } else if (this.store.storeNumber != null) {
       label = `${label} (${this.store.storeNumber})`;
@@ -56,7 +65,7 @@ export class StoreMappable implements EntityMappable {
     };
   }
 
-  getIcon(markerType?: MarkerType): string | Icon | Symbol {
+  getIcon(zoom: number, markerType?: MarkerType): string | Icon | Symbol {
     if (markerType === MarkerType.LOGO) {
       return `http://res.cloudinary.com/mtn-retail-advisors/image/upload/r_0/${this.store.banner}`;
     }
@@ -68,7 +77,7 @@ export class StoreMappable implements EntityMappable {
     const strokeWeight = this.getStrokeWeight(shape);
     const fillOpacity = this.getFillOpacity(markerType);
     const rotation = this.getRotation();
-    const labelOrigin = this.getLabelOrigin(shape);
+    const labelOrigin = this.getLabelOrigin(shape, zoom);
 
     return {
       path: shape,
@@ -176,7 +185,10 @@ export class StoreMappable implements EntityMappable {
     return 0;
   }
 
-  private getLabelOrigin(shape: any) {
+  private getLabelOrigin(shape: any, zoom: number) {
+    if (zoom > this.HIGH_ZOOM) {
+      return new google.maps.Point(255, -80);
+    }
     if (shape === MarkerShape.FLAGGED) {
       return new google.maps.Point(255, 238);
     }

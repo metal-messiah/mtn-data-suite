@@ -111,7 +111,7 @@ export class PlannedGroceryComponent implements OnInit {
   }
 
   onMapReady(event) {
-    this.pgMapLayer = new MapPointLayer();
+    this.pgMapLayer = new MapPointLayer(this.mapService.getMap());
   }
 
   // Called after querying PG for individual record

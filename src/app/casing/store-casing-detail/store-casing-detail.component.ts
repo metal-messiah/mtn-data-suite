@@ -246,6 +246,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       parkingHasAngledSpaces: '',
       parkingHasParkingHog: '',
       parkingIsPoorlyLit: '',
+      parkingSpaceCount: '',
       tenantOccupiedCount: '',
       tenantVacantCount: '',
       sqFtPercentOccupied: ['', [Validators.min(0), Validators.max(100)]]
@@ -502,7 +503,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   }
 
   calculateDepartmentVolumesFromTotal() {
-    const totalVolumeControl = this.storeCasingForm.get('storeVolume.volumeTotal');
+    const totalVolumeControl = this.storeVolumeForm.get('volumeTotal');
     if (totalVolumeControl != null && totalVolumeControl.valid) {
       const totalVolume = parseFloat(totalVolumeControl.value);
       this.calculateDepartmentVolume(totalVolume, 'Meat');
@@ -514,12 +515,12 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   }
 
   private calculateDepartmentVolume(totalVolume: number, departmentName: string) {
-    const percentControl = this.storeCasingForm.get(`storeVolume.volumePercent${departmentName}`);
+    const percentControl = this.storeVolumeForm.get(`volumePercent${departmentName}`);
     if (percentControl.valid) {
       const percent = parseFloat(percentControl.value);
       if (!isNaN(percent)) {
         const calculatedDeptVolume = totalVolume * (percent / 100);
-        const volumeControl = this.storeCasingForm.get(`storeVolume.volume${departmentName}`);
+        const volumeControl = this.storeVolumeForm.get(`volume${departmentName}`);
         volumeControl.setValue(calculatedDeptVolume);
         volumeControl.markAsDirty();
       }
@@ -557,15 +558,15 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     if (count > 0) {
       const averageEstimate = sum / count;
       const roundedEstimate = Math.round(averageEstimate / 5000) * 5000;
-      const totalVolumeControl = this.storeCasingForm.get('storeVolume.volumeTotal');
+      const totalVolumeControl = this.storeVolumeForm.get('volumeTotal');
       totalVolumeControl.setValue(roundedEstimate);
       totalVolumeControl.markAsDirty();
     }
   }
 
   private getDeptEstimateOfTotal(departmentName: string) {
-    const volumeControl = this.storeCasingForm.get(`storeVolume.volume${departmentName}`);
-    const percentControl = this.storeCasingForm.get(`storeVolume.volumePercent${departmentName}`);
+    const volumeControl = this.storeVolumeForm.get(`volume${departmentName}`);
+    const percentControl = this.storeVolumeForm.get(`volumePercent${departmentName}`);
     if (volumeControl.valid && percentControl.valid) {
       const deptVolume = parseFloat(volumeControl.value);
       const percent = parseFloat(percentControl.value);

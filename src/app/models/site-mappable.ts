@@ -32,7 +32,7 @@ export class SiteMappable implements EntityMappable {
     return this.moving;
   }
 
-  getLabel(markerType?: MarkerType): string | MarkerLabel {
+  getLabel(zoom: number, markerType?: MarkerType): string | MarkerLabel {
     return {
       color: Color.WHITE,
       fontWeight: 'bold',
@@ -40,7 +40,7 @@ export class SiteMappable implements EntityMappable {
     };
   }
 
-  getIcon(markerType?: MarkerType): string | Icon | Symbol {
+  getIcon(zoom: number, markerType?: MarkerType): string | Icon | Symbol {
     const fillColor = this.getFillColor();
     const strokeColor = this.getStrokeColor();
     const shape = this.getShape();

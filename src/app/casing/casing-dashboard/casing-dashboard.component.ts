@@ -36,8 +36,6 @@ import { debounce, debounceTime, delay, finalize, mergeMap } from 'rxjs/internal
 import { ProjectService } from '../../core/services/project.service';
 import { Boundary } from '../../models/full/boundary';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
-import { MapPointLayer } from '../../models/map-point-layer';
-import { CoordinateMappable } from '../../models/coordinate-mappable';
 
 export enum MultiSelectToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
@@ -109,8 +107,6 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.storeMapLayer = new EntityMapLayer<StoreMappable>(StoreMappable, this.authService.sessionUser);
-    this.siteMapLayer = new EntityMapLayer<SiteMappable>(SiteMappable, this.authService.sessionUser);
     this.casingDashboardService.projectChanged$.subscribe(project => {
       this.showingBoundaries = false;
       this.mapService.clearGeoJsonBoundaries();
@@ -119,6 +115,8 @@ export class CasingDashboardComponent implements OnInit {
 
   onMapReady() {
     console.log(`Map is ready`);
+    this.storeMapLayer = new EntityMapLayer<StoreMappable>(this.mapService.getMap(), StoreMappable, this.authService.sessionUser);
+    this.siteMapLayer = new EntityMapLayer<SiteMappable>(this.mapService.getMap(), SiteMappable, this.authService.sessionUser);
 
     this.mapService.boundsChanged$.pipe(this.getDebounce())
       .subscribe(bounds => {
@@ -178,8 +176,10 @@ export class CasingDashboardComponent implements OnInit {
         this.mapService.addPointLayer(this.storeMapLayer);
       }
       this.getSitesInBounds(bounds);
+      this.mapService.clearDataPoints();
+      // this.getPointsInBounds(bounds);
     } else if (this.mapService.getZoom() > 7) {
-      this.getPoints(bounds);
+      this.getPointsInBounds(bounds);
       this.storeMapLayer.setEntities([]);
       this.mapService.addPointLayer(this.storeMapLayer);
       this.siteMapLayer.setEntities([]);
@@ -197,16 +197,23 @@ export class CasingDashboardComponent implements OnInit {
     }
   }
 
-  private getPoints(bounds) {
+  private getPointsInBounds(bounds) {
     this.siteService.getSitePointsInBounds(bounds).subscribe((sitePoints: Coordinates[]) => {
-      this.mapService.addDataPoints(sitePoints);
-      // const mappables = sitePoints.map(p => new CoordinateMappable({lat: p.latitude, lng: p.longitude}))
-      // this.pointLayer.createMarkersFromMappables(mappables);
-      // this.mapService.addPointLayer(this.pointLayer);
-      this.ngZone.run(() => {
-        const message = `Showing ${sitePoints.length} items`;
-        this.snackBar.open(message, null, {duration: 2000, verticalPosition: 'top'});
-      });
+      if (sitePoints.length <= 1000) {
+        this.mapService.addDataPoints(sitePoints);
+        // const mappables = sitePoints.map(p => new CoordinateMappable({lat: p.latitude, lng: p.longitude}))
+        // this.pointLayer.createMarkersFromMappables(mappables);
+        // this.mapService.addPointLayer(this.pointLayer);
+        this.ngZone.run(() => {
+          const message = `Showing ${sitePoints.length} items`;
+          this.snackBar.open(message, null, {duration: 2000, verticalPosition: 'top'});
+        });
+      } else {
+        this.ngZone.run(() => {
+          const message = `Too many locations, zoom in to see data`;
+          this.snackBar.open(message, null, {duration: 2000, verticalPosition: 'top'});
+        });
+      }
     })
   }
 
@@ -271,7 +278,7 @@ export class CasingDashboardComponent implements OnInit {
     this.sideNavIsOpen = false;
     this.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
     // Create new Layer for new Location
-    this.newSiteLayer = new NewSiteLayer(this.mapService.getCenter());
+    this.newSiteLayer = new NewSiteLayer(this.mapService.getMap(), this.mapService.getCenter());
     // Add Layer to map
     this.mapService.addPointLayer(this.newSiteLayer);
   }
@@ -327,7 +334,7 @@ export class CasingDashboardComponent implements OnInit {
     this.navigatorService.getCurrentPosition().subscribe(position => {
       this.mapService.setCenter(position);
       // Create layer
-      const fm = new FindMeLayer(position);
+      const fm = new FindMeLayer(this.mapService.getMap(), position);
       // Add it to the map
       this.mapService.addPointLayer(fm);
       // After 5 seconds remove it from the map
@@ -341,7 +348,7 @@ export class CasingDashboardComponent implements OnInit {
   activateFollowMe(): void {
     this.sideNavIsOpen = false;
     this.selectedDashboardMode = CasingDashboardMode.FOLLOWING;
-    this.followMeLayer = new FollowMeLayer(this.mapService.getCenter());
+    this.followMeLayer = new FollowMeLayer(this.mapService.getMap(), this.mapService.getCenter());
     this.mapService.addPointLayer(this.followMeLayer);
     this.navigatorService.watchPosition({maximumAge: 2000}).subscribe(
       position => {
@@ -502,7 +509,7 @@ export class CasingDashboardComponent implements OnInit {
       if (result != null) {
         // Create google point layer
         if (this.googlePlacesLayer == null) {
-          this.googlePlacesLayer = new GooglePlaceLayer();
+          this.googlePlacesLayer = new GooglePlaceLayer(this.mapService.getMap());
           this.mapService.addPointLayer(this.googlePlacesLayer);
           this.googlePlacesLayer.markerClick$.subscribe((googlePlace: GooglePlace) => {
             console.log(googlePlace);
@@ -515,19 +522,19 @@ export class CasingDashboardComponent implements OnInit {
           this.googlePlacesLayer.setGooglePlaces([result.place]);
           this.mapService.setCenter(result.place.getCoordinates());
         } else if (result.query != null) {
-          this.getGoogleLocationInView(result.query);
+          this.getGoogleLocationsInView(result.query);
           if (this.googleSearchSubscription != null) {
             this.googleSearchSubscription.unsubscribe();
           }
           this.googleSearchSubscription = this.mapService.boundsChanged$.pipe(debounceTime(750))
-            .subscribe(() => this.getGoogleLocationInView(result.query));
+            .subscribe(() => this.getGoogleLocationsInView(result.query, this.mapService.getBounds()));
         }
       }
     });
   }
 
-  getGoogleLocationInView(query: string) {
-    this.mapService.searchFor(query).subscribe((searchResults: GooglePlace[]) => {
+  getGoogleLocationsInView(query: string, bounds?: any) {
+    this.mapService.searchFor(query, bounds).subscribe((searchResults: GooglePlace[]) => {
       this.ngZone.run(() => this.googlePlacesLayer.setGooglePlaces(searchResults));
     });
   }
@@ -571,7 +578,7 @@ export class CasingDashboardComponent implements OnInit {
       if (coordinates != null) {
         this.mapService.setCenter(coordinates);
         // Create layer
-        const fm = new FindMeLayer(coordinates);
+        const fm = new FindMeLayer(this.mapService.getMap(), coordinates);
         // Add it to the map
         this.mapService.addPointLayer(fm);
         // After 5 seconds remove it from the map

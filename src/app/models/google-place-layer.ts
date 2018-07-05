@@ -6,8 +6,8 @@ export class GooglePlaceLayer extends MapPointLayer<Mappable> {
 
   googlePlaceMappables: GooglePlace[];
 
-  constructor() {
-    super();
+  constructor(map: google.maps.Map) {
+    super(map);
     this.googlePlaceMappables = [];
   }
 

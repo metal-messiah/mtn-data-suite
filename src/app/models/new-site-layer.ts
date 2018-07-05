@@ -8,8 +8,8 @@ export class NewSiteLayer extends MapPointLayer<Mappable> {
 
   newSiteMappable: Mappable;
 
-  constructor(coordinates: Coordinates) {
-    super();
+  constructor(map: google.maps.Map, coordinates: Coordinates) {
+    super(map);
     this.newSiteMappable = {
       id: 1,
       getCoordinates: () => coordinates,

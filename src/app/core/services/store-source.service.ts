@@ -13,7 +13,45 @@ export class StoreSourceService {
   private endpoint = '/api/store-source';
 
   dummyData: object[];
-  dummyDB: object[];
+  dummyDB = [
+    {
+      address: "123 Fake Street",
+      city: "Layton",
+      state: "UT",
+      zip: 84000,
+      stores: [
+        {
+          OBJECTID: 15,
+          store_name: "Harmons",
+          store_number: 10,
+          status: "Open",
+          status_date: "3/2018"
+        },
+        {
+          OBJECTID: 20,
+          store_name: "Smith's",
+          store_number: 9874,
+          status: "Closed",
+          status_date: "11/2017"
+        }
+      ]
+    },
+    {
+      address: "4564 Canyon Avenue",
+      city: "Layton",
+      state: "UT",
+      zip: 84000,
+      stores: [
+        {
+          OBJECTID: 12436,
+          store_name: "Albertsons",
+          store_number: 56,
+          status: "Open",
+          status_date: "3/2018"
+        }
+      ]
+    }
+  ]
 
   constructor(private http: HttpClient,
               private rest: RestService) {

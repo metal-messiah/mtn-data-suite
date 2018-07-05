@@ -7,8 +7,8 @@ export class FollowMeLayer extends MapPointLayer<Mappable> {
 
   followMeMappable: Mappable;
 
-  constructor(coordinates: Coordinates) {
-    super();
+  constructor(map: google.maps.Map, coordinates: Coordinates) {
+    super(map);
 
     this.followMeMappable = {
       id: 1,
