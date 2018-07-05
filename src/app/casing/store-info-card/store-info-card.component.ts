@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Store } from '../../models/full/store';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { SiteInfoCardComponent } from '../site-info-card/site-info-card.component';
@@ -8,11 +8,14 @@ import { SiteInfoCardComponent } from '../site-info-card/site-info-card.componen
   templateUrl: './store-info-card.component.html',
   styleUrls: ['./store-info-card.component.css']
 })
-export class StoreInfoCardComponent extends SiteInfoCardComponent implements OnInit {
+export class StoreInfoCardComponent extends SiteInfoCardComponent implements OnInit, OnChanges {
 
   @Input() store: SimplifiedStore | Store;
 
   ngOnInit() {
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
     this.site = this.store.site;
   }
 
