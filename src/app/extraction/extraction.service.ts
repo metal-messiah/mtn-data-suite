@@ -12,9 +12,10 @@ export class ExtractionService {
   constructor(protected http: HttpClient, private rest: RestService) {
   }
 
-  extractByProjectId(projectId: number) {
+  extractByProjectId(projectId: number, fieldSetId: number) {
     const url = this.rest.getHost() + this.endpoint;
-    const params = new HttpParams().set('project-id', String(projectId));
+    let params = new HttpParams().set('project-id', String(projectId));
+    params = params.set('field-set-id', String(fieldSetId));
     const headers = new HttpHeaders({
       'Content-Type': 'text/csv',
       'Authorization': 'Bearer ' + localStorage.getItem('access_token')
