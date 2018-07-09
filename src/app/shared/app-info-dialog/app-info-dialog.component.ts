@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { UpdateService } from '../../../../e2e/app/core/services/update.service';
+import { UpdateService } from '../../core/services/update.service';
 
 @Component({
   selector: 'mds-app-info-dialog',

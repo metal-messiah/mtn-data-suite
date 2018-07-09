@@ -1,0 +1,28 @@
+<div class="box">
+  <mat-toolbar class="row header flex-space-between">
+    <div>
+      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
+    </div>
+    <span><i class="fas fa-folder-open"></i>&nbsp;Extract by Project</span>
+    <div>
+      <button type="button" mat-mini-fab color="accent" (click)="download()" [disabled]="downloading || selectedProject == null">
+        <i *ngIf="!downloading" class="fas fa-download"></i>
+        <i *ngIf="downloading" class="fas fa-spinner fa-pulse"></i>
+      </button>
+    </div>
+  </mat-toolbar>
+  <div class="row content flex flex-space-between">
+    <div class="section" style="border: 3px solid blue">
+      <div>
+        <button type="button" mat-raised-button color="accent" (click)="openProjectSelectionDialog()">
+          <i class="fas fa-folder-open"></i>&nbsp;Select Project
+        </button>
+      </div>
+      <div *ngIf="selectedProject != null">
+        <h3>{{selectedProject.projectName}}</h3>
+      </div>
+    </div>
+    <div class="section" style="border: 3px solid red">All Fields</div>
+    <div class="section" style="border: 3px solid green">Selected Fields</div>
+  </div>
+</div>
