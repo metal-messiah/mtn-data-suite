@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
   envName: 'prod',
-  WEB_SERVICE_HOST: 'https://mtn-test-mtn-test-service.7e14.starter-us-west-2.openshiftapps.com',
+  WEB_SERVICE_HOST: 'https://mtn-rest-mtn-rest.b9ad.pro-us-east-1.openshiftapps.com',
   AUTH_CONFIG: {
     clientID: 'UTgiibU2z7Honoinje5bVRbhUwyneFN4',
     domain: 'mtnra.auth0.com',

@@ -106,7 +106,7 @@ export class MapPointLayer<T extends Mappable> {
     return this.markers.find(marker => marker.get('mappable').id === mappable.id);
   }
 
-  private setMarkerOptions(marker: google.maps.Marker): void {
+  protected setMarkerOptions(marker: google.maps.Marker): void {
     const mappable: Mappable = marker.get('mappable');
     marker.setDraggable(mappable.isDraggable());
     marker.setIcon(mappable.getIcon(this.map.getZoom()));

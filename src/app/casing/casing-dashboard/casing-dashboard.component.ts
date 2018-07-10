@@ -492,6 +492,7 @@ export class CasingDashboardComponent implements OnInit {
   setMarkerType(markerType: MarkerType) {
     this.sideNavIsOpen = false;
     this.storeMapLayer.setMarkerType(markerType);
+    this.getEntities(this.mapService.getBounds());
   }
 
   openDatabaseSearch() {

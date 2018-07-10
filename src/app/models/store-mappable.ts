@@ -21,6 +21,7 @@ export class StoreMappable implements EntityMappable {
   private moving = false;
 
   private readonly HIGH_ZOOM = 13;
+  private readonly MID_ZOOM = 16;
 
   constructor(store: SimplifiedStore | Store, currentUser: UserProfile) {
     this.store = store;
@@ -37,6 +38,9 @@ export class StoreMappable implements EntityMappable {
   }
 
   getLabel(zoom: number, markerType?: MarkerType): string|MarkerLabel {
+    if (markerType === MarkerType.LOGO && this.store.banner != null && this.store.banner.logoFileName != null) {
+      return null;
+    }
     let label = null;
     if (this.store.banner != null) {
       label = this.store.banner.bannerName;
@@ -53,7 +57,7 @@ export class StoreMappable implements EntityMappable {
         text: label
       };
     }
-    if (zoom < 16 && markerType !== MarkerType.LOGO) {
+    if (zoom < this.MID_ZOOM) {
       label = label[0];
     } else if (this.store.storeNumber != null) {
       label = `${label} (${this.store.storeNumber})`;
@@ -66,8 +70,10 @@ export class StoreMappable implements EntityMappable {
   }
 
   getIcon(zoom: number, markerType?: MarkerType): string | Icon | Symbol {
-    if (markerType === MarkerType.LOGO) {
-      return `http://res.cloudinary.com/mtn-retail-advisors/image/upload/r_0/${this.store.banner}`;
+    if (markerType === MarkerType.LOGO && this.store.banner != null && this.store.banner.logoFileName != null) {
+      return {
+        url: `http://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${this.store.banner.logoFileName}`
+      }
     }
     const fillColor = this.getFillColor();
     const strokeColor = this.getStrokeColor();

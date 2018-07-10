@@ -6,6 +6,7 @@ import { MapSelectionMode } from '../casing/enums/map-selection-mode';
 import { Entity } from './entity';
 import { EntityMappable } from '../interfaces/entity-mappable';
 import { Subject } from 'rxjs/index';
+import { Mappable } from '../interfaces/mappable';
 
 export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<EntityMappable> {
 
@@ -34,6 +35,10 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
     this.selectedEntityIds = new Set<number>();
     this.selectedEntities = [];
     this.initSelection();
+    const m = localStorage.getItem('markerType');
+    if (m != null) {
+      this.markerType = JSON.parse(m);
+    }
   }
 
   private initSelection() {
@@ -71,6 +76,7 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
 
   setMarkerType(markerType: MarkerType) {
     this.markerType = markerType;
+    localStorage.setItem('markerType', JSON.stringify(markerType));
   }
 
   selectEntitiesInShape(shape) {
@@ -166,5 +172,12 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
 
   isMoving() {
     return this.movingMappable != null;
+  }
+
+  protected setMarkerOptions(marker: google.maps.Marker): void {
+    const mappable: Mappable = marker.get('mappable');
+    marker.setDraggable(mappable.isDraggable());
+    marker.setIcon(mappable.getIcon(this.map.getZoom(), this.markerType));
+    marker.setLabel(mappable.getLabel(this.map.getZoom(), this.markerType));
   }
 }
