@@ -72,7 +72,7 @@ export class StoreMappable implements EntityMappable {
   getIcon(zoom: number, markerType?: MarkerType): string | Icon | Symbol {
     if (markerType === MarkerType.LOGO && this.store.banner != null && this.store.banner.logoFileName != null) {
       return {
-        url: `http://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${this.store.banner.logoFileName}`
+        url: `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${this.store.banner.logoFileName}`
       }
     }
     const fillColor = this.getFillColor();
