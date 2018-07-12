@@ -32,7 +32,7 @@ import { StoreMappable } from 'app/models/store-mappable';
 import { SiteMappable } from '../../models/site-mappable';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { Observable, of, Subscription } from 'rxjs/index';
-import { debounce, debounceTime, delay, finalize, mergeMap } from 'rxjs/internal/operators';
+import { debounce, debounceTime, delay, finalize, mergeMap, tap } from 'rxjs/internal/operators';
 import { ProjectService } from '../../core/services/project.service';
 import { Boundary } from '../../models/full/boundary';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
@@ -168,16 +168,26 @@ export class CasingDashboardComponent implements OnInit {
 
   getEntities(bounds): void {
     if (this.mapService.getZoom() > 10) {
-      const storeTypes = this.getFilteredStoreTypes();
-      if (storeTypes.length > 0) {
-        this.getStoresInBounds(bounds);
-      } else {
-        this.storeMapLayer.setEntities([]);
-        this.mapService.addPointLayer(this.storeMapLayer);
-      }
-      this.getSitesInBounds(bounds);
       this.mapService.clearDataPoints();
-      // this.getPointsInBounds(bounds);
+      const storeTypes = this.getFilteredStoreTypes();
+      this.getSitesInBounds(bounds)
+        .pipe(mergeMap(() => {
+          if (storeTypes.length > 0) {
+            return this.getStoresInBounds(bounds);
+          } else {
+            this.storeMapLayer.setEntities([]);
+            this.mapService.addPointLayer(this.storeMapLayer);
+            return of(null);
+          }
+        }))
+        .subscribe(() => console.log('Retrieved Entities')
+          , err => {
+            this.ngZone.run(() => {
+              this.errorService.handleServerError(`Failed to retrieve entities!`, err,
+                () => this.router.navigate(['/']),
+                () => this.getEntities(bounds));
+            });
+          });
     } else if (this.mapService.getZoom() > 7) {
       this.getPointsInBounds(bounds);
       this.storeMapLayer.setEntities([]);
@@ -219,33 +229,21 @@ export class CasingDashboardComponent implements OnInit {
 
   private getSitesInBounds(bounds) {
     // Get Sites without stores
-    this.siteService.getSitesWithoutStoresInBounds(bounds).subscribe(page => {
+    return this.siteService.getSitesWithoutStoresInBounds(bounds).pipe(tap(page => {
       this.siteMapLayer.setEntities(page.content);
       this.mapService.addPointLayer(this.siteMapLayer);
-    }, err => {
-      this.ngZone.run(() => {
-        this.errorService.handleServerError(`Failed to retrieve sites!`, err,
-          () => this.router.navigate(['/']),
-          () => this.getSitesInBounds(bounds));
-      });
-    });
+    }));
   }
 
   private getStoresInBounds(bounds) {
-    this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes()).subscribe(page => {
+    return this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes()).pipe(tap(page => {
       this.storeMapLayer.setEntities(page.content);
       this.mapService.addPointLayer(this.storeMapLayer);
       this.ngZone.run(() => {
         const message = `Showing ${page.numberOfElements} items of ${page.totalElements}`;
         this.snackBar.open(message, null, {duration: 1000, verticalPosition: 'top'});
       });
-    }, err => {
-      this.ngZone.run(() => {
-        this.errorService.handleServerError(`Failed to retrieve stores!`, err,
-          () => this.router.navigate(['/']),
-          () => this.getStoresInBounds(bounds));
-      });
-    });
+    }));
   }
 
   toggleSelectedProjectBoundaries(show: boolean): void {

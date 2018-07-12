@@ -6,6 +6,7 @@ import { Coordinates } from '../../models/coordinates';
 import { Mappable } from '../../interfaces/mappable';
 import { Observable, Observer, of, Subject } from 'rxjs/index';
 import { Color } from '../functionalEnums/Color';
+import { AuthService } from './auth.service';
 
 /*
   The MapService should
@@ -20,10 +21,10 @@ export class MapService {
   defaultIcon = {
     path: google.maps.SymbolPath.CIRCLE,
     fillColor: Color.BLUE,
-    fillOpacity: 0.5,
-    scale: 3,
+    fillOpacity: 0.6,
+    scale: 5,
     strokeColor: Color.WHITE,
-    strokeWeight: 1
+    strokeWeight: 2
   };
 
   map: google.maps.Map;
@@ -40,7 +41,7 @@ export class MapService {
 
   dataPointFeatures: google.maps.Data.Feature[];
 
-  constructor() {
+  constructor(private authService: AuthService) {
     this.dataPointFeatures = [];
   }
 
@@ -74,12 +75,21 @@ export class MapService {
   }
 
   private setMapDataStyle() {
+    const userId = this.authService.sessionUser.id;
     this.map.data.setStyle(feature => {
+      const assigneeId = feature.getProperty('assigneeId');
       return {
         fillColor: 'green',
         fillOpacity: this.map.getZoom() > 11 ? 0.05 : 0.2,
         strokeWeight: 1,
-        icon: this.defaultIcon
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          fillColor: (assigneeId != null && assigneeId === userId) ? Color.GREEN : Color.BLUE,
+          fillOpacity: (assigneeId != null && assigneeId === userId) ? 1 : 0.75,
+          scale: (assigneeId != null && assigneeId === userId) ? 5 : 4,
+          strokeColor: Color.WHITE,
+          strokeWeight: 1
+        }
       }
     });
   }
@@ -346,7 +356,9 @@ export class MapService {
   addDataPoints(coordinateList: Coordinates[]) {
     this.clearDataPoints();
     coordinateList.forEach(coordinates => {
-      this.dataPointFeatures.push(this.map.data.add(new google.maps.Data.Feature({geometry: coordinates})))
+      const feature = new google.maps.Data.Feature({geometry: coordinates});
+      feature.setProperty('assigneeId', coordinates['assigneeId']);
+      this.dataPointFeatures.push(this.map.data.add(feature));
     });
   }
 
