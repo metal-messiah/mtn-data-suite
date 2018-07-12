@@ -75,6 +75,7 @@ export class CasingDashboardComponent implements OnInit {
   showingBoundaries = false;
   sideNavIsOpen = false;
   filterSideNavIsOpen = false;
+  updating = false;
 
   // Modes
   selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
@@ -621,11 +622,16 @@ export class CasingDashboardComponent implements OnInit {
       selectedSiteIds.add(store.site.id);
     });
     const userId = (user != null) ? user.id : null;
-    this.siteService.assignToUser(Array.from(selectedSiteIds), userId).subscribe((sites: Site[]) => {
-      const message = `Successfully updated ${sites.length} Sites`;
-      this.snackBar.open(message, null, {duration: 2000});
-      this.getEntities(this.mapService.getBounds());
-    });
+    this.updating = true;
+    this.siteService.assignToUser(Array.from(selectedSiteIds), userId)
+      .pipe(finalize(() => this.updating = false))
+      .subscribe((sites: Site[]) => {
+        const message = `Successfully updated ${sites.length} Sites`;
+        this.snackBar.open(message, null, {duration: 2000});
+        this.getEntities(this.mapService.getBounds());
+      }, err => this.errorService.handleServerError('Failed to update sites!', err,
+        () => console.log(err),
+        () => this.assignSelectedStoresToUser(user)));
   }
 
   filterClosed() {
