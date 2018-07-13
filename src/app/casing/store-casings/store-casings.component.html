@@ -20,9 +20,8 @@
         <mat-expansion-panel *ngFor="let casing of casings; let i = index">
           <mat-expansion-panel-header>
             <mat-panel-title>{{casing.casingDate | date}}</mat-panel-title>
-            <mat-panel-description
-              *ngIf="casing.storeVolume != null && casing.storeSurvey != null && casing.storeSurvey.areaSales != null">
-              {{casing.storeVolume.volumeTotal/casing.storeSurvey.areaSales | currency:'USD':'symbol':'1.0-2'}}/sqft
+            <mat-panel-description *ngIf="casing.storeVolume != null">
+              {{casing.storeVolume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k
             </mat-panel-description>
           </mat-expansion-panel-header>
           <div>
