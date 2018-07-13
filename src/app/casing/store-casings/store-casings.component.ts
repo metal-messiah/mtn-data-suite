@@ -93,6 +93,21 @@ export class StoreCasingsComponent implements OnInit {
       });
   }
 
+  canEditCasing(casing: SimplifiedStoreCasing) {
+    if (casing.projects == null || casing.projects.length === 0) {
+      return true;
+    }
+    const selectedProject = this.casingDashboardService.getSelectedProject();
+    if (selectedProject != null) {
+      for (const project of casing.projects) {
+        if (project.id === selectedProject.id) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   private getProject(): Observable<SimplifiedProject> {
     if (this.casingDashboardService.getSelectedProject() != null) {
       return of(this.casingDashboardService.getSelectedProject());

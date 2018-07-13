@@ -409,13 +409,14 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   private addProject(project: Project | SimplifiedProject) {
     const existingProject = this.storeCasing.projects.find((p: SimplifiedProject) => p.id === project.id);
     if (existingProject != null) {
-      console.warn('Cannot add same project twice');
+      this.snackBar.open(`Cannot add same project twice`, null, {duration: 1000});
     } else {
       this.loadingProject = true;
       this.storeCasingService.addProject(this.storeCasing, project)
         .pipe(finalize(() => this.loadingProject = false))
         .subscribe((casing: StoreCasing) => {
           this.storeCasing = casing;
+          this.snackBar.open(`Successfully updated casing`, null, {duration: 1000});
         });
     }
   }
@@ -426,6 +427,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       .pipe(finalize(() => this.loadingProject = false))
       .subscribe((casing: StoreCasing) => {
         this.storeCasing = casing;
+        this.snackBar.open(`Successfully updated casing`, null, {duration: 1000});
       });
   }
 
@@ -436,17 +438,19 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       .subscribe((store: Store) => {
         const config = {data: {store: store, allowStatusSelection: true}, disableClose: true};
         const storeStatusDialog = this.dialog.open(StoreStatusesDialogComponent, config);
-        storeStatusDialog.afterClosed().subscribe(result => {
-          if (result instanceof StoreStatus || result instanceof SimplifiedStoreStatus) {
-            this.storeCasingService.setStoreStatus(this.storeCasing, result)
-              .pipe(finalize(() => this.editingStoreStatus = false))
-              .subscribe((casing: StoreCasing) => {
-                this.storeCasing = casing;
-              });
-          } else {
-            this.editingStoreStatus = false;
-          }
-        });
+        storeStatusDialog.afterClosed()
+          .pipe(finalize(() => this.editingStoreStatus = false))
+          .subscribe(result => {
+            if (result instanceof StoreStatus || result instanceof SimplifiedStoreStatus) {
+              this.storeCasingService.setStoreStatus(this.storeCasing, result)
+                .pipe(finalize(() => this.editingStoreStatus = false))
+                .subscribe((casing: StoreCasing) => {
+                  this.storeCasing = casing;
+                });
+            } else {
+              this.editingStoreStatus = false;
+            }
+          });
       });
   }
 
@@ -708,6 +712,19 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
         history.pushState({}, 'site', this.routingState.getPreviousUrl());
       }
     }));
+  }
+
+  canAddSelectedProject(): boolean {
+    const selectedProject = this.casingDashboardService.getSelectedProject();
+    if (selectedProject == null) {
+      return false;
+    }
+    for (const project of this.storeCasing.projects) {
+      if (project.id === selectedProject.id) {
+        return false;
+      }
+    }
+    return true;
   }
 
 }
