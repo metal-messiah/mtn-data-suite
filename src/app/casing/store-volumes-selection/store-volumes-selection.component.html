@@ -2,18 +2,109 @@
 <div mat-dialog-content>
   <h3 *ngIf="error != null">{{error}}</h3>
   <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-  <mat-list *ngIf="!loading">
-    <mat-list-item *ngFor="let volume of storeVolumes">
-      <div class="volume-option">
-        <div class="stacked">
-          <div class="volume-date">{{volume.volumeDate | date}}</div>
-          <div class="volume-type">{{volume.volumeType}}</div>
+  <mat-accordion *ngIf="!loading">
+    <mat-expansion-panel *ngFor="let volume of storeVolumes">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <div>{{volume.volumeDate | date}}</div>
+          <div>{{volume.volumeType}}</div>
+        </mat-panel-title>
+        <mat-panel-description>{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k</mat-panel-description>
+      </mat-expansion-panel-header>
+      <div>
+        <div>
+          <div>
+            <table id="volume-table">
+              <tr *ngIf="volume.volumeMeat != null || volume.volumePercentMeat != null">
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="Meat Volume" type="number" [value]="volume.volumeMeat" readonly>
+                    <span matPrefix>$&nbsp;</span>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentMeat" readonly>
+                    <span matSuffix>%</span>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr *ngIf="volume.volumeProduce != null || volume.volumePercentProduce != null">
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="Produce Volume" type="number" [value]="volume.volumeProduce" readonly>
+                    <span matPrefix>$&nbsp;</span>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentProduce" readonly>
+                    <span matSuffix>%</span>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr *ngIf="volume.volumeGrocery != null || volume.volumePercentGrocery != null">
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="Grocery Volume" type="number" [value]="volume.volumeGrocery" readonly>
+                    <span matPrefix>$&nbsp;</span>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentGrocery" readonly>
+                    <span matSuffix>%</span>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr *ngIf="volume.volumeNonFood != null || volume.volumePercentNonFood != null">
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="Non-Food Volume" type="number" [value]="volume.volumeNonFood" readonly>
+                    <span matPrefix>$&nbsp;</span>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentNonFood" readonly>
+                    <span matSuffix>%</span>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr *ngIf="volume.volumeOther != null || volume.volumePercentOther != null">
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="Other Volume" type="number" [value]="volume.volumeOther" readonly>
+                    <span matPrefix>$&nbsp;</span>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentOther" readonly>
+                    <span matSuffix>%</span>
+                  </mat-form-field>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <mat-form-field>
+            <input matInput type="number" placeholder="Total Weekly Volume" [value]="volume.volumeTotal" readonly>
+            <span matPrefix>$&nbsp;</span>
+          </mat-form-field>
+          <mat-form-field *ngIf="volume.volumeConfidence != null">
+            <input matInput type="text" placeholder="Volume Confidence" [value]="volume.volumeConfidence" readonly>
+            <span matPrefix>$&nbsp;</span>
+          </mat-form-field>
+          <mat-form-field *ngIf="volume.volumeNote != null">
+            <textarea matInput placeholder="Volume Notes" [value]="volume.volumeNote" readonly></textarea>
+          </mat-form-field>
         </div>
-        <div class="volume-total">{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k</div>
-        <button mat-raised-button color="accent" (click)="useVolume(volume)">Use</button>
       </div>
-    </mat-list-item>
-  </mat-list>
+      <mat-action-row>
+        <button mat-raised-button color="accent" (click)="copyVolume(volume)"><i class="fas fa-copy"></i>&nbsp;Copy</button>
+      </mat-action-row>
+    </mat-expansion-panel>
+  </mat-accordion>
 </div>
 <div mat-dialog-actions class="flex-justify-center">
   <button type="submit" mat-raised-button color="primary" (click)="close()">

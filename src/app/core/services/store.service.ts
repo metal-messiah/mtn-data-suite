@@ -40,11 +40,9 @@ export class StoreService extends CrudService<Store> {
       }));
   }
 
-  createNewCasing(storeId: number, casing: StoreCasing, storeRemodeled: boolean, shoppingCenterRedeveloped: boolean) {
+  createNewCasing(storeId: number, casing: StoreCasing) {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-casings`;
-    let params = new HttpParams().set('store_remodeled', String(storeRemodeled));
-    params = params.set('shopping_center_redeveloped', String(shoppingCenterRedeveloped));
-    return this.http.post<StoreCasing>(url, casing, {headers: this.rest.getHeaders(), params: params})
+    return this.http.post<StoreCasing>(url, casing, {headers: this.rest.getHeaders()})
       .pipe(map(newCasing => new StoreCasing(newCasing)));
   }
 
@@ -79,8 +77,8 @@ export class StoreService extends CrudService<Store> {
 
   getAllVolumes(storeId: number) {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-volumes`;
-    return this.http.get<SimplifiedStoreVolume[]>(url, {headers: this.rest.getHeaders()})
-      .pipe(map(volumes => volumes.map(volume => new SimplifiedStoreVolume(volume))));
+    return this.http.get<StoreVolume[]>(url, {headers: this.rest.getHeaders()})
+      .pipe(map(volumes => volumes.map(volume => new StoreVolume(volume))));
   }
 
   createNewVolume(store: Store, volume: StoreVolume) {

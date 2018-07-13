@@ -494,12 +494,12 @@
             <div *ngIf="storeCasing.storeVolume == null && !savingVolume">
               <div class="button-in-row">
                 <button type="button" mat-raised-button color="accent" [disabled]="savingVolume"
-                        (click)="createNewVolume()">Create New Volume
+                        (click)="createNewVolume()"><i class="fas fa-plus-circle"></i>&nbsp;Create New Volume
                 </button>
               </div>
               <div class="button-in-row">
                 <button type="button" mat-raised-button color="accent" [disabled]="savingVolume"
-                        (click)="showExistingVolumes()">Show Existing Volumes
+                        (click)="showExistingVolumes()"><i class="fas fa-copy"></i>&nbsp;Copy Existing Volume
                 </button>
               </div>
             </div>

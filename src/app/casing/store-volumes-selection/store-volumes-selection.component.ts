@@ -14,7 +14,7 @@ import { finalize } from 'rxjs/internal/operators';
 })
 export class StoreVolumesSelectionComponent implements OnInit {
 
-  storeVolumes: (StoreVolume | SimplifiedStoreVolume)[];
+  storeVolumes: StoreVolume[];
   loading = false;
   error: string;
 
@@ -36,20 +36,20 @@ export class StoreVolumesSelectionComponent implements OnInit {
     this.loading = true;
     this.storeService.getAllVolumes(this.data.storeId)
       .pipe(finalize(() => this.loading = false))
-      .subscribe((storeVolumes: SimplifiedStoreVolume[]) => {
-        this.storeVolumes = storeVolumes.sort((a: SimplifiedStoreVolume, b: SimplifiedStoreVolume) => {
+      .subscribe((storeVolumes: StoreVolume[]) => {
+        this.storeVolumes = storeVolumes.sort((a: StoreVolume, b: StoreVolume) => {
           return b.volumeDate.getTime() - a.volumeDate.getTime();
         });
-      }, error1 => this.errorService.handleServerError('Failed to retrieve store volumes', error1,
-        () => {
-        }, () => this.loadVolumes(storeId)));
+      }, err => this.errorService.handleServerError('Failed to retrieve store volumes', err,
+        () => console.log(err),
+        () => this.loadVolumes(storeId)));
   }
 
   close() {
     this.dialogRef.close();
   }
 
-  useVolume(volume: SimplifiedStoreVolume) {
+  copyVolume(volume: SimplifiedStoreVolume) {
     this.dialogRef.close(volume);
   }
 

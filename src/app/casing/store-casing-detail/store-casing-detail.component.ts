@@ -349,27 +349,56 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
         if (this.storeCasing.storeVolume != null) {
           const data = {
             title: 'Replace Volume',
-            question: 'This will replace the current casing volume, losing any unsaved changes. Are you sure?'
+            question: 'This will replace existing volume values. Are you sure?'
           };
           const confirmDialog = this.dialog.open(ConfirmDialogComponent, {data: data});
           confirmDialog.afterClosed().subscribe(confirmation => {
             if (confirmation) {
-              this.useVolume(result);
+              this.copyIntoExistingVolume(result);
             }
           });
         } else {
-          this.useVolume(result);
+          this.createNewVolumeCopy(result);
         }
       }
     });
   }
 
-  useVolume(volume: SimplifiedStoreVolume) {
+  private copyIntoExistingVolume(volume: StoreVolume) {
+    // Maintains volume Id
+    const dateControl = this.storeVolumeForm.get('volumeDate');
+    const date = dateControl.value;
+    this.storeVolumeForm.reset(volume);
+    dateControl.setValue(date);
+    this.storeVolumeForm.markAsDirty();
+    this.storeVolumeForm.get('source').setValue('MTN Casing App');
+    this.saveForm();
+  }
+
+  private createNewVolumeCopy(volume: StoreVolume) {
     this.savingVolume = true;
-    this.storeCasingService.setStoreVolume(this.storeCasing, volume)
+    const newVolume = new StoreVolume({
+      volumeTotal: volume.volumeTotal,
+      volumeDate: new Date(),
+      volumeType: volume.volumeType,
+      source: 'MTN Casing App',
+      volumeGrocery: volume.volumeGrocery,
+      volumePercentGrocery: volume.volumePercentGrocery,
+      volumeMeat: volume.volumeMeat,
+      volumePercentMeat: volume.volumePercentMeat,
+      volumeNonFood: volume.volumeNonFood,
+      volumePercentNonFood: volume.volumePercentNonFood,
+      volumeOther: volume.volumeOther,
+      volumePercentOther: volume.volumePercentOther,
+      volumeProduce: volume.volumeProduce,
+      volumePercentProduce: volume.volumePercentProduce,
+      volumeNote: volume.volumeNote,
+      volumeConfidence: volume.volumeConfidence
+    });
+    this.storeCasingService.createNewVolume(this.storeCasing.id, newVolume)
       .pipe(finalize(() => this.savingVolume = false))
-      .subscribe((casing: StoreCasing) => {
-        this.storeCasing = casing;
+      .subscribe((v: StoreVolume) => {
+        this.storeCasing.storeVolume = v;
         this.storeVolumeForm.reset(this.storeCasing.storeVolume);
         this.validatingForms.addControl('storeVolume', this.storeVolumeForm);
       });

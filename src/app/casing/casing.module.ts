@@ -32,7 +32,6 @@ import { AreaCalculatorComponent } from './area-calculator/area-calculator.compo
 import { StoreVolumesSelectionComponent } from './store-volumes-selection/store-volumes-selection.component';
 import { TenantListDialogComponent } from './tenant-list-dialog/tenant-list-dialog.component';
 import { AccessListDialogComponent } from './access-list-dialog/access-list-dialog.component';
-import { CreateCasingDialogComponent } from './create-casing-dialog/create-casing-dialog.component';
 import { QuadDialogComponent } from './quad-dialog/quad-dialog.component';
 import { SiteInfoCardComponent } from './site-info-card/site-info-card.component';
 
@@ -72,14 +71,12 @@ import { SiteInfoCardComponent } from './site-info-card/site-info-card.component
     StoreVolumesSelectionComponent,
     TenantListDialogComponent,
     AccessListDialogComponent,
-    CreateCasingDialogComponent,
     QuadDialogComponent,
     SiteInfoCardComponent
   ],
   entryComponents: [
     AccessListDialogComponent,
     AreaCalculatorComponent,
-    CreateCasingDialogComponent,
     DatabaseSearchComponent,
     GoogleSearchComponent,
     LatLngSearchComponent,
