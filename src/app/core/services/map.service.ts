@@ -28,7 +28,7 @@ export class MapService {
   };
 
   map: google.maps.Map;
-  boundsChanged$: Subject<any>;
+  boundsChanged$: Subject<{east, north, south, west}>;
   mapClick$: Subject<Coordinates>;
 
   circleRadiusListener: google.maps.MapsEventListener;
@@ -52,7 +52,7 @@ export class MapService {
       zoom: 8
     });
     this.placesService = new google.maps.places.PlacesService(this.map);
-    this.boundsChanged$ = new Subject<any>();
+    this.boundsChanged$ = new Subject<{east, north, south, west}>();
     this.mapClick$ = new Subject<Coordinates>();
     this.setMapDataStyle();
     this.loadPerspective();
@@ -147,7 +147,7 @@ export class MapService {
     };
   }
 
-  getBounds() {
+  getBounds(): {east: number, north: number, south: number, west: number} {
     return this.map.getBounds().toJSON();
   }
 

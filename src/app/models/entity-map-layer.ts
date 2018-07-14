@@ -1,5 +1,4 @@
 import { MapPointLayer } from './map-point-layer';
-import { UserProfile } from './full/user-profile';
 import { Coordinates } from './coordinates';
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { MapSelectionMode } from '../casing/enums/map-selection-mode';
@@ -21,19 +20,18 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
 
   private selectedEntityIds: Set<string | number>;
 
-  private readonly currentUser: UserProfile;
-
   private movingMappable: EntityMappable;
 
   private latestSelectedMappable: EntityMappable;
 
-  constructor(map: google.maps.Map, private mappableType: new (entity: Entity, userProfile: UserProfile) => T,
-              currentUser: UserProfile) {
+  private readonly createMappable: (Entity) => EntityMappable;
+
+  constructor(map: google.maps.Map, createMappable: (Entity) => EntityMappable) {
     super(map);
-    this.currentUser = currentUser;
     this.mappables = [];
     this.selectedEntityIds = new Set<number>();
     this.selectedEntities = [];
+    this.createMappable = createMappable;
     this.initSelection();
     const m = localStorage.getItem('markerType');
     if (m != null) {
@@ -66,7 +64,7 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
           return mappable;
         }
       }
-      const newMappable = new this.mappableType(entity, this.currentUser);
+      const newMappable = this.createMappable(entity);
       newMappable.setSelected(this.selectedEntityIds.has(entity.id));
       return newMappable;
     });

@@ -1,4 +1,3 @@
-import { UserProfile } from './full/user-profile';
 import { Color } from '../core/functionalEnums/Color';
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { MarkerShape } from '../core/functionalEnums/MarkerShape';
@@ -6,22 +5,21 @@ import { Coordinates } from './coordinates';
 import Icon = google.maps.Icon;
 import Symbol = google.maps.Symbol;
 import MarkerLabel = google.maps.MarkerLabel;
-import { Site } from './full/site';
 import { SimplifiedSite } from './simplified/simplified-site';
 import { EntityMappable } from '../interfaces/entity-mappable';
 
 export class SiteMappable implements EntityMappable {
 
   id: number;
-  private site: SimplifiedSite | Site;
-  private currentUser: UserProfile;
+  private site: SimplifiedSite;
+  private readonly currentUserId: number;
   private selected = false;
   private moving = false;
 
-  constructor(site: SimplifiedSite | SimplifiedSite, currentUser: UserProfile) {
+  constructor(site: SimplifiedSite, currentUserId: number) {
     this.site = site;
     this.id = site.id;
-    this.currentUser = currentUser;
+    this.currentUserId = currentUserId;
   }
 
   getCoordinates(): Coordinates {
@@ -64,11 +62,11 @@ export class SiteMappable implements EntityMappable {
     };
   }
 
-  updateEntity(site: SimplifiedSite | Site) {
+  updateEntity(site: SimplifiedSite) {
     this.site = site;
   }
 
-  getEntity(): SimplifiedSite | Site {
+  getEntity(): SimplifiedSite {
     return this.site;
   }
 
@@ -85,7 +83,7 @@ export class SiteMappable implements EntityMappable {
       return Color.PURPLE;
     }
     if (this.site.assignee != null) {
-      if (this.site.assignee.id === this.currentUser.id) {
+      if (this.site.assignee.id === this.currentUserId) {
         if (this.selected) {
           return Color.GREEN_DARK;
         } else {
@@ -154,7 +152,7 @@ export class SiteMappable implements EntityMappable {
     return 1;
   }
 
-  getSite(): (Site | SimplifiedSite) {
+  getSite(): (SimplifiedSite) {
     return this.getEntity();
   };
 

@@ -11,6 +11,7 @@ export class SimplifiedStore implements Entity {
   currentStoreStatus: string;
   floating: boolean;
   storeType: string;
+  projectIds: number[];
 
   site: SimplifiedSite;
   banner: SimplifiedBanner;

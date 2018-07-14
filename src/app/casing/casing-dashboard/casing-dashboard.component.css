@@ -72,3 +72,11 @@ form {
   margin-left: 16px;
 }
 
+#loadingSpinner {
+  position: absolute;
+  bottom: 90px;
+  pointer-events: none;
+  z-index: 100;
+  margin-left: 10px;
+}
+

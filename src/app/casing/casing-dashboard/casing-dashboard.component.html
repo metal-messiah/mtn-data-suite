@@ -141,7 +141,7 @@
           <button mat-mini-fab color="primary" (click)="filterSideNavIsOpen = !filterSideNavIsOpen">
             <i class="fas fa-filter"></i>
           </button>
-          <button mat-mini-fab color="primary" routerLink="site-list">
+          <button disabled mat-mini-fab color="primary" routerLink="site-list">
             <i class="fas fa-list"></i>
           </button>
         </mat-toolbar>
@@ -216,3 +216,5 @@
     <i class="fas ban"></i>&nbsp;Clear Google Search
   </button>
 </mat-menu>
+
+<i *ngIf="gettingEntities" id="loadingSpinner" class="fas fa-spinner fa-pulse fa-2x"></i>

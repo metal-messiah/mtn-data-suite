@@ -46,13 +46,16 @@ export class StoreService extends CrudService<Store> {
       .pipe(map(newCasing => new StoreCasing(newCasing)));
   }
 
-  getStoresOfTypeInBounds(bounds: {north, south, east, west}, types: string[]): Observable<Pageable<SimplifiedStore>> {
+  getStoresOfTypeInBounds(bounds: {north, south, east, west}, types: string[], includeProjectIds: boolean): Observable<Pageable<SimplifiedStore>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams().set('size', '300');
     params = params.set('store_types', types.toString());
     _.forEach(bounds, function (value, key) {
       params = params.set(key, value);
     });
+    if (includeProjectIds) {
+      params = params.set('include_project_ids', 'true');
+    }
     return this.http.get<Pageable<SimplifiedStore>>(url, {headers: this.rest.getHeaders(), params: params})
       .pipe(map((page) => {
         page.content = page.content.map(store => new SimplifiedStore(store));

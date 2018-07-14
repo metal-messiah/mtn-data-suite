@@ -16,7 +16,6 @@ import { Coordinates } from '../../models/coordinates';
 import { GoogleSearchComponent } from '../google-search/google-search.component';
 import { GooglePlace } from '../../models/google-place';
 import { StoreService } from '../../core/services/store.service';
-import { MappableService } from '../../shared/mappable.service';
 import { DatabaseSearchComponent } from '../database-search/database-search.component';
 import { AuthService } from '../../core/services/auth.service';
 import { ErrorService } from '../../core/services/error.service';
@@ -55,8 +54,7 @@ export enum CardState {
 @Component({
   selector: 'mds-casing-dashboard',
   templateUrl: './casing-dashboard.component.html',
-  styleUrls: ['./casing-dashboard.component.css'],
-  providers: [MappableService]
+  styleUrls: ['./casing-dashboard.component.css']
 })
 export class CasingDashboardComponent implements OnInit {
 
@@ -76,6 +74,7 @@ export class CasingDashboardComponent implements OnInit {
   sideNavIsOpen = false;
   filterSideNavIsOpen = false;
   updating = false;
+  gettingEntities = false;
 
   // Modes
   selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
@@ -111,16 +110,24 @@ export class CasingDashboardComponent implements OnInit {
     this.casingDashboardService.projectChanged$.subscribe(project => {
       this.showingBoundaries = false;
       this.mapService.clearGeoJsonBoundaries();
+      this.getEntities(this.mapService.getBounds());
+    });
+    this.casingDashboardService.toggleMarkingStores$.subscribe(doMark => {
+      this.getEntities(this.mapService.getBounds());
     })
   }
 
   onMapReady() {
     console.log(`Map is ready`);
-    this.storeMapLayer = new EntityMapLayer<StoreMappable>(this.mapService.getMap(), StoreMappable, this.authService.sessionUser);
-    this.siteMapLayer = new EntityMapLayer<SiteMappable>(this.mapService.getMap(), SiteMappable, this.authService.sessionUser);
+    this.storeMapLayer = new EntityMapLayer<StoreMappable>(this.mapService.getMap(), (store: SimplifiedStore) => {
+      return new StoreMappable(store, this.authService.sessionUser.id, () => this.casingDashboardService.getSelectedProject().id)
+    });
+    this.siteMapLayer = new EntityMapLayer<SiteMappable>(this.mapService.getMap(), (site: SimplifiedSite) => {
+      return new SiteMappable(site, this.authService.sessionUser.id);
+    });
 
     this.mapService.boundsChanged$.pipe(this.getDebounce())
-      .subscribe(bounds => {
+      .subscribe((bounds: {east, north, south, west}) => {
         if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
           this.getEntities(bounds);
         }
@@ -167,11 +174,13 @@ export class CasingDashboardComponent implements OnInit {
     return types;
   }
 
-  getEntities(bounds): void {
+  getEntities(bounds: {east, north, south, west}): void {
     if (this.mapService.getZoom() > 10) {
       this.mapService.clearDataPoints();
       const storeTypes = this.getFilteredStoreTypes();
+      this.gettingEntities = true;
       this.getSitesInBounds(bounds)
+        .pipe(finalize(() => this.gettingEntities = false))
         .pipe(mergeMap(() => {
           if (storeTypes.length > 0) {
             return this.getStoresInBounds(bounds);
@@ -185,7 +194,7 @@ export class CasingDashboardComponent implements OnInit {
           , err => {
             this.ngZone.run(() => {
               this.errorService.handleServerError(`Failed to retrieve entities!`, err,
-                () => this.router.navigate(['/']),
+                () => console.log(err),
                 () => this.getEntities(bounds));
             });
           });
@@ -212,9 +221,6 @@ export class CasingDashboardComponent implements OnInit {
     this.siteService.getSitePointsInBounds(bounds).subscribe((sitePoints: Coordinates[]) => {
       if (sitePoints.length <= 1000) {
         this.mapService.addDataPoints(sitePoints);
-        // const mappables = sitePoints.map(p => new CoordinateMappable({lat: p.latitude, lng: p.longitude}))
-        // this.pointLayer.createMarkersFromMappables(mappables);
-        // this.mapService.addPointLayer(this.pointLayer);
         this.ngZone.run(() => {
           const message = `Showing ${sitePoints.length} items`;
           this.snackBar.open(message, null, {duration: 2000, verticalPosition: 'top'});
@@ -237,14 +243,15 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   private getStoresInBounds(bounds) {
-    return this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes()).pipe(tap(page => {
-      this.storeMapLayer.setEntities(page.content);
-      this.mapService.addPointLayer(this.storeMapLayer);
-      this.ngZone.run(() => {
-        const message = `Showing ${page.numberOfElements} items of ${page.totalElements}`;
-        this.snackBar.open(message, null, {duration: 1000, verticalPosition: 'top'});
-      });
-    }));
+    return this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes(), this.casingDashboardService.markCasedStores)
+      .pipe(tap(page => {
+        this.storeMapLayer.setEntities(page.content);
+        this.mapService.addPointLayer(this.storeMapLayer);
+        this.ngZone.run(() => {
+          const message = `Showing ${page.numberOfElements} items of ${page.totalElements}`;
+          this.snackBar.open(message, null, {duration: 1000, verticalPosition: 'top'});
+        });
+      }));
   }
 
   toggleSelectedProjectBoundaries(show: boolean): void {
@@ -292,19 +299,21 @@ export class CasingDashboardComponent implements OnInit {
 
   editNewLocation(): void {
     const coordinates = this.newSiteLayer.getCoordinatesOfNewSite();
-    const snackBarRef = this.snackBar.open('Reverse Geocoding...', null);
-    this.geocoderService.reverseGeocode(coordinates)
-      .pipe(finalize(() => snackBarRef.dismiss()))
-      .subscribe((newSite: Site) => {
-        // If reverse geocode is successful - exit creation state (moving on to site page)
-        newSite.latitude = coordinates.lat;
-        newSite.longitude = coordinates.lng;
-        newSite.type = 'ANCHOR';
-        this.createNewSite(new Site(newSite));
-      }, (err) => {
-        this.cancelSiteCreation();
-        console.error(err);
-      });
+    this.ngZone.run(() => {
+      const snackBarRef = this.snackBar.open('Reverse Geocoding...', null);
+      this.geocoderService.reverseGeocode(coordinates)
+        .pipe(finalize(() => snackBarRef.dismiss()))
+        .subscribe((newSite: Site) => {
+          // If reverse geocode is successful - exit creation state (moving on to site page)
+          newSite.latitude = coordinates.lat;
+          newSite.longitude = coordinates.lng;
+          newSite.type = 'ANCHOR';
+          this.createNewSite(new Site(newSite));
+        }, (err) => {
+          this.cancelSiteCreation();
+          console.error(err);
+        });
+    });
   }
 
   private createNewSite(site: Site) {
