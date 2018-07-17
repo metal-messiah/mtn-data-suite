@@ -3,9 +3,11 @@ import { ProjectService } from '../../core/services/project.service';
 import { Project } from '../../models/full/project';
 import { Pageable } from '../../models/pageable';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatSnackBar } from '@angular/material';
 import { fromEvent } from 'rxjs/index';
 import { finalize } from 'rxjs/internal/operators';
+import { Router } from '@angular/router';
+import { ErrorService } from '../../core/services/error.service';
 
 @Component({
   selector: 'mds-select-project',
@@ -27,6 +29,10 @@ export class SelectProjectComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<SelectProjectComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
+              private router: Router,
+              private dialog: MatDialog,
+              private snackBar: MatSnackBar,
+              private errorService: ErrorService,
               private projectService: ProjectService) {
   }
 
@@ -74,6 +80,24 @@ export class SelectProjectComponent implements OnInit {
 
   selectProject(project: Project): void {
     this.dialogRef.close(project);
+  }
+
+  editProject(project: Project): void {
+    // TODO Navigate to edit project page
+    this.dialogRef.close();
+    this.router.navigate(['casing/project', project.id]);
+  }
+
+  createProject() {
+    this.loading = true;
+    this.projectService.create(new Project({projectName: 'New Project', active: true}))
+      .pipe(finalize(() => this.loading = false))
+      .subscribe(project => {
+        this.snackBar.open('Successfully created new Project', null, {duration: 1000});
+        this.router.navigate(['casing/project', project.id]);
+        this.dialogRef.close();
+      }, err => this.errorService.handleServerError('Failed to create new project!', err,
+        () => console.log(err), () => this.createProject()))
   }
 
   closeDialog(): void {

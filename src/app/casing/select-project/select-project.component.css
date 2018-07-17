@@ -90,3 +90,24 @@ mat-list {
 .title {
   margin: 0;
 }
+
+.mat-raised-button, .mat-button {
+  min-width: unset;
+}
+
+mat-panel-title {
+  max-width: 100%;
+  align-items: center;
+}
+
+#more {
+  padding: 8px
+}
+
+#loadingProgressBar {
+  margin-top: 8px;
+}
+
+.mat-action-row {
+  justify-content: space-between;
+}

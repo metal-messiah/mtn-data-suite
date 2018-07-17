@@ -2,15 +2,6 @@
   <mat-sidenav mode="over" [(opened)]="sideNavIsOpen" class="casing-side-nav">
     <mat-nav-list role="list">
       <h3 mat-subheader>Project</h3>
-      <mat-list-item routerLink="/casing/projects">Manage Projects</mat-list-item>
-      <mat-list-item *ngIf="casingDashboardService.getSelectedProject() == null"
-                     (click)="casingDashboardService.openProjectSelectionDialog()">Select Project
-      </mat-list-item>
-      <mat-list-item *ngIf="casingDashboardService.getSelectedProject() != null"
-                     [matMenuTriggerFor]="selectedProjectMenu">
-        {{casingDashboardService.getSelectedProject().projectName}}&nbsp;<i class="fas fa-chevron-right"></i>
-      </mat-list-item>
-      <mat-divider></mat-divider>
       <mat-list-item role="listitem" [matMenuTriggerFor]="markerTypeMenu">
         <h4 mat-line>Marker Type</h4>&nbsp;<i class="fas fa-chevron-right"></i>
         <p mat-line>{{storeMapLayer.markerType.valueOf()}}</p>
@@ -76,7 +67,6 @@
                           (initiateMove)="moveSite($event)"
                           *ngIf="selectedCardState === cardState.SELECTED_SITE && selectedSite != null"></mds-site-info-card>
       <div class="row footer">
-        <!--<div *ngIf="page != null">Showing {{page.numberOfElements}} of {{page.totalElements}}</div>-->
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" color="primary"
                      class="flex-space-between">
           <div></div>
@@ -157,18 +147,6 @@
   </button>
   <button mat-menu-item (click)="openAssignmentDialog()">
     <i class="fas fa-user"></i>&nbsp;&nbsp;Assign
-  </button>
-</mat-menu>
-
-<mat-menu #selectedProjectMenu="matMenu" [overlapTrigger]="false" xPosition="after">
-  <button mat-menu-item (click)="casingDashboardService.openProjectSelectionDialog()">Change Selected Project</button>
-  <button mat-menu-item (click)="casingDashboardService.navigateToProjectSummary()">View Summary</button>
-  <button mat-menu-item (click)="casingDashboardService.navigateToProjectDetail()">Edit</button>
-  <button mat-menu-item *ngIf="!showingBoundaries" (click)="toggleSelectedProjectBoundaries(true)">
-    Show Boundaries
-  </button>
-  <button mat-menu-item *ngIf="showingBoundaries" (click)="toggleSelectedProjectBoundaries(false)">
-    Hide Boundaries
   </button>
 </mat-menu>
 
