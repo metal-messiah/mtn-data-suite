@@ -1,11 +1,11 @@
 import { MapPointLayer } from './map-point-layer';
-import { UserProfile } from './full/user-profile';
 import { Coordinates } from './coordinates';
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { MapSelectionMode } from '../casing/enums/map-selection-mode';
 import { Entity } from './entity';
 import { EntityMappable } from '../interfaces/entity-mappable';
 import { Subject } from 'rxjs/index';
+import { Mappable } from '../interfaces/mappable';
 
 export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<EntityMappable> {
 
@@ -20,20 +20,23 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
 
   private selectedEntityIds: Set<string | number>;
 
-  private readonly currentUser: UserProfile;
-
   private movingMappable: EntityMappable;
 
   private latestSelectedMappable: EntityMappable;
 
-  constructor(private mappableType: new (entity: Entity, userProfile: UserProfile) => T,
-              currentUser: UserProfile) {
-    super();
-    this.currentUser = currentUser;
+  private readonly createMappable: (Entity) => EntityMappable;
+
+  constructor(map: google.maps.Map, createMappable: (Entity) => EntityMappable) {
+    super(map);
     this.mappables = [];
     this.selectedEntityIds = new Set<number>();
     this.selectedEntities = [];
+    this.createMappable = createMappable;
     this.initSelection();
+    const m = localStorage.getItem('markerType');
+    if (m != null) {
+      this.markerType = JSON.parse(m);
+    }
   }
 
   private initSelection() {
@@ -61,7 +64,7 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
           return mappable;
         }
       }
-      const newMappable = new this.mappableType(entity, this.currentUser);
+      const newMappable = this.createMappable(entity);
       newMappable.setSelected(this.selectedEntityIds.has(entity.id));
       return newMappable;
     });
@@ -71,6 +74,7 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
 
   setMarkerType(markerType: MarkerType) {
     this.markerType = markerType;
+    localStorage.setItem('markerType', JSON.stringify(markerType));
   }
 
   selectEntitiesInShape(shape) {
@@ -166,5 +170,12 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
 
   isMoving() {
     return this.movingMappable != null;
+  }
+
+  protected setMarkerOptions(marker: google.maps.Marker): void {
+    const mappable: Mappable = marker.get('mappable');
+    marker.setDraggable(mappable.isDraggable());
+    marker.setIcon(mappable.getIcon(this.map.getZoom(), this.markerType));
+    marker.setLabel(mappable.getLabel(this.map.getZoom(), this.markerType));
   }
 }

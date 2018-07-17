@@ -26,15 +26,15 @@ import { ShoppingCenterAccessService } from './services/shopping-center-access.s
 import { StoreSurveyService } from './services/store-survey.service';
 import { RoutingStateService } from './services/routing-state.service';
 import { BannerService } from './services/banner.service';
+import { StoreSourceService } from './services/store-source.service';
 
 @NgModule({
-  imports: [
-    CommonModule
-  ],
+  imports: [CommonModule],
   declarations: [],
   providers: [
     AuthService,
     AuthGuard,
+    BannerService,
     DetailFormService,
     EntityListService,
     ErrorService,
@@ -46,26 +46,31 @@ import { BannerService } from './services/banner.service';
     ProjectService,
     RestService,
     RoleService,
-    SiteService,
-    UserProfileService,
-    StoreService,
-    ShoppingCenterService,
+    RoutingStateService,
+    ShoppingCenterAccessService,
     ShoppingCenterCasingService,
-    StoreCasingService,
-    StoreVolumeService,
+    ShoppingCenterService,
     ShoppingCenterSurveyService,
     ShoppingCenterTenantService,
-    ShoppingCenterAccessService,
+    SiteService,
+    StoreSourceService,
+    StoreCasingService,
+    StoreService,
     StoreSurveyService,
-    RoutingStateService,
-    BannerService
+    StoreVolumeService,
+    UserProfileService
   ]
 })
 export class CoreModule {
-  constructor(@Optional() @SkipSelf() parentModule: CoreModule) {
+  constructor(
+    @Optional()
+    @SkipSelf()
+    parentModule: CoreModule
+  ) {
     if (parentModule) {
       throw new Error(
-        'CoreModule is already loaded. Import it in the AppModule only');
+        'CoreModule is already loaded. Import it in the AppModule only'
+      );
     }
   }
 }

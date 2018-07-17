@@ -246,6 +246,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       parkingHasAngledSpaces: '',
       parkingHasParkingHog: '',
       parkingIsPoorlyLit: '',
+      parkingSpaceCount: '',
       tenantOccupiedCount: '',
       tenantVacantCount: '',
       sqFtPercentOccupied: ['', [Validators.min(0), Validators.max(100)]]
@@ -348,27 +349,56 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
         if (this.storeCasing.storeVolume != null) {
           const data = {
             title: 'Replace Volume',
-            question: 'This will replace the current casing volume, losing any unsaved changes. Are you sure?'
+            question: 'This will replace existing volume values. Are you sure?'
           };
           const confirmDialog = this.dialog.open(ConfirmDialogComponent, {data: data});
           confirmDialog.afterClosed().subscribe(confirmation => {
             if (confirmation) {
-              this.useVolume(result);
+              this.copyIntoExistingVolume(result);
             }
           });
         } else {
-          this.useVolume(result);
+          this.createNewVolumeCopy(result);
         }
       }
     });
   }
 
-  useVolume(volume: SimplifiedStoreVolume) {
+  private copyIntoExistingVolume(volume: StoreVolume) {
+    // Maintains volume Id
+    const dateControl = this.storeVolumeForm.get('volumeDate');
+    const date = dateControl.value;
+    this.storeVolumeForm.reset(volume);
+    dateControl.setValue(date);
+    this.storeVolumeForm.markAsDirty();
+    this.storeVolumeForm.get('source').setValue('MTN Casing App');
+    this.saveForm();
+  }
+
+  private createNewVolumeCopy(volume: StoreVolume) {
     this.savingVolume = true;
-    this.storeCasingService.setStoreVolume(this.storeCasing, volume)
+    const newVolume = new StoreVolume({
+      volumeTotal: volume.volumeTotal,
+      volumeDate: new Date(),
+      volumeType: volume.volumeType,
+      source: 'MTN Casing App',
+      volumeGrocery: volume.volumeGrocery,
+      volumePercentGrocery: volume.volumePercentGrocery,
+      volumeMeat: volume.volumeMeat,
+      volumePercentMeat: volume.volumePercentMeat,
+      volumeNonFood: volume.volumeNonFood,
+      volumePercentNonFood: volume.volumePercentNonFood,
+      volumeOther: volume.volumeOther,
+      volumePercentOther: volume.volumePercentOther,
+      volumeProduce: volume.volumeProduce,
+      volumePercentProduce: volume.volumePercentProduce,
+      volumeNote: volume.volumeNote,
+      volumeConfidence: volume.volumeConfidence
+    });
+    this.storeCasingService.createNewVolume(this.storeCasing.id, newVolume)
       .pipe(finalize(() => this.savingVolume = false))
-      .subscribe((casing: StoreCasing) => {
-        this.storeCasing = casing;
+      .subscribe((v: StoreVolume) => {
+        this.storeCasing.storeVolume = v;
         this.storeVolumeForm.reset(this.storeCasing.storeVolume);
         this.validatingForms.addControl('storeVolume', this.storeVolumeForm);
       });
@@ -408,13 +438,14 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   private addProject(project: Project | SimplifiedProject) {
     const existingProject = this.storeCasing.projects.find((p: SimplifiedProject) => p.id === project.id);
     if (existingProject != null) {
-      console.warn('Cannot add same project twice');
+      this.snackBar.open(`Cannot add same project twice`, null, {duration: 1000});
     } else {
       this.loadingProject = true;
       this.storeCasingService.addProject(this.storeCasing, project)
         .pipe(finalize(() => this.loadingProject = false))
         .subscribe((casing: StoreCasing) => {
           this.storeCasing = casing;
+          this.snackBar.open(`Successfully updated casing`, null, {duration: 1000});
         });
     }
   }
@@ -425,6 +456,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       .pipe(finalize(() => this.loadingProject = false))
       .subscribe((casing: StoreCasing) => {
         this.storeCasing = casing;
+        this.snackBar.open(`Successfully updated casing`, null, {duration: 1000});
       });
   }
 
@@ -435,17 +467,19 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       .subscribe((store: Store) => {
         const config = {data: {store: store, allowStatusSelection: true}, disableClose: true};
         const storeStatusDialog = this.dialog.open(StoreStatusesDialogComponent, config);
-        storeStatusDialog.afterClosed().subscribe(result => {
-          if (result instanceof StoreStatus || result instanceof SimplifiedStoreStatus) {
-            this.storeCasingService.setStoreStatus(this.storeCasing, result)
-              .pipe(finalize(() => this.editingStoreStatus = false))
-              .subscribe((casing: StoreCasing) => {
-                this.storeCasing = casing;
-              });
-          } else {
-            this.editingStoreStatus = false;
-          }
-        });
+        storeStatusDialog.afterClosed()
+          .pipe(finalize(() => this.editingStoreStatus = false))
+          .subscribe(result => {
+            if (result instanceof StoreStatus || result instanceof SimplifiedStoreStatus) {
+              this.storeCasingService.setStoreStatus(this.storeCasing, result)
+                .pipe(finalize(() => this.editingStoreStatus = false))
+                .subscribe((casing: StoreCasing) => {
+                  this.storeCasing = casing;
+                });
+            } else {
+              this.editingStoreStatus = false;
+            }
+          });
       });
   }
 
@@ -502,7 +536,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   }
 
   calculateDepartmentVolumesFromTotal() {
-    const totalVolumeControl = this.storeCasingForm.get('storeVolume.volumeTotal');
+    const totalVolumeControl = this.storeVolumeForm.get('volumeTotal');
     if (totalVolumeControl != null && totalVolumeControl.valid) {
       const totalVolume = parseFloat(totalVolumeControl.value);
       this.calculateDepartmentVolume(totalVolume, 'Meat');
@@ -514,12 +548,12 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   }
 
   private calculateDepartmentVolume(totalVolume: number, departmentName: string) {
-    const percentControl = this.storeCasingForm.get(`storeVolume.volumePercent${departmentName}`);
+    const percentControl = this.storeVolumeForm.get(`volumePercent${departmentName}`);
     if (percentControl.valid) {
       const percent = parseFloat(percentControl.value);
       if (!isNaN(percent)) {
         const calculatedDeptVolume = totalVolume * (percent / 100);
-        const volumeControl = this.storeCasingForm.get(`storeVolume.volume${departmentName}`);
+        const volumeControl = this.storeVolumeForm.get(`volume${departmentName}`);
         volumeControl.setValue(calculatedDeptVolume);
         volumeControl.markAsDirty();
       }
@@ -557,15 +591,15 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     if (count > 0) {
       const averageEstimate = sum / count;
       const roundedEstimate = Math.round(averageEstimate / 5000) * 5000;
-      const totalVolumeControl = this.storeCasingForm.get('storeVolume.volumeTotal');
+      const totalVolumeControl = this.storeVolumeForm.get('volumeTotal');
       totalVolumeControl.setValue(roundedEstimate);
       totalVolumeControl.markAsDirty();
     }
   }
 
   private getDeptEstimateOfTotal(departmentName: string) {
-    const volumeControl = this.storeCasingForm.get(`storeVolume.volume${departmentName}`);
-    const percentControl = this.storeCasingForm.get(`storeVolume.volumePercent${departmentName}`);
+    const volumeControl = this.storeVolumeForm.get(`volume${departmentName}`);
+    const percentControl = this.storeVolumeForm.get(`volumePercent${departmentName}`);
     if (volumeControl.valid && percentControl.valid) {
       const deptVolume = parseFloat(volumeControl.value);
       const percent = parseFloat(percentControl.value);
@@ -707,6 +741,19 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
         history.pushState({}, 'site', this.routingState.getPreviousUrl());
       }
     }));
+  }
+
+  canAddSelectedProject(): boolean {
+    const selectedProject = this.casingDashboardService.getSelectedProject();
+    if (selectedProject == null) {
+      return false;
+    }
+    for (const project of this.storeCasing.projects) {
+      if (project.id === selectedProject.id) {
+        return false;
+      }
+    }
+    return true;
   }
 
 }

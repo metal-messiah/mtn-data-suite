@@ -15,9 +15,23 @@
       {{casingDashboardService.getSelectedProject().projectName}}
     </button>
     <mat-menu #projectMenu="matMenu">
-      <button mat-menu-item (click)="casingDashboardService.openProjectSelectionDialog()">Change Selected Project</button>
+      <button mat-menu-item (click)="casingDashboardService.openProjectSelectionDialog()">Change Selected Project
+      </button>
+      <button mat-menu-item *ngIf="!casingDashboardService.markCasedStores"
+              (click)="casingDashboardService.markStoresCasedForProject(true)">Mark Stores Cased For Project
+      </button>
+      <button mat-menu-item *ngIf="casingDashboardService.markCasedStores"
+              (click)="casingDashboardService.markStoresCasedForProject(false)">Un-mark Stores Cased For Project
+      </button>
       <button mat-menu-item (click)="navigateToProjectSummary()" disabled>View Project Summary</button>
       <button mat-menu-item (click)="navigateToProjectDetail()" disabled>Edit Project</button>
+      <!--<button mat-menu-item (click)="viewProjectSummary()" disabled>View Summary</button>-->
+      <!--<button mat-menu-item *ngIf="!showingBoundaries" (click)="toggleSelectedProjectBoundaries(true)">-->
+        <!--Show Boundaries-->
+      <!--</button>-->
+      <!--<button mat-menu-item *ngIf="showingBoundaries" (click)="toggleSelectedProjectBoundaries(false)">-->
+        <!--Hide Boundaries-->
+      <!--</button>-->
     </mat-menu>
   </div>
 </mat-toolbar>

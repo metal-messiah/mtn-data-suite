@@ -1,4 +1,5 @@
 import { Entity } from '../entity';
+import { DateUtil } from '../../utils/date-util';
 
 export class SimplifiedStoreVolume implements Entity {
 
@@ -9,7 +10,9 @@ export class SimplifiedStoreVolume implements Entity {
 
   constructor(obj) {
     Object.assign(this, obj);
-    this.volumeDate = new Date(this.volumeDate);
+    if (obj.volumeDate != null) {
+      this.volumeDate = DateUtil.getDate(obj.volumeDate);
+    }
   }
 
 }

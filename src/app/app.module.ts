@@ -13,6 +13,8 @@ import { HomeComponent } from './home/home.component';
 import { SharedModule } from './shared/shared.module';
 import { DbSupportModule } from './db-support/db-support.module';
 import { CasingModule } from './casing/casing.module';
+import { DataUploadModule } from './data-upload/data-upload.module';
+import { ExtractionModule } from './extraction/extraction.module';
 
 @NgModule({
   imports: [
@@ -23,7 +25,9 @@ import { CasingModule } from './casing/casing.module';
     SharedModule,
     AdministrationModule,
     CasingModule,
+    DataUploadModule,
     DbSupportModule,
+    ExtractionModule,
     AppRoutingModule // must come last?
   ],
   declarations: [AppComponent, HomeComponent],

@@ -1,4 +1,3 @@
-import { Store } from './full/store';
 import { SimplifiedStore } from './simplified/simplified-store';
 import { UserProfile } from './full/user-profile';
 import { Color } from '../core/functionalEnums/Color';
@@ -15,15 +14,21 @@ import { Site } from './full/site';
 export class StoreMappable implements EntityMappable {
 
   id: number;
-  private store: SimplifiedStore | Store;
-  private currentUser: UserProfile;
+  private readonly currentUserId: number;
+  private readonly getSelectedProjectId: () => number;
+
+  private store: SimplifiedStore;
   private selected = false;
   private moving = false;
 
-  constructor(store: SimplifiedStore | Store, currentUser: UserProfile) {
+  private readonly HIGH_ZOOM = 13;
+  private readonly MID_ZOOM = 16;
+
+  constructor(store: SimplifiedStore, currentUserId: number, getSelectedProjectId: () => number) {
     this.store = store;
     this.id = store.id;
-    this.currentUser = currentUser;
+    this.currentUserId = currentUserId;
+    this.getSelectedProjectId = getSelectedProjectId;
   }
 
   getCoordinates(): Coordinates {
@@ -34,7 +39,13 @@ export class StoreMappable implements EntityMappable {
     return this.moving;
   }
 
-  getLabel(markerType?: MarkerType): string|MarkerLabel {
+  getLabel(zoom: number, markerType?: MarkerType): string|MarkerLabel {
+    if (this.storeCasedForSelectedProject()) {
+      return null;
+    }
+    if (markerType === MarkerType.LOGO && this.store.banner != null && this.store.banner.logoFileName != null) {
+      return null;
+    }
     let label = null;
     if (this.store.banner != null) {
       label = this.store.banner.bannerName;
@@ -44,7 +55,14 @@ export class StoreMappable implements EntityMappable {
     if (label == null) {
       label = '?';
     }
-    if (markerType !== MarkerType.LOGO) {
+    if (zoom > this.HIGH_ZOOM) {
+      return {
+        color: Color.BLACK,
+        fontWeight: 'bold',
+        text: label
+      };
+    }
+    if (zoom < this.MID_ZOOM) {
       label = label[0];
     } else if (this.store.storeNumber != null) {
       label = `${label} (${this.store.storeNumber})`;
@@ -56,9 +74,11 @@ export class StoreMappable implements EntityMappable {
     };
   }
 
-  getIcon(markerType?: MarkerType): string | Icon | Symbol {
-    if (markerType === MarkerType.LOGO) {
-      return `http://res.cloudinary.com/mtn-retail-advisors/image/upload/r_0/${this.store.banner}`;
+  getIcon(zoom: number, markerType?: MarkerType): string | Icon | Symbol {
+    if (markerType === MarkerType.LOGO && this.store.banner != null && this.store.banner.logoFileName != null) {
+      return {
+        url: `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${this.store.banner.logoFileName}`
+      }
     }
     const fillColor = this.getFillColor();
     const strokeColor = this.getStrokeColor();
@@ -68,7 +88,7 @@ export class StoreMappable implements EntityMappable {
     const strokeWeight = this.getStrokeWeight(shape);
     const fillOpacity = this.getFillOpacity(markerType);
     const rotation = this.getRotation();
-    const labelOrigin = this.getLabelOrigin(shape);
+    const labelOrigin = this.getLabelOrigin(shape, zoom);
 
     return {
       path: shape,
@@ -83,11 +103,11 @@ export class StoreMappable implements EntityMappable {
     };
   }
 
-  updateEntity(store: SimplifiedStore | Store) {
+  updateEntity(store: SimplifiedStore) {
     this.store = store;
   }
 
-  getEntity(): SimplifiedStore | Store {
+  getEntity(): SimplifiedStore {
     return this.store;
   }
 
@@ -99,12 +119,18 @@ export class StoreMappable implements EntityMappable {
     this.moving = moving;
   }
 
+  private storeCasedForSelectedProject() {
+    return this.getSelectedProjectId != null &&
+      this.store.projectIds != null &&
+      this.store.projectIds.indexOf(this.getSelectedProjectId()) !== -1
+  }
+
   private getFillColor() {
     if (this.moving) {
       return Color.PURPLE;
     }
     if (this.store.site.assignee != null) {
-      if (this.store.site.assignee.id === this.currentUser.id) {
+      if (this.store.site.assignee.id === this.currentUserId) {
         if (this.selected) {
           return Color.GREEN_DARK;
         } else {
@@ -133,6 +159,9 @@ export class StoreMappable implements EntityMappable {
   }
 
   private getShape() {
+    if (this.storeCasedForSelectedProject()) {
+      return MarkerShape.CHECKED_CIRCLE;
+    }
     if (this.store.floating) {
       return MarkerShape.LIFE_RING;
     } else if (this.store.site.duplicate) {
@@ -142,7 +171,10 @@ export class StoreMappable implements EntityMappable {
   }
 
   private getScale(shape: any) {
-    if (shape === MarkerShape.LIFE_RING) {
+    if (this.storeCasedForSelectedProject()) {
+      return 0.03;
+    }
+    if (shape === MarkerShape.LIFE_RING || this.storeCasedForSelectedProject()) {
       return 0.06;
     }
     if (this.store.storeType === 'HISTORICAL' || this.store.storeType === 'FUTURE') {
@@ -160,7 +192,7 @@ export class StoreMappable implements EntityMappable {
   }
 
   private getStrokeWeight(shape: any) {
-    if (shape === MarkerShape.LIFE_RING) {
+    if (shape === MarkerShape.LIFE_RING  || this.storeCasedForSelectedProject()) {
       return 1.2;
     }
     return 2.5;
@@ -176,7 +208,10 @@ export class StoreMappable implements EntityMappable {
     return 0;
   }
 
-  private getLabelOrigin(shape: any) {
+  private getLabelOrigin(shape: any, zoom: number) {
+    if (zoom > this.HIGH_ZOOM) {
+      return new google.maps.Point(255, -80);
+    }
     if (shape === MarkerShape.FLAGGED) {
       return new google.maps.Point(255, 238);
     }

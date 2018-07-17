@@ -8,7 +8,7 @@ import MarkerLabel = google.maps.MarkerLabel;
 
 export interface Mappable extends Entity {
   getCoordinates: () => Coordinates;
-  getIcon: (markerType?: MarkerType) => string|Icon|Symbol;
+  getIcon: (zoomLevel: number, markerType?: MarkerType) => string|Icon|Symbol;
   isDraggable: () => boolean;
-  getLabel: (markerType?: MarkerType) => string|MarkerLabel;
+  getLabel: (zoomLevel: number, markerType?: MarkerType) => string|MarkerLabel;
 }

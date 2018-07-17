@@ -1,0 +1,142 @@
+.pg-wrapper{
+    display: flex;
+}
+
+.hidden{
+    display: none !important;
+}
+
+.loader{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.loader-message{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+.left-panel, .right-panel, .center-panel{
+    height: calc(100vh - 64px);
+    display: inline-block;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin: 0px;
+}
+
+.left-panel{
+    background: lightgray;
+    flex: 1;
+    max-width: 33vw;
+}
+
+.left-panel mat-list-item{
+    padding: 10px 0;
+    margin: 5px 0;
+    background: white;
+    height: auto !important;
+    word-break: unset;
+}
+
+.left-panel mat-list-item:hover{
+    background: #607d8b;
+    cursor: pointer;
+    color: white;
+}
+
+.left-panel h2{
+    text-align: center;
+    margin: 10px 0 0 0;
+}
+
+.highlighted{
+    background: #ffcb00 !important;
+    color: black !important;
+    box-shadow: 0px 0px 10px 2px inset orange;
+}
+
+.list-item-header{
+    font-weight: bold;
+    font-size:small;
+}
+
+.list-item-desc{
+    font-size: x-small;
+}
+
+.center-panel{
+    flex: 0;
+    min-width: 35vw;
+    background: lightblue;
+}
+
+.right-panel{
+    flex: 1;
+    min-width: 45vw;
+    padding: 25px;
+}
+
+.flex-container{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 5px 0;
+    padding: 0 20px;
+}
+
+.large-text{
+    font-weight: bold;
+    font-size: large;
+}
+
+.med-text{
+    font-size: small;
+}
+
+.small-text{
+    font-size: x-small;
+}
+
+.accent-bar{
+    padding: 10px;
+    margin: 25px 0 0 0;
+    text-align: center;
+    text-transform: capitalize;
+    background: #607d8b;
+    color: white;
+}
+
+.results-table{
+    background: lightgray;
+    padding: 10px;
+}
+
+.results-item{
+    background: white;
+    padding: 5px;
+    margin: 5px 0;
+}
+
+.results-header{
+    padding: 5px;
+}
+
+@media screen and (max-width: 1000px){
+    .hidden-sm{
+        display: none;
+    }
+
+    
+}
+
+@media screen and (max-width: 600px){
+    .hidden-sm{
+        display: none;
+    }
+    .hidden-xs{
+        display: none;
+    }
+}

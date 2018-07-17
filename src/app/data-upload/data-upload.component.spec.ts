@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CreateCasingDialogComponent } from './create-casing-dialog.component';
+import { DataUploadComponent } from './data-upload.component';
 
-describe('CreateCasingDialogComponent', () => {
-  let component: CreateCasingDialogComponent;
-  let fixture: ComponentFixture<CreateCasingDialogComponent>;
+describe('DataUploadComponent', () => {
+  let component: DataUploadComponent;
+  let fixture: ComponentFixture<DataUploadComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ CreateCasingDialogComponent ]
+      declarations: [ DataUploadComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CreateCasingDialogComponent);
+    fixture = TestBed.createComponent(DataUploadComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -26,3 +26,16 @@
 .volume-option .volume-total {
   font-weight: bold;
 }
+
+#volume-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#volume-table td {
+  width: 50%;
+}
+
+mat-panel-title{
+  flex-direction: column;
+}

@@ -10,7 +10,6 @@ import { SelectProjectComponent } from '../select-project/select-project.compone
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ErrorService } from '../../core/services/error.service';
 import { StoreCasingService } from '../../core/services/store-casing.service';
-import { CreateCasingDialogComponent } from '../create-casing-dialog/create-casing-dialog.component';
 import { finalize } from 'rxjs/internal/operators';
 import { Observable, of } from 'rxjs/index';
 
@@ -61,26 +60,20 @@ export class StoreCasingsComponent implements OnInit {
         if (project.projectName != null) {
           storeCasing.projects = [project];
         }
-        const dialogRef = this.dialog.open(CreateCasingDialogComponent);
-        dialogRef.afterClosed().subscribe(result => {
-          if (result != null) {
-            this.saveNewCasing(storeCasing, result.storeRemodeled, result.shoppingCenterRedeveloped);
-          }
-        });
+        this.saveNewCasing(storeCasing);
       }
     });
   }
 
-  saveNewCasing(storeCasing: StoreCasing, storeRemodeled: boolean, shoppingCenterRedeveloped: boolean) {
+  private saveNewCasing(storeCasing: StoreCasing) {
     this.loading = true;
-    this.storeService.createNewCasing(this.storeId, storeCasing, storeRemodeled, shoppingCenterRedeveloped)
+    this.storeService.createNewCasing(this.storeId, storeCasing)
       .pipe(finalize(() => this.loading = false))
       .subscribe((newStoreCasing: StoreCasing) => {
         this.router.navigate([newStoreCasing.id], {relativeTo: this.route});
       }, err => this.errorService.handleServerError('Failed to create new casing!', err,
-        () => {
-        },
-        () => this.saveNewCasing(storeCasing, storeRemodeled, shoppingCenterRedeveloped)));
+        () => console.log(err),
+        () => this.saveNewCasing(storeCasing)));
   }
 
   deleteCasing(storeCasing: SimplifiedStoreCasing, index) {
@@ -91,6 +84,21 @@ export class StoreCasingsComponent implements OnInit {
         this.casings.splice(index, 1);
         this.snackBar.open('Successfully deleted casing.', null, {duration: 1000});
       });
+  }
+
+  canEditCasing(casing: SimplifiedStoreCasing) {
+    if (casing.projects == null || casing.projects.length === 0) {
+      return true;
+    }
+    const selectedProject = this.casingDashboardService.getSelectedProject();
+    if (selectedProject != null) {
+      for (const project of casing.projects) {
+        if (project.id === selectedProject.id) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private getProject(): Observable<SimplifiedProject> {

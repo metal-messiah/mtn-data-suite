@@ -23,11 +23,11 @@ export class CoordinateMappable implements Mappable {
     return false;
   }
 
-  getLabel(markerType?: MarkerType): string | MarkerLabel {
+  getLabel(zoom: number, markerType?: MarkerType): string | MarkerLabel {
     return null;
   }
 
-  getIcon(markerType?: MarkerType): string | Icon | Symbol {
+  getIcon(zoom: number, markerType?: MarkerType): string | Icon | Symbol {
     return {
       path: google.maps.SymbolPath.CIRCLE,
       fillColor: Color.BLUE,

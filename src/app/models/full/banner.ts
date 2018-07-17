@@ -6,6 +6,7 @@ export class Banner extends AuditingEntity {
   isHistorical: boolean;
   defaultStoreFit: string;
   defaultSalesArea: number;
+  logoFileName: string;
 
   constructor(obj) {
     super(obj);

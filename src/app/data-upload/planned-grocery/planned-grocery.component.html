@@ -1,0 +1,91 @@
+<div class='pg-wrapper'>
+  <div class='left-panel' *ngIf="records != null">
+    <h2>{{currentRecordIndex + 1 }}/{{records.length.toLocaleString()}}</h2>
+    <mat-list>
+      <mat-list-item *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex}" (click)="setCurrentRecord(i)">
+        <div>
+          <span class='list-item-header'>{{record.sourceStoreName}}</span>
+          <br>
+          <span class="list-item-desc">{{record.sourceName}}</span>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <div class="center-panel hidden-sm">
+    <mds-map #pgMap class="row content" (ready)="onMapReady($event)"></mds-map>
+  </div>
+  <div class="right-panel">
+    <div class='loader' *ngIf="isFetching">
+      <div>
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        <br>
+        <div class='large-text'>
+          Fetching Data From Planned Grocery
+        </div>
+      </div>
+
+    </div>
+    <mat-horizontal-stepper [linear]='true' #stepper *ngIf="!isFetching">
+      <mat-step [completed]="step1Completed">
+        <!-- <form [formGroup]="firstFormGroup"> -->
+        <ng-template matStepLabel>Match Site</ng-template>
+        <!-- CONTENT FOR FIRST SECTION! -->
+        <div class='flex-container'>
+          <div>
+            <div class='large-text'>{{currentRecordData ? currentRecordData.attributes.NAME : ''}}</div>
+            <div class='med-text'> {{currentRecordData ? currentRecordData.attributes.DESCLOCATION + ", " +currentRecordData.attributes.CITY +
+              ","+ currentRecordData.attributes.STATE : ''}}</div>
+            <div class='small-text'>
+              {{currentRecordData ? currentRecordData.attributes.SIZESF + " SF" : ''}}{{currentRecordData ? " | Status: "+ currentRecordData.attributes.STATUS
+              : ''}}
+            </div>
+          </div>
+          <button (click)="setStepCompleted(1, 'ADD_SITE', stepper)" mat-button matStepperNext class='highlighted'>Add Site</button>
+        </div>
+        <div class='accent-bar large-text'>Match to Existing</div>
+        <div class='results-table'>
+
+          <div class="results-item" *ngFor="let item of currentDBResults">
+            <div class="results-header large-text">
+              {{item.address + ", " + item.city + ", " + item.state }}
+            </div>
+            <mat-divider></mat-divider>
+            <div class="results-each" *ngFor="let each of item.stores">
+              <div class="flex-container">
+                <div>{{each.store_name}}</div>
+                <div class='hidden-sm'>{{each.store_number}}</div>
+                <div class='hidden-xs'>{{each.status}}</div>
+                <div class='hidden-sm'>{{each.status_date}}</div>
+                <button (click)="setStepCompleted(1,'MATCH', stepper);" mat-button matStepperNext class='highlighted'>Match</button>
+              </div>
+            </div>
+          </div>
+          <button (click)="setStepCompleted(1,'ADD_STORE', stepper)" mat-button matStepperNext class='highlighted'>Add Store</button>
+        </div>
+        <!-- </form> -->
+      </mat-step>
+      <mat-step [completed]="step2Completed">
+        <!-- <form [formGroup]="secondFormGroup"> -->
+        <ng-template matStepLabel>Match/Edit Data</ng-template>
+        <!-- CONTENT FOR SECOND SECTION! -->
+        <!-- <mat-form-field>
+            <input matInput placeholder="Address" formControlName="secondCtrl" required>
+          </mat-form-field> -->
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+        <!-- </form> -->
+      </mat-step>
+      <mat-step>
+        <ng-template matStepLabel>Save &amp; Continue</ng-template>
+        <div>
+          <button mat-button matStepperPrevious>Save &amp; Continue</button>
+          <button mat-button (click)="stepper.reset()">Reset</button>
+        </div>
+      </mat-step>
+    </mat-horizontal-stepper>
+
+
+  </div>
+</div>

@@ -14,6 +14,9 @@ export class CasingDashboardService {
   includeFuture = false;
   includeHistorical = false;
 
+  markCasedStores = false;
+  toggleMarkingStores$: Subject<boolean>;
+
   projectChanged$: Subject<Project | SimplifiedProject>;
 
   private selectedProject: Project | SimplifiedProject;
@@ -30,13 +33,21 @@ export class CasingDashboardService {
     if (selectedProject != null) {
       this.selectedProject = new SimplifiedProject(selectedProject);
     }
+    const markCasedStores = JSON.parse(localStorage.getItem('markCasedStores'));
+    if (markCasedStores != null) {
+      this.markCasedStores = markCasedStores;
+    }
     this.projectChanged$ = new Subject<Project>();
+    this.toggleMarkingStores$ = new Subject<boolean>();
   }
 
   openProjectSelectionDialog(): void {
     const dialogRef = this.dialog.open(SelectProjectComponent);
 
     dialogRef.afterClosed().subscribe(result => {
+      if (result == null) {
+        return;
+      }
       if (result === 'clear') {
         this.selectedProject = null;
         localStorage.removeItem('selectedProject');
@@ -45,6 +56,7 @@ export class CasingDashboardService {
         localStorage.setItem('selectedProject', JSON.stringify(this.selectedProject));
       }
       this.projectChanged$.next(this.selectedProject);
+      this.markStoresCasedForProject(false);
     });
   }
 
@@ -80,4 +92,9 @@ export class CasingDashboardService {
     return this.selectedProject;
   }
 
+  markStoresCasedForProject(doMark: boolean) {
+    this.markCasedStores = doMark;
+    this.toggleMarkingStores$.next(doMark);
+    localStorage.setItem('markCasedStores', JSON.stringify(this.markCasedStores));
+  }
 }

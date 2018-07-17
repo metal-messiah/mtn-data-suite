@@ -33,6 +33,16 @@ export class HomeComponent implements OnInit {
     return this.userIsAdmin();
   }
 
+  // If Admin or group includes words 'support' or 'analyst'
+  userCanUpload(): boolean {
+    const group = this.auth.sessionUser.group;
+    if (group != null) {
+      const groupName = group.displayName.toLowerCase();
+      return groupName.includes('support') || this.userIsAdmin();
+    }
+    return this.userIsAdmin();
+  }
+
   // If Admin or group includes word 'support'
   userIsSupport(): boolean {
     const group = this.auth.sessionUser.group;
