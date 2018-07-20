@@ -22,7 +22,8 @@ export class NewStoreVolumeComponent implements OnInit {
     'ACTUAL',
     'ESTIMATE',
     'PROJECTION',
-    'THIRD_PARTY'
+    'THIRD_PARTY',
+    'PLACEHOLDER'
   ];
 
   constructor(private fb: FormBuilder,
