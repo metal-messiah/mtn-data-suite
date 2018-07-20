@@ -8,6 +8,8 @@ import { fromEvent } from 'rxjs/index';
 import { finalize } from 'rxjs/internal/operators';
 import { Router } from '@angular/router';
 import { ErrorService } from '../../core/services/error.service';
+import { NewProjectNameComponent } from '../../shared/new-project-name/new-project-name.component';
+import { SimplifiedProject } from '../../models/simplified/simplified-project';
 
 @Component({
   selector: 'mds-select-project',
@@ -23,6 +25,10 @@ export class SelectProjectComponent implements OnInit {
   active = true;
   primaryData = true;
 
+  selectedProjectId: number;
+  openedProject: Project;
+
+  gettingProject = false;
   loading = false;
 
   @ViewChild('projectSearchBox') projectSearchBoxElement: ElementRef;
@@ -88,16 +94,14 @@ export class SelectProjectComponent implements OnInit {
     this.router.navigate(['casing/project', project.id]);
   }
 
-  createProject() {
-    this.loading = true;
-    this.projectService.create(new Project({projectName: 'New Project', active: true}))
-      .pipe(finalize(() => this.loading = false))
-      .subscribe(project => {
-        this.snackBar.open('Successfully created new Project', null, {duration: 1000});
+  openNewProjectDialog() {
+    const dialogRef = this.dialog.open(NewProjectNameComponent);
+    dialogRef.afterClosed().subscribe(project => {
+      if (project) {
         this.router.navigate(['casing/project', project.id]);
         this.dialogRef.close();
-      }, err => this.errorService.handleServerError('Failed to create new project!', err,
-        () => console.log(err), () => this.createProject()))
+      }
+    })
   }
 
   closeDialog(): void {
@@ -106,5 +110,13 @@ export class SelectProjectComponent implements OnInit {
 
   clearSelectedProject(): void {
     this.dialogRef.close('clear');
+  }
+
+  openProject(p: SimplifiedProject) {
+    this.selectedProjectId = p.id;
+    this.gettingProject = true;
+    this.projectService.getOneById(p.id)
+      .pipe(finalize(() => this.gettingProject = false))
+      .subscribe((project: Project) => this.openedProject = project)
   }
 }

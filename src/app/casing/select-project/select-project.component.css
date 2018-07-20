@@ -22,11 +22,10 @@ mat-form-field .mat-input-wrapper {
   color: #4554d1;
 }
 
-.filter-section {
+#filter-section {
   display: flex;
   justify-content: space-around;
-  align-content: center;
-  align-items: center;
+  margin-top: -22px;
 }
 
 .header {
@@ -110,4 +109,5 @@ mat-panel-title {
 
 .mat-action-row {
   justify-content: space-between;
+  background: skyblue;
 }

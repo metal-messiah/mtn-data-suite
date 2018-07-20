@@ -1,13 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
 import { Store } from '../../models/full/store';
 import { SimplifiedStoreStatus } from '../../models/simplified/simplified-store-status';
-import { FormControl } from '@angular/forms';
 import { StoreService } from '../../core/services/store.service';
-import { StoreStatus } from '../../models/full/store-status';
 import { ErrorService } from '../../core/services/error.service';
 import { finalize } from 'rxjs/internal/operators';
+import { NewStoreStatusComponent } from '../new-store-status/new-store-status.component';
 
 @Component({
   selector: 'mds-store-statuses-dialog',
@@ -17,34 +16,17 @@ import { finalize } from 'rxjs/internal/operators';
 export class StoreStatusesDialogComponent implements OnInit {
 
   store: Store;
-  statusDate: FormControl;
-  selectedStatus: FormControl;
 
   savingCurrentStatus = false;
-  savingNewStatus = false;
-
-  storeStatusOptions = [
-    'Closed',
-    'Dead Deal',
-    'New Under Construction',
-    'Open',
-    'Planned',
-    'Proposed',
-    'Remodel',
-    'Rumored',
-    'Strong Rumor',
-    'Temporarily Closed'
-  ];
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: { store: Store, allowStatusSelection?: boolean },
+              private dialog: MatDialog,
               private storeService: StoreService,
               private errorService: ErrorService) {
   }
 
   ngOnInit() {
-    this.statusDate = new FormControl(new Date());
-    this.selectedStatus = new FormControl('Open');
     this.initStore(this.data.store);
   }
 
@@ -55,29 +37,9 @@ export class StoreStatusesDialogComponent implements OnInit {
     });
   }
 
-  closeDialog(): void {
-    this.dialogRef.close(this.store);
-  }
-
-  addStatus() {
-    this.savingNewStatus = true;
-    const date: Date = this.statusDate.value;
-    const storeStatus = new StoreStatus({
-      status: this.selectedStatus.value,
-      statusStartDate: new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000)
-    });
-    this.storeService.createNewStatus(this.store, storeStatus)
-      .pipe(finalize(() => this.savingNewStatus = false))
-      .subscribe((store: Store) => {
-        this.initStore(store);
-      }, err => {
-        this.errorService.handleServerError('Failed to add new  Status', err, () => {});
-      });
-  }
-
   deleteStatus(status: SimplifiedStoreStatus) {
     this.savingCurrentStatus = true;
-    this.storeService.deleteStatus(this.store, status)
+    this.storeService.deleteStatus(this.store.id, status)
       .pipe(finalize(() => this.savingCurrentStatus = false))
       .subscribe((store: Store) => {
         this.initStore(store);
@@ -88,7 +50,7 @@ export class StoreStatusesDialogComponent implements OnInit {
 
   setCurrentStatus(status: SimplifiedStoreStatus) {
     this.savingCurrentStatus = true;
-    this.storeService.setCurrentStatus(this.store, status)
+    this.storeService.setCurrentStatus(this.store.id, status)
       .pipe(finalize(() => this.savingCurrentStatus = false))
       .subscribe((store: Store) => {
         this.initStore(store);
@@ -99,6 +61,18 @@ export class StoreStatusesDialogComponent implements OnInit {
 
   useForCasing(status: SimplifiedStoreStatus) {
     this.dialogRef.close(status);
+  }
+
+  openCreateDialog() {
+    const newStatusDialog = this.dialog.open(NewStoreStatusComponent, {
+      data: {storeId: this.store.id},
+      maxWidth: '300px'
+    });
+    newStatusDialog.afterClosed().subscribe(store => {
+      if (store) {
+        this.initStore(store);
+      }
+    })
   }
 
 }

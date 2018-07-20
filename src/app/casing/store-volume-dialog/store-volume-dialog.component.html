@@ -1,37 +1,5 @@
 <h3 mat-dialog-title>Store Volumes</h3>
 <div mat-dialog-content>
-  <form [formGroup]="volumeForm">
-    <mat-form-field class="example-full-width">
-      <input matInput type="number" placeholder="Total Weekly Grocery Volume" formControlName="volumeTotal">
-      <mat-error *ngIf="volumeForm.get('volumeTotal').invalid">Required. Min: $10k, Max: $10M</mat-error>
-    </mat-form-field>
-    <mat-form-field>
-      <input matInput [matDatepicker]="picker1" placeholder="Volume Date" formControlName="volumeDate">
-      <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-      <mat-datepicker #picker1></mat-datepicker>
-      <mat-error *ngIf="volumeForm.get('volumeDate').invalid">Required</mat-error>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-select placeholder="Volume Type" formControlName="volumeType">
-        <mat-option *ngFor="let volumeTypeOption of volumeTypeOptions" [value]="volumeTypeOption">
-          {{volumeTypeOption}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-toolbar color="primary" class="widened flex-space-between">
-      <button mat-raised-button color="accent" class="centered" [disabled]="volumeForm.invalid"
-              *ngIf="!savingVolume && editingVolume == null" (click)="addVolume()">Add Volume
-      </button>
-      <button mat-raised-button color="warn" type="button"
-              *ngIf="!savingVolume && editingVolume != null" (click)="cancelEdit()">Cancel
-      </button>
-      <button mat-raised-button color="accent" type="submit" [disabled]="volumeForm.invalid || volumeForm.pristine"
-              *ngIf="!savingVolume && editingVolume != null" (click)="saveEditedVolume()">Save
-      </button>
-      <mat-progress-bar mode="indeterminate" color="accent" *ngIf="savingVolume"></mat-progress-bar>
-    </mat-toolbar>
-  </form>
-  <mat-divider></mat-divider>
   <mat-list class="widened">
     <mat-list-item *ngFor="let storeVolume of store.storeVolumes">
       <div class="full-width flex flex-space-between">
@@ -55,6 +23,7 @@
     </mat-list-item>
   </mat-list>
 </div>
-<mat-toolbar color="primary" id="bottom-toolbar">
-  <button mat-raised-button color="accent" class="centered" (click)="closeDialog()">Close</button>
-</mat-toolbar>
+<div mat-dialog-actions class="flex-space-between">
+  <button mat-raised-button [mat-dialog-close]="store">Close</button>
+  <button mat-raised-button color="accent" (click)="openCreateDialog()">Create New</button>
+</div>

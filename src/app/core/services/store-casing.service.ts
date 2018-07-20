@@ -27,8 +27,8 @@ export class StoreCasingService extends CrudService<StoreCasing> {
   createNewVolume(storeCasingId: number, volume: StoreVolume) {
     const url = this.rest.getHost() + this.endpoint + `/${storeCasingId}/store-volume`;
 
-    return this.http.post<StoreVolume>(url, volume, {headers: this.rest.getHeaders()})
-      .pipe(map(newVolume => new StoreVolume(newVolume)));
+    return this.http.post<StoreCasing>(url, volume, {headers: this.rest.getHeaders()})
+      .pipe(map(updatedCasing => new StoreCasing(updatedCasing)));
   }
 
   setStoreVolume(casing: StoreCasing, volume: SimplifiedStoreVolume) {

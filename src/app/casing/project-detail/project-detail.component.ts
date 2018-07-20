@@ -73,8 +73,6 @@ export class ProjectDetailComponent implements OnInit {
     this.loadProject();
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        console.log('replace project');
-        console.log(event);
         this.loadProject();
       }
     });

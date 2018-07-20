@@ -105,7 +105,7 @@ export class StoreCasingsComponent implements OnInit {
     if (this.casingDashboardService.getSelectedProject() != null) {
       return of(this.casingDashboardService.getSelectedProject());
     } else {
-      const dialogRef = this.dialog.open(SelectProjectComponent);
+      const dialogRef = this.dialog.open(SelectProjectComponent, {maxWidth: '400px'});
       return dialogRef.afterClosed();
     }
   }

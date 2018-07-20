@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>New Store Status</h2>
+<div mat-dialog-content [formGroup]="form">
+  <mat-progress-bar *ngIf="creating" mode="indeterminate"></mat-progress-bar>
+  <mat-form-field>
+    <input matInput [matDatepicker]="picker1" placeholder="Status Start Date" formControlName="statusStartDate">
+    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+    <mat-datepicker #picker1></mat-datepicker>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-select placeholder="Store Status" formControlName="status">
+      <mat-option *ngFor="let statusOption of storeStatusOptions" [value]="statusOption">
+        {{statusOption}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button type="button" mat-raised-button [mat-dialog-close]="false">Cancel</button>
+  <button type="submit" mat-raised-button [disabled]="form.invalid" (click)="create()"
+          color="accent">Create</button>
+</div>
