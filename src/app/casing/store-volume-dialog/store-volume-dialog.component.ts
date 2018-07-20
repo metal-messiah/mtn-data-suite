@@ -67,4 +67,9 @@ export class StoreVolumeDialogComponent implements OnInit {
       }
     })
   }
+
+  editVolume(storeVolume: SimplifiedStoreVolume) {
+
+    // TODO Implement
+  }
 }

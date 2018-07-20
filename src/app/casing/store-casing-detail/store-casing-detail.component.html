@@ -282,27 +282,18 @@
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title><i class="fas fa-door-open"></i>&nbsp;&nbsp;Store Status</mat-panel-title>
-              <mat-panel-description *ngIf="storeCasing.storeStatus != null">({{storeCasing.storeStatus.status}})
+              <mat-panel-description *ngIf="storeCasing.storeStatus">({{storeCasing.storeStatus}})
               </mat-panel-description>
-              <mat-panel-description *ngIf="storeCasing.storeStatus == null">Select a Status
-              </mat-panel-description>
+              <mat-panel-description *ngIf="!storeCasing.storeStatus">Select a Status</mat-panel-description>
             </mat-expansion-panel-header>
-            <div *ngIf="storeCasing.storeStatus != null && !editingStoreStatus">
-              <mds-data-field title="Status" [value]="storeCasing.storeStatus.status"></mds-data-field>
-              <mds-data-field title="Status Start Date"
-                              [dateValue]="storeCasing.storeStatus.statusStartDate"></mds-data-field>
-            </div>
-            <mat-progress-bar mode="indeterminate" *ngIf="editingStoreStatus"></mat-progress-bar>
-            <mat-action-row *ngIf="!editingStoreStatus">
-              <button type="button" *ngIf="storeCasing.storeStatus != null" mat-raised-button color="primary"
-                      (click)="showStatusDialog()">
-                Update Status
-              </button>
-              <button type="button" *ngIf="storeCasing.storeStatus == null" mat-raised-button color="accent"
-                      (click)="showStatusDialog()">
-                Select Status
-              </button>
-            </mat-action-row>
+            <mat-form-field [formGroup]="storeCasingForm">
+              <mat-select placeholder="Store Status" formControlName="storeStatus">
+                <mat-option>Clear Selection</mat-option>
+                <mat-option *ngFor="let statusOption of storeStatusOptions" [value]="statusOption">
+                  {{statusOption}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
           </mat-expansion-panel>
           <!-- Fit/Format -->
           <mat-expansion-panel [formGroup]="storeSurveyForm">
@@ -474,8 +465,10 @@
                 <span matSuffix>sqft</span>
                 <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
-              <mat-checkbox formControlName="areaIsEstimate">Area Is Estimate</mat-checkbox>
-              <mat-checkbox formControlName="naturalFoodsAreIntegrated">Natural Foods are Integrated</mat-checkbox>
+              <div class="checklist">
+                <mat-checkbox formControlName="areaIsEstimate">Area Is Estimate</mat-checkbox>
+                <mat-checkbox formControlName="naturalFoodsAreIntegrated">Natural Foods are Integrated</mat-checkbox>
+              </div>
             </div>
           </mat-expansion-panel>
           <!-- Volume -->

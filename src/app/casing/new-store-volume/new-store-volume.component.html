@@ -2,7 +2,7 @@
 <div mat-dialog-content [formGroup]="form">
   <mat-progress-bar *ngIf="creating" mode="indeterminate"></mat-progress-bar>
   <mat-form-field>
-    <input matInput type="number" placeholder="Volume Total" formControlName="volumeDate">
+    <input matInput type="number" placeholder="Volume Total" formControlName="volumeTotal" required>
   </mat-form-field>
   <mat-form-field>
     <mat-select placeholder="Volume Type" formControlName="volumeType">
@@ -19,6 +19,6 @@
 </div>
 <div mat-dialog-actions>
   <button type="button" mat-raised-button [mat-dialog-close]="false">Cancel</button>
-  <button type="submit" mat-raised-button [disabled]="form.invalid" (click)="create()"
+  <button type="submit" mat-raised-button [disabled]="form.invalid || creating" (click)="create()"
           color="accent">Create</button>
 </div>

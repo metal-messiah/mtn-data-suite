@@ -13,7 +13,7 @@
         <button mat-icon-button [mat-menu-trigger-for]="volumeMenu"><i class="fas fa-ellipsis-v"></i></button>
       </div>
       <mat-menu #volumeMenu="matMenu" [overlapTrigger]="false">
-        <button mat-menu-item (click)="editVolume(storeVolume)">
+        <button mat-menu-item (click)="editVolume(storeVolume)" disabled>
           <i class="fas fa-edit"></i>&nbsp;&nbsp;Edit
         </button>
         <button mat-menu-item (click)="deleteVolume(storeVolume)">

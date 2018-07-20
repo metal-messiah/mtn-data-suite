@@ -18,13 +18,10 @@ import { ShoppingCenterService } from '../../core/services/shopping-center.servi
 import { ShoppingCenterSurvey } from '../../models/full/shopping-center-survey';
 import { ShoppingCenterSurveyService } from '../../core/services/shopping-center-survey.service';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
-import { SimplifiedStoreStatus } from '../../models/simplified/simplified-store-status';
 import { Store } from '../../models/full/store';
 import { StoreCasing } from '../../models/full/store-casing';
 import { StoreCasingService } from '../../core/services/store-casing.service';
 import { StoreService } from '../../core/services/store.service';
-import { StoreStatus } from '../../models/full/store-status';
-import { StoreStatusesDialogComponent } from '../store-statuses-dialog/store-statuses-dialog.component';
 import { StoreVolume } from '../../models/full/store-volume';
 import { StoreVolumesSelectionComponent } from '../store-volumes-selection/store-volumes-selection.component';
 import { StoreSurvey } from '../../models/full/store-survey';
@@ -34,8 +31,8 @@ import { AccessListDialogComponent } from '../access-list-dialog/access-list-dia
 import { StoreVolumeService } from '../../core/services/store-volume.service';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
 import { RoutingStateService } from '../../core/services/routing-state.service';
-import { finalize, mergeMap, tap } from 'rxjs/internal/operators';
-import { concat, Observable, of } from 'rxjs/index';
+import { finalize, tap } from 'rxjs/internal/operators';
+import { concat, Observable } from 'rxjs/index';
 
 @Component({
   selector: 'mds-store-casing-detail',
@@ -71,6 +68,9 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     'Natural/Gourmet Foods', 'Super Combo', 'Supercenter', 'Superette/Small Grocery', 'Supermarket', 'Superstore',
     'Trader Joe\'s', 'Warehouse'];
 
+  storeStatusOptions = ['Closed', 'Dead Deal', 'New Under Construction', 'Open', 'Planned', 'Proposed', 'Remodel',
+    'Rumored', 'Strong Rumor', 'Temporarily Closed'];
+
   departmentControls = [
     {name: 'departmentBakery', title: 'Bakery', info: 'Service Bakery will usually have x'},
     {name: 'departmentBank', title: 'Bank', info: 'Customers must be able to access the bank from within the store'},
@@ -97,19 +97,6 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     {name: 'departmentSeating', title: 'Seating', info: '???'},
     {name: 'departmentSushi', title: 'Sushi', info: '???'},
     {name: 'departmentWine', title: 'Wine', info: '???'}
-  ];
-
-  storeStatusOptions = [
-    'Closed',
-    'Dead Deal',
-    'New Under Construction',
-    'Open',
-    'Planned',
-    'Proposed',
-    'Remodel',
-    'Rumored',
-    'Strong Rumor',
-    'Temporarily Closed'
   ];
 
   constructor(private storeCasingService: StoreCasingService,
@@ -144,7 +131,8 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       pharmacyScriptsWeekly: ['', [Validators.min(0)]],
       pharmacyAvgDollarsPerScript: ['', [Validators.min(0)]],
       pharmacyPharmacistCount: ['', [Validators.min(0)]],
-      pharmacyTechnicianCount: ['', [Validators.min(0)]]
+      pharmacyTechnicianCount: ['', [Validators.min(0)]],
+      storeStatus: ''
     });
 
     this.storeVolumeForm = this.fb.group({
@@ -470,29 +458,6 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       .subscribe((storeCasing: StoreCasing) => {
         this.storeCasing = storeCasing;
         this.snackBar.open(`Successfully updated casing`, null, {duration: 1000});
-      });
-  }
-
-  showStatusDialog() {
-    const storeId = parseInt(this.route.snapshot.paramMap.get('storeId'), 10);
-    this.editingStoreStatus = true;
-    this.storeService.getOneById(storeId)
-      .subscribe((store: Store) => {
-        const config = {data: {store: store, allowStatusSelection: true}, disableClose: true, maxWidth: '300px'};
-        const storeStatusDialog = this.dialog.open(StoreStatusesDialogComponent, config);
-        storeStatusDialog.afterClosed()
-          .pipe(finalize(() => this.editingStoreStatus = false))
-          .subscribe(result => {
-            if (result instanceof StoreStatus || result instanceof SimplifiedStoreStatus) {
-              this.storeCasingService.setStoreStatus(this.storeCasing, result)
-                .pipe(finalize(() => this.editingStoreStatus = false))
-                .subscribe((storeCasing: StoreCasing) => {
-                  this.storeCasing = storeCasing;
-                });
-            } else {
-              this.editingStoreStatus = false;
-            }
-          });
       });
   }
 

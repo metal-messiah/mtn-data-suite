@@ -18,7 +18,6 @@ import { ShoppingCenterDetailComponent } from './shopping-center-detail/shopping
 import { StoreDetailComponent } from './store-detail/store-detail.component';
 import { StoreEntityFormComponent } from './store-entity-form/store-entity-form.component';
 import { ShoppingCenterSurveyFormComponent } from './shopping-center-survey-form/shopping-center-survey-form.component';
-import { StoreCasingEntityFormComponent } from './store-casing-entity-form/store-casing-entity-form.component';
 import { StoreSummaryCardComponent } from './store-summary-card/store-summary-card.component';
 import { StoreInfoCardComponent } from './store-info-card/store-info-card.component';
 import { StoreCasingsComponent } from './store-casings/store-casings.component';
@@ -60,7 +59,6 @@ import { NewStoreVolumeComponent } from './new-store-volume/new-store-volume.com
     SiteListComponent,
     SiteOverviewComponent,
     StoreCasingDetailComponent,
-    StoreCasingEntityFormComponent,
     StoreCasingsComponent,
     StoreDetailComponent,
     StoreEntityFormComponent,
