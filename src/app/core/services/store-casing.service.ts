@@ -6,8 +6,6 @@ import { StoreCasing } from '../../models/full/store-casing';
 import { SimplifiedStoreVolume } from '../../models/simplified/simplified-store-volume';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
 import { Project } from '../../models/full/project';
-import { SimplifiedStoreStatus } from '../../models/simplified/simplified-store-status';
-import { StoreStatus } from '../../models/full/store-status';
 import { StoreVolume } from '../../models/full/store-volume';
 import { map } from 'rxjs/internal/operators';
 
@@ -27,8 +25,8 @@ export class StoreCasingService extends CrudService<StoreCasing> {
   createNewVolume(storeCasingId: number, volume: StoreVolume) {
     const url = this.rest.getHost() + this.endpoint + `/${storeCasingId}/store-volume`;
 
-    return this.http.post<StoreVolume>(url, volume, {headers: this.rest.getHeaders()})
-      .pipe(map(newVolume => new StoreVolume(newVolume)));
+    return this.http.post<StoreCasing>(url, volume, {headers: this.rest.getHeaders()})
+      .pipe(map(updatedCasing => new StoreCasing(updatedCasing)));
   }
 
   setStoreVolume(casing: StoreCasing, volume: SimplifiedStoreVolume) {
@@ -56,13 +54,6 @@ export class StoreCasingService extends CrudService<StoreCasing> {
     const url = this.rest.getHost() + this.endpoint + `/${casing.id}/projects/${project.id}`;
 
     return this.http.delete<StoreCasing>(url, {headers: this.rest.getHeaders()})
-      .pipe(map(updatedCasing => new StoreCasing(updatedCasing)));
-  }
-
-  setStoreStatus(casing: StoreCasing, status: SimplifiedStoreStatus | StoreStatus) {
-    const url = this.rest.getHost() + this.endpoint + `/${casing.id}/store-status/${status.id}`;
-
-    return this.http.put<StoreCasing>(url, null, {headers: this.rest.getHeaders()})
       .pipe(map(updatedCasing => new StoreCasing(updatedCasing)));
   }
 

@@ -107,14 +107,15 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.casingDashboardService.projectChanged$.subscribe(project => {
+    this.casingDashboardService.projectChanged$.subscribe(() => {
       this.showingBoundaries = false;
       this.mapService.clearGeoJsonBoundaries();
       this.getEntities(this.mapService.getBounds());
     });
-    this.casingDashboardService.toggleMarkingStores$.subscribe(doMark => {
+    this.casingDashboardService.toggleMarkingStores$.subscribe(() => {
       this.getEntities(this.mapService.getBounds());
-    })
+    });
+    this.casingDashboardService.toggleProjectBoundary$.subscribe(doShow => this.toggleSelectedProjectBoundaries(doShow));
   }
 
   onMapReady() {
@@ -156,7 +157,7 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   private getDebounce() {
-    return debounce(val => of(true)
+    return debounce(() => of(true)
       .pipe(delay(this.followMeLayer != null ? 10000 : 1000)));
   }
 
@@ -261,7 +262,7 @@ export class CasingDashboardComponent implements OnInit {
       this.projectService.getBoundaryForProject(this.casingDashboardService.getSelectedProject().id)
         .subscribe((boundary: Boundary) => {
           if (boundary == null) {
-            const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+            this.dialog.open(ConfirmDialogComponent, {
               data: {
                 title: 'No Boundary',
                 question: 'This project has no boundary',

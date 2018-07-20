@@ -1,14 +1,8 @@
 <div class="box">
   <mat-toolbar class="row header flex-space-between">
-    <div>
-      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    </div>
+    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-chevron-left"></i></button>
     <span><i class="fas fa-id-badge"></i> Roles</span>
-    <div>
-      <button mat-raised-button color="primary" routerLink="../role-detail">
-        Add Role
-      </button>
-    </div>
+    <button mat-raised-button color="primary" routerLink="../role-detail">Add Role</button>
   </mat-toolbar>
   <div class="row content">
     <div class="list-wrapper">

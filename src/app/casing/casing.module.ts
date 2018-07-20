@@ -15,16 +15,12 @@ import { LatLngSearchComponent } from './lat-lng-search/lat-lng-search.component
 import { GoogleSearchComponent } from './google-search/google-search.component';
 import { DatabaseSearchComponent } from './database-search/database-search.component';
 import { ShoppingCenterDetailComponent } from './shopping-center-detail/shopping-center-detail.component';
-import { ShoppingCenterCasingDetailComponent } from './shopping-center-casing-detail/shopping-center-casing-detail.component';
 import { StoreDetailComponent } from './store-detail/store-detail.component';
 import { StoreEntityFormComponent } from './store-entity-form/store-entity-form.component';
 import { ShoppingCenterSurveyFormComponent } from './shopping-center-survey-form/shopping-center-survey-form.component';
-import { StoreOverviewComponent } from './store-overview/store-overview.component';
-import { StoreCasingEntityFormComponent } from './store-casing-entity-form/store-casing-entity-form.component';
 import { StoreSummaryCardComponent } from './store-summary-card/store-summary-card.component';
 import { StoreInfoCardComponent } from './store-info-card/store-info-card.component';
 import { StoreCasingsComponent } from './store-casings/store-casings.component';
-import { ShoppingCenterCasingsComponent } from './shopping-center-casings/shopping-center-casings.component';
 import { StoreStatusesDialogComponent } from './store-statuses-dialog/store-statuses-dialog.component';
 import { StoreVolumeDialogComponent } from './store-volume-dialog/store-volume-dialog.component';
 import { StoreCasingDetailComponent } from './store-casing-detail/store-casing-detail.component';
@@ -34,6 +30,8 @@ import { TenantListDialogComponent } from './tenant-list-dialog/tenant-list-dial
 import { AccessListDialogComponent } from './access-list-dialog/access-list-dialog.component';
 import { QuadDialogComponent } from './quad-dialog/quad-dialog.component';
 import { SiteInfoCardComponent } from './site-info-card/site-info-card.component';
+import { NewStoreStatusComponent } from './new-store-status/new-store-status.component';
+import { NewStoreVolumeComponent } from './new-store-volume/new-store-volume.component';
 
 @NgModule({
   imports: [
@@ -41,38 +39,36 @@ import { SiteInfoCardComponent } from './site-info-card/site-info-card.component
     CasingRoutingModule
   ],
   declarations: [
+    AccessListDialogComponent,
+    AreaCalculatorComponent,
     CasingComponent,
     CasingDashboardComponent,
     CasingProjectsComponent,
-    SelectProjectComponent,
-    ProjectSummaryComponent,
-    ProjectDetailComponent,
-    SiteListComponent,
-    SiteDetailComponent,
-    SiteOverviewComponent,
-    LatLngSearchComponent,
-    GoogleSearchComponent,
     DatabaseSearchComponent,
+    GoogleSearchComponent,
+    LatLngSearchComponent,
+    NewStoreStatusComponent,
+    ProjectDetailComponent,
+    ProjectSummaryComponent,
+    QuadDialogComponent,
+    SelectProjectComponent,
     ShoppingCenterDetailComponent,
-    ShoppingCenterCasingDetailComponent,
+    ShoppingCenterSurveyFormComponent,
+    SiteDetailComponent,
+    SiteInfoCardComponent,
+    SiteListComponent,
+    SiteOverviewComponent,
+    StoreCasingDetailComponent,
+    StoreCasingsComponent,
     StoreDetailComponent,
     StoreEntityFormComponent,
-    ShoppingCenterSurveyFormComponent,
-    StoreOverviewComponent,
-    StoreCasingEntityFormComponent,
-    StoreSummaryCardComponent,
     StoreInfoCardComponent,
-    StoreCasingsComponent,
-    ShoppingCenterCasingsComponent,
     StoreStatusesDialogComponent,
+    StoreSummaryCardComponent,
     StoreVolumeDialogComponent,
-    StoreCasingDetailComponent,
-    AreaCalculatorComponent,
     StoreVolumesSelectionComponent,
     TenantListDialogComponent,
-    AccessListDialogComponent,
-    QuadDialogComponent,
-    SiteInfoCardComponent
+    NewStoreVolumeComponent
   ],
   entryComponents: [
     AccessListDialogComponent,
@@ -85,7 +81,9 @@ import { SiteInfoCardComponent } from './site-info-card/site-info-card.component
     StoreStatusesDialogComponent,
     StoreVolumeDialogComponent,
     StoreVolumesSelectionComponent,
-    TenantListDialogComponent
+    TenantListDialogComponent,
+    NewStoreStatusComponent,
+    NewStoreVolumeComponent
   ],
   providers: [CasingDashboardService]
 })

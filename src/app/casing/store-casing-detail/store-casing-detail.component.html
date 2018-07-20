@@ -1,31 +1,23 @@
 <div class="box">
-  <mat-toolbar color="primary" class="row header flex-space-between">
-    <div>
-      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    </div>
-    <span class="component-title" *ngIf="store == null">Store Casing</span>
-    <span class="component-title" *ngIf="store != null">{{store.storeName}}</span>
+  <mat-toolbar class="row header flex-space-between">
+    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-chevron-left"></i></button>
+    <span class="component-title" *ngIf="!store">Store Casing</span>
+    <span class="component-title" *ngIf="store">{{store.storeName}}</span>
     <div>
       <button type="button" mat-icon-button color="warn" *ngIf="validatingForms.invalid">
         <i class="fas fa-exclamation-triangle fa-2x"></i>
       </button>
       <button type="submit" mat-mini-fab color="accent" (click)="saveForm()"
-              [disabled]="validatingForms.pristine || validatingForms.invalid">
-        <i class="fas fa-save"></i>
+              [disabled]="validatingForms.pristine || validatingForms.invalid || saving">
+        <i *ngIf="!saving" class="fas fa-save"></i>
+        <i *ngIf="saving" class="fas fa-spinner fa-pulse"></i>
       </button>
     </div>
   </mat-toolbar>
+  <mat-divider></mat-divider>
   <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
   <div class="row content" *ngIf="!loading">
     <div class="list-wrapper">
-      <!--<div>-->
-        <!--<p>Store Casing Form: {{storeCasingForm.status}}</p>-->
-        <!--<p>Store Volume Form: {{storeVolumeForm.status}}</p>-->
-        <!--<p>Store Survey Form: {{storeSurveyForm.status}}</p>-->
-        <!--<p>SC Casing Form: {{shoppingCenterCasingForm.status}}</p>-->
-        <!--<p>SC Survey Form: {{shoppingCenterSurveyForm.status}}</p>-->
-        <!--<p><strong>Validating Forms: {{validatingForms.status}}</strong></p>-->
-      <!--</div>-->
       <form>
         <mat-accordion>
           <!-- Casing Date -->
@@ -42,10 +34,10 @@
                 <mat-datepicker #storeCasingDate></mat-datepicker>
               </mat-form-field>
               <!--<mat-form-field [formGroup]="shoppingCenterCasingForm">-->
-                <!--<input matInput [matDatepicker]="shoppingCenterCasingDate" placeholder="Shopping Center Casing Date"-->
-                       <!--formControlName="casingDate">-->
-                <!--<mat-datepicker-toggle matSuffix [for]="shoppingCenterCasingDate"></mat-datepicker-toggle>-->
-                <!--<mat-datepicker #shoppingCenterCasingDate></mat-datepicker>-->
+              <!--<input matInput [matDatepicker]="shoppingCenterCasingDate" placeholder="Shopping Center Casing Date"-->
+              <!--formControlName="casingDate">-->
+              <!--<mat-datepicker-toggle matSuffix [for]="shoppingCenterCasingDate"></mat-datepicker-toggle>-->
+              <!--<mat-datepicker #shoppingCenterCasingDate></mat-datepicker>-->
               <!--</mat-form-field>-->
             </div>
           </mat-expansion-panel>
@@ -171,35 +163,35 @@
             <mat-expansion-panel-header>
               <mat-panel-title><i class="fas fa-parking"></i>&nbsp;&nbsp;Parking</mat-panel-title>
             </mat-expansion-panel-header>
-            <div >
+            <div>
               <h3>Shopping Center</h3>
-              <div class="checklist" [formGroup]="shoppingCenterSurveyForm" >
+              <div class="checklist" [formGroup]="shoppingCenterSurveyForm">
                 <mat-checkbox formControlName="parkingHasAngledSpaces">Has Angled Spaces</mat-checkbox>
                 <mat-checkbox formControlName="parkingHasParkingHog">Has Parking Hog</mat-checkbox>
                 <mat-checkbox formControlName="parkingIsPoorlyLit">Is poorly Lit</mat-checkbox>
               </div>
             </div>
             <mat-divider></mat-divider>
-              <h3>Store</h3>
-              <mat-form-field [formGroup]="shoppingCenterSurveyForm">
-                <input matInput type="number" placeholder="# Parking Spaces" formControlName="parkingSpaceCount">
-              </mat-form-field>
-              <div class="checklist" [formGroup]="storeSurveyForm">
-                <mat-checkbox formControlName="parkingOutparcelsInterfereWithParking">
-                  Outparcels interfere with parking
-                </mat-checkbox>
-                <mat-checkbox formControlName="parkingDirectAccessToParking">
-                  Direct access to parking
-                </mat-checkbox>
-                <mat-checkbox formControlName="parkingSmallParkingField">Small parking field</mat-checkbox>
-                <mat-checkbox formControlName="parkingHasTSpaces">Has T Spaces</mat-checkbox>
-              </div>
-              <mat-form-field [formGroup]="storeSurveyForm">
-                <mat-select placeholder="Parking Rating" formControlName="parkingRating">
-                  <mat-option>Clear Selection</mat-option>
-                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
-                </mat-select>
-              </mat-form-field>
+            <h3>Store</h3>
+            <mat-form-field [formGroup]="shoppingCenterSurveyForm">
+              <input matInput type="number" placeholder="# Parking Spaces" formControlName="parkingSpaceCount">
+            </mat-form-field>
+            <div class="checklist" [formGroup]="storeSurveyForm">
+              <mat-checkbox formControlName="parkingOutparcelsInterfereWithParking">
+                Outparcels interfere with parking
+              </mat-checkbox>
+              <mat-checkbox formControlName="parkingDirectAccessToParking">
+                Direct access to parking
+              </mat-checkbox>
+              <mat-checkbox formControlName="parkingSmallParkingField">Small parking field</mat-checkbox>
+              <mat-checkbox formControlName="parkingHasTSpaces">Has T Spaces</mat-checkbox>
+            </div>
+            <mat-form-field [formGroup]="storeSurveyForm">
+              <mat-select placeholder="Parking Rating" formControlName="parkingRating">
+                <mat-option>Clear Selection</mat-option>
+                <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+              </mat-select>
+            </mat-form-field>
           </mat-expansion-panel>
           <!-- SC Ratings -->
           <mat-expansion-panel [formGroup]="shoppingCenterCasingForm">
@@ -251,7 +243,8 @@
                 <mat-error>Must be between 0 and 100%</mat-error>
               </mat-form-field>
               <div class="flex flex-justify-center">
-                <button type="button" mat-raised-button color="primary" (click)="openTenantDialog()">Tenant List</button>
+                <button type="button" mat-raised-button color="accent" (click)="openTenantDialog()">Tenant List
+                </button>
               </div>
             </div>
           </mat-expansion-panel>
@@ -261,7 +254,7 @@
               <mat-panel-title><i class="fas fa-exchange-alt"></i>&nbsp;&nbsp;Accesses</mat-panel-title>
             </mat-expansion-panel-header>
             <div class="flex flex-justify-center">
-              <button type="button" mat-raised-button color="primary" (click)="openAccessDialog()">Access List</button>
+              <button type="button" mat-raised-button color="accent" (click)="openAccessDialog()">Access List</button>
             </div>
           </mat-expansion-panel>
           <!-- Fuel -->
@@ -289,27 +282,18 @@
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title><i class="fas fa-door-open"></i>&nbsp;&nbsp;Store Status</mat-panel-title>
-              <mat-panel-description *ngIf="storeCasing.storeStatus != null">({{storeCasing.storeStatus.status}})
+              <mat-panel-description *ngIf="storeCasing.storeStatus">({{storeCasing.storeStatus}})
               </mat-panel-description>
-              <mat-panel-description *ngIf="storeCasing.storeStatus == null">Select a Status
-              </mat-panel-description>
+              <mat-panel-description *ngIf="!storeCasing.storeStatus">Select a Status</mat-panel-description>
             </mat-expansion-panel-header>
-            <div *ngIf="storeCasing.storeStatus != null && !editingStoreStatus">
-              <mds-data-field title="Status" [value]="storeCasing.storeStatus.status"></mds-data-field>
-              <mds-data-field title="Status Start Date"
-                              [dateValue]="storeCasing.storeStatus.statusStartDate"></mds-data-field>
-            </div>
-            <mat-progress-bar mode="indeterminate" *ngIf="editingStoreStatus"></mat-progress-bar>
-            <mat-action-row *ngIf="!editingStoreStatus">
-              <button type="button" *ngIf="storeCasing.storeStatus != null" mat-raised-button color="primary"
-                      (click)="showStatusDialog()">
-                Update Status
-              </button>
-              <button type="button" *ngIf="storeCasing.storeStatus == null" mat-raised-button color="accent"
-                      (click)="showStatusDialog()">
-                Select Status
-              </button>
-            </mat-action-row>
+            <mat-form-field [formGroup]="storeCasingForm">
+              <mat-select placeholder="Store Status" formControlName="storeStatus">
+                <mat-option>Clear Selection</mat-option>
+                <mat-option *ngFor="let statusOption of storeStatusOptions" [value]="statusOption">
+                  {{statusOption}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
           </mat-expansion-panel>
           <!-- Fit/Format -->
           <mat-expansion-panel [formGroup]="storeSurveyForm">
@@ -481,8 +465,10 @@
                 <span matSuffix>sqft</span>
                 <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
-              <mat-checkbox formControlName="areaIsEstimate">Area Is Estimate</mat-checkbox>
-              <mat-checkbox formControlName="naturalFoodsAreIntegrated">Natural Foods are Integrated</mat-checkbox>
+              <div class="checklist">
+                <mat-checkbox formControlName="areaIsEstimate">Area Is Estimate</mat-checkbox>
+                <mat-checkbox formControlName="naturalFoodsAreIntegrated">Natural Foods are Integrated</mat-checkbox>
+              </div>
             </div>
           </mat-expansion-panel>
           <!-- Volume -->
@@ -588,7 +574,8 @@
               </div>
               <div class="flex flex-space-between">
                 <mat-form-field class="example-full-width">
-                  <input matInput type="number" placeholder="Total Weekly Volume" formControlName="volumeTotal" required>
+                  <input matInput type="number" placeholder="Total Weekly Volume" formControlName="volumeTotal"
+                         required>
                   <span matPrefix>$&nbsp;</span>
                   <mat-error *ngIf="storeVolumeForm.get('volumeTotal').invalid">Min: $10k, Max: $10M
                   </mat-error>

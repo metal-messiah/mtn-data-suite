@@ -7,46 +7,74 @@
       <div class="search-section">
         <mat-form-field floatLabel="never" id="searchField">
           <i matPrefix class="fas fa-search"></i>
-          <input matInput autofocus type="search" #projectSearchBox placeholder="Project Name"
+          <input matInput autofocus type="search" #projectSearchBox placeholder="Project Name" [disabled]="loading"
                  [(ngModel)]="projectQuery" name="projectQuery"/>
         </mat-form-field>
       </div>
-      <section class="filter-section">
-        <mat-list dense>
-          <mat-list-item>
-            <div class="custom-select-list-item">
-              <span><i class="fas fa-briefcase active"></i>&nbsp;&nbsp;Active</span>
-              <mat-checkbox [(ngModel)]="active" (change)="getProjects()"></mat-checkbox>
-            </div>
-          </mat-list-item>
-          <mat-list-item>
-            <div class="custom-select-list-item">
-              <span><i class="fas fa-star yellow"></i>&nbsp;&nbsp;Primary Data</span>
-              <mat-checkbox [(ngModel)]="primaryData" (change)="getProjects()"></mat-checkbox>
-            </div>
-          </mat-list-item>
-        </mat-list>
-      </section>
+      <mat-toolbar id="filter-section">
+        <button mat-raised-button type="button" (click)="active = !active; getProjects();" [disabled]="loading">
+          <i *ngIf="!active" class="far fa-play-circle"></i>
+          <i *ngIf="active" class="fas fa-play-circle active"></i>
+          <span>&nbsp;&nbsp;Active</span>
+        </button>
+        <button mat-raised-button type="button" (click)="primaryData = !primaryData; getProjects()"
+                [disabled]="loading">
+          <i *ngIf="!primaryData" class="far fa-star"></i>
+          <i *ngIf="primaryData" class="fas fa-star yellow"></i>
+          <span>&nbsp;&nbsp;Primary</span>
+        </button>
+      </mat-toolbar>
+      <mat-progress-bar id="loadingProgressBar" mode="indeterminate" *ngIf="loading"></mat-progress-bar>
     </div>
     <mat-divider></mat-divider>
     <div class="row content">
-      <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-      <mat-nav-list>
-        <mat-list-item *ngFor="let project of projects" (click)="selectProject(project)">
-          <span class="icon-container">
-            <i *ngIf="project.active" class="fas fa-briefcase active"></i>
-            <i *ngIf="project.primaryData" class="fas fa-star yellow"></i>
-          </span>
-          <span class="project-name">{{project.projectName}}</span>
-        </mat-list-item>
-        <mat-list-item *ngIf="pageNumber < (totalPages - 1)" (click)="loadMore()">
-          <button mat-raised-button color="primary">Load More...</button>
-        </mat-list-item>
-      </mat-nav-list>
+      <mat-accordion>
+        <mat-expansion-panel *ngFor="let project of projects" (opened)="openProject(project)">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <span class="icon-container">
+                <i *ngIf="project.active" class="fas fa-play-circle active"></i>
+                <i *ngIf="project.primaryData" class="fas fa-star yellow"></i>
+              </span>
+              <span class="project-name">{{project.projectName}}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div>
+            <mat-progress-bar *ngIf="gettingProject && selectedProjectId === project.id" mode="indeterminate"></mat-progress-bar>
+            <div *ngIf="!gettingProject && openedProject">
+              <mat-form-field *ngIf="openedProject.metroArea">
+                <input matInput readonly type="text" placeholder="Metro Area" [value]="openedProject.metroArea">
+              </mat-form-field>
+              <mat-form-field *ngIf="openedProject.clientName">
+                <input matInput readonly type="text" placeholder="Client Name" [value]="openedProject.clientName">
+              </mat-form-field>
+              <mat-form-field *ngIf="openedProject.dateStarted">
+                <input matInput readonly placeholder="Start Date"
+                       [value]="openedProject.dateStarted.toLocaleDateString()">
+              </mat-form-field>
+              <mat-form-field *ngIf="openedProject.dateCompleted">
+                <input matInput readonly placeholder="Completion Date"
+                       [value]="openedProject.dateCompleted.toLocaleDateString()">
+              </mat-form-field>
+              <mat-form-field *ngIf="openedProject.source">
+                <input matInput readonly type="text" placeholder="Source" [value]="openedProject.source">
+              </mat-form-field>
+            </div>
+          </div>
+          <mat-action-row>
+            <button mat-raised-button color="primary" type="button" (click)="editProject(project)">Edit</button>
+            <button mat-raised-button color="accent" type="button" (click)="selectProject(project)">Select</button>
+          </mat-action-row>
+        </mat-expansion-panel>
+        <div *ngIf="pageNumber < (totalPages - 1)" id="more" class="flex flex-justify-center">
+          <button mat-raised-button color="accent" (click)="loadMore()">Load More</button>
+        </div>
+      </mat-accordion>
     </div>
   </div>
 </div>
 <div mat-dialog-actions class="flex-space-between">
-  <button mat-raised-button color="accent" (click)="closeDialog()">Cancel</button>
-  <button mat-raised-button color="primary" (click)="clearSelectedProject()">Select None</button>
+  <button mat-raised-button (click)="closeDialog()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="openNewProjectDialog()">Create</button>
+  <button mat-raised-button color="accent" (click)="clearSelectedProject()">Clear</button>
 </div>

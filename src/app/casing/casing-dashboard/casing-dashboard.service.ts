@@ -14,8 +14,10 @@ export class CasingDashboardService {
   includeFuture = false;
   includeHistorical = false;
 
+  showingBoundaries = false;
   markCasedStores = false;
   toggleMarkingStores$: Subject<boolean>;
+  toggleProjectBoundary$: Subject<boolean>;
 
   projectChanged$: Subject<Project | SimplifiedProject>;
 
@@ -39,10 +41,11 @@ export class CasingDashboardService {
     }
     this.projectChanged$ = new Subject<Project>();
     this.toggleMarkingStores$ = new Subject<boolean>();
+    this.toggleProjectBoundary$ = new Subject<boolean>();
   }
 
   openProjectSelectionDialog(): void {
-    const dialogRef = this.dialog.open(SelectProjectComponent);
+    const dialogRef = this.dialog.open(SelectProjectComponent, {maxWidth: '400px'});
 
     dialogRef.afterClosed().subscribe(result => {
       if (result == null) {
@@ -96,5 +99,10 @@ export class CasingDashboardService {
     this.markCasedStores = doMark;
     this.toggleMarkingStores$.next(doMark);
     localStorage.setItem('markCasedStores', JSON.stringify(this.markCasedStores));
+  }
+
+  toggleSelectedProjectBoundary(doShow: boolean) {
+    this.showingBoundaries = doShow;
+    this.toggleProjectBoundary$.next(doShow);
   }
 }

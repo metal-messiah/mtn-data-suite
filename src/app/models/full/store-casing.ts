@@ -1,6 +1,5 @@
 import { AuditingEntity } from '../auditing-entity';
 import { StoreVolume } from './store-volume';
-import { SimplifiedStoreStatus } from '../simplified/simplified-store-status';
 import { SimplifiedProject } from '../simplified/simplified-project';
 import { StoreSurvey } from './store-survey';
 import { DateUtil } from '../../utils/date-util';
@@ -22,8 +21,8 @@ export class StoreCasing extends AuditingEntity {
   pharmacyPharmacistCount: number;
   pharmacyTechnicianCount: number;
   legacyCasingId: number;
+  storeStatus: string;
 
-  storeStatus: SimplifiedStoreStatus;
   storeVolume: StoreVolume;
   storeSurvey: StoreSurvey;
   shoppingCenterCasing: ShoppingCenterCasing;
@@ -35,9 +34,6 @@ export class StoreCasing extends AuditingEntity {
 
     if (obj.casingDate != null) {
       this.casingDate = DateUtil.getDate(obj.casingDate);
-    }
-    if (obj.storeStatus != null) {
-      this.storeStatus = new SimplifiedStoreStatus(obj.storeStatus);
     }
     if (obj.storeVolume != null) {
       this.storeVolume = new StoreVolume(obj.storeVolume);

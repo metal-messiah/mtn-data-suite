@@ -1,15 +1,12 @@
 <div class="box">
-  <mat-toolbar color="primary" class="row header flex-space-between">
-    <div>
-      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    </div>
+  <mat-toolbar class="row header flex-space-between">
+    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-chevron-left"></i></button>
     <span id="title">Site Overview</span>
-    <div>
-      <button mat-icon-button [mat-menu-trigger-for]="siteActionMenu">
-        <i class="fas fa-ellipsis-v"></i>
-      </button>
-    </div>
+    <button mat-icon-button [mat-menu-trigger-for]="siteActionMenu">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
   </mat-toolbar>
+  <mat-divider></mat-divider>
   <mat-progress-bar *ngIf="loading || saving" class="centered" mode="indeterminate"></mat-progress-bar>
   <div class="row content">
     <div class="list-wrapper">
@@ -41,8 +38,7 @@
             <mds-data-field title="2&deg; Intersection St." [value]="site.intersectionStreetSecondary"></mds-data-field>
             <mds-data-field title="Position in Center" [value]="site.positionInCenter"></mds-data-field>
           </div>
-          <mat-toolbar color="primary" class="flex-space-between">
-            <span></span>
+          <mat-toolbar color="primary" class="flex-justify-end">
             <button mat-raised-button color="accent" [routerLink]="['/casing/site', site.id, 'edit']">
               Edit
             </button>
@@ -73,8 +69,7 @@
             <button mat-icon-button [mat-menu-trigger-for]="shoppingCenterActionMenu">
               <i class="fas fa-ellipsis-v"></i>
             </button>
-            <button mat-raised-button color="accent"
-                    [routerLink]="['/casing/shopping-center', site.shoppingCenter.id]">
+            <button mat-raised-button color="accent" [routerLink]="['/casing/shopping-center', site.shoppingCenter.id]">
               Edit
             </button>
           </mat-toolbar>
@@ -103,9 +98,10 @@
                   <div class="header">
                     <div class="title">No Active Store</div>
                   </div>
-                  <mat-toolbar color="primary" class="flex-space-between">
-                    <button mat-raised-button color="accent" class="centered" (click)="createNewStore('ACTIVE')">
-                      Create New Store</button>
+                  <mat-toolbar color="primary" class="flex-justify-center">
+                    <button mat-raised-button color="accent" (click)="createNewStore('ACTIVE')">
+                      Create New Store
+                    </button>
                   </mat-toolbar>
                 </div>
               </mat-tab>
@@ -118,9 +114,10 @@
                   <div class="header">
                     <div class="title">No Future Store</div>
                   </div>
-                  <mat-toolbar color="primary">
-                    <button mat-raised-button color="accent" class="centered" (click)="createNewStore('FUTURE')">
-                      Create New Store</button>
+                  <mat-toolbar color="primary" class="flex-justify-center">
+                    <button mat-raised-button color="accent" (click)="createNewStore('FUTURE')">
+                      Create New Store
+                    </button>
                   </mat-toolbar>
                 </div>
               </mat-tab>
@@ -133,9 +130,10 @@
                   <div class="header">
                     <div class="title">No Historical Stores</div>
                   </div>
-                  <mat-toolbar color="primary">
-                    <button mat-raised-button color="accent" class="centered" (click)="createNewStore('HISTORICAL')">
-                      Create New Store</button>
+                  <mat-toolbar color="primary" class="flex-justify-center">
+                    <button mat-raised-button color="accent" (click)="createNewStore('HISTORICAL')">
+                      Create New Store
+                    </button>
                   </mat-toolbar>
                 </div>
               </mat-tab>

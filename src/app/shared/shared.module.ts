@@ -15,12 +15,14 @@ import { DataFieldComponent } from './data-field/data-field.component';
 import { UserProfileSelectComponent } from './user-profile-select/user-profile-select.component';
 import { DataFieldInfoDialogComponent } from './data-field-info-dialog/data-field-info-dialog.component';
 import { AppInfoDialogComponent } from './app-info-dialog/app-info-dialog.component';
+import { NewProjectNameComponent } from './new-project-name/new-project-name.component';
 
 @NgModule({
   imports: [
     CommonModule,
     CustomMaterialModule,
-    RouterModule
+    RouterModule,
+    ReactiveFormsModule
   ],
   declarations: [
     ErrorDialogComponent,
@@ -32,7 +34,8 @@ import { AppInfoDialogComponent } from './app-info-dialog/app-info-dialog.compon
     DataFieldComponent,
     UserProfileSelectComponent,
     DataFieldInfoDialogComponent,
-    AppInfoDialogComponent
+    AppInfoDialogComponent,
+    NewProjectNameComponent
   ],
   providers: [
     BreakpointObserver,
@@ -44,7 +47,8 @@ import { AppInfoDialogComponent } from './app-info-dialog/app-info-dialog.compon
     ConfirmDialogComponent,
     UserProfileSelectComponent,
     DataFieldInfoDialogComponent,
-    AppInfoDialogComponent
+    AppInfoDialogComponent,
+    NewProjectNameComponent
   ],
   exports: [
     CallbackComponent,

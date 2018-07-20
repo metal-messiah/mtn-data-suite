@@ -1,6 +1,6 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
-import { MAT_DIALOG_DATA, MatDialogRef, MatSnackBar } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef, MatExpansionPanel, MatSnackBar } from '@angular/material';
 import { ShoppingCenterAccess } from '../../models/full/shopping-center-access';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ShoppingCenterSurveyService } from '../../core/services/shopping-center-survey.service';
@@ -14,6 +14,8 @@ import { finalize } from 'rxjs/internal/operators';
   styleUrls: ['./access-list-dialog.component.css']
 })
 export class AccessListDialogComponent implements OnInit {
+
+  @ViewChildren(MatExpansionPanel) panels: QueryList<MatExpansionPanel>;
 
   shoppingCenterSurveyId: number;
   form: FormGroup;
@@ -47,10 +49,11 @@ export class AccessListDialogComponent implements OnInit {
     this.loading = true;
     this.shoppingCenterSurveyService.getAllAccesses(this.shoppingCenterSurveyId)
       .pipe(finalize(() => this.loading = false))
-      .subscribe((accesses: ShoppingCenterAccess[]) => this.setAccesses(accesses),
+      .subscribe((accesses: ShoppingCenterAccess[]) => {
+          this.setAccesses(accesses);
+        },
         err => this.errorService.handleServerError('Failed to load accesses!', err,
-          () => {
-          },
+          () => console.log(err),
           () => this.loadAccesses()));
   }
 
@@ -86,6 +89,7 @@ export class AccessListDialogComponent implements OnInit {
       .pipe(finalize(() => this.loading = false))
       .subscribe((savedAccess: ShoppingCenterAccess) => {
         this.accesses.push(this.createAccessFormGroup(savedAccess));
+        setTimeout(() => this.panels.last.open(), 300);
         this.snackBar.open('Successfully Added Access', null, {duration: 1000});
       }, err => this.errorService.handleServerError('Failed to create new access!', err,
         () => {

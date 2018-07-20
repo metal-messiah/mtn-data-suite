@@ -40,7 +40,7 @@ export class StoreSummaryCardComponent implements OnInit {
   }
 
   openStoreStatusDialog() {
-    const config = {data: {store: this.store}, disableClose: true};
+    const config = {data: {store: this.store}, disableClose: true, maxWidth: '300px'};
     const storeStatusDialog = this.dialog.open(StoreStatusesDialogComponent, config);
     storeStatusDialog.afterClosed().subscribe((store: Store) => {
       if (store != null) {
@@ -50,7 +50,7 @@ export class StoreSummaryCardComponent implements OnInit {
   }
 
   openVolumeDialog() {
-    const config = {data: {store: this.store}, disableClose: true};
+    const config = {data: {store: this.store}, disableClose: true, maxWidth: '300px'};
     const storeVolumeDialog = this.dialog.open(StoreVolumeDialogComponent, config);
     storeVolumeDialog.afterClosed().subscribe((store: Store) => {
       if (store != null) {
