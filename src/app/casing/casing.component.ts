@@ -24,10 +24,13 @@ export class CasingComponent implements OnInit {
   }
 
   onDashboardView() {
-    const child = this.route.children != null ? this.route.children[0] : null;
-    if (child != null) {
-      return child.component['name'] === 'CasingDashboardComponent';
-    }
-    return false;
+    return true;
+    // TODO - Doesn't work in production
+    // const child = this.route.children != null ? this.route.children[0] : null;
+    // console.log('Child: ' + child);
+    // if (child) {
+    //   return child.component['name'] === 'CasingDashboardComponent';
+    // }
+    // return false;
   }
 }
