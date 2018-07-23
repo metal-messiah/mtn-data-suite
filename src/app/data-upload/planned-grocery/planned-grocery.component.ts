@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { StoreSourceService } from '../../core/services/store-source.service';
 import { MapService } from '../../core/services/map.service';
 import { PlannedGroceryService } from './planned-grocery-service.service';
@@ -6,10 +6,25 @@ import { FormBuilder } from '@angular/forms';
 import { MapPointLayer } from '../../models/map-point-layer';
 import { StoreMappable } from '../../models/store-mappable';
 import { PgMappable } from '../../models/pg-mappable';
-import { finalize } from 'rxjs/internal/operators';
 import { SimplifiedStoreSource } from '../../models/simplified/simplified-store-source';
 import { Pageable } from '../../models/pageable';
+import { StoreService } from '../../core/services/store.service';
+import { SiteService } from '../../core/services/site.service';
+import { ErrorService } from '../../core/services/error.service';
+import { Coordinates } from '../../models/coordinates';
+import { AuthService } from '../../core/services/auth.service';
+import { SimplifiedStore } from '../../models/simplified/simplified-store';
+import { SimplifiedSite } from '../../models/simplified/simplified-site';
+
+import { MatDialog, MatSnackBar } from '@angular/material';
+
+import { EntityMapLayer } from '../../models/entity-map-layer';
+import { SiteMappable } from '../../models/site-mappable';
+
+import { debounce, debounceTime, delay, finalize, mergeMap, tap } from 'rxjs/internal/operators';
+import { Observable, of, Subscription } from 'rxjs/index';
 import { PlannedGroceryLayer } from '../../models/planned-grocery-layer';
+import { MapDataLayer } from '../../models/map-data-layer';
 
 enum Actions {
   add_site = 'ADD_SITE',
@@ -25,7 +40,9 @@ enum Actions {
 })
 export class PlannedGroceryComponent implements OnInit {
   pgMapLayer: PlannedGroceryLayer;
-  dbMapLayer: MapPointLayer<StoreMappable>;
+  storeMapLayer: EntityMapLayer<StoreMappable>;
+  siteMapLayer: EntityMapLayer<SiteMappable>;
+  mapDataLayer: MapDataLayer;
 
   records: SimplifiedStoreSource[];
   currentRecord: SimplifiedStoreSource;
@@ -35,6 +52,14 @@ export class PlannedGroceryComponent implements OnInit {
 
   currentDBResults: object;
 
+  storeTypes: string[] = ['ACTIVE', 'FUTURE', 'HISTORICAL'];
+
+  gettingEntities = false;
+
+
+
+
+  allMatchingSites: object[];
   // firstFormGroup: FormGroup;
   // secondFormGroup: FormGroup;
 
@@ -50,17 +75,24 @@ export class PlannedGroceryComponent implements OnInit {
     private sourceService: StoreSourceService,
     private mapService: MapService,
     private pgService: PlannedGroceryService,
-    private _formBuilder: FormBuilder
-  ) {
-  }
+    private _formBuilder: FormBuilder,
+    private ngZone: NgZone,
+    private siteService: SiteService,
+    private storeService: StoreService,
+    private errorService: ErrorService,
+    private authService: AuthService,
+    private snackBar: MatSnackBar
+  ) { }
 
   ngOnInit() {
     let retrievingSources = true;
-    this.sourceService.getSourcesNotValidated().pipe(finalize(() => retrievingSources = false))
+    this.sourceService
+      .getSourcesNotValidated()
+      .pipe(finalize(() => (retrievingSources = false)))
       .subscribe((page: Pageable<SimplifiedStoreSource>) => {
         this.records = page.content;
         this.setCurrentRecord(0);
-        this.currentDBResults = this.sourceService.getDBTable();
+        // this.currentDBResults = this.sourceService.getDBTable();
       });
   }
 
@@ -93,26 +125,55 @@ export class PlannedGroceryComponent implements OnInit {
     this.currentRecord = this.records[index];
 
     this.isFetching = true;
-    this.pgService.getFeatureByObjectId(this.currentRecord.sourceNativeId)
-      .pipe(finalize(() => this.isFetching = false))
+    this.currentDBResults = [];
+
+    this.pgService
+      .getFeatureByObjectId(this.currentRecord.sourceNativeId)
+      .pipe(finalize(() => (this.isFetching = false)))
       .subscribe(record => {
         console.log(record);
-        if (record == null || record['pointFeatures'] == null || record['pointFeatures'].length < 1) {
+        if (
+          record == null ||
+          record['features'] == null ||
+          record['features'].length < 1
+        ) {
           // TODO Notify user of failed retrieval
           return;
         }
-        this.currentRecordData = record['pointFeatures'][0];
+        this.currentRecordData = record['features'][0];
 
         const featureMappable = new PgMappable(this.currentRecordData);
 
         this.mapService.setCenter(featureMappable.getCoordinates());
         this.mapService.setZoom(15);
         this.createNewLocation(featureMappable);
+
+
       });
+  }
+
+  private getDebounce() {
+    return debounce(val => of(true)
+      .pipe(delay(1000)));
   }
 
   onMapReady(event) {
     this.pgMapLayer = new PlannedGroceryLayer(this.mapService.getMap());
+    console.log(`Map is ready`);
+    this.storeMapLayer = new EntityMapLayer<StoreMappable>(this.mapService.getMap(), (store: SimplifiedStore) => {
+      return new StoreMappable(store, this.authService.sessionUser.id, null)
+    });
+    this.siteMapLayer = new EntityMapLayer<SiteMappable>(this.mapService.getMap(), (site: SimplifiedSite) => {
+      return new SiteMappable(site, this.authService.sessionUser.id);
+    });
+    this.mapDataLayer = new MapDataLayer(this.mapService.getMap(), this.authService.sessionUser.id);
+
+    this.mapService.boundsChanged$.pipe(this.getDebounce())
+      .subscribe((bounds: { east, north, south, west }) => {
+        this.currentDBResults = [];
+        this.getEntities(bounds);
+
+      });
   }
 
   // Called after querying PG for individual record
@@ -126,5 +187,119 @@ export class PlannedGroceryComponent implements OnInit {
     this.pgMapLayer.removeFromMap();
     // Delete new Location layer
     this.pgMapLayer = null;
+  }
+
+  getEntities(bounds: { east, north, south, west }): void {
+
+    if (this.mapService.getZoom() > 10) {
+      this.mapDataLayer.clearDataPoints();
+      const storeTypes = this.storeTypes;
+      this.gettingEntities = true;
+      this.getSitesInBounds(bounds)
+      // .pipe(finalize(() => this.gettingEntities = false))
+        .pipe(mergeMap(() => {
+          if (storeTypes.length > 0) {
+            return this.getStoresInBounds(bounds);
+          } else {
+            this.storeMapLayer.setEntities([]);
+            return of(null);
+          }
+        }))
+        .subscribe(() => console.log('Retrieved Entities')
+          , err => {
+            this.ngZone.run(() => {
+              this.errorService.handleServerError(`Failed to retrieve entities!`, err,
+                () => console.log(err),
+                () => this.getEntities(bounds));
+            });
+          });
+    } else if (this.mapService.getZoom() > 7) {
+      this.getPointsInBounds(bounds);
+      this.storeMapLayer.setEntities([]);
+      this.siteMapLayer.setEntities([]);
+    } else {
+      this.ngZone.run(() => this.snackBar.open('Zoom in for location data', null, {
+        duration: 1000,
+        verticalPosition: 'top'
+      }));
+      this.mapDataLayer.clearDataPoints();
+      this.storeMapLayer.setEntities([]);
+      this.siteMapLayer.setEntities([]);
+    }
+
+  }
+
+  private getPointsInBounds(bounds) {
+    this.siteService.getSitePointsInBounds(bounds).subscribe((sitePoints: Coordinates[]) => {
+      // console.log(sitePoints)
+      if (sitePoints.length <= 1000) {
+        this.mapDataLayer.setDataPoints(sitePoints);
+        this.ngZone.run(() => {
+          const message = `Showing ${sitePoints.length} items`;
+          this.snackBar.open(message, null, { duration: 2000, verticalPosition: 'top' });
+        });
+      } else {
+        this.ngZone.run(() => {
+          const message = `Too many locations, zoom in to see data`;
+          this.snackBar.open(message, null, { duration: 2000, verticalPosition: 'top' });
+        });
+      }
+    })
+  }
+
+  clearAllMatchingSites() {
+    this.allMatchingSites = [];
+  }
+
+  private getSitesInBounds(bounds) {
+    // Get Sites without stores
+    return this.siteService.getSitesWithoutStoresInBounds(bounds).pipe(tap(page => {
+
+
+      this.siteMapLayer.setEntities(page.content);
+    }));
+  }
+
+  removeDuplicateSites(myArr, prop) {
+    return myArr.filter((obj, pos, arr) => {
+      return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+    });
+  }
+
+  private getStoresInBounds(bounds) {
+    return this.storeService
+      .getStoresOfTypeInBounds(
+        bounds, // this.mapService.getBounds()
+        this.storeTypes, // storeTypes: string[] = ['ACTIVE', 'FUTURE', 'HISTORICAL'];
+        false
+      )
+      .pipe(
+        tap(page => {
+
+          this.clearAllMatchingSites();
+          this.allMatchingSites = page.content.map( store => {
+            store.site['stores'] = [];
+            return store.site
+          })
+
+          this.allMatchingSites = this.removeDuplicateSites(this.allMatchingSites, 'id');
+
+          page.content.forEach( store => {
+            const siteIdx = this.allMatchingSites.findIndex( site => site['id'] === store.site.id);
+            this.allMatchingSites[siteIdx]['stores'].push(store)
+          })
+          this.gettingEntities = false;
+          this.currentDBResults = this.allMatchingSites;
+
+          console.log(this.currentDBResults);
+
+          this.storeMapLayer.setEntities(page.content);
+          this.ngZone.run(() => {
+
+            // const message = `Showing ${page.numberOfElements} items of ${page.totalElements}`;
+            // this.snackBar.open(message, null, {duration: 1000, verticalPosition: 'top'});
+          });
+        })
+      );
   }
 }

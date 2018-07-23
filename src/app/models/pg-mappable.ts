@@ -33,13 +33,13 @@ export class PgMappable implements Mappable {
 
   getIcon(zoom: number, markerType?: MarkerType): string | Icon | Symbol {
     return {
-      path: MarkerShape.DEFAULT,
+      path: MarkerShape.CIRCLE,
       fillColor: Color.PURPLE,
-      fillOpacity: 1,
-      scale: 0.075,
-      strokeColor: Color.WHITE,
+      fillOpacity: 0.5,
+      scale: 0.5,
+      strokeColor: Color.PURPLE_DARK,
       strokeWeight: 2.5,
-      anchor: new google.maps.Point(255, 510),
+      anchor: new google.maps.Point(50, 50),
       labelOrigin: new google.maps.Point(255, 230),
       rotation: 0
     };
