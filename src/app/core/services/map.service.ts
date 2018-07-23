@@ -17,7 +17,6 @@ import { AuthService } from './auth.service';
  */
 @Injectable()
 export class MapService {
-
   defaultIcon = {
     path: google.maps.SymbolPath.CIRCLE,
     fillColor: Color.BLUE,
@@ -28,7 +27,7 @@ export class MapService {
   };
 
   map: google.maps.Map;
-  boundsChanged$: Subject<{east, north, south, west}>;
+  boundsChanged$: Subject<{ east; north; south; west }>;
   mapClick$: Subject<Coordinates>;
 
   circleRadiusListener: google.maps.MapsEventListener;
@@ -48,11 +47,11 @@ export class MapService {
   initialize(element: HTMLElement) {
     // Create map
     this.map = new google.maps.Map(element, {
-      center: {lat: 39.8283, lng: -98.5795},
+      center: { lat: 39.8283, lng: -98.5795 },
       zoom: 8
     });
     this.placesService = new google.maps.places.PlacesService(this.map);
-    this.boundsChanged$ = new Subject<{east, north, south, west}>();
+    this.boundsChanged$ = new Subject<{ east; north; south; west }>();
     this.mapClick$ = new Subject<Coordinates>();
     this.setMapDataStyle();
     this.loadPerspective();
@@ -67,7 +66,9 @@ export class MapService {
       }
     });
     this.map.addListener('maptypeid_changed', () => this.savePerspective());
-    this.map.addListener('click', (event) => this.mapClick$.next(event.latLng.toJSON()));
+    this.map.addListener('click', event =>
+      this.mapClick$.next(event.latLng.toJSON())
+    );
 
     // Setup Drawing Manager
     this.drawingManager = new google.maps.drawing.DrawingManager();
@@ -84,13 +85,16 @@ export class MapService {
         strokeWeight: 1,
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
-          fillColor: (assigneeId != null && assigneeId === userId) ? Color.GREEN : Color.BLUE,
-          fillOpacity: (assigneeId != null && assigneeId === userId) ? 1 : 0.75,
-          scale: (assigneeId != null && assigneeId === userId) ? 5 : 4,
+          fillColor:
+            assigneeId != null && assigneeId === userId
+              ? Color.GREEN
+              : Color.BLUE,
+          fillOpacity: assigneeId != null && assigneeId === userId ? 1 : 0.75,
+          scale: assigneeId != null && assigneeId === userId ? 5 : 4,
           strokeColor: Color.WHITE,
           strokeWeight: 1
         }
-      }
+      };
     });
   }
 
@@ -117,19 +121,23 @@ export class MapService {
   }
 
   private loadPerspective() {
-    of(localStorage.getItem('mapPerspective'))
-      .subscribe(perspective => {
-        if (perspective != null) {
-          perspective = JSON.parse(perspective);
-          this.map.setCenter(perspective['center']);
-          this.map.setZoom(perspective['zoom']);
-          this.map.setMapTypeId(perspective['mapTypeId']);
-        }
-      });
+    of(localStorage.getItem('mapPerspective')).subscribe(perspective => {
+      if (perspective != null) {
+        perspective = JSON.parse(perspective);
+        this.map.setCenter(perspective['center']);
+        this.map.setZoom(perspective['zoom']);
+        this.map.setMapTypeId(perspective['mapTypeId']);
+      }
+    });
   }
 
   savePerspective() {
-    of(localStorage.setItem('mapPerspective', JSON.stringify(this.getPerspective()))).subscribe();
+    of(
+      localStorage.setItem(
+        'mapPerspective',
+        JSON.stringify(this.getPerspective())
+      )
+    ).subscribe();
   }
 
   private getPerspective() {
@@ -142,12 +150,12 @@ export class MapService {
     }
     return {
       zoom: 10,
-      center: {lat: 39.8283, lng: -98.5795},
+      center: { lat: 39.8283, lng: -98.5795 },
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
   }
 
-  getBounds(): {east: number, north: number, south: number, west: number} {
+  getBounds(): { east: number; north: number; south: number; west: number } {
     return this.map.getBounds().toJSON();
   }
 
@@ -166,17 +174,22 @@ export class MapService {
         drawingModes: [
           google.maps.drawing.OverlayType.RECTANGLE,
           google.maps.drawing.OverlayType.CIRCLE,
-          google.maps.drawing.OverlayType.POLYGON]
+          google.maps.drawing.OverlayType.POLYGON
+        ]
       }
     };
     this.drawingManager.setOptions(multiSelectDrawingOptions);
     this.drawingManager.setMap(this.map);
 
     // Listen for completion of drawings
-    google.maps.event.addListener(this.drawingManager, 'overlaycomplete', (event) => {
-      this.drawingEvents.push(event);
-      this.drawingComplete$.next(event);
-    });
+    google.maps.event.addListener(
+      this.drawingManager,
+      'overlaycomplete',
+      event => {
+        this.drawingEvents.push(event);
+        this.drawingComplete$.next(event);
+      }
+    );
 
     return this.drawingComplete$;
   }
@@ -214,7 +227,7 @@ export class MapService {
     let touchMoveListener: google.maps.MapsEventListener;
     let mouseMoveListener: google.maps.MapsEventListener;
 
-    this.circleRadiusListener = this.map.addListener('mousedown', (e) => {
+    this.circleRadiusListener = this.map.addListener('mousedown', e => {
       startPoint = e.latLng;
       startMarker = new google.maps.Marker({
         position: startPoint,
@@ -237,10 +250,13 @@ export class MapService {
       });
 
       const eventListener$ = new Subject<google.maps.Point>();
-      eventListener$.subscribe((point) => {
+      eventListener$.subscribe(point => {
         const latLng = this.point2LatLng(point, this.map);
         startMarker.setPosition(latLng);
-        const distance = google.maps.geometry.spherical.computeDistanceBetween(startPoint, latLng);
+        const distance = google.maps.geometry.spherical.computeDistanceBetween(
+          startPoint,
+          latLng
+        );
         const label = {
           text: this.getDistanceLabel(distance),
           color: 'black',
@@ -249,30 +265,55 @@ export class MapService {
         startMarker.setLabel(label);
       });
 
-      touchMoveListener = google.maps.event.addDomListener(mapDiv, 'touchmove', (touchEvent) => {
-        eventListener$.next(new google.maps.Point(touchEvent.touches[0].clientX, touchEvent.touches[0].clientY - 56));
-      });
-      mouseMoveListener = google.maps.event.addDomListener(mapDiv, 'mousemove', (mouseEvent) => {
-        eventListener$.next(new google.maps.Point(mouseEvent.offsetX, mouseEvent.offsetY));
-      });
+      touchMoveListener = google.maps.event.addDomListener(
+        mapDiv,
+        'touchmove',
+        touchEvent => {
+          eventListener$.next(
+            new google.maps.Point(
+              touchEvent.touches[0].clientX,
+              touchEvent.touches[0].clientY - 56
+            )
+          );
+        }
+      );
+      mouseMoveListener = google.maps.event.addDomListener(
+        mapDiv,
+        'mousemove',
+        mouseEvent => {
+          eventListener$.next(
+            new google.maps.Point(mouseEvent.offsetX, mouseEvent.offsetY)
+          );
+        }
+      );
 
-      const overlayCompleteListener = this.drawingManager.addListener('overlaycomplete', (overlaycompleteEvent) => {
-        touchMoveListener.remove();
-        mouseMoveListener.remove();
-        eventListener$.complete();
-        startMarker.setMap(null);
-        startMarker = null;
-        startPoint = null;
-        overlayCompleteListener.remove();
-      })
-    })
+      const overlayCompleteListener = this.drawingManager.addListener(
+        'overlaycomplete',
+        overlaycompleteEvent => {
+          touchMoveListener.remove();
+          mouseMoveListener.remove();
+          eventListener$.complete();
+          startMarker.setMap(null);
+          startMarker = null;
+          startPoint = null;
+          overlayCompleteListener.remove();
+        }
+      );
+    });
   }
 
   private point2LatLng(point: google.maps.Point, map: google.maps.Map) {
-    const topRight = map.getProjection().fromLatLngToPoint(map.getBounds().getNorthEast());
-    const bottomLeft = map.getProjection().fromLatLngToPoint(map.getBounds().getSouthWest());
+    const topRight = map
+      .getProjection()
+      .fromLatLngToPoint(map.getBounds().getNorthEast());
+    const bottomLeft = map
+      .getProjection()
+      .fromLatLngToPoint(map.getBounds().getSouthWest());
     const scale = Math.pow(2, map.getZoom());
-    const worldPoint = new google.maps.Point(point.x / scale + bottomLeft.x, point.y / scale + topRight.y);
+    const worldPoint = new google.maps.Point(
+      point.x / scale + bottomLeft.x,
+      point.y / scale + topRight.y
+    );
     return map.getProjection().fromPointToLatLng(worldPoint);
   }
 
@@ -287,7 +328,9 @@ export class MapService {
 
   setDrawingModeToRectangle() {
     this.clearCircleRadiusListener();
-    this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.RECTANGLE);
+    this.drawingManager.setDrawingMode(
+      google.maps.drawing.OverlayType.RECTANGLE
+    );
   }
 
   setDrawingModeToPolygon() {
@@ -299,26 +342,42 @@ export class MapService {
     pointLayer.addToMap(this.map);
   }
 
-  searchFor(queryString: string, bounds?: google.maps.LatLngBoundsLiteral): Observable<GooglePlace[]> {
+  searchFor(
+    queryString: string,
+    bounds?: google.maps.LatLngBoundsLiteral
+  ): Observable<GooglePlace[]> {
     return Observable.create((observer: Observer<any>) => {
       if (bounds == null) {
-        const fields = ['formatted_address', 'geometry', 'icon', 'id', 'name', 'place_id'];
-        this.placesService.findPlaceFromQuery({fields: fields, query: queryString}, (results, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK) {
-            observer.next(results.map(place => new GooglePlace(place)));
-          } else {
-            observer.error(status);
-          }
-        });
+        try {
+          const fields = [
+            'formatted_address',
+            'geometry',
+            'icon',
+            'id',
+            'name',
+            'place_id'
+          ];
+          // this.placesService.findPlaceFromQuery(
+          //   { fields: fields, query: queryString },
+          //   (results, status) => {
+          //     if (status === google.maps.places.PlacesServiceStatus.OK) {
+          //       observer.next(results.map(place => new GooglePlace(place)));
+          //     } else {
+          //       observer.error(status);
+          //     }
+          //   }
+          // );
+        } catch (err) {
+          console.log(err);
+        }
       } else {
         const request = {
           bounds: bounds,
           name: queryString
         };
-        this.placesService.nearbySearch(request, (response) => {
-            observer.next(response.map(place => new GooglePlace(place)));
-          }
-        );
+        this.placesService.nearbySearch(request, response => {
+          observer.next(response.map(place => new GooglePlace(place)));
+        });
       }
     });
   }
@@ -356,7 +415,7 @@ export class MapService {
   addDataPoints(coordinateList: Coordinates[]) {
     this.clearDataPoints();
     coordinateList.forEach(coordinates => {
-      const feature = new google.maps.Data.Feature({geometry: coordinates});
+      const feature = new google.maps.Data.Feature({ geometry: coordinates });
       feature.setProperty('assigneeId', coordinates['assigneeId']);
       this.dataPointFeatures.push(this.map.data.add(feature));
     });

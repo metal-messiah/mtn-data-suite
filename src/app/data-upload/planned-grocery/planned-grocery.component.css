@@ -1,5 +1,7 @@
 .pg-wrapper{
     display: flex;
+    height: calc(100vh - 64px);
+    overflow: hidden;
 }
 
 .hidden{
@@ -112,6 +114,7 @@
 .results-table{
     background: lightgray;
     padding: 10px;
+    margin-bottom: 25px;
 }
 
 .results-item{
@@ -122,6 +125,18 @@
 
 .results-header{
     padding: 5px;
+}
+
+.store-attribute{
+    width: 25%;
+}
+
+.add-store{
+    margin: 0 15px 0 0;
+}
+
+.secondary-row{
+    background-color: #edfaff;
 }
 
 @media screen and (max-width: 1000px){
