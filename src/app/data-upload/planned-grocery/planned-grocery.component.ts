@@ -89,7 +89,7 @@ export class PlannedGroceryComponent implements OnInit {
       .subscribe((page: Pageable<SimplifiedStoreSource>) => {
         this.records = page.content;
         this.setCurrentRecord(0);
-        this.currentDBResults = this.sourceService.getDBTable();
+        // this.currentDBResults = this.sourceService.getDBTable();
       });
   }
 
@@ -166,7 +166,7 @@ export class PlannedGroceryComponent implements OnInit {
 
     this.mapService.boundsChanged$.pipe(this.getDebounce())
       .subscribe((bounds: { east, north, south, west }) => {
-
+        this.currentDBResults = [];
         this.getEntities(bounds);
 
       });
@@ -189,7 +189,7 @@ export class PlannedGroceryComponent implements OnInit {
   }
 
   getEntities(bounds: { east, north, south, west }): void {
-
+    
     if (this.mapService.getZoom() > 10) {
       this.mapService.clearDataPoints();
       const storeTypes = this.storeTypes;

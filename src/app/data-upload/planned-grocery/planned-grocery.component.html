@@ -40,7 +40,7 @@
               : ''}}
             </div>
           </div>
-          <button (click)="setStepCompleted(1, 'ADD_SITE', stepper)" mat-button matStepperNext class='highlighted'>Add Site</button>
+          <button (click)="setStepCompleted(1, 'ADD_SITE', stepper)" mat-button matStepperNext class=''>Add Site</button>
         </div>
         <div class='accent-bar large-text'>Match to Existing</div>
         <div class='results-table'>
@@ -59,7 +59,7 @@
           <div [ngClass]="i % 2 != 0 ? 'results-item secondary-row':'results-item'" *ngFor="let item of currentDBResults; let i=index;">
             <div class="results-header large-text flex-container">
               <div>{{item.address1 + ", " + item.city + ", " + item.state }}</div>
-              <button (click)="setStepCompleted(1,'ADD_STORE', stepper)" mat-button matStepperNext class='highlighted add-store'>Add Store</button>
+              <button (click)="setStepCompleted(1,'ADD_STORE', stepper)" mat-button matStepperNext class=' add-store'>Add Store</button>
             </div>
             <mat-divider></mat-divider>
             <div class="results-each" *ngFor="let each of item.stores">
@@ -67,7 +67,7 @@
                 <div class='store-attribute'>{{each.storeName}}</div>
                 <div class='hidden-xs store-attribute'>{{each.storeType}}</div>
                 <div class='hidden-xs store-attribute'>{{each.currentStoreStatus.status}} {{each.currentStoreStatus.statusStartDate | date}}</div>
-                <button (click)="setStepCompleted(1,'MATCH', stepper);" mat-button matStepperNext class='highlighted'>Match</button>
+                <button (click)="setStepCompleted(1,'MATCH', stepper);" mat-button matStepperNext class=''>Match</button>
               </div>
             </div>
           </div>

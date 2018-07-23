@@ -139,6 +139,12 @@
     background-color: #edfaff;
 }
 
+button{
+    background: #607d8b;
+    color:white;
+    min-width: 100px;
+}
+
 @media screen and (max-width: 1000px){
     .hidden-sm{
         display: none;
