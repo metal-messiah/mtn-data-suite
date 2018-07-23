@@ -190,7 +190,7 @@ export class PlannedGroceryComponent implements OnInit {
   }
 
   getEntities(bounds: { east, north, south, west }): void {
-
+    
     if (this.mapService.getZoom() > 10) {
       this.mapDataLayer.clearDataPoints();
       const storeTypes = this.storeTypes;
