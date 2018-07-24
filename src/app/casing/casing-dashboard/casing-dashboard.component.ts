@@ -128,7 +128,7 @@ export class CasingDashboardComponent implements OnInit {
     });
 
     this.mapService.boundsChanged$.pipe(this.getDebounce())
-      .subscribe((bounds: {east, north, south, west}) => {
+      .subscribe((bounds: { east, north, south, west }) => {
         if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
           this.getEntities(bounds);
         }
@@ -175,7 +175,7 @@ export class CasingDashboardComponent implements OnInit {
     return types;
   }
 
-  getEntities(bounds: {east, north, south, west}): void {
+  getEntities(bounds: { east, north, south, west }): void {
     if (this.mapService.getZoom() > 10) {
       this.mapService.clearDataPoints();
       const storeTypes = this.getFilteredStoreTypes();
@@ -318,21 +318,24 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   private createNewSite(site: Site) {
-    // Create a new site from reverse geocode - make sharable via service
-    const snackBarRef2 = this.snackBar.open('Creating new site...', null);
-    this.siteService.create(site)
-      .pipe(finalize(() => this.cancelSiteCreation()))
-      .subscribe(() => {
-        this.snackBar.open('Successfully created new Site', null, {duration: 1500});
-        // TODO show in site layer
-      }, err => {
-        snackBarRef2.dismiss();
-        this.cancelSiteCreation();
-        this.errorService.handleServerError('Failed to create new Site!', err,
-          () => {
-          },
-          () => this.createNewSite(site));
-      });
+    this.ngZone.run(() => {
+      // Create a new site from reverse geocode - make sharable via service
+      const snackBarRef2 = this.snackBar.open('Creating new site...', null);
+      this.siteService.create(site)
+        .pipe(finalize(() => this.cancelSiteCreation()))
+        .subscribe(() => {
+          this.snackBar.open('Successfully created new Site', null, {duration: 1500});
+          this.getEntities(this.mapService.getBounds());
+          // TODO show in site layer
+        }, err => {
+          snackBarRef2.dismiss();
+          this.cancelSiteCreation();
+          this.errorService.handleServerError('Failed to create new Site!', err,
+            () => {
+            },
+            () => this.createNewSite(site));
+        });
+    })
   }
 
   /*
