@@ -56,7 +56,11 @@ export class StoreSurvey extends AuditingEntity {
   parkingDirectAccessToParking: boolean;
   parkingSmallParkingField: boolean;
   parkingHasTSpaces: boolean;
+  parkingHasAngledSpaces: boolean;
+  parkingHasParkingHog: boolean;
+  parkingIsPoorlyLit: boolean;
   parkingRating: string;
+  parkingSpaceCount: number;
   visibilityHillDepressionBlocksView: boolean;
   visibilityOutparcelsBlockView: boolean;
   visibilitySignOnMain: boolean;

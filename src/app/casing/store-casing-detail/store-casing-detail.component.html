@@ -143,40 +143,27 @@
             </mat-expansion-panel-header>
             <div>
               <div class="checklist">
-                <mat-checkbox formControlName="flowHasLandscaping">
-                  Has Landscaping
-                </mat-checkbox>
-                <mat-checkbox formControlName="flowHasSpeedBumps">
-                  Has Speed Bumps
-                </mat-checkbox>
-                <mat-checkbox formControlName="flowHasStopSigns">
-                  Has Stop Signs
-                </mat-checkbox>
                 <mat-checkbox formControlName="flowHasOneWayAisles">
                   Has One Way Aisles
                 </mat-checkbox>
               </div>
+              <mat-form-field>
+                <mat-select placeholder="Flow Rating" formControlName="flowRating">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+                </mat-select>
+              </mat-form-field>
             </div>
           </mat-expansion-panel>
           <!-- Parking -->
-          <mat-expansion-panel>
+          <mat-expansion-panel [formGroup]="storeSurveyForm">
             <mat-expansion-panel-header>
-              <mat-panel-title><i class="fas fa-parking"></i>&nbsp;&nbsp;Parking</mat-panel-title>
+              <mat-panel-title><i class="fas fa-parking"></i>&nbsp;&nbsp;Store Parking</mat-panel-title>
             </mat-expansion-panel-header>
-            <div>
-              <h3>Shopping Center</h3>
-              <div class="checklist" [formGroup]="shoppingCenterSurveyForm">
-                <mat-checkbox formControlName="parkingHasAngledSpaces">Has Angled Spaces</mat-checkbox>
-                <mat-checkbox formControlName="parkingHasParkingHog">Has Parking Hog</mat-checkbox>
-                <mat-checkbox formControlName="parkingIsPoorlyLit">Is poorly Lit</mat-checkbox>
-              </div>
-            </div>
-            <mat-divider></mat-divider>
-            <h3>Store</h3>
-            <mat-form-field [formGroup]="shoppingCenterSurveyForm">
-              <input matInput type="number" placeholder="# Parking Spaces" formControlName="parkingSpaceCount">
-            </mat-form-field>
-            <div class="checklist" [formGroup]="storeSurveyForm">
+            <div class="checklist">
+              <mat-checkbox formControlName="parkingHasAngledSpaces">Has Angled Spaces</mat-checkbox>
+              <mat-checkbox formControlName="parkingHasParkingHog">Has Parking Hog</mat-checkbox>
+              <mat-checkbox formControlName="parkingIsPoorlyLit">Is poorly Lit</mat-checkbox>
               <mat-checkbox formControlName="parkingOutparcelsInterfereWithParking">
                 Outparcels interfere with parking
               </mat-checkbox>
@@ -186,7 +173,10 @@
               <mat-checkbox formControlName="parkingSmallParkingField">Small parking field</mat-checkbox>
               <mat-checkbox formControlName="parkingHasTSpaces">Has T Spaces</mat-checkbox>
             </div>
-            <mat-form-field [formGroup]="storeSurveyForm">
+            <mat-form-field>
+              <input matInput type="number" placeholder="# Parking Spaces" formControlName="parkingSpaceCount">
+            </mat-form-field>
+            <mat-form-field>
               <mat-select placeholder="Parking Rating" formControlName="parkingRating">
                 <mat-option>Clear Selection</mat-option>
                 <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>

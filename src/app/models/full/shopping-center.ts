@@ -6,6 +6,7 @@ export class ShoppingCenter extends AuditingEntity {
 
   name: string;
   owner: string;
+  centerType: string;
   legacyLocationId: number;
 
   shoppingCenterCasings: SimplifiedShoppingCenterCasing[];

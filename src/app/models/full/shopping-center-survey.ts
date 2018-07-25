@@ -7,16 +7,9 @@ import { DateUtil } from '../../utils/date-util';
 export class ShoppingCenterSurvey extends AuditingEntity {
 
   surveyDate: Date;
-  centerType: string;
   note: string;
-  flowHasLandscaping: boolean;
-  flowHasSpeedBumps: boolean;
-  flowHasStopSigns: boolean;
   flowHasOneWayAisles: boolean;
-  parkingHasAngledSpaces: boolean;
-  parkingHasParkingHog: boolean;
-  parkingIsPoorlyLit: boolean;
-  parkingSpaceCount: number;
+  flowRating: string;
   tenantOccupiedCount: number;
   tenantVacantCount: number;
   sqFtPercentOccupied: number;
@@ -43,9 +36,9 @@ export class ShoppingCenterSurvey extends AuditingEntity {
         });
     }
     if (obj.shoppingCenterCasings != null) {
-      this.shoppingCenterCasings = obj.shoppingCenterCasings.map(shoppingCenterCasing => {
-        new SimplifiedShoppingCenterCasing(shoppingCenterCasing);
-      });
+      this.shoppingCenterCasings = obj.shoppingCenterCasings.map(shoppingCenterCasing =>
+        new SimplifiedShoppingCenterCasing(shoppingCenterCasing)
+      );
     }
   }
 }

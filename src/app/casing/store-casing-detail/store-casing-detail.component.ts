@@ -206,7 +206,11 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       parkingDirectAccessToParking: '',
       parkingSmallParkingField: '',
       parkingHasTSpaces: '',
+      parkingHasAngledSpaces: '',
+      parkingHasParkingHog: '',
+      parkingIsPoorlyLit: '',
       parkingRating: '',
+      parkingSpaceCount: '',
       visibilityHillDepressionBlocksView: '',
       visibilityOutparcelsBlockView: '',
       visibilitySignOnMain: '',
@@ -239,15 +243,8 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
 
     this.shoppingCenterSurveyForm = this.fb.group({
       surveyDate: ['', [Validators.required]],
-      centerType: '',
-      flowHasLandscaping: '',
-      flowHasSpeedBumps: '',
-      flowHasStopSigns: '',
       flowHasOneWayAisles: '',
-      parkingHasAngledSpaces: '',
-      parkingHasParkingHog: '',
-      parkingIsPoorlyLit: '',
-      parkingSpaceCount: '',
+      flowRating: '',
       tenantOccupiedCount: '',
       tenantVacantCount: '',
       sqFtPercentOccupied: ['', [Validators.min(0), Validators.max(100)]]

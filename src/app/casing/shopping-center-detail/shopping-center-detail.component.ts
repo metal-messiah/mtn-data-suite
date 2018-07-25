@@ -22,6 +22,10 @@ export class ShoppingCenterDetailComponent implements OnInit {
 
   form: FormGroup;
 
+  centerTypes = ['Anchor Only', 'Central Business District', 'Community Center', 'Free Standing',
+    'Free Standing - Alone', 'Free Standing - Center', 'Lifestyle', 'Neighborhood Center', 'Power Center',
+    'Regional Mall', 'Strip'];
+
   constructor(private shoppingCenterService: ShoppingCenterService,
               private router: Router,
               private route: ActivatedRoute,
@@ -37,7 +41,8 @@ export class ShoppingCenterDetailComponent implements OnInit {
   private createForm() {
     this.form = this.fb.group({
       name: '',
-      owner: ''
+      owner: '',
+      centerType: ''
     });
   }
 
@@ -81,7 +86,7 @@ export class ShoppingCenterDetailComponent implements OnInit {
         this.shoppingCenter = shoppingCenter;
         this.rebuildForm();
         this.snackBar.open(`Successfully updated Shopping Center`, null, {duration: 1000});
-      }, err => this.errorService.handleServerError('Failed to update Shopping Cetner!', err,
+      }, err => this.errorService.handleServerError('Failed to update Shopping Center!', err,
         () => {
         },
         () => this.saveForm()));
