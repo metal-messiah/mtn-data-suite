@@ -226,6 +226,7 @@ export class CasingDashboardComponent implements OnInit {
         });
       } else {
         this.ngZone.run(() => {
+          this.mapDataLayer.clearDataPoints();
           const message = `Too many locations, zoom in to see data`;
           this.snackBar.open(message, null, {duration: 2000, verticalPosition: 'top'});
         });
