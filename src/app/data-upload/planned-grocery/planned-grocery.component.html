@@ -53,9 +53,7 @@
                     Fetching Stores From MTNRA Database
                   </div>
                 </div>
-          
               </div>
-
           <div [ngClass]="i % 2 != 0 ? 'results-item secondary-row':'results-item'" *ngFor="let item of currentDBResults; let i=index;">
             <div class="results-header large-text flex-container">
               <div>{{item.address1 + ", " + item.city + ", " + item.state }}</div>
