@@ -433,13 +433,13 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     });
   }
 
-  private addProject(project: Project | SimplifiedProject) {
+  private addProject(project: SimplifiedProject) {
     const existingProject = this.storeCasing.projects.find((p: SimplifiedProject) => p.id === project.id);
     if (existingProject != null) {
       this.snackBar.open(`Cannot add same project twice`, null, {duration: 1000});
     } else {
       this.loadingProject = true;
-      this.storeCasingService.addProject(this.storeCasing, project)
+      this.storeCasingService.addProject(this.storeCasing, project.id)
         .pipe(finalize(() => this.loadingProject = false))
         .subscribe((storeCasing: StoreCasing) => {
           this.storeCasing = storeCasing;
@@ -450,7 +450,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
 
   removeProject(project: SimplifiedProject) {
     this.loadingProject = true;
-    this.storeCasingService.removeProject(this.storeCasing, project)
+    this.storeCasingService.removeProject(this.storeCasing, project.id)
       .pipe(finalize(() => this.loadingProject = false))
       .subscribe((storeCasing: StoreCasing) => {
         this.storeCasing = storeCasing;

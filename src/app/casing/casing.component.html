@@ -29,12 +29,20 @@
   <button mat-menu-item *ngIf="casingDashboardService.markCasedStores && onDashboardView()"
           (click)="casingDashboardService.markStoresCasedForProject(false)">Un-mark Stores Cased For Project
   </button>
-  <button mat-menu-item *ngIf="!casingDashboardService.showingBoundaries && onDashboardView()"
+  <button mat-menu-item *ngIf="projectHasBoundary()&& !casingDashboardService.showingBoundaries && onDashboardView()"
           (click)="casingDashboardService.toggleSelectedProjectBoundary(true)">
-    Show Boundaries
+    Show Boundary
+  </button>
+  <button mat-menu-item *ngIf="!projectHasBoundary && onDashboardView()"
+          (click)="casingDashboardService.createBoundary()">
+    Create Boundary
+  </button>
+  <button mat-menu-item *ngIf="projectHasBoundary && onDashboardView()"
+          (click)="casingDashboardService.editBoundary()">
+    Edit Boundary
   </button>
   <button mat-menu-item *ngIf="casingDashboardService.showingBoundaries && onDashboardView()"
           (click)="casingDashboardService.toggleSelectedProjectBoundary(false)">
-    Hide Boundaries
+    Hide Boundary
   </button>
 </mat-menu>

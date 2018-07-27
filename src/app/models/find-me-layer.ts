@@ -29,5 +29,6 @@ export class FindMeLayer extends MapPointLayer<Mappable> {
     this.createMarkerFromMappable(this.findMeMappable);
 
     this.getMarkerForMappable(this.findMeMappable).setAnimation(google.maps.Animation.BOUNCE);
+    this.addToMap(this.map);
   }
 }

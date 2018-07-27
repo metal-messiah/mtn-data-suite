@@ -6,6 +6,7 @@ export class SimplifiedProject implements Entity {
   projectName: string;
   active: boolean;
   primaryData: boolean;
+  hasBoundary: boolean;
 
   constructor(obj) {
     Object.assign(this, obj);

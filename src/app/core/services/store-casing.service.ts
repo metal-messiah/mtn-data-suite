@@ -43,15 +43,15 @@ export class StoreCasingService extends CrudService<StoreCasing> {
       .pipe(map(updatedCasing => new StoreCasing(updatedCasing)));
   }
 
-  addProject(casing: StoreCasing, project: SimplifiedProject | Project) {
-    const url = this.rest.getHost() + this.endpoint + `/${casing.id}/projects/${project.id}`;
+  addProject(casing: StoreCasing, projectId: number) {
+    const url = this.rest.getHost() + this.endpoint + `/${casing.id}/projects/${projectId}`;
 
     return this.http.put<StoreCasing>(url, null, {headers: this.rest.getHeaders()})
       .pipe(map(updatedCasing => new StoreCasing(updatedCasing)));
   }
 
-  removeProject(casing: StoreCasing, project: SimplifiedProject | Project) {
-    const url = this.rest.getHost() + this.endpoint + `/${casing.id}/projects/${project.id}`;
+  removeProject(casing: StoreCasing, projectId: number) {
+    const url = this.rest.getHost() + this.endpoint + `/${casing.id}/projects/${projectId}`;
 
     return this.http.delete<StoreCasing>(url, {headers: this.rest.getHeaders()})
       .pipe(map(updatedCasing => new StoreCasing(updatedCasing)));

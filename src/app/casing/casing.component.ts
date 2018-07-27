@@ -33,4 +33,9 @@ export class CasingComponent implements OnInit {
     // }
     // return false;
   }
+
+  projectHasBoundary() {
+    const project = this.casingDashboardService.getSelectedProject();
+    return project && project.hasBoundary
+  }
 }

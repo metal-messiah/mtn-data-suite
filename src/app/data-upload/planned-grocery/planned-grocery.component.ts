@@ -9,6 +9,7 @@ import { PgMappable } from '../../models/pg-mappable';
 import { finalize } from 'rxjs/internal/operators';
 import { SimplifiedStoreSource } from '../../models/simplified/simplified-store-source';
 import { Pageable } from '../../models/pageable';
+import { PlannedGroceryLayer } from '../../models/planned-grocery-layer';
 
 enum Actions {
   add_site = 'ADD_SITE',
@@ -23,7 +24,7 @@ enum Actions {
   providers: [PlannedGroceryService]
 })
 export class PlannedGroceryComponent implements OnInit {
-  pgMapLayer: MapPointLayer<PgMappable>;
+  pgMapLayer: PlannedGroceryLayer;
   dbMapLayer: MapPointLayer<StoreMappable>;
 
   records: SimplifiedStoreSource[];
@@ -96,11 +97,11 @@ export class PlannedGroceryComponent implements OnInit {
       .pipe(finalize(() => this.isFetching = false))
       .subscribe(record => {
         console.log(record);
-        if (record == null || record['features'] == null || record['features'].length < 1) {
+        if (record == null || record['pointFeatures'] == null || record['pointFeatures'].length < 1) {
           // TODO Notify user of failed retrieval
           return;
         }
-        this.currentRecordData = record['features'][0];
+        this.currentRecordData = record['pointFeatures'][0];
 
         const featureMappable = new PgMappable(this.currentRecordData);
 
@@ -111,15 +112,13 @@ export class PlannedGroceryComponent implements OnInit {
   }
 
   onMapReady(event) {
-    this.pgMapLayer = new MapPointLayer(this.mapService.getMap());
+    this.pgMapLayer = new PlannedGroceryLayer(this.mapService.getMap());
   }
 
   // Called after querying PG for individual record
   createNewLocation(featureMappable: PgMappable): void {
     // Add new location to layer
-    this.pgMapLayer.createMarkerFromMappable(featureMappable);
-    // Add Layer to map
-    this.mapService.addPointLayer(this.pgMapLayer);
+    this.pgMapLayer.setPgFeature(featureMappable);
   }
 
   cancelLocationCreation(): void {

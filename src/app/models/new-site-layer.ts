@@ -30,6 +30,7 @@ export class NewSiteLayer extends MapPointLayer<Mappable> {
       isDraggable: () => true
     };
     this.createMarkerFromMappable(this.newSiteMappable);
+    this.addToMap(this.map);
   }
 
   getCoordinatesOfNewSite() {

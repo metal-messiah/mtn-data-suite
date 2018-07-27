@@ -15,6 +15,7 @@ export class GooglePlaceLayer extends MapPointLayer<Mappable> {
     this.clearMarkers();
     this.googlePlaceMappables = [];
     this.createMarkersFromMappables(googlePlaces);
+    this.addToMap(this.map);
   }
 
 }

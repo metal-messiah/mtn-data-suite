@@ -19,11 +19,11 @@ export class MapPointLayer<T extends Mappable> {
     this.markers = [];
   }
 
-  createMarkersFromMappables(mappables: T[]) {
+  protected createMarkersFromMappables(mappables: T[]) {
     mappables.forEach(mappable => this.createMarkerFromMappable(mappable));
   }
 
-  createMarkerFromMappable(mappable: T) {
+  protected createMarkerFromMappable(mappable: T) {
     const marker = new google.maps.Marker({
       position: mappable.getCoordinates()
     });

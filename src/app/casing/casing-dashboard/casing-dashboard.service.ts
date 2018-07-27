@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Project } from '../../models/full/project';
 import { SelectProjectComponent } from '../select-project/select-project.component';
 import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
@@ -19,9 +18,9 @@ export class CasingDashboardService {
   toggleMarkingStores$: Subject<boolean>;
   toggleProjectBoundary$: Subject<boolean>;
 
-  projectChanged$: Subject<Project | SimplifiedProject>;
+  projectChanged$: Subject<SimplifiedProject>;
 
-  private selectedProject: Project | SimplifiedProject;
+  private selectedProject: SimplifiedProject;
 
   constructor(private dialog: MatDialog,
               private router: Router) {
@@ -39,7 +38,7 @@ export class CasingDashboardService {
     if (markCasedStores != null) {
       this.markCasedStores = markCasedStores;
     }
-    this.projectChanged$ = new Subject<Project>();
+    this.projectChanged$ = new Subject<SimplifiedProject>();
     this.toggleMarkingStores$ = new Subject<boolean>();
     this.toggleProjectBoundary$ = new Subject<boolean>();
   }
