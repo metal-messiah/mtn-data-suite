@@ -15,12 +15,13 @@ export class MapDataLayer {
 
   constructor(map: google.maps.Map, userId: number) {
     this.map = map;
-    this.map.data.setStyle(feature => {
+    this.map.data.setStyle((feature: google.maps.Data.Feature) => {
       const assigneeId = feature.getProperty('assigneeId');
       return {
         fillColor: 'green',
         fillOpacity: this.map.getZoom() > 11 ? 0.05 : 0.2,
         strokeWeight: 1,
+        editable: true,
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
           fillColor: (assigneeId != null && assigneeId === userId) ? Color.GREEN : Color.BLUE,
@@ -49,7 +50,6 @@ export class MapDataLayer {
   setGeoJsonBoundary(geoJson: Object): google.maps.Data.Feature[] {
     this.clearGeoJsonBoundaries();
     this.boundaryFeatures = this.map.data.addGeoJson(geoJson);
-    console.log(this.boundaryFeatures[0].getGeometry().getType());
     const bounds = new google.maps.LatLngBounds();
     this.boundaryFeatures.forEach(feature => {
       feature.getGeometry().forEachLatLng(latLng => bounds.extend(latLng));

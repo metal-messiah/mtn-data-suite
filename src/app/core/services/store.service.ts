@@ -64,11 +64,6 @@ export class StoreService extends CrudService<Store> {
       }));
   }
 
-  setCurrentStatus(storeId: number, status: SimplifiedStoreStatus) {
-    const url = this.rest.getHost() + this.endpoint + `/${storeId}/current-store-status/${status.id}`;
-    return this.http.put<Store>(url, null, {headers: this.rest.getHeaders()}).pipe(this.convertStore);
-  }
-
   createNewStatus(storeId: number, status: SimplifiedStoreStatus) {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-statuses`;
     return this.http.post<Store>(url, status, {headers: this.rest.getHeaders()}).pipe(this.convertStore);

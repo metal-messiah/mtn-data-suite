@@ -15,8 +15,10 @@ export class CasingDashboardService {
 
   showingBoundaries = false;
   markCasedStores = false;
+
   toggleMarkingStores$: Subject<boolean>;
   toggleProjectBoundary$: Subject<boolean>;
+  editProjectBoundary$: Subject<SimplifiedProject>;
 
   projectChanged$: Subject<SimplifiedProject>;
 
@@ -41,6 +43,7 @@ export class CasingDashboardService {
     this.projectChanged$ = new Subject<SimplifiedProject>();
     this.toggleMarkingStores$ = new Subject<boolean>();
     this.toggleProjectBoundary$ = new Subject<boolean>();
+    this.editProjectBoundary$ = new Subject<SimplifiedProject>();
   }
 
   openProjectSelectionDialog(): void {
@@ -103,5 +106,9 @@ export class CasingDashboardService {
   toggleSelectedProjectBoundary(doShow: boolean) {
     this.showingBoundaries = doShow;
     this.toggleProjectBoundary$.next(doShow);
+  }
+
+  editProjectBoundary() {
+    this.editProjectBoundary$.next(this.selectedProject);
   }
 }

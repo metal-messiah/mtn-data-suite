@@ -10,7 +10,6 @@ import { CasingDashboardService } from '../casing-dashboard/casing-dashboard.ser
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { DataFieldInfoDialogComponent } from '../../shared/data-field-info-dialog/data-field-info-dialog.component';
 import { ErrorService } from '../../core/services/error.service';
-import { Project } from '../../models/full/project';
 import { SelectProjectComponent } from '../select-project/select-project.component';
 import { ShoppingCenterCasing } from '../../models/full/shopping-center-casing';
 import { ShoppingCenterCasingService } from '../../core/services/shopping-center-casing.service';

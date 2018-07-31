@@ -36,13 +36,15 @@ import { ProjectService } from '../../core/services/project.service';
 import { Boundary } from '../../models/full/boundary';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { MapDataLayer } from '../../models/map-data-layer';
+import { SimplifiedProject } from '../../models/simplified/simplified-project';
+import { ProjectBoundary } from '../../models/project-boundary';
 
-export enum MultiSelectToolTypes {
+export enum DrawingToolTypes {
   CLICK, CIRCLE, RECTANGLE, POLYGON
 }
 
 export enum CasingDashboardMode {
-  DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT
+  DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY
 }
 
 export enum CardState {
@@ -70,22 +72,23 @@ export class CasingDashboardComponent implements OnInit {
   followMeLayer: FollowMeLayer;
   googlePlacesLayer: GooglePlaceLayer;
   mapDataLayer: MapDataLayer;
+  projectBoundary: ProjectBoundary;
 
   // Flags
-  showingBoundaries = false;
   sideNavIsOpen = false;
   filterSideNavIsOpen = false;
   updating = false;
   gettingEntities = false;
+  deletingProjectShapes = false;
 
   // Modes
   selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
-  selectedMultiSelectTool = MultiSelectToolTypes.CLICK;
+  selectedDrawingTool = DrawingToolTypes.CLICK;
   selectedCardState = CardState.HIDDEN;
 
   // Enums for template
   casingDashboardMode = CasingDashboardMode;
-  multiSelectToolType = MultiSelectToolTypes;
+  drawingToolType = DrawingToolTypes;
   markerType = MarkerType;
   cardState = CardState;
   storeSelectionMode = MapSelectionMode;
@@ -110,14 +113,18 @@ export class CasingDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.casingDashboardService.projectChanged$.subscribe(() => {
-      this.showingBoundaries = false;
-      this.mapDataLayer.clearGeoJsonBoundaries();
+      this.casingDashboardService.showingBoundaries = false;
+      if (this.projectBoundary) {
+        this.projectBoundary.removeFromMap();
+      }
+      this.projectBoundary = null;
       this.getEntities(this.mapService.getBounds());
     });
     this.casingDashboardService.toggleMarkingStores$.subscribe(() => {
       this.getEntities(this.mapService.getBounds());
     });
-    this.casingDashboardService.toggleProjectBoundary$.subscribe(doShow => this.toggleSelectedProjectBoundaries(doShow));
+    this.casingDashboardService.toggleProjectBoundary$.subscribe(doShow => this.toggleSelectedProjectBoundaries(doShow).subscribe());
+    this.casingDashboardService.editProjectBoundary$.subscribe((project: SimplifiedProject) => this.enableProjectBoundaryEditing(project));
   }
 
   onMapReady() {
@@ -252,12 +259,12 @@ export class CasingDashboardComponent implements OnInit {
       }));
   }
 
-  toggleSelectedProjectBoundaries(show: boolean): void {
+  toggleSelectedProjectBoundaries(show: boolean) {
     this.sideNavIsOpen = false;
 
     if (show) {
-      this.projectService.getBoundaryForProject(this.casingDashboardService.getSelectedProject().id)
-        .subscribe((boundary: Boundary) => {
+      return this.projectService.getBoundaryForProject(this.casingDashboardService.getSelectedProject().id)
+        .pipe(tap((boundary: Boundary) => {
           if (boundary == null) {
             this.dialog.open(ConfirmDialogComponent, {
               data: {
@@ -266,15 +273,17 @@ export class CasingDashboardComponent implements OnInit {
                 options: []
               }
             });
-            this.showingBoundaries = false;
+            this.casingDashboardService.showingBoundaries = false;
           } else {
-            this.mapDataLayer.setGeoJsonBoundary(JSON.parse(boundary.geojson));
-            this.showingBoundaries = true;
+            this.projectBoundary = new ProjectBoundary(this.mapService.getMap(), boundary.geojson);
+            this.projectBoundary.zoomToBounds();
+            this.casingDashboardService.showingBoundaries = true;
           }
-        });
+        }));
     } else {
-      this.mapDataLayer.clearGeoJsonBoundaries();
-      this.showingBoundaries = false;
+      this.projectBoundary.removeFromMap();
+      this.casingDashboardService.showingBoundaries = false;
+      return of(null);
     }
   }
 
@@ -452,6 +461,36 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   /*
+  Project boundary editing
+   */
+  enableProjectBoundaryEditing(project: SimplifiedProject) {
+    if (!this.casingDashboardService.showingBoundaries) {
+      this.toggleSelectedProjectBoundaries(true).subscribe(() => this.setUpProjectEditing());
+    } else {
+      this.setUpProjectEditing();
+    }
+  }
+
+  private setUpProjectEditing() {
+    this.selectedDashboardMode = CasingDashboardMode.EDIT_PROJECT_BOUNDARY;
+    this.projectBoundary.setEditable(true);
+    this.mapService.activateDrawingTools().subscribe(shape => {
+      this.projectBoundary.addShape(shape);
+    });
+  }
+
+  cancelProjectEditing() {
+    this.projectBoundary.setEditable(false);
+    this.projectBoundary.resetFromGeoJson();
+    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+    this.mapService.deactivateDrawingTools();
+  }
+
+  saveEditedProjectBoundaries() {
+    // Save project boundary changes
+  }
+
+  /*
   Multi-select
    */
   enableMultiSelect(): void {
@@ -480,15 +519,15 @@ export class CasingDashboardComponent implements OnInit {
     this.storeMapLayer.clearSelection();
   }
 
-  setMultiSelectTool(tool: MultiSelectToolTypes) {
-    this.selectedMultiSelectTool = tool;
-    if (tool === MultiSelectToolTypes.CLICK) {
+  setDrawingTool(tool: DrawingToolTypes) {
+    this.selectedDrawingTool = tool;
+    if (tool === DrawingToolTypes.CLICK) {
       this.mapService.setDrawingModeToClick();
-    } else if (tool === MultiSelectToolTypes.CIRCLE) {
+    } else if (tool === DrawingToolTypes.CIRCLE) {
       this.mapService.setDrawingModeToCircle();
-    } else if (tool === MultiSelectToolTypes.RECTANGLE) {
+    } else if (tool === DrawingToolTypes.RECTANGLE) {
       this.mapService.setDrawingModeToRectangle();
-    } else if (tool === MultiSelectToolTypes.POLYGON) {
+    } else if (tool === DrawingToolTypes.POLYGON) {
       this.mapService.setDrawingModeToPolygon();
     }
   }
@@ -638,5 +677,11 @@ export class CasingDashboardComponent implements OnInit {
   filterClosed() {
     this.casingDashboardService.saveFilters().subscribe(() => console.log('Saved Filters'));
     this.getEntities(this.mapService.getBounds());
+  }
+
+  toggleProjectShapeDeletion() {
+    this.setDrawingTool(DrawingToolTypes.CLICK);
+    this.deletingProjectShapes = !this.deletingProjectShapes;
+    // TODO actually do something
   }
 }

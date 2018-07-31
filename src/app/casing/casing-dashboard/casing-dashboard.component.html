@@ -94,11 +94,11 @@
             <button mat-raised-button color="warn" (click)="cancelMultiSelect()">Cancel</button>
           </div>
           <div>
-            <button mat-mini-fab [mat-menu-trigger-for]="multiSelectToolsMenu" color="primary">
-              <i *ngIf="selectedMultiSelectTool === multiSelectToolType.CLICK" class="far fa-hand-pointer"></i>
-              <i *ngIf="selectedMultiSelectTool === multiSelectToolType.CIRCLE" class="far fa-circle"></i>
-              <i *ngIf="selectedMultiSelectTool === multiSelectToolType.RECTANGLE" class="far fa-square"></i>
-              <i *ngIf="selectedMultiSelectTool === multiSelectToolType.POLYGON" class="far fa-star"></i>
+            <button mat-mini-fab [mat-menu-trigger-for]="drawingToolsMenu" color="primary">
+              <i *ngIf="selectedDrawingTool === drawingToolType.CLICK" class="far fa-hand-pointer"></i>
+              <i *ngIf="selectedDrawingTool === drawingToolType.CIRCLE" class="far fa-circle"></i>
+              <i *ngIf="selectedDrawingTool === drawingToolType.RECTANGLE" class="far fa-square"></i>
+              <i *ngIf="selectedDrawingTool === drawingToolType.POLYGON" class="far fa-star"></i>
             </button>
           </div>
           <div>
@@ -112,6 +112,31 @@
               <span
                 *ngIf="storeMapLayer.getSelectedEntities().length > 0">({{storeMapLayer.getSelectedEntities().length}})</span>&nbsp;Actions
             </button>
+          </div>
+        </mat-toolbar>
+        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.EDIT_PROJECT_BOUNDARY" color="primary"
+                     class="flex-space-between">
+          <div>
+            <button mat-raised-button (click)="cancelProjectEditing()" color="warn">Cancel</button>
+          </div>
+          <div>
+            <button mat-mini-fab [mat-menu-trigger-for]="drawingToolsMenu" color="primary">
+              <i *ngIf="selectedDrawingTool === drawingToolType.CLICK" class="far fa-hand-pointer"></i>
+              <i *ngIf="selectedDrawingTool === drawingToolType.CIRCLE" class="far fa-circle"></i>
+              <i *ngIf="selectedDrawingTool === drawingToolType.RECTANGLE" class="far fa-square"></i>
+              <i *ngIf="selectedDrawingTool === drawingToolType.POLYGON" class="far fa-star"></i>
+            </button>
+          </div>
+          <div>
+            <button mat-mini-fab *ngIf="deletingProjectShapes" (click)="toggleProjectShapeDeletion()" color="primary">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+            <button mat-mini-fab *ngIf="!deletingProjectShapes" (click)="toggleProjectShapeDeletion()" color="accent">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+          <div>
+            <button mat-raised-button color="accent" (click)="saveEditedProjectBoundaries()">Save</button>
           </div>
         </mat-toolbar>
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.CREATING_NEW" color="primary"
@@ -156,17 +181,17 @@
   <button mat-menu-item (click)="setMarkerType(markerType.LOGO)">{{markerType.LOGO.valueOf()}}</button>
 </mat-menu>
 
-<mat-menu #multiSelectToolsMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="setMultiSelectTool(multiSelectToolType.CLICK)">
+<mat-menu #drawingToolsMenu="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item (click)="setDrawingTool(drawingToolType.CLICK)">
     <i class="far fa-hand-pointer"></i>&nbsp;Click
   </button>
-  <button mat-menu-item (click)="setMultiSelectTool(multiSelectToolType.RECTANGLE)">
+  <button mat-menu-item (click)="setDrawingTool(drawingToolType.RECTANGLE)">
     <i class="far fa-square"></i>&nbsp;Rectangle
   </button>
-  <button mat-menu-item (click)="setMultiSelectTool(multiSelectToolType.CIRCLE)">
+  <button mat-menu-item (click)="setDrawingTool(drawingToolType.CIRCLE)">
     <i class="far fa-circle"></i>&nbsp;Circle
   </button>
-  <button mat-menu-item (click)="setMultiSelectTool(multiSelectToolType.POLYGON)">
+  <button mat-menu-item (click)="setDrawingTool(drawingToolType.POLYGON)">
     <i class="far fa-star"></i>&nbsp;Polygon
   </button>
 </mat-menu>

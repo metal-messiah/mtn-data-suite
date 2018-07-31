@@ -19,10 +19,6 @@
         </div>
       </div>
       <mat-menu #statusMenu="matMenu" [overlapTrigger]="false">
-        <button mat-menu-item (click)="setCurrentStatus(storeStatus)"
-                *ngIf="store.currentStoreStatus == null || storeStatus.id !== store.currentStoreStatus.id">
-          Set As Current
-        </button>
         <button mat-menu-item (click)="deleteStatus(storeStatus)">
           <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
         </button>

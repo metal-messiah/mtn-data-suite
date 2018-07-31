@@ -33,12 +33,12 @@
           (click)="casingDashboardService.toggleSelectedProjectBoundary(true)">
     Show Boundary
   </button>
-  <button mat-menu-item *ngIf="!projectHasBoundary && onDashboardView()"
-          (click)="casingDashboardService.createBoundary()">
+  <button mat-menu-item *ngIf="!projectHasBoundary() && onDashboardView()"
+          (click)="casingDashboardService.createProjectBoundary()">
     Create Boundary
   </button>
-  <button mat-menu-item *ngIf="projectHasBoundary && onDashboardView()"
-          (click)="casingDashboardService.editBoundary()">
+  <button mat-menu-item *ngIf="projectHasBoundary() && onDashboardView()"
+          (click)="casingDashboardService.editProjectBoundary()">
     Edit Boundary
   </button>
   <button mat-menu-item *ngIf="casingDashboardService.showingBoundaries && onDashboardView()"

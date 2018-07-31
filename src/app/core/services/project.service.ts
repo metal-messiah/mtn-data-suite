@@ -44,7 +44,6 @@ export class ProjectService extends CrudService<Project> {
     const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/boundary';
     return this.http.get(url, {observe: 'response', headers: this.rest.getHeaders()})
       .pipe(map((response: HttpResponse<Boundary>) => {
-        console.log(response);
         if (response.status === 204) {
           return null;
         } else {

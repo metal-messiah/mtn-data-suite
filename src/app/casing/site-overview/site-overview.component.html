@@ -52,6 +52,7 @@
           <div class="content" *ngIf="site.shoppingCenter != null">
             <mds-data-field title="Name" [value]="site.shoppingCenter.name"></mds-data-field>
             <mds-data-field title="Owner" [value]="site.shoppingCenter.owner"></mds-data-field>
+            <mds-data-field title="Center Type" [value]="site.shoppingCenter.centerType"></mds-data-field>
           </div>
           <div class="content" *ngIf="site.shoppingCenter == null">
             <mat-list>

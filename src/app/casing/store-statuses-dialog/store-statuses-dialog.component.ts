@@ -48,17 +48,6 @@ export class StoreStatusesDialogComponent implements OnInit {
       });
   }
 
-  setCurrentStatus(status: SimplifiedStoreStatus) {
-    this.savingCurrentStatus = true;
-    this.storeService.setCurrentStatus(this.store.id, status)
-      .pipe(finalize(() => this.savingCurrentStatus = false))
-      .subscribe((store: Store) => {
-        this.initStore(store);
-      }, err => {
-        this.errorService.handleServerError('Failed to update Store', err, () => {});
-      });
-  }
-
   useForCasing(status: SimplifiedStoreStatus) {
     this.dialogRef.close(status);
   }
