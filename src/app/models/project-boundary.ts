@@ -80,6 +80,59 @@ export class ProjectBoundary {
 
   toGeoJson() {
     // TODO Create GeoJson from Shapes
+    const features = [];
+    this.polygons.forEach(p => {
+      const rings = [];
+      p.getPaths().forEach((path, index) => {
+        const ring = [];
+        path.forEach(latLng => ring.push([latLng.lng(), latLng.lat()]));
+        ring.push(ring[0]);
+        const isClockwise = this.ringIsClockwise(ring);
+        if ((index === 0 && isClockwise) || (index !== 0 && !isClockwise)) {
+          rings.push(ring.reverse());
+        } else {
+          rings.push(ring);
+        }
+      });
+      features.push({
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'Polygon',
+          coordinates: rings
+        }
+      });
+    });
+    this.circles.forEach(c => {
+      features.push({
+        type: 'Feature',
+        properties: {radius: c.getRadius()},
+        geometry: {
+          type: 'Point',
+          coordinates: [c.getCenter().lng(), c.getCenter().lat()]
+        }
+      });
+    });
+
+    const geoJson = {
+      type: 'FeatureCollection',
+      features: features
+    };
+    return JSON.stringify(geoJson);
+  }
+
+  // Test for right/left handedness (right = counter)
+  // (https://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order)
+  private ringIsClockwise(ring) {
+    let sum = 0;
+    for (let i = 1; i < ring.length; i++) {
+      const x2 = ring[i][0];
+      const x1 = ring[i - 1][0];
+      const y2 = ring[i][1];
+      const y1 = ring[i - 1][1];
+      sum += (x2 - x1) * (y2 + y1);
+    }
+    return sum > 0;
   }
 
   setEditable(editable: boolean) {

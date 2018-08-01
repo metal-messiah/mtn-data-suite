@@ -487,7 +487,8 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   saveEditedProjectBoundaries() {
-    // Save project boundary changes
+    const geojson = this.projectBoundary.toGeoJson();
+    console.log(geojson);
   }
 
   /*
