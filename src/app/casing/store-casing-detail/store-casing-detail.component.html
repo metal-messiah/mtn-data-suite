@@ -366,8 +366,12 @@
             </mat-expansion-panel-header>
             <div [formGroup]="storeCasingForm">
               <mat-form-field>
-                <input matInput type="number" placeholder="Estimated Weekly Prescriptions"
-                       formControlName="pharmacyScriptsWeekly">
+                <input matInput type="number" placeholder="Number of Pharmacists"
+                       formControlName="pharmacyPharmacistCount">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="number" placeholder="Number of Technicians"
+                       formControlName="pharmacyTechnicianCount">
               </mat-form-field>
               <mat-form-field>
                 <input matInput type="number" placeholder="Estimated Avg. Prescription Price"
@@ -375,12 +379,13 @@
                 <span matPrefix>$&nbsp;</span>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="Number of Pharmacists"
-                       formControlName="pharmacyPharmacistCount">
+                <input matInput type="number" placeholder="Estimated Weekly Prescriptions"
+                       formControlName="pharmacyScriptsWeekly">
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="Number of Technicians"
-                       formControlName="pharmacyTechnicianCount">
+                <input matInput type="number" placeholder="Estimated Weekly $" disabled
+                       [value]="storeCasingForm.get('pharmacyAvgDollarsPerScript').value * storeCasingForm.get('pharmacyScriptsWeekly').value">
+                <span matPrefix>$&nbsp;</span>
               </mat-form-field>
             </div>
             <div [formGroup]="storeSurveyForm" class="checklist">
