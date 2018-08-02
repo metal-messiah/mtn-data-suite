@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import {} from '@types/googlemaps';
+import { } from '@types/googlemaps';
 import { MapPointLayer } from '../../models/map-point-layer';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
 import { Mappable } from '../../interfaces/mappable';
 import { Observable, Observer, of, Subject } from 'rxjs/index';
-import { Color } from '../functionalEnums/Color';
 import { AuthService } from './auth.service';
 
 /*
@@ -17,14 +16,6 @@ import { AuthService } from './auth.service';
  */
 @Injectable()
 export class MapService {
-  defaultIcon = {
-    path: google.maps.SymbolPath.CIRCLE,
-    fillColor: Color.BLUE,
-    fillOpacity: 0.6,
-    scale: 5,
-    strokeColor: Color.WHITE,
-    strokeWeight: 2
-  };
 
   map: google.maps.Map;
   boundsChanged$: Subject<{ east; north; south; west }>;
@@ -50,10 +41,10 @@ export class MapService {
       center: { lat: 39.8283, lng: -98.5795 },
       zoom: 8
     });
+    this.map.getStreetView().setOptions({ imageDateControl: true });
     this.placesService = new google.maps.places.PlacesService(this.map);
     this.boundsChanged$ = new Subject<{ east; north; south; west }>();
     this.mapClick$ = new Subject<Coordinates>();
-    this.setMapDataStyle();
     this.loadPerspective();
 
     // Listen to events and pass them on via subjects
@@ -73,29 +64,6 @@ export class MapService {
     // Setup Drawing Manager
     this.drawingManager = new google.maps.drawing.DrawingManager();
     return this.map;
-  }
-
-  private setMapDataStyle() {
-    const userId = this.authService.sessionUser.id;
-    this.map.data.setStyle(feature => {
-      const assigneeId = feature.getProperty('assigneeId');
-      return {
-        fillColor: 'green',
-        fillOpacity: this.map.getZoom() > 11 ? 0.05 : 0.2,
-        strokeWeight: 1,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor:
-            assigneeId != null && assigneeId === userId
-              ? Color.GREEN
-              : Color.BLUE,
-          fillOpacity: assigneeId != null && assigneeId === userId ? 1 : 0.75,
-          scale: assigneeId != null && assigneeId === userId ? 5 : 4,
-          strokeColor: Color.WHITE,
-          strokeWeight: 1
-        }
-      };
-    });
   }
 
   getZoom() {
@@ -209,6 +177,24 @@ export class MapService {
       this.circleRadiusListener.remove();
       this.circleRadiusListener = null;
     }
+  }
+
+  getDistanceBetween(startPoint, endPoint) {
+    const startLatLng = new google.maps.LatLng(startPoint.lat, startPoint.lng);
+    const endLatLng = new google.maps.LatLng(endPoint.lat, endPoint.lng);
+    return google.maps.geometry.spherical.computeDistanceBetween(
+      startLatLng,
+      endLatLng
+    );
+  }
+
+  getHeading(startPoint, endPoint){
+    const startLatLng = new google.maps.LatLng(startPoint.lat, startPoint.lng);
+    const endLatLng = new google.maps.LatLng(endPoint.lat, endPoint.lng);
+    return google.maps.geometry.spherical.computeHeading(
+      startLatLng,
+      endLatLng
+    );
   }
 
   setDrawingModeToClick() {
@@ -338,10 +324,6 @@ export class MapService {
     this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
   }
 
-  addPointLayer(pointLayer: MapPointLayer<Mappable>) {
-    pointLayer.addToMap(this.map);
-  }
-
   searchFor(
     queryString: string,
     bounds?: google.maps.LatLngBoundsLiteral
@@ -395,34 +377,6 @@ export class MapService {
         }
       });
     });
-  }
-
-  setGeoJsonBoundary(geoJson: Object): google.maps.Data.Feature[] {
-    this.clearGeoJsonBoundaries();
-    const features = this.map.data.addGeoJson(geoJson);
-    const bounds = new google.maps.LatLngBounds();
-    features.forEach(feature => {
-      feature.getGeometry().forEachLatLng(latLng => bounds.extend(latLng));
-    });
-    this.map.fitBounds(bounds);
-    return features;
-  }
-
-  clearGeoJsonBoundaries() {
-    this.map.data.forEach(feature => this.map.data.remove(feature));
-  }
-
-  addDataPoints(coordinateList: Coordinates[]) {
-    this.clearDataPoints();
-    coordinateList.forEach(coordinates => {
-      const feature = new google.maps.Data.Feature({ geometry: coordinates });
-      feature.setProperty('assigneeId', coordinates['assigneeId']);
-      this.dataPointFeatures.push(this.map.data.add(feature));
-    });
-  }
-
-  clearDataPoints() {
-    this.dataPointFeatures.forEach(f => this.map.data.remove(f));
   }
 
   getMap() {

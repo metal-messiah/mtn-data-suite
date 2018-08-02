@@ -28,6 +28,7 @@ export class FollowMeLayer extends MapPointLayer<Mappable> {
       isDraggable: () => false
     };
     this.createMarkerFromMappable(this.followMeMappable);
+    this.addToMap(this.map);
   }
 
   updatePosition(coordinates: Coordinates) {

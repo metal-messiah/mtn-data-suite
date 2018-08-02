@@ -7,7 +7,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 import { RoutingStateService } from '../../core/services/routing-state.service';
 import { finalize, tap } from 'rxjs/internal/operators';
 import { Observable } from 'rxjs/index';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Project } from '../../models/full/project';
 import { ProjectService } from '../../core/services/project.service';
@@ -70,11 +70,16 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   ngOnInit() {
-    const projectId = parseInt(this.route.snapshot.paramMap.get('projectId'), 10);
-    this.loadProject(projectId);
+    this.loadProject();
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.loadProject();
+      }
+    });
   }
 
-  private loadProject(projectId: number) {
+  private loadProject() {
+    const projectId = parseInt(this.route.snapshot.paramMap.get('projectId'), 10);
     this.loading = true;
     this.projectService.getOneById(projectId)
       .pipe(finalize(() => this.loading = false))
@@ -84,7 +89,7 @@ export class ProjectDetailComponent implements OnInit {
         },
         err => this.errorService.handleServerError('Failed to load Project!', err,
           () => this.goBack(),
-          () => this.loadProject(projectId))
+          () => this.loadProject())
       );
   }
 

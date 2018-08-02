@@ -1,15 +1,14 @@
 <form class="box" [formGroup]="userProfileForm" novalidate>
   <mat-toolbar class="row header flex-space-between">
-    <div>
-      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    </div>
+    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-chevron-left"></i></button>
     <span id="title">User Details</span>
     <div>
-      <button type="submit" mat-raised-button color="primary" (click)="saveUser()"
+      <button type="button" mat-icon-button color="warn" *ngIf="userProfileForm.invalid">
+        <i class="fas fa-exclamation-triangle fa-2x"></i>
+      </button>
+      <button type="submit" mat-mini-fab color="accent" (click)="saveUser()"
               [disabled]="userProfileForm.pristine || userProfileForm.invalid || isSaving">
-        <span *ngIf="userProfileForm.invalid">Invalid</span>
-        <span *ngIf="!isSaving && userProfileForm.valid">Save</span>
-        <span *ngIf="isSaving"><i class="fas fa-spinner fa-spin"></i></span>
+        <i class="fas fa-save"></i>
       </button>
     </div>
   </mat-toolbar>

@@ -54,7 +54,7 @@ export class SiteService extends CrudService<Site> {
     return this.http.get<Coordinates[]>(url, {headers: this.rest.getHeaders(), params: params})
   }
 
-  getDuplicateSites(bounds: any): Observable<Pageable<Site>> {
+  getDuplicateSites(): Observable<Pageable<Site>> {
     const url = this.rest.getHost() + this.endpoint;
     const params = new HttpParams().set('duplicate', 'true');
     return this.http.get<Pageable<Site>>(url, {headers: this.rest.getHeaders(), params: params})

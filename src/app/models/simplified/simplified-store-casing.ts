@@ -1,6 +1,5 @@
 import { Entity } from '../entity';
 import { SimplifiedStoreVolume } from './simplified-store-volume';
-import { SimplifiedStoreStatus } from './simplified-store-status';
 import { SimplifiedStoreSurvey } from './simplified-store-survey';
 import { SimplifiedProject } from './simplified-project';
 import { DateUtil } from '../../utils/date-util';
@@ -11,9 +10,9 @@ export class SimplifiedStoreCasing implements Entity {
   id: number;
   casingDate: Date;
   note: string;
+  storeStatus: string;
 
   storeVolume: SimplifiedStoreVolume;
-  storeStatus: SimplifiedStoreStatus;
   storeSurvey: SimplifiedStoreSurvey;
   projects: SimplifiedProject[];
   shoppingCenterCasing: SimplifiedShoppingCenterCasing;
@@ -26,9 +25,6 @@ export class SimplifiedStoreCasing implements Entity {
     }
     if (obj.storeVolume != null) {
       this.storeVolume = new SimplifiedStoreVolume(obj.storeVolume);
-    }
-    if (obj.storeStatus != null) {
-      this.storeStatus = new SimplifiedStoreStatus(obj.storeStatus);
     }
     if (obj.storeSurvey != null) {
       this.storeSurvey = new SimplifiedStoreSurvey(obj.storeSurvey);

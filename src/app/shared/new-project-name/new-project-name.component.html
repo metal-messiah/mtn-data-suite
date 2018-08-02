@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>New Project</h2>
+<div mat-dialog-content>
+  <mat-progress-bar *ngIf="saving" mode="indeterminate"></mat-progress-bar>
+  <mat-form-field>
+    <input matInput type="text" placeholder="Project Name" [formControl]="projectName" required>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button type="button" mat-raised-button [mat-dialog-close]="false">Cancel</button>
+  <button type="submit" mat-raised-button [disabled]="projectName.invalid" (click)="create()"
+          color="accent">Create</button>
+</div>

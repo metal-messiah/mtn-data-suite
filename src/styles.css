@@ -13,6 +13,9 @@ mds-root {
 .flex-space-between {
   justify-content: space-between;
 }
+.flex-space-around {
+  justify-content: space-around;
+}
 .flex-justify-end {
   justify-content: flex-end;
 }
@@ -43,6 +46,7 @@ mat-form-field {
 }
 
 .box .row.header {
+  min-height: 56px;
   flex: 0 0.5 auto;
 }
 

@@ -18,14 +18,10 @@ import { ShoppingCenterService } from '../../core/services/shopping-center.servi
 import { ShoppingCenterSurvey } from '../../models/full/shopping-center-survey';
 import { ShoppingCenterSurveyService } from '../../core/services/shopping-center-survey.service';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
-import { SimplifiedStoreStatus } from '../../models/simplified/simplified-store-status';
-import { SimplifiedStoreVolume } from '../../models/simplified/simplified-store-volume';
 import { Store } from '../../models/full/store';
 import { StoreCasing } from '../../models/full/store-casing';
 import { StoreCasingService } from '../../core/services/store-casing.service';
 import { StoreService } from '../../core/services/store.service';
-import { StoreStatus } from '../../models/full/store-status';
-import { StoreStatusesDialogComponent } from '../store-statuses-dialog/store-statuses-dialog.component';
 import { StoreVolume } from '../../models/full/store-volume';
 import { StoreVolumesSelectionComponent } from '../store-volumes-selection/store-volumes-selection.component';
 import { StoreSurvey } from '../../models/full/store-survey';
@@ -55,6 +51,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   store: Store;
   storeCasing: StoreCasing;
 
+  saving = false;
   loading = false;
   savingVolume = false;
   removingVolume = false;
@@ -70,6 +67,9 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     'Food/Drug Combo', 'Hispanic', 'Independent', 'International', 'Limited Assortment', 'Natural Foods',
     'Natural/Gourmet Foods', 'Super Combo', 'Supercenter', 'Superette/Small Grocery', 'Supermarket', 'Superstore',
     'Trader Joe\'s', 'Warehouse'];
+
+  storeStatusOptions = ['Closed', 'Dead Deal', 'New Under Construction', 'Open', 'Planned', 'Proposed', 'Remodel',
+    'Rumored', 'Strong Rumor', 'Temporarily Closed'];
 
   departmentControls = [
     {name: 'departmentBakery', title: 'Bakery', info: 'Service Bakery will usually have x'},
@@ -131,7 +131,8 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       pharmacyScriptsWeekly: ['', [Validators.min(0)]],
       pharmacyAvgDollarsPerScript: ['', [Validators.min(0)]],
       pharmacyPharmacistCount: ['', [Validators.min(0)]],
-      pharmacyTechnicianCount: ['', [Validators.min(0)]]
+      pharmacyTechnicianCount: ['', [Validators.min(0)]],
+      storeStatus: ''
     });
 
     this.storeVolumeForm = this.fb.group({
@@ -205,7 +206,11 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       parkingDirectAccessToParking: '',
       parkingSmallParkingField: '',
       parkingHasTSpaces: '',
+      parkingHasAngledSpaces: '',
+      parkingHasParkingHog: '',
+      parkingIsPoorlyLit: '',
       parkingRating: '',
+      parkingSpaceCount: '',
       visibilityHillDepressionBlocksView: '',
       visibilityOutparcelsBlockView: '',
       visibilitySignOnMain: '',
@@ -238,15 +243,8 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
 
     this.shoppingCenterSurveyForm = this.fb.group({
       surveyDate: ['', [Validators.required]],
-      centerType: '',
-      flowHasLandscaping: '',
-      flowHasSpeedBumps: '',
-      flowHasStopSigns: '',
       flowHasOneWayAisles: '',
-      parkingHasAngledSpaces: '',
-      parkingHasParkingHog: '',
-      parkingIsPoorlyLit: '',
-      parkingSpaceCount: '',
+      flowRating: '',
       tenantOccupiedCount: '',
       tenantVacantCount: '',
       sqFtPercentOccupied: ['', [Validators.min(0), Validators.max(100)]]
@@ -271,9 +269,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     this.storeService.getOneById(storeId)
       .subscribe((store: Store) => {
         this.store = store;
-      }, err => {
-        // Don't worry about it because not dependent on Store
-      });
+      }, err => console.log(err));
 
     if (storeCasingId == null || isNaN(storeCasingId)) {
       this.loading = false;
@@ -343,7 +339,10 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
 
   showExistingVolumes() {
     const storeId = parseInt(this.route.snapshot.paramMap.get('storeId'), 10);
-    const volumesDialog = this.dialog.open(StoreVolumesSelectionComponent, {data: {storeId: storeId}});
+    const volumesDialog = this.dialog.open(StoreVolumesSelectionComponent, {
+      data: {storeId: storeId},
+      maxWidth: '300px'
+    });
     volumesDialog.afterClosed().subscribe(result => {
       if (result != null) {
         if (this.storeCasing.storeVolume != null) {
@@ -397,10 +396,9 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     });
     this.storeCasingService.createNewVolume(this.storeCasing.id, newVolume)
       .pipe(finalize(() => this.savingVolume = false))
-      .subscribe((v: StoreVolume) => {
-        this.storeCasing.storeVolume = v;
-        this.storeVolumeForm.reset(this.storeCasing.storeVolume);
-        this.validatingForms.addControl('storeVolume', this.storeVolumeForm);
+      .subscribe((storeCasing: StoreCasing) => {
+        this.storeCasing = storeCasing;
+        this.setStoreVolume(storeCasing.storeVolume);
       });
   }
 
@@ -412,8 +410,8 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       this.removingVolume = true;
       this.storeCasingService.removeStoreVolume(this.storeCasing)
         .pipe(finalize(() => this.removingVolume = false))
-        .subscribe((casing: StoreCasing) => {
-          this.storeCasing = casing;
+        .subscribe((storeCasing: StoreCasing) => {
+          this.storeCasing = storeCasing;
           this.validatingForms.removeControl('storeVolume');
         });
     }
@@ -424,7 +422,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   }
 
   showProjectSelection() {
-    const dialogRef = this.dialog.open(SelectProjectComponent);
+    const dialogRef = this.dialog.open(SelectProjectComponent, {maxWidth: '400px'});
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'clear') {
@@ -435,16 +433,16 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     });
   }
 
-  private addProject(project: Project | SimplifiedProject) {
+  private addProject(project: SimplifiedProject) {
     const existingProject = this.storeCasing.projects.find((p: SimplifiedProject) => p.id === project.id);
     if (existingProject != null) {
       this.snackBar.open(`Cannot add same project twice`, null, {duration: 1000});
     } else {
       this.loadingProject = true;
-      this.storeCasingService.addProject(this.storeCasing, project)
+      this.storeCasingService.addProject(this.storeCasing, project.id)
         .pipe(finalize(() => this.loadingProject = false))
-        .subscribe((casing: StoreCasing) => {
-          this.storeCasing = casing;
+        .subscribe((storeCasing: StoreCasing) => {
+          this.storeCasing = storeCasing;
           this.snackBar.open(`Successfully updated casing`, null, {duration: 1000});
         });
     }
@@ -452,34 +450,11 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
 
   removeProject(project: SimplifiedProject) {
     this.loadingProject = true;
-    this.storeCasingService.removeProject(this.storeCasing, project)
+    this.storeCasingService.removeProject(this.storeCasing, project.id)
       .pipe(finalize(() => this.loadingProject = false))
-      .subscribe((casing: StoreCasing) => {
-        this.storeCasing = casing;
+      .subscribe((storeCasing: StoreCasing) => {
+        this.storeCasing = storeCasing;
         this.snackBar.open(`Successfully updated casing`, null, {duration: 1000});
-      });
-  }
-
-  showStatusDialog() {
-    const storeId = parseInt(this.route.snapshot.paramMap.get('storeId'), 10);
-    this.editingStoreStatus = true;
-    this.storeService.getOneById(storeId)
-      .subscribe((store: Store) => {
-        const config = {data: {store: store, allowStatusSelection: true}, disableClose: true};
-        const storeStatusDialog = this.dialog.open(StoreStatusesDialogComponent, config);
-        storeStatusDialog.afterClosed()
-          .pipe(finalize(() => this.editingStoreStatus = false))
-          .subscribe(result => {
-            if (result instanceof StoreStatus || result instanceof SimplifiedStoreStatus) {
-              this.storeCasingService.setStoreStatus(this.storeCasing, result)
-                .pipe(finalize(() => this.editingStoreStatus = false))
-                .subscribe((casing: StoreCasing) => {
-                  this.storeCasing = casing;
-                });
-            } else {
-              this.editingStoreStatus = false;
-            }
-          });
       });
   }
 
@@ -652,6 +627,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
         .pipe(tap((storeCasing: StoreCasing) => {
           this.storeCasing = storeCasing;
           this.storeCasingForm.reset(storeCasing);
+          console.log('StoreCasing, version: ' + storeCasing.version);
         })));
     }
     if (this.storeSurveyForm.dirty) {
@@ -659,6 +635,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
         .pipe(tap((storeSurvey: StoreSurvey) => {
           this.storeCasing.storeSurvey = storeSurvey;
           this.storeSurveyForm.reset(storeSurvey);
+          console.log('StoreSurvey, version: ' + storeSurvey.version);
         })));
     }
     if (this.shoppingCenterCasingForm.dirty) {
@@ -666,6 +643,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
         .pipe(tap((scCasing: ShoppingCenterCasing) => {
           this.storeCasing.shoppingCenterCasing = scCasing;
           this.shoppingCenterCasingForm.reset(scCasing);
+          console.log('ShoppingCenterCasing, version: ' + scCasing.version);
         })));
     }
     if (this.shoppingCenterSurveyForm.dirty) {
@@ -673,18 +651,25 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
         .pipe(tap((scSurvey: ShoppingCenterSurvey) => {
           this.shoppingCenterCasing.shoppingCenterSurvey = scSurvey;
           this.shoppingCenterSurveyForm.reset(scSurvey);
+          console.log('ShoppingCenterSurvey, version: ' + scSurvey.version);
         })));
     }
     if (this.validatingForms.get('storeVolume') != null && this.storeVolumeForm.dirty) {
       if (this.storeCasing.storeVolume.id != null) {
         updates.push(this.storeVolumeService.update(this.prepareStoreVolume())
-          .pipe(tap((storeVolume: StoreVolume) => this.setStoreVolume(storeVolume))));
+          .pipe(tap((storeVolume: StoreVolume) => {
+            this.setStoreVolume(storeVolume);
+            console.log('StoreVolume, version: ' + storeVolume.version);
+          })));
       } else {
         updates.push(this.storeCasingService.createNewVolume(this.storeCasing.id, this.prepareStoreVolume())
-          .pipe(tap((storeVolume: StoreVolume) => this.setStoreVolume(storeVolume))));
+          .pipe(tap((storeCasing: StoreCasing) => {
+            this.storeCasing = storeCasing;
+            this.setStoreVolume(storeCasing.storeVolume);
+            console.log('StoreVolume, version: ' + storeCasing.version + '; StoreVolume, version: ' + storeCasing.storeVolume.version);
+          })));
       }
     }
-
     // Concat the updates
     let updateObservable: Observable<any> = null;
     updates.forEach(update => {
@@ -695,37 +680,27 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       }
     });
 
-    if (updateObservable != null) {
-      updateObservable.subscribe(result => {
-        if (result instanceof StoreCasing) {
-          console.log('StoreCasing, version: ' + result.version);
-        }
-        if (result instanceof StoreSurvey) {
-          console.log('StoreSurvey, version: ' + result.version);
-        }
-        if (result instanceof ShoppingCenterCasing) {
-          console.log('ShoppingCenterCasing, version: ' + result.version);
-        }
-        if (result instanceof ShoppingCenterSurvey) {
-          console.log('ShoppingCenterSurvey, version: ' + result.version);
-        }
+    this.saving = true;
+    updateObservable
+      .pipe(finalize(() => {
+        this.saving = false;
         this.snackBar.open(`Successfully saved casing`, null, {duration: 1000});
-      });
-    }
+      }))
+      .subscribe((result) => {
+        console.log(result);
+      }, err => this.errorService.handleServerError('Failed to save casing!', err,
+        () => console.log(err),
+        () => this.saveForm()));
   }
 
   openTenantDialog() {
     const data = {shoppingCenterSurveyId: this.shoppingCenterSurvey.id};
-    const dialogRef = this.dialog.open(TenantListDialogComponent, {data: data});
-    dialogRef.afterClosed().subscribe(result => {
-    });
+    this.dialog.open(TenantListDialogComponent, {data: data, maxWidth: '400px'});
   }
 
   openAccessDialog() {
     const data = {shoppingCenterSurveyId: this.shoppingCenterSurvey.id};
-    const dialogRef = this.dialog.open(AccessListDialogComponent, {data: data});
-    dialogRef.afterClosed().subscribe(result => {
-    });
+    this.dialog.open(AccessListDialogComponent, {data: data, maxWidth: '400px'});
   }
 
   canDeactivate(): Observable<boolean> | boolean {

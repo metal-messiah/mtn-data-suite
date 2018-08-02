@@ -1,14 +1,10 @@
 <div class="box">
   <mat-toolbar class="row header flex-space-between">
-    <div>
-      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    </div>
+    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-chevron-left"></i></button>
     <span><i class="fas fa-address-book"></i> Users</span>
-    <div>
-      <button mat-raised-button color="primary" routerLink="../user-detail">
-        Add User
-      </button>
-    </div>
+    <button mat-raised-button color="primary" routerLink="../user-detail">
+      Add User
+    </button>
   </mat-toolbar>
   <div class="row content">
     <div class="list-wrapper">
@@ -39,7 +35,8 @@
           </mat-action-row>
         </mat-expansion-panel>
       </mat-accordion>
-      <mat-toolbar color="primary" *ngIf="latestPage != null && !latestPage.last" class="flex-space-between" (click)="loadMore()">
+      <mat-toolbar color="primary" *ngIf="latestPage != null && !latestPage.last" class="flex-space-between"
+                   (click)="loadMore()">
         <span></span>
         <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
         <button mat-raised-button color="primary" *ngIf="!isLoading">Load More...</button>

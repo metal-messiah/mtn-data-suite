@@ -2,6 +2,7 @@ import { AuditingEntity } from '../auditing-entity';
 import { SimplifiedStoreModel } from '../simplified/simplified-store-model';
 import { SimplifiedStoreCasing } from '../simplified/simplified-store-casing';
 import { SimplifiedShoppingCenterCasing } from '../simplified/simplified-shopping-center-casing';
+import { DateUtil } from '../../utils/date-util';
 
 export class Project extends AuditingEntity {
 
@@ -33,6 +34,12 @@ export class Project extends AuditingEntity {
     if (obj.shoppingCenterCasings != null) {
       this.shoppingCenterCasings = obj.shoppingCenterCasings.map(shoppingCenterCasing =>
         new SimplifiedShoppingCenterCasing(shoppingCenterCasing));
+    }
+    if (obj.dateStarted) {
+      this.dateStarted = DateUtil.getDate(obj.dateStarted);
+    }
+    if (obj.dateCompleted) {
+      this.dateCompleted = DateUtil.getDate(obj.dateCompleted);
     }
   }
 }

@@ -1,13 +1,10 @@
 <div class="box">
-  <mat-toolbar color="primary" class="row header flex-space-between">
-    <div>
-      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    </div>
+  <mat-toolbar class="row header flex-space-between">
+    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-chevron-left"></i></button>
     <span id="title">Store Casings</span>
     <div>
     </div>
   </mat-toolbar>
-  <mat-divider></mat-divider>
   <div class="row content">
     <div class="list-wrapper">
       <div id="new-casing-button-wrapper">
@@ -25,7 +22,7 @@
             </mat-panel-description>
           </mat-expansion-panel-header>
           <div>
-            <mds-data-field title="Store Status" [value]="casing.storeStatus?.status"></mds-data-field>
+            <mds-data-field title="Store Status" [value]="casing.storeStatus"></mds-data-field>
             <mds-data-field title="Average Weekly Volume"
                             [currencyValue]="casing.storeVolume?.volumeTotal"></mds-data-field>
             <mds-data-field title="Sales Area" [sqft]="casing.storeSurvey?.areaSales"></mds-data-field>

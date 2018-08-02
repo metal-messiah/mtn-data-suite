@@ -1,8 +1,6 @@
 <div class="box">
-  <mat-toolbar color="primary" class="row header flex-space-between">
-    <div>
-      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    </div>
+  <mat-toolbar class="row header flex-space-between">
+    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-chevron-left"></i></button>
     <span id="title">SC Details</span>
     <div>
       <button type="button" mat-icon-button color="warn" *ngIf="form.invalid">
@@ -14,6 +12,7 @@
       </button>
     </div>
   </mat-toolbar>
+  <mat-divider></mat-divider>
   <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
   <div class="row content" *ngIf="!loading">
     <div class="list-wrapper" [formGroup]="form">
@@ -22,6 +21,12 @@
       </mat-form-field>
       <mat-form-field>
         <input matInput type="text" placeholder="Shopping Center Owner" formControlName="owner">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-select placeholder="Center Type" formControlName="centerType">
+          <mat-option>Clear Selection</mat-option>
+          <mat-option *ngFor="let centerType of centerTypes" [value]="centerType">{{centerType}}</mat-option>
+        </mat-select>
       </mat-form-field>
     </div>
   </div>

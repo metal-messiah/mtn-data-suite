@@ -70,6 +70,7 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
     });
     this.clearMarkers();
     this.createMarkersFromMappables(this.mappables);
+    this.addToMap(this.map);
   }
 
   setMarkerType(markerType: MarkerType) {

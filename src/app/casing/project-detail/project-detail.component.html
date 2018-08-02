@@ -1,8 +1,6 @@
 <div class="box">
-  <mat-toolbar color="primary" class="row header flex-space-between">
-    <div>
-      <button type="button" mat-mini-fab color="primary" (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    </div>
+  <mat-toolbar class="row header flex-space-between">
+    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-chevron-left"></i></button>
     <span id="title">Project Details</span>
     <div>
       <button type="button" mat-icon-button color="warn" *ngIf="form.invalid">
@@ -40,7 +38,7 @@
         <mat-checkbox formControlName="active">
           Project is Active
         </mat-checkbox>
-        <mat-checkbox formControlName="primaryData" >
+        <mat-checkbox formControlName="primaryData">
           Project consists of Primary data
         </mat-checkbox>
       </div>

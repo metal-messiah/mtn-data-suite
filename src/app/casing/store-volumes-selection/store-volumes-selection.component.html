@@ -1,4 +1,4 @@
-<h3 mat-dialog-title>Store Statuses</h3>
+<h3 mat-dialog-title>Store Volumes</h3>
 <div mat-dialog-content>
   <h3 *ngIf="error != null">{{error}}</h3>
   <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
@@ -93,7 +93,6 @@
           </mat-form-field>
           <mat-form-field *ngIf="volume.volumeConfidence != null">
             <input matInput type="text" placeholder="Volume Confidence" [value]="volume.volumeConfidence" readonly>
-            <span matPrefix>$&nbsp;</span>
           </mat-form-field>
           <mat-form-field *ngIf="volume.volumeNote != null">
             <textarea matInput placeholder="Volume Notes" [value]="volume.volumeNote" readonly></textarea>
