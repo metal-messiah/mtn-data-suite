@@ -80,6 +80,7 @@ export class CasingDashboardComponent implements OnInit {
   updating = false;
   gettingEntities = false;
   deletingProjectShapes = false;
+  savingBoundary = false;
 
   // Modes
   selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
@@ -488,6 +489,12 @@ export class CasingDashboardComponent implements OnInit {
 
   saveEditedProjectBoundaries() {
     const geojson = this.projectBoundary.toGeoJson();
+    this.savingBoundary = true;
+    this.projectService.saveBoundary(this.casingDashboardService.getSelectedProject().id, geojson)
+      .pipe(finalize(() => this.savingBoundary = false))
+      .subscribe(() => {
+
+      });
     console.log(geojson);
   }
 

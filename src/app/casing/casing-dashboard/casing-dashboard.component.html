@@ -136,7 +136,8 @@
             </button>
           </div>
           <div>
-            <button mat-raised-button color="accent" (click)="saveEditedProjectBoundaries()">Save</button>
+            <button *ngIf="!savingBoundary" mat-raised-button color="accent" (click)="saveEditedProjectBoundaries()">Save</button>
+            <button *ngIf="savingBoundary" mat-raised-button color="accent" disabled><i class="fas fa-spinner fa-pulse"></i></button>
           </div>
         </mat-toolbar>
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.CREATING_NEW" color="primary"

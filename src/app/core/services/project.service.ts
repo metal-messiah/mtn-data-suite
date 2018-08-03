@@ -52,6 +52,14 @@ export class ProjectService extends CrudService<Project> {
       }));
   }
 
+  saveBoundary(projectId: number, boundaryGeoJson: string) {
+    const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/boundary';
+    return this.http.post(url, boundaryGeoJson, {observe: 'response', headers: this.rest.getHeaders()})
+      .pipe(map((response: HttpResponse<Boundary>) => {
+        return new Boundary(response.body);
+      }));
+  }
+
   protected createEntityFromObj(entityObj): Project {
     return new Project(entityObj);
   }
