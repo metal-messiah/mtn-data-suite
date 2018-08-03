@@ -16,6 +16,10 @@ import { AuthService } from '../../core/services/auth.service';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 
+import { Store } from '../../models/full/store';
+import { Site } from '../../models/full/site';
+import { ShoppingCenter} from '../../models/full/shopping-center';
+
 import { WordSimilarity } from '../../utils/word-similarity';
 
 import { MatDialog, MatSnackBar } from '@angular/material';
@@ -54,6 +58,9 @@ export class PlannedGroceryComponent implements OnInit {
   currentRecordData: object;
 
   currentDBResults: object[];
+
+  fullStoreData: Store;
+  fullSiteData: Site;
 
   storeTypes: string[] = ['ACTIVE', 'FUTURE', 'HISTORICAL'];
   pgStatuses: object = {
@@ -110,28 +117,58 @@ export class PlannedGroceryComponent implements OnInit {
       });
   }
 
-  setStepCompleted(step, action, stepper) {
+  setStepCompleted(step, action, siteID, storeID, stepper) {
     if (step === 1) {
       this.step1Completed = true;
-      this.setStepAction(step, action);
+      this.setStepAction(step, action, siteID, storeID, stepper);
+
     }
     if (step === 2) {
       this.step2Completed = true;
-      this.setStepAction(step, action);
+      this.setStepAction(step, action, siteID, storeID, stepper);
     }
-    setTimeout(() => {
-      stepper.next();
-    }, 250);
+
   }
 
-  setStepAction(step, action) {
+  setStepAction(step, action, siteID, storeID, stepper) {
     if (step === 1) {
       this.step1Action = action;
     }
     if (step === 2) {
       this.step2Action = action;
     }
-    console.log(action);
+    console.log(step, action, siteID, storeID);
+
+
+    this.generateForm(step, action, siteID, storeID, stepper);
+  }
+
+  generateForm(step, action, siteID, storeID, stepper) {
+
+    // SITE
+    // if (siteID) {
+    //   // this.isFetching = true;
+    //   this.siteService.getOneById(siteID)
+    //     // .pipe(finalize(() => ()))
+    //     .subscribe(store => {
+    //       this.fullStoreData = Object.assign({}, store);
+    //       console.log(this.fullStoreData)
+
+    //     }
+    // }
+
+    // // STORE
+    // if (storeID) {
+    //   // this.isFetching = true;
+    //   this.storeService.getOneById(storeID)
+    //     // .pipe(finalize(() => ()))
+    //     .subscribe(store => {
+    //       this.fullStoreData = Object.assign({}, store);
+    //       console.log(this.fullStoreData)
+    //     }
+    // }
+
+    stepper.next()
   }
 
   siteHover(store, type) {
@@ -323,7 +360,7 @@ export class PlannedGroceryComponent implements OnInit {
                 crGeom,
                 dbGeom
               )
-              site['distanceFrom'] = dist;
+              site['distanceFrom'] = dist * 0.000621371;
 
               const heading = this.mapService.getHeading(
                 crGeom,
@@ -336,7 +373,7 @@ export class PlannedGroceryComponent implements OnInit {
                 console.log(`SIMILARITY SCORE: ${pgName} & ${dbName}`);
                 const score = this.wordSimilarity.levenshtein(pgName, dbName);
 
-                
+
                 if (this.bestMatch) {
                   if (
                     this.bestMatch.score >= score && this.bestMatch['distanceFrom'] >= site['distanceFrom']) {

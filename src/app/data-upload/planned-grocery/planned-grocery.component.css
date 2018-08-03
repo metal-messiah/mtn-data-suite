@@ -32,7 +32,8 @@
 .left-panel{
     background: lightgray;
     flex: 1;
-    max-width: 33vw;
+    max-width: 15vw;
+    min-width: 160px;
 }
 
 .left-panel mat-list-item{
@@ -71,14 +72,14 @@
 
 .center-panel{
     flex: 0;
-    min-width: 35vw;
+    min-width: 40vw;
     background: lightblue;
 }
 
 .right-panel{
     flex: 1;
     min-width: 45vw;
-    padding: 25px;
+    padding: 40px;
 }
 
 .flex-container{
