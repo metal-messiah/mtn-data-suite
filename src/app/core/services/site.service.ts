@@ -31,6 +31,13 @@ export class SiteService extends CrudService<Site> {
       .pipe(map((savedStore) => new Store(savedStore)));
   }
 
+  updateIsDuplicate(siteId: number, isDuplicate: boolean) {
+    const url = this.rest.getHost() + this.endpoint + '/' + siteId;
+    const params = new HttpParams().set('is-duplicate', String(isDuplicate));
+    return this.http.put<SimplifiedSite>(url, null, {headers: this.rest.getHeaders(), params})
+      .pipe(map((simpleSite) => new SimplifiedSite(simpleSite)));
+  }
+
   getSitesWithoutStoresInBounds(bounds: any): Observable<Pageable<SimplifiedSite>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams().set('size', '300');
@@ -66,8 +73,8 @@ export class SiteService extends CrudService<Site> {
     if (userId != null) {
       params = params.set('user-id', String(userId));
     }
-    return this.http.post<Site[]>(url, siteIds, {headers: this.rest.getHeaders(), params: params})
-      .pipe(map(sites => sites.map(site => this.createEntityFromObj(site))));
+    return this.http.post<SimplifiedSite[]>(url, siteIds, {headers: this.rest.getHeaders(), params: params})
+      .pipe(map(sites => sites.map(site => new SimplifiedSite(site))));
   }
 
   getFormattedIntersection(site: Site | SimplifiedSite): string {

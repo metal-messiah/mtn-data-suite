@@ -16,6 +16,7 @@ import { ShoppingCenterSurvey } from '../../models/full/shopping-center-survey';
 import { StoreCasing } from '../../models/full/store-casing';
 import { Observable } from 'rxjs/index';
 import { map } from 'rxjs/internal/operators';
+import { SimplifiedSite } from '../../models/simplified/simplified-site';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {
@@ -99,6 +100,13 @@ export class StoreService extends CrudService<Store> {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-volumes/${volume.id}`;
 
     return this.http.delete<Store>(url, {headers: this.rest.getHeaders()}).pipe(this.convertStore);
+  }
+
+  updateFloating(storeId: number, isFloat: boolean) {
+    const url = this.rest.getHost() + this.endpoint + '/' + storeId;
+    const params = new HttpParams().set('is-float', String(isFloat));
+    return this.http.put<SimplifiedStore>(url, null, {headers: this.rest.getHeaders(), params})
+      .pipe(map(simpleStore => new SimplifiedStore(simpleStore)));
   }
 
   getLatestStoreSurvey(storeId: number): Observable<StoreSurvey> {
