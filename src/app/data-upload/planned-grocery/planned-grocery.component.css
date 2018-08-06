@@ -32,7 +32,8 @@
 .left-panel{
     background: lightgray;
     flex: 1;
-    max-width: 33vw;
+    max-width: 15vw;
+    min-width: 160px;
 }
 
 .left-panel mat-list-item{
@@ -71,14 +72,14 @@
 
 .center-panel{
     flex: 0;
-    min-width: 35vw;
+    min-width: 40vw;
     background: lightblue;
 }
 
 .right-panel{
     flex: 1;
     min-width: 45vw;
-    padding: 25px;
+    padding: 40px;
 }
 
 .flex-container{
@@ -123,6 +124,11 @@
     margin: 5px 0;
 }
 
+.results-each:hover{
+    background-color: #fff2da;
+    cursor: default;
+}
+
 .results-header{
     padding: 5px;
 }
@@ -143,6 +149,30 @@ button{
     background: #607d8b;
     color:white;
     min-width: 100px;
+}
+
+.mat-menu-item{
+    color:  black;
+}
+
+.site-menu{
+    cursor: pointer;
+    margin-right: auto;
+    padding: 0 15px 0 0;
+}
+
+.site-menu:hover{
+    color: orange;
+}
+
+.site-distance{
+    flex: 1;
+    font-size: small;
+    font-weight: normal;
+}
+
+.site-title{
+    flex: 3;
 }
 
 @media screen and (max-width: 1000px){

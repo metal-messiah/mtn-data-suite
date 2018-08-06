@@ -673,7 +673,7 @@ export class CasingDashboardComponent implements OnInit {
     this.updating = true;
     this.siteService.assignToUser(Array.from(selectedSiteIds), userId)
       .pipe(finalize(() => this.updating = false))
-      .subscribe((sites: Site[]) => {
+      .subscribe((sites: SimplifiedSite[]) => {
         const message = `Successfully updated ${sites.length} Sites`;
         this.snackBar.open(message, null, {duration: 2000});
         this.getEntities(this.mapService.getBounds());

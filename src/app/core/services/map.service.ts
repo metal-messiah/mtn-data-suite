@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {} from '@types/googlemaps';
+import { } from '@types/googlemaps';
 import { MapPointLayer } from '../../models/map-point-layer';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
@@ -41,7 +41,7 @@ export class MapService {
       center: { lat: 39.8283, lng: -98.5795 },
       zoom: 8
     });
-    this.map.getStreetView().setOptions({imageDateControl: true});
+    this.map.getStreetView().setOptions({ imageDateControl: true });
     this.placesService = new google.maps.places.PlacesService(this.map);
     this.boundsChanged$ = new Subject<{ east; north; south; west }>();
     this.mapClick$ = new Subject<Coordinates>();
@@ -177,6 +177,24 @@ export class MapService {
       this.circleRadiusListener.remove();
       this.circleRadiusListener = null;
     }
+  }
+
+  getDistanceBetween(startPoint, endPoint) {
+    const startLatLng = new google.maps.LatLng(startPoint.lat, startPoint.lng);
+    const endLatLng = new google.maps.LatLng(endPoint.lat, endPoint.lng);
+    return google.maps.geometry.spherical.computeDistanceBetween(
+      startLatLng,
+      endLatLng
+    );
+  }
+
+  getHeading(startPoint, endPoint){
+    const startLatLng = new google.maps.LatLng(startPoint.lat, startPoint.lng);
+    const endLatLng = new google.maps.LatLng(endPoint.lat, endPoint.lng);
+    return google.maps.geometry.spherical.computeHeading(
+      startLatLng,
+      endLatLng
+    );
   }
 
   setDrawingModeToClick() {

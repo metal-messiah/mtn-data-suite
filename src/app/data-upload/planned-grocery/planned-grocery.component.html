@@ -33,43 +33,53 @@
         <div class='flex-container'>
           <div>
             <div class='large-text'>{{currentRecordData ? currentRecordData.attributes.NAME : ''}}</div>
-            <div class='med-text'> {{currentRecordData ? currentRecordData.attributes.DESCLOCATION + ", " +currentRecordData.attributes.CITY +
-              ","+ currentRecordData.attributes.STATE : ''}}</div>
+            <div class='med-text'> {{currentRecordData ? currentRecordData.attributes.DESCLOCATION + ", " +currentRecordData.attributes.CITY + ","+
+              currentRecordData.attributes.STATE : ''}}</div>
             <div class='small-text'>
-              {{currentRecordData ? currentRecordData.attributes.SIZESF + " SF" : ''}}{{currentRecordData ? " | Status: "+ currentRecordData.attributes.STATUS
+              {{currentRecordData ? currentRecordData.attributes ? currentRecordData.attributes.SIZESF ? currentRecordData.attributes.SIZESF.toLocaleString() + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{currentRecordData ? " | Status: "+ pgStatuses[currentRecordData.attributes.STATUS]
               : ''}}
             </div>
           </div>
-          <button (click)="setStepCompleted(1, 'ADD_SITE', stepper)" mat-button matStepperNext class=''>Add Site</button>
+          <button (click)="setStepCompleted(1, 'ADD_SITE', null, null, stepper)" mat-button matStepperNext class=''>Add Site</button>
         </div>
         <div class='accent-bar large-text'>Match to Existing</div>
         <div class='results-table'>
 
-            <div class='loader' *ngIf="gettingEntities">
-                <div>
-                  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-                  <br>
-                  <div class='large-text'>
-                    Fetching Stores From MTNRA Database
-                  </div>
-                </div>
+          <div class='loader' *ngIf="gettingEntities">
+            <div>
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              <br>
+              <div class='large-text'>
+                Fetching Stores From MTNRA Database
               </div>
+            </div>
+          </div>
           <div [ngClass]="i % 2 != 0 ? 'results-item secondary-row':'results-item'" *ngFor="let item of currentDBResults; let i=index;">
             <div class="results-header large-text flex-container">
-              <div>{{item.address1 + ", " + item.city + ", " + item.state }}</div>
-              <button (click)="setStepCompleted(1,'ADD_STORE', stepper)" mat-button matStepperNext class=' add-store'>Add Store</button>
+
+
+              <i mat-icon-button [matMenuTriggerFor]="siteMenu" class="site-menu fas fa-ellipsis-v"></i>
+
+              <mat-menu #siteMenu="matMenu">
+                <button (click)="setStepCompleted(1,'ADD_SISTER',item.id, null, stepper);" matStepperNext mat-menu-item>Add Sister Shopping Center Site</button>
+              </mat-menu>
+
+              <div [style.color]="item.distanceFrom < 0.5 ? 'green': '#ff9802'" class='site-distance'>
+                <i class="fas fa-arrow-circle-up" [style.transform]="item.heading"></i> {{item.distanceFrom.toFixed(2)}} Miles</div>
+              <div class='site-title'>{{item.address1 + ", " + item.city + ", " + item.state }}</div>
+              <button (click)="setStepCompleted(1,'ADD_STORE',item.id, null, stepper)" mat-button matStepperNext class=' add-store'>Add Store</button>
             </div>
             <mat-divider></mat-divider>
-            <div class="results-each" *ngFor="let each of item.stores">
+            <div (mouseenter)="siteHover(each, 'enter')" (mouseleave)="siteHover(each, 'leave')" class="results-each" *ngFor="let each of item.stores">
               <div class="flex-container">
                 <div class='store-attribute'>{{each.storeName}}</div>
                 <div class='hidden-xs store-attribute'>{{each.storeType}}</div>
                 <div class='hidden-xs store-attribute'>{{each.currentStoreStatus.status}} {{each.currentStoreStatus.statusStartDate | date}}</div>
-                <button (click)="setStepCompleted(1,'MATCH', stepper);" mat-button matStepperNext class=''>Match</button>
+                <button (click)="setStepCompleted(1,'MATCH',item.id, each.id, stepper);" mat-button matStepperNext [ngClass]="{'highlighted': bestMatch.store.id == each.id && bestMatch.score <=4}">Match</button>
               </div>
             </div>
           </div>
-          
+
         </div>
         <!-- </form> -->
       </mat-step>
@@ -80,6 +90,22 @@
         <!-- <mat-form-field>
             <input matInput placeholder="Address" formControlName="secondCtrl" required>
           </mat-form-field> -->
+          <div *ngIf="step1Action == 'ADD_SITE'">
+            ADD SITE
+          </div>
+          <div *ngIf="step1Action == 'ADD_STORE'">
+            ADD STORE
+          </div>
+          <div *ngIf="step1Action == 'MATCH'">
+            <mat-form-field>
+              <!-- <input  -->
+            </mat-form-field>
+          </div>
+          <div *ngIf="step1Action == 'ADD_SISTER'">
+            ADD SISTER
+          </div>
+
+
         <div>
           <button mat-button matStepperPrevious>Back</button>
           <button mat-button matStepperNext>Next</button>

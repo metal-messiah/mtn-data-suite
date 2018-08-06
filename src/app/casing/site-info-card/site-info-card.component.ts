@@ -4,13 +4,10 @@ import { ErrorService } from '../../core/services/error.service';
 import { SiteService } from '../../core/services/site.service';
 import { StoreService } from '../../core/services/store.service';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
-import { Site } from '../../models/full/site';
 import { UserProfile } from '../../models/full/user-profile';
 import { Router } from '@angular/router';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
 import { Entity } from '../../models/entity';
-import { map, mergeMap, tap } from 'rxjs/internal/operators';
-import { Observable } from 'rxjs/index';
 
 @Component({
   selector: 'mds-site-info-card',
@@ -19,7 +16,7 @@ import { Observable } from 'rxjs/index';
 })
 export class SiteInfoCardComponent implements OnInit {
 
-  @Input() site: SimplifiedSite | Site;
+  @Input() site: SimplifiedSite;
 
   @Input() disableActions: boolean;
 
@@ -47,12 +44,8 @@ export class SiteInfoCardComponent implements OnInit {
 
   setDuplicateFlag(isDuplicate: boolean) {
     // Get full site
-    return this.siteService.getOneById(this.site.id)
-      .pipe(mergeMap((site: Site) => {
-        site.duplicate = isDuplicate;
-        return this.updateSite(site);
-      }))
-      .subscribe((site: Site) => {
+    return this.siteService.updateIsDuplicate(this.site.id, isDuplicate)
+      .subscribe((site: SimplifiedSite) => {
         this.site = site;
         this.snackBar.open('Successfully updated Site', null, {duration: 1000});
         this.emitChanges();
@@ -63,19 +56,6 @@ export class SiteInfoCardComponent implements OnInit {
       ));
   }
 
-  private updateSite(siteWithUpdates: Site): Observable<Site> {
-    return this.siteService.update(siteWithUpdates)
-      .pipe(tap((site: Site) => {
-        this.site = site;
-        return this.site;
-      }, err => {
-        this.errorService.handleServerError('Failed to update store', err,
-          () => {
-          },
-          () => this.updateSite(siteWithUpdates));
-      }));
-  }
-
   pinLocation(): void {
     // TODO create the location data to the device
   }
@@ -83,18 +63,13 @@ export class SiteInfoCardComponent implements OnInit {
   assignToUser(user: UserProfile) {
     const userId = (user != null) ? user.id : null;
     return this.siteService.assignToUser([this.site.id], userId)
-      .pipe(map((sites: Site[]) => {
-          this.site = sites[0];
-          return this.site;
-        }, err => this.errorService.handleServerError('Failed to update store', err,
-        () => console.log('Cancelled'),
-        () => this.assignToUser(user))
-      ))
-      .subscribe((site: Site) => {
-        this.site = site;
+      .subscribe((sites: SimplifiedSite[]) => {
+        this.site = sites[0];
         this.snackBar.open('Successfully assigned Site', null, {duration: 1000});
         this.emitChanges();
-      });
+      }, err => this.errorService.handleServerError('Failed to update site', err,
+        () => console.log('Cancelled'),
+        () => this.assignToUser(user)));
   }
 
   openAssignmentDialog() {

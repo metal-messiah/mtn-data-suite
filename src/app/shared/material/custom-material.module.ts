@@ -18,15 +18,12 @@ import {
   MatProgressSpinnerModule,
   MatRadioModule,
   MatSelectModule,
-  MatSidenavModule,
-  MatSliderModule,
+  MatSidenavModule, MatSliderModule,
   MatSlideToggleModule,
   MatSnackBarModule,
-  MatStepperModule,
-  MatTableModule,
-  MatTabsModule,
+  MatTableModule, MatTabsModule,
   MatToolbarModule,
-  MatTooltipModule
+  MatStepperModule,
 } from '@angular/material';
 
 @NgModule({
@@ -57,7 +54,9 @@ import {
     MatTableModule,
     MatTabsModule,
     MatToolbarModule,
-    MatTooltipModule
+    MatStepperModule,
+    MatProgressSpinnerModule,
+    MatProgressBarModule
   ],
   exports: [
     MatAutocompleteModule,
@@ -86,7 +85,9 @@ import {
     MatTableModule,
     MatTabsModule,
     MatToolbarModule,
-    MatTooltipModule
+    MatStepperModule,
+    MatProgressSpinnerModule,
+    MatProgressBarModule
   ]
 })
 export class CustomMaterialModule {

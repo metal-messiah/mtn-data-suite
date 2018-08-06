@@ -10,7 +10,7 @@ import { SiteInfoCardComponent } from '../site-info-card/site-info-card.componen
 })
 export class StoreInfoCardComponent extends SiteInfoCardComponent implements OnInit, OnChanges {
 
-  @Input() store: SimplifiedStore | Store;
+  @Input() store: SimplifiedStore;
 
   ngOnInit() {
   }
@@ -29,28 +29,13 @@ export class StoreInfoCardComponent extends SiteInfoCardComponent implements OnI
   }
 
   setFloating(floating: boolean) {
-    this.storeService.getOneById(this.store.id)
-      .subscribe((store: Store) => {
-        store.floating = floating;
-        this.updateStore(store);
-      }, err => this.errorService.handleServerError('Failed to find store', err,
-        () => {
-        },
+    this.storeService.updateFloating(this.store.id, floating)
+      .subscribe((store: SimplifiedStore) => {
+        this.store = store;
+        this.onUpdate.emit(new SimplifiedStore(store));
+        this.snackBar.open(`Updated Store`, null, {duration: 2000});
+      }, err => this.errorService.handleServerError('Failed to update store', err,
+        () => console.log(err),
         () => this.setFloating(floating)));
   }
-
-  private updateStore(storeWithUpdates: Store) {
-    this.storeService.update(storeWithUpdates)
-      .subscribe((updatedStore: Store) => {
-          this.store = updatedStore;
-          this.onUpdate.emit(new SimplifiedStore(updatedStore));
-          this.snackBar.open(`Updated Store`, null, {duration: 2000});
-        }, err =>
-          this.errorService.handleServerError('Failed to update store', err,
-            () => {
-            },
-            () => this.updateStore(storeWithUpdates))
-      );
-  }
-
 }

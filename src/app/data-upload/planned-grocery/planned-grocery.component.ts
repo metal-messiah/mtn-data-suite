@@ -16,6 +16,12 @@ import { AuthService } from '../../core/services/auth.service';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 
+import { Store } from '../../models/full/store';
+import { Site } from '../../models/full/site';
+import { ShoppingCenter} from '../../models/full/shopping-center';
+
+import { WordSimilarity } from '../../utils/word-similarity';
+
 import { MatDialog, MatSnackBar } from '@angular/material';
 
 import { EntityMapLayer } from '../../models/entity-map-layer';
@@ -31,6 +37,7 @@ enum Actions {
   match = 'MATCH',
   add_store = 'ADD_STORE'
 }
+
 
 @Component({
   selector: 'mds-planned-grocery',
@@ -50,12 +57,24 @@ export class PlannedGroceryComponent implements OnInit {
 
   currentRecordData: object;
 
-  currentDBResults: object;
+  currentDBResults: object[];
+
+  fullStoreData: Store;
+  fullSiteData: Site;
 
   storeTypes: string[] = ['ACTIVE', 'FUTURE', 'HISTORICAL'];
+  pgStatuses: object = {
+    0: 'Built',
+    1: 'Under Construction',
+    2: 'Proposed',
+    3: 'Planned',
+    99: 'Dead Deal'
+  }
 
   gettingEntities = false;
 
+  wordSimilarity: WordSimilarity;
+  bestMatch: { store: object, score: number, distanceFrom: number };
 
 
 
@@ -82,7 +101,9 @@ export class PlannedGroceryComponent implements OnInit {
     private errorService: ErrorService,
     private authService: AuthService,
     private snackBar: MatSnackBar
-  ) { }
+  ) {
+    this.wordSimilarity = new WordSimilarity()
+  }
 
   ngOnInit() {
     let retrievingSources = true;
@@ -96,31 +117,68 @@ export class PlannedGroceryComponent implements OnInit {
       });
   }
 
-  setStepCompleted(step, action, stepper) {
+  setStepCompleted(step, action, siteID, storeID, stepper) {
     if (step === 1) {
       this.step1Completed = true;
-      this.setStepAction(step, action);
+      this.setStepAction(step, action, siteID, storeID, stepper);
+
     }
     if (step === 2) {
       this.step2Completed = true;
-      this.setStepAction(step, action);
+      this.setStepAction(step, action, siteID, storeID, stepper);
     }
-    setTimeout(() => {
-      stepper.next();
-    }, 250);
+
   }
 
-  setStepAction(step, action) {
+  setStepAction(step, action, siteID, storeID, stepper) {
     if (step === 1) {
       this.step1Action = action;
     }
     if (step === 2) {
       this.step2Action = action;
     }
-    console.log(action);
+    console.log(step, action, siteID, storeID);
+
+
+    this.generateForm(step, action, siteID, storeID, stepper);
+  }
+
+  generateForm(step, action, siteID, storeID, stepper) {
+
+    // SITE
+    // if (siteID) {
+    //   // this.isFetching = true;
+    //   this.siteService.getOneById(siteID)
+    //     // .pipe(finalize(() => ()))
+    //     .subscribe(store => {
+    //       this.fullStoreData = Object.assign({}, store);
+    //       console.log(this.fullStoreData)
+
+    //     }
+    // }
+
+    // // STORE
+    // if (storeID) {
+    //   // this.isFetching = true;
+    //   this.storeService.getOneById(storeID)
+    //     // .pipe(finalize(() => ()))
+    //     .subscribe(store => {
+    //       this.fullStoreData = Object.assign({}, store);
+    //       console.log(this.fullStoreData)
+    //     }
+    // }
+
+    stepper.next()
+  }
+
+  siteHover(store, type) {
+
+    if (type == 'enter') { this.storeMapLayer.selectEntity(store) }
+    else { this.storeMapLayer.clearSelection() }
   }
 
   setCurrentRecord(index: number) {
+    this.bestMatch = null;
     this.currentRecordIndex = index;
     this.currentRecord = this.records[index];
 
@@ -190,13 +248,13 @@ export class PlannedGroceryComponent implements OnInit {
   }
 
   getEntities(bounds: { east, north, south, west }): void {
-    
+
     if (this.mapService.getZoom() > 10) {
       this.mapDataLayer.clearDataPoints();
       const storeTypes = this.storeTypes;
       this.gettingEntities = true;
       this.getSitesInBounds(bounds)
-      // .pipe(finalize(() => this.gettingEntities = false))
+        // .pipe(finalize(() => this.gettingEntities = false))
         .pipe(mergeMap(() => {
           if (storeTypes.length > 0) {
             return this.getStoresInBounds(bounds);
@@ -277,21 +335,75 @@ export class PlannedGroceryComponent implements OnInit {
         tap(page => {
 
           this.clearAllMatchingSites();
-          this.allMatchingSites = page.content.map( store => {
+          this.allMatchingSites = page.content.map(store => {
             store.site['stores'] = [];
             return store.site
           })
 
           this.allMatchingSites = this.removeDuplicateSites(this.allMatchingSites, 'id');
 
-          page.content.forEach( store => {
-            const siteIdx = this.allMatchingSites.findIndex( site => site['id'] === store.site.id);
+          page.content.forEach(store => {
+            const siteIdx = this.allMatchingSites.findIndex(site => site['id'] === store.site.id);
             this.allMatchingSites[siteIdx]['stores'].push(store)
           })
           this.gettingEntities = false;
           this.currentDBResults = this.allMatchingSites;
 
-          console.log(this.currentDBResults);
+          if (this.currentRecordData && this.currentDBResults) {
+            const pgName = this.currentRecordData['attributes']['NAME'];
+
+            this.currentDBResults.forEach(site => {
+              const crGeom = { 'lng': this.currentRecordData['geometry']['x'], 'lat': this.currentRecordData['geometry']['y'] };
+              const dbGeom = { 'lng': site['longitude'], 'lat': site['latitude'] };
+              console.log(crGeom, dbGeom);
+              const dist = this.mapService.getDistanceBetween(
+                crGeom,
+                dbGeom
+              )
+              site['distanceFrom'] = dist * 0.000621371;
+
+              const heading = this.mapService.getHeading(
+                crGeom,
+                dbGeom
+              )
+              site['heading'] = `rotate(${heading}deg)`; // 0 is up, 90 is right, 180 is down, -90 is left
+
+              site['stores'].forEach(store => {
+                const dbName = store['storeName'];
+                console.log(`SIMILARITY SCORE: ${pgName} & ${dbName}`);
+                const score = this.wordSimilarity.levenshtein(pgName, dbName);
+
+
+                if (this.bestMatch) {
+                  if (
+                    this.bestMatch.score >= score && this.bestMatch['distanceFrom'] >= site['distanceFrom']) {
+                    this.bestMatch = { store: store, score: score, distanceFrom: site['distanceFrom'] }
+                  }
+                }
+                else {
+                  this.bestMatch = { store: store, score: score, distanceFrom: site['distanceFrom'] }
+                }
+              })
+
+
+            })
+            console.log('BEST MATCH: ', this.bestMatch)
+
+            this.currentDBResults.sort((a, b) => {
+              return a['distanceFrom'] - b['distanceFrom']
+            })
+
+            this.currentDBResults.forEach(site => {
+              site['stores'].sort((a, b) => {
+                return a['storeType'] < b['storeType'] ? -1 : a['storeType'] > b['storeType'] ? 1 : 0;
+              })
+            })
+
+            console.log('currentdb', this.currentDBResults)
+
+          }
+
+          // console.log(this.currentRecordData, this.currentDBResults);
 
           this.storeMapLayer.setEntities(page.content);
           this.ngZone.run(() => {
