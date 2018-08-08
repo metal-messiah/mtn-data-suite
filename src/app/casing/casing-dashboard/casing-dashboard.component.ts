@@ -33,15 +33,8 @@ import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { Observable, of, Subscription } from 'rxjs';
 import { debounce, debounceTime, delay, finalize, mergeMap, tap } from 'rxjs/internal/operators';
 import { ProjectService } from '../../core/services/project.service';
-import { Boundary } from '../../models/full/boundary';
-import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { MapDataLayer } from '../../models/map-data-layer';
-import { SimplifiedProject } from '../../models/simplified/simplified-project';
-import { ProjectBoundary } from '../../models/project-boundary';
-
-export enum DrawingToolTypes {
-  CLICK, CIRCLE, RECTANGLE, POLYGON
-}
+import { ProjectBoundaryService } from '../services/project-boundary.service';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY
@@ -72,24 +65,20 @@ export class CasingDashboardComponent implements OnInit {
   followMeLayer: FollowMeLayer;
   googlePlacesLayer: GooglePlaceLayer;
   mapDataLayer: MapDataLayer;
-  projectBoundary: ProjectBoundary;
 
   // Flags
-  sideNavIsOpen = false;
   filterSideNavIsOpen = false;
   updating = false;
   gettingEntities = false;
-  deletingProjectShapes = false;
+  markCasedStores = false;
   savingBoundary = false;
 
   // Modes
   selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
-  selectedDrawingTool = DrawingToolTypes.CLICK;
   selectedCardState = CardState.HIDDEN;
 
   // Enums for template
   casingDashboardMode = CasingDashboardMode;
-  drawingToolType = DrawingToolTypes;
   markerType = MarkerType;
   cardState = CardState;
   storeSelectionMode = MapSelectionMode;
@@ -109,23 +98,12 @@ export class CasingDashboardComponent implements OnInit {
               private navigatorService: NavigatorService,
               private dialog: MatDialog,
               private authService: AuthService,
-              private errorService: ErrorService) {
+              private errorService: ErrorService,
+              public projectBoundaryService: ProjectBoundaryService) {
   }
 
   ngOnInit() {
-    this.casingDashboardService.projectChanged$.subscribe(() => {
-      this.casingDashboardService.showingBoundaries = false;
-      if (this.projectBoundary) {
-        this.projectBoundary.removeFromMap();
-      }
-      this.projectBoundary = null;
-      this.getEntities(this.mapService.getBounds());
-    });
-    this.casingDashboardService.toggleMarkingStores$.subscribe(() => {
-      this.getEntities(this.mapService.getBounds());
-    });
-    this.casingDashboardService.toggleProjectBoundary$.subscribe(doShow => this.toggleSelectedProjectBoundaries(doShow).subscribe());
-    this.casingDashboardService.editProjectBoundary$.subscribe((project: SimplifiedProject) => this.enableProjectBoundaryEditing(project));
+    this.markCasedStores = (localStorage.getItem('markCasedStores') === 'true');
   }
 
   onMapReady() {
@@ -138,12 +116,11 @@ export class CasingDashboardComponent implements OnInit {
     });
     this.mapDataLayer = new MapDataLayer(this.mapService.getMap(), this.authService.sessionUser.id);
 
-    this.mapService.boundsChanged$.pipe(this.getDebounce())
-      .subscribe((bounds: { east, north, south, west }) => {
-        if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
-          this.getEntities(bounds);
-        }
-      });
+    this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe((bounds: { east, north, south, west }) => {
+      if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
+        this.getEntities(bounds);
+      }
+    });
     this.mapService.mapClick$.subscribe(() => {
       this.ngZone.run(() => this.selectedCardState = CardState.HIDDEN);
     });
@@ -164,6 +141,10 @@ export class CasingDashboardComponent implements OnInit {
           this.selectedCardState = CardState.SELECTED_SITE;
         }
       });
+    });
+    this.casingDashboardService.projectChanged$.subscribe(() => {
+      this.projectBoundaryService.hideProjectBoundaries();
+      this.getEntities(this.mapService.getBounds());
     });
   }
 
@@ -250,7 +231,7 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   private getStoresInBounds(bounds) {
-    return this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes(), this.casingDashboardService.markCasedStores)
+    return this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes(), this.markCasedStores)
       .pipe(tap(page => {
         this.storeMapLayer.setEntities(page.content);
         this.ngZone.run(() => {
@@ -260,36 +241,7 @@ export class CasingDashboardComponent implements OnInit {
       }));
   }
 
-  toggleSelectedProjectBoundaries(show: boolean) {
-    this.sideNavIsOpen = false;
-
-    if (show) {
-      return this.projectService.getBoundaryForProject(this.casingDashboardService.getSelectedProject().id)
-        .pipe(tap((boundary: Boundary) => {
-          if (boundary == null) {
-            this.dialog.open(ConfirmDialogComponent, {
-              data: {
-                title: 'No Boundary',
-                question: 'This project has no boundary',
-                options: []
-              }
-            });
-            this.casingDashboardService.showingBoundaries = false;
-          } else {
-            this.projectBoundary = new ProjectBoundary(this.mapService.getMap(), boundary.geojson);
-            this.projectBoundary.zoomToBounds();
-            this.casingDashboardService.showingBoundaries = true;
-          }
-        }));
-    } else {
-      this.projectBoundary.removeFromMap();
-      this.casingDashboardService.showingBoundaries = false;
-      return of(null);
-    }
-  }
-
   initSiteCreation(): void {
-    this.sideNavIsOpen = false;
     this.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
     // Create new Layer for new Location
     this.newSiteLayer = new NewSiteLayer(this.mapService.getMap(), this.mapService.getCenter());
@@ -347,7 +299,6 @@ export class CasingDashboardComponent implements OnInit {
   Geo-location
    */
   findMe(): void {
-    this.sideNavIsOpen = false;
     this.navigatorService.getCurrentPosition().subscribe(position => {
       this.mapService.setCenter(position);
       // Create layer
@@ -361,7 +312,6 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   activateFollowMe(): void {
-    this.sideNavIsOpen = false;
     this.selectedDashboardMode = CasingDashboardMode.FOLLOWING;
     this.followMeLayer = new FollowMeLayer(this.mapService.getMap(), this.mapService.getCenter());
     this.navigatorService.watchPosition({maximumAge: 2000}).subscribe(
@@ -389,7 +339,6 @@ export class CasingDashboardComponent implements OnInit {
 
   deactivateFollowMe(): void {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.sideNavIsOpen = false;
 
     this.navigatorService.cancelWatch();
     this.followMeLayer.removeFromMap();
@@ -462,47 +411,9 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   /*
-  Project boundary editing
-   */
-  enableProjectBoundaryEditing(project: SimplifiedProject) {
-    if (!this.casingDashboardService.showingBoundaries) {
-      this.toggleSelectedProjectBoundaries(true).subscribe(() => this.setUpProjectEditing());
-    } else {
-      this.setUpProjectEditing();
-    }
-  }
-
-  private setUpProjectEditing() {
-    this.selectedDashboardMode = CasingDashboardMode.EDIT_PROJECT_BOUNDARY;
-    this.projectBoundary.setEditable(true);
-    this.mapService.activateDrawingTools().subscribe(shape => {
-      this.projectBoundary.addShape(shape);
-    });
-  }
-
-  cancelProjectEditing() {
-    this.projectBoundary.setEditable(false);
-    this.projectBoundary.resetFromGeoJson();
-    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.mapService.deactivateDrawingTools();
-  }
-
-  saveEditedProjectBoundaries() {
-    const geojson = this.projectBoundary.toGeoJson();
-    this.savingBoundary = true;
-    this.projectService.saveBoundary(this.casingDashboardService.getSelectedProject().id, geojson)
-      .pipe(finalize(() => this.savingBoundary = false))
-      .subscribe(() => {
-
-      });
-    console.log(geojson);
-  }
-
-  /*
   Multi-select
    */
   enableMultiSelect(): void {
-    this.sideNavIsOpen = false;
     this.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
     this.storeMapLayer.clearSelection();
     this.storeMapLayer.selectionMode = MapSelectionMode.MULTI_SELECT;
@@ -527,21 +438,7 @@ export class CasingDashboardComponent implements OnInit {
     this.storeMapLayer.clearSelection();
   }
 
-  setDrawingTool(tool: DrawingToolTypes) {
-    this.selectedDrawingTool = tool;
-    if (tool === DrawingToolTypes.CLICK) {
-      this.mapService.setDrawingModeToClick();
-    } else if (tool === DrawingToolTypes.CIRCLE) {
-      this.mapService.setDrawingModeToCircle();
-    } else if (tool === DrawingToolTypes.RECTANGLE) {
-      this.mapService.setDrawingModeToRectangle();
-    } else if (tool === DrawingToolTypes.POLYGON) {
-      this.mapService.setDrawingModeToPolygon();
-    }
-  }
-
   setMarkerType(markerType: MarkerType) {
-    this.sideNavIsOpen = false;
     this.storeMapLayer.setMarkerType(markerType);
     this.getEntities(this.mapService.getBounds());
   }
@@ -687,9 +584,28 @@ export class CasingDashboardComponent implements OnInit {
     this.getEntities(this.mapService.getBounds());
   }
 
-  toggleProjectShapeDeletion() {
-    this.setDrawingTool(DrawingToolTypes.CLICK);
-    this.deletingProjectShapes = !this.deletingProjectShapes;
-    // TODO actually do something
+
+  markStoresCasedForProject(doMark: boolean) {
+    this.markCasedStores = doMark;
+    localStorage.setItem('markCasedStores', JSON.stringify(this.markCasedStores));
+    this.getEntities(this.mapService.getBounds());
   }
+
+  saveProjectBoundary() {
+    this.savingBoundary = true;
+    this.projectBoundaryService.saveProjectBoundaries()
+      .pipe(finalize(() => this.savingBoundary = false))
+      .subscribe(() => this.selectedDashboardMode = CasingDashboardMode.DEFAULT)
+  }
+
+  cancelProjectBoundaryEditing() {
+    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+    this.projectBoundaryService.cancelProjectBoundaryEditing();
+  }
+
+  enableProjectBoundaryEditing() {
+    this.selectedDashboardMode = CasingDashboardMode.EDIT_PROJECT_BOUNDARY;
+    this.projectBoundaryService.enableProjectBoundaryEditing();
+  }
+
 }

@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { SelectProjectComponent } from '../select-project/select-project.component';
 import { MatDialog } from '@angular/material';
-import { Router } from '@angular/router';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
-import { Observable, Subject } from 'rxjs/index';
+import { Observable, Subject } from 'rxjs';
 
 @Injectable()
 export class CasingDashboardService {
@@ -13,19 +12,11 @@ export class CasingDashboardService {
   includeFuture = false;
   includeHistorical = false;
 
-  showingBoundaries = false;
-  markCasedStores = false;
-
-  toggleMarkingStores$: Subject<boolean>;
-  toggleProjectBoundary$: Subject<boolean>;
-  editProjectBoundary$: Subject<SimplifiedProject>;
-
   projectChanged$: Subject<SimplifiedProject>;
 
   private selectedProject: SimplifiedProject;
 
-  constructor(private dialog: MatDialog,
-              private router: Router) {
+  constructor(private dialog: MatDialog) {
     const filters = JSON.parse(localStorage.getItem('casingDashboardFilters'));
     if (filters != null) {
       this.includeActive = filters.includeActive;
@@ -36,46 +27,36 @@ export class CasingDashboardService {
     if (selectedProject != null) {
       this.selectedProject = new SimplifiedProject(selectedProject);
     }
-    const markCasedStores = JSON.parse(localStorage.getItem('markCasedStores'));
-    if (markCasedStores != null) {
-      this.markCasedStores = markCasedStores;
-    }
     this.projectChanged$ = new Subject<SimplifiedProject>();
-    this.toggleMarkingStores$ = new Subject<boolean>();
-    this.toggleProjectBoundary$ = new Subject<boolean>();
-    this.editProjectBoundary$ = new Subject<SimplifiedProject>();
   }
 
   openProjectSelectionDialog(): void {
-    const dialogRef = this.dialog.open(SelectProjectComponent, {maxWidth: '400px'});
+    const dialogRef = this.dialog.open(SelectProjectComponent, {maxWidth: '90%'});
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result == null) {
-        return;
-      }
       if (result === 'clear') {
-        this.selectedProject = null;
-        localStorage.removeItem('selectedProject');
-      } else if (result != null) {
-        this.selectedProject = result;
-        localStorage.setItem('selectedProject', JSON.stringify(this.selectedProject));
+        this.setSelectedProject(null);
+      } else if (result) {
+        this.setSelectedProject(result);
       }
-      this.projectChanged$.next(this.selectedProject);
-      this.markStoresCasedForProject(false);
     });
   }
 
-  navigateToProjectSummary(): void {
-    // TODO Change to dialog
-    // if (this.selectedProject != null) {
-    //   this.router.navigate(['/storeCasing/project-summary', this.selectedProject.id]);
-    // }
+  setSelectedProject(project: SimplifiedProject) {
+    const prevProject = this.selectedProject;
+    this.selectedProject = project;
+    if (project) {
+      localStorage.setItem('selectedProject', JSON.stringify(project));
+    } else {
+      localStorage.removeItem('selectedProject');
+    }
+    if (!prevProject || prevProject.id !== this.selectedProject.id) {
+      this.projectChanged$.next(this.selectedProject);
+    }
   }
 
-  navigateToProjectDetail(): void {
-    if (this.selectedProject != null) {
-      this.router.navigate(['casing', 'project', this.selectedProject.id]);
-    }
+  getSelectedProject() {
+    return this.selectedProject;
   }
 
   saveFilters(): Observable<boolean> {
@@ -91,24 +72,5 @@ export class CasingDashboardService {
         observer.error(e);
       }
     });
-  }
-
-  getSelectedProject() {
-    return this.selectedProject;
-  }
-
-  markStoresCasedForProject(doMark: boolean) {
-    this.markCasedStores = doMark;
-    this.toggleMarkingStores$.next(doMark);
-    localStorage.setItem('markCasedStores', JSON.stringify(this.markCasedStores));
-  }
-
-  toggleSelectedProjectBoundary(doShow: boolean) {
-    this.showingBoundaries = doShow;
-    this.toggleProjectBoundary$.next(doShow);
-  }
-
-  editProjectBoundary() {
-    this.editProjectBoundary$.next(this.selectedProject);
   }
 }

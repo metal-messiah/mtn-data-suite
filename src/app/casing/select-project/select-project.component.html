@@ -39,28 +39,6 @@
               <span class="project-name">{{project.projectName}}</span>
             </mat-panel-title>
           </mat-expansion-panel-header>
-          <div>
-            <mat-progress-bar *ngIf="gettingProject && selectedProjectId === project.id" mode="indeterminate"></mat-progress-bar>
-            <div *ngIf="!gettingProject && openedProject">
-              <mat-form-field *ngIf="openedProject.metroArea">
-                <input matInput readonly type="text" placeholder="Metro Area" [value]="openedProject.metroArea">
-              </mat-form-field>
-              <mat-form-field *ngIf="openedProject.clientName">
-                <input matInput readonly type="text" placeholder="Client Name" [value]="openedProject.clientName">
-              </mat-form-field>
-              <mat-form-field *ngIf="openedProject.dateStarted">
-                <input matInput readonly placeholder="Start Date"
-                       [value]="openedProject.dateStarted.toLocaleDateString()">
-              </mat-form-field>
-              <mat-form-field *ngIf="openedProject.dateCompleted">
-                <input matInput readonly placeholder="Completion Date"
-                       [value]="openedProject.dateCompleted.toLocaleDateString()">
-              </mat-form-field>
-              <mat-form-field *ngIf="openedProject.source">
-                <input matInput readonly type="text" placeholder="Source" [value]="openedProject.source">
-              </mat-form-field>
-            </div>
-          </div>
           <mat-action-row>
             <button mat-raised-button color="primary" type="button" (click)="editProject(project)">Edit</button>
             <button mat-raised-button color="accent" type="button" (click)="selectProject(project)">Select</button>

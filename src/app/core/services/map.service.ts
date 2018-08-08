@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { } from '@types/googlemaps';
-import { MapPointLayer } from '../../models/map-point-layer';
+import {} from '@types/googlemaps';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
-import { Mappable } from '../../interfaces/mappable';
 import { Observable, Observer, of, Subject } from 'rxjs/index';
 import { AuthService } from './auth.service';
 
@@ -26,6 +24,7 @@ export class MapService {
   drawingManager: google.maps.drawing.DrawingManager;
   drawingEvents: any[];
   drawingComplete$: Subject<any>;
+  drawingMode: google.maps.drawing.OverlayType;
 
   placesService: google.maps.places.PlacesService;
 
@@ -38,10 +37,10 @@ export class MapService {
   initialize(element: HTMLElement) {
     // Create map
     this.map = new google.maps.Map(element, {
-      center: { lat: 39.8283, lng: -98.5795 },
+      center: {lat: 39.8283, lng: -98.5795},
       zoom: 8
     });
-    this.map.getStreetView().setOptions({ imageDateControl: true });
+    this.map.getStreetView().setOptions({imageDateControl: true});
     this.placesService = new google.maps.places.PlacesService(this.map);
     this.boundsChanged$ = new Subject<{ east; north; south; west }>();
     this.mapClick$ = new Subject<Coordinates>();
@@ -63,6 +62,7 @@ export class MapService {
 
     // Setup Drawing Manager
     this.drawingManager = new google.maps.drawing.DrawingManager();
+    this.drawingComplete$ = new Subject<any>();
     return this.map;
   }
 
@@ -74,9 +74,11 @@ export class MapService {
     console.log('Destroying Map');
     google.maps.event.clearListeners(this.map, 'bounds_changed');
     google.maps.event.clearListeners(this.map, 'click');
+    google.maps.event.clearListeners(this.drawingManager, 'overlaycomplete');
     this.map = null;
     this.placesService = null;
     this.drawingManager = null;
+    this.drawingComplete$ = null;
     this.boundsChanged$ = null;
   }
 
@@ -108,6 +110,18 @@ export class MapService {
     ).subscribe();
   }
 
+  drawingModeIs(mode: string) {
+    if (mode === 'pointer') {
+      return this.drawingMode == null;
+    } else if (mode === 'circle') {
+      return this.drawingMode === google.maps.drawing.OverlayType.CIRCLE;
+    } else if (mode === 'rectangle') {
+      return this.drawingMode === google.maps.drawing.OverlayType.RECTANGLE;
+    } else if (mode === 'polygon') {
+      return this.drawingMode === google.maps.drawing.OverlayType.POLYGON;
+    }
+  }
+
   private getPerspective() {
     if (this.map != null) {
       return {
@@ -118,7 +132,7 @@ export class MapService {
     }
     return {
       zoom: 10,
-      center: { lat: 39.8283, lng: -98.5795 },
+      center: {lat: 39.8283, lng: -98.5795},
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
   }
@@ -133,7 +147,7 @@ export class MapService {
 
   activateDrawingTools() {
     this.drawingEvents = [];
-    this.drawingComplete$ = new Subject<any>();
+    this.drawingComplete$.observers.forEach(o => o.complete());
 
     // Create drawing manager
     const multiSelectDrawingOptions = {
@@ -149,6 +163,7 @@ export class MapService {
     this.drawingManager.setOptions(multiSelectDrawingOptions);
     this.drawingManager.setMap(this.map);
 
+    google.maps.event.clearListeners(this.drawingManager, 'overlaycomplete');
     // Listen for completion of drawings
     google.maps.event.addListener(
       this.drawingManager,
@@ -188,7 +203,7 @@ export class MapService {
     );
   }
 
-  getHeading(startPoint, endPoint){
+  getHeading(startPoint, endPoint) {
     const startLatLng = new google.maps.LatLng(startPoint.lat, startPoint.lng);
     const endLatLng = new google.maps.LatLng(endPoint.lat, endPoint.lng);
     return google.maps.geometry.spherical.computeHeading(
@@ -199,14 +214,13 @@ export class MapService {
 
   setDrawingModeToClick() {
     this.clearCircleRadiusListener();
+    this.drawingMode = null;
     this.drawingManager.setDrawingMode(null);
   }
 
   setDrawingModeToCircle() {
-    this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.CIRCLE);
-    // this.drawingManager.addListener('', (e) => {
-    //  // TODO on drawing type change
-    // });
+    this.drawingMode = google.maps.drawing.OverlayType.CIRCLE;
+    this.drawingManager.setDrawingMode(this.drawingMode);
     const mapDiv = document.getElementById('map');
     let startPoint: google.maps.LatLng;
     let startMarker: google.maps.Marker;
@@ -275,7 +289,7 @@ export class MapService {
 
       const overlayCompleteListener = this.drawingManager.addListener(
         'overlaycomplete',
-        overlaycompleteEvent => {
+        () => {
           touchMoveListener.remove();
           mouseMoveListener.remove();
           eventListener$.complete();
@@ -288,41 +302,16 @@ export class MapService {
     });
   }
 
-  private point2LatLng(point: google.maps.Point, map: google.maps.Map) {
-    const topRight = map
-      .getProjection()
-      .fromLatLngToPoint(map.getBounds().getNorthEast());
-    const bottomLeft = map
-      .getProjection()
-      .fromLatLngToPoint(map.getBounds().getSouthWest());
-    const scale = Math.pow(2, map.getZoom());
-    const worldPoint = new google.maps.Point(
-      point.x / scale + bottomLeft.x,
-      point.y / scale + topRight.y
-    );
-    return map.getProjection().fromPointToLatLng(worldPoint);
-  }
-
-  private getDistanceLabel(distance: number) {
-    if (distance < 1000) {
-      return Math.round(distance * 3.28084) + ' ft';
-    } else {
-      const miles: number = distance * 0.000621371;
-      return miles.toFixed(2) + ' mi';
-    }
-  }
-
   setDrawingModeToRectangle() {
     this.clearCircleRadiusListener();
-    this.drawingManager.setDrawingMode(
-      google.maps.drawing.OverlayType.RECTANGLE
-    );
+    this.drawingMode = google.maps.drawing.OverlayType.RECTANGLE;
+    this.drawingManager.setDrawingMode(this.drawingMode);
   }
 
   setDrawingModeToPolygon() {
     this.clearCircleRadiusListener();
-    this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
-  }
+    this.drawingMode = google.maps.drawing.OverlayType.POLYGON;
+    this.drawingManager.setDrawingMode(this.drawingMode);  }
 
   searchFor(
     queryString: string,
@@ -381,5 +370,29 @@ export class MapService {
 
   getMap() {
     return this.map;
+  }
+
+  private point2LatLng(point: google.maps.Point, map: google.maps.Map) {
+    const topRight = map
+      .getProjection()
+      .fromLatLngToPoint(map.getBounds().getNorthEast());
+    const bottomLeft = map
+      .getProjection()
+      .fromLatLngToPoint(map.getBounds().getSouthWest());
+    const scale = Math.pow(2, map.getZoom());
+    const worldPoint = new google.maps.Point(
+      point.x / scale + bottomLeft.x,
+      point.y / scale + topRight.y
+    );
+    return map.getProjection().fromPointToLatLng(worldPoint);
+  }
+
+  private getDistanceLabel(distance: number) {
+    if (distance < 1000) {
+      return Math.round(distance * 3.28084) + ' ft';
+    } else {
+      const miles: number = distance * 0.000621371;
+      return miles.toFixed(2) + ' mi';
+    }
   }
 }

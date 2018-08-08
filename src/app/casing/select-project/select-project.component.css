@@ -109,5 +109,6 @@ mat-panel-title {
 
 .mat-action-row {
   justify-content: space-between;
-  background: skyblue;
+  background: #476d80;
+  padding: 10px;
 }

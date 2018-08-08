@@ -58,7 +58,7 @@
             <div class="results-header large-text flex-container">
 
 
-              <i mat-icon-button [matMenuTriggerFor]="siteMenu" class="site-menu fas fa-ellipsis-v"></i>
+              <i mat-icon-button [mat-menu-trigger-for]="siteMenu" class="site-menu fas fa-ellipsis-v"></i>
 
               <mat-menu #siteMenu="matMenu">
                 <button (click)="setStepCompleted(1,'ADD_SISTER',item.id, null, stepper);" matStepperNext mat-menu-item>Add Sister Shopping Center Site</button>

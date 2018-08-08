@@ -7,6 +7,7 @@ import { CrudService } from '../../interfaces/crud-service';
 import { Observable } from 'rxjs/index';
 import { map } from 'rxjs/internal/operators';
 import { Boundary } from '../../models/full/boundary';
+import { SimplifiedProject } from '../../models/simplified/simplified-project';
 
 @Injectable()
 export class ProjectService extends CrudService<Project> {
@@ -52,12 +53,16 @@ export class ProjectService extends CrudService<Project> {
       }));
   }
 
-  saveBoundary(projectId: number, boundaryGeoJson: string) {
+  saveBoundaryForProject(projectId: number, boundaryGeoJson: string) {
     const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/boundary';
-    return this.http.post(url, boundaryGeoJson, {observe: 'response', headers: this.rest.getHeaders()})
-      .pipe(map((response: HttpResponse<Boundary>) => {
-        return new Boundary(response.body);
-      }));
+    return this.http.post<SimplifiedProject>(url, boundaryGeoJson, {headers: this.rest.getHeaders()})
+      .pipe(map((response) => new SimplifiedProject(response)));
+  }
+
+  deleteBoundaryForProject(projectId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/boundary';
+    return this.http.delete<SimplifiedProject>(url, {headers: this.rest.getHeaders()})
+      .pipe(map((response) => new SimplifiedProject(response)));
   }
 
   protected createEntityFromObj(entityObj): Project {

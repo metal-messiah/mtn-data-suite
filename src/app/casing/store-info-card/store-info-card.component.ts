@@ -1,5 +1,4 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { Store } from '../../models/full/store';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { SiteInfoCardComponent } from '../site-info-card/site-info-card.component';
 

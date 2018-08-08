@@ -1,28 +1,4 @@
 <mat-sidenav-container id="casing-dash-container">
-  <mat-sidenav mode="over" [(opened)]="sideNavIsOpen" class="casing-side-nav">
-    <mat-nav-list role="list">
-      <h3 mat-subheader>Project</h3>
-      <mat-list-item role="listitem" [matMenuTriggerFor]="markerTypeMenu">
-        <h4 mat-line>Marker Type</h4>&nbsp;<i class="fas fa-chevron-right"></i>
-        <p mat-line>{{storeMapLayer.markerType.valueOf()}}</p>
-      </mat-list-item>
-      <mat-list-item role="listitem" (click)="initSiteCreation()">Create New Site</mat-list-item>
-      <mat-list-item role="listitem" (click)="enableMultiSelect()">Multi Select</mat-list-item>
-      <mat-divider></mat-divider>
-      <h3 mat-subheader>Geolocation</h3>
-      <mat-list-item role="listitem" (click)="findMe()">Find Me</mat-list-item>
-      <mat-list-item *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" role="listitem"
-                     (click)="deactivateFollowMe()">
-        <h4 mat-line>Follow Me</h4>
-        <p mat-line>Deactivate</p>
-      </mat-list-item>
-      <mat-list-item *ngIf="selectedDashboardMode !== casingDashboardMode.FOLLOWING" role="listitem"
-                     (click)="activateFollowMe()">
-        <h4 mat-line>Follow Me</h4>
-        <p mat-line>Activate</p>
-      </mat-list-item>
-    </mat-nav-list>
-  </mat-sidenav>
   <mat-sidenav mode="over" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end"
                (closedStart)="filterClosed()">
     <mat-list role="list" id="filter-side-nav">
@@ -95,10 +71,10 @@
           </div>
           <div>
             <button mat-mini-fab [mat-menu-trigger-for]="drawingToolsMenu" color="primary">
-              <i *ngIf="selectedDrawingTool === drawingToolType.CLICK" class="far fa-hand-pointer"></i>
-              <i *ngIf="selectedDrawingTool === drawingToolType.CIRCLE" class="far fa-circle"></i>
-              <i *ngIf="selectedDrawingTool === drawingToolType.RECTANGLE" class="far fa-square"></i>
-              <i *ngIf="selectedDrawingTool === drawingToolType.POLYGON" class="far fa-star"></i>
+              <i *ngIf="mapService.drawingModeIs('pointer')" class="far fa-hand-pointer"></i>
+              <i *ngIf="mapService.drawingModeIs('circle')" class="far fa-circle"></i>
+              <i *ngIf="mapService.drawingModeIs('rectangle')" class="far fa-square"></i>
+              <i *ngIf="mapService.drawingModeIs('polygon')" class="far fa-star"></i>
             </button>
           </div>
           <div>
@@ -117,27 +93,31 @@
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.EDIT_PROJECT_BOUNDARY" color="primary"
                      class="flex-space-between">
           <div>
-            <button mat-raised-button (click)="cancelProjectEditing()" color="warn">Cancel</button>
+            <button mat-raised-button (click)="cancelProjectBoundaryEditing()" color="warn">Cancel</button>
           </div>
           <div>
             <button mat-mini-fab [mat-menu-trigger-for]="drawingToolsMenu" color="primary">
-              <i *ngIf="selectedDrawingTool === drawingToolType.CLICK" class="far fa-hand-pointer"></i>
-              <i *ngIf="selectedDrawingTool === drawingToolType.CIRCLE" class="far fa-circle"></i>
-              <i *ngIf="selectedDrawingTool === drawingToolType.RECTANGLE" class="far fa-square"></i>
-              <i *ngIf="selectedDrawingTool === drawingToolType.POLYGON" class="far fa-star"></i>
+              <i *ngIf="mapService.drawingModeIs('pointer')" class="far fa-hand-pointer"></i>
+              <i *ngIf="mapService.drawingModeIs('circle')" class="far fa-circle"></i>
+              <i *ngIf="mapService.drawingModeIs('rectangle')" class="far fa-square"></i>
+              <i *ngIf="mapService.drawingModeIs('polygon')" class="far fa-star"></i>
             </button>
           </div>
           <div>
-            <button mat-mini-fab *ngIf="deletingProjectShapes" (click)="toggleProjectShapeDeletion()" color="primary">
+            <button mat-mini-fab *ngIf="!projectBoundaryService.deletingProjectShapes" color="primary"
+                    (click)="projectBoundaryService.enableProjectShapeDeletion()">
               <i class="fas fa-trash-alt"></i>
             </button>
-            <button mat-mini-fab *ngIf="!deletingProjectShapes" (click)="toggleProjectShapeDeletion()" color="accent">
-              <i class="fas fa-trash-alt"></i>
+            <button mat-mini-fab *ngIf="projectBoundaryService.deletingProjectShapes" color="accent"
+                    (click)="projectBoundaryService.disableProjectShapeDeletion()">
+              <i class="fas fa-trash-alt fa-spin"></i>
             </button>
           </div>
           <div>
-            <button *ngIf="!savingBoundary" mat-raised-button color="accent" (click)="saveEditedProjectBoundaries()">Save</button>
-            <button *ngIf="savingBoundary" mat-raised-button color="accent" disabled><i class="fas fa-spinner fa-pulse"></i></button>
+            <button *ngIf="!savingBoundary" mat-raised-button color="accent" (click)="saveProjectBoundary()">Save
+            </button>
+            <button *ngIf="savingBoundary" mat-raised-button color="accent" disabled><i
+              class="fas fa-spinner fa-pulse"></i></button>
           </div>
         </mat-toolbar>
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.CREATING_NEW" color="primary"
@@ -148,10 +128,10 @@
         </mat-toolbar>
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" color="primary"
                      class="flex-space-between">
-          <button mat-mini-fab color="primary" (click)="sideNavIsOpen = !sideNavIsOpen">
+          <button mat-mini-fab color="primary" [mat-menu-trigger-for]="moreMenu">
             <i class="fas fa-ellipsis-v"></i>
           </button>
-          <button mat-mini-fab color="primary" [matMenuTriggerFor]="searchMenu">
+          <button mat-mini-fab color="primary" [mat-menu-trigger-for]="searchMenu">
             <i class="fas fa-search"></i>
           </button>
           <button mat-mini-fab color="primary" (click)="filterSideNavIsOpen = !filterSideNavIsOpen">
@@ -183,16 +163,16 @@
 </mat-menu>
 
 <mat-menu #drawingToolsMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="setDrawingTool(drawingToolType.CLICK)">
+  <button mat-menu-item (click)="mapService.setDrawingModeToClick()">
     <i class="far fa-hand-pointer"></i>&nbsp;Click
   </button>
-  <button mat-menu-item (click)="setDrawingTool(drawingToolType.RECTANGLE)">
+  <button mat-menu-item (click)="mapService.setDrawingModeToRectangle()">
     <i class="far fa-square"></i>&nbsp;Rectangle
   </button>
-  <button mat-menu-item (click)="setDrawingTool(drawingToolType.CIRCLE)">
+  <button mat-menu-item (click)="mapService.setDrawingModeToCircle()">
     <i class="far fa-circle"></i>&nbsp;Circle
   </button>
-  <button mat-menu-item (click)="setDrawingTool(drawingToolType.POLYGON)">
+  <button mat-menu-item (click)="mapService.setDrawingModeToPolygon()">
     <i class="far fa-star"></i>&nbsp;Polygon
   </button>
 </mat-menu>
@@ -219,6 +199,70 @@
   <button mat-menu-item (click)="clearGoogleSearch()" *ngIf="googlePlacesLayer != null">
     <i class="fas ban"></i>&nbsp;Clear Google Search
   </button>
+</mat-menu>
+
+<mat-menu #moreMenu="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item [mat-menu-trigger-for]="markerTypeMenu">
+    <i class="fas fa-map-marker"></i>&nbsp;Marker Type: {{storeMapLayer.markerType.valueOf()}}
+  </button>
+  <button mat-menu-item (click)="initSiteCreation()">
+    <i class="fas fa-plus-circle"></i>&nbsp;Create New Site
+  </button>
+  <button mat-menu-item (click)="enableMultiSelect()">
+    <i class="fas fa-hand-pointer"></i>&nbsp;Enable Multi-select
+  </button>
+  <button mat-menu-item [mat-menu-trigger-for]="geolocationSubMenu">
+    <i class="fas fa-crosshairs"></i>&nbsp;Geolocation
+  </button>
+  <button mat-menu-item *ngIf="!casingDashboardService.getSelectedProject()"
+          (click)="casingDashboardService.openProjectSelectionDialog()">
+    <i class="fas fa-folder"></i>&nbsp;Select Project
+  </button>
+  <button mat-menu-item *ngIf="casingDashboardService.getSelectedProject()"
+          [mat-menu-trigger-for]="projectSubMenu">
+    {{casingDashboardService.getSelectedProject().projectName}}
+  </button>
+</mat-menu>
+
+<mat-menu #geolocationSubMenu="matMenu">
+  <button mat-menu-item (click)="findMe()">
+    <i class="fas fa-crosshairs"></i>&nbsp;Find Me
+  </button>
+  <button mat-menu-item (click)="activateFollowMe()">
+    <i class="fas fa-location-arrow"></i>&nbsp;Follow Me
+  </button>
+</mat-menu>
+
+<mat-menu #projectSubMenu="matMenu">
+  <button mat-menu-item (click)="casingDashboardService.openProjectSelectionDialog()">
+    <i class="fas fa-folder"></i>&nbsp;Change Project
+  </button>
+  <button mat-menu-item *ngIf="!markCasedStores"
+          (click)="markStoresCasedForProject(true)">
+    <i class="fas fa-check-circle"></i>&nbsp;Mark Cased Stores
+  </button>
+  <button mat-menu-item *ngIf="markCasedStores"
+          (click)="markStoresCasedForProject(false)">
+    <i class="far fa-check-circle"></i>&nbsp;Un-mark Cased Stores
+  </button>
+  <button mat-menu-item
+          *ngIf="!casingDashboardService.getSelectedProject().hasBoundary && !projectBoundaryService.isShowingBoundary()"
+          (click)="enableProjectBoundaryEditing()">
+    Create Boundary
+  </button>
+  <div *ngIf="casingDashboardService.getSelectedProject().hasBoundary">
+    <button mat-menu-item (click)="enableProjectBoundaryEditing()">
+      Edit Boundary
+    </button>
+    <button mat-menu-item *ngIf="projectBoundaryService.isShowingBoundary()"
+            (click)="projectBoundaryService.hideProjectBoundaries()">
+      Hide Boundary
+    </button>
+    <button mat-menu-item *ngIf="!projectBoundaryService.isShowingBoundary()"
+            (click)="projectBoundaryService.showProjectBoundaries().subscribe()">
+      Show Boundary
+    </button>
+  </div>
 </mat-menu>
 
 <i *ngIf="gettingEntities" id="loadingSpinner" class="fas fa-spinner fa-pulse fa-2x"></i>
