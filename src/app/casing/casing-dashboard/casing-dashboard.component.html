@@ -234,34 +234,36 @@
 </mat-menu>
 
 <mat-menu #projectSubMenu="matMenu">
-  <button mat-menu-item (click)="casingDashboardService.openProjectSelectionDialog()">
-    <i class="fas fa-folder"></i>&nbsp;Change Project
-  </button>
-  <button mat-menu-item *ngIf="!markCasedStores"
-          (click)="markStoresCasedForProject(true)">
-    <i class="fas fa-check-circle"></i>&nbsp;Mark Cased Stores
-  </button>
-  <button mat-menu-item *ngIf="markCasedStores"
-          (click)="markStoresCasedForProject(false)">
-    <i class="far fa-check-circle"></i>&nbsp;Un-mark Cased Stores
-  </button>
-  <button mat-menu-item
-          *ngIf="!casingDashboardService.getSelectedProject().hasBoundary && !projectBoundaryService.isShowingBoundary()"
-          (click)="enableProjectBoundaryEditing()">
-    Create Boundary
-  </button>
-  <div *ngIf="casingDashboardService.getSelectedProject().hasBoundary">
-    <button mat-menu-item (click)="enableProjectBoundaryEditing()">
-      Edit Boundary
+  <div *ngIf="casingDashboardService.getSelectedProject()">
+    <button mat-menu-item (click)="casingDashboardService.openProjectSelectionDialog()">
+      <i class="fas fa-folder"></i>&nbsp;Change Project
     </button>
-    <button mat-menu-item *ngIf="projectBoundaryService.isShowingBoundary()"
-            (click)="projectBoundaryService.hideProjectBoundaries()">
-      Hide Boundary
+    <button mat-menu-item *ngIf="!markCasedStores"
+            (click)="markStoresCasedForProject(true)">
+      <i class="fas fa-check-circle"></i>&nbsp;Mark Cased Stores
     </button>
-    <button mat-menu-item *ngIf="!projectBoundaryService.isShowingBoundary()"
-            (click)="projectBoundaryService.showProjectBoundaries().subscribe()">
-      Show Boundary
+    <button mat-menu-item *ngIf="markCasedStores"
+            (click)="markStoresCasedForProject(false)">
+      <i class="far fa-check-circle"></i>&nbsp;Un-mark Cased Stores
     </button>
+    <button mat-menu-item
+            *ngIf="!casingDashboardService.getSelectedProject().hasBoundary && !projectBoundaryService.isShowingBoundary()"
+            (click)="enableProjectBoundaryEditing()">
+      Create Boundary
+    </button>
+    <div *ngIf="casingDashboardService.getSelectedProject().hasBoundary">
+      <button mat-menu-item (click)="enableProjectBoundaryEditing()">
+        Edit Boundary
+      </button>
+      <button mat-menu-item *ngIf="projectBoundaryService.isShowingBoundary()"
+              (click)="projectBoundaryService.hideProjectBoundaries()">
+        Hide Boundary
+      </button>
+      <button mat-menu-item *ngIf="!projectBoundaryService.isShowingBoundary()"
+              (click)="projectBoundaryService.showProjectBoundaries().subscribe()">
+        Show Boundary
+      </button>
+    </div>
   </div>
 </mat-menu>
 

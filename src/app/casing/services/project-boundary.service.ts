@@ -48,8 +48,10 @@ export class ProjectBoundaryService {
 
   hideProjectBoundaries() {
     this.cancelProjectBoundaryEditing();
-    this.projectBoundary.removeFromMap();
-    this.projectBoundary = null;
+    if (this.projectBoundary) {
+      this.projectBoundary.removeFromMap();
+      this.projectBoundary = null;
+    }
   }
 
   enableProjectBoundaryEditing() {
@@ -63,14 +65,15 @@ export class ProjectBoundaryService {
 
   cancelProjectBoundaryEditing() {
     // If a boundary exists with shapes, make it non-editable, and reset it's shapes
-    if (this.projectBoundary.geojson) {
-      this.projectBoundary.setEditable(false);
+    if (this.projectBoundary && this.projectBoundary.geojson) {
       this.projectBoundary.resetFromGeoJson();
+      if (this.projectBoundary.isEditable()) {
+        this.deactivateEditingMode();
+      }
     } else {
       // If the boundary is new, it won't yet have geojson and can be discarded
       this.projectBoundary = null;
     }
-    this.deactivateEditingMode();
   }
 
   saveProjectBoundaries() {
@@ -119,11 +122,9 @@ export class ProjectBoundaryService {
   }
 
   private deactivateEditingMode() {
-    if (this.projectBoundary.isEditable()) {
-      this.projectBoundary.setEditable(false);
-      this.mapService.deactivateDrawingTools();
-      this.deletingProjectShapes = false;
-    }
+    this.projectBoundary.setEditable(false);
+    this.mapService.deactivateDrawingTools();
+    this.deletingProjectShapes = false;
   }
 
 }

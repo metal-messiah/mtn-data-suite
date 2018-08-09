@@ -109,7 +109,14 @@ export class CasingDashboardComponent implements OnInit {
   onMapReady() {
     console.log(`Map is ready`);
     this.storeMapLayer = new EntityMapLayer<StoreMappable>(this.mapService.getMap(), (store: SimplifiedStore) => {
-      return new StoreMappable(store, this.authService.sessionUser.id, () => this.casingDashboardService.getSelectedProject().id)
+      return new StoreMappable(store, this.authService.sessionUser.id, () => {
+        const selectedProject = this.casingDashboardService.getSelectedProject();
+        if (selectedProject) {
+          return selectedProject.id;
+        } else {
+          return null;
+        }
+      })
     });
     this.siteMapLayer = new EntityMapLayer<SiteMappable>(this.mapService.getMap(), (site: SimplifiedSite) => {
       return new SiteMappable(site, this.authService.sessionUser.id);
