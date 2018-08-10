@@ -55,7 +55,7 @@ export class ProjectBoundaryService {
   }
 
   enableProjectBoundaryEditing() {
-    this.mapService.setDrawingModeToPolygon();
+    this.mapService.setDrawingModeToClick();
     if (!this.projectBoundary) {
       this.showProjectBoundaries().subscribe(() => this.setUpProjectEditing());
     } else {
