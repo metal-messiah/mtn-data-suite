@@ -150,6 +150,7 @@ export class CasingDashboardComponent implements OnInit {
       });
     });
     this.casingDashboardService.projectChanged$.subscribe(() => {
+      this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
       this.projectBoundaryService.hideProjectBoundaries();
       this.getEntities(this.mapService.getBounds());
     });
