@@ -182,60 +182,40 @@
                 <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
               </mat-select>
             </mat-form-field>
-          </mat-expansion-panel>
-          <!-- SC Ratings -->
-          <mat-expansion-panel [formGroup]="shoppingCenterCasingForm">
-            <mat-expansion-panel-header>
-              <mat-panel-title><i class="fas fa-star"></i>&nbsp;&nbsp;Ratings</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div>
-              <!--<mat-form-field>-->
-                <!--<mat-select placeholder="Parking Lot" formControlName="ratingParkingLot">-->
-                  <!--<mat-option>Clear Selection</mat-option>-->
-                  <!--<mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>-->
-                <!--</mat-select>-->
-              <!--</mat-form-field>-->
-              <mat-form-field>
-                <mat-select placeholder="Buildings" formControlName="ratingBuildings">
-                  <mat-option>Clear Selection</mat-option>
-                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
-                </mat-select>
-              </mat-form-field>
-              <mat-form-field>
-                <mat-select placeholder="Lighting" formControlName="ratingLighting">
-                  <mat-option>Clear Selection</mat-option>
-                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
-                </mat-select>
-              </mat-form-field>
-              <mat-form-field>
-                <mat-select placeholder="Synergy" formControlName="ratingSynergy">
-                  <mat-option>Clear Selection</mat-option>
-                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
-                </mat-select>
-              </mat-form-field>
-            </div>
+            <mat-form-field [formGroup]="shoppingCenterCasingForm">
+              <mat-select placeholder="Lighting Rating" formControlName="ratingLighting">
+                <mat-option>Clear Selection</mat-option>
+                <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+              </mat-select>
+            </mat-form-field>
           </mat-expansion-panel>
           <!-- SC Tenants -->
-          <mat-expansion-panel [formGroup]="shoppingCenterSurveyForm">
+          <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title><i class="fas fa-store-alt"></i>&nbsp;&nbsp;Tenants</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
-              <mat-form-field>
-                <input matInput type="number" placeholder="# Occupied" formControlName="tenantOccupiedCount">
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" placeholder="# Vacant" formControlName="tenantVacantCount">
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" placeholder="% Sqft Occupied" formControlName="sqFtPercentOccupied">
-                <span matSuffix>%</span>
-                <mat-error>Must be between 0 and 100%</mat-error>
-              </mat-form-field>
               <div class="flex flex-justify-center">
                 <button type="button" mat-raised-button color="accent" (click)="openTenantDialog()">Tenant List
                 </button>
               </div>
+              <mat-form-field [formGroup]="shoppingCenterSurveyForm">
+                <input matInput type="number" placeholder="# Occupied" formControlName="tenantOccupiedCount">
+              </mat-form-field>
+              <mat-form-field [formGroup]="shoppingCenterSurveyForm">
+                <input matInput type="number" placeholder="# Vacant" formControlName="tenantVacantCount">
+              </mat-form-field>
+              <mat-form-field [formGroup]="shoppingCenterSurveyForm">
+                <input matInput type="number" placeholder="% Sqft Occupied" formControlName="sqFtPercentOccupied">
+                <span matSuffix>%</span>
+                <mat-error>Must be between 0 and 100%</mat-error>
+              </mat-form-field>
+              <mat-form-field [formGroup]="shoppingCenterCasingForm">
+                <mat-select placeholder="Synergy Rating" formControlName="ratingSynergy">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+                </mat-select>
+              </mat-form-field>
             </div>
           </mat-expansion-panel>
           <!-- SC Accesses -->
@@ -321,6 +301,12 @@
               <mat-panel-title><i class="fas fa-star"></i>&nbsp;&nbsp;Store Conditions</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
+              <mat-form-field [formGroup]="shoppingCenterCasingForm">
+                <mat-select placeholder="Store Building Rating" formControlName="ratingBuildings">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+                </mat-select>
+              </mat-form-field>
               <mat-form-field>
                 <mat-select placeholder="Ceiling" formControlName="conditionCeiling">
                   <mat-option>Clear Selection</mat-option>

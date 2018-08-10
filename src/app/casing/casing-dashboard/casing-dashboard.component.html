@@ -13,35 +13,37 @@
   <mat-sidenav-content>
     <div class="box">
       <mds-map #casingMap class="row content" (ready)="onMapReady()"></mds-map>
-      <div class="infoCard" *ngIf="selectedCardState === cardState.GOOGLE && selectedGooglePlace != null">
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>
-              <strong>{{selectedGooglePlace.name}}</strong>
-            </mat-card-title>
-            <mat-card-subtitle>Provided by Google</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            {{selectedGooglePlace.vicinity}}
-          </mat-card-content>
-          <mat-card-actions>
-            <button mat-button [disabled]="selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
-                    (click)="saveGooglePlaceAsStore()">
-              <i class="fas fa-save"></i>&nbsp;Save To DB
-            </button>
-          </mat-card-actions>
-        </mat-card>
+      <div class="infoCardContainer">
+        <div class="infoCard" *ngIf="selectedCardState === cardState.GOOGLE && selectedGooglePlace">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <strong>{{selectedGooglePlace.name}}</strong>
+              </mat-card-title>
+              <mat-card-subtitle><em>(Provided by Google)</em></mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              {{selectedGooglePlace.vicinity}}
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-button [disabled]="true || selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
+                      (click)="saveGooglePlaceAsStore()">
+                <i class="fas fa-save"></i>&nbsp;Save To DB
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+        <mds-store-info-card class="infoCard" [store]="selectedStore"
+                             [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
+                             (onUpdate)="onStoreUpdated($event)"
+                             (initiateMove)="moveStore($event)"
+                             *ngIf="selectedCardState === cardState.SELECTED_STORE && selectedStore != null"></mds-store-info-card>
+        <mds-site-info-card class="infoCard" [site]="selectedSite"
+                            [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
+                            (onUpdate)="onSiteUpdated($event)"
+                            (initiateMove)="moveSite($event)"
+                            *ngIf="selectedCardState === cardState.SELECTED_SITE && selectedSite != null"></mds-site-info-card>
       </div>
-      <mds-store-info-card [store]="selectedStore"
-                           [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
-                           (onUpdate)="onStoreUpdated($event)"
-                           (initiateMove)="moveStore($event)"
-                           *ngIf="selectedCardState === cardState.SELECTED_STORE && selectedStore != null"></mds-store-info-card>
-      <mds-site-info-card [site]="selectedSite"
-                          [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
-                          (onUpdate)="onSiteUpdated($event)"
-                          (initiateMove)="moveSite($event)"
-                          *ngIf="selectedCardState === cardState.SELECTED_SITE && selectedSite != null"></mds-site-info-card>
       <div class="row footer">
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" color="primary"
                      class="flex-space-between">

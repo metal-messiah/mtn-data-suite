@@ -6,34 +6,51 @@ mds-map {
   height: inherit;
 }
 
-mat-card {
+.infoCardContainer {
+  position: absolute;
+  pointer-events: none;
+  width: 95%;
+  display: flex;
+  justify-content: center;
+  bottom: 60px;
+}
+
+@media (min-width: 600px) {
+  .infoCardContainer {
+    bottom: 70px;
+    justify-content: left;
+    padding-left: 5px;
+    padding-bottom: 30px;
+  }
+}
+
+.infoCard {
+  max-width: 360px;
   pointer-events: all;
 }
 
-mds-store-info-card {
-  width: 100%;
-  position: absolute;
-  bottom: 60px;
-  pointer-events: none;
+.infoCard mat-card {
+  padding: 10px;
 }
 
-@media (min-width: 600px) {
-  mds-store-info-card {
-    bottom: 70px;
-  }
+.infoCard .mat-card-subtitle {
+  margin-bottom: 5px;
 }
 
-mds-site-info-card {
-  width: 100%;
-  position: absolute;
-  bottom: 60px;
-  pointer-events: none;
+.infoCard .mat-card-content {
+  margin-bottom: 0px;
+  padding: 0 8px;
+  font-size: small;
 }
 
-@media (min-width: 600px) {
-  mds-site-info-card {
-    bottom: 70px;
-  }
+.infoCard .mat-card-actions {
+  padding-top: 5px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.infoCard .mat-card > .mat-card-actions:last-child {
+  margin-bottom: -8px;
 }
 
 #casing-dash-container {

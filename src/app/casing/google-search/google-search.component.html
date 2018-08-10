@@ -19,7 +19,7 @@
         <mat-list-item *ngFor="let place of places" (click)="goToStore(place)">
           <h3 matLine>{{place.name}}</h3>
           <p matLine>
-            {{place.vicinity}}
+            {{place.formatted_address}}
           </p>
         </mat-list-item>
       </mat-nav-list>

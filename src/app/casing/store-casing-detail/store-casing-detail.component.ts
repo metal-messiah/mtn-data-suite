@@ -421,7 +421,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   }
 
   showProjectSelection() {
-    const dialogRef = this.dialog.open(SelectProjectComponent, {maxWidth: '400px'});
+    const dialogRef = this.dialog.open(SelectProjectComponent, {maxWidth: '90%'});
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'clear') {

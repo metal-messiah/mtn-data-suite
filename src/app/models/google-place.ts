@@ -4,6 +4,7 @@ import PlaceResult = google.maps.places.PlaceResult;
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { MarkerShape } from '../core/functionalEnums/MarkerShape';
 import { Color } from '../core/functionalEnums/Color';
+import MarkerLabel = google.maps.MarkerLabel;
 
 export class GooglePlace implements PlaceResult, Mappable {
 
@@ -59,11 +60,14 @@ export class GooglePlace implements PlaceResult, Mappable {
     };
   };
 
-  getLabel(zoom: number, markerType?: MarkerType): string {
+  getLabel(zoom: number, markerType?: MarkerType): string | MarkerLabel {
     if (markerType !== MarkerType.LOGO) {
-      return name[0];
+      return {
+        text: this.name[0],
+        color: Color.BLACK
+      };
     }
-    return name;
+    return this.name;
   };
 
   isDraggable(): boolean {
