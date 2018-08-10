@@ -65,13 +65,13 @@ export class ProjectBoundaryService {
 
   cancelProjectBoundaryEditing() {
     // If a boundary exists with shapes, make it non-editable, and reset it's shapes
-    if (this.projectBoundary && this.projectBoundary.geojson) {
+    if (this.projectBoundary.geojson) {
       this.projectBoundary.resetFromGeoJson();
       if (this.projectBoundary.isEditable()) {
         this.deactivateEditingMode();
       }
     } else {
-      // If the boundary is new, it won't yet have geojson and can be discarded
+      this.projectBoundary.removeFromMap();
       this.projectBoundary = null;
     }
   }
