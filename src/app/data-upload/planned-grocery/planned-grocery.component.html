@@ -25,7 +25,7 @@
       </div>
 
     </div>
-    <mat-horizontal-stepper [linear]='true' #stepper *ngIf="!isFetching">
+    <mat-horizontal-stepper [linear]='true' #stepper *ngIf="!isFetching" style="padding-bottom: 50px;">
       <mat-step [completed]="step1Completed">
         <!-- <form [formGroup]="firstFormGroup"> -->
         <ng-template matStepLabel>Match Site</ng-template>
@@ -36,7 +36,8 @@
             <div class='med-text'> {{currentRecordData ? currentRecordData.attributes.DESCLOCATION + ", " +currentRecordData.attributes.CITY + ","+
               currentRecordData.attributes.STATE : ''}}</div>
             <div class='small-text'>
-              {{currentRecordData ? currentRecordData.attributes ? currentRecordData.attributes.SIZESF ? currentRecordData.attributes.SIZESF.toLocaleString() + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{currentRecordData ? " | Status: "+ pgStatuses[currentRecordData.attributes.STATUS]
+              {{currentRecordData ? currentRecordData.attributes ? currentRecordData.attributes.SIZESF ? currentRecordData.attributes.SIZESF.toLocaleString()
+              + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{currentRecordData ? " | Status: "+ pgStatuses[currentRecordData.attributes.STATUS]
               : ''}}
             </div>
           </div>
@@ -90,25 +91,72 @@
         <!-- <mat-form-field>
             <input matInput placeholder="Address" formControlName="secondCtrl" required>
           </mat-form-field> -->
-          <div *ngIf="step1Action == 'ADD_SITE'">
+        <!-- <div *ngIf="step1Action == 'ADD_SITE'">
             ADD SITE
           </div>
           <div *ngIf="step1Action == 'ADD_STORE'">
             ADD STORE
           </div>
-          <div *ngIf="step1Action == 'MATCH'">
-            <mat-form-field>
-              <!-- <input  -->
-            </mat-form-field>
-          </div>
-          <div *ngIf="step1Action == 'ADD_SISTER'">
-            ADD SISTER
-          </div>
+          <div *ngIf="step1Action == 'MATCH'"> -->
+        <h4>Shopping Center</h4>
+          <mat-form-field>
+            <input matInput type="text" placeholder="Name" formControlName="sc-name" [value]="fullStoreData ? fullStoreData.shoppingCenterName : null"
+              required>
+          </mat-form-field>
+        <h4>Site</h4>
+          <mat-form-field>
+            <input matInput type="text" placeholder="Address" formControlName="address" [value]="fullStoreData ? fullStoreData.address : null"
+              required>
+          </mat-form-field>
+          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.DESCLOCATION : null}}</span>
+          <mat-form-field>
+            <input matInput type="text" placeholder="City" formControlName="city" [value]="fullStoreData ? fullStoreData.city : null"
+              required>
+          </mat-form-field>
+          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.CITY : null}}</span>
+          <mat-form-field>
+            <input matInput type="text" placeholder="State" formControlName="state" [value]="fullStoreData ? fullStoreData.county : null"
+              required>
+          </mat-form-field>
+          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.county : null}}</span>
+          <mat-form-field>
+            <input matInput type="text" placeholder="State" formControlName="state" [value]="fullStoreData ? fullStoreData.state : null"
+              required>
+          </mat-form-field>
+          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.STATE : null}}</span>
+          <mat-form-field>
+            <input matInput type="text" placeholder="Postal Code" formControlName="postalcode" [value]="fullStoreData ? fullStoreData.postalCode : null"
+              required>
+          </mat-form-field>
+          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.ZIP : null}}</span>
+          <mat-form-field>
+            <input matInput type="text" placeholder="Quad" formControlName="quad" [value]="fullStoreData ? fullStoreData.quad : null">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="text" placeholder="Primary" formControlName="primary" [value]="fullStoreData ? fullStoreData.intersectionStreetPrimary : null">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="text" placeholder="Secondary" formControlName="secondary" [value]="fullStoreData ? fullStoreData.intersectionStreetSecondary : null">
+          </mat-form-field>
 
+        <h4>Store</h4>
+          <mat-form-field>
+            <input matInput type="text" placeholder="Name" formControlName="name" [value]="fullStoreData ? fullStoreData.storeName : null"
+              required>
+          </mat-form-field>
+          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.NAME : null}}</span>
+          <mat-form-field>
+            <input matInput type="number" placeholder="Area" formControlName="area" [value]="fullStoreData ? fullStoreData.areaTotal : null">
+          </mat-form-field>
+          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.SIZESF : null}}</span>
+          <mat-form-field>
+            <input matInput type="date" placeholder="Date Opened" formControlName="date" [value]="fullStoreData ? fullStoreData.dateOpened : null">
+          </mat-form-field>
+          <span class="pg-value-desc">{{ currentRecordData.attributes.OPENDATE | date}}</span>
 
         <div>
-          <button mat-button matStepperPrevious>Back</button>
-          <button mat-button matStepperNext>Next</button>
+          <button class="stepper-button" mat-button matStepperPrevious>Back</button>
+          <button class="stepper-button" mat-button matStepperNext>Save &amp; Proceed</button>
         </div>
         <!-- </form> -->
       </mat-step>
