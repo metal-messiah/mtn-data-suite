@@ -120,7 +120,8 @@ export class StoreMappable implements EntityMappable {
   }
 
   private storeCasedForSelectedProject() {
-    return this.getSelectedProjectId() != null &&
+    return this.getSelectedProjectId &&
+      this.getSelectedProjectId() != null &&
       this.store.projectIds != null &&
       this.store.projectIds.indexOf(this.getSelectedProjectId()) !== -1
   }
