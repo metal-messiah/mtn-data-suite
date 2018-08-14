@@ -23,7 +23,7 @@ export class PlannedGroceryService {
   // If store already exists in Database
   getUpdatableByStoreId(storeId: number) {
     const url = this.rest.getHost() + this.endpoint + '/updatable';
-    const params = new HttpParams().set('storeId', String(storeId));
+    const params = new HttpParams().set('store-id', String(storeId));
     return this.http.get<PlannedGroceryUpdatable>(url, {headers: this.rest.getHeaders(), params})
       .pipe(tap(record => new PlannedGroceryUpdatable(record)));
   }
@@ -31,7 +31,7 @@ export class PlannedGroceryService {
   // If Creating a new store for an existing site
   getUpdatableBySiteId(siteId: number) {
     const url = this.rest.getHost() + this.endpoint + '/updatable';
-    const params = new HttpParams().set('siteId', String(siteId));
+    const params = new HttpParams().set('site-id', String(siteId));
     return this.http.get<PlannedGroceryUpdatable>(url, {headers: this.rest.getHeaders(), params})
       .pipe(tap(record => new PlannedGroceryUpdatable(record)));
   }
@@ -39,7 +39,7 @@ export class PlannedGroceryService {
   // If Creating a new site + store in an existing shopping center
   getUpdatableByShoppingCenterId(shoppingCenterId: number) {
     const url = this.rest.getHost() + this.endpoint + '/updatable';
-    const params = new HttpParams().set('shoppingCenterId', String(shoppingCenterId));
+    const params = new HttpParams().set('shopping-center-id', String(shoppingCenterId));
     return this.http.get<PlannedGroceryUpdatable>(url, {headers: this.rest.getHeaders(), params})
       .pipe(tap(record => new PlannedGroceryUpdatable(record)));
   }
