@@ -24,7 +24,7 @@ export class StoreMappable implements EntityMappable {
   private readonly HIGH_ZOOM = 13;
   private readonly MID_ZOOM = 16;
 
-  constructor(store: SimplifiedStore, currentUserId: number, getSelectedProjectId: () => number) {
+  constructor(store: SimplifiedStore, currentUserId: number, getSelectedProjectId?: () => number) {
     this.store = store;
     this.id = store.id;
     this.currentUserId = currentUserId;
