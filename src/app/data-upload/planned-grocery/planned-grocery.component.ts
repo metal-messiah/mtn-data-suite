@@ -71,14 +71,22 @@ export class PlannedGroceryComponent implements OnInit {
   fullStoreData: PlannedGroceryUpdatable;
   fullSiteData: Site;
 
+  dateOpened: Date;
+
   storeTypes: string[] = ['ACTIVE', 'FUTURE', 'HISTORICAL'];
-  pgStatuses: object = {
-    0: 'Built',
-    1: 'Under Construction',
-    2: 'Proposed',
-    3: 'Planned',
-    99: 'Dead Deal'
+  statuses: object = {
+    0: { pg: 'Built', db: 'Open' },
+    1: { pg: 'Under Construction', db: 'New Under Construction' },
+    2: { pg: 'Proposed', db: 'Proposed' },
+    3: { pg: 'Planned', db: 'Planned' },
+    99: { pg: 'Dead Deal', db: 'Dead Deal' }
   };
+
+
+  storeStatusOptions = ['Closed', 'Dead Deal', 'New Under Construction', 'Open', 'Planned', 'Proposed', 'Remodel',
+    'Rumored', 'Strong Rumor', 'Temporarily Closed'];
+
+  statusSelection;
 
   gettingEntities = false;
 
@@ -124,55 +132,74 @@ export class PlannedGroceryComponent implements OnInit {
       });
   }
 
-  setStepCompleted(step, action, siteID, storeID, stepper) {
-    if (step === 1) {
-      this.step1Completed = true;
-      this.setStepAction(step, action, siteID, storeID, stepper);
-    }
-    if (step === 2) {
-      this.step2Completed = true;
-      this.setStepAction(step, action, siteID, storeID, stepper);
-    }
+  setFullStoreDataProperty(property, val) {
+    console.log(property, val)
   }
 
-  setStepAction(step, action, siteID, storeID, stepper) {
+  setStepCompleted(step, action, siteID, storeID, scID, stepper) {
+    if (step === 1) {
+      this.step1Completed = true;
+      this.setStepAction(step, action, siteID, storeID, scID, stepper);
+    }
+    if (step === 2) {
+      this.step1Completed = false;
+      stepper.reset()
+    }
+    console.log('step 1 completed?', this.step1Completed);
+  }
+
+  setStepAction(step, action, siteID, storeID, scID, stepper) {
     if (step === 1) {
       this.step1Action = action;
     }
     if (step === 2) {
       this.step2Action = action;
     }
-    console.log(step, action, siteID, storeID);
+    console.log(step, action, siteID, storeID, scID);
 
-    this.generateForm(step, action, siteID, storeID, stepper);
+    this.generateForm(step, action, siteID, storeID, scID, stepper);
   }
 
-  generateForm(step, action, siteID, storeID, stepper) {
-    // SITE
-    if (siteID) {
-      // this.isFetching = true;
-      this.pgService
-        .getUpdatableBySiteId(siteID)
-        // .pipe(finalize(() => ()))
-        .subscribe(store => {
-          this.fullStoreData = Object.assign({}, store);
-          console.log(this.fullStoreData);
-        });
-    }
+  generateForm(step, action, siteID, storeID, scID, stepper) {
 
-    // STORE
-    if (storeID) {
+    this.statusSelection = this.statuses[this.currentRecordData['attributes'].STATUS]['db']
+    // MATCH STORE
+    if (action === 'MATCH' && storeID) {
       // this.isFetching = true;
       this.pgService
         .getUpdatableByStoreId(storeID)
         // .pipe(finalize(() => ()))
         .subscribe(store => {
           this.fullStoreData = Object.assign({}, store);
+          this.dateOpened = this.fullStoreData.dateOpened ? new Date(this.fullStoreData.dateOpened) : null;
           console.log(this.fullStoreData);
+          stepper.next();
+        });
+    } else if (action === 'ADD_STORE' && siteID) {
+      // this.isFetching = true;
+      this.pgService
+        .getUpdatableBySiteId(siteID)
+        // .pipe(finalize(() => ()))
+        .subscribe(store => {
+          this.fullStoreData = Object.assign({}, store);
+          this.dateOpened = this.fullStoreData.dateOpened ? new Date(this.fullStoreData.dateOpened) : null;
+          console.log(this.fullStoreData);
+          stepper.next();
+        });
+    } else if (action === 'ADD_SISTER' && scID) {
+      // this.isFetching = true;
+      this.pgService
+        .getUpdatableByShoppingCenterId(scID)
+        // .pipe(finalize(() => ()))
+        .subscribe(store => {
+          this.fullStoreData = Object.assign({}, store);
+          this.dateOpened = this.fullStoreData.dateOpened ? new Date(this.fullStoreData.dateOpened) : null;
+          console.log(this.fullStoreData);
+          stepper.next();
         });
     }
 
-    stepper.next();
+
   }
 
   siteHover(store, type) {
@@ -386,7 +413,7 @@ export class PlannedGroceryComponent implements OnInit {
                 lng: this.currentRecordData['geometry']['x'],
                 lat: this.currentRecordData['geometry']['y']
               };
-              
+
 
               const dbGeom = { lng: site['longitude'], lat: site['latitude'] };
               console.log(crGeom, dbGeom);

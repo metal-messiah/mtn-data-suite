@@ -186,7 +186,18 @@ button{
     font-size: small;
     margin-left: 20px;
     color: #666;
+    cursor: pointer;
 }
+
+.pg-value-desc:hover{
+    color: orange;
+    font-weight: bold;
+}
+
+mat-form-field{
+    width: 100%;
+}
+
 @media screen and (max-width: 1000px){
     .hidden-sm{
         display: none;

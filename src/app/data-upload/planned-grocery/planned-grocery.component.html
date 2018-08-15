@@ -37,11 +37,11 @@
               currentRecordData.attributes.STATE : ''}}</div>
             <div class='small-text'>
               {{currentRecordData ? currentRecordData.attributes ? currentRecordData.attributes.SIZESF ? currentRecordData.attributes.SIZESF.toLocaleString()
-              + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{currentRecordData ? " | Status: "+ pgStatuses[currentRecordData.attributes.STATUS]
+              + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{currentRecordData ? " | Status: "+ statuses[currentRecordData.attributes.STATUS]['pg']
               : ''}}
             </div>
           </div>
-          <button (click)="setStepCompleted(1, 'ADD_SITE', null, null, stepper)" mat-button matStepperNext class=''>Add Site</button>
+          <button (click)="setStepCompleted(1, 'ADD_SITE', null, null, null, stepper)" mat-button matStepperNext class=''>Add Site</button>
         </div>
         <div class='accent-bar large-text'>Match to Existing</div>
         <div class='results-table'>
@@ -62,13 +62,13 @@
               <i mat-icon-button [mat-menu-trigger-for]="siteMenu" class="site-menu fas fa-ellipsis-v"></i>
 
               <mat-menu #siteMenu="matMenu">
-                <button (click)="setStepCompleted(1,'ADD_SISTER',item.id, null, stepper);" matStepperNext mat-menu-item>Add Sister Shopping Center Site</button>
+                <button (click)="setStepCompleted(1,'ADD_SISTER',null, null, item.shoppingCenterId, stepper);" matStepperNext mat-menu-item>Add Sister Shopping Center Site</button>
               </mat-menu>
 
               <div [style.color]="item.distanceFrom < 0.5 ? 'green': '#ff9802'" class='site-distance'>
                 <i class="fas fa-arrow-circle-up" [style.transform]="item.heading"></i> {{item.distanceFrom.toFixed(2)}} Miles</div>
               <div class='site-title'>{{item.address1 + ", " + item.city + ", " + item.state }}</div>
-              <button (click)="setStepCompleted(1,'ADD_STORE',item.id, null, stepper)" mat-button matStepperNext class=' add-store'>Add Store</button>
+              <button (click)="setStepCompleted(1,'ADD_STORE',item.id, null, null, stepper)" mat-button matStepperNext class=' add-store'>Add Store</button>
             </div>
             <mat-divider></mat-divider>
             <div (mouseenter)="siteHover(each, 'enter')" (mouseleave)="siteHover(each, 'leave')" class="results-each" *ngFor="let each of item.stores">
@@ -76,7 +76,7 @@
                 <div class='store-attribute'>{{each.storeName}}</div>
                 <div class='hidden-xs store-attribute'>{{each.storeType}}</div>
                 <div class='hidden-xs store-attribute'>{{each.currentStoreStatus.status}} {{each.currentStoreStatus.statusStartDate | date}}</div>
-                <button (click)="setStepCompleted(1,'MATCH',item.id, each.id, stepper);" mat-button matStepperNext [ngClass]="{'highlighted': bestMatch.store.id == each.id && bestMatch.score <=4}">Match</button>
+                <button (click)="setStepCompleted(1,'MATCH',item.id, each.id, null, stepper);" mat-button matStepperNext [ngClass]="{'highlighted': bestMatch.store.id == each.id && bestMatch.score <=4}">Match</button>
               </div>
             </div>
           </div>
@@ -89,83 +89,87 @@
         <ng-template matStepLabel>Match/Edit Data</ng-template>
         <!-- CONTENT FOR SECOND SECTION! -->
         <!-- <mat-form-field>
-            <input matInput placeholder="Address" formControlName="secondCtrl" required>
+            <input matInput placeholder="Address" id="secondCtrl" required>
           </mat-form-field> -->
         <!-- <div *ngIf="step1Action == 'ADD_SITE'">
             ADD SITE
-          </div>
+          </div>s
           <div *ngIf="step1Action == 'ADD_STORE'">
             ADD STORE
           </div>
           <div *ngIf="step1Action == 'MATCH'"> -->
         <h4>Shopping Center</h4>
-          <mat-form-field>
-            <input matInput type="text" placeholder="Name" formControlName="sc-name" [value]="fullStoreData ? fullStoreData.shoppingCenterName : null"
-              required>
-          </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Name" id="sc-name" [value]="fullStoreData ? fullStoreData.shoppingCenterName : null"
+            (change)="setFullStoreDataProperty($event.target.id, $event.target.value)" required>
+        </mat-form-field>
         <h4>Site</h4>
-          <mat-form-field>
-            <input matInput type="text" placeholder="Address" formControlName="address" [value]="fullStoreData ? fullStoreData.address : null"
-              required>
-          </mat-form-field>
-          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.DESCLOCATION : null}}</span>
-          <mat-form-field>
-            <input matInput type="text" placeholder="City" formControlName="city" [value]="fullStoreData ? fullStoreData.city : null"
-              required>
-          </mat-form-field>
-          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.CITY : null}}</span>
-          <mat-form-field>
-            <input matInput type="text" placeholder="State" formControlName="state" [value]="fullStoreData ? fullStoreData.county : null"
-              required>
-          </mat-form-field>
-          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.county : null}}</span>
-          <mat-form-field>
-            <input matInput type="text" placeholder="State" formControlName="state" [value]="fullStoreData ? fullStoreData.state : null"
-              required>
-          </mat-form-field>
-          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.STATE : null}}</span>
-          <mat-form-field>
-            <input matInput type="text" placeholder="Postal Code" formControlName="postalcode" [value]="fullStoreData ? fullStoreData.postalCode : null"
-              required>
-          </mat-form-field>
-          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.ZIP : null}}</span>
-          <mat-form-field>
-            <input matInput type="text" placeholder="Quad" formControlName="quad" [value]="fullStoreData ? fullStoreData.quad : null">
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput type="text" placeholder="Primary" formControlName="primary" [value]="fullStoreData ? fullStoreData.intersectionStreetPrimary : null">
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput type="text" placeholder="Secondary" formControlName="secondary" [value]="fullStoreData ? fullStoreData.intersectionStreetSecondary : null">
-          </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Address" id="address" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)"
+            [value]="fullStoreData ? fullStoreData.address : null" required>
+          <mat-hint align="end">{{currentRecordData ? currentRecordData.attributes.DESCLOCATION : null}}</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="City" id="city" [value]="fullStoreData ? fullStoreData.city : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)"
+            required>
+          <mat-hint align="end">{{currentRecordData ? currentRecordData.attributes.CITY : null}}</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="County" id="county" [value]="fullStoreData ? fullStoreData.county : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)"
+            required>
+          <mat-hint align="end">{{currentRecordData ? currentRecordData.attributes.county : null}}</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="State" id="state" [value]="fullStoreData ? fullStoreData.state : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)"
+            required>
+          <mat-hint align="end">{{currentRecordData ? currentRecordData.attributes.STATE : null}}</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Postal Code" id="postalcode" [value]="fullStoreData ? fullStoreData.postalCode : null"
+            (change)="setFullStoreDataProperty($event.target.id, $event.target.value)" required>
+          <mat-hint align="end">{{currentRecordData ? currentRecordData.attributes.ZIP : null}}</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Quad" id="quad" [value]="fullStoreData ? fullStoreData.quad : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)">
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Primary" id="primary" [value]="fullStoreData ? fullStoreData.intersectionStreetPrimary : null"
+            (change)="setFullStoreDataProperty($event.target.id, $event.target.value)">
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Secondary" id="secondary" [value]="fullStoreData ? fullStoreData.intersectionStreetSecondary : null"
+            (change)="setFullStoreDataProperty($event.target.id, $event.target.value)">
+        </mat-form-field>
 
         <h4>Store</h4>
-          <mat-form-field>
-            <input matInput type="text" placeholder="Name" formControlName="name" [value]="fullStoreData ? fullStoreData.storeName : null"
-              required>
-          </mat-form-field>
-          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.NAME : null}}</span>
-          <mat-form-field>
-            <input matInput type="number" placeholder="Area" formControlName="area" [value]="fullStoreData ? fullStoreData.areaTotal : null">
-          </mat-form-field>
-          <span class="pg-value-desc">{{currentRecordData ? currentRecordData.attributes.SIZESF : null}}</span>
-          <mat-form-field>
-            <input matInput type="date" placeholder="Date Opened" formControlName="date" [value]="fullStoreData ? fullStoreData.dateOpened : null">
-          </mat-form-field>
-          <span class="pg-value-desc">{{ currentRecordData.attributes.OPENDATE | date}}</span>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Name" id="name" [value]="fullStoreData ? fullStoreData.storeName : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)"
+            required>
+          <mat-hint align="end">{{currentRecordData ? currentRecordData.attributes.NAME : null}}</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="number" placeholder="Area" id="area" [value]="fullStoreData ? fullStoreData.areaTotal : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)">
+          <mat-hint align="end">{{currentRecordData ? currentRecordData.attributes.SIZESF : null}}</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <!-- <input matInput type="date" placeholder="Date Opened" id="date" [value]="fullStoreData ? fullStoreData.dateOpened : null" (dateChange)="setFullStoreDataProperty('date', $event.value)"> -->
+          <input matInput [matDatepicker]="picker" placeholder="Date Opened" [value]="dateOpened">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-hint align="end">{{currentRecordData.attributes.OPENDATE | date}}</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select id="status" [(value)]="statusSelection" (selectionChange)="setFullStoreDataProperty('STATUS', $event.value)">
+            <mat-option *ngFor="let s of storeStatusOptions" [value]="s">{{ s }}</mat-option>
+          </mat-select>
+          <mat-hint align="end">{{statuses[currentRecordData.attributes.STATUS]['db']}}</mat-hint>
+        </mat-form-field>
 
         <div>
           <button class="stepper-button" mat-button matStepperPrevious>Back</button>
-          <button class="stepper-button" mat-button matStepperNext>Save &amp; Proceed</button>
+          <button class="stepper-button" (click)="setStepCompleted(2,null,null,null, null, stepper)" mat-button matStepperNext>Save &amp; Proceed</button>
         </div>
         <!-- </form> -->
-      </mat-step>
-      <mat-step>
-        <ng-template matStepLabel>Save &amp; Continue</ng-template>
-        <div>
-          <button mat-button matStepperPrevious>Save &amp; Continue</button>
-          <button mat-button (click)="stepper.reset()">Reset</button>
-        </div>
       </mat-step>
     </mat-horizontal-stepper>
 

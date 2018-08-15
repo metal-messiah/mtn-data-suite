@@ -15,39 +15,39 @@ export class StoreSourceService {
   dummyData: object[];
   dummyDB = [
     {
-      address: "123 Fake Street",
-      city: "Layton",
-      state: "UT",
+      address: '123 Fake Street',
+      city: 'Layton',
+      state: 'UT',
       zip: 84000,
       stores: [
         {
           OBJECTID: 15,
-          store_name: "Harmons",
+          store_name: 'Harmons',
           store_number: 10,
-          status: "Open",
-          status_date: "3/2018"
+          status: 'Open',
+          status_date: '3/2018'
         },
         {
           OBJECTID: 20,
-          store_name: "Smith's",
+          store_name: 'Smith\'s',
           store_number: 9874,
-          status: "Closed",
-          status_date: "11/2017"
+          status: 'Closed',
+          status_date: '11/2017'
         }
       ]
     },
     {
-      address: "4564 Canyon Avenue",
-      city: "Layton",
-      state: "UT",
+      address: '4564 Canyon Avenue',
+      city: 'Layton',
+      state: 'UT',
       zip: 84000,
       stores: [
         {
           OBJECTID: 12436,
-          store_name: "Albertsons",
+          store_name: 'Albertsons',
           store_number: 56,
-          status: "Open",
-          status_date: "3/2018"
+          status: 'Open',
+          status_date: '3/2018'
         }
       ]
     }
@@ -60,7 +60,7 @@ export class StoreSourceService {
   getSourcesNotValidated(): Observable<Pageable<SimplifiedStoreSource>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams().set('validated', 'false');
-    params = params.set('size', '100');
+    params = params.set('size', '500');
     return this.http.get<Pageable<StoreSource>>(url, {headers: this.rest.getHeaders(), params: params});
   }
 
