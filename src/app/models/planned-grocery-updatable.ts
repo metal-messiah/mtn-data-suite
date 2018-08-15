@@ -1,5 +1,6 @@
 import { SimplifiedStoreStatus } from './simplified/simplified-store-status';
 import { DateUtil } from '../utils/date-util';
+import { OVERLAY_KEYBOARD_DISPATCHER_PROVIDER } from '@angular/cdk/overlay/typings/keyboard/overlay-keyboard-dispatcher';
 
 export class PlannedGroceryUpdatable {
 
@@ -33,8 +34,11 @@ export class PlannedGroceryUpdatable {
   readonly storeSurveyId: number;
   areaTotal: number;
 
-  constructor(obj) {
+  constructor(obj: any) {
+
     Object.assign(this, obj);
-    this.dateOpened = DateUtil.getDate(obj.dateOpened);
+    this.dateOpened = DateUtil.getDate(obj['dateOpened']);
+
+
   }
 }

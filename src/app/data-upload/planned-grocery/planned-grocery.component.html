@@ -148,12 +148,12 @@
           <mat-hint align="end">{{currentRecordData ? currentRecordData.attributes.NAME : null}}</mat-hint>
         </mat-form-field>
         <mat-form-field>
-          <input matInput type="number" placeholder="Area" id="area" [value]="fullStoreData ? fullStoreData.areaTotal : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)">
+          <input matInput type="number" placeholder="Area" id="areaTotal" [value]="fullStoreData ? fullStoreData.areaTotal : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)">
           <mat-hint align="end">{{currentRecordData ? currentRecordData.attributes.SIZESF : null}}</mat-hint>
         </mat-form-field>
         <mat-form-field>
           <!-- <input matInput type="date" placeholder="Date Opened" id="date" [value]="fullStoreData ? fullStoreData.dateOpened : null" (dateChange)="setFullStoreDataProperty('date', $event.value)"> -->
-          <input matInput [matDatepicker]="picker" placeholder="Date Opened" [value]="dateOpened">
+          <input matInput [matDatepicker]="picker" placeholder="Date Opened" [value]="dateOpened" (dateInput)="setFullStoreDataProperty('dateOpened', $event.value)">
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
           <mat-hint align="end">{{currentRecordData.attributes.OPENDATE | date}}</mat-hint>

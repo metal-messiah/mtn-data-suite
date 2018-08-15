@@ -7,6 +7,7 @@ import { MapPointLayer } from '../../models/map-point-layer';
 import { StoreMappable } from '../../models/store-mappable';
 import { PgMappable } from '../../models/pg-mappable';
 import { SimplifiedStoreSource } from '../../models/simplified/simplified-store-source';
+import { SimplifiedStoreStatus } from '../../models/simplified/simplified-store-status';
 import { Pageable } from '../../models/pageable';
 import { StoreService } from '../../core/services/store.service';
 import { SiteService } from '../../core/services/site.service';
@@ -133,7 +134,14 @@ export class PlannedGroceryComponent implements OnInit {
   }
 
   setFullStoreDataProperty(property, val) {
-    console.log(property, val)
+    console.log(property, val);
+    if (property === 'STATUS') {
+      const s = {id: null, status: val, statusStartDate: new Date(this.currentRecordData.attributes.EditDate).toISOString()};
+      this.fullStoreData['storeStatuses'].push(s)
+    } else {
+    this.fullStoreData[property] = val;
+    }
+    console.log(this.fullStoreData)
   }
 
   setStepCompleted(step, action, siteID, storeID, scID, stepper) {
@@ -143,7 +151,13 @@ export class PlannedGroceryComponent implements OnInit {
     }
     if (step === 2) {
       this.step1Completed = false;
-      stepper.reset()
+
+      this.pgService.submitUpdate(this.fullStoreData).subscribe(resp => {
+
+        console.log(resp);
+        stepper.reset()
+      });
+
     }
     console.log('step 1 completed?', this.step1Completed);
   }
@@ -159,6 +173,7 @@ export class PlannedGroceryComponent implements OnInit {
 
     this.generateForm(step, action, siteID, storeID, scID, stepper);
   }
+
 
   generateForm(step, action, siteID, storeID, scID, stepper) {
 
@@ -197,9 +212,18 @@ export class PlannedGroceryComponent implements OnInit {
           console.log(this.fullStoreData);
           stepper.next();
         });
+    } else if (action === 'ADD_SITE') {
+      // this.isFetching = true;
+      console.log('add site')
+
+      this.fullStoreData = new PlannedGroceryUpdatable(this.pgService.createUpdatableFromPGFeature(this.currentRecordData));
+      this.dateOpened = this.fullStoreData.dateOpened ? new Date(this.fullStoreData.dateOpened) : null;
+      console.log(this.fullStoreData);
+      setTimeout(() => stepper.next(), 500);
+
+
+
     }
-
-
   }
 
   siteHover(store, type) {
