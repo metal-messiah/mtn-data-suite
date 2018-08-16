@@ -9,23 +9,24 @@ export class AuditingEntity implements Entity {
   createdDate: Date;
   updatedBy: SimplifiedUserProfile;
   updatedDate: Date;
-  version: number;
+  readonly version: number;
 
-  constructor(obj) {
-    this.id = obj.id;
-    this.version = obj.version;
-    if (obj.createdBy != null) {
-      this.createdBy = new SimplifiedUserProfile(obj.createdBy);
-    }
-    if (obj.createdDate != null) {
-      this.createdDate = DateUtil.getDate(obj.createdDate);
-    }
-    if (obj.updatedBy != null) {
-      this.updatedBy = new SimplifiedUserProfile(obj.updatedBy);
-    }
-    if (obj.updatedDate != null) {
-      this.updatedDate = DateUtil.getDate(obj.updatedDate);
-
+  constructor(obj?) {
+    if (obj) {
+      this.id = obj.id;
+      this.version = obj.version;
+      if (obj.createdBy != null) {
+        this.createdBy = new SimplifiedUserProfile(obj.createdBy);
+      }
+      if (obj.createdDate != null) {
+        this.createdDate = DateUtil.getDate(obj.createdDate);
+      }
+      if (obj.updatedBy != null) {
+        this.updatedBy = new SimplifiedUserProfile(obj.updatedBy);
+      }
+      if (obj.updatedDate != null) {
+        this.updatedDate = DateUtil.getDate(obj.updatedDate);
+      }
     }
   }
 }
