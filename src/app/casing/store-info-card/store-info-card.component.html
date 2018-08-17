@@ -34,7 +34,7 @@
 </div>
 
 <mat-menu #markerMoreMenu="matMenu" [overlapTrigger]="false">
-  <div mat-menu-item>Store ID: #{{store.id}}</div>
+  <button mat-menu-item (click)="copyToClipboard(store.id)">Store ID: #{{store.id}}</button>
   <button mat-menu-item (click)="moveStore()">
     <i class="fas fa-arrows-alt"></i>&nbsp;Move
   </button>
