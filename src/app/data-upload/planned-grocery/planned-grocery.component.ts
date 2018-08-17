@@ -6,7 +6,6 @@ import { FormBuilder } from '@angular/forms';
 import { MapPointLayer } from '../../models/map-point-layer';
 import { StoreMappable } from '../../models/store-mappable';
 import { PgMappable } from '../../models/pg-mappable';
-import { SimplifiedStoreSource } from '../../models/simplified/simplified-store-source';
 import { Pageable } from '../../models/pageable';
 import { StoreService } from '../../core/services/store.service';
 import { SiteService } from '../../core/services/site.service';
@@ -31,6 +30,7 @@ import { debounce, debounceTime, delay, finalize, mergeMap, tap } from 'rxjs/int
 import { Observable, of, Subscription } from 'rxjs/index';
 import { PlannedGroceryLayer } from '../../models/planned-grocery-layer';
 import { MapDataLayer } from '../../models/map-data-layer';
+import { StoreSource } from '../../models/full/store-source';
 
 enum Actions {
   add_site = 'ADD_SITE',
@@ -51,8 +51,8 @@ export class PlannedGroceryComponent implements OnInit {
   siteMapLayer: EntityMapLayer<SiteMappable>;
   mapDataLayer: MapDataLayer;
 
-  records: SimplifiedStoreSource[];
-  currentRecord: SimplifiedStoreSource;
+  records: StoreSource[];
+  currentRecord: StoreSource;
   currentRecordIndex: number;
 
   currentRecordData: object;
@@ -110,7 +110,7 @@ export class PlannedGroceryComponent implements OnInit {
     this.sourceService
       .getSourcesNotValidated()
       .pipe(finalize(() => (retrievingSources = false)))
-      .subscribe((page: Pageable<SimplifiedStoreSource>) => {
+      .subscribe((page: Pageable<StoreSource>) => {
         this.records = page.content;
         this.setCurrentRecord(0);
         // this.currentDBResults = this.sourceService.getDBTable();
