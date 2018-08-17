@@ -42,6 +42,7 @@ import { PlannedGroceryLayer } from '../../models/planned-grocery-layer';
 
 import { MapDataLayer } from '../../models/map-data-layer';
 import { PlannedGroceryUpdatable } from '../../models/planned-grocery-updatable';
+import { Mappable } from '../../interfaces/mappable';
 
 enum Actions {
   add_site = 'ADD_SITE',
@@ -61,11 +62,13 @@ export class PlannedGroceryComponent implements OnInit {
   siteMapLayer: EntityMapLayer<SiteMappable>;
   mapDataLayer: MapDataLayer;
 
+
+
   records: SimplifiedStoreSource[];
   currentRecord: SimplifiedStoreSource;
   currentRecordIndex: number;
 
-  currentRecordData: object;
+  currentRecordData: any;
 
   currentDBResults: object[];
 
@@ -73,6 +76,7 @@ export class PlannedGroceryComponent implements OnInit {
   fullSiteData: Site;
 
   dateOpened: Date;
+
 
   storeTypes: string[] = ['ACTIVE', 'FUTURE', 'HISTORICAL'];
   statuses: object = {
@@ -122,6 +126,10 @@ export class PlannedGroceryComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.getPGSources();
+  }
+
+  getPGSources() {
     let retrievingSources = true;
     this.sourceService
       .getSourcesNotValidated()
@@ -135,27 +143,29 @@ export class PlannedGroceryComponent implements OnInit {
 
   setFullStoreDataProperty(property, val) {
     console.log(property, val);
-    if (property === 'STATUS') {
-      const s = {id: null, status: val, statusStartDate: new Date(this.currentRecordData.attributes.EditDate).toISOString()};
+    if (property === 'STATUS' && this.currentRecordData) {
+      const s = { id: null, status: val, statusStartDate: new Date(this.currentRecordData['attributes'].EditDate) };
       this.fullStoreData['storeStatuses'].push(s)
     } else {
-    this.fullStoreData[property] = val;
+      this.fullStoreData[property] = val;
     }
     console.log(this.fullStoreData)
   }
 
-  setStepCompleted(step, action, siteID, storeID, scID, stepper) {
+  setStepCompleted(step, completed, action, siteID, storeID, scID, stepper) {
     if (step === 1) {
-      this.step1Completed = true;
-      this.setStepAction(step, action, siteID, storeID, scID, stepper);
+      this.step1Completed = completed;
+      if (completed) { this.setStepAction(step, action, siteID, storeID, scID, stepper); } else { this.setPgFeature(false); }
     }
     if (step === 2) {
       this.step1Completed = false;
 
-      this.pgService.submitUpdate(this.fullStoreData).subscribe(resp => {
 
+      this.pgService.submitUpdate(this.fullStoreData).subscribe(resp => {
+        this.setPgFeature(false);
         console.log(resp);
         stepper.reset()
+        this.getPGSources();
       });
 
     }
@@ -172,6 +182,11 @@ export class PlannedGroceryComponent implements OnInit {
     console.log(step, action, siteID, storeID, scID);
 
     this.generateForm(step, action, siteID, storeID, scID, stepper);
+  }
+
+  setPgFeature(draggable) {
+    const featureMappable = new PgMappable(this.currentRecordData);
+    this.pgMapLayer.setPgFeature(featureMappable, draggable);
   }
 
 
@@ -213,8 +228,7 @@ export class PlannedGroceryComponent implements OnInit {
           stepper.next();
         });
     } else if (action === 'ADD_SITE') {
-      // this.isFetching = true;
-      console.log('add site')
+      this.setPgFeature(true)
 
       this.fullStoreData = new PlannedGroceryUpdatable(this.pgService.createUpdatableFromPGFeature(this.currentRecordData));
       this.dateOpened = this.fullStoreData.dateOpened ? new Date(this.fullStoreData.dateOpened) : null;
@@ -261,7 +275,9 @@ export class PlannedGroceryComponent implements OnInit {
 
         this.mapService.setCenter(featureMappable.getCoordinates());
         this.mapService.setZoom(15);
-        this.createNewLocation(featureMappable);
+
+
+        this.setPgFeature(false);
       });
   }
 
@@ -271,6 +287,13 @@ export class PlannedGroceryComponent implements OnInit {
 
   onMapReady(event) {
     this.pgMapLayer = new PlannedGroceryLayer(this.mapService.getMap());
+    this.pgMapLayer.markerDragEnd$.subscribe((draggedMarker: PgMappable) => {
+      const coords = this.pgMapLayer.getCoordinatesOfMappableMarker(draggedMarker)
+
+      this.fullStoreData.longitude = coords.lng;
+      this.fullStoreData.latitude = coords.lat;
+
+    });
     console.log(`Map is ready`);
     this.storeMapLayer = new EntityMapLayer<StoreMappable>(
       this.mapService.getMap(),
@@ -295,12 +318,6 @@ export class PlannedGroceryComponent implements OnInit {
         this.currentDBResults = [];
         this.getEntities(bounds);
       });
-  }
-
-  // Called after querying PG for individual record
-  createNewLocation(featureMappable: PgMappable): void {
-    // Add new location to layer
-    this.pgMapLayer.setPgFeature(featureMappable);
   }
 
   cancelLocationCreation(): void {
