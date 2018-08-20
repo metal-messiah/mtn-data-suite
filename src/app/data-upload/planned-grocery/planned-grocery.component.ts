@@ -166,6 +166,13 @@ export class PlannedGroceryComponent implements OnInit {
         console.log(resp);
         stepper.reset()
         this.getPGSources();
+      },  err => {
+        console.error(err);
+        // this.ngZone.run(() => {
+        //   this.errorService.handleServerError(`Failed to retrieve entities!`, err,
+        //     () => console.log(err),
+        //     () => this.getEntities(bounds));
+        // });
       });
 
     }
@@ -222,8 +229,17 @@ export class PlannedGroceryComponent implements OnInit {
         .getUpdatableByShoppingCenterId(scID)
         // .pipe(finalize(() => ()))
         .subscribe(store => {
-          this.fullStoreData = Object.assign({}, store);
+          this.setPgFeature(true)
+          const pgU  = new PlannedGroceryUpdatable(this.pgService.createUpdatableFromPGFeature(this.currentRecordData));
+
+          this.fullStoreData = Object.assign(pgU, {shoppingCenterId: store.shoppingCenterId, shoppingCenterName: store.shoppingCenterName});
+          
           this.dateOpened = this.fullStoreData.dateOpened ? new Date(this.fullStoreData.dateOpened) : null;
+
+          // this.fullStoreData.shoppingCenterId = store.shoppingCenterId;
+          // this.fullStoreData.shoppingCenterName = store.shoppingCenterName;
+          this.fullStoreData.latitude = this.currentRecordData.geometry.y;
+          this.fullStoreData.longitude = this.currentRecordData.geometry.x;
           console.log(this.fullStoreData);
           stepper.next();
         });
@@ -292,6 +308,7 @@ export class PlannedGroceryComponent implements OnInit {
 
       this.fullStoreData.longitude = coords.lng;
       this.fullStoreData.latitude = coords.lat;
+
 
     });
     console.log(`Map is ready`);

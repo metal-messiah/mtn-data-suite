@@ -106,7 +106,7 @@
         
 
         <h4>Site</h4>
-        <mat-form-field *ngIf="step1Action === 'ADD_SITE'">
+        <mat-form-field *ngIf="step1Action === 'ADD_SITE' || step1Action === 'ADD_SISTER'">
           <input matInput type="number" placeholder="Latitude/Longitude" id="latitude" [value]="fullStoreData ? fullStoreData.latitude : null"
             required disabled>
             <input matInput type="number" placeholder="Longitude" id="longitude" [value]="fullStoreData ? fullStoreData.longitude : null"
