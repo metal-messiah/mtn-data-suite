@@ -75,7 +75,7 @@
               <div class="flex-container">
                 <div class='store-attribute'>{{each.storeName}}</div>
                 <div class='hidden-xs store-attribute'>{{each.storeType}}</div>
-                <div class='hidden-xs store-attribute'>{{each.currentStoreStatus.status}} {{each.currentStoreStatus.statusStartDate | date}}</div>
+                <div class='hidden-xs store-attribute' *ngIf="each.currentStoreStatus">{{each.currentStoreStatus.status}} {{each.currentStoreStatus.statusStartDate | date}}</div>
                 <button (click)="setStepCompleted(1, true, 'MATCH',item.id, each.id, null, stepper);" mat-button matStepperNext [ngClass]="{'highlighted': bestMatch.store.id == each.id && bestMatch.score <=4}">Match</button>
               </div>
             </div>
@@ -103,7 +103,7 @@
           <input matInput type="text" placeholder="Name" id="shoppingCenterName" [value]="fullStoreData ? fullStoreData.shoppingCenterName : null"
             (change)="setFullStoreDataProperty($event.target.id, $event.target.value)" required>
         </mat-form-field>
-        
+
 
         <h4>Site</h4>
         <mat-form-field *ngIf="step1Action === 'ADD_SITE' || step1Action === 'ADD_SISTER'">
@@ -165,13 +165,13 @@
           <input matInput [matDatepicker]="picker" placeholder="Date Opened" [value]="dateOpened" (dateInput)="setFullStoreDataProperty('dateOpened', $event.value)">
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
-          <mat-hint align="end">{{currentRecordData.attributes.OPENDATE | date}}</mat-hint>
+          <mat-hint align="end">{{currentRecordData ? currentRecordData.attributes.OPENDATE : null | date}}</mat-hint>
         </mat-form-field>
         <mat-form-field>
           <mat-select id="status" [(value)]="statusSelection" (selectionChange)="setFullStoreDataProperty('STATUS', $event.value)">
             <mat-option *ngFor="let s of storeStatusOptions" [value]="s">{{ s }}</mat-option>
           </mat-select>
-          <mat-hint align="end">{{statuses[currentRecordData.attributes.STATUS]['db']}}</mat-hint>
+          <mat-hint align="end" *ngIf="currentRecordData">{{statuses[currentRecordData.attributes.STATUS]['db']}}</mat-hint>
         </mat-form-field>
 
         <div>
