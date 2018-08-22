@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { SiteInfoCardComponent } from '../site-info-card/site-info-card.component';
+import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'mds-store-info-card',
@@ -36,5 +37,21 @@ export class StoreInfoCardComponent extends SiteInfoCardComponent implements OnI
       }, err => this.errorService.handleServerError('Failed to update store', err,
         () => console.log(err),
         () => this.setFloating(floating)));
+  }
+
+  copyToClipboard(val) {
+    console.log('copying');
+    const selBox = document.createElement('textarea');
+    selBox.style.position = 'fixed';
+    selBox.style.left = '0';
+    selBox.style.top = '0';
+    selBox.style.opacity = '0';
+    selBox.value = val;
+    document.body.appendChild(selBox);
+    selBox.focus();
+    selBox.select();
+    document.execCommand('copy');
+    document.body.removeChild(selBox);
+    this.snackBar.open(`${val} copied to clipboard`, null, {duration: 1000});
   }
 }

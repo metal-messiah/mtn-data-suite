@@ -1,6 +1,5 @@
 import { SimplifiedStoreStatus } from './simplified/simplified-store-status';
 import { DateUtil } from '../utils/date-util';
-import { OVERLAY_KEYBOARD_DISPATCHER_PROVIDER } from '@angular/cdk/overlay/typings/keyboard/overlay-keyboard-dispatcher';
 import { StoreSource } from './full/store-source';
 
 export class PlannedGroceryUpdatable {
@@ -37,14 +36,16 @@ export class PlannedGroceryUpdatable {
 
   storeSource: StoreSource;
 
-  constructor(obj: PlannedGroceryUpdatable) {
-    Object.assign(this, obj);
-    this.dateOpened = DateUtil.getDate(obj.dateOpened);
-    if (obj.storeSource) {
-      this.storeSource = new StoreSource(obj.storeSource);
-    }
-    if (obj.storeStatuses) {
-      this.storeStatuses = obj.storeStatuses.map(status => new SimplifiedStoreStatus(status));
+  constructor(obj?: PlannedGroceryUpdatable) {
+    if (obj) {
+      Object.assign(this, obj);
+      this.dateOpened = DateUtil.getDate(obj.dateOpened);
+      if (obj.storeSource) {
+        this.storeSource = new StoreSource(obj.storeSource);
+      }
+      if (obj.storeStatuses) {
+        this.storeStatuses = obj.storeStatuses.map(status => new SimplifiedStoreStatus(status));
+      }
     }
   }
 }

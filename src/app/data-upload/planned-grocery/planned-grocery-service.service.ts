@@ -15,9 +15,8 @@ export class PlannedGroceryService {
     private rest: RestService) {
   }
 
-  createUpdatableFromPGFeature(obj) {
-    const attr = obj.attributes;
-    const updatable: any = {};
+  updatePGUpdatableFromPGRecord(updatable: PlannedGroceryUpdatable, pgFeature: {attributes, geometry}): PlannedGroceryUpdatable {
+    const attr = pgFeature.attributes;
     updatable.address = attr.DESCLOCATION;
     updatable.city = attr.CITY;
     updatable.county = attr.county;
@@ -26,20 +25,8 @@ export class PlannedGroceryService {
     updatable.storeName = attr.NAME;
     updatable.areaTotal = attr.SIZESF;
     updatable.dateOpened = attr.OPENDATE;
-
-
-    updatable.latitude = obj.geometry.y;
-    updatable.longitude = obj.geometry.x;
-    updatable.shoppingCenterId = null;
-    updatable.shoppingCenterName = null;
-    updatable.siteId = null;
-    updatable.quad = null;
-    updatable.intersectionStreetPrimary = null;
-    updatable.intersectionStreetSecondary = null;
-    updatable.storeId = null;
-    updatable.storeStatuses = [];
-    updatable.storeSurveyId = null;
-
+    updatable.latitude = pgFeature.geometry.y;
+    updatable.longitude = pgFeature.geometry.x;
     return updatable;
   }
 
