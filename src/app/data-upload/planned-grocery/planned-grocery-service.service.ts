@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/index';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { RestService } from '../../core/services/rest.service';
 import { PlannedGroceryUpdatable } from '../../models/planned-grocery-updatable';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 
 @Injectable()
@@ -27,7 +27,7 @@ export class PlannedGroceryService {
     updatable.areaTotal = attr.SIZESF;
     updatable.dateOpened = attr.OPENDATE;
 
-    
+
     updatable.latitude = obj.geometry.y;
     updatable.longitude = obj.geometry.x;
     updatable.shoppingCenterId = null;
@@ -53,7 +53,7 @@ export class PlannedGroceryService {
     const url = this.rest.getHost() + this.endpoint + '/updatable';
     const params = new HttpParams().set('store-id', String(storeId));
     return this.http.get<PlannedGroceryUpdatable>(url, { headers: this.rest.getHeaders(), params })
-      .pipe(tap(record => new PlannedGroceryUpdatable(record)));
+      .pipe(map(record => new PlannedGroceryUpdatable(record)));
   }
 
   // If Creating a new store for an existing site
@@ -61,7 +61,7 @@ export class PlannedGroceryService {
     const url = this.rest.getHost() + this.endpoint + '/updatable';
     const params = new HttpParams().set('site-id', String(siteId));
     return this.http.get<PlannedGroceryUpdatable>(url, { headers: this.rest.getHeaders(), params })
-      .pipe(tap(record => new PlannedGroceryUpdatable(record)));
+      .pipe(map(record => new PlannedGroceryUpdatable(record)));
   }
 
   // If Creating a new site + store in an existing shopping center
@@ -69,13 +69,13 @@ export class PlannedGroceryService {
     const url = this.rest.getHost() + this.endpoint + '/updatable';
     const params = new HttpParams().set('shopping-center-id', String(shoppingCenterId));
     return this.http.get<PlannedGroceryUpdatable>(url, { headers: this.rest.getHeaders(), params })
-      .pipe(tap(record => new PlannedGroceryUpdatable(record)));
+      .pipe(map(record => new PlannedGroceryUpdatable(record)));
   }
 
   submitUpdate(update: PlannedGroceryUpdatable) {
     const url = this.rest.getHost() + this.endpoint + '/updatable';
     return this.http.post<PlannedGroceryUpdatable>(url, update, { headers: this.rest.getHeaders() })
-      .pipe(tap(record => new PlannedGroceryUpdatable(record)));
+      .pipe(map(record => new PlannedGroceryUpdatable(record)));
   }
 
 }

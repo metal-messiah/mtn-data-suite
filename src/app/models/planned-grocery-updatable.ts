@@ -40,6 +40,11 @@ export class PlannedGroceryUpdatable {
   constructor(obj: PlannedGroceryUpdatable) {
     Object.assign(this, obj);
     this.dateOpened = DateUtil.getDate(obj.dateOpened);
-    this.storeSource = new StoreSource(obj.storeSource);
+    if (obj.storeSource) {
+      this.storeSource = new StoreSource(obj.storeSource);
+    }
+    if (obj.storeStatuses) {
+      this.storeStatuses = obj.storeStatuses.map(status => new SimplifiedStoreStatus(status));
+    }
   }
 }
