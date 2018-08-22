@@ -43,6 +43,7 @@ import { PlannedGroceryLayer } from '../../models/planned-grocery-layer';
 import { MapDataLayer } from '../../models/map-data-layer';
 import { PlannedGroceryUpdatable } from '../../models/planned-grocery-updatable';
 import { Mappable } from '../../interfaces/mappable';
+import { StoreSource } from '../../models/full/store-source';
 
 enum Actions {
   add_site = 'ADD_SITE',
@@ -64,8 +65,8 @@ export class PlannedGroceryComponent implements OnInit {
 
 
 
-  records: SimplifiedStoreSource[];
-  currentRecord: SimplifiedStoreSource;
+  records: StoreSource[];
+  currentRecord: StoreSource;
   currentRecordIndex: number;
 
   currentRecordData: any;
@@ -134,7 +135,7 @@ export class PlannedGroceryComponent implements OnInit {
     this.sourceService
       .getSourcesNotValidated()
       .pipe(finalize(() => (retrievingSources = false)))
-      .subscribe((page: Pageable<SimplifiedStoreSource>) => {
+      .subscribe((page: Pageable<StoreSource>) => {
         this.records = page.content;
         this.setCurrentRecord(0);
         // this.currentDBResults = this.sourceService.getDBTable();
@@ -160,7 +161,7 @@ export class PlannedGroceryComponent implements OnInit {
     if (step === 2) {
       this.step1Completed = false;
 
-
+      this.fullStoreData.storeSource = this.currentRecord;
       this.pgService.submitUpdate(this.fullStoreData).subscribe(resp => {
         this.setPgFeature(false);
         console.log(resp);
@@ -233,7 +234,7 @@ export class PlannedGroceryComponent implements OnInit {
           const pgU  = new PlannedGroceryUpdatable(this.pgService.createUpdatableFromPGFeature(this.currentRecordData));
 
           this.fullStoreData = Object.assign(pgU, {shoppingCenterId: store.shoppingCenterId, shoppingCenterName: store.shoppingCenterName});
-          
+
           this.dateOpened = this.fullStoreData.dateOpened ? new Date(this.fullStoreData.dateOpened) : null;
 
           // this.fullStoreData.shoppingCenterId = store.shoppingCenterId;

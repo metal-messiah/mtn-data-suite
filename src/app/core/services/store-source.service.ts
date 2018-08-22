@@ -57,7 +57,7 @@ export class StoreSourceService {
               private rest: RestService) {
   }
 
-  getSourcesNotValidated(): Observable<Pageable<SimplifiedStoreSource>> {
+  getSourcesNotValidated(): Observable<Pageable<StoreSource>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams().set('validated', 'false');
     params = params.set('size', '500');
