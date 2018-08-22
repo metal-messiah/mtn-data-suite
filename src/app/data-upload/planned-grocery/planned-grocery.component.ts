@@ -131,6 +131,7 @@ export class PlannedGroceryComponent implements OnInit {
   }
 
   getPGSources() {
+    console.log('GETTING PG SOURCES!')
     let retrievingSources = true;
     this.sourceService
       .getSourcesNotValidated()
@@ -204,12 +205,14 @@ export class PlannedGroceryComponent implements OnInit {
     // MATCH STORE
     if (action === 'MATCH' && storeID) {
       // this.isFetching = true;
+      console.log('GET UPDATABLE')
       this.pgService
         .getUpdatableByStoreId(storeID)
         // .pipe(finalize(() => ()))
         .subscribe(store => {
           this.fullStoreData = Object.assign({}, store);
-          this.dateOpened = this.fullStoreData.dateOpened ? new Date(this.fullStoreData.dateOpened) : null;
+          
+      this.setDateOpened();
           console.log(this.fullStoreData);
           stepper.next();
         });
@@ -220,7 +223,8 @@ export class PlannedGroceryComponent implements OnInit {
         // .pipe(finalize(() => ()))
         .subscribe(store => {
           this.fullStoreData = Object.assign({}, store);
-          this.dateOpened = this.fullStoreData.dateOpened ? new Date(this.fullStoreData.dateOpened) : null;
+         
+      this.setDateOpened();
           console.log(this.fullStoreData);
           stepper.next();
         });
@@ -235,26 +239,36 @@ export class PlannedGroceryComponent implements OnInit {
 
           this.fullStoreData = Object.assign(pgU, {shoppingCenterId: store.shoppingCenterId, shoppingCenterName: store.shoppingCenterName});
 
-          this.dateOpened = this.fullStoreData.dateOpened ? new Date(this.fullStoreData.dateOpened) : null;
+          
+      this.setDateOpened();
 
           // this.fullStoreData.shoppingCenterId = store.shoppingCenterId;
           // this.fullStoreData.shoppingCenterName = store.shoppingCenterName;
           this.fullStoreData.latitude = this.currentRecordData.geometry.y;
           this.fullStoreData.longitude = this.currentRecordData.geometry.x;
           console.log(this.fullStoreData);
+          
           stepper.next();
         });
     } else if (action === 'ADD_SITE') {
       this.setPgFeature(true)
 
       this.fullStoreData = new PlannedGroceryUpdatable(this.pgService.createUpdatableFromPGFeature(this.currentRecordData));
-      this.dateOpened = this.fullStoreData.dateOpened ? new Date(this.fullStoreData.dateOpened) : null;
+      this.setDateOpened();
       console.log(this.fullStoreData);
       setTimeout(() => stepper.next(), 500);
 
 
 
     }
+  }
+
+  setDateOpened() {
+    this.dateOpened = this.fullStoreData.dateOpened ? 
+            new Date(this.fullStoreData.dateOpened).toLocaleDateString() : 
+            this.currentRecordData.attributes.OPENDATEAPPROX ? 
+              this.currentRecordData.attributes.OPENDATEAPPROX : null;
+    console.log(this.dateOpened)
   }
 
   siteHover(store, type) {

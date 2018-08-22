@@ -32,16 +32,21 @@
         <!-- CONTENT FOR FIRST SECTION! -->
         <div class='flex-container'>
           <div>
-            <div class='large-text'>{{currentRecordData ? currentRecordData.attributes.NAME : ''}}</div>
+            <div class='large-text'>
+                <a *ngIf='currentRecordData.attributes' href='{{currentRecordData.attributes.SOURCE}}' target='_blank'>
+                  {{currentRecordData ? currentRecordData.attributes.NAME : ''}}
+                </a>
+              </div>
             <div class='med-text'> {{currentRecordData ? currentRecordData.attributes.DESCLOCATION + ", " +currentRecordData.attributes.CITY + ","+
               currentRecordData.attributes.STATE : ''}}</div>
             <div class='small-text'>
               {{currentRecordData ? currentRecordData.attributes ? currentRecordData.attributes.SIZESF ? currentRecordData.attributes.SIZESF.toLocaleString()
               + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{currentRecordData ? " | Status: "+ statuses[currentRecordData.attributes.STATUS]['pg']
               : ''}}
+              
             </div>
           </div>
-          <button (click)="setStepCompleted(1, true, 'ADD_SITE', null, null, null, stepper)" mat-button matStepperNext class=''>Add Site</button>
+          <button (click)="setStepCompleted(1, true, 'ADD_SITE', null, null, null, stepper)" mat-button class=''>Add Site</button>
         </div>
         <div class='accent-bar large-text'>Match to Existing</div>
         <div class='results-table'>
@@ -62,13 +67,13 @@
               <i mat-icon-button [mat-menu-trigger-for]="siteMenu" class="site-menu fas fa-ellipsis-v"></i>
 
               <mat-menu #siteMenu="matMenu">
-                <button (click)="setStepCompleted(1, true, 'ADD_SISTER',null, null, item.shoppingCenterId, stepper);" matStepperNext mat-menu-item>Add Sister Shopping Center Site</button>
+                <button (click)="setStepCompleted(1, true, 'ADD_SISTER',null, null, item.shoppingCenterId, stepper);" mat-menu-item>Add Sister Shopping Center Site</button>
               </mat-menu>
 
               <div [style.color]="item.distanceFrom < 0.5 ? 'green': '#ff9802'" class='site-distance'>
                 <i class="fas fa-arrow-circle-up" [style.transform]="item.heading"></i> {{item.distanceFrom.toFixed(2)}} Miles</div>
               <div class='site-title'>{{item.address1 + ", " + item.city + ", " + item.state }}</div>
-              <button (click)="setStepCompleted(1, true, 'ADD_STORE',item.id, null, null, stepper)" mat-button matStepperNext class=' add-store'>Add Store</button>
+              <button (click)="setStepCompleted(1, true, 'ADD_STORE',item.id, null, null, stepper)" mat-button class=' add-store'>Add Store</button>
             </div>
             <mat-divider></mat-divider>
             <div (mouseenter)="siteHover(each, 'enter')" (mouseleave)="siteHover(each, 'leave')" class="results-each" *ngFor="let each of item.stores">
@@ -165,7 +170,7 @@
           <input matInput [matDatepicker]="picker" placeholder="Date Opened" [value]="dateOpened" (dateInput)="setFullStoreDataProperty('dateOpened', $event.value)">
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
-          <mat-hint align="end">{{currentRecordData ? currentRecordData.attributes.OPENDATE : null | date}}</mat-hint>
+          <mat-hint align="end">{{dateOpened}}</mat-hint>
         </mat-form-field>
         <mat-form-field>
           <mat-select id="status" [(value)]="statusSelection" (selectionChange)="setFullStoreDataProperty('STATUS', $event.value)">
@@ -176,7 +181,7 @@
 
         <div>
           <button class="stepper-button" (click)="setStepCompleted(1, false, null,null,null, null, stepper)" mat-button matStepperPrevious>Back</button>
-          <button class="stepper-button" (click)="setStepCompleted(2, true, null,null,null, null, stepper)" mat-button matStepperNext>Save &amp; Proceed</button>
+          <button class="stepper-button" (click)="setStepCompleted(2, true, null,null,null, null, stepper)" mat-button >Save &amp; Proceed</button>
         </div>
         <!-- </form> -->
       </mat-step>
