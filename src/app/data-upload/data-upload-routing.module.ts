@@ -1,21 +1,21 @@
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
-import { AuthGuard } from "../core/services/auth.guard";
+import { AuthGuard } from '../core/services/auth.guard';
 
-import { DataUploadComponent } from "./data-upload.component";
-import { OptionsMenuComponent } from "./options-menu/options-menu.component";
-import { PlannedGroceryComponent } from "./planned-grocery/planned-grocery.component";
+import { DataUploadComponent } from './data-upload.component';
+import { OptionsMenuComponent } from './options-menu/options-menu.component';
+import { PlannedGroceryComponent } from './planned-grocery/planned-grocery.component';
 import { SpreadsheetComponent } from './spreadsheet/spreadsheet.component';
 
 const routes: Routes = [
   {
-    path: "data-upload",
+    path: 'data-upload',
     component: DataUploadComponent,
     canActivate: [AuthGuard],
     children: [
-      { path: "", component: OptionsMenuComponent },
-      { path: "planned-grocery", component: PlannedGroceryComponent },
+      { path: '', component: OptionsMenuComponent },
+      { path: 'planned-grocery', component: PlannedGroceryComponent },
       { path: 'spreadsheet', component: SpreadsheetComponent }
     ]
   }

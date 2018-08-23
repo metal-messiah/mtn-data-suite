@@ -25,12 +25,6 @@ export class StoreSourceService extends CrudService<StoreSource> {
     return this.http.get<Pageable<StoreSource>>(url, {headers: this.rest.getHeaders(), params: params});
   }
 
-  // update(storeSource: StoreSource, validate: boolean) {
-  //   const url = this.rest.getHost() + this.endpoint;
-  //   const params = new HttpParams().set('validate', String(validate));
-  //   return this.http.put<StoreSource>(url, storeSource, {headers: this.rest.getHeaders(), params: params});
-  // }
-
   protected createEntityFromObj(entityObj): StoreSource {
     return new StoreSource(entityObj);
   }

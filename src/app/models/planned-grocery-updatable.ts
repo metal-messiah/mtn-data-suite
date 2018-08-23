@@ -1,5 +1,6 @@
 import { SimplifiedStoreStatus } from './simplified/simplified-store-status';
 import { DateUtil } from '../utils/date-util';
+import { StoreSource } from './full/store-source';
 
 export class PlannedGroceryUpdatable {
 
@@ -33,8 +34,18 @@ export class PlannedGroceryUpdatable {
   readonly storeSurveyId: number;
   areaTotal: number;
 
-  constructor(obj) {
-    Object.assign(this, obj);
-    this.dateOpened = DateUtil.getDate(obj.dateOpened);
+  storeSource: StoreSource;
+
+  constructor(obj?: PlannedGroceryUpdatable) {
+    if (obj) {
+      Object.assign(this, obj);
+      this.dateOpened = DateUtil.getDate(obj.dateOpened);
+      if (obj.storeSource) {
+        this.storeSource = new StoreSource(obj.storeSource);
+      }
+      if (obj.storeStatuses) {
+        this.storeStatuses = obj.storeStatuses.map(status => new SimplifiedStoreStatus(status));
+      }
+    }
   }
 }

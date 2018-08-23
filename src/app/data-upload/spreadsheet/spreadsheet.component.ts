@@ -218,7 +218,7 @@ export class SpreadsheetComponent implements OnInit {
               site['stores'].forEach(store => {
                 const dbName = store['storeName'];
                 console.log(`SIMILARITY SCORE: ${recordName} & ${dbName}`);
-                const score = this.wordSimilarity.levenshtein(recordName, dbName);
+                const score = WordSimilarity.levenshtein(recordName, dbName);
 
 
                 if (this.bestMatch) {
