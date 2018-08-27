@@ -13,6 +13,8 @@ export class MapPointLayer<T extends Mappable> {
   map: google.maps.Map;
 
   markerClick$ = new Subject<T>();
+  markerDrag$ = new Subject<T>();
+  markerDragEnd$ = new Subject();
 
   constructor(map: google.maps.Map) {
     this.map = map;
@@ -28,6 +30,9 @@ export class MapPointLayer<T extends Mappable> {
       position: mappable.getCoordinates()
     });
     marker.addListener('click', () => this.markerClick$.next(mappable));
+    marker.addListener('drag', () => this.markerDrag$.next(mappable));
+    marker.addListener('dragend', () => this.markerDragEnd$.next(mappable));
+
     // Preserve relationship between marker and mappable
     marker.set('mappable', mappable);
     this.markers.push(marker);

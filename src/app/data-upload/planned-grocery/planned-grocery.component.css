@@ -175,6 +175,29 @@ button{
     flex: 3;
 }
 
+.stepper-button{
+    margin-right: 25px;
+}
+
+.pg-value-desc{
+    text-align: center;
+    margin: 0 auto;
+    font-style: italic;
+    font-size: small;
+    margin-left: 20px;
+    color: #666;
+    cursor: pointer;
+}
+
+.pg-value-desc:hover{
+    color: orange;
+    font-weight: bold;
+}
+
+mat-form-field{
+    width: 100%;
+}
+
 @media screen and (max-width: 1000px){
     .hidden-sm{
         display: none;
