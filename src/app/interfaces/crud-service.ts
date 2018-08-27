@@ -27,7 +27,7 @@ export abstract class CrudService<T extends Entity> {
   }
 
   update(updatedEntity: T): Observable<T> {
-    const url = this.rest.getHost() + this.endpoint + `/${updatedEntity.id}`;
+    const url = this.rest.getHost() + this.endpoint;
     return this.http.put<T>(url, updatedEntity, {headers: this.rest.getHeaders()})
       .pipe(map(entityObj => this.createEntityFromObj(entityObj)));
   }

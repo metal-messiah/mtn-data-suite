@@ -1,5 +1,5 @@
 import { Mappable } from '../interfaces/mappable';
-import { Subject } from 'rxjs/index';
+import { Subject } from 'rxjs';
 
 /*
   The Map Point Layer should represent a list of Mappables on a map.
@@ -39,10 +39,6 @@ export class MapPointLayer<T extends Mappable> {
     if (marker != null) {
       this.setMarkerOptions(marker);
     }
-  }
-
-  refreshOptionsForMappables(mappables: T[]): void {
-    mappables.forEach(mappable => this.refreshOptionsForMappable(mappable));
   }
 
   refreshOptions(): void {
@@ -109,7 +105,7 @@ export class MapPointLayer<T extends Mappable> {
   protected setMarkerOptions(marker: google.maps.Marker): void {
     const mappable: Mappable = marker.get('mappable');
     marker.setDraggable(mappable.isDraggable());
-    marker.setIcon(mappable.getIcon(this.map.getZoom()));
-    marker.setLabel(mappable.getLabel(this.map.getZoom()));
+    marker.setIcon(mappable.getIcon());
+    marker.setLabel(mappable.getLabel());
   }
 }

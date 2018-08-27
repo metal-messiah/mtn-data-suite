@@ -340,7 +340,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     const storeId = parseInt(this.route.snapshot.paramMap.get('storeId'), 10);
     const volumesDialog = this.dialog.open(StoreVolumesSelectionComponent, {
       data: {storeId: storeId},
-      maxWidth: '300px'
+      maxWidth: '90%'
     });
     volumesDialog.afterClosed().subscribe(result => {
       if (result != null) {
@@ -694,12 +694,12 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
 
   openTenantDialog() {
     const data = {shoppingCenterSurveyId: this.shoppingCenterSurvey.id};
-    this.dialog.open(TenantListDialogComponent, {data: data, maxWidth: '400px'});
+    this.dialog.open(TenantListDialogComponent, {data: data, maxWidth: '90%'});
   }
 
   openAccessDialog() {
     const data = {shoppingCenterSurveyId: this.shoppingCenterSurvey.id};
-    this.dialog.open(AccessListDialogComponent, {data: data, maxWidth: '400px'});
+    this.dialog.open(AccessListDialogComponent, {data: data, maxWidth: '90%'});
   }
 
   canDeactivate(): Observable<boolean> | boolean {

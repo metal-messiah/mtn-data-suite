@@ -112,6 +112,9 @@
               <mat-panel-title><i class="fas fa-road"></i>&nbsp;&nbsp;Accessibility</mat-panel-title>
             </mat-expansion-panel-header>
             <div>
+              <div class="flex flex-justify-center" style="margin-bottom: 10px">
+                <button type="button" mat-raised-button color="accent" (click)="openAccessDialog()">Accesses</button>
+              </div>
               <div class="checklist">
                 <mat-checkbox formControlName="accessibilityFarthestFromEntrance">Farthest from entrance
                 </mat-checkbox>
@@ -216,15 +219,6 @@
                   <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
                 </mat-select>
               </mat-form-field>
-            </div>
-          </mat-expansion-panel>
-          <!-- SC Accesses -->
-          <mat-expansion-panel [formGroup]="shoppingCenterSurveyForm">
-            <mat-expansion-panel-header>
-              <mat-panel-title><i class="fas fa-exchange-alt"></i>&nbsp;&nbsp;Accesses</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="flex flex-justify-center">
-              <button type="button" mat-raised-button color="accent" (click)="openAccessDialog()">Access List</button>
             </div>
           </mat-expansion-panel>
           <!-- Fuel -->

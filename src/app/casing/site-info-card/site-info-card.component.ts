@@ -8,6 +8,7 @@ import { UserProfile } from '../../models/full/user-profile';
 import { Router } from '@angular/router';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
 import { Entity } from '../../models/entity';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'mds-site-info-card',
@@ -28,6 +29,7 @@ export class SiteInfoCardComponent implements OnInit {
               protected errorService: ErrorService,
               protected router: Router,
               protected snackBar: MatSnackBar,
+              protected authService: AuthService,
               protected dialog: MatDialog) {
   }
 
@@ -60,8 +62,15 @@ export class SiteInfoCardComponent implements OnInit {
     // TODO create the location data to the device
   }
 
+  assignToSelf() {
+    this.assign(this.authService.sessionUser.id);
+  }
+
   assignToUser(user: UserProfile) {
-    const userId = (user != null) ? user.id : null;
+    this.assign((user != null) ? user.id : null);
+  }
+
+  private assign(userId: number) {
     return this.siteService.assignToUser([this.site.id], userId)
       .subscribe((sites: SimplifiedSite[]) => {
         this.site = sites[0];
@@ -69,7 +78,7 @@ export class SiteInfoCardComponent implements OnInit {
         this.emitChanges();
       }, err => this.errorService.handleServerError('Failed to update site', err,
         () => console.log('Cancelled'),
-        () => this.assignToUser(user)));
+        () => this.assign(userId)));
   }
 
   openAssignmentDialog() {

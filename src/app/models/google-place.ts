@@ -40,13 +40,7 @@ export class GooglePlace implements PlaceResult, Mappable {
     return this.geometry.location.toJSON();
   };
 
-  getIcon(zoom: number, markerType?: MarkerType): (string | google.maps.Icon | google.maps.Symbol) {
-    // if (this.icon != null) {
-    //   return {
-    //     url: this.icon,
-    //     scale: 0.5
-    //   };
-    // }
+  getIcon(markerType?: MarkerType): (string | google.maps.Icon | google.maps.Symbol) {
     return {
       path: MarkerShape.FILLED,
       fillColor: Color.PINK,
@@ -60,7 +54,7 @@ export class GooglePlace implements PlaceResult, Mappable {
     };
   };
 
-  getLabel(zoom: number, markerType?: MarkerType): string | MarkerLabel {
+  getLabel(markerType?: MarkerType): string | MarkerLabel {
     if (markerType !== MarkerType.LOGO) {
       return {
         text: this.name[0],

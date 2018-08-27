@@ -1,6 +1,7 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
+import * as _ from 'lodash';
 
 import { MapService } from '../../core/services/map.service';
 import { SiteService } from '../../core/services/site.service';
@@ -109,7 +110,7 @@ export class CasingDashboardComponent implements OnInit {
   onMapReady() {
     console.log(`Map is ready`);
     this.storeMapLayer = new EntityMapLayer<StoreMappable>(this.mapService.getMap(), (store: SimplifiedStore) => {
-      return new StoreMappable(store, this.authService.sessionUser.id, () => {
+      return new StoreMappable(store, this.authService.sessionUser.id, this.mapService.getMap(), () => {
         const selectedProject = this.casingDashboardService.getSelectedProject();
         if (selectedProject) {
           return selectedProject.id;
@@ -456,8 +457,7 @@ export class CasingDashboardComponent implements OnInit {
     databaseSearchDialog.afterClosed().subscribe((store: SimplifiedStore) => {
       if (store != null) {
         this.mapService.setCenter(this.siteService.getCoordinates(store.site));
-        this.selectedCardState = CardState.SELECTED_STORE;
-        setTimeout(() => this.storeMapLayer.selectEntity(store), 1500);
+        this.mapService.setZoom(15);
       }
     });
   }
@@ -569,14 +569,18 @@ export class CasingDashboardComponent implements OnInit {
       });
   }
 
+  assignToSelf() {
+    this.assign(this.authService.sessionUser.id);
+  }
+
   assignSelectedStoresToUser(user: SimplifiedUserProfile) {
-    const selectedSiteIds: Set<number> = new Set();
-    this.storeMapLayer.getSelectedEntities().forEach((store: Store) => {
-      selectedSiteIds.add(store.site.id);
-    });
-    const userId = (user != null) ? user.id : null;
+    this.assign((user != null) ? user.id : null);
+  }
+
+  private assign(userId: number) {
+    const selectedSiteIds = _.uniq(this.storeMapLayer.getSelectedEntities().map((store: Store) => store.site.id));
     this.updating = true;
-    this.siteService.assignToUser(Array.from(selectedSiteIds), userId)
+    this.siteService.assignToUser(selectedSiteIds, userId)
       .pipe(finalize(() => this.updating = false))
       .subscribe((sites: SimplifiedSite[]) => {
         const message = `Successfully updated ${sites.length} Sites`;
@@ -584,7 +588,7 @@ export class CasingDashboardComponent implements OnInit {
         this.getEntities(this.mapService.getBounds());
       }, err => this.errorService.handleServerError('Failed to update sites!', err,
         () => console.log(err),
-        () => this.assignSelectedStoresToUser(user)));
+        () => this.assign(userId)));
   }
 
   filterClosed() {
@@ -603,7 +607,10 @@ export class CasingDashboardComponent implements OnInit {
     this.savingBoundary = true;
     this.projectBoundaryService.saveProjectBoundaries()
       .pipe(finalize(() => this.savingBoundary = false))
-      .subscribe(() => this.selectedDashboardMode = CasingDashboardMode.DEFAULT)
+      .subscribe(() => this.selectedDashboardMode = CasingDashboardMode.DEFAULT,
+        err => this.errorService.handleServerError('Failed to save project boundary!', err,
+          () => console.log(err),
+          () => this.saveProjectBoundary()))
   }
 
   cancelProjectBoundaryEditing() {

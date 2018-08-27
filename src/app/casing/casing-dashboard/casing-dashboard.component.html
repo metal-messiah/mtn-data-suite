@@ -153,6 +153,9 @@
   <button mat-menu-item (click)="assignSelectedStoresToUser(null)">
     <i class="fas fa-ban"></i>&nbsp;&nbsp;Unassign
   </button>
+  <button mat-menu-item (click)="assignToSelf()">
+    <i class="fas fa-user-tie"></i>&nbsp;&nbsp;Assign To Me
+  </button>
   <button mat-menu-item (click)="openAssignmentDialog()">
     <i class="fas fa-user"></i>&nbsp;&nbsp;Assign
   </button>
@@ -160,7 +163,7 @@
 
 <mat-menu #markerTypeMenu="matMenu" [overlapTrigger]="false">
   <button mat-menu-item (click)="setMarkerType(markerType.PIN)">{{markerType.PIN.valueOf()}}</button>
-  <button mat-menu-item (click)="setMarkerType(markerType.LABEL)">{{markerType.LABEL.valueOf()}}</button>
+  <!--<button mat-menu-item (click)="setMarkerType(markerType.LABEL)">{{markerType.LABEL.valueOf()}}</button>-->
   <button mat-menu-item (click)="setMarkerType(markerType.LOGO)">{{markerType.LOGO.valueOf()}}</button>
 </mat-menu>
 

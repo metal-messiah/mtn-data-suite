@@ -1,15 +1,12 @@
 import { SimplifiedStore } from './simplified/simplified-store';
-import { UserProfile } from './full/user-profile';
 import { Color } from '../core/functionalEnums/Color';
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { MarkerShape } from '../core/functionalEnums/MarkerShape';
 import { Coordinates } from './coordinates';
+import { EntityMappable } from '../interfaces/entity-mappable';
 import Icon = google.maps.Icon;
 import Symbol = google.maps.Symbol;
 import MarkerLabel = google.maps.MarkerLabel;
-import { EntityMappable } from '../interfaces/entity-mappable';
-import { SimplifiedSite } from './simplified/simplified-site';
-import { Site } from './full/site';
 
 export class StoreMappable implements EntityMappable {
 
@@ -24,11 +21,14 @@ export class StoreMappable implements EntityMappable {
   private readonly HIGH_ZOOM = 13;
   private readonly MID_ZOOM = 16;
 
-  constructor(store: SimplifiedStore, currentUserId: number, getSelectedProjectId?: () => number) {
+  private readonly map: google.maps.Map;
+
+  constructor(store: SimplifiedStore, currentUserId: number, map: google.maps.Map, getSelectedProjectId?: () => number) {
     this.store = store;
     this.id = store.id;
     this.currentUserId = currentUserId;
     this.getSelectedProjectId = getSelectedProjectId;
+    this.map = map;
   }
 
   getCoordinates(): Coordinates {
@@ -39,42 +39,47 @@ export class StoreMappable implements EntityMappable {
     return this.moving;
   }
 
-  getLabel(zoom: number, markerType?: MarkerType): string|MarkerLabel {
+  getLabel(markerType?: MarkerType): string|MarkerLabel {
+    const zoom = this.map.getZoom();
+    let labelColor = Color.WHITE;
+
     if (this.storeCasedForSelectedProject()) {
       return null;
-    }
-    if (markerType === MarkerType.LOGO && this.store.banner != null && this.store.banner.logoFileName != null) {
+    } else if (markerType === MarkerType.LOGO && this.store.banner != null && this.store.banner.logoFileName != null) {
       return null;
     }
+
     let label = null;
-    if (this.store.banner != null) {
+
+    // User Banner name if available
+    if (this.store.banner) {
       label = this.store.banner.bannerName;
-    } else {
+    } else if (this.store.storeName) {
       label = this.store.storeName;
-    }
-    if (label == null) {
+    } else {
       label = '?';
     }
+
+    // At High Zoom, show full label
     if (zoom > this.HIGH_ZOOM) {
-      return {
-        color: Color.BLACK,
-        fontWeight: 'bold',
-        text: label
-      };
-    }
-    if (zoom < this.MID_ZOOM) {
+      const mapTypeId = this.map.getMapTypeId();
+      if (mapTypeId === google.maps.MapTypeId.SATELLITE || mapTypeId === google.maps.MapTypeId.HYBRID) {
+        labelColor = Color.WHITE;
+      } else {
+        labelColor = Color.BLACK;
+      }
+    } else {
+      labelColor = Color.WHITE;
       label = label[0];
-    } else if (this.store.storeNumber != null) {
-      label = `${label} (${this.store.storeNumber})`;
     }
+
     return {
-      color: Color.WHITE,
-      fontWeight: 'bold',
-      text: label
+      color: labelColor,
+      text: zoom > this.MID_ZOOM ? label[0] : label
     };
   }
 
-  getIcon(zoom: number, markerType?: MarkerType): string | Icon | Symbol {
+  getIcon(markerType?: MarkerType): string | Icon | Symbol {
     if (markerType === MarkerType.LOGO && this.store.banner != null && this.store.banner.logoFileName != null) {
       return {
         url: `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${this.store.banner.logoFileName}`
@@ -86,9 +91,9 @@ export class StoreMappable implements EntityMappable {
     const scale = this.getScale(shape);
     const anchor = this.getAnchor(shape);
     const strokeWeight = this.getStrokeWeight(shape);
-    const fillOpacity = this.getFillOpacity(markerType);
+    const fillOpacity = StoreMappable.getFillOpacity(markerType);
     const rotation = this.getRotation();
-    const labelOrigin = this.getLabelOrigin(shape, zoom);
+    const labelOrigin = this.getLabelOrigin(shape);
 
     return {
       path: shape,
@@ -209,8 +214,14 @@ export class StoreMappable implements EntityMappable {
     return 0;
   }
 
-  private getLabelOrigin(shape: any, zoom: number) {
+  private getLabelOrigin(shape: any) {
+    const zoom = this.map.getZoom();
     if (zoom > this.HIGH_ZOOM) {
+      if (this.store.storeType === 'HISTORICAL') {
+        return new google.maps.Point(-120, 0);
+      } else if (this.store.storeType === 'FUTURE') {
+        return new google.maps.Point(255, -255);
+      }
       return new google.maps.Point(255, -80);
     }
     if (shape === MarkerShape.FLAGGED) {
@@ -222,15 +233,11 @@ export class StoreMappable implements EntityMappable {
     return new google.maps.Point(255, 230);
   }
 
-  private getFillOpacity(markerType?: MarkerType) {
+  private static getFillOpacity(markerType?: MarkerType) {
     if (markerType === MarkerType.LABEL) {
       return 0.6;
     }
     return 1;
   }
-
-  getSite(): (Site | SimplifiedSite) {
-    return this.getEntity().site;
-  };
 
 }

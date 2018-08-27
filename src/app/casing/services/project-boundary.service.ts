@@ -65,25 +65,28 @@ export class ProjectBoundaryService {
 
   cancelProjectBoundaryEditing() {
     // If a boundary exists with shapes, make it non-editable, and reset it's shapes
-    if (this.projectBoundary.geojson) {
-      this.projectBoundary.resetFromGeoJson();
-      if (this.projectBoundary.isEditable()) {
-        this.deactivateEditingMode();
+    if (this.projectBoundary) {
+      if (this.projectBoundary.geojson) {
+        this.projectBoundary.resetFromGeoJson();
+        if (this.projectBoundary.isEditable()) {
+          this.deactivateEditingMode();
+        }
+      } else {
+        this.projectBoundary.removeFromMap();
+        this.projectBoundary = null;
       }
-    } else {
-      this.projectBoundary.removeFromMap();
-      this.projectBoundary = null;
     }
   }
 
   saveProjectBoundaries() {
     if (this.projectBoundary.hasShapes()) {
-      const geoJson = this.projectBoundary.toGeoJson();
-      return this.projectService.saveBoundaryForProject(this.casingDashboardService.getSelectedProject().id, geoJson)
+      const geojson = this.projectBoundary.toGeoJson();
+      const boundary = new Boundary({geojson: geojson});
+      return this.projectService.saveBoundaryForProject(this.casingDashboardService.getSelectedProject().id, boundary)
         .pipe(tap((project: SimplifiedProject) => {
           this.casingDashboardService.setSelectedProject(project);
           this.deactivateEditingMode();
-          this.projectBoundary.setGeoJson(JSON.parse(geoJson));
+          this.projectBoundary.setGeoJson(JSON.parse(geojson));
         }));
     } else {
       // If no shapes - just delete the boundary

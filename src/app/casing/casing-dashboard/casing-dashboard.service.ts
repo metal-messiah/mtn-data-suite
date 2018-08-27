@@ -50,7 +50,8 @@ export class CasingDashboardService {
     } else {
       localStorage.removeItem('selectedProject');
     }
-    if (!prevProject || prevProject.id !== this.selectedProject.id) {
+    // If there was no previous project OR if the selected project is not the same as previous
+    if (!prevProject || (this.selectedProject && prevProject.id !== this.selectedProject.id)) {
       this.projectChanged$.next(this.selectedProject);
     }
   }

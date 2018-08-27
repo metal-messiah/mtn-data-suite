@@ -152,6 +152,9 @@
   <button mat-menu-item disabled="true">
     <i class="fas fa-thumbtack"></i>&nbsp;Pin to Device
   </button>
+  <button mat-menu-item (click)="assignToSelf()">
+    <i class="fas fa-user-tie"></i>&nbsp;Assign to Me
+  </button>
   <button mat-menu-item (click)="openAssignmentDialog()">
     <i class="fas fa-user"></i>&nbsp;Assign to Analyst
   </button>

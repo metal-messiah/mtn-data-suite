@@ -219,7 +219,7 @@ export class PlannedGroceryComponent implements OnInit {
     this.pgMapLayer = new PlannedGroceryLayer(this.mapService.getMap());
     console.log(`Map is ready`);
     this.storeMapLayer = new EntityMapLayer<StoreMappable>(this.mapService.getMap(), (store: SimplifiedStore) => {
-      return new StoreMappable(store, this.authService.sessionUser.id, null)
+      return new StoreMappable(store, this.authService.sessionUser.id, this.mapService.getMap());
     });
     this.siteMapLayer = new EntityMapLayer<SiteMappable>(this.mapService.getMap(), (site: SimplifiedSite) => {
       return new SiteMappable(site, this.authService.sessionUser.id);

@@ -30,7 +30,7 @@ export class SiteMappable implements EntityMappable {
     return this.moving;
   }
 
-  getLabel(zoom: number, markerType?: MarkerType): string | MarkerLabel {
+  getLabel(markerType?: MarkerType): string | MarkerLabel {
     return {
       color: Color.WHITE,
       fontWeight: 'bold',
@@ -38,15 +38,15 @@ export class SiteMappable implements EntityMappable {
     };
   }
 
-  getIcon(zoom: number, markerType?: MarkerType): string | Icon | Symbol {
+  getIcon(markerType?: MarkerType): string | Icon | Symbol {
     const fillColor = this.getFillColor();
     const strokeColor = this.getStrokeColor();
     const shape = this.getShape();
-    const scale = this.getScale(shape);
+    const scale = 0.075;
     const anchor = this.getAnchor(shape);
-    const strokeWeight = this.getStrokeWeight(shape);
+    const strokeWeight = 2.5;
     const fillOpacity = this.getFillOpacity(markerType);
-    const rotation = this.getRotation();
+    const rotation = 0;
     const labelOrigin = this.getLabelOrigin(shape);
 
     return {
@@ -118,24 +118,12 @@ export class SiteMappable implements EntityMappable {
     return MarkerShape.DEFAULT;
   }
 
-  private getScale(shape: any) {
-    return 0.075;
-  }
-
   private getAnchor(shape: any) {
     const bottom = 510;
     if (shape === MarkerShape.FLAGGED) {
       return new google.maps.Point(80, bottom);
     }
     return new google.maps.Point(255, bottom);
-  }
-
-  private getStrokeWeight(shape: any) {
-    return 2.5;
-  }
-
-  private getRotation() {
-    return 0;
   }
 
   private getLabelOrigin(shape: any) {
@@ -151,9 +139,5 @@ export class SiteMappable implements EntityMappable {
     }
     return 1;
   }
-
-  getSite(): (SimplifiedSite) {
-    return this.getEntity();
-  };
 
 }

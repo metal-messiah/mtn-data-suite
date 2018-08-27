@@ -46,20 +46,21 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate {
       latitude: ['', [Validators.required]],
       longitude: ['', [Validators.required]],
       type: '',
-      footprintSqft: '',
-      positionInCenter: '',
+      intersectionType: '',
       address1: '',
       address2: '',
       city: '',
-      county: '',
       state: ['', [Validators.maxLength(2)]],
       postalCode: '',
+      county: '',
       country: '',
-      intersectionType: '',
-      quad: '',
+      footprintSqft: '',
       intersectionStreetPrimary: '',
       intersectionStreetSecondary: '',
-      duplicate: false
+      quad: '',
+      positionInCenter: '',
+      duplicate: false,
+      assignee: ''
     });
   }
 

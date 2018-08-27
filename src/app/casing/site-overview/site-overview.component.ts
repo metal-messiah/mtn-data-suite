@@ -12,6 +12,7 @@ import { ErrorService } from '../../core/services/error.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { StoreService } from '../../core/services/store.service';
 import { finalize } from 'rxjs/internal/operators';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'mds-site-overview',
@@ -35,6 +36,7 @@ export class SiteOverviewComponent implements OnInit {
               private snackBar: MatSnackBar,
               private siteService: SiteService,
               private storeService: StoreService,
+              private authService: AuthService,
               private errorService: ErrorService) {
   }
 
@@ -90,6 +92,10 @@ export class SiteOverviewComponent implements OnInit {
         this.assignToUser(user);
       }
     });
+  }
+
+  assignToSelf() {
+    this.assignToUser(new SimplifiedUserProfile(this.authService.sessionUser));
   }
 
   assignToUser(user: SimplifiedUserProfile) {

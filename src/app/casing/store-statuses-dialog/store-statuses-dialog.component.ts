@@ -55,7 +55,7 @@ export class StoreStatusesDialogComponent implements OnInit {
   openCreateDialog() {
     const newStatusDialog = this.dialog.open(NewStoreStatusComponent, {
       data: {storeId: this.store.id},
-      maxWidth: '300px'
+      maxWidth: '90%'
     });
     newStatusDialog.afterClosed().subscribe(store => {
       if (store) {

@@ -26,11 +26,11 @@ export class SpreadsheetMappable implements Mappable {
     return false;
   }
 
-  getLabel(zoom: number, markerType?: MarkerType): string|MarkerLabel {
+  getLabel(markerType?: MarkerType): string|MarkerLabel {
     return null;
   }
 
-  getIcon(zoom: number, markerType?: MarkerType): string | Icon | Symbol {
+  getIcon(markerType?: MarkerType): string | Icon | Symbol {
     return {
       path: MarkerShape.CIRCLE,
       fillColor: Color.PURPLE,
