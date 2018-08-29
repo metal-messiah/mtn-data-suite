@@ -2,7 +2,8 @@
   <div class='left-panel' *ngIf="records != null">
     <h2>{{currentRecordIndex + 1 }}/{{totalStoreSourceRecords}}</h2>
     <mat-list>
-      <mat-list-item *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex}" (click)="setCurrentRecord(i)">
+      <mat-list-item *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex}"
+                     (click)="setCurrentRecord(i)">
         <div>
           <span class='list-item-header'>{{record.sourceStoreName}}</span>
           <br>
@@ -20,39 +21,43 @@
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         <br>
         <div class='large-text'>
-          Fetching Data From Planned Grocery
+          Fetching Data
         </div>
       </div>
-
     </div>
-    <mat-horizontal-stepper [linear]='true' #stepper *ngIf="!isFetching" style="padding-bottom: 50px;">
+    <mat-horizontal-stepper [linear]='true' #stepper style="padding-bottom: 50px;">
       <ng-template matStepperIcon="edit">
         <i class="fas fa-pencil-alt"></i>
       </ng-template>
       <ng-template matStepperIcon="done">
         <i class="fas fa-check"></i>
       </ng-template>
-      <mat-step [completed]="step1Completed">
-        <!-- <form [formGroup]="firstFormGroup"> -->
+      <mat-step>
         <ng-template matStepLabel>Match Site</ng-template>
         <!-- CONTENT FOR FIRST SECTION! -->
-        <div class='flex-container' *ngIf="currentPGRecordData">
+        <div class='flex-container' *ngIf="pgRecord">
           <div>
             <div class='large-text'>
-                <a *ngIf="currentPGRecordData.attributes" href='{{currentPGRecordData.attributes.SOURCE}}' target='_blank'>
-                  {{currentPGRecordData ? currentPGRecordData.attributes.NAME : ''}}
-                </a>
-              </div>
-            <div class='med-text'> {{currentPGRecordData ? currentPGRecordData.attributes.DESCLOCATION + ", " +currentPGRecordData.attributes.CITY + ","+
-              currentPGRecordData.attributes.STATE : ''}}</div>
+              <a *ngIf="pgRecord.attributes" href="{{pgRecord.attributes.SOURCE}}"
+                 target='_blank'>
+                {{pgRecord ? pgRecord.attributes.NAME : ''}}
+              </a>
+            </div>
+            <div class='med-text'> {{pgRecord ? pgRecord.attributes.DESCLOCATION + ", "
+              +pgRecord.attributes.CITY + ","+
+              pgRecord.attributes.STATE : ''}}
+            </div>
             <div class='small-text'>
-              {{currentPGRecordData ? currentPGRecordData.attributes ? currentPGRecordData.attributes.SIZESF ? currentPGRecordData.attributes.SIZESF.toLocaleString()
-              + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{currentPGRecordData ? " | Status: "+ statuses[currentPGRecordData.attributes.STATUS]['pg']
+              {{pgRecord ? pgRecord.attributes ? pgRecord.attributes.SIZESF ?
+              pgRecord.attributes.SIZESF.toLocaleString()
+              + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{pgRecord ? " | Status: "+
+              statuses[pgRecord.attributes.STATUS]['pg']
               : ''}}
 
             </div>
           </div>
-          <button (click)="setStepCompleted(1, true, 'ADD_SITE', null, null, null, stepper)" mat-button class=''>Add Site</button>
+          <button (click)="noMatch()" mat-button class=''>Add Site
+          </button>
         </div>
         <div class='accent-bar large-text'>Match to Existing</div>
         <div class='results-table'>
@@ -66,28 +71,40 @@
               </div>
             </div>
           </div>
-          <div [ngClass]="i % 2 != 0 ? 'results-item secondary-row':'results-item'" *ngFor="let item of currentDBResults; let i=index;">
+          <div [ngClass]="i % 2 != 0 ? 'results-item secondary-row':'results-item'"
+               *ngFor="let site of currentDBResults; let i=index;">
             <div class="results-header large-text flex-container">
 
 
               <i mat-icon-button [mat-menu-trigger-for]="siteMenu" class="site-menu fas fa-ellipsis-v"></i>
 
               <mat-menu #siteMenu="matMenu">
-                <button (click)="setStepCompleted(1, true, 'ADD_SISTER',null, null, item.shoppingCenterId, stepper);" mat-menu-item>Add Sister Shopping Center Site</button>
+                <button (click)="matchShoppingCenter(site.shoppingCenterId);"
+                        mat-menu-item>Add Sister Shopping Center Site
+                </button>
               </mat-menu>
 
-              <div *ngIf="item.distanceFrom" [style.color]="item.distanceFrom < 0.5 ? 'green': '#ff9802'" class='site-distance'>
-                <i class="fas fa-arrow-circle-up" [style.transform]="item.heading"></i> {{item.distanceFrom.toFixed(2)}} Miles</div>
-              <div class='site-title'>{{item.address1 + ", " + item.city + ", " + item.state }}</div>
-              <button (click)="setStepCompleted(1, true, 'ADD_STORE',item.id, null, null, stepper)" mat-button class=' add-store'>Add Store</button>
+              <div *ngIf="site.distanceFrom" [style.color]="site.distanceFrom < 0.5 ? 'green': '#ff9802'"
+                   class='site-distance'>
+                <i class="fas fa-arrow-circle-up" [style.transform]="site.heading"></i> {{site.distanceFrom.toFixed(2)}}
+                Miles
+              </div>
+              <div class='site-title'>{{site.address1 + ", " + site.city + ", " + site.state }}</div>
+              <button (click)="matchSite(site.id)" mat-button
+                      class=' add-store'>Add Store
+              </button>
             </div>
             <mat-divider></mat-divider>
-            <div (mouseenter)="siteHover(each, 'enter')" (mouseleave)="siteHover(each, 'leave')" class="results-each" *ngFor="let each of item.stores">
+            <div (mouseenter)="siteHover(store, 'enter')" (mouseleave)="siteHover(store, 'leave')" class="results-each"
+                 *ngFor="let store of site.stores">
               <div class="flex-container">
-                <div class='store-attribute'>{{each.storeName}}</div>
-                <div class='hidden-xs store-attribute'>{{each.storeType}}</div>
-                <div class='hidden-xs store-attribute'>{{each.currentStoreStatus}}</div>
-                <button (click)="setStepCompleted(1, true, 'MATCH',item.id, each.id, null, stepper);" mat-button matStepperNext [ngClass]="{'highlighted': bestMatch && bestMatch.store.id == each.id && bestMatch.score <=4}">Match</button>
+                <div class='store-attribute'>{{store.storeName}}</div>
+                <div class='hidden-xs store-attribute'>{{store.storeType}}</div>
+                <div class='hidden-xs store-attribute'>{{store.currentStoreStatus}}</div>
+                <button (click)="matchStore(store.id)" mat-button matStepperNext
+                        [ngClass]="{'highlighted': bestMatch && bestMatch.store.id == store.id && bestMatch.score <=4}">
+                  Match
+                </button>
               </div>
             </div>
           </div>
@@ -95,104 +112,15 @@
         </div>
         <!-- </form> -->
       </mat-step>
-      <mat-step [completed]="step2Completed">
-        <!-- <form [formGroup]="secondFormGroup"> -->
+      <mat-step>
         <ng-template matStepLabel>Match/Edit Data</ng-template>
-        <!-- CONTENT FOR SECOND SECTION! -->
-        <!-- <mat-form-field>
-            <input matInput placeholder="Address" id="secondCtrl" required>
-          </mat-form-field> -->
-        <!-- <div *ngIf="step1Action == 'ADD_SITE'">
-            ADD SITE
-          </div>s
-          <div *ngIf="step1Action == 'ADD_STORE'">
-            ADD STORE
-          </div>
-          <div *ngIf="step1Action == 'MATCH'"> -->
-        <h4>Shopping Center</h4>
-        <mat-form-field>
-          <input matInput type="text" placeholder="Name" id="shoppingCenterName" [value]="plannedGroceryUpdatable ? plannedGroceryUpdatable.shoppingCenterName : null"
-            (change)="setFullStoreDataProperty($event.target.id, $event.target.value)" required>
-        </mat-form-field>
-
-
-        <h4>Site</h4>
-        <mat-form-field *ngIf="step1Action === 'ADD_SITE' || step1Action === 'ADD_SISTER'">
-          <input matInput type="number" placeholder="Latitude/Longitude" id="latitude" [value]="plannedGroceryUpdatable ? plannedGroceryUpdatable.latitude : null"
-            required disabled>
-            <input matInput type="number" placeholder="Longitude" id="longitude" [value]="plannedGroceryUpdatable ? plannedGroceryUpdatable.longitude : null"
-             required disabled>
-            <mat-hint align="end">Drag Marker on Map</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput type="text" placeholder="Address" id="address" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)"
-                 [value]="plannedGroceryUpdatable ? plannedGroceryUpdatable.address : null" required>
-          <mat-hint align="end">{{currentPGRecordData ? currentPGRecordData.attributes.DESCLOCATION : null}}</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput type="text" placeholder="City" id="city" [value]="plannedGroceryUpdatable ? plannedGroceryUpdatable.city : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)"
-                 required>
-          <mat-hint align="end">{{currentPGRecordData ? currentPGRecordData.attributes.CITY : null}}</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput type="text" placeholder="County" id="county" [value]="plannedGroceryUpdatable ? plannedGroceryUpdatable.county : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)"
-                 required>
-          <mat-hint align="end">{{currentPGRecordData ? currentPGRecordData.attributes.county : null}}</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput type="text" placeholder="State" id="state" [value]="plannedGroceryUpdatable ? plannedGroceryUpdatable.state : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)"
-                 required>
-          <mat-hint align="end">{{currentPGRecordData ? currentPGRecordData.attributes.STATE : null}}</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput type="text" placeholder="Postal Code" id="postalCode" [value]="plannedGroceryUpdatable ? plannedGroceryUpdatable.postalCode : null"
-            (change)="setFullStoreDataProperty($event.target.id, $event.target.value)" required>
-          <mat-hint align="end">{{currentPGRecordData ? currentPGRecordData.attributes.ZIP : null}}</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput type="text" placeholder="Quad" id="quad" [value]="plannedGroceryUpdatable ? plannedGroceryUpdatable.quad : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)">
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput type="text" placeholder="Primary" id="intersectionStreetPrimary" [value]="plannedGroceryUpdatable ? plannedGroceryUpdatable.intersectionStreetPrimary : null"
-            (change)="setFullStoreDataProperty($event.target.id, $event.target.value)">
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput type="text" placeholder="Secondary" id="intersectionStreetSecondary" [value]="plannedGroceryUpdatable ? plannedGroceryUpdatable.intersectionStreetSecondary : null"
-            (change)="setFullStoreDataProperty($event.target.id, $event.target.value)">
-        </mat-form-field>
-
-        <h4>Store</h4>
-        <mat-form-field>
-          <input matInput type="text" placeholder="Name" id="storeName" [value]="plannedGroceryUpdatable ? plannedGroceryUpdatable.storeName : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)"
-                 required>
-          <mat-hint align="end">{{currentPGRecordData ? currentPGRecordData.attributes.NAME : null}}</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput type="number" placeholder="Area" id="areaTotal" [value]="plannedGroceryUpdatable ? plannedGroceryUpdatable.areaTotal : null" (change)="setFullStoreDataProperty($event.target.id, $event.target.value)">
-          <mat-hint align="end">{{currentPGRecordData ? currentPGRecordData.attributes.SIZESF : null}}</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <!-- <input matInput type="date" placeholder="Date Opened" id="date" [value]="fullStoreData ? fullStoreData.dateOpened : null" (dateChange)="setFullStoreDataProperty('date', $event.value)"> -->
-          <input matInput [matDatepicker]="picker" placeholder="Date Opened" [value]="dateOpened" (dateInput)="setFullStoreDataProperty('dateOpened', $event.value)">
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-          <mat-hint align="end">{{dateOpened}}</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <mat-select id="status" [(value)]="statusSelection" (selectionChange)="setFullStoreDataProperty('STATUS', $event.value)">
-            <mat-option *ngFor="let s of storeStatusOptions" [value]="s">{{ s }}</mat-option>
-          </mat-select>
-          <mat-hint align="end" *ngIf="currentPGRecordData">{{statuses[currentPGRecordData.attributes.STATUS]['db']}}</mat-hint>
-        </mat-form-field>
-
-        <div>
-          <button class="stepper-button" (click)="setStepCompleted(1, false, null,null,null, null, stepper)" mat-button matStepperPrevious>Back</button>
-          <button class="stepper-button" (click)="setStepCompleted(2, true, null,null,null, null, stepper)" mat-button >Save &amp; Proceed</button>
-        </div>
-        <!-- </form> -->
+        <mds-pg-data-form *ngIf="pgUpdatable" [pgUpdatable]="pgUpdatable"
+                          [pgFeature]="pgRecord"
+                          [storeSource]="currentStoreSource"
+                          (cancelEvent)="cancelStep2()"
+                          (completedEvent)="nextRecord()">
+        </mds-pg-data-form>
       </mat-step>
     </mat-horizontal-stepper>
-
-
   </div>
 </div>

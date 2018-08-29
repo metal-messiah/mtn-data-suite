@@ -79,7 +79,6 @@
 .right-panel{
     flex: 1;
     min-width: 45vw;
-    padding: 40px;
 }
 
 .flex-container{
@@ -203,7 +202,7 @@ mat-form-field{
         display: none;
     }
 
-    
+
 }
 
 @media screen and (max-width: 600px){

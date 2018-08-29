@@ -26,10 +26,10 @@ export class PgMappable implements Mappable {
   };
   private icon: object;
 
-  constructor(feature: any) {
+  constructor(feature: { attributes: { OBJECTID }, geometry: { y: number, x: number } }) {
     this.feature = feature;
     this.id = feature.attributes.OBJECTID;
-    this.coordinates = { lat: feature.geometry.y, lng: feature.geometry.x };
+    this.coordinates = {lat: feature.geometry.y, lng: feature.geometry.x};
     this.draggable = false;
     this.icon = Object.assign({}, this.defaultIcon);
   }
@@ -40,40 +40,42 @@ export class PgMappable implements Mappable {
 
   setDraggable(draggable) {
     this.draggable = draggable;
-    this.icon = draggable ? {
-      path: MarkerShape.FILLED,
-      fillColor: Color.PURPLE_DARK,
-      fillOpacity: 1,
-      scale: 0.1,
-      strokeColor: Color.WHITE,
-      strokeWeight: 2.5,
-      anchor: new google.maps.Point(255, 510),
-      labelOrigin: new google.maps.Point(255, 230),
-      rotation: 0
-    } :
-      Object.assign({}, this.defaultIcon);
   }
 
   isDraggable(): boolean {
     return this.draggable;
   }
 
-  getLabel(markerType?: MarkerType): string|MarkerLabel {
+  getLabel(markerType?: MarkerType): string | MarkerLabel {
     return null;
   }
 
   getIcon(markerType?: MarkerType): string | Icon | Symbol {
-    return {
-      path: MarkerShape.CIRCLE,
-      fillColor: Color.PURPLE,
-      fillOpacity: 0.5,
-      scale: 0.5,
-      strokeColor: Color.PURPLE_DARK,
-      strokeWeight: 2.5,
-      anchor: new google.maps.Point(50, 50),
-      labelOrigin: new google.maps.Point(255, 230),
-      rotation: 0
-    };
+    if (this.draggable) {
+      return {
+        path: MarkerShape.FILLED,
+        fillColor: Color.PURPLE_DARK,
+        fillOpacity: 1,
+        scale: 0.1,
+        strokeColor: Color.WHITE,
+        strokeWeight: 2.5,
+        anchor: new google.maps.Point(255, 510),
+        labelOrigin: new google.maps.Point(255, 230),
+        rotation: 0
+      }
+    } else {
+      return {
+        path: MarkerShape.CIRCLE,
+        fillColor: Color.PURPLE,
+        fillOpacity: 0.5,
+        scale: 0.5,
+        strokeColor: Color.PURPLE_DARK,
+        strokeWeight: 2.5,
+        anchor: new google.maps.Point(50, 50),
+        labelOrigin: new google.maps.Point(255, 230),
+        rotation: 0
+      };
+    }
   }
 
 }

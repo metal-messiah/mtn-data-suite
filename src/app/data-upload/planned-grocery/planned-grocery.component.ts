@@ -1,6 +1,6 @@
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar, MatStepper } from '@angular/material';
 import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
 import * as _ from 'lodash';
 
@@ -41,33 +41,18 @@ export class PlannedGroceryComponent implements OnInit {
 
   // StoreSource to-do list
   records: StoreSource[];
-  currentRecord: StoreSource;
+  currentStoreSource: StoreSource;
   currentRecordIndex: number;
   totalStoreSourceRecords: number;
 
   // Planned Grocery Data
-  currentPGRecordData: any;
+  pgRecord: {attributes, geometry};
 
   // Database Data (Potential Matches)
   currentDBResults: object[];
 
   // Working record (used for data editing)
-  plannedGroceryUpdatable: PlannedGroceryUpdatable;
-
-  dateOpened: Date;
-
-  storeTypes: string[] = ['ACTIVE', 'FUTURE', 'HISTORICAL'];
-  statuses: object = {
-    0: {pg: 'Built', db: 'Open'},
-    1: {pg: 'Under Construction', db: 'New Under Construction'},
-    2: {pg: 'Proposed', db: 'Proposed'},
-    3: {pg: 'Planned', db: 'Planned'},
-    99: {pg: 'Dead Deal', db: 'Dead Deal'}
-  };
-  storeStatusOptions = ['Closed', 'Dead Deal', 'New Under Construction', 'Open', 'Planned', 'Proposed', 'Remodel',
-    'Rumored', 'Strong Rumor', 'Temporarily Closed'];
-
-  statusSelection;
+  pgUpdatable: PlannedGroceryUpdatable;
 
   bestMatch: { store: object; score: number; distanceFrom: number };
 
@@ -75,11 +60,17 @@ export class PlannedGroceryComponent implements OnInit {
   gettingEntities = false;
   isFetching = false;
 
-  step1Completed = false;
-  step1Action: string;
+  // Reference Values
+  storeTypes: string[] = ['ACTIVE', 'FUTURE', 'HISTORICAL'];
+  statuses = {
+    0: {pg: 'Built', db: 'Open'},
+    1: {pg: 'Under Construction', db: 'New Under Construction'},
+    2: {pg: 'Proposed', db: 'Proposed'},
+    3: {pg: 'Planned', db: 'Planned'},
+    99: {pg: 'Dead Deal', db: 'Dead Deal'}
+  };
 
-  step2Completed = false;
-  step2Action: string;
+  @ViewChild('stepper') stepper: MatStepper;
 
   constructor(
     private sourceService: StoreSourceService,
@@ -92,139 +83,72 @@ export class PlannedGroceryComponent implements OnInit {
     private errorService: ErrorService,
     private authService: AuthService,
     private snackBar: MatSnackBar
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.getPGSources();
   }
 
   getPGSources() {
-    console.log('GETTING PG SOURCES!');
     let retrievingSources = true;
-    this.sourceService
-      .getSourcesNotValidated()
+    this.sourceService.getSourcesNotValidated()
       .pipe(finalize(() => (retrievingSources = false)))
       .subscribe((page: Pageable<StoreSource>) => {
         this.totalStoreSourceRecords = page.totalElements;
         this.records = page.content;
         this.setCurrentRecord(0);
-        // this.currentDBResults = this.sourceService.getDBTable();
       });
   }
 
-  setFullStoreDataProperty(property, val) {
-    console.log(property, val);
-    if (property === 'STATUS' && this.currentPGRecordData) {
-      const s = {id: null, status: val, statusStartDate: new Date(this.currentPGRecordData['attributes'].EditDate)};
-      this.plannedGroceryUpdatable['storeStatuses'].push(s)
-    } else {
-      this.plannedGroceryUpdatable[property] = val;
-    }
-    console.log(this.plannedGroceryUpdatable)
+  cancelStep2() {
+    this.pgUpdatable = null;
+    this.stepper.previous();
+    this.setPgFeature(false);
   }
 
-  setStepCompleted(step, completed, action, siteID, storeID, scID, stepper) {
-    if (step === 1) {
-      this.step1Completed = completed;
-      if (completed) {
-        this.setStepAction(step, action, siteID, storeID, scID, stepper);
-      } else {
-        this.setPgFeature(false);
-      }
-    }
-    if (step === 2) {
-      this.step1Completed = false;
-
-      this.plannedGroceryUpdatable.storeSource = this.currentRecord;
-      this.pgService.submitUpdate(this.plannedGroceryUpdatable).subscribe(() => {
-          this.setPgFeature(false);
-          stepper.reset();
-          this.getPGSources();
-        }, err => this.ngZone.run(() => this.errorService.handleServerError(
-        `Failed to update from PG record!`, err,
-        () => console.log(err)))
-      );
-
-    }
-    console.log('step 1 completed?', this.step1Completed);
+  private advance(pgUpdatable: PlannedGroceryUpdatable) {
+    this.pgUpdatable = pgUpdatable;
+    this.stepper.next();
   }
 
-  setStepAction(step, action, siteID, storeID, scID, stepper) {
-    if (step === 1) {
-      this.step1Action = action;
-    }
-    if (step === 2) {
-      this.step2Action = action;
-    }
-    console.log(step, action, siteID, storeID, scID);
-
-    this.generateForm(step, action, siteID, storeID, scID, stepper);
+  noMatch() {
+    this.setPgFeature(true);
+    this.advance(new PlannedGroceryUpdatable());
   }
 
-  setPgFeature(draggable) {
-    const featureMappable = new PgMappable(this.currentPGRecordData);
-    this.pgMapLayer.setPgFeature(featureMappable, draggable);
+  matchShoppingCenter(scId: number) {
+    this.isFetching = true;
+    this.pgService.getUpdatableByShoppingCenterId(scId)
+      .pipe(finalize(() => this.isFetching = false))
+      .subscribe(pgUpdatable => {
+        this.setPgFeature(true);
+        this.advance(pgUpdatable);
+      });
   }
 
-  generateForm(step, action, siteID, storeID, scID, stepper) {
-
-    this.statusSelection = this.statuses[this.currentPGRecordData['attributes'].STATUS]['db'];
-    // MATCH STORE
-    if (action === 'MATCH' && storeID) {
-      // this.isFetching = true;
-      console.log('GET UPDATABLE');
-      this.pgService.getUpdatableByStoreId(storeID)
-      // .pipe(finalize(() => ()))
-        .subscribe(updatable => {
-          this.plannedGroceryUpdatable = updatable;
-          if (updatable.storeStatuses && updatable.storeStatuses.length > 0) {
-            this.statusSelection = _.maxBy(updatable.storeStatuses, 'statusStartDate').status;
-          }
-          this.setDateOpened();
-          console.log(this.plannedGroceryUpdatable);
-          stepper.next();
-        });
-    } else if (action === 'ADD_STORE' && siteID) {
-      this.isFetching = true;
-      this.pgService.getUpdatableBySiteId(siteID)
-        .pipe(finalize(() => this.isFetching = false))
-        .subscribe(updatable => {
-          this.plannedGroceryUpdatable = updatable;
-
-          this.setDateOpened();
-          console.log(this.plannedGroceryUpdatable);
-          stepper.next();
-        });
-    } else if (action === 'ADD_SISTER' && scID) {
-      this.isFetching = true;
-      this.pgService
-        .getUpdatableByShoppingCenterId(scID)
-        .pipe(finalize(() => this.isFetching = false))
-        .subscribe(updatable => {
-          this.setPgFeature(true);
-
-          this.plannedGroceryUpdatable = this.pgService.updatePGUpdatableFromPGRecord(updatable, this.currentPGRecordData);
-
-          this.setDateOpened();
-
-          console.log(this.plannedGroceryUpdatable);
-
-          stepper.next();
-        });
-    } else if (action === 'ADD_SITE') {
-      this.setPgFeature(true);
-      this.plannedGroceryUpdatable = this.pgService.updatePGUpdatableFromPGRecord(new PlannedGroceryUpdatable(), this.currentPGRecordData);
-      this.setDateOpened();
-      setTimeout(() => stepper.next(), 500);
-    }
+  matchSite(siteId: number) {
+    this.isFetching = true;
+    this.pgService.getUpdatableBySiteId(siteId)
+      .pipe(finalize(() => this.isFetching = false))
+      .subscribe(pgUpdatable => this.advance(pgUpdatable));
   }
 
-  setDateOpened() {
-    this.dateOpened = this.plannedGroceryUpdatable.dateOpened ?
-      new Date(this.plannedGroceryUpdatable.dateOpened).toLocaleDateString() :
-      this.currentPGRecordData.attributes.OPENDATEAPPROX ?
-        this.currentPGRecordData.attributes.OPENDATEAPPROX : null;
-    console.log(this.dateOpened)
+  matchStore(storeId: number) {
+    this.isFetching = true;
+    this.pgService.getUpdatableByStoreId(storeId)
+      .pipe(finalize(() => this.isFetching = false))
+      .subscribe(pgUpdatable => this.advance(pgUpdatable));
+  }
+
+  nextRecord() {
+    this.setPgFeature(false);
+    this.stepper.reset();
+    this.getPGSources();
+  }
+
+  setPgFeature(draggable: boolean) {
+    this.pgMapLayer.setPgFeature(this.pgRecord, draggable);
   }
 
   siteHover(store, type) {
@@ -238,24 +162,21 @@ export class PlannedGroceryComponent implements OnInit {
   setCurrentRecord(index: number) {
     this.bestMatch = null;
     this.currentRecordIndex = index;
-    this.currentRecord = this.records[index];
+    this.currentStoreSource = this.records[index];
 
     this.isFetching = true;
     this.currentDBResults = [];
 
-    this.pgService.getFeatureByObjectId(this.currentRecord.sourceNativeId)
+    this.pgService.getFeatureByObjectId(this.currentStoreSource.sourceNativeId)
       .pipe(finalize(() => (this.isFetching = false)))
       .subscribe(record => {
         if (!record || !record['features'] || record['features'].length < 1) {
           this.ngZone.run(() => this.snackBar
-            .open(`Feature not found with id: ${this.currentRecord.sourceNativeId}`)
+            .open(`Feature not found with id: ${this.currentStoreSource.sourceNativeId}`)
           )
         } else {
-          this.currentPGRecordData = record['features'][0];
-
-          const featureMappable = new PgMappable(this.currentPGRecordData);
-
-          this.mapService.setCenter(featureMappable.getCoordinates());
+          this.pgRecord = record['features'][0];
+          this.mapService.setCenter({lat: this.pgRecord.geometry.y, lng: this.pgRecord.geometry.x});
           this.mapService.setZoom(15);
 
           this.setPgFeature(false);
@@ -267,14 +188,13 @@ export class PlannedGroceryComponent implements OnInit {
     this.pgMapLayer = new PlannedGroceryLayer(this.mapService.getMap());
     this.pgMapLayer.markerDragEnd$.subscribe((draggedMarker: PgMappable) => {
       const coords = this.pgMapLayer.getCoordinatesOfMappableMarker(draggedMarker);
-      this.plannedGroceryUpdatable.longitude = coords.lng;
-      this.plannedGroceryUpdatable.latitude = coords.lat;
+      this.pgUpdatable.longitude = coords.lng;
+      this.pgUpdatable.latitude = coords.lat;
     });
-    console.log(`Map is ready`);
     this.storeMapLayer = new EntityMapLayer<StoreMappable>(
       this.mapService.getMap(),
       (store: SimplifiedStore) => {
-        return new StoreMappable(store, this.authService.sessionUser.id, null);
+        return new StoreMappable(store, this.authService.sessionUser.id, this.mapService.getMap());
       }
     );
     this.mapDataLayer = new MapDataLayer(
@@ -322,7 +242,6 @@ export class PlannedGroceryComponent implements OnInit {
     this.siteService
       .getSitePointsInBounds(bounds)
       .subscribe((sitePoints: Coordinates[]) => {
-        // console.log(sitePoints)
         if (sitePoints.length <= 1000) {
           this.mapDataLayer.setDataPoints(sitePoints);
           this.ngZone.run(() => {
@@ -360,17 +279,16 @@ export class PlannedGroceryComponent implements OnInit {
           this.gettingEntities = false;
           this.currentDBResults = allMatchingSites;
 
-          if (this.currentPGRecordData && this.currentDBResults) {
-            const pgName = this.currentPGRecordData['attributes']['NAME'];
+          if (this.pgRecord && this.currentDBResults) {
+            const pgName = this.pgRecord['attributes']['NAME'];
 
             this.currentDBResults.forEach(site => {
               const crGeom = {
-                lng: this.currentPGRecordData['geometry']['x'],
-                lat: this.currentPGRecordData['geometry']['y']
+                lng: this.pgRecord['geometry']['x'],
+                lat: this.pgRecord['geometry']['y']
               };
 
               const dbGeom = {lng: site['longitude'], lat: site['latitude']};
-              console.log(crGeom, dbGeom);
               const dist = this.mapService.getDistanceBetween(crGeom, dbGeom);
               site['distanceFrom'] = dist * 0.000621371;
 
@@ -379,7 +297,6 @@ export class PlannedGroceryComponent implements OnInit {
 
               site['stores'].forEach(store => {
                 const dbName = store['storeName'];
-                console.log(`SIMILARITY SCORE: ${pgName} & ${dbName}`);
                 const score = WordSimilarity.levenshtein(pgName, dbName);
 
                 if (this.bestMatch) {
@@ -402,7 +319,6 @@ export class PlannedGroceryComponent implements OnInit {
                 }
               });
             });
-            console.log('BEST MATCH: ', this.bestMatch);
 
             this.currentDBResults.sort((a, b) => {
               return a['distanceFrom'] - b['distanceFrom'];
@@ -418,10 +334,7 @@ export class PlannedGroceryComponent implements OnInit {
               });
             });
 
-            console.log('currentdb', this.currentDBResults);
           }
-
-          console.log('setting content');
 
           this.storeMapLayer.setEntities(page.content);
           this.ngZone.run(() => {

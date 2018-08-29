@@ -1,6 +1,6 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import * as _ from 'lodash';
 
 import { MapService } from '../../core/services/map.service';
@@ -155,6 +155,15 @@ export class CasingDashboardComponent implements OnInit {
       this.projectBoundaryService.hideProjectBoundaries();
       this.getEntities(this.mapService.getBounds());
     });
+
+    this.route.queryParams.subscribe((params: Params) => {
+
+      const storeId = parseInt(params['store-id'], 10);
+      this.storeService.getOneById(storeId).subscribe((store: Store) => {
+        this.mapService.setCenter(this.siteService.getCoordinates(store.site));
+        this.mapService.setZoom(15);
+      });
+    })
   }
 
   private getDebounce() {

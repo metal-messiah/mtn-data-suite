@@ -75,6 +75,7 @@ export class StoreMappable implements EntityMappable {
 
     return {
       color: labelColor,
+      fontWeight: 'bold',
       text: zoom > this.MID_ZOOM ? label[0] : label
     };
   }
@@ -91,7 +92,7 @@ export class StoreMappable implements EntityMappable {
     const scale = this.getScale(shape);
     const anchor = this.getAnchor(shape);
     const strokeWeight = this.getStrokeWeight(shape);
-    const fillOpacity = StoreMappable.getFillOpacity(markerType);
+    const fillOpacity = this.getFillOpacity(markerType);
     const rotation = this.getRotation();
     const labelOrigin = this.getLabelOrigin(shape);
 
@@ -233,7 +234,7 @@ export class StoreMappable implements EntityMappable {
     return new google.maps.Point(255, 230);
   }
 
-  private static getFillOpacity(markerType?: MarkerType) {
+  private getFillOpacity(markerType?: MarkerType) {
     if (markerType === MarkerType.LABEL) {
       return 0.6;
     }

@@ -28,7 +28,7 @@ export class PlannedGroceryUpdatable {
 
   // Store Status (create a new Simplified store status using the decoded PG Status and PG source edited date)
   // Only a new status (one without an ID) will be regarded when submitted. (Forbids editing of existing status records)
-  storeStatuses: SimplifiedStoreStatus[];
+  storeStatuses: SimplifiedStoreStatus[] = [];
 
   // Store Survey
   readonly storeSurveyId: number;

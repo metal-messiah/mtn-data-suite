@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { RestService } from '../../core/services/rest.service';
 import { PlannedGroceryUpdatable } from '../../models/planned-grocery-updatable';
 import { map, tap } from 'rxjs/operators';
+import { SimplifiedStore } from '../../models/simplified/simplified-store';
 
 
 @Injectable()
@@ -61,8 +62,8 @@ export class PlannedGroceryService {
 
   submitUpdate(update: PlannedGroceryUpdatable) {
     const url = this.rest.getHost() + this.endpoint + '/updatable';
-    return this.http.post<PlannedGroceryUpdatable>(url, update, { headers: this.rest.getHeaders() })
-      .pipe(map(record => new PlannedGroceryUpdatable(record)));
+    return this.http.post<SimplifiedStore>(url, update, { headers: this.rest.getHeaders() })
+      .pipe(map(record => new SimplifiedStore(record)));
   }
 
 }
