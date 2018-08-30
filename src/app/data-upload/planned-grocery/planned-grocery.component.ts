@@ -180,6 +180,7 @@ export class PlannedGroceryComponent implements OnInit {
           this.mapService.setZoom(15);
 
           this.setPgFeature(false);
+          this.cancelStep2();
         }
       });
   }
