@@ -76,7 +76,7 @@ export class StoreMappable implements EntityMappable {
     return {
       color: labelColor,
       fontWeight: 'bold',
-      text: zoom > this.MID_ZOOM ? label[0] : label
+      text: label
     };
   }
 
