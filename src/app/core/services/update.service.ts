@@ -13,14 +13,12 @@ export class UpdateService {
     if (this.swUpdate.isEnabled) {
       console.log('Subscribing to swUpdate.available');
       this.swUpdate.available.subscribe(evt => {
-        const message = `Current: ${evt.current}, Available: ${evt.available}`;
-        console.log(message);
-        const snack = this.snackbar.open(message, 'Reload', {duration: 6000});
-
-        snack.onAction().subscribe(() => {
+        console.log(evt);
+        this.snackbar.open('New version available!', 'Reload')
+          .onAction().subscribe(() => {
           window.location.reload();
         });
-      })
+      });
     }
   }
 
