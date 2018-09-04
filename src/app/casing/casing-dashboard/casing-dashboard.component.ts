@@ -157,12 +157,13 @@ export class CasingDashboardComponent implements OnInit {
     });
 
     this.route.queryParams.subscribe((params: Params) => {
-
       const storeId = parseInt(params['store-id'], 10);
-      this.storeService.getOneById(storeId).subscribe((store: Store) => {
-        this.mapService.setCenter(this.siteService.getCoordinates(store.site));
-        this.mapService.setZoom(15);
-      });
+      if (!isNaN(storeId)) {
+        this.storeService.getOneById(storeId).subscribe((store: Store) => {
+          this.mapService.setCenter(this.siteService.getCoordinates(store.site));
+          this.mapService.setZoom(15);
+        });
+      }
     })
   }
 
