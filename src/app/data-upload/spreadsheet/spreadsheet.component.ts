@@ -231,31 +231,37 @@ export class SpreadsheetComponent implements OnInit {
               });
             });
 
-            console.log('NO MATCH: ', this.bestMatch);
+            if (this.bestMatch && this.bestMatch.score <= 4 && this.bestMatch.distanceFrom < 0.1) {
+              this.currentRecord.matchedStore = this.bestMatch.store as SimplifiedStore;
+              console.log('MATCHED');
+            } else {
 
-            this.currentDBSiteResults.sort((a, b) => {
-              return a['distanceFrom'] - b['distanceFrom']
-            });
+              console.log('NO MATCH: ', this.bestMatch);
 
-            this.currentDBSiteResults.forEach(site => {
-              site['stores'].sort((a, b) => {
-                return a['storeType'] < b['storeType'] ? -1 : a['storeType'] > b['storeType'] ? 1 : 0;
-              })
-            });
+              this.currentDBSiteResults.sort((a, b) => {
+                return a['distanceFrom'] - b['distanceFrom']
+              });
 
-            this.ngZone.run(() => {
-              this.storeMapLayer.setEntities(page.content);
-            });
+              this.currentDBSiteResults.forEach(site => {
+                site['stores'].sort((a, b) => {
+                  return a['storeType'] < b['storeType'] ? -1 : a['storeType'] > b['storeType'] ? 1 : 0;
+                })
+              });
 
-            console.log('currentdb', this.currentDBSiteResults)
+              this.ngZone.run(() => {
+                this.storeMapLayer.setEntities(page.content);
+              });
+
+              console.log('currentdb', this.currentDBSiteResults)
+            }
+
+            if (this.isAutoMatching) {
+              this.ngZone.run(() => {
+                this.setCurrentSpreadsheetRecord(this.currentRecordIndex + 1);
+              });
+            }
+
           }
-
-          if (this.isAutoMatching) {
-            this.ngZone.run(() => {
-              this.setCurrentSpreadsheetRecord(this.currentRecordIndex + 1);
-            });
-          }
-
         })
       );
   }
