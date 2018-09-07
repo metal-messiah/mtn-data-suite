@@ -1,13 +1,14 @@
 import { MapPointLayer } from './map-point-layer';
 import { Mappable } from '../interfaces/mappable';
 import { GooglePlace } from './google-place';
+import { MapService } from '../core/services/map.service';
 
 export class GooglePlaceLayer extends MapPointLayer<Mappable> {
 
   googlePlaceMappables: GooglePlace[];
 
-  constructor(map: google.maps.Map) {
-    super(map);
+  constructor(mapService: MapService) {
+    super(mapService);
     this.googlePlaceMappables = [];
   }
 
@@ -15,7 +16,7 @@ export class GooglePlaceLayer extends MapPointLayer<Mappable> {
     this.clearMarkers();
     this.googlePlaceMappables = [];
     this.createMarkersFromMappables(googlePlaces);
-    this.addToMap(this.map);
+    this.addToMap(this.mapService.getMap());
   }
 
 }

@@ -1,5 +1,6 @@
 import { Mappable } from '../interfaces/mappable';
 import { Subject } from 'rxjs';
+import { MapService } from '../core/services/map.service';
 
 /*
   The Map Point Layer should represent a list of Mappables on a map.
@@ -9,15 +10,15 @@ import { Subject } from 'rxjs';
  */
 export class MapPointLayer<T extends Mappable> {
 
-  markers: google.maps.Marker[];
-  map: google.maps.Map;
+  protected markers: google.maps.Marker[];
+  protected mapService: MapService;
 
   markerClick$ = new Subject<T>();
   markerDrag$ = new Subject<T>();
   markerDragEnd$ = new Subject();
 
-  constructor(map: google.maps.Map) {
-    this.map = map;
+  constructor(mapService: MapService) {
+    this.mapService = mapService;
     this.markers = [];
   }
 
@@ -104,7 +105,7 @@ export class MapPointLayer<T extends Mappable> {
   }
 
   protected getMarkerForMappable(mappable: T) {
-    return this.markers.find(marker => marker.get('mappable').id === mappable.id);
+    return this.markers.find(marker => marker.get('mappable') === mappable);
   }
 
   protected setMarkerOptions(marker: google.maps.Marker): void {

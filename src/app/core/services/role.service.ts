@@ -5,7 +5,7 @@ import { Role } from '../../models/full/role';
 import { CrudService } from '../../interfaces/crud-service';
 import { Pageable } from '../../models/pageable';
 import { SimplifiedRole } from '../../models/simplified/simplified-role';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
 
 @Injectable()

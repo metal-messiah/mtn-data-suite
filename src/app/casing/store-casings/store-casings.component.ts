@@ -11,7 +11,7 @@ import { MatDialog, MatSnackBar } from '@angular/material';
 import { ErrorService } from '../../core/services/error.service';
 import { StoreCasingService } from '../../core/services/store-casing.service';
 import { finalize } from 'rxjs/internal/operators';
-import { Observable, of } from 'rxjs/index';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'mds-store-casings',

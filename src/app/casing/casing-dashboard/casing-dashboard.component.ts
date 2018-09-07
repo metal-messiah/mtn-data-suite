@@ -1,7 +1,6 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import * as _ from 'lodash';
 
 import { MapService } from '../../core/services/map.service';
 import { SiteService } from '../../core/services/site.service';
@@ -36,6 +35,9 @@ import { debounce, debounceTime, delay, finalize, mergeMap, tap } from 'rxjs/int
 import { ProjectService } from '../../core/services/project.service';
 import { MapDataLayer } from '../../models/map-data-layer';
 import { ProjectBoundaryService } from '../services/project-boundary.service';
+import { StoreMapLayer } from '../../models/store-map-layer';
+import { SiteMapLayer } from '../../models/site-map-layer';
+import { GeometryUtil } from '../../utils/geometry-util';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY
@@ -73,6 +75,7 @@ export class CasingDashboardComponent implements OnInit {
   gettingEntities = false;
   markCasedStores = false;
   savingBoundary = false;
+  selecting = false;
 
   // Modes
   selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
@@ -109,19 +112,11 @@ export class CasingDashboardComponent implements OnInit {
 
   onMapReady() {
     console.log(`Map is ready`);
-    this.storeMapLayer = new EntityMapLayer<StoreMappable>(this.mapService.getMap(), (store: SimplifiedStore) => {
-      return new StoreMappable(store, this.authService.sessionUser.id, this.mapService.getMap(), () => {
-        const selectedProject = this.casingDashboardService.getSelectedProject();
-        if (selectedProject) {
-          return selectedProject.id;
-        } else {
-          return null;
-        }
-      })
+    this.storeMapLayer = new StoreMapLayer(this.mapService, this.authService, () => {
+      const project = this.casingDashboardService.getSelectedProject();
+      return project ? project.id : null;
     });
-    this.siteMapLayer = new EntityMapLayer<SiteMappable>(this.mapService.getMap(), (site: SimplifiedSite) => {
-      return new SiteMappable(site, this.authService.sessionUser.id);
-    });
+    this.siteMapLayer = new SiteMapLayer(this.mapService, this.authService);
     this.mapDataLayer = new MapDataLayer(this.mapService.getMap(), this.authService.sessionUser.id);
 
     this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe((bounds: { east, north, south, west }) => {
@@ -161,7 +156,7 @@ export class CasingDashboardComponent implements OnInit {
       if (!isNaN(storeId)) {
         this.storeService.getOneById(storeId).subscribe((store: Store) => {
           this.mapService.setCenter(this.siteService.getCoordinates(store.site));
-          this.mapService.setZoom(15);
+          this.mapService.setZoom(17);
         });
       }
     })
@@ -174,13 +169,13 @@ export class CasingDashboardComponent implements OnInit {
 
   private getFilteredStoreTypes(): string[] {
     const types = [];
-    if (this.casingDashboardService.includeActive) {
+    if (this.casingDashboardService.filter.active) {
       types.push('ACTIVE');
     }
-    if (this.casingDashboardService.includeFuture) {
+    if (this.casingDashboardService.filter.future) {
       types.push('FUTURE');
     }
-    if (this.casingDashboardService.includeHistorical) {
+    if (this.casingDashboardService.filter.historical) {
       types.push('HISTORICAL');
     }
     return types;
@@ -263,7 +258,7 @@ export class CasingDashboardComponent implements OnInit {
   initSiteCreation(): void {
     this.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
     // Create new Layer for new Location
-    this.newSiteLayer = new NewSiteLayer(this.mapService.getMap(), this.mapService.getCenter());
+    this.newSiteLayer = new NewSiteLayer(this.mapService, this.mapService.getCenter());
   }
 
   cancelSiteCreation(): void {
@@ -321,7 +316,7 @@ export class CasingDashboardComponent implements OnInit {
     this.navigatorService.getCurrentPosition().subscribe(position => {
       this.mapService.setCenter(position);
       // Create layer
-      const fm = new FindMeLayer(this.mapService.getMap(), position);
+      const fm = new FindMeLayer(this.mapService, position);
       // After 5 seconds remove it from the map
       setTimeout(() => {
         fm.removeFromMap();
@@ -332,7 +327,7 @@ export class CasingDashboardComponent implements OnInit {
 
   activateFollowMe(): void {
     this.selectedDashboardMode = CasingDashboardMode.FOLLOWING;
-    this.followMeLayer = new FollowMeLayer(this.mapService.getMap(), this.mapService.getCenter());
+    this.followMeLayer = new FollowMeLayer(this.mapService, this.mapService.getCenter());
     this.navigatorService.watchPosition({maximumAge: 2000}).subscribe(
       position => {
         this.followMeLayer.updatePosition(position);
@@ -438,15 +433,20 @@ export class CasingDashboardComponent implements OnInit {
     this.storeMapLayer.selectionMode = MapSelectionMode.MULTI_SELECT;
     // Activate Map Drawing Tools and listen for completed Shapes
     this.mapService.activateDrawingTools().subscribe(shape => {
-      // TODO - Not all stores may be mapped as user draws polygon and pans screen
-      if (this.storeMapLayer.selectionMode === MapSelectionMode.MULTI_SELECT) {
-        this.storeMapLayer.selectEntitiesInShape(shape);
-      } else if (this.storeMapLayer.selectionMode === MapSelectionMode.MULTI_DESELECT) {
-        this.storeMapLayer.deselectEntitiesInShape(shape);
-      }
-      this.ngZone.run(() => {
-        this.mapService.clearDrawings();
-      });
+      this.selecting = true;
+      const geoJson = GeometryUtil.getGeoJsonFromShape(shape);
+      this.storeService.getIdsOfStoresInShape(JSON.stringify(geoJson), this.casingDashboardService.filter)
+        .pipe(finalize(() => this.selecting = false))
+        .subscribe((ids: number[]) => {
+          if (this.storeMapLayer.selectionMode === MapSelectionMode.MULTI_SELECT) {
+            this.storeMapLayer.selectEntitiesWithIds(ids);
+          } else if (this.storeMapLayer.selectionMode === MapSelectionMode.MULTI_DESELECT) {
+            this.storeMapLayer.deselectEntitiesWithIds(ids);
+          }
+          this.ngZone.run(() => {
+            this.mapService.clearDrawings();
+          });
+        })
     });
   }
 
@@ -478,9 +478,8 @@ export class CasingDashboardComponent implements OnInit {
       if (result != null) {
         // Create google point layer
         if (this.googlePlacesLayer == null) {
-          this.googlePlacesLayer = new GooglePlaceLayer(this.mapService.getMap());
+          this.googlePlacesLayer = new GooglePlaceLayer(this.mapService);
           this.googlePlacesLayer.markerClick$.subscribe((googlePlace: GooglePlace) => {
-            console.log(googlePlace);
             this.selectedGooglePlace = googlePlace;
             this.selectedCardState = CardState.GOOGLE;
           });
@@ -550,7 +549,7 @@ export class CasingDashboardComponent implements OnInit {
       if (coordinates != null) {
         this.mapService.setCenter(coordinates);
         // Create layer
-        const fm = new FindMeLayer(this.mapService.getMap(), coordinates);
+        const fm = new FindMeLayer(this.mapService, coordinates);
         // After 5 seconds remove it from the map
         setTimeout(() => {
           fm.removeFromMap();
@@ -588,9 +587,9 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   private assign(userId: number) {
-    const selectedSiteIds = _.uniq(this.storeMapLayer.getSelectedEntities().map((store: Store) => store.site.id));
+    const selectedStoreIds = this.storeMapLayer.getSelectedEntityIds();
     this.updating = true;
-    this.siteService.assignToUser(selectedSiteIds, userId)
+    this.storeService.assignToUser(selectedStoreIds, userId)
       .pipe(finalize(() => this.updating = false))
       .subscribe((sites: SimplifiedSite[]) => {
         const message = `Successfully updated ${sites.length} Sites`;

@@ -2,15 +2,15 @@ import { MapPointLayer } from './map-point-layer';
 import { Coordinates } from './coordinates';
 import { Mappable } from '../interfaces/mappable';
 import { Color } from '../core/functionalEnums/Color';
+import { MapService } from '../core/services/map.service';
 
 export class FindMeLayer extends MapPointLayer<Mappable> {
 
   findMeMappable: Mappable;
 
-  constructor(map: google.maps.Map, coordinates: Coordinates) {
-    super(map);
+  constructor(mapService: MapService, coordinates: Coordinates) {
+    super(mapService);
     this.findMeMappable = {
-      id: 1,
       getCoordinates: () => coordinates,
       getLabel: () => '',
       getIcon: () => {
@@ -29,6 +29,6 @@ export class FindMeLayer extends MapPointLayer<Mappable> {
     this.createMarkerFromMappable(this.findMeMappable);
 
     this.getMarkerForMappable(this.findMeMappable).setAnimation(google.maps.Animation.BOUNCE);
-    this.addToMap(this.map);
+    this.addToMap(this.mapService.getMap());
   }
 }

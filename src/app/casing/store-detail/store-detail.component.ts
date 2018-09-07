@@ -11,7 +11,7 @@ import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { RoutingStateService } from '../../core/services/routing-state.service';
 import { finalize, tap } from 'rxjs/internal/operators';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'mds-store-detail',

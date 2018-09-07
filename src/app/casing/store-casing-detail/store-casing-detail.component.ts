@@ -31,7 +31,7 @@ import { StoreVolumeService } from '../../core/services/store-volume.service';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
 import { RoutingStateService } from '../../core/services/routing-state.service';
 import { finalize, tap } from 'rxjs/internal/operators';
-import { concat, Observable } from 'rxjs/index';
+import { concat, Observable } from 'rxjs';
 
 @Component({
   selector: 'mds-store-casing-detail',
@@ -197,7 +197,6 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       departmentWine: '',
       accessibilityFarthestFromEntrance: '',
       accessibilityMainIntersectionHasTrafficLight: '',
-      accessibilityMainIntersectionNeedsTrafficLight: '',
       accessibilityMultipleRetailersBeforeSite: '',
       accessibilitySetBackTwiceParkingLength: '',
       accessibilityRating: '',
@@ -234,7 +233,6 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     this.shoppingCenterCasingForm = this.fb.group({
       casingDate: ['', [Validators.required]],
       note: '',
-      ratingParkingLot: '',
       ratingBuildings: '',
       ratingLighting: '',
       ratingSynergy: ''

@@ -5,7 +5,7 @@ import { Group } from '../../models/full/group';
 import { CrudService } from '../../interfaces/crud-service';
 import { Pageable } from '../../models/pageable';
 import { SimplifiedGroup } from '../../models/simplified/simplified-group';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
 
 @Injectable()

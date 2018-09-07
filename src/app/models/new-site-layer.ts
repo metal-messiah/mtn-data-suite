@@ -3,15 +3,15 @@ import { Coordinates } from './coordinates';
 import { Mappable } from '../interfaces/mappable';
 import { Color } from '../core/functionalEnums/Color';
 import { MarkerShape } from '../core/functionalEnums/MarkerShape';
+import { MapService } from '../core/services/map.service';
 
 export class NewSiteLayer extends MapPointLayer<Mappable> {
 
   newSiteMappable: Mappable;
 
-  constructor(map: google.maps.Map, coordinates: Coordinates) {
-    super(map);
+  constructor(mapService: MapService, coordinates: Coordinates) {
+    super(mapService);
     this.newSiteMappable = {
-      id: 1,
       getCoordinates: () => coordinates,
       getLabel: () => '',
       getIcon: () => {
@@ -30,7 +30,7 @@ export class NewSiteLayer extends MapPointLayer<Mappable> {
       isDraggable: () => true
     };
     this.createMarkerFromMappable(this.newSiteMappable);
-    this.addToMap(this.map);
+    this.addToMap(this.mapService.getMap());
   }
 
   getCoordinatesOfNewSite() {

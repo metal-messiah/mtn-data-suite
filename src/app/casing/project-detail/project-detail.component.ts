@@ -6,7 +6,7 @@ import { MatDialog, MatSnackBar } from '@angular/material';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { RoutingStateService } from '../../core/services/routing-state.service';
 import { finalize, tap } from 'rxjs/internal/operators';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Project } from '../../models/full/project';

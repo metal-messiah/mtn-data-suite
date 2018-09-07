@@ -10,7 +10,7 @@ import { GroupService } from '../../core/services/group.service';
 import { DetailFormComponent } from '../../interfaces/detail-form-component';
 import { Group } from '../../models/full/group';
 import { UserProfile } from '../../models/full/user-profile';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'mds-group-detail',

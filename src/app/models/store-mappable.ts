@@ -7,28 +7,28 @@ import { EntityMappable } from '../interfaces/entity-mappable';
 import Icon = google.maps.Icon;
 import Symbol = google.maps.Symbol;
 import MarkerLabel = google.maps.MarkerLabel;
+import { MapService } from '../core/services/map.service';
 
 export class StoreMappable implements EntityMappable {
 
-  id: number;
-  private readonly currentUserId: number;
-  private readonly getSelectedProjectId: () => number;
-
   private store: SimplifiedStore;
-  private selected = false;
   private moving = false;
 
+  private readonly sessionUserId: number;
+  private readonly isSelected: (Entity) => boolean;
+  private readonly getSelectedProjectId: () => number;
+
   private readonly HIGH_ZOOM = 13;
-  private readonly MID_ZOOM = 16;
+  private readonly mapService: MapService;
 
-  private readonly map: google.maps.Map;
-
-  constructor(store: SimplifiedStore, currentUserId: number, map: google.maps.Map, getSelectedProjectId?: () => number) {
+  constructor(store: SimplifiedStore, currentUserId: number, mapService: MapService,
+              isSelected: (Entity) => boolean,
+              getSelectedProjectId?: () => number) {
     this.store = store;
-    this.id = store.id;
-    this.currentUserId = currentUserId;
+    this.sessionUserId = currentUserId;
+    this.isSelected = isSelected;
     this.getSelectedProjectId = getSelectedProjectId;
-    this.map = map;
+    this.mapService = mapService;
   }
 
   getCoordinates(): Coordinates {
@@ -40,7 +40,7 @@ export class StoreMappable implements EntityMappable {
   }
 
   getLabel(markerType?: MarkerType): string|MarkerLabel {
-    const zoom = this.map.getZoom();
+    const zoom = this.mapService.getZoom();
     let labelColor = Color.WHITE;
 
     if (this.storeCasedForSelectedProject()) {
@@ -62,7 +62,7 @@ export class StoreMappable implements EntityMappable {
 
     // At High Zoom, show full label
     if (zoom > this.HIGH_ZOOM) {
-      const mapTypeId = this.map.getMapTypeId();
+      const mapTypeId = this.mapService.getMap().getMapTypeId();
       if (mapTypeId === google.maps.MapTypeId.SATELLITE || mapTypeId === google.maps.MapTypeId.HYBRID) {
         labelColor = Color.WHITE;
       } else {
@@ -86,8 +86,11 @@ export class StoreMappable implements EntityMappable {
         url: `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${this.store.banner.logoFileName}`
       }
     }
-    const fillColor = this.getFillColor();
-    const strokeColor = this.getStrokeColor();
+
+    const selected = this.isSelected(this.getEntity());
+
+    const fillColor = this.getFillColor(selected);
+    const strokeColor = this.getStrokeColor(selected);
     const shape = this.getShape();
     const scale = this.getScale(shape);
     const anchor = this.getAnchor(shape);
@@ -117,10 +120,6 @@ export class StoreMappable implements EntityMappable {
     return this.store;
   }
 
-  setSelected(selected: boolean) {
-    this.selected = selected;
-  }
-
   setMoving(moving: boolean) {
     this.moving = moving;
   }
@@ -132,37 +131,37 @@ export class StoreMappable implements EntityMappable {
       this.store.projectIds.indexOf(this.getSelectedProjectId()) !== -1
   }
 
-  private getFillColor() {
+  private getFillColor(selected: boolean) {
     if (this.moving) {
       return Color.PURPLE;
     }
     if (this.store.site.assignee != null) {
-      if (this.store.site.assignee.id === this.currentUserId) {
-        if (this.selected) {
+      if (this.store.site.assignee.id === this.sessionUserId) {
+        if (selected) {
           return Color.GREEN_DARK;
         } else {
           return Color.GREEN;
         }
       } else {
-        if (this.selected) {
+        if (selected) {
           return Color.RED_DARK;
         } else {
           return Color.RED;
         }
       }
     }
-    if (this.selected) {
+    if (selected) {
       return Color.BLUE_DARK;
     } else {
       return Color.BLUE;
     }
   }
 
-  private getStrokeColor() {
+  private getStrokeColor(selected: boolean) {
     if (this.moving) {
       return Color.PURPLE_DARK;
     }
-    return this.selected ? Color.YELLOW : Color.WHITE;
+    return selected ? Color.YELLOW : Color.WHITE;
   }
 
   private getShape() {
@@ -206,7 +205,6 @@ export class StoreMappable implements EntityMappable {
   }
 
   private getRotation() {
-    // TODO Set Rotation for Future and Historical
     if (this.store.storeType === 'HISTORICAL') {
       return -90;
     } else if (this.store.storeType === 'FUTURE') {
@@ -216,7 +214,7 @@ export class StoreMappable implements EntityMappable {
   }
 
   private getLabelOrigin(shape: any) {
-    const zoom = this.map.getZoom();
+    const zoom = this.mapService.getZoom();
     if (zoom > this.HIGH_ZOOM) {
       if (this.store.storeType === 'HISTORICAL') {
         return new google.maps.Point(-120, 0);

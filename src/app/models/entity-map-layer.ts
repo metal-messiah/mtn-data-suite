@@ -6,6 +6,7 @@ import { Entity } from './entity';
 import { EntityMappable } from '../interfaces/entity-mappable';
 import { Subject } from 'rxjs';
 import { Mappable } from '../interfaces/mappable';
+import { MapService } from '../core/services/map.service';
 
 export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<EntityMappable> {
 
@@ -14,11 +15,9 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
   selectionMode: MapSelectionMode = MapSelectionMode.SINGLE_SELECT;
   markerType: MarkerType = MarkerType.PIN;
 
-  private selectedEntities: Entity[];
-
   private mappables: EntityMappable[];
 
-  private selectedEntityIds: Set<string | number>;
+  protected selectedEntityIds: Set<number>;
 
   private movingMappable: EntityMappable;
 
@@ -26,11 +25,10 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
 
   private readonly createMappable: (Entity) => EntityMappable;
 
-  constructor(map: google.maps.Map, createMappable: (Entity) => EntityMappable) {
-    super(map);
+  constructor(mapService: MapService, createMappable: (Entity) => EntityMappable) {
+    super(mapService);
     this.mappables = [];
     this.selectedEntityIds = new Set<number>();
-    this.selectedEntities = [];
     this.createMappable = createMappable;
     this.initSelection();
     const m = localStorage.getItem('markerType');
@@ -58,19 +56,17 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
   setEntities(entities: Entity[]) {
     this.mappables = entities.map(entity => {
       if (this.mappables.length > 0) {
-        const mappable = this.mappables.find((m: EntityMappable) => m.id === entity.id);
+        const mappable = this.mappables.find((em: EntityMappable) => em.getEntity().id === entity.id);
         if (mappable != null) {
           mappable.updateEntity(entity);
           return mappable;
         }
       }
-      const newMappable = this.createMappable(entity);
-      newMappable.setSelected(this.selectedEntityIds.has(entity.id));
-      return newMappable;
+      return this.createMappable(entity);
     });
     this.clearMarkers();
     this.createMarkersFromMappables(this.mappables);
-    this.addToMap(this.map);
+    this.addToMap(this.mapService.getMap());
   }
 
   setMarkerType(markerType: MarkerType) {
@@ -78,30 +74,30 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
     localStorage.setItem('markerType', JSON.stringify(markerType));
   }
 
-  selectEntitiesInShape(shape) {
-    const mappables = this.getMappablesInShape(shape);
-    mappables.forEach((mappable: EntityMappable) => this.selectMappable(mappable));
+  selectEntitiesWithIds(ids: number[]) {
+    ids.forEach(id => this.selectedEntityIds.add(id));
     this.refreshOptions();
   }
 
-  deselectEntitiesInShape(shape) {
-    const mappables = this.getMappablesInShape(shape);
-    mappables.forEach((mappable: EntityMappable) => this.deselectMappable(mappable));
+  deselectEntitiesWithIds(ids: number[]) {
+    ids.forEach(id => this.selectedEntityIds.delete(id));
     this.refreshOptions();
+  }
+
+  private getMappablesWithIds(ids: number[]): Mappable[] {
+    return this.mappables.filter(mappable => ids.includes(mappable.getEntity().id));
   }
 
   clearSelection() {
     this.latestSelectedMappable = null;
     this.selectedEntityIds.clear();
-    this.selectedEntities = [];
     this.mappables.forEach((mappable: EntityMappable) => {
-      mappable.setSelected(false);
       this.refreshOptionsForMappable(mappable);
     });
   }
 
   startMovingEntity(entity: Entity) {
-    const mappable = this.mappables.find((marker: EntityMappable) => marker.id === entity.id);
+    const mappable = this.mappables.find((em: EntityMappable) => em.getEntity().id === entity.id);
     this.movingMappable = mappable;
     mappable.setMoving(true);
     this.refreshOptionsForMappable(mappable);
@@ -133,39 +129,33 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
   }
 
   selectEntity(entity: Entity) {
-    const mappable = this.mappables.find((marker: EntityMappable) => marker.id === entity.id);
+    const mappable = this.mappables.find((em: EntityMappable) => em.getEntity().id === entity.id);
     this.selectMappable(mappable);
     this.refreshOptionsForMappable(mappable);
   }
 
   updateEntity(entity: Entity) {
-    const mappable = this.mappables.find((marker: EntityMappable) => marker.id === entity.id);
+    const mappable = this.mappables.find((em: EntityMappable) => em.getEntity().id === entity.id);
     mappable.updateEntity(entity);
     this.refreshOptionsForMappable(mappable);
   }
 
-  getSelectedEntities() {
-    return this.selectedEntities;
+  getSelectionCount(): number {
+    return this.selectedEntityIds.size;
+  }
+
+  getSelectedEntityIds(): number[] {
+    return Array.from(this.selectedEntityIds);
   }
 
   private selectMappable(mappable: EntityMappable): void {
-    mappable.setSelected(true);
+    this.selectedEntityIds.add(mappable.getEntity().id);
     this.refreshOptionsForMappable(mappable);
-    if (!this.selectedEntityIds.has(mappable.id)) {
-      this.selectedEntityIds.add(mappable.id);
-      this.selectedEntities.push(mappable.getEntity());
-    }
   }
 
   private deselectMappable(mappable: EntityMappable) {
-    mappable.setSelected(false);
-    this.refreshOptionsForMappable(mappable);
-    if (this.selectedEntityIds.has(mappable.id)) {
-      this.selectedEntityIds.delete(mappable.id);
-      const index = this.selectedEntities.findIndex((s: Entity) => {
-        return s.id === mappable.getEntity().id;
-      });
-      this.selectedEntities.splice(index, 1);
+    if (this.selectedEntityIds.delete(mappable.getEntity().id)) {
+      this.refreshOptionsForMappable(mappable);
     }
   }
 

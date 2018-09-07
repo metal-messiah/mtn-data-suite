@@ -4,7 +4,7 @@ import { Pageable } from '../../models/pageable';
 import { Permission } from '../../models/full/permission';
 import { CrudService } from '../../interfaces/crud-service';
 import { RestService } from './rest.service';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class PermissionService extends CrudService<Permission> {

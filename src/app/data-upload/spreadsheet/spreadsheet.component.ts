@@ -15,16 +15,15 @@ import { WordSimilarity } from '../../utils/word-similarity';
 import { MatSnackBar } from '@angular/material';
 
 import { EntityMapLayer } from '../../models/entity-map-layer';
-import { SiteMappable } from '../../models/site-mappable';
 
-import { debounceTime, finalize, mergeMap, tap } from 'rxjs/internal/operators';
-import { of } from 'rxjs';
+import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
 import { MapDataLayer } from '../../models/map-data-layer';
 import { SpreadsheetLayer } from '../../models/spreadsheet-layer';
 import { SpreadsheetRecord } from '../../models/spreadsheet-record';
 import { SpreadsheetService } from './spreadsheet.service';
 
 import * as _ from 'lodash';
+import { StoreMapLayer } from '../../models/store-map-layer';
 
 @Component({
   selector: 'mds-spreadsheet',
@@ -35,7 +34,6 @@ import * as _ from 'lodash';
 export class SpreadsheetComponent implements OnInit {
   spreadsheetLayer: SpreadsheetLayer;
   storeMapLayer: EntityMapLayer<StoreMappable>;
-  siteMapLayer: EntityMapLayer<SiteMappable>;
   mapDataLayer: MapDataLayer;
 
   records: SpreadsheetRecord[];
@@ -98,14 +96,9 @@ export class SpreadsheetComponent implements OnInit {
   }
 
   onMapReady() {
-    this.spreadsheetLayer = new SpreadsheetLayer(this.mapService.getMap());
+    this.spreadsheetLayer = new SpreadsheetLayer(this.mapService);
     console.log(`Map is ready`);
-    this.storeMapLayer = new EntityMapLayer<StoreMappable>(this.mapService.getMap(), (store: SimplifiedStore) => {
-      return new StoreMappable(store, this.authService.sessionUser.id, this.mapService.getMap())
-    });
-    this.siteMapLayer = new EntityMapLayer<SiteMappable>(this.mapService.getMap(), (site: SimplifiedSite) => {
-      return new SiteMappable(site, this.authService.sessionUser.id);
-    });
+    this.storeMapLayer = new StoreMapLayer(this.mapService, this.authService, () => null);
     this.mapDataLayer = new MapDataLayer(this.mapService.getMap(), this.authService.sessionUser.id);
 
     this.mapService.boundsChanged$.pipe(debounceTime(1000))
@@ -120,18 +113,9 @@ export class SpreadsheetComponent implements OnInit {
   getEntities(bounds: { east, north, south, west }): void {
     if (this.mapService.getZoom() > 10) {
       this.mapDataLayer.clearDataPoints();
-      const storeTypes = this.storeTypes;
       this.gettingEntities = true;
-      this.getSitesInBounds(bounds)
-      // .pipe(finalize(() => this.gettingEntities = false))
-        .pipe(mergeMap(() => {
-          if (storeTypes.length > 0) {
-            return this.getStoresInBounds(bounds);
-          } else {
-            this.storeMapLayer.setEntities([]);
-            return of(null);
-          }
-        }))
+      this.getStoresInBounds(bounds)
+        .pipe(finalize(() => this.gettingEntities = false))
         .subscribe(() => console.log('Retrieved Entities')
           , err => {
             this.ngZone.run(() => {
@@ -143,7 +127,6 @@ export class SpreadsheetComponent implements OnInit {
     } else if (this.mapService.getZoom() > 7) {
       this.getPointsInBounds(bounds);
       this.storeMapLayer.setEntities([]);
-      this.siteMapLayer.setEntities([]);
     } else {
       this.ngZone.run(() => this.snackBar.open('Zoom in for location data', null, {
         duration: 1000,
@@ -151,7 +134,6 @@ export class SpreadsheetComponent implements OnInit {
       }));
       this.mapDataLayer.clearDataPoints();
       this.storeMapLayer.setEntities([]);
-      this.siteMapLayer.setEntities([]);
     }
   }
 
@@ -171,13 +153,6 @@ export class SpreadsheetComponent implements OnInit {
         });
       }
     })
-  }
-
-  private getSitesInBounds(bounds) {
-    // Get Sites without stores
-    return this.siteService.getSitesWithoutStoresInBounds(bounds).pipe(tap(page => {
-      this.siteMapLayer.setEntities(page.content);
-    }));
   }
 
   private getStoresInBounds(bounds) {
@@ -203,13 +178,13 @@ export class SpreadsheetComponent implements OnInit {
               const crGeom = this.currentRecord.coordinates;
               const dbGeom = {lng: site.longitude, lat: site.latitude};
               console.log(crGeom, dbGeom);
-              const dist = this.mapService.getDistanceBetween(
+              const dist = MapService.getDistanceBetween(
                 crGeom,
                 dbGeom
               );
               site['distanceFrom'] = dist * 0.000621371;
 
-              const heading = this.mapService.getHeading(
+              const heading = MapService.getHeading(
                 crGeom,
                 dbGeom
               );

@@ -4,7 +4,7 @@ import { Project } from '../../models/full/project';
 import { Pageable } from '../../models/pageable';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatSnackBar } from '@angular/material';
-import { fromEvent } from 'rxjs/index';
+import { fromEvent } from 'rxjs';
 import { finalize } from 'rxjs/internal/operators';
 import { Router } from '@angular/router';
 import { ErrorService } from '../../core/services/error.service';

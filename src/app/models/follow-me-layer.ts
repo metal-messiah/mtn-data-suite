@@ -2,16 +2,16 @@ import { MapPointLayer } from './map-point-layer';
 import { Coordinates } from './coordinates';
 import { Mappable } from '../interfaces/mappable';
 import { Color } from '../core/functionalEnums/Color';
+import { MapService } from '../core/services/map.service';
 
 export class FollowMeLayer extends MapPointLayer<Mappable> {
 
   followMeMappable: Mappable;
 
-  constructor(map: google.maps.Map, coordinates: Coordinates) {
-    super(map);
+  constructor(mapService: MapService, coordinates: Coordinates) {
+    super(mapService);
 
     this.followMeMappable = {
-      id: 1,
       getCoordinates: () => coordinates,
       getLabel: () => '',
       getIcon: () => {
@@ -28,7 +28,7 @@ export class FollowMeLayer extends MapPointLayer<Mappable> {
       isDraggable: () => false
     };
     this.createMarkerFromMappable(this.followMeMappable);
-    this.addToMap(this.map);
+    this.addToMap(this.mapService.getMap());
   }
 
   updatePosition(coordinates: Coordinates) {

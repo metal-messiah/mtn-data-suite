@@ -17,7 +17,6 @@ import { StoreMappable } from '../../models/store-mappable';
 import { PgMappable } from '../../models/pg-mappable';
 import { Pageable } from '../../models/pageable';
 import { Coordinates } from '../../models/coordinates';
-import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { PlannedGroceryLayer } from '../../models/planned-grocery-layer';
 import { EntityMapLayer } from '../../models/entity-map-layer';
 import { MapDataLayer } from '../../models/map-data-layer';
@@ -25,6 +24,7 @@ import { PlannedGroceryUpdatable } from '../../models/planned-grocery-updatable'
 import { StoreSource } from '../../models/full/store-source';
 
 import { PlannedGroceryService } from './planned-grocery-service.service';
+import { StoreMapLayer } from '../../models/store-map-layer';
 
 @Component({
   selector: 'mds-planned-grocery',
@@ -186,18 +186,13 @@ export class PlannedGroceryComponent implements OnInit {
   }
 
   onMapReady(event) {
-    this.pgMapLayer = new PlannedGroceryLayer(this.mapService.getMap());
+    this.pgMapLayer = new PlannedGroceryLayer(this.mapService);
     this.pgMapLayer.markerDragEnd$.subscribe((draggedMarker: PgMappable) => {
       const coords = this.pgMapLayer.getCoordinatesOfMappableMarker(draggedMarker);
       this.pgUpdatable.longitude = coords.lng;
       this.pgUpdatable.latitude = coords.lat;
     });
-    this.storeMapLayer = new EntityMapLayer<StoreMappable>(
-      this.mapService.getMap(),
-      (store: SimplifiedStore) => {
-        return new StoreMappable(store, this.authService.sessionUser.id, this.mapService.getMap());
-      }
-    );
+    this.storeMapLayer = new StoreMapLayer(this.mapService, this.authService, () => null);
     this.mapDataLayer = new MapDataLayer(
       this.mapService.getMap(),
       this.authService.sessionUser.id
@@ -290,10 +285,10 @@ export class PlannedGroceryComponent implements OnInit {
               };
 
               const dbGeom = {lng: site['longitude'], lat: site['latitude']};
-              const dist = this.mapService.getDistanceBetween(crGeom, dbGeom);
+              const dist = MapService.getDistanceBetween(crGeom, dbGeom);
               site['distanceFrom'] = dist * 0.000621371;
 
-              const heading = this.mapService.getHeading(crGeom, dbGeom);
+              const heading = MapService.getHeading(crGeom, dbGeom);
               site['heading'] = `rotate(${heading}deg)`; // 0 is up, 90 is right, 180 is down, -90 is left
 
               site['stores'].forEach(store => {

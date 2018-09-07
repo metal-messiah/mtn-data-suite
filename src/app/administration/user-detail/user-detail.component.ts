@@ -14,7 +14,7 @@ import { DetailFormComponent } from '../../interfaces/detail-form-component';
 import { DetailFormService } from '../../core/services/detail-form.service';
 import { SimplifiedGroup } from '../../models/simplified/simplified-group';
 import { SimplifiedRole } from '../../models/simplified/simplified-role';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/internal/operators';
 import { Pageable } from '../../models/pageable';
 

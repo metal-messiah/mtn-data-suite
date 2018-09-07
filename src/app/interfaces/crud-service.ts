@@ -1,7 +1,7 @@
 import { RestService } from '../core/services/rest.service';
 import { HttpClient } from '@angular/common/http';
 import { Entity } from '../models/entity';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
 
 export abstract class CrudService<T extends Entity> {

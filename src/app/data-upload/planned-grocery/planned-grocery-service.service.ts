@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { RestService } from '../../core/services/rest.service';
 import { PlannedGroceryUpdatable } from '../../models/planned-grocery-updatable';

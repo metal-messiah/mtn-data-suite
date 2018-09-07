@@ -6,7 +6,7 @@ import Symbol = google.maps.Symbol;
 import Icon = google.maps.Icon;
 import MarkerLabel = google.maps.MarkerLabel;
 
-export interface Mappable extends Entity {
+export interface Mappable {
   getCoordinates: () => Coordinates;
   getIcon: (markerType?: MarkerType) => string|Icon|Symbol;
   isDraggable: () => boolean;
