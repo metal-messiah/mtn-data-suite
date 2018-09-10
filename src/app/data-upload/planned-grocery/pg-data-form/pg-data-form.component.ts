@@ -121,7 +121,11 @@ export class PgDataFormComponent implements OnChanges {
     const pgEditedDateMs = this.pgFeature.attributes.EditDate;
     const relevantStatuses = this.pgUpdatable.storeStatuses.filter(status => status.statusStartDate.getTime() <= pgEditedDateMs);
     const currentStatus = _.maxBy(relevantStatuses, 'statusStartDate');
-    return _.find(this.dbStatuses, {displayName: currentStatus.status});
+    if (currentStatus) {
+      return _.find(this.dbStatuses, {displayName: currentStatus.status});
+    } else {
+      return {displayName: 'NONE', pgStatusId: -1, rank: -1};
+    }
   }
 
   private getPgStatus(): { displayName: string, pgStatusId: number, rank: number } {
