@@ -18,8 +18,8 @@ import { finalize } from 'rxjs/internal/operators';
 export class GroupsComponent implements OnInit, BasicEntityListComponent<Group> {
 
   groups: SimplifiedGroup[];
-  isLoading: false;
-  isDeleting: false;
+  isLoading = false;
+  isDeleting = false;
 
   constructor(private groupService: GroupService,
               private router: Router,
