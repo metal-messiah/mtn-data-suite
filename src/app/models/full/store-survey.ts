@@ -48,7 +48,6 @@ export class StoreSurvey extends AuditingEntity {
   departmentWine: boolean;
   accessibilityFarthestFromEntrance: boolean;
   accessibilityMainIntersectionHasTrafficLight: boolean;
-  accessibilityMainIntersectionNeedsTrafficLight: boolean;
   accessibilityMultipleRetailersBeforeSite: boolean;
   accessibilitySetBackTwiceParkingLength: boolean;
   accessibilityRating: string;
