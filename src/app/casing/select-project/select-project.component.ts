@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { ErrorService } from '../../core/services/error.service';
 import { NewProjectNameComponent } from '../../shared/new-project-name/new-project-name.component';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
+import { Boundary } from '../../models/full/boundary';
 
 @Component({
   selector: 'mds-select-project',
@@ -118,5 +119,25 @@ export class SelectProjectComponent implements OnInit {
     this.projectService.getOneById(p.id)
       .pipe(finalize(() => this.gettingProject = false))
       .subscribe((project: Project) => this.openedProject = project)
+  }
+
+  downloadBoundary(selectedProject: SimplifiedProject) {
+    this.loading = true;
+    this.projectService.getBoundaryForProject(selectedProject.id)
+      .pipe(finalize(() => this.loading = false))
+      .subscribe((boundary: Boundary) => {
+        const blob = new Blob([boundary.geojson], {type: 'application/json'});
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        document.body.appendChild(a);
+        a.style.display = 'none';
+        a.href = url;
+        a.download = selectedProject.projectName + '.geojson';
+        a.target = '_blank';
+        a.click();
+        a.remove();
+      }, err => this.errorService.handleServerError('Failed to download!', err,
+        () => console.log(err),
+        () => this.downloadBoundary(selectedProject)));
   }
 }

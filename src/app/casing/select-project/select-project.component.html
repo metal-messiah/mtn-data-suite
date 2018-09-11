@@ -41,6 +41,9 @@
           </mat-expansion-panel-header>
           <mat-action-row>
             <button mat-raised-button color="primary" type="button" (click)="editProject(project)">Edit</button>
+            <button mat-raised-button color="primary" type="button" [disabled]="!project.hasBoundary" (click)="downloadBoundary(project)">
+              <i class="fas fa-file-download"></i>&nbsp;Boundary
+            </button>
             <button mat-raised-button color="accent" type="button" (click)="selectProject(project)">Select</button>
           </mat-action-row>
         </mat-expansion-panel>
