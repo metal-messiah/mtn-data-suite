@@ -46,11 +46,27 @@ export class StoreService extends CrudService<Store> {
       .pipe(map(newCasing => new StoreCasing(newCasing)));
   }
 
-  getIdsOfStoresInShape(shape: string, filter: StoreFilter) {
+  getIdsInShape(shape: string, filter: StoreFilter): Observable<{siteIds: number[], storeIds: number[]}> {
     const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams().set('filter', JSON.stringify(filter));
+    let params = new HttpParams();
     params = params.set('geojson', shape);
-    return this.http.get<number[]>(url, {headers: this.rest.getHeaders(), params: params});
+    params = params.set('active', String(filter.active));
+    params = params.set('future', String(filter.future));
+    params = params.set('historical', String(filter.historical));
+    return this.http.get<{siteIds: number[], storeIds: number[]}>(url, {headers: this.rest.getHeaders(), params: params});
+  }
+
+  getIdsInRadius(latitude: number, longitude: number, radiusMeters: number, filter: StoreFilter)
+    : Observable<{siteIds: number[], storeIds: number[]}> {
+    const url = this.rest.getHost() + this.endpoint;
+    let params = new HttpParams();
+    params = params.set('latitude', String(latitude));
+    params = params.set('longitude', String(longitude));
+    params = params.set('radiusMeters', String(radiusMeters));
+    params = params.set('active', String(filter.active));
+    params = params.set('future', String(filter.future));
+    params = params.set('historical', String(filter.historical));
+    return this.http.get<{siteIds: number[], storeIds: number[]}>(url, {headers: this.rest.getHeaders(), params: params});
   }
 
   getStoresOfTypeInBounds(bounds: { north, south, east, west }, types: string[],

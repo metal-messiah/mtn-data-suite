@@ -22,13 +22,10 @@ import { ErrorService } from '../../core/services/error.service';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
 import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-profile';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
-import { EntityMapLayer } from '../../models/entity-map-layer';
 import { Store } from '../../models/full/store';
 import { NewSiteLayer } from '../../models/new-site-layer';
 import { GooglePlaceLayer } from '../../models/google-place-layer';
 import { MapSelectionMode } from '../enums/map-selection-mode';
-import { StoreMappable } from 'app/models/store-mappable';
-import { SiteMappable } from '../../models/site-mappable';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { Observable, of, Subscription } from 'rxjs';
 import { debounce, debounceTime, delay, finalize, mergeMap, tap } from 'rxjs/internal/operators';
@@ -38,6 +35,7 @@ import { ProjectBoundaryService } from '../services/project-boundary.service';
 import { StoreMapLayer } from '../../models/store-map-layer';
 import { SiteMapLayer } from '../../models/site-map-layer';
 import { GeometryUtil } from '../../utils/geometry-util';
+import { EntitySelectionService } from '../../core/services/entity-selection.service';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY
@@ -57,13 +55,16 @@ export enum CardState {
 })
 export class CasingDashboardComponent implements OnInit {
 
+  private readonly MAX_DATA_ZOOM = 7;
+  private readonly DATA_POINT_ZOOM = 10;
+
   selectedStore: Store | SimplifiedStore;
   selectedSite: Site | SimplifiedSite;
   selectedGooglePlace: GooglePlace;
 
   // Layers
-  storeMapLayer: EntityMapLayer<StoreMappable>;
-  siteMapLayer: EntityMapLayer<SiteMappable>;
+  storeMapLayer: StoreMapLayer;
+  siteMapLayer: SiteMapLayer;
   newSiteLayer: NewSiteLayer;
   followMeLayer: FollowMeLayer;
   googlePlacesLayer: GooglePlaceLayer;
@@ -103,6 +104,7 @@ export class CasingDashboardComponent implements OnInit {
               private dialog: MatDialog,
               private authService: AuthService,
               private errorService: ErrorService,
+              private entitySelectionService: EntitySelectionService,
               public projectBoundaryService: ProjectBoundaryService) {
   }
 
@@ -112,12 +114,12 @@ export class CasingDashboardComponent implements OnInit {
 
   onMapReady() {
     console.log(`Map is ready`);
-    this.storeMapLayer = new StoreMapLayer(this.mapService, this.authService, () => {
+    this.storeMapLayer = new StoreMapLayer(this.mapService, this.authService, this.entitySelectionService.storeIds, () => {
       const project = this.casingDashboardService.getSelectedProject();
       return project ? project.id : null;
     });
-    this.siteMapLayer = new SiteMapLayer(this.mapService, this.authService);
-    this.mapDataLayer = new MapDataLayer(this.mapService.getMap(), this.authService.sessionUser.id);
+    this.siteMapLayer = new SiteMapLayer(this.mapService, this.authService, this.entitySelectionService.siteIds);
+    this.mapDataLayer = new MapDataLayer(this.mapService.getMap(), this.authService.sessionUser.id, this.entitySelectionService.siteIds);
 
     this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe((bounds: { east, north, south, west }) => {
       if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
@@ -182,7 +184,7 @@ export class CasingDashboardComponent implements OnInit {
   }
 
   getEntities(bounds: { east, north, south, west }): void {
-    if (this.mapService.getZoom() > 10) {
+    if (this.mapService.getZoom() > this.DATA_POINT_ZOOM) {
       this.mapDataLayer.clearDataPoints();
       const storeTypes = this.getFilteredStoreTypes();
       this.gettingEntities = true;
@@ -204,7 +206,7 @@ export class CasingDashboardComponent implements OnInit {
                 () => this.getEntities(bounds));
             });
           });
-    } else if (this.mapService.getZoom() > 7) {
+    } else if (this.mapService.getZoom() > this.MAX_DATA_ZOOM) {
       this.getPointsInBounds(bounds);
       this.storeMapLayer.setEntities([]);
       this.siteMapLayer.setEntities([]);
@@ -433,19 +435,36 @@ export class CasingDashboardComponent implements OnInit {
     this.storeMapLayer.selectionMode = MapSelectionMode.MULTI_SELECT;
     // Activate Map Drawing Tools and listen for completed Shapes
     this.mapService.activateDrawingTools().subscribe(shape => {
-      this.selecting = true;
       const geoJson = GeometryUtil.getGeoJsonFromShape(shape);
-      this.storeService.getIdsOfStoresInShape(JSON.stringify(geoJson), this.casingDashboardService.filter)
-        .pipe(finalize(() => this.selecting = false))
-        .subscribe((ids: number[]) => {
+      let observable: Observable<{ siteIds: number[], storeIds: number[] }>;
+      if (geoJson.geometry.type === 'Point') {
+        const longitude = geoJson.geometry.coordinates[0];
+        const latitude = geoJson.geometry.coordinates[1];
+        const radiusMeters = geoJson.properties.radius;
+        observable = this.storeService.getIdsInRadius(latitude, longitude, radiusMeters, this.casingDashboardService.filter);
+      } else {
+        observable = this.storeService.getIdsInShape(JSON.stringify(geoJson), this.casingDashboardService.filter);
+      }
+      this.selecting = true;
+      observable.pipe(finalize(() => {
+        this.selecting = false;
+        this.ngZone.run(() => {
+          this.mapService.clearDrawings();
+        });
+      }))
+        .subscribe((ids: { siteIds: number[], storeIds: number[] }) => {
           if (this.storeMapLayer.selectionMode === MapSelectionMode.MULTI_SELECT) {
-            this.storeMapLayer.selectEntitiesWithIds(ids);
+            ids.storeIds.forEach(storeId => this.entitySelectionService.storeIds.add(storeId));
+            ids.siteIds.forEach(siteId => this.entitySelectionService.siteIds.add(siteId));
           } else if (this.storeMapLayer.selectionMode === MapSelectionMode.MULTI_DESELECT) {
-            this.storeMapLayer.deselectEntitiesWithIds(ids);
+            ids.storeIds.forEach(storeId => this.entitySelectionService.storeIds.delete(storeId));
+            ids.siteIds.forEach(siteId => this.entitySelectionService.siteIds.delete(siteId));
           }
-          this.ngZone.run(() => {
-            this.mapService.clearDrawings();
-          });
+          this.storeMapLayer.refreshOptions();
+          console.log(this.mapService.getZoom());
+          if (this.mapService.getZoom() <= this.DATA_POINT_ZOOM && this.mapService.getZoom() > this.MAX_DATA_ZOOM) {
+            this.mapDataLayer.refresh();
+          }
         })
     });
   }
@@ -453,6 +472,10 @@ export class CasingDashboardComponent implements OnInit {
   cancelMultiSelect(): void {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
     this.storeMapLayer.selectionMode = MapSelectionMode.SINGLE_SELECT;
+    this.entitySelectionService.clearSelectedIds();
+    if (this.mapService.getZoom() > this.MAX_DATA_ZOOM && this.mapService.getZoom() <= this.DATA_POINT_ZOOM) {
+      this.mapDataLayer.refresh();
+    }
     this.mapService.deactivateDrawingTools();
     this.storeMapLayer.clearSelection();
   }

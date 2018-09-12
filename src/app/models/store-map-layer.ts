@@ -11,8 +11,9 @@ export class StoreMapLayer extends EntityMapLayer<StoreMappable> {
 
   constructor(mapService: MapService,
               authService: AuthService,
+              selectedIdSet: Set<number>,
               getSelectedProjectId: () => number) {
-    super(mapService, (store: SimplifiedStore): StoreMappable => this.createStoreMappable(store));
+    super(mapService, (store: SimplifiedStore): StoreMappable => this.createStoreMappable(store), selectedIdSet);
     this.authService = authService;
     this.getSelectedProjectId = getSelectedProjectId;
   }

@@ -27,6 +27,7 @@ import { StoreSurveyService } from './services/store-survey.service';
 import { RoutingStateService } from './services/routing-state.service';
 import { BannerService } from './services/banner.service';
 import { StoreSourceService } from './services/store-source.service';
+import { EntitySelectionService } from './services/entity-selection.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -58,7 +59,8 @@ import { StoreSourceService } from './services/store-source.service';
     StoreService,
     StoreSurveyService,
     StoreVolumeService,
-    UserProfileService
+    UserProfileService,
+    EntitySelectionService
   ]
 })
 export class CoreModule {

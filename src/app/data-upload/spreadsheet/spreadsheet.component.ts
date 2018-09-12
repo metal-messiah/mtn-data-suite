@@ -24,6 +24,7 @@ import { SpreadsheetService } from './spreadsheet.service';
 
 import * as _ from 'lodash';
 import { StoreMapLayer } from '../../models/store-map-layer';
+import { EntitySelectionService } from '../../core/services/entity-selection.service';
 
 @Component({
   selector: 'mds-spreadsheet',
@@ -60,7 +61,8 @@ export class SpreadsheetComponent implements OnInit {
     private storeService: StoreService,
     private errorService: ErrorService,
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private entitySelectionService: EntitySelectionService
   ) {
     this.wordSimilarity = new WordSimilarity()
   }
@@ -98,8 +100,8 @@ export class SpreadsheetComponent implements OnInit {
   onMapReady() {
     this.spreadsheetLayer = new SpreadsheetLayer(this.mapService);
     console.log(`Map is ready`);
-    this.storeMapLayer = new StoreMapLayer(this.mapService, this.authService, () => null);
-    this.mapDataLayer = new MapDataLayer(this.mapService.getMap(), this.authService.sessionUser.id);
+    this.storeMapLayer = new StoreMapLayer(this.mapService, this.authService, this.entitySelectionService.storeIds, () => null);
+    this.mapDataLayer = new MapDataLayer(this.mapService.getMap(), this.authService.sessionUser.id, this.entitySelectionService.siteIds);
 
     this.mapService.boundsChanged$.pipe(debounceTime(1000))
       .subscribe((bounds: { east, north, south, west }) => {

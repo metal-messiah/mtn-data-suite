@@ -3,14 +3,16 @@ import { AuthService } from '../core/services/auth.service';
 import { MapService } from '../core/services/map.service';
 import { SiteMappable } from './site-mappable';
 import { SimplifiedSite } from './simplified/simplified-site';
+import { EntitySelectionService } from '../core/services/entity-selection.service';
 
 export class SiteMapLayer extends EntityMapLayer<SiteMappable> {
 
   private readonly authService: AuthService;
 
   constructor(mapService: MapService,
-              authService: AuthService) {
-    super(mapService, (site: SimplifiedSite): SiteMappable => this.createSiteMappable(site));
+              authService: AuthService,
+              selectedIdSet: Set<number>) {
+    super(mapService, (site: SimplifiedSite): SiteMappable => this.createSiteMappable(site), selectedIdSet);
     this.authService = authService;
   }
 

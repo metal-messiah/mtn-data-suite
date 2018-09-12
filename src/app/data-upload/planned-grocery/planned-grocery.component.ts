@@ -25,6 +25,7 @@ import { StoreSource } from '../../models/full/store-source';
 
 import { PlannedGroceryService } from './planned-grocery-service.service';
 import { StoreMapLayer } from '../../models/store-map-layer';
+import { EntitySelectionService } from '../../core/services/entity-selection.service';
 
 @Component({
   selector: 'mds-planned-grocery',
@@ -82,7 +83,8 @@ export class PlannedGroceryComponent implements OnInit {
     private storeService: StoreService,
     private errorService: ErrorService,
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private entitySelectionService: EntitySelectionService
   ) {
   }
 
@@ -193,10 +195,11 @@ export class PlannedGroceryComponent implements OnInit {
       this.pgUpdatable.longitude = coords.lng;
       this.pgUpdatable.latitude = coords.lat;
     });
-    this.storeMapLayer = new StoreMapLayer(this.mapService, this.authService, () => null);
+    this.storeMapLayer = new StoreMapLayer(this.mapService, this.authService, this.entitySelectionService.storeIds, () => null);
     this.mapDataLayer = new MapDataLayer(
       this.mapService.getMap(),
-      this.authService.sessionUser.id
+      this.authService.sessionUser.id,
+      this.entitySelectionService.siteIds
     );
 
     this.mapService.boundsChanged$

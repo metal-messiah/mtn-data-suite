@@ -25,10 +25,10 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
 
   private readonly createMappable: (Entity) => EntityMappable;
 
-  constructor(mapService: MapService, createMappable: (Entity) => EntityMappable) {
+  constructor(mapService: MapService, createMappable: (Entity) => EntityMappable, idSet: Set<number>) {
     super(mapService);
     this.mappables = [];
-    this.selectedEntityIds = new Set<number>();
+    this.selectedEntityIds = idSet;
     this.createMappable = createMappable;
     this.initSelection();
     const m = localStorage.getItem('markerType');
