@@ -103,6 +103,7 @@ export class PlannedGroceryComponent implements OnInit {
 
   cancelStep2() {
     this.pgUpdatable = null;
+    this.stepper.reset();
     this.stepper.previous();
     this.setPgFeature(false);
   }
