@@ -34,9 +34,11 @@
     <input matInput type="text" placeholder="Postal Code" formControlName="postalCode">
     <mat-hint align="end">{{pgFeature ? pgFeature.attributes.ZIP : null}}</mat-hint>
   </mat-form-field>
-  <mat-form-field>
-    <input matInput type="text" placeholder="Quad" formControlName="quad">
-  </mat-form-field>
+  <div class="flex flex-justify-center" id="quad-button-wrapper">
+    <button type="button" mat-raised-button color="primary" (click)="showQuadDialog()">
+      Quad: {{form.get('quad').value}}
+    </button>
+  </div>
   <mat-form-field>
     <input matInput type="text" placeholder="Primary" formControlName="intersectionStreetPrimary">
   </mat-form-field>
