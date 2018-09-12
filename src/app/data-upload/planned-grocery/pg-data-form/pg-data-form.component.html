@@ -68,7 +68,7 @@
 
   <div style="margin-top: 15px;">
     <button mat-button type="button" (click)="cancelEvent.emit()" [disabled]="saving">Cancel</button>
-    <button mat-raised-button color="accent" type="submit" (click)="submit()" [disabled]="saving">
+    <button mat-raised-button color="accent" type="submit" (click)="submit()" [disabled]="saving || form.invalid">
       <span *ngIf="!saving">Submit</span>
       <span *ngIf="saving"><i class="fas fa-spinner fa-pulse"></i></span>
     </button>
