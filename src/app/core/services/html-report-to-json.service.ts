@@ -35,6 +35,10 @@ export class HtmlReportToJsonService {
       : null;
   }
 
+  formatString(s: String) {
+    return s ? s.replace(/\n/g, ' ').replace(/ +(?= )/g, '') : null;
+  }
+
   convertHTMLtoJSON(HTML_STRING) {
     this.dom = this.parser.parseFromString(HTML_STRING, 'text/html');
     this.outputJSON = new HTMLasJSON();
@@ -54,8 +58,9 @@ export class HtmlReportToJsonService {
         cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
         cells.length > 1
       ) {
-        storeListItem.storeName =
-          cells[0].firstElementChild.firstElementChild.innerHTML;
+        storeListItem.storeName = this.formatString(
+          cells[0].firstElementChild.firstElementChild.innerHTML
+        );
         storeListItem.mapKey = this.convertToNumber(
           cells[1].firstElementChild.firstElementChild.innerHTML
         );
@@ -109,8 +114,9 @@ export class HtmlReportToJsonService {
         cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
         cells.length > 1
       ) {
-        storeListItem.location =
-          cells[2].firstElementChild.firstElementChild.innerHTML;
+        storeListItem.location = this.formatString(
+          cells[2].firstElementChild.firstElementChild.innerHTML
+        );
       }
     }
 
@@ -129,8 +135,9 @@ export class HtmlReportToJsonService {
         cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
         cells.length > 1
       ) {
-        volumeItem.storeName =
-          cells[0].firstElementChild.firstElementChild.innerHTML;
+        volumeItem.storeName = this.formatString(
+          cells[0].firstElementChild.firstElementChild.innerHTML
+        );
         volumeItem.mapKey = this.convertToNumber(
           cells[1].firstElementChild.firstElementChild.innerHTML
         );
@@ -181,8 +188,9 @@ export class HtmlReportToJsonService {
         cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
         cells.length > 1
       ) {
-        volumeItem.location =
-          cells[2].firstElementChild.firstElementChild.innerHTML;
+        volumeItem.location = this.formatString(
+          cells[2].firstElementChild.firstElementChild.innerHTML
+        );
       }
     }
 
@@ -201,8 +209,9 @@ export class HtmlReportToJsonService {
         cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
         cells.length > 1
       ) {
-        volumeItem.storeName =
-          cells[0].firstElementChild.firstElementChild.innerHTML;
+        volumeItem.storeName = this.formatString(
+          cells[0].firstElementChild.firstElementChild.innerHTML
+        );
         volumeItem.mapKey = this.convertToNumber(
           cells[1].firstElementChild.firstElementChild.innerHTML
         );
@@ -253,8 +262,9 @@ export class HtmlReportToJsonService {
         cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
         cells.length > 1
       ) {
-        volumeItem.location =
-          cells[2].firstElementChild.firstElementChild.innerHTML;
+        volumeItem.location = this.formatString(
+          cells[2].firstElementChild.firstElementChild.innerHTML
+        );
       }
     }
 
@@ -382,8 +392,9 @@ export class HtmlReportToJsonService {
         cells[0].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
         cells.length > 2
       ) {
-        marketShareBySectorItem.sector =
-          cells[0].firstElementChild.firstElementChild.innerHTML;
+        marketShareBySectorItem.sector = this.formatString(
+          cells[0].firstElementChild.firstElementChild.innerHTML
+        );
         marketShareBySectorItem.projectedSales = this.convertToNumber(
           cells[1].firstElementChild.firstElementChild.innerHTML
         );
@@ -433,10 +444,12 @@ export class HtmlReportToJsonService {
         cells[0].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
         cells.length > 1
       ) {
-        sectorListItem.sector =
-          cells[0].firstElementChild.firstElementChild.innerHTML;
-        sectorListItem.name =
-          cells[1].firstElementChild.firstElementChild.innerHTML;
+        sectorListItem.sector = this.formatString(
+          cells[0].firstElementChild.firstElementChild.innerHTML
+        );
+        sectorListItem.name = this.formatString(
+          cells[1].firstElementChild.firstElementChild.innerHTML
+        );
 
         sectorListItem.latitude = this.convertToNumber(
           cells[2].firstElementChild.firstElementChild.innerHTML

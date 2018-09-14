@@ -1,0 +1,26 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    overflow-x: hidden;
+}
+
+.report-upload-wrapper{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 0 50px 0;
+    background: white;
+}
+
+form{
+    width: 80%;
+}
+
+.submit{
+    margin: 25px 0;
+}
+mat-form-field{
+    width: 100%;
+}

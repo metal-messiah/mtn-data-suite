@@ -52,4 +52,13 @@ export class HomeComponent implements OnInit {
     return this.userIsAdmin();
   }
 
+  // For now, only allow admins to report.
+  userCanReport(): boolean {
+    const role = this.auth.sessionUser.role;
+    if (role != null) {
+      return role.displayName.toLowerCase().includes('admin');
+    }
+    return false;
+  }
+
 }

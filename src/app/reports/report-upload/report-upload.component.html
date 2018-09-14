@@ -1,0 +1,73 @@
+<div class="report-upload-wrapper">
+  <form #reportUploadForm="ngForm">
+    <mat-form-field>
+      <input required matInput name="analyst" type="text" [ngModel]="interface.analyst">
+      <mat-hint>Analyst Full Name</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="retailerName" type="text" [ngModel]="interface.retailerName">
+      <mat-hint>Retailer Name</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="type" type="text" [ngModel]="interface.type">
+      <mat-hint>Type</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="siteNumber" type="text" [ngModel]="interface.siteNumber">
+      <mat-hint>Site Number</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="storeAddress" type="text" [ngModel]="interface.storeAddress">
+      <mat-hint>Store Address</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="state" type="text" [ngModel]="interface.state">
+      <mat-hint>State</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="modelName" type="text" [ngModel]="interface.modelName">
+      <mat-hint>Model Name</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="fieldResDate" type="date" [ngModel]="interface.fieldResDate">
+      <mat-hint>Field Res Date</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="firstYearEndingMonthYear" type="date" [ngModel]="interface.firstYearEndingMonthYear">
+      <mat-hint>First Year Ending Date</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="reportDate" type="date" [ngModel]="interface.reportDate">
+      <mat-hint>Report Date</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="projectNumber" type="number" [ngModel]="interface.projectNumber">
+      <mat-hint>Project Number</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="opens" type="number" [ngModel]="interface.opens">
+      <mat-hint>Opens</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="demographicDataYear" step="1" max="2050" min="1950" type="number" [ngModel]="interface.demographicDataYear">
+      <mat-hint>Demographic Data Year</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="inflationRate" step="0.1" min="0" type="number" [ngModel]="interface.inflationRate">
+      <mat-hint>Inflation Rate</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="secondYearAcceptance" step="0.1" min="0" type="number" [ngModel]="interface.secondYearAcceptance">
+      <mat-hint>Second Year Acceptance</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput name="thirdYearAcceptance" step="0.1" min="0" type="number" [ngModel]="interface.thirdYearAcceptance">
+      <mat-hint>Third Year Acceptance</mat-hint>
+    </mat-form-field>
+    <div class="submit">
+      <button [disabled]="reportUploadForm.invalid" type="button" mat-flat-button color="warn" (click)="htmlFileInput.click()">Generate Tables From HTML File</button>
+      <input hidden type="file" accept=".html" #htmlFileInput (change)="readFile($event, reportUploadForm)" />
+    </div>
+  </form>
+  
+</div>
