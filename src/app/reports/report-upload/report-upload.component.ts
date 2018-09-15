@@ -1,6 +1,6 @@
 import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar, MatStepper } from '@angular/material';
 import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
 import * as _ from 'lodash';
 
@@ -21,6 +21,7 @@ export class ReportUploadComponent implements OnInit {
   htmlAsJson: HTMLasJSON;
   fileReader: FileReader;
   inputData: ReportUploadInterface;
+  stepper: MatStepper;
 
   interface: ReportUploadInterface = {
     analyst: '',
@@ -63,6 +64,7 @@ export class ReportUploadComponent implements OnInit {
   readFile(event, form) {
     this.inputData = form.value;
     const { files } = event.target;
+
     if (files && files.length === 1) {
       // only want 1 file at a time!
       this.htmlFile = files[0];
@@ -80,9 +82,7 @@ export class ReportUploadComponent implements OnInit {
     }
   }
 
-  validateForm() {
-
-  }
+  validateForm() {}
 
   handleFileContents(event) {
     if (event.target.result) {
@@ -94,6 +94,18 @@ export class ReportUploadComponent implements OnInit {
 
   handleHtmlAsJson(htmlAsJson) {
     this.htmlAsJson = htmlAsJson;
-    console.log(this.htmlAsJson, this.inputData)
+    console.log(this.htmlAsJson, this.inputData);
+  }
+
+  stepForward() {
+    setTimeout(() => this.stepper.next(), 250);
+  }
+
+  stepBackward() {
+    setTimeout(() => this.stepper.previous(), 250);
+  }
+
+  resetStepper() {
+    setTimeout(() => this.stepper.reset(), 250);
   }
 }
