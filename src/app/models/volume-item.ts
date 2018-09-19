@@ -1,6 +1,6 @@
 export class VolumeItem {
   storeName: String;
-  mapKey: Number;
+  mapKey: String;
   salesArea: Number;
   currentSales: Number;
   futureSales: Number;

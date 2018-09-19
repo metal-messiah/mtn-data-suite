@@ -5,8 +5,20 @@ import { VolumeItem } from '../../models/volume-item';
 import { SalesGrowthProjectionItem } from '../../models/sales-growth-projection-item';
 import { MarketShareBySectorItem } from '../../models/market-share-by-sector-item';
 import { SectorListItem } from '../../models/sector-list-item';
+import { ReportUploadInterface } from '../../reports/report-upload/report-upload-interface';
 
-import { Observable, Observer, of, Subject } from 'rxjs/index';
+import { ProjectionsTable } from '../../models/projections-table';
+
+import { MapService } from '../../core/services/map.service';
+import { AuthService } from '../../core/services/auth.service';
+import { StoreService } from '../../core/services/store.service';
+import { Store } from '../../models/full/store';
+import { BannerService } from '../../core/services/banner.service';
+import { Banner } from '../../models/full/banner';
+
+import { CompanyService } from '../../core/services/company.service';
+
+import { Observable, Observer, of, Subject, forkJoin } from 'rxjs/index';
 
 /*
   The HtmlReportToJson service should
@@ -21,12 +33,21 @@ export class HtmlReportToJsonService {
   dom: Document;
   outputJSON: HTMLasJSON;
   tables: any;
+  mapService: MapService;
 
   output$: Subject<HTMLasJSON>;
 
-  constructor() {
+  constructor(
+    public auth: AuthService,
+    public storeService: StoreService,
+    public bannerService: BannerService,
+    public companyService: CompanyService
+  ) {
     this.parser = new DOMParser();
     this.output$ = new Subject<HTMLasJSON>();
+    this.mapService = new MapService(auth);
+    
+    this.companyService.getAllByQuery('').subscribe( res => console.log(res))
   }
 
   convertToNumber(s: String) {
@@ -37,6 +58,77 @@ export class HtmlReportToJsonService {
 
   formatString(s: String) {
     return s ? s.replace(/\n/g, ' ').replace(/ +(?= )/g, '') : null;
+  }
+
+  generateTables(modelData: ReportUploadInterface, json: HTMLasJSON) {
+
+    
+
+    const formattedTables = {
+      projectionsTable: null,
+      currentStoresWeeklySummary: null,
+      sourceOfVolume: {
+        companyStores: [],
+        existingCompetition: [],
+        proposedCompetition: []
+      }
+    };
+
+    const { retailerName, siteNumber, type } = modelData;
+    const matchingStore = json.storeList.filter(
+      item => item.mapKey === siteNumber
+    )[0];
+    const salesGrowthProjection = json.salesGrowthProjection[1]
+      ? json.salesGrowthProjection[1]
+      : json.salesGrowthProjection[0]
+        ? json.salesGrowthProjection[0]
+        : null;
+
+    const output = {
+      projectionsTable: ProjectionsTable
+    };
+
+    console.log(matchingStore);
+
+    //////// PROJECTIONS TABLE ////////
+    const projectionsTable = new ProjectionsTable();
+    if (matchingStore && salesGrowthProjection) {
+      projectionsTable.isValid = true;
+      projectionsTable.mapKey = siteNumber || null; // cell 1 of table
+      projectionsTable.scenario = retailerName || null; // cell 2 of table
+      projectionsTable.projectedFitImage = matchingStore.effectivePower || null; // cell 3
+      projectionsTable.salesArea = matchingStore.salesArea || null; // cell 4
+      projectionsTable.year1Ending = Math.round(
+        Number(salesGrowthProjection.firstYearAverageSales) * 0.001
+      );
+      projectionsTable.year2Ending = Math.round(
+        Number(salesGrowthProjection.secondYearAverageSales) * 0.001
+      );
+      projectionsTable.year3Ending = Math.round(
+        Number(salesGrowthProjection.thirdYearAverageSales) * 0.001
+      );
+      projectionsTable.comment = type;
+    }
+
+    formattedTables.projectionsTable = projectionsTable;
+
+    ///////////////////////////////////////////////
+    //////// CURRENT STORES WEEKLY SUMMARY ////////
+
+    formattedTables.currentStoresWeeklySummary = json.storeList;
+
+    ////////////////////////////////////////
+    //////// SOURCE OF VOLUME (SOV) ////////
+
+    formattedTables.sourceOfVolume.companyStores = json.storeList.filter(
+      store =>
+        (store.parentCompanyId === matchingStore.parentCompanyId &&
+          matchingStore.parentCompanyId != null) ||
+        (matchingStore.parentCompanyId == null &&
+          store.storeName === matchingStore.storeName)
+    );
+
+    return formattedTables;
   }
 
   convertHTMLtoJSON(HTML_STRING) {
@@ -61,7 +153,7 @@ export class HtmlReportToJsonService {
         storeListItem.storeName = this.formatString(
           cells[0].firstElementChild.firstElementChild.innerHTML
         );
-        storeListItem.mapKey = this.convertToNumber(
+        storeListItem.mapKey = this.formatString(
           cells[1].firstElementChild.firstElementChild.innerHTML
         );
         storeListItem.uniqueId = this.convertToNumber(
@@ -76,9 +168,17 @@ export class HtmlReportToJsonService {
         storeListItem.salesArea = this.convertToNumber(
           cells[5].firstElementChild.firstElementChild.innerHTML
         );
+        storeListItem.totalSize = Math.round(
+          Number(storeListItem.salesArea) / 0.72
+        );
         storeListItem.actualSales = this.convertToNumber(
           cells[6].firstElementChild.firstElementChild.innerHTML
         );
+        storeListItem.actualSalesPSF =
+          Number(storeListItem.actualSales) / Number(storeListItem.salesArea);
+
+        storeListItem.parentCompanyId = null;
+
         storeListItem.marketShare = this.convertToNumber(
           cells[7].firstElementChild.firstElementChild.innerHTML
         );
@@ -120,7 +220,98 @@ export class HtmlReportToJsonService {
       }
     }
 
-    this.generateProjectedBefore();
+    const simpleBannerObservables = [];
+    const bannerObservables = [];
+    const hasBanner = {};
+
+    this.outputJSON.storeList.forEach(storeListItem => {
+      simpleBannerObservables.push(
+        this.bannerService.getAllByQuery(storeListItem.storeName)
+      );
+    });
+
+    if (simpleBannerObservables.length) {
+      forkJoin(simpleBannerObservables).subscribe(simpleBanners => {
+        console.log('SIMPLE BANNERS', simpleBanners);
+        simpleBanners.forEach(simpleBanner => {
+          if (simpleBanner.totalElements) {
+            const bestBanner = simpleBanner.content[0];
+            hasBanner[bestBanner.id] = bestBanner.bannerName;
+            bannerObservables.push(
+              this.bannerService.getOneById(bestBanner.id)
+            );
+          }
+        });
+
+        console.log(hasBanner);
+
+        forkJoin(bannerObservables).subscribe(banners => {
+          console.log('BANNERS', banners);
+          banners.forEach(banner => {
+            if (banner.company.parentCompany) {
+              // console.log(banner.company.parentCompany)
+              const storeQuery = hasBanner[banner.id];
+              console.log(storeQuery);
+              const idx = this.outputJSON.storeList.findIndex(s =>
+                s.storeName.includes(storeQuery)
+              );
+              console.log(idx);
+              if (idx !== -1) {
+                const obj = this.outputJSON.storeList[idx];
+                obj.parentCompanyId = banner.company.parentCompany.id;
+                this.outputJSON.storeList[idx] = obj;
+              }
+            }
+          });
+
+          this.generateProjectedBefore();
+        });
+      });
+    } else {
+      this.generateProjectedBefore();
+    }
+
+    // this.outputJSON.storeList.forEach(storeListItem => {
+    //   if (storeListItem.uniqueId) {
+    //     storeObservables.push(
+    //       this.storeService.getOneById(storeListItem.uniqueId)
+    //     );
+    //   }
+    // });
+
+    // if (storeObservables.length) {
+    //   forkJoin(storeObservables).subscribe(stores => {
+    //     stores.forEach(store => {
+    //       if (store.banner) {
+    //         if (store.banner.id) {
+    //           hasBanner[store.banner.id] = store.id;
+    //           bannerObservables.push(
+    //             this.bannerService.getOneById(store.banner.id)
+    //           );
+    //         }
+    //       }
+    //     });
+
+    //     forkJoin(bannerObservables).subscribe(banners => {
+    //       banners.forEach(banner => {
+    //         if (banner.company.parentCompany) {
+    //           // console.log(banner.company.parentCompany)
+    //           const storeId = hasBanner[banner.id];
+    //           const idx = this.outputJSON.storeList.findIndex(
+    //             s => s.uniqueId === storeId
+    //           );
+    //           const obj = this.outputJSON.storeList[idx];
+    //           obj.parentCompanyId = banner.company.parentCompany.id;
+    //           this.outputJSON.storeList[idx] = obj;
+    //         }
+    //       });
+
+    //       this.generateProjectedBefore();
+    //     });
+    //   });
+    // } else {
+    //   this.generateProjectedBefore();
+    // }
   }
 
   generateProjectedBefore() {
@@ -138,7 +329,7 @@ export class HtmlReportToJsonService {
         volumeItem.storeName = this.formatString(
           cells[0].firstElementChild.firstElementChild.innerHTML
         );
-        volumeItem.mapKey = this.convertToNumber(
+        volumeItem.mapKey = this.formatString(
           cells[1].firstElementChild.firstElementChild.innerHTML
         );
         volumeItem.salesArea = this.convertToNumber(
@@ -212,7 +403,7 @@ export class HtmlReportToJsonService {
         volumeItem.storeName = this.formatString(
           cells[0].firstElementChild.firstElementChild.innerHTML
         );
-        volumeItem.mapKey = this.convertToNumber(
+        volumeItem.mapKey = this.formatString(
           cells[1].firstElementChild.firstElementChild.innerHTML
         );
         volumeItem.salesArea = this.convertToNumber(

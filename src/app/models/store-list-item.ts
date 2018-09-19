@@ -1,14 +1,17 @@
 export class StoreListItem {
-    storeName: String;
-    mapKey: Number;
-    uniqueId: Number;
-    latitude: Number;
-    longitude: Number;
-    salesArea: Number;
-    actualSales: Number;
-    marketShare: Number;
-    effectivePower: Number;
-    curve: Number;
-    PWTA: Number;
-    location: String;
-  }
+  storeName: string;
+  mapKey: string;
+  uniqueId: number;
+  latitude: number;
+  longitude: number;
+  salesArea: number;
+  totalSize: number;
+  actualSales: number;
+  actualSalesPSF: number;
+  marketShare: number;
+  effectivePower: number;
+  curve: number;
+  PWTA: number;
+  location: string;
+  parentCompanyId: number;
+}

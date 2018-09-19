@@ -38,15 +38,15 @@
           <mat-hint>Model Name</mat-hint>
         </mat-form-field>
         <mat-form-field>
-          <input required matInput name="fieldResDate" type="date" [ngModel]="interface.fieldResDate">
+          <input required matInput name="fieldResDate" type="date" [ngModel]="interface.fieldResDate | date:'yyyy-MM-dd'">
           <mat-hint>Field Res Date</mat-hint>
         </mat-form-field>
         <mat-form-field>
-          <input required matInput name="firstYearEndingMonthYear" type="date" [ngModel]="interface.firstYearEndingMonthYear">
+          <input required matInput name="firstYearEndingMonthYear" type="month" [ngModel]="interface.firstYearEndingMonthYear | date:'yyyy-MM'">
           <mat-hint>First Year Ending Date</mat-hint>
         </mat-form-field>
         <mat-form-field>
-          <input required matInput name="reportDate" type="date" [ngModel]="interface.reportDate">
+          <input required matInput name="reportDate" type="date" [ngModel]="interface.reportDate | date:'yyyy-MM-dd'">
           <mat-hint>Report Date</mat-hint>
         </mat-form-field>
         <mat-form-field>
@@ -54,7 +54,7 @@
           <mat-hint>Project Number</mat-hint>
         </mat-form-field>
         <mat-form-field>
-          <input required matInput name="opens" type="number" [ngModel]="interface.opens">
+          <input required matInput min="1950" max="2050" name="opens" type="number" [ngModel]="interface.opens">
           <mat-hint>Opens</mat-hint>
         </mat-form-field>
         <mat-form-field>
@@ -74,11 +74,11 @@
           <mat-hint>Third Year Acceptance</mat-hint>
         </mat-form-field>
         <div class="submit">
-          <button type="button" mat-flat-button [color]="htmlFile ? 'primary' : 'warn'" (click)="htmlFileInput.click()">Upload HTML File</button>
+          <button type="button" mat-flat-button [color]="htmlFile ? 'primary' : 'warn'" (click)="htmlFileInput.click()" [disabled]="compilingJson || reportUploadForm.invalid"><i class="fas fa-spinner fa-spin" *ngIf="compilingJson"></i> {{compilingJson ? ' Fetching Data From Server': 'Upload HTML File'}}</button>
           <input hidden type="file" accept=".html" #htmlFileInput (change)="readFile($event, reportUploadForm)" />
           <span style="margin-left:20px;" *ngIf="htmlAsJson"><i class="fas fa-check-circle" style="color:green;"></i> {{htmlFile.name}}</span>
           <br />
-          <button [color]="!reportUploadForm.invalid && htmlAsJson ? 'primary' : 'warn'" [disabled]="reportUploadForm.invalid || !htmlAsJson" mat-flat-button matStepperNext style="margin-top:20px;">Generate Tables From Data</button>
+          <button [color]="!reportUploadForm.invalid && htmlAsJson ? 'primary' : 'warn'" [disabled]="reportUploadForm.invalid || !htmlAsJson" mat-flat-button matStepperNext (click)="generateTables()" style="margin-top:20px;">Generate Tables From Data</button>
         </div>
       </form>
 

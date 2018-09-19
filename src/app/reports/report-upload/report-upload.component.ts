@@ -2,6 +2,7 @@ import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { MatSnackBar, MatStepper } from '@angular/material';
 import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
+import { AuthService } from '../../core/services/auth.service';
 import * as _ from 'lodash';
 
 import { HtmlReportToJsonService } from '../../core/services/html-report-to-json.service';
@@ -22,30 +23,15 @@ export class ReportUploadComponent implements OnInit {
   fileReader: FileReader;
   inputData: ReportUploadInterface;
   stepper: MatStepper;
+  compilingJson: Boolean = false;
 
-  interface: ReportUploadInterface = {
-    analyst: '',
-    retailerName: '',
-    type: '',
-    siteNumber: '',
-    storeAddress: '',
-    state: '',
-    modelName: '',
-    fieldResDate: new Date(),
-    firstYearEndingMonthYear: new Date(),
-    reportDate: new Date(),
-    projectNumber: null,
-    opens: null,
-    demographicDataYear: null,
-    inflationRate: null,
-    secondYearAcceptance: null,
-    thirdYearAcceptance: null
-  };
+  interface: ReportUploadInterface;
 
   constructor(
     private snackBar: MatSnackBar,
     private ngZone: NgZone,
-    private htmlReportToJsonService: HtmlReportToJsonService
+    private htmlReportToJsonService: HtmlReportToJsonService,
+    public auth: AuthService
   ) {
     this.fileReader = new FileReader();
     this.fileReader.onload = event => this.handleFileContents(event); // desired file content
@@ -57,6 +43,27 @@ export class ReportUploadComponent implements OnInit {
     this.htmlReportToJsonService.output$.subscribe((htmlAsJson: HTMLasJSON) => {
       this.handleHtmlAsJson(htmlAsJson);
     });
+
+    this.interface = {
+      analyst: `${this.auth.sessionUser.firstName} ${
+        this.auth.sessionUser.lastName
+      }`,
+      retailerName: '',
+      type: '',
+      siteNumber: '',
+      storeAddress: '',
+      state: '',
+      modelName: '',
+      fieldResDate: new Date(),
+      firstYearEndingMonthYear: new Date(),
+      reportDate: new Date(),
+      projectNumber: null,
+      opens: new Date().getFullYear(),
+      demographicDataYear: new Date().getFullYear(),
+      inflationRate: null,
+      secondYearAcceptance: null,
+      thirdYearAcceptance: null
+    };
   }
 
   ngOnInit() {}
@@ -88,13 +95,28 @@ export class ReportUploadComponent implements OnInit {
     if (event.target.result) {
       this.htmlAsString = event.target.result;
 
+      
+    this.compilingJson = true;
       this.htmlReportToJsonService.convertHTMLtoJSON(this.htmlAsString);
     }
   }
 
   handleHtmlAsJson(htmlAsJson) {
+    
+    this.compilingJson = false;
     this.htmlAsJson = htmlAsJson;
-    console.log(this.htmlAsJson, this.inputData);
+    console.log(htmlAsJson);
+    this.generateTables();
+  }
+
+  generateTables() {
+    console.log(
+      'PROJECTIONS TABLE',
+      this.htmlReportToJsonService.generateTables(
+        this.inputData,
+        this.htmlAsJson
+      )
+    );
   }
 
   stepForward() {

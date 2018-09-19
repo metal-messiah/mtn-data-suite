@@ -27,6 +27,7 @@ import { StoreSurveyService } from './services/store-survey.service';
 import { RoutingStateService } from './services/routing-state.service';
 import { BannerService } from './services/banner.service';
 import { StoreSourceService } from './services/store-source.service';
+import { CompanyService } from './services/company.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -35,6 +36,7 @@ import { StoreSourceService } from './services/store-source.service';
     AuthService,
     AuthGuard,
     BannerService,
+    CompanyService,
     DetailFormService,
     EntityListService,
     ErrorService,
