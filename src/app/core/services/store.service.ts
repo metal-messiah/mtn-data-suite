@@ -128,11 +128,11 @@ export class StoreService extends CrudService<Store> {
 
   getLabel(store: Store | SimplifiedStore) {
     let label = null;
-    if (store.banner != null) {
-      label = store.banner.bannerName;
-    } else {
+    // if (store.banner != null) {
+    //   label = store.banner.bannerName;
+    // } else {
       label = store.storeName;
-    }
+    // }
     if (store.storeNumber != null) {
       label = `${label} (${store.storeNumber})`;
     }

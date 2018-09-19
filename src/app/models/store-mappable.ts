@@ -52,9 +52,10 @@ export class StoreMappable implements EntityMappable {
     let label = null;
 
     // User Banner name if available
-    if (this.store.banner) {
-      label = this.store.banner.bannerName;
-    } else if (this.store.storeName) {
+    // if (this.store.banner) {
+    //   label = this.store.banner.bannerName;
+    // } else
+    if (this.store.storeName) {
       label = this.store.storeName;
     } else {
       label = '?';
