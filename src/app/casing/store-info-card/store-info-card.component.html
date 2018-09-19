@@ -5,7 +5,7 @@
         <strong>{{storeService.getLabel(store)}}</strong>
       </mat-card-title>
       <mat-card-subtitle *ngIf="store.currentStoreStatus != null">
-        <span>{{store.currentStoreStatus.status}}</span>
+        <span>{{store.currentStoreStatus}}</span>
         <span *ngIf="store.site.duplicate">&nbsp;&nbsp;<strong>DUPLICATE!</strong></span>
         <span *ngIf="store.floating">&nbsp;&nbsp;<strong>FLOAT!</strong></span>
         <span *ngIf="store.latestStoreVolume!= null">
