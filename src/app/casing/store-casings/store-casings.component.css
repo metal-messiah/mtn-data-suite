@@ -2,7 +2,7 @@
   justify-content: space-between;
 }
 
-#new-casing-button-wrapper {
+.single-item-row {
   width: 100%;
   display: flex;
   justify-content: center;

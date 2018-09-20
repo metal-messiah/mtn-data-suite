@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -53,7 +53,7 @@ export enum CardState {
   templateUrl: './casing-dashboard.component.html',
   styleUrls: ['./casing-dashboard.component.css']
 })
-export class CasingDashboardComponent implements OnInit {
+export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   private readonly MAX_DATA_ZOOM = 7;
   private readonly DATA_POINT_ZOOM = 10;
@@ -90,6 +90,8 @@ export class CasingDashboardComponent implements OnInit {
 
   googleSearchSubscription: Subscription;
 
+  subscriptions: Subscription[] = [];
+
   constructor(public mapService: MapService,
               public geocoderService: GeocoderService,
               public casingDashboardService: CasingDashboardService,
@@ -112,6 +114,10 @@ export class CasingDashboardComponent implements OnInit {
     this.markCasedStores = (localStorage.getItem('markCasedStores') === 'true');
   }
 
+  ngOnDestroy() {
+    this.subscriptions.forEach((s: Subscription) => s.unsubscribe());
+  }
+
   onMapReady() {
     console.log(`Map is ready`);
     this.storeMapLayer = new StoreMapLayer(this.mapService, this.authService, this.entitySelectionService.storeIds, () => {
@@ -121,15 +127,16 @@ export class CasingDashboardComponent implements OnInit {
     this.siteMapLayer = new SiteMapLayer(this.mapService, this.authService, this.entitySelectionService.siteIds);
     this.mapDataLayer = new MapDataLayer(this.mapService.getMap(), this.authService.sessionUser.id, this.entitySelectionService.siteIds);
 
-    this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe((bounds: { east, north, south, west }) => {
-      if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
-        this.getEntities(bounds);
-      }
-    });
-    this.mapService.mapClick$.subscribe(() => {
+    this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce())
+      .subscribe((bounds: { east, north, south, west }) => {
+        if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
+          this.getEntities(bounds);
+        }
+      }));
+    this.subscriptions.push(this.mapService.mapClick$.subscribe(() => {
       this.ngZone.run(() => this.selectedCardState = CardState.HIDDEN);
-    });
-    this.storeMapLayer.selection$.subscribe((store: Store | SimplifiedStore) => {
+    }));
+    this.subscriptions.push(this.storeMapLayer.selection$.subscribe((store: Store | SimplifiedStore) => {
       this.ngZone.run(() => {
         if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
           this.siteMapLayer.clearSelection();
@@ -137,8 +144,8 @@ export class CasingDashboardComponent implements OnInit {
           this.selectedCardState = CardState.SELECTED_STORE;
         }
       });
-    });
-    this.siteMapLayer.selection$.subscribe((site: Site | SimplifiedSite) => {
+    }));
+    this.subscriptions.push(this.siteMapLayer.selection$.subscribe((site: Site | SimplifiedSite) => {
       this.ngZone.run(() => {
         if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
           this.storeMapLayer.clearSelection();
@@ -146,12 +153,12 @@ export class CasingDashboardComponent implements OnInit {
           this.selectedCardState = CardState.SELECTED_SITE;
         }
       });
-    });
-    this.casingDashboardService.projectChanged$.subscribe(() => {
+    }));
+    this.subscriptions.push(this.casingDashboardService.projectChanged$.subscribe(() => {
       this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
       this.projectBoundaryService.hideProjectBoundaries();
       this.getEntities(this.mapService.getBounds());
-    });
+    }));
 
     this.route.queryParams.subscribe((params: Params) => {
       const storeId = parseInt(params['store-id'], 10);

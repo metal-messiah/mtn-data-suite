@@ -17,7 +17,6 @@ export class MapDataLayer {
 
   constructor(map: google.maps.Map, userId: number, selectedIdSet: Set<number>) {
     this.map = map;
-    console.log('mapdatalayer');
     this.map.data.setStyle((feature: google.maps.Data.Feature) => {
       const assigneeId = feature.getProperty('assigneeId');
       const siteId = feature.getProperty('siteId');

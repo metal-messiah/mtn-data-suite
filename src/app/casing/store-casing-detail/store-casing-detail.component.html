@@ -2,7 +2,7 @@
   <mat-toolbar class="row header flex-space-between">
     <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-chevron-left"></i></button>
     <span class="component-title" *ngIf="!store">Store Casing</span>
-    <span class="component-title" *ngIf="store">{{store.storeName}}</span>
+    <span class="component-title" *ngIf="store">{{store.storeName}}<span *ngIf="store.storeNumber">&nbsp;({{store.storeNumber}})</span></span>
     <div>
       <button type="button" mat-icon-button color="warn" *ngIf="validatingForms.invalid">
         <i class="fas fa-exclamation-triangle fa-2x"></i>
