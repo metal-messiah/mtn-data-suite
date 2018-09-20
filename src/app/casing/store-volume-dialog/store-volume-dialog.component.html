@@ -1,27 +1,112 @@
 <h3 mat-dialog-title>Store Volumes</h3>
 <div mat-dialog-content>
-  <mat-list class="widened">
-    <mat-list-item *ngFor="let storeVolume of store.storeVolumes">
-      <div class="full-width flex flex-space-between">
+  <h3 *ngIf="error != null">{{error}}</h3>
+  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+  <mat-accordion *ngIf="!loading">
+    <mat-expansion-panel *ngFor="let volume of storeVolumes">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <div>{{volume.volumeDate | date}}</div>
+          <div>{{volume.volumeType}}</div>
+        </mat-panel-title>
+        <mat-panel-description>{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k</mat-panel-description>
+      </mat-expansion-panel-header>
+      <div>
         <div>
           <div>
-            <strong>${{storeVolume.volumeTotal/1000 | number:'1.0-0'}}k</strong>
-            <span *ngIf="storeVolume.volumeType != null">&nbsp;({{storeVolume.volumeType}})</span>
+            <table id="volume-table">
+              <tr *ngIf="volume.volumeMeat != null || volume.volumePercentMeat != null">
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="Meat Volume" type="number" [value]="volume.volumeMeat" readonly>
+                    <span matPrefix>$&nbsp;</span>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentMeat" readonly>
+                    <span matSuffix>%</span>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr *ngIf="volume.volumeProduce != null || volume.volumePercentProduce != null">
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="Produce Volume" type="number" [value]="volume.volumeProduce" readonly>
+                    <span matPrefix>$&nbsp;</span>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentProduce" readonly>
+                    <span matSuffix>%</span>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr *ngIf="volume.volumeGrocery != null || volume.volumePercentGrocery != null">
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="Grocery Volume" type="number" [value]="volume.volumeGrocery" readonly>
+                    <span matPrefix>$&nbsp;</span>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentGrocery" readonly>
+                    <span matSuffix>%</span>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr *ngIf="volume.volumeNonFood != null || volume.volumePercentNonFood != null">
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="Non-Food Volume" type="number" [value]="volume.volumeNonFood" readonly>
+                    <span matPrefix>$&nbsp;</span>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentNonFood" readonly>
+                    <span matSuffix>%</span>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr *ngIf="volume.volumeOther != null || volume.volumePercentOther != null">
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="Other Volume" type="number" [value]="volume.volumeOther" readonly>
+                    <span matPrefix>$&nbsp;</span>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentOther" readonly>
+                    <span matSuffix>%</span>
+                  </mat-form-field>
+                </td>
+              </tr>
+            </table>
           </div>
-          <div><em>{{storeVolume.volumeDate | date}}</em></div>
+          <mat-form-field>
+            <input matInput type="number" placeholder="Total Weekly Volume" [value]="volume.volumeTotal" readonly>
+            <span matPrefix>$&nbsp;</span>
+          </mat-form-field>
+          <mat-form-field *ngIf="volume.volumeConfidence != null">
+            <input matInput type="text" placeholder="Volume Confidence" [value]="volume.volumeConfidence" readonly>
+          </mat-form-field>
+          <mat-form-field *ngIf="volume.volumeNote != null">
+            <textarea matInput placeholder="Volume Notes" [value]="volume.volumeNote" readonly></textarea>
+          </mat-form-field>
         </div>
-        <button mat-icon-button [mat-menu-trigger-for]="volumeMenu"><i class="fas fa-ellipsis-v"></i></button>
       </div>
-      <mat-menu #volumeMenu="matMenu" [overlapTrigger]="false">
-        <button mat-menu-item (click)="editVolume(storeVolume)" disabled>
-          <i class="fas fa-edit"></i>&nbsp;&nbsp;Edit
+      <mat-action-row>
+        <button mat-raised-button color="accent" (click)="deleteVolume(volume)" color="warn" [disabled]="deletingVolume">
+          <span *ngIf="!deletingVolume"><i class="fas fa-trash"></i>&nbsp;Delete</span>
+          <span *ngIf="deletingVolume"><i class="fas fa-spinner fa-pulse"></i></span>
         </button>
-        <button mat-menu-item (click)="deleteVolume(storeVolume)">
-          <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
-        </button>
-      </mat-menu>
-    </mat-list-item>
-  </mat-list>
+      </mat-action-row>
+    </mat-expansion-panel>
+  </mat-accordion>
 </div>
 <div mat-dialog-actions class="flex-space-between">
   <button mat-raised-button [mat-dialog-close]="store">Close</button>

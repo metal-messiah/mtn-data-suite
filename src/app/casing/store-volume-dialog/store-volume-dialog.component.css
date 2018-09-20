@@ -1,21 +1,41 @@
-.centered {
-  margin: 0 auto;
-}
-
-.mat-dialog-container {
+.mat-dialog-content {
   padding: 0;
+  min-width: 250px;
 }
 
-.widened {
-  margin: 0 -24px;
-  width: auto;
+.volume-option {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
 }
 
-#bottom-toolbar {
-  margin: 0 -24px -24px -24px;
-  width: auto;
+.volume-option .stacked {
+  display: flex;
+  flex-direction: column;
 }
 
-.mat-dialog-title {
-  margin-bottom: 0;
+.volume-option button {
+  min-width: unset;
+}
+
+.volume-option .volume-type {
+  font-size: small;
+}
+
+.volume-option .volume-total {
+  font-weight: bold;
+}
+
+#volume-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#volume-table td {
+  width: 50%;
+}
+
+mat-panel-title{
+  flex-direction: column;
 }
