@@ -335,44 +335,37 @@ export class MapService {
   setDrawingModeToPolygon() {
     this.clearCircleRadiusListener();
     this.drawingMode = google.maps.drawing.OverlayType.POLYGON;
-    this.drawingManager.setDrawingMode(this.drawingMode);  }
+    this.drawingManager.setDrawingMode(this.drawingMode);
+  }
 
-  searchFor(
-    queryString: string,
-    bounds?: google.maps.LatLngBoundsLiteral
-  ): Observable<GooglePlace[]> {
+  searchFor(queryString: string, bounds?: google.maps.LatLngBoundsLiteral): Observable<GooglePlace[]> {
     return Observable.create((observer: Observer<any>) => {
-      if (bounds == null) {
-        try {
-          const fields = [
-            'formatted_address',
-            'geometry',
-            'icon',
-            'id',
-            'name',
-            'place_id'
-          ];
-          this.placesService.findPlaceFromQuery(
-            { fields: fields, query: queryString },
-            (results, status) => {
-              if (status === google.maps.places.PlacesServiceStatus.OK) {
-                observer.next(results.map(place => new GooglePlace(place)));
-              } else {
-                observer.error(status);
-              }
-            }
-          );
-        } catch (err) {
-          console.log(err);
+
+      const callback = (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          observer.next(results.map(place => new GooglePlace(place)));
+        } else {
+          observer.error(status);
         }
+        observer.complete();
+      };
+
+      if (bounds == null) {
+        const fields = [
+          'formatted_address',
+          'geometry',
+          'icon',
+          'id',
+          'name',
+          'place_id'
+        ];
+        this.placesService.findPlaceFromQuery({fields: fields, query: queryString}, callback);
       } else {
         const request = {
           bounds: bounds,
           name: queryString
         };
-        this.placesService.nearbySearch(request, response => {
-          observer.next(response.map(place => new GooglePlace(place)));
-        });
+        this.placesService.nearbySearch(request, callback);
       }
     });
   }
