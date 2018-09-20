@@ -26,3 +26,7 @@
 .checklist mat-checkbox {
   margin-bottom: 8px;
 }
+
+.edited {
+  color: #ff5722;
+}

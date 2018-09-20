@@ -711,7 +711,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
 
   openAccessDialog() {
     const data = {shoppingCenterSurveyId: this.shoppingCenterSurvey.id};
-    this.dialog.open(AccessListDialogComponent, {data: data, maxWidth: '90%'});
+    this.dialog.open(AccessListDialogComponent, {data: data, maxWidth: '90%', disableClose:true});
   }
 
   canDeactivate(): Observable<boolean> | boolean {

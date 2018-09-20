@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, Inject, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { MAT_DIALOG_DATA, MatDialogRef, MatExpansionPanel, MatSnackBar } from '@angular/material';
 import { ShoppingCenterAccess } from '../../models/full/shopping-center-access';
@@ -21,6 +21,7 @@ export class AccessListDialogComponent implements OnInit {
   form: FormGroup;
 
   loading = false;
+  saving = false;
 
   accessTypeOptions = ['FRONT_MAIN', 'SIDE_MAIN', 'NON_MAIN'];
 
@@ -98,10 +99,10 @@ export class AccessListDialogComponent implements OnInit {
   }
 
   deleteAccess(access: ShoppingCenterAccess, index: number) {
-    this.loading = true;
+    this.saving = true;
     this.shoppingCenterAccessService.delete(access.id)
-      .pipe(finalize(() => this.loading = false))
-      .subscribe((response) => {
+      .pipe(finalize(() => this.saving = false))
+      .subscribe(() => {
         this.accesses.removeAt(index);
         this.snackBar.open('Successfully Deleted Access', null, {duration: 1000});
       }, err => this.errorService.handleServerError('Failed to delete access!', err,
@@ -111,7 +112,9 @@ export class AccessListDialogComponent implements OnInit {
   }
 
   updateAccess(accessFormControl: AbstractControl) {
+    this.saving = true;
     this.shoppingCenterAccessService.update(new ShoppingCenterAccess(accessFormControl.value))
+      .pipe(finalize(() => this.saving = false))
       .subscribe((access: ShoppingCenterAccess) => {
         accessFormControl.reset(access);
         this.snackBar.open('Successfully Updated Access', null, {duration: 1000});

@@ -18,6 +18,7 @@ export class TenantListDialogComponent implements OnInit {
   form: FormGroup;
 
   loading = false;
+  saving = false;
 
   vacantCount: number;
 
@@ -99,9 +100,9 @@ export class TenantListDialogComponent implements OnInit {
   }
 
   deleteTenant(tenant: ShoppingCenterTenant, index: number) {
-    this.loading = true;
+    this.saving = true;
     this.shoppingCenterTenantService.delete(tenant.id)
-      .pipe(finalize(() => this.loading = false))
+      .pipe(finalize(() => this.saving = false))
       .subscribe(() => {
         this.tenants.removeAt(index);
         this.snackBar.open('Successfully Deleted Tenant', null, {duration: 1000});
@@ -109,7 +110,9 @@ export class TenantListDialogComponent implements OnInit {
   }
 
   updateTenant(tenantFormControl: AbstractControl) {
+    this.saving = true;
     this.shoppingCenterTenantService.update(new ShoppingCenterTenant(tenantFormControl.value))
+      .pipe(finalize(() => this.saving = false))
       .subscribe((tenant: ShoppingCenterTenant) => {
         tenantFormControl.reset(tenant);
         this.sortTenants();
@@ -129,7 +132,6 @@ export class TenantListDialogComponent implements OnInit {
   }
 
   close() {
-    console.log('here');
     this.dialogRef.close({
       vacant: this.vacantCount,
       occupied: this.tenants.length

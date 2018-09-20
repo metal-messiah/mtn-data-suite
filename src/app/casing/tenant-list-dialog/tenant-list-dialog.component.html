@@ -31,7 +31,7 @@
         <mat-expansion-panel-header>
           <mat-panel-title>
             <span *ngIf="tenant.dirty && tenant.get('id').value != null">
-              <i class="fas fa-pencil-alt edited"></i>&nbsp;&nbsp;
+              <i class="fas fa-asterisk edited"></i>&nbsp;&nbsp;
             </span>
             <span>{{tenant.get('name').value}}</span>
           </mat-panel-title>
@@ -44,15 +44,17 @@
           </mat-form-field>
           <mat-checkbox formControlName="outparcel" labelPosition="before">Is Outparcel</mat-checkbox>
         </div>
-        <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-        <mat-action-row *ngIf="!loading">
+        <mat-action-row>
           <button type="button" mat-raised-button color="warn"
+                  [disabled]="saving"
                   (click)="deleteTenant(tenant.value, i)">
             <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
           </button>
           <button type="button" mat-raised-button color="accent"
-                  [disabled]="tenant.pristine || tenant.invalid" (click)="updateTenant(tenant)">
-            <i class="fas fa-save"></i>&nbsp;&nbsp;Save
+                  [disabled]="tenant.pristine || tenant.invalid || saving"
+                  (click)="updateTenant(tenant)">
+            <span *ngIf="!saving"><i class="fas fa-save"></i>&nbsp;&nbsp;Save</span>
+            <span *ngIf="saving"><i class="fas fa-spinner fa-pulse"></i></span>
           </button>
         </mat-action-row>
       </mat-expansion-panel>
@@ -60,5 +62,6 @@
   </div>
 </div>
 <div mat-dialog-actions class="flex-justify-center">
-  <button type="button" color="primary" (click)="close()" mat-raised-button>Close</button>
+  <button type="button" *ngIf="!form.dirty" color="primary" (click)="close()" mat-raised-button>Close</button>
+  <button type="button" *ngIf="form.dirty" disabled mat-raised-button>Save Tenant Edits First</button>
 </div>
