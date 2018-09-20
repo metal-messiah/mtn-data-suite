@@ -19,3 +19,11 @@
 .mat-expansion-panel-header-description{
   flex-grow: unset;
 }
+
+.vacancy-control {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 10px;
+}

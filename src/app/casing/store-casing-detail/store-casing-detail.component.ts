@@ -55,7 +55,6 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   savingVolume = false;
   removingVolume = false;
   loadingProject = false;
-  editingStoreStatus = false;
 
   conditions = ['POOR', 'FAIR', 'AVERAGE', 'GOOD', 'EXCELLENT'];
   confidenceLevels = ['LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH'];
@@ -242,8 +241,8 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       surveyDate: ['', [Validators.required]],
       flowHasOneWayAisles: '',
       flowRating: '',
-      tenantOccupiedCount: '',
-      tenantVacantCount: '',
+      tenantOccupiedCount: ['', [Validators.min(0)]],
+      tenantVacantCount: ['', [Validators.min(0)]],
       sqFtPercentOccupied: ['', [Validators.min(0), Validators.max(100)]]
     });
 
@@ -691,8 +690,23 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
   }
 
   openTenantDialog() {
-    const data = {shoppingCenterSurveyId: this.shoppingCenterSurvey.id};
-    this.dialog.open(TenantListDialogComponent, {data: data, maxWidth: '90%'});
+    const vacantControl = this.shoppingCenterSurveyForm.get('tenantVacantCount');
+    const data = {
+      shoppingCenterSurveyId: this.shoppingCenterSurvey.id,
+      vacantCount: vacantControl.value
+    };
+    const dialog = this.dialog.open(TenantListDialogComponent, {data: data, maxWidth: '90%', disableClose: true});
+    dialog.afterClosed().subscribe((tenantCounts: {occupied: number, vacant: number}) => {
+      if (tenantCounts.vacant !== vacantControl.value) {
+        vacantControl.setValue(tenantCounts.vacant);
+        vacantControl.markAsDirty();
+      }
+      const occupiedControl = this.shoppingCenterSurveyForm.get('tenantOccupiedCount');
+      if (tenantCounts.occupied !== occupiedControl.value) {
+        occupiedControl.setValue(tenantCounts.occupied);
+        occupiedControl.markAsDirty();
+      }
+    });
   }
 
   openAccessDialog() {

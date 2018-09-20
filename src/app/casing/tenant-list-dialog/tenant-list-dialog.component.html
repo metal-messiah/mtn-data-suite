@@ -1,8 +1,12 @@
-<h2 mat-dialog-title>Shopping Center Tenants</h2>
+<h2 mat-dialog-title>
+  <span>Shopping Center Tenants&nbsp;&nbsp;<i class="fas fa-info-circle" (click)="showInfo()"></i></span>
+</h2>
 <div mat-dialog-content [formGroup]="form">
-  <mat-form-field>
-    <textarea formControlName="newTenantNames" placeholder="Add Tenants (comma separated list)" matInput></textarea>
-  </mat-form-field>
+  <div class="flex-space-between">
+    <mat-form-field>
+      <textarea formControlName="newTenantNames" placeholder="Add Tenants (comma separated list)" matInput></textarea>
+    </mat-form-field>
+  </div>
   <div id="add-buttons" class="flex flex-space-around">
     <button type="button" mat-raised-button color="accent" [disabled]="newTenantNames.pristine"
             (click)="parseTenants(false)">
@@ -12,6 +16,13 @@
             (click)="parseTenants(true)">
       Add as Outparcel
     </button>
+  </div>
+  <div class="vacancy-control">
+    <button mat-mini-fab (click)="vacantCount = vacantCount - 1;" [disabled]="vacantCount < 1">
+      <i class="fas fa-minus"></i>
+    </button>
+    <span>Vacancies: {{vacantCount}}</span>
+    <button mat-mini-fab (click)="vacantCount = vacantCount + 1;"><i class="fas fa-plus"></i></button>
   </div>
   <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
   <div id="accordion-wrapper">
@@ -49,5 +60,5 @@
   </div>
 </div>
 <div mat-dialog-actions class="flex-justify-center">
-  <button type="button" mat-raised-button mat-dialog-close>Close</button>
+  <button type="button" color="primary" (click)="close()" mat-raised-button>Close</button>
 </div>
