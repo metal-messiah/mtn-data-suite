@@ -23,6 +23,7 @@ export class ReportUploadComponent implements OnInit {
   htmlAsJson: HTMLasJSON;
 
   tableJson: {
+    targetStore: object,
     projectionsTable: object,
     currentStoresWeeklySummary: object[],
     projectedStoresWeeklySummary: object[],

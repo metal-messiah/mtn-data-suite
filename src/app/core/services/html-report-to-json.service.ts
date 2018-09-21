@@ -70,6 +70,7 @@ export class HtmlReportToJsonService {
 
   generateTables(modelData: ReportUploadInterface, json: HTMLasJSON) {
     const formattedTables = {
+      targetStore: null,
       projectionsTable: null,
       currentStoresWeeklySummary: null,
       projectedStoresWeeklySummary: null,
@@ -98,6 +99,7 @@ export class HtmlReportToJsonService {
     const matchingStore = json.storeList.filter(
       item => item.mapKey === siteNumber
     )[0];
+
     const salesGrowthProjection = json.salesGrowthProjection[1]
       ? json.salesGrowthProjection[1]
       : json.salesGrowthProjection[0]
@@ -191,12 +193,12 @@ export class HtmlReportToJsonService {
         store['futureSales'] = beforematch.futureSales;
 
         store['contributionToSite'] =
-          Number(beforematch.futureSales) - Number(aftermatch.futureSales);
+          Math.abs(Number(beforematch.futureSales) - Number(aftermatch.futureSales));
         store['contributionToSitePerc'] =
           (Number(store['contributionToSite']) / Number(store['futureSales'])) *
           100;
 
-        store['resultingVolume'] =
+        store['resultingVolume'] = store.mapKey === matchingStore.mapKey ? aftermatch.futureSales :
           store['futureSales'] - store['contributionToSite'];
 
         store['distance'] =
@@ -235,7 +237,7 @@ export class HtmlReportToJsonService {
         store['futureSales'] = beforematch.futureSales;
 
         store['contributionToSite'] =
-          Number(beforematch.futureSales) - Number(aftermatch.futureSales);
+          Math.abs(Number(beforematch.futureSales) - Number(aftermatch.futureSales));
         store['contributionToSitePerc'] =
           (Number(store['contributionToSite']) / Number(store['futureSales'])) *
           100;
@@ -277,7 +279,7 @@ export class HtmlReportToJsonService {
         store['futureSales'] = beforematch.futureSales;
 
         store['contributionToSite'] =
-          Number(beforematch.futureSales) - Number(aftermatch.futureSales);
+          Math.abs(Number(beforematch.futureSales) - Number(aftermatch.futureSales));
         store['contributionToSitePerc'] =
           (Number(store['contributionToSite']) / Number(store['futureSales'])) *
           100;
@@ -367,6 +369,9 @@ export class HtmlReportToJsonService {
         formattedTables.sourceOfVolume.averages.proposedCompetition
           .contributionToSite.values.length;
     }
+
+    formattedTables.targetStore = matchingStore
+
     console.log(formattedTables);
     return formattedTables;
   }

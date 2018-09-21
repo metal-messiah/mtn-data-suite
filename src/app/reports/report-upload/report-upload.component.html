@@ -258,7 +258,7 @@
         <td colspan="5"></td>
         <td style="border-top:1px solid black;">
           <b>
-            {{tableJson.sourceOfVolume.averages.companyStores.contributionToSite.average / 1000 | number:'1.0-0'}}
+            ${{tableJson.sourceOfVolume.averages.companyStores.contributionToSite.average / 1000 | number:'1.0-0'}}
           </b>
         </td>
         <td colspan="2"></td>
@@ -294,7 +294,7 @@
         <td colspan="5"></td>
         <td style="border-top:1px solid black;">
           <b>
-            {{tableJson.sourceOfVolume.averages.existingCompetition.contributionToSite.average / 1000 |
+            ${{tableJson.sourceOfVolume.averages.existingCompetition.contributionToSite.average / 1000 |
             number:'1.0-0'}}
           </b>
         </td>
@@ -318,8 +318,72 @@
         <td>{{store.projectedSales / 1000 | number:'1.0-2'}}</td>
         <td>{{store.contributionToSite / 1000 | number:'1.0-0'}}</td>
         <td>{{store.contributionToSitePerc | number:'0.0-2'}}%</td>
-        <td>{{store.resultingVolume | number:'1.0-2'}}</td>
+        <td>{{store.resultingVolume /1000 | number:'1.0-2'}}</td>
       </tr>
+      <tr *ngIf="tableJson.sourceOfVolume.proposedCompetition.length" class="pink">
+        <td><b>Average Power</b></td>
+        <td colspan="2"></td>
+        <td style="border-top:1px solid black;">
+          <b>
+            {{tableJson.sourceOfVolume.averages.proposedCompetition.fitStorePower.average | number:'1.0-0'}}
+          </b>
+        </td>
+        <td colspan="5"></td>
+        <td style="border-top:1px solid black;">
+          <b>
+            ${{tableJson.sourceOfVolume.averages.proposedCompetition.contributionToSite.average / 1000 |
+            number:'1.0-0'}}
+          </b>
+        </td>
+        <td colspan="2"></td>
+      </tr>
+      <tr>
+        <td colspan="12"></td>
+      </tr>
+      <tr>
+        <td><b>Sales Potential</b></td>
+        <td colspan="3"></td>
+        <td colspan="5"><b>Sales Transfers from Company Stores</b></td>
+        <td>${{tableJson.sourceOfVolume.averages.companyStores.contributionToSite.average / 1000 |
+          number:'1.0-0'}}
+        </td>
+        <td colspan="2"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td colspan="3"></td>
+        <td colspan="5"><b>Sales Transfers from Competition</b></td>
+        <td>${{
+          (tableJson.sourceOfVolume.averages.proposedCompetition.contributionToSite.average +
+          tableJson.sourceOfVolume.averages.existingCompetition.contributionToSite.average) / 1000 |
+          number:'1.0-0'}}
+        </td>
+        <td colspan="2"></td>
+      </tr>
+      <tr>
+        <td><b>Assume Store Opens {{inputData.opens}}</b></td>
+        <td colspan="3"></td>
+        <td colspan="5"><b>Total Sales Transfer</b></td>
+        <td>${{
+          (tableJson.sourceOfVolume.averages.companyStores.contributionToSite.average +
+          tableJson.sourceOfVolume.averages.proposedCompetition.contributionToSite.average +
+          tableJson.sourceOfVolume.averages.existingCompetition.contributionToSite.average) / 1000 |
+          number:'1.0-0'}}
+        </td>
+        <td colspan="2"></td>
+      </tr>
+      <tr>
+          <td><b>{{inputData.opens + 1}} - After Open 1 Year</b></td>
+          <td><b>${{tableJson.targetStore.resultingVolume /1000}}</b></td>
+          <td colspan="2"></td>
+          <td colspan="5"><b>Percent of Sales Explained After One Year</b></td>
+          <td>{{
+            ((tableJson.sourceOfVolume.averages.companyStores.contributionToSite.average +
+            tableJson.sourceOfVolume.averages.proposedCompetition.contributionToSite.average +
+            tableJson.sourceOfVolume.averages.existingCompetition.contributionToSite.average) / tableJson.targetStore.resultingVolume) / 1000}}%
+          </td>
+          <td colspan="2"></td>
+        </tr>
 
     </table>
   </mat-step>
