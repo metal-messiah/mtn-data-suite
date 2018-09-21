@@ -116,7 +116,12 @@
   </mat-step>
   <mat-step>
     <ng-template matStepLabel>Preview Tables</ng-template>
-    <table cellspacing="0" #projectionsTable *ngIf="tableJson">
+    <mat-progress-bar *ngIf="compilingImages" mode="indeterminate"></mat-progress-bar>
+    <button (click)="saveAsImage()"
+      mat-flat-button>Save Tables As Images</button>
+      <br>
+      <a style="margin:5px" mat-flat-button *ngFor="let url of tableImageUrls; let i = index;" [href]="url" download>Download Image {{i+1}}</a>
+    <table id="projectionsTable" cellspacing="0" #projectionsTable *ngIf="tableJson">
       <tr>
         <th colspan="8">
           <h2>Projections</h2>
@@ -144,7 +149,7 @@
       </tr>
     </table>
     <hr />
-    <table cellspacing="0" #currentStoresWeeklySummaryTable *ngIf="tableJson && inputData">
+    <table cellspacing="0" id="currentStoresWeeklySummaryTable" *ngIf="tableJson && inputData">
       <tr>
         <th colspan="8">
           <h2>Current Stores Weekly Summary - {{inputData.fieldResDate | date:'MMMM y'}}</h2>
@@ -172,7 +177,7 @@
       </tr>
     </table>
     <hr />
-    <table cellspacing="0" #projectedStoresWeeklySummaryTable *ngIf="tableJson && inputData">
+    <table cellspacing="0" id="projectedStoresWeeklySummaryTable" *ngIf="tableJson && inputData">
       <tr>
         <th colspan="8">
           <h2>Projected Stores Weekly Summary - {{inputData.firstYearEndingMonthYear | date:'MMMM y'}}</h2>
@@ -200,7 +205,7 @@
       </tr>
     </table>
     <hr>
-    <table cellspacing="0" #sourceOfVolumeTable *ngIf="tableJson && inputData">
+    <table cellspacing="0" id="sourceOfVolumeTable" *ngIf="tableJson && inputData">
       <tr>
         <th colspan="12">
           <h2>Source of Volume</h2>
@@ -373,17 +378,18 @@
         <td colspan="2"></td>
       </tr>
       <tr>
-          <td><b>{{inputData.opens + 1}} - After Open 1 Year</b></td>
-          <td><b>${{tableJson.targetStore.resultingVolume /1000}}</b></td>
-          <td colspan="2"></td>
-          <td colspan="5"><b>Percent of Sales Explained After One Year</b></td>
-          <td>{{
-            ((tableJson.sourceOfVolume.averages.companyStores.contributionToSite.average +
-            tableJson.sourceOfVolume.averages.proposedCompetition.contributionToSite.average +
-            tableJson.sourceOfVolume.averages.existingCompetition.contributionToSite.average) / tableJson.targetStore.resultingVolume) / 1000}}%
-          </td>
-          <td colspan="2"></td>
-        </tr>
+        <td><b>{{inputData.opens + 1}} - After Open 1 Year</b></td>
+        <td><b>${{tableJson.targetStore.resultingVolume /1000}}</b></td>
+        <td colspan="2"></td>
+        <td colspan="5"><b>Percent of Sales Explained After One Year</b></td>
+        <td>{{
+          ((tableJson.sourceOfVolume.averages.companyStores.contributionToSite.average +
+          tableJson.sourceOfVolume.averages.proposedCompetition.contributionToSite.average +
+          tableJson.sourceOfVolume.averages.existingCompetition.contributionToSite.average) /
+          tableJson.targetStore.resultingVolume) / 1000}}%
+        </td>
+        <td colspan="2"></td>
+      </tr>
 
     </table>
   </mat-step>

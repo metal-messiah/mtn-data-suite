@@ -6,10 +6,7 @@ import { ReportUploadComponent } from './report-upload/report-upload.component';
 
 @NgModule({
   imports: [SharedModule, ReportsRoutingModule],
-  declarations: [
-    ReportsComponent,
-    ReportUploadComponent
-  ],
+  declarations: [ReportsComponent, ReportUploadComponent],
   entryComponents: [],
   providers: []
 })

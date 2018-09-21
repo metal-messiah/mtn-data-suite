@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
+import { Component, NgZone, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { MatSnackBar, MatStepper } from '@angular/material';
 import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
@@ -11,6 +11,8 @@ import { HTMLasJSON } from '../../models/html-as-json';
 import { ReportUploadInterface } from './report-upload-interface';
 import { StoreListItem } from '../../models/store-list-item';
 
+import htmlToImage from 'html-to-image';
+
 @Component({
   selector: 'mds-report-upload',
   templateUrl: './report-upload.component.html',
@@ -21,23 +23,31 @@ export class ReportUploadComponent implements OnInit {
   htmlFile: File;
   htmlAsString: String;
   htmlAsJson: HTMLasJSON;
+  tableImageUrls: string[];
+  tableDomIds: string[] = [
+    'projectionsTable',
+    'currentStoresWeeklySummaryTable',
+    'projectedStoresWeeklySummaryTable',
+    'sourceOfVolumeTable'
+  ];
 
   tableJson: {
-    targetStore: object,
-    projectionsTable: object,
-    currentStoresWeeklySummary: object[],
-    projectedStoresWeeklySummary: object[],
+    targetStore: object;
+    projectionsTable: object;
+    currentStoresWeeklySummary: object[];
+    projectedStoresWeeklySummary: object[];
     sourceOfVolume: {
-      companyStores: object[],
-      existingCompetition: object[],
-      proposedCompetition: object[]
-    }
+      companyStores: object[];
+      existingCompetition: object[];
+      proposedCompetition: object[];
+    };
   };
 
   fileReader: FileReader;
   inputData: ReportUploadInterface;
   stepper: MatStepper;
   compilingJson: Boolean = false;
+  compilingImages: Boolean = false;
 
   interface: ReportUploadInterface;
 
@@ -84,10 +94,28 @@ export class ReportUploadComponent implements OnInit {
       secondYearAcceptance: null,
       thirdYearAcceptance: null
     };
-    
   }
 
   ngOnInit() {}
+
+  saveAsImage() {
+    this.compilingImages = true;
+    this.tableImageUrls = [];
+    this.tableDomIds.forEach(id => {
+      const node = document.getElementById(id);
+
+      htmlToImage
+        .toPng(node)
+        .then(dataUrl => {
+          this.compilingImages = false;
+          this.tableImageUrls.push(dataUrl);
+        })
+        .catch(error => {
+          this.compilingImages = false;
+          this.snackBar.open(error, null, { duration: 2000 });
+        });
+    });
+  }
 
   changeCategory(event, mapKey) {
     const idx: number = this.htmlAsJson.storeList.findIndex(
@@ -127,7 +155,10 @@ export class ReportUploadComponent implements OnInit {
       this.htmlAsString = event.target.result;
 
       this.compilingJson = true;
-      this.htmlReportToJsonService.convertHTMLtoJSON(this.htmlAsString, this.inputData);
+      this.htmlReportToJsonService.convertHTMLtoJSON(
+        this.htmlAsString,
+        this.inputData
+      );
     }
   }
 
@@ -140,12 +171,11 @@ export class ReportUploadComponent implements OnInit {
 
   generateTables() {
     console.log('GENERATE TABLES');
-    
+    this.tableImageUrls = [];
     this.tableJson = this.htmlReportToJsonService.generateTables(
-        this.inputData,
-        this.htmlAsJson
-      )
-    
+      this.inputData,
+      this.htmlAsJson
+    );
   }
 
   stepForward() {

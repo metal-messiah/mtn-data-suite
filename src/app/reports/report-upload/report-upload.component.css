@@ -58,6 +58,10 @@ tr:nth-child(odd) {
   background: #eee;
 }
 
+tr:nth-child(even) {
+    background: white;
+  }
+
 th{
     background: white;
 }
@@ -65,4 +69,9 @@ th{
 td {
   padding: 5px 10px;
   text-align: center;
+}
+
+mat-progress-bar{
+    width: 50%;
+    margin: 0 auto;
 }
