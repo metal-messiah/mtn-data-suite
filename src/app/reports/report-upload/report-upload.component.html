@@ -74,17 +74,253 @@
           <mat-hint>Third Year Acceptance</mat-hint>
         </mat-form-field>
         <div class="submit">
-          <button type="button" mat-flat-button [color]="htmlFile ? 'primary' : 'warn'" (click)="htmlFileInput.click()" [disabled]="compilingJson || reportUploadForm.invalid"><i class="fas fa-spinner fa-spin" *ngIf="compilingJson"></i> {{compilingJson ? ' Fetching Data From Server': 'Upload HTML File'}}</button>
+          <button type="button" mat-flat-button [color]="htmlFile ? 'primary' : 'warn'" (click)="htmlFileInput.click()"
+            [disabled]="compilingJson || reportUploadForm.invalid"><i class="fas fa-spinner fa-spin" *ngIf="compilingJson"></i>
+            {{compilingJson ? ' Fetching Data From Server': 'Upload HTML File'}}</button>
           <input hidden type="file" accept=".html" #htmlFileInput (change)="readFile($event, reportUploadForm)" />
-          <span style="margin-left:20px;" *ngIf="htmlAsJson"><i class="fas fa-check-circle" style="color:green;"></i> {{htmlFile.name}}</span>
+          <span style="margin-left:20px;" *ngIf="htmlAsJson"><i class="fas fa-check-circle" style="color:green;"></i>
+            {{htmlFile.name}}</span>
           <br />
-          <button [color]="!reportUploadForm.invalid && htmlAsJson ? 'primary' : 'warn'" [disabled]="reportUploadForm.invalid || !htmlAsJson" mat-flat-button matStepperNext (click)="generateTables()" style="margin-top:20px;">Generate Tables From Data</button>
+          <button [color]="!reportUploadForm.invalid && htmlAsJson ? 'primary' : 'warn'" [disabled]="reportUploadForm.invalid || !htmlAsJson"
+            mat-flat-button matStepperNext style="margin-top:20px;">Assign Store Categories</button>
         </div>
       </form>
 
     </div>
   </mat-step>
   <mat-step>
+    <ng-template matStepLabel>Assign Categories</ng-template>
+    <div *ngIf="htmlAsJson" class="categories-wrapper">
+      <div style="padding: 5px 50px;
+      border: 1px solid gray;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 50vw;
+      min-width: 500px;
+      margin: 0 auto;"
+        *ngFor="let store of htmlAsJson.storeList; let i=index;" [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : 'pink'">
+        <div>
+          <span style="margin-right: 20px;">{{store.mapKey}}</span>
+          <span style="margin-right: 20px;">{{store.storeName}}</span>
+        </div>
+        <select [value]="store.category" (change)="changeCategory($event, store.mapKey)">
+          <option *ngFor="let cat of categories">{{cat}}</option>
+        </select>
+      </div>
+    </div>
+    <button [color]="'primary'" mat-flat-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
+    <button [color]="'primary'" mat-flat-button matStepperNext (click)="generateTables()" style="margin-top:20px;">Generate
+      Tables From Data</button>
+
+  </mat-step>
+  <mat-step>
     <ng-template matStepLabel>Preview Tables</ng-template>
+    <table cellspacing="0" #projectionsTable *ngIf="tableJson">
+      <tr>
+        <th colspan="8">
+          <h2>Projections</h2>
+        </th>
+      </tr>
+      <tr>
+        <th>Map Key</th>
+        <th>Scenario</th>
+        <th>Projected FIT Image</th>
+        <th>Sales Area</th>
+        <th>Year 1 Ending</th>
+        <th>Year 2 Ending</th>
+        <th>Year 3 Ending</th>
+        <th>Comment</th>
+      </tr>
+      <tr>
+        <td>{{tableJson.projectionsTable.mapKey}}</td>
+        <td>{{tableJson.projectionsTable.scenario}}</td>
+        <td>{{tableJson.projectionsTable.projectedFitImage}}</td>
+        <td>{{tableJson.projectionsTable.salesArea | number}}</td>
+        <td>${{tableJson.projectionsTable.year1Ending}}</td>
+        <td>${{tableJson.projectionsTable.year2Ending}}</td>
+        <td>${{tableJson.projectionsTable.year3Ending}}</td>
+        <td>{{tableJson.projectionsTable.comment}}</td>
+      </tr>
+    </table>
+    <hr />
+    <table cellspacing="0" #currentStoresWeeklySummaryTable *ngIf="tableJson && inputData">
+      <tr>
+        <th colspan="8">
+          <h2>Current Stores Weekly Summary - {{inputData.fieldResDate | date:'MMMM y'}}</h2>
+        </th>
+      </tr>
+      <tr>
+        <th>Map Key</th>
+        <th>Store Name</th>
+        <th>Location</th>
+        <th>Volume</th>
+        <th>Sq. Ft</th>
+        <th>Sales Area</th>
+        <th>PWTA</th>
+        <th>FIT Power</th>
+      </tr>
+      <tr *ngFor="let store of tableJson.currentStoresWeeklySummary">
+        <td>{{store.mapKey}}</td>
+        <td>{{store.storeName}}</td>
+        <td>{{store.location}}</td>
+        <td>${{store.actualSales | number:'1.0-2'}}</td>
+        <td>${{store.actualSalesPSF | number:'1.0-2'}}</td>
+        <td>{{store.salesArea | number}}</td>
+        <td>{{store.PWTA | number}}</td>
+        <td>{{store.effectivePower | number}}</td>
+      </tr>
+    </table>
+    <hr />
+    <table cellspacing="0" #projectedStoresWeeklySummaryTable *ngIf="tableJson && inputData">
+      <tr>
+        <th colspan="8">
+          <h2>Projected Stores Weekly Summary - {{inputData.firstYearEndingMonthYear | date:'MMMM y'}}</h2>
+        </th>
+      </tr>
+      <tr>
+        <th>Map Key</th>
+        <th>Store Name</th>
+        <th>Location</th>
+        <th>Volume</th>
+        <th>Sq. Ft</th>
+        <th>Sales Area</th>
+        <th>PWTA</th>
+        <th>FIT Power</th>
+      </tr>
+      <tr [ngClass]="store.mapKey.length >= 3 ? 'red-highlight' : ''" *ngFor="let store of tableJson.projectedStoresWeeklySummary">
+        <td>{{store.mapKey}}</td>
+        <td>{{store.storeName}}</td>
+        <td>{{store.location}}</td>
+        <td>${{store.projectedSales | number:'1.0-2'}}</td>
+        <td>${{store.projectedSalesPSF | number:'1.0-2'}}</td>
+        <td>{{store.salesArea | number}}</td>
+        <td>{{store.PWTA | number}}</td>
+        <td>{{store.effectivePower | number}}</td>
+      </tr>
+    </table>
+    <hr>
+    <table cellspacing="0" #sourceOfVolumeTable *ngIf="tableJson && inputData">
+      <tr>
+        <th colspan="12">
+          <h2>Source of Volume</h2>
+          <h3>{{inputData.retailerName}}</h3>
+          <hr>
+        </th>
+      </tr>
+      <tr>
+        <th colspan="5"></th>
+        <th colspan="2">Size (Sq. Ft.)*</th>
+        <th></th>
+        <th colspan="4">{{inputData.opens + 1}} Volume</th>
+      </tr>
+      <tr>
+        <th>Primary Sources of Projected Volume</th>
+        <th>Location</th>
+        <th>Map Key</th>
+        <th>FIT Store Power</th>
+        <th>Straight Line Dist. From Site</th>
+        <th>Sales Area</th>
+        <th>Est. Total Area</th>
+        <th>Sales As of {{inputData.firstYearEndingMonthYear | date:'MMMM y'}}</th>
+        <th>Pop Growth, Infl. & Comp. Chngs.</th>
+        <th colspan="2">Contribution to Site</th>
+        <th>Resulting Volume</th>
+      </tr>
+      <tr *ngIf="tableJson.sourceOfVolume.companyStores.length" class="blue">
+        <td class="table-section-header">
+          Company Stores
+        </td>
+        <td colspan="11"></td>
+      </tr>
+      <tr *ngFor="let store of tableJson.sourceOfVolume.companyStores" class="blue">
+        <td>{{store.storeName}}</td>
+        <td>{{store.location}}</td>
+        <td>{{store.mapKey}}</td>
+        <td>{{store.effectivePower | number:'1.0-2'}}</td>
+        <td>{{store.distance | number:'1.0-2'}} mi.</td>
+        <td>{{store.salesArea | number:'1.0-2'}}</td>
+        <td>{{store.totalSize | number:'1.0-2'}}</td>
+        <td>{{store.actualSales / 1000 | number:'1.0-2'}}</td>
+        <td>{{store.projectedSales / 1000 | number:'1.0-2'}}</td>
+        <td>{{store.contributionToSite / 1000 | number:'1.0-0'}}</td>
+        <td>{{store.contributionToSitePerc | number:'0.0-2'}}%</td>
+        <td>{{store.resultingVolume | number:'1.0-2'}}</td>
+      </tr>
+      <tr *ngIf="tableJson.sourceOfVolume.companyStores.length" class="blue">
+        <td><b>Average Power</b></td>
+        <td colspan="2"></td>
+        <td style="border-top:1px solid black;">
+          <b>
+            {{tableJson.sourceOfVolume.averages.companyStores.fitStorePower.average | number:'1.0-0'}}
+          </b>
+        </td>
+        <td colspan="5"></td>
+        <td style="border-top:1px solid black;">
+          <b>
+            {{tableJson.sourceOfVolume.averages.companyStores.contributionToSite.average / 1000 | number:'1.0-0'}}
+          </b>
+        </td>
+        <td colspan="2"></td>
+      </tr>
+      <tr *ngIf="tableJson.sourceOfVolume.existingCompetition.length" class="yellow">
+        <td class="table-section-header">
+          Existing Competition
+        </td>
+        <td colspan="11"></td>
+      </tr>
+      <tr *ngFor="let store of tableJson.sourceOfVolume.existingCompetition" class="yellow">
+        <td>{{store.storeName}}</td>
+        <td>{{store.location}}</td>
+        <td>{{store.mapKey}}</td>
+        <td>{{store.effectivePower | number:'1.0-2'}}</td>
+        <td>{{store.distance | number:'1.0-2'}} mi.</td>
+        <td>{{store.salesArea | number:'1.0-2'}}</td>
+        <td>{{store.totalSize | number:'1.0-2'}}</td>
+        <td>{{store.actualSales / 1000 | number:'1.0-2'}}</td>
+        <td>{{store.projectedSales / 1000 | number:'1.0-2'}}</td>
+        <td>{{store.contributionToSite / 1000 | number:'1.0-0'}}</td>
+        <td>{{store.contributionToSitePerc | number:'0.0-2'}}%</td>
+        <td>{{store.resultingVolume | number:'1.0-2'}}</td>
+      </tr>
+      <tr *ngIf="tableJson.sourceOfVolume.existingCompetition.length" class="yellow">
+        <td><b>Average Power</b></td>
+        <td colspan="2"></td>
+        <td style="border-top:1px solid black;">
+          <b>
+            {{tableJson.sourceOfVolume.averages.existingCompetition.fitStorePower.average | number:'1.0-0'}}
+          </b>
+        </td>
+        <td colspan="5"></td>
+        <td style="border-top:1px solid black;">
+          <b>
+            {{tableJson.sourceOfVolume.averages.existingCompetition.contributionToSite.average / 1000 |
+            number:'1.0-0'}}
+          </b>
+        </td>
+        <td colspan="2"></td>
+      </tr>
+      <tr *ngIf="tableJson.sourceOfVolume.proposedCompetition.length" class="pink">
+        <td class="table-section-header">
+          Proposed Competition
+        </td>
+        <td colspan="11"></td>
+      </tr>
+      <tr *ngFor="let store of tableJson.sourceOfVolume.proposedCompetition" class="pink">
+        <td>{{store.storeName}}</td>
+        <td>{{store.location}}</td>
+        <td>{{store.mapKey}}</td>
+        <td>{{store.effectivePower | number:'1.0-2'}}</td>
+        <td>{{store.distance | number:'1.0-2'}} mi.</td>
+        <td>{{store.salesArea | number:'1.0-2'}}</td>
+        <td>{{store.totalSize | number:'1.0-2'}}</td>
+        <td>{{store.actualSales / 1000 | number:'1.0-2'}}</td>
+        <td>{{store.projectedSales / 1000 | number:'1.0-2'}}</td>
+        <td>{{store.contributionToSite / 1000 | number:'1.0-0'}}</td>
+        <td>{{store.contributionToSitePerc | number:'0.0-2'}}%</td>
+        <td>{{store.resultingVolume | number:'1.0-2'}}</td>
+      </tr>
+
+    </table>
   </mat-step>
 </mat-horizontal-stepper>

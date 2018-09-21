@@ -19,6 +19,7 @@ import { Banner } from '../../models/full/banner';
 import { CompanyService } from '../../core/services/company.service';
 
 import { Observable, Observer, of, Subject, forkJoin } from 'rxjs/index';
+import { ReportUploadComponent } from '../../reports/report-upload/report-upload.component';
 
 /*
   The HtmlReportToJson service should
@@ -37,6 +38,8 @@ export class HtmlReportToJsonService {
 
   output$: Subject<HTMLasJSON>;
 
+  inputData: ReportUploadInterface;
+
   constructor(
     public auth: AuthService,
     public storeService: StoreService,
@@ -46,8 +49,8 @@ export class HtmlReportToJsonService {
     this.parser = new DOMParser();
     this.output$ = new Subject<HTMLasJSON>();
     this.mapService = new MapService(auth);
-    
-    this.companyService.getAllByQuery('').subscribe( res => console.log(res))
+
+    // this.companyService.getAllByQuery('').subscribe( res => console.log(res))
   }
 
   convertToNumber(s: String) {
@@ -57,20 +60,37 @@ export class HtmlReportToJsonService {
   }
 
   formatString(s: String) {
-    return s ? s.replace(/\n/g, ' ').replace(/ +(?= )/g, '') : null;
+    return s
+      ? s
+          .replace(/\n/g, ' ')
+          .replace(/ +(?= )/g, '')
+          .replace(/&amp;/g, '&')
+      : null;
   }
 
   generateTables(modelData: ReportUploadInterface, json: HTMLasJSON) {
-
-    
-
     const formattedTables = {
       projectionsTable: null,
       currentStoresWeeklySummary: null,
+      projectedStoresWeeklySummary: null,
       sourceOfVolume: {
         companyStores: [],
         existingCompetition: [],
-        proposedCompetition: []
+        proposedCompetition: [],
+        averages: {
+          companyStores: {
+            fitStorePower: { values: [], average: null },
+            contributionToSite: { values: [], average: null }
+          },
+          existingCompetition: {
+            fitStorePower: { values: [], average: null },
+            contributionToSite: { values: [], average: null }
+          },
+          proposedCompetition: {
+            fitStorePower: { values: [], average: null },
+            contributionToSite: { values: [], average: null }
+          }
+        }
       }
     };
 
@@ -115,23 +135,244 @@ export class HtmlReportToJsonService {
     ///////////////////////////////////////////////
     //////// CURRENT STORES WEEKLY SUMMARY ////////
 
-    formattedTables.currentStoresWeeklySummary = json.storeList;
+    formattedTables.currentStoresWeeklySummary = json.storeList.filter(
+      store => store.uniqueId
+    );
+
+    /////////////////////////////////////////////////
+    //////// PROJECTED STORES WEEKLY SUMMARY ////////
+
+    formattedTables.projectedStoresWeeklySummary = json.storeList.map(store => {
+      const beforematch = json.projectedVolumesBefore.filter(
+        j => j.mapKey === store.mapKey
+      )[0];
+
+      const aftermatch = json.projectedVolumesAfter.filter(
+        j => j.mapKey === store.mapKey
+      )[0];
+
+      const currentSales = beforematch.currentSales;
+      const futureSales = beforematch.futureSales;
+
+      const contributionToSite =
+        Number(beforematch.futureSales) - Number(aftermatch.futureSales);
+      const contributionToSitePerc =
+        (Number(contributionToSite) / Number(futureSales)) * 100;
+
+      store['projectedSales'] =
+        Math.round((Number(futureSales) - Number(contributionToSite)) / 1000) *
+        1000;
+
+      store['projectedSalesPSF'] = store['projectedSales'] / store.salesArea;
+
+      return store;
+    });
 
     ////////////////////////////////////////
     //////// SOURCE OF VOLUME (SOV) ////////
 
-    formattedTables.sourceOfVolume.companyStores = json.storeList.filter(
-      store =>
-        (store.parentCompanyId === matchingStore.parentCompanyId &&
-          matchingStore.parentCompanyId != null) ||
-        (matchingStore.parentCompanyId == null &&
-          store.storeName === matchingStore.storeName)
-    );
+    formattedTables.sourceOfVolume.companyStores = json.storeList
+      .filter(
+        store =>
+          store.category === 'Company Store' &&
+          (store.uniqueId || store.mapKey === siteNumber)
+      )
+      .map(store => {
+        const beforematch = json.projectedVolumesBefore.filter(
+          j => j.mapKey === store.mapKey
+        )[0];
 
+        const aftermatch = json.projectedVolumesAfter.filter(
+          j => j.mapKey === store.mapKey
+        )[0];
+
+        store['currentSales'] = beforematch.currentSales;
+
+        store['futureSales'] = beforematch.futureSales;
+
+        store['contributionToSite'] =
+          Number(beforematch.futureSales) - Number(aftermatch.futureSales);
+        store['contributionToSitePerc'] =
+          (Number(store['contributionToSite']) / Number(store['futureSales'])) *
+          100;
+
+        store['resultingVolume'] =
+          store['futureSales'] - store['contributionToSite'];
+
+        store['distance'] =
+          this.mapService.getDistanceBetween(
+            { lat: store.latitude, lng: store.longitude },
+            { lat: matchingStore.latitude, lng: matchingStore.longitude }
+          ) * 0.000621371;
+
+        formattedTables.sourceOfVolume.averages.companyStores.fitStorePower.values.push(
+          store.effectivePower
+        );
+        formattedTables.sourceOfVolume.averages.companyStores.contributionToSite.values.push(
+          store['contributionToSite']
+        );
+
+        return store;
+      });
+
+    formattedTables.sourceOfVolume.existingCompetition = json.storeList
+      .filter(
+        store =>
+          store.category === 'Existing Competition' &&
+          (store.uniqueId || store.mapKey === siteNumber)
+      )
+      .map(store => {
+        const beforematch = json.projectedVolumesBefore.filter(
+          j => j.mapKey === store.mapKey
+        )[0];
+
+        const aftermatch = json.projectedVolumesAfter.filter(
+          j => j.mapKey === store.mapKey
+        )[0];
+
+        store['currentSales'] = beforematch.currentSales;
+
+        store['futureSales'] = beforematch.futureSales;
+
+        store['contributionToSite'] =
+          Number(beforematch.futureSales) - Number(aftermatch.futureSales);
+        store['contributionToSitePerc'] =
+          (Number(store['contributionToSite']) / Number(store['futureSales'])) *
+          100;
+        store['resultingVolume'] =
+          Number(store['futureSales']) - Number(store['contributionToSite']);
+
+        store['distance'] =
+          this.mapService.getDistanceBetween(
+            { lat: store.latitude, lng: store.longitude },
+            { lat: matchingStore.latitude, lng: matchingStore.longitude }
+          ) * 0.000621371;
+
+        formattedTables.sourceOfVolume.averages.existingCompetition.fitStorePower.values.push(
+          store.effectivePower
+        );
+        formattedTables.sourceOfVolume.averages.existingCompetition.contributionToSite.values.push(
+          store['contributionToSite']
+        );
+        return store;
+      });
+
+    formattedTables.sourceOfVolume.proposedCompetition = json.storeList
+      .filter(
+        store =>
+          store.category === 'Proposed Competition' &&
+          (store.uniqueId || store.mapKey === siteNumber)
+      )
+      .map(store => {
+        const beforematch = json.projectedVolumesBefore.filter(
+          j => j.mapKey === store.mapKey
+        )[0];
+
+        const aftermatch = json.projectedVolumesAfter.filter(
+          j => j.mapKey === store.mapKey
+        )[0];
+
+        store['currentSales'] = beforematch.currentSales;
+
+        store['futureSales'] = beforematch.futureSales;
+
+        store['contributionToSite'] =
+          Number(beforematch.futureSales) - Number(aftermatch.futureSales);
+        store['contributionToSitePerc'] =
+          (Number(store['contributionToSite']) / Number(store['futureSales'])) *
+          100;
+        store['resultingVolume'] =
+          store['futureSales'] - store['contributionToSite'];
+
+        store['distance'] =
+          this.mapService.getDistanceBetween(
+            { lat: store.latitude, lng: store.longitude },
+            { lat: matchingStore.latitude, lng: matchingStore.longitude }
+          ) * 0.000621371;
+
+        formattedTables.sourceOfVolume.averages.proposedCompetition.fitStorePower.values.push(
+          store.effectivePower
+        );
+        formattedTables.sourceOfVolume.averages.proposedCompetition.contributionToSite.values.push(
+          store['contributionToSite']
+        );
+        return store;
+      });
+
+    if (
+      formattedTables.sourceOfVolume.averages.companyStores.fitStorePower.values
+        .length
+    ) {
+      formattedTables.sourceOfVolume.averages.companyStores.fitStorePower.average =
+        formattedTables.sourceOfVolume.averages.companyStores.fitStorePower.values.reduce(
+          (a, b) => a + b
+        ) /
+        formattedTables.sourceOfVolume.averages.companyStores.fitStorePower
+          .values.length;
+    }
+    if (
+      formattedTables.sourceOfVolume.averages.companyStores.contributionToSite.values
+        .length
+    ) {
+      formattedTables.sourceOfVolume.averages.companyStores.contributionToSite.average =
+        formattedTables.sourceOfVolume.averages.companyStores.contributionToSite.values.reduce(
+          (a, b) => a + b
+        ) /
+        formattedTables.sourceOfVolume.averages.companyStores.contributionToSite
+          .values.length;
+    }
+
+    if (
+      formattedTables.sourceOfVolume.averages.existingCompetition.fitStorePower
+        .values.length
+    ) {
+      formattedTables.sourceOfVolume.averages.existingCompetition.fitStorePower.average =
+        formattedTables.sourceOfVolume.averages.existingCompetition.fitStorePower.values.reduce(
+          (a, b) => a + b
+        ) /
+        formattedTables.sourceOfVolume.averages.existingCompetition
+          .fitStorePower.values.length;
+    }
+    if (
+      formattedTables.sourceOfVolume.averages.existingCompetition.contributionToSite
+        .values.length
+    ) {
+      formattedTables.sourceOfVolume.averages.existingCompetition.contributionToSite.average =
+        formattedTables.sourceOfVolume.averages.existingCompetition.contributionToSite.values.reduce(
+          (a, b) => a + b
+        ) /
+        formattedTables.sourceOfVolume.averages.existingCompetition
+          .contributionToSite.values.length;
+    }
+
+    if (
+      formattedTables.sourceOfVolume.averages.proposedCompetition.fitStorePower
+        .values.length
+    ) {
+      formattedTables.sourceOfVolume.averages.proposedCompetition.fitStorePower.average =
+        formattedTables.sourceOfVolume.averages.proposedCompetition.fitStorePower.values.reduce(
+          (a, b) => a + b
+        ) /
+        formattedTables.sourceOfVolume.averages.proposedCompetition
+          .fitStorePower.values.length;
+    }
+    if (
+      formattedTables.sourceOfVolume.averages.proposedCompetition.contributionToSite
+        .values.length
+    ) {
+      formattedTables.sourceOfVolume.averages.proposedCompetition.contributionToSite.average =
+        formattedTables.sourceOfVolume.averages.proposedCompetition.contributionToSite.values.reduce(
+          (a, b) => a + b
+        ) /
+        formattedTables.sourceOfVolume.averages.proposedCompetition
+          .contributionToSite.values.length;
+    }
+    console.log(formattedTables);
     return formattedTables;
   }
 
-  convertHTMLtoJSON(HTML_STRING) {
+  convertHTMLtoJSON(HTML_STRING, inputData) {
+    this.inputData = inputData;
     this.dom = this.parser.parseFromString(HTML_STRING, 'text/html');
     this.outputJSON = new HTMLasJSON();
     this.tables = this.dom.getElementsByTagName('table'); // list of all table elements
@@ -178,10 +419,15 @@ export class HtmlReportToJsonService {
           Number(storeListItem.actualSales) / Number(storeListItem.salesArea);
 
         storeListItem.parentCompanyId = null;
+        storeListItem.category =
+          Number(storeListItem.mapKey) > 100
+            ? 'Company Store'
+            : 'Existing Competition';
 
         storeListItem.marketShare = this.convertToNumber(
           cells[7].firstElementChild.firstElementChild.innerHTML
         );
+
         this.outputJSON.storeList.push(storeListItem);
       }
     }
@@ -220,89 +466,55 @@ export class HtmlReportToJsonService {
       }
     }
 
-    const simpleBannerObservables = [];
-    const bannerObservables = [];
-    const hasBanner = {};
+    this.outputJSON.storeList = this.outputJSON.storeList.filter(
+      storeListItem =>
+        storeListItem.uniqueId ||
+        this.inputData.siteNumber === storeListItem.mapKey
+    );
 
-    this.outputJSON.storeList.forEach(storeListItem => {
-      simpleBannerObservables.push(
-        this.bannerService.getAllByQuery(storeListItem.storeName)
-      );
-    });
+    this.generateProjectedBefore();
 
-    if (simpleBannerObservables.length) {
-      forkJoin(simpleBannerObservables).subscribe(simpleBanners => {
-        console.log('SIMPLE BANNERS', simpleBanners);
-        simpleBanners.forEach(simpleBanner => {
-          if (simpleBanner.totalElements) {
-            const bestBanner = simpleBanner.content[0];
-            hasBanner[bestBanner.id] = bestBanner.bannerName;
-            bannerObservables.push(
-              this.bannerService.getOneById(bestBanner.id)
-            );
-          }
-        });
-
-        console.log(hasBanner);
-
-        forkJoin(bannerObservables).subscribe(banners => {
-          console.log('BANNERS', banners);
-          banners.forEach(banner => {
-            if (banner.company.parentCompany) {
-              // console.log(banner.company.parentCompany)
-              const storeQuery = hasBanner[banner.id];
-              console.log(storeQuery);
-              const idx = this.outputJSON.storeList.findIndex(s =>
-                s.storeName.includes(storeQuery)
-              );
-              console.log(idx);
-              if (idx !== -1) {
-                const obj = this.outputJSON.storeList[idx];
-                obj.parentCompanyId = banner.company.parentCompany.id;
-                this.outputJSON.storeList[idx] = obj;
-              }
-            }
-          });
-
-          this.generateProjectedBefore();
-        });
-      });
-    } else {
-      this.generateProjectedBefore();
-    }
+    // const simpleBannerObservables = [];
+    // const bannerObservables = [];
+    // const hasBanner = {};
 
     // this.outputJSON.storeList.forEach(storeListItem => {
-    //   if (storeListItem.uniqueId) {
-    //     storeObservables.push(
-    //       this.storeService.getOneById(storeListItem.uniqueId)
-    //     );
-    //   }
+    //   simpleBannerObservables.push(
+    //     this.bannerService.getAllByQuery(storeListItem.storeName)
+    //   );
     // });
 
-    // if (storeObservables.length) {
-    //   forkJoin(storeObservables).subscribe(stores => {
-    //     stores.forEach(store => {
-    //       if (store.banner) {
-    //         if (store.banner.id) {
-    //           hasBanner[store.banner.id] = store.id;
-    //           bannerObservables.push(
-    //             this.bannerService.getOneById(store.banner.id)
-    //           );
-    //         }
+    // if (simpleBannerObservables.length) {
+    //   forkJoin(simpleBannerObservables).subscribe(simpleBanners => {
+    //     console.log('SIMPLE BANNERS', simpleBanners);
+    //     simpleBanners.forEach(simpleBanner => {
+    //       if (simpleBanner.totalElements) {
+    //         const bestBanner = simpleBanner.content[0];
+    //         hasBanner[bestBanner.id] = bestBanner.bannerName;
+    //         bannerObservables.push(
+    //           this.bannerService.getOneById(bestBanner.id)
+    //         );
     //       }
     //     });
 
+    //     console.log(hasBanner);
+
     //     forkJoin(bannerObservables).subscribe(banners => {
+    //       console.log('BANNERS', banners);
     //       banners.forEach(banner => {
     //         if (banner.company.parentCompany) {
     //           // console.log(banner.company.parentCompany)
-    //           const storeId = hasBanner[banner.id];
-    //           const idx = this.outputJSON.storeList.findIndex(
-    //             s => s.uniqueId === storeId
+    //           const storeQuery = hasBanner[banner.id];
+    //           console.log(storeQuery);
+    //           const idx = this.outputJSON.storeList.findIndex(s =>
+    //             s.storeName.includes(storeQuery)
     //           );
-    //           const obj = this.outputJSON.storeList[idx];
-    //           obj.parentCompanyId = banner.company.parentCompany.id;
-    //           this.outputJSON.storeList[idx] = obj;
+    //           console.log(idx);
+    //           if (idx !== -1) {
+    //             const obj = this.outputJSON.storeList[idx];
+    //             obj.parentCompanyId = banner.company.parentCompany.id;
+    //             this.outputJSON.storeList[idx] = obj;
+    //           }
     //         }
     //       });
 

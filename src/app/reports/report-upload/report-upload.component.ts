@@ -9,6 +9,7 @@ import { HtmlReportToJsonService } from '../../core/services/html-report-to-json
 import { HTMLasJSON } from '../../models/html-as-json';
 
 import { ReportUploadInterface } from './report-upload-interface';
+import { StoreListItem } from '../../models/store-list-item';
 
 @Component({
   selector: 'mds-report-upload',
@@ -20,12 +21,30 @@ export class ReportUploadComponent implements OnInit {
   htmlFile: File;
   htmlAsString: String;
   htmlAsJson: HTMLasJSON;
+
+  tableJson: {
+    projectionsTable: object,
+    currentStoresWeeklySummary: object[],
+    projectedStoresWeeklySummary: object[],
+    sourceOfVolume: {
+      companyStores: object[],
+      existingCompetition: object[],
+      proposedCompetition: object[]
+    }
+  };
+
   fileReader: FileReader;
   inputData: ReportUploadInterface;
   stepper: MatStepper;
   compilingJson: Boolean = false;
 
   interface: ReportUploadInterface;
+
+  categories: string[] = [
+    'Company Store',
+    'Existing Competition',
+    'Proposed Competition'
+  ];
 
   constructor(
     private snackBar: MatSnackBar,
@@ -44,29 +63,59 @@ export class ReportUploadComponent implements OnInit {
       this.handleHtmlAsJson(htmlAsJson);
     });
 
+    // this.interface = {
+    //   analyst: `${this.auth.sessionUser.firstName} ${
+    //     this.auth.sessionUser.lastName
+    //   }`,
+    //   retailerName: '',
+    //   type: '',
+    //   siteNumber: '',
+    //   storeAddress: '',
+    //   state: '',
+    //   modelName: '',
+    //   fieldResDate: new Date(),
+    //   firstYearEndingMonthYear: new Date(),
+    //   reportDate: new Date(),
+    //   projectNumber: null,
+    //   opens: new Date().getFullYear(),
+    //   demographicDataYear: new Date().getFullYear(),
+    //   inflationRate: null,
+    //   secondYearAcceptance: null,
+    //   thirdYearAcceptance: null
+    // };
     this.interface = {
       analyst: `${this.auth.sessionUser.firstName} ${
         this.auth.sessionUser.lastName
       }`,
-      retailerName: '',
-      type: '',
-      siteNumber: '',
-      storeAddress: '',
-      state: '',
-      modelName: '',
+      retailerName: 'Winn Dixie',
+      type: 'New',
+      siteNumber: '1000.1',
+      storeAddress: '123 fake street',
+      state: 'ut',
+      modelName: 'model',
       fieldResDate: new Date(),
       firstYearEndingMonthYear: new Date(),
       reportDate: new Date(),
-      projectNumber: null,
+      projectNumber: 1,
       opens: new Date().getFullYear(),
       demographicDataYear: new Date().getFullYear(),
-      inflationRate: null,
-      secondYearAcceptance: null,
-      thirdYearAcceptance: null
+      inflationRate: 1,
+      secondYearAcceptance: 2,
+      thirdYearAcceptance: 3
     };
   }
 
   ngOnInit() {}
+
+  changeCategory(event, mapKey) {
+    const idx: number = this.htmlAsJson.storeList.findIndex(
+      s => s.mapKey === mapKey
+    );
+    if (idx !== -1) {
+      this.htmlAsJson.storeList[idx].category = event.target.value;
+      console.log(this.htmlAsJson.storeList[idx]);
+    }
+  }
 
   readFile(event, form) {
     this.inputData = form.value;
@@ -95,28 +144,26 @@ export class ReportUploadComponent implements OnInit {
     if (event.target.result) {
       this.htmlAsString = event.target.result;
 
-      
-    this.compilingJson = true;
-      this.htmlReportToJsonService.convertHTMLtoJSON(this.htmlAsString);
+      this.compilingJson = true;
+      this.htmlReportToJsonService.convertHTMLtoJSON(this.htmlAsString, this.inputData);
     }
   }
 
   handleHtmlAsJson(htmlAsJson) {
-    
     this.compilingJson = false;
     this.htmlAsJson = htmlAsJson;
     console.log(htmlAsJson);
-    this.generateTables();
+    // this.generateTables();
   }
 
   generateTables() {
-    console.log(
-      'PROJECTIONS TABLE',
-      this.htmlReportToJsonService.generateTables(
+    console.log('GENERATE TABLES');
+    
+    this.tableJson = this.htmlReportToJsonService.generateTables(
         this.inputData,
         this.htmlAsJson
       )
-    );
+    
   }
 
   stepForward() {

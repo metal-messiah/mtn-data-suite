@@ -14,4 +14,5 @@ export class StoreListItem {
   PWTA: number;
   location: string;
   parentCompanyId: number;
+  category: string;
 }
