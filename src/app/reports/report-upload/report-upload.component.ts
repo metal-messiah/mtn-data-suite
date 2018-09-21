@@ -64,46 +64,27 @@ export class ReportUploadComponent implements OnInit {
       this.handleHtmlAsJson(htmlAsJson);
     });
 
-    // this.interface = {
-    //   analyst: `${this.auth.sessionUser.firstName} ${
-    //     this.auth.sessionUser.lastName
-    //   }`,
-    //   retailerName: '',
-    //   type: '',
-    //   siteNumber: '',
-    //   storeAddress: '',
-    //   state: '',
-    //   modelName: '',
-    //   fieldResDate: new Date(),
-    //   firstYearEndingMonthYear: new Date(),
-    //   reportDate: new Date(),
-    //   projectNumber: null,
-    //   opens: new Date().getFullYear(),
-    //   demographicDataYear: new Date().getFullYear(),
-    //   inflationRate: null,
-    //   secondYearAcceptance: null,
-    //   thirdYearAcceptance: null
-    // };
     this.interface = {
       analyst: `${this.auth.sessionUser.firstName} ${
         this.auth.sessionUser.lastName
       }`,
-      retailerName: 'Winn Dixie',
-      type: 'New',
-      siteNumber: '1000.1',
-      storeAddress: '123 fake street',
-      state: 'ut',
-      modelName: 'model',
+      retailerName: '',
+      type: '',
+      siteNumber: '',
+      storeAddress: '',
+      state: '',
+      modelName: '',
       fieldResDate: new Date(),
       firstYearEndingMonthYear: new Date(),
       reportDate: new Date(),
-      projectNumber: 1,
+      projectNumber: null,
       opens: new Date().getFullYear(),
       demographicDataYear: new Date().getFullYear(),
-      inflationRate: 1,
-      secondYearAcceptance: 2,
-      thirdYearAcceptance: 3
+      inflationRate: null,
+      secondYearAcceptance: null,
+      thirdYearAcceptance: null
     };
+    
   }
 
   ngOnInit() {}
