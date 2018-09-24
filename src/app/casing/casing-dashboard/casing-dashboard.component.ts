@@ -497,7 +497,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     databaseSearchDialog.afterClosed().subscribe((store: SimplifiedStore) => {
       if (store != null) {
         this.mapService.setCenter(this.siteService.getCoordinates(store.site));
-        this.mapService.setZoom(15);
+        this.mapService.setZoom(17);
       }
     });
   }
