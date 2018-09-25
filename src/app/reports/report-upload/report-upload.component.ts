@@ -12,12 +12,13 @@ import { ReportUploadInterface } from './report-upload-interface';
 import { StoreListItem } from '../../models/store-list-item';
 
 import htmlToImage from 'html-to-image';
+import { JsonToTablesService } from './json-to-tables.service';
 
 @Component({
   selector: 'mds-report-upload',
   templateUrl: './report-upload.component.html',
   styleUrls: ['./report-upload.component.css'],
-  providers: [HtmlReportToJsonService]
+  providers: [HtmlReportToJsonService, JsonToTablesService]
 })
 export class ReportUploadComponent implements OnInit {
   htmlFile: File;
@@ -61,6 +62,7 @@ export class ReportUploadComponent implements OnInit {
     private snackBar: MatSnackBar,
     private ngZone: NgZone,
     private htmlReportToJsonService: HtmlReportToJsonService,
+    private jsonToTablesService: JsonToTablesService,
     public auth: AuthService
   ) {
     this.fileReader = new FileReader();
@@ -74,25 +76,46 @@ export class ReportUploadComponent implements OnInit {
       this.handleHtmlAsJson(htmlAsJson);
     });
 
+    // this.interface = {
+    //   analyst: `${this.auth.sessionUser.firstName} ${
+    //     this.auth.sessionUser.lastName
+    //   }`,
+    //   retailerName: '',
+    //   type: '',
+    //   siteNumber: '',
+    //   storeAddress: '',
+    //   state: '',
+    //   modelName: '',
+    //   fieldResDate: new Date(),
+    //   firstYearEndingMonthYear: new Date(),
+    //   reportDate: new Date(),
+    //   projectNumber: null,
+    //   opens: new Date().getFullYear(),
+    //   demographicDataYear: new Date().getFullYear(),
+    //   inflationRate: null,
+    //   secondYearAcceptance: null,
+    //   thirdYearAcceptance: null
+    // };
+
     this.interface = {
       analyst: `${this.auth.sessionUser.firstName} ${
         this.auth.sessionUser.lastName
       }`,
-      retailerName: '',
-      type: '',
-      siteNumber: '',
-      storeAddress: '',
-      state: '',
-      modelName: '',
+      retailerName: 'Winn Dixie',
+      type: 'New',
+      siteNumber: '4.1',
+      storeAddress: '123 fake',
+      state: 'ut',
+      modelName: 'model',
       fieldResDate: new Date(),
       firstYearEndingMonthYear: new Date(),
       reportDate: new Date(),
-      projectNumber: null,
+      projectNumber: 1,
       opens: new Date().getFullYear(),
       demographicDataYear: new Date().getFullYear(),
-      inflationRate: null,
-      secondYearAcceptance: null,
-      thirdYearAcceptance: null
+      inflationRate: 3,
+      secondYearAcceptance: 3,
+      thirdYearAcceptance: 3
     };
   }
 
@@ -172,7 +195,7 @@ export class ReportUploadComponent implements OnInit {
   generateTables() {
     console.log('GENERATE TABLES');
     this.tableImageUrls = [];
-    this.tableJson = this.htmlReportToJsonService.generateTables(
+    this.tableJson = this.jsonToTablesService.generateTables(
       this.inputData,
       this.htmlAsJson
     );
