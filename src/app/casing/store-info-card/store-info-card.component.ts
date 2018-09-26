@@ -1,7 +1,6 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { SiteInfoCardComponent } from '../site-info-card/site-info-card.component';
-import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'mds-store-info-card',
@@ -53,5 +52,28 @@ export class StoreInfoCardComponent extends SiteInfoCardComponent implements OnI
     document.execCommand('copy');
     document.body.removeChild(selBox);
     this.snackBar.open(`${val} copied to clipboard`, null, {duration: 1000});
+  }
+
+  validateStore() {
+    this.storeService.validateStore(this.store.id)
+      .subscribe((store: SimplifiedStore) => {
+          this.store = store;
+          this.onUpdate.emit(new SimplifiedStore(store));
+          this.snackBar.open(`Validated Store`, null, {duration: 2000});
+        },
+        err => this.errorService.handleServerError('Failed to validate store', err,
+          () => console.log('cancelled'),
+          () => this.validateStore()))
+  }
+
+  invalidateStore() {
+    this.storeService.invalidateStore(this.store.id).subscribe((store: SimplifiedStore) => {
+        this.store = store;
+        this.onUpdate.emit(new SimplifiedStore(store));
+        this.snackBar.open(`Invalidated Store`, null, {duration: 2000});
+      },
+      err => this.errorService.handleServerError('Failed to invalidate store', err,
+        () => console.log('cancelled'),
+        () => this.validateStore()))
   }
 }

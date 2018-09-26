@@ -92,7 +92,7 @@ export class StoreMappable implements EntityMappable {
 
     const fillColor = this.getFillColor(selected);
     const strokeColor = this.getStrokeColor(selected);
-    const shape = this.getShape();
+    const shape = this.getShape(markerType);
     const scale = this.getScale(shape);
     const anchor = this.getAnchor(shape);
     const strokeWeight = this.getStrokeWeight(shape);
@@ -165,7 +165,10 @@ export class StoreMappable implements EntityMappable {
     return selected ? Color.YELLOW : Color.WHITE;
   }
 
-  private getShape() {
+  private getShape(markerType: MarkerType) {
+    if (markerType === MarkerType.VALIDATION && this.store.validatedDate) {
+      return MarkerShape.CERTIFICATE;
+    }
     if (this.storeCasedForSelectedProject()) {
       return MarkerShape.CHECKED_CIRCLE;
     }

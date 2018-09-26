@@ -1,5 +1,6 @@
 export enum MarkerType {
   LABEL = 'Label',
   PIN = 'Pin',
-  LOGO = 'Logo'
+  LOGO = 'Logo',
+  VALIDATION = 'Validation'
 }
