@@ -110,11 +110,22 @@ export class StoreService extends CrudService<Store> {
       .pipe(map(storeSurvey => new StoreSurvey(storeSurvey)));
   }
 
-
   getLatestShoppingCenterSurvey(storeId: number): Observable<ShoppingCenterSurvey> {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/shopping-center-surveys/latest`;
     return this.http.get<ShoppingCenterSurvey>(url, {headers: this.rest.getHeaders()})
       .pipe(map(shoppingCenterSurvey => new ShoppingCenterSurvey(shoppingCenterSurvey)));
+  }
+
+  validateStore(storeId: number): Observable<SimplifiedStore> {
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/validate`;
+    return this.http.put<SimplifiedStore>(url, null, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new SimplifiedStore(store)));
+  }
+
+  invalidateStore(storeId: number): Observable<SimplifiedStore> {
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/invalidate`;
+    return this.http.put<SimplifiedStore>(url, null, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new SimplifiedStore(store)));
   }
 
   getLabel(store: Store | SimplifiedStore) {

@@ -9,7 +9,7 @@ export class CasingDashboardService {
 
   // Filters
   includeActive = true;
-  includeFuture = false;
+  includeFuture = true;
   includeHistorical = false;
 
   projectChanged$: Subject<SimplifiedProject>;
@@ -18,10 +18,15 @@ export class CasingDashboardService {
 
   constructor(private dialog: MatDialog) {
     const filters = JSON.parse(localStorage.getItem('casingDashboardFilters'));
-    if (filters != null) {
+    if (filters != null && Object.keys(filters).length > 0) {
       this.includeActive = filters.includeActive;
       this.includeFuture = filters.includeFuture;
       this.includeHistorical = filters.includeHistorical;
+    } else {
+      this.includeActive = true;
+      this.includeFuture = true;
+      this.includeHistorical = false;
+      this.saveFilters();
     }
     const selectedProject = JSON.parse(localStorage.getItem('selectedProject'));
     if (selectedProject != null) {

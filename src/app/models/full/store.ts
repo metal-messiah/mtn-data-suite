@@ -6,6 +6,7 @@ import { SimplifiedStoreModel } from '../simplified/simplified-store-model';
 import { SimplifiedStoreVolume } from '../simplified/simplified-store-volume';
 import { SimplifiedStoreStatus } from '../simplified/simplified-store-status';
 import { SimplifiedStoreSurvey } from '../simplified/simplified-store-survey';
+import { SimplifiedUserProfile } from '../simplified/simplified-user-profile';
 
 export class Store extends AuditingEntity {
 
@@ -16,6 +17,8 @@ export class Store extends AuditingEntity {
   dateClosed: Date;
   floating: boolean;
   legacyLocationId: number;
+  validatedDate: Date;
+  validatedBy: SimplifiedUserProfile;
 
   banner: SimplifiedBanner;
 
@@ -70,6 +73,9 @@ export class Store extends AuditingEntity {
         .sort((a: SimplifiedStoreStatus, b: SimplifiedStoreStatus) => {
           return b.statusStartDate.getTime() - a.statusStartDate.getTime();
         });
+    }
+    if (obj.validatedBy) {
+      this.validatedBy = new SimplifiedUserProfile(obj.validatedBy);
     }
   }
 }
