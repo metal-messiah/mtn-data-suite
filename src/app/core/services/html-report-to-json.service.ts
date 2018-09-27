@@ -227,7 +227,6 @@ export class HtmlReportToJsonService {
       const volumeListFields = {};
       let matchedSales = false;
 
-
       for (let i = 0; i < header.length; i++) {
         let text = header[i].innerText
           .replace(/\s+/g, '')
@@ -240,8 +239,9 @@ export class HtmlReportToJsonService {
             const firstHeader = this.tables[this.currentTableIndex].children[1]
               .children[0].children;
 
-              this.outputJSON.firstYearEndingMonthYear = this.formatString(firstHeader[i].innerText);
-            
+            this.outputJSON.firstYearEndingMonthYear = this.formatString(
+              firstHeader[i].innerText
+            );
           } else {
             matchedSales = true;
           }
@@ -281,7 +281,7 @@ export class HtmlReportToJsonService {
           }
         }
       }
-      
+
       this.currentTableIndex++;
       // console.log(this.outputJSON.projectedVolumesBefore);
       this.generateProjectedBefore();
@@ -565,6 +565,8 @@ export class HtmlReportToJsonService {
 
     this.sendResult();
   }
+
+ 
 
   sendResult() {
     this.output$.next(this.outputJSON);
