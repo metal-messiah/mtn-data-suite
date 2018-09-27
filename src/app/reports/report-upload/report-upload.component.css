@@ -44,6 +44,10 @@ mat-form-field {
 .pink {
   background: lightcoral !important;
 }
+.grey{
+  background: black;
+  color: gray;
+}
 
 .red-highlight{
     color: red;
@@ -64,14 +68,20 @@ tr:nth-child(even) {
 
 th{
     background: white;
+    font-size: small;
 }
 
 td {
   padding: 5px 10px;
   text-align: center;
+  font-size: small;
 }
 
 mat-progress-bar{
     width: 50%;
     margin: 0 auto;
+}
+
+.bold{
+  font-weight: bold;
 }

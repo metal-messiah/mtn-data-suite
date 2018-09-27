@@ -11,6 +11,7 @@ export class HTMLasJSON {
     salesGrowthProjection: SalesGrowthProjectionItem[];
     marketShareBySector: MarketShareBySectorItem[];
     sectorList: SectorListItem[];
+    firstYearEndingMonthYear: string;
   
     constructor() {
       this.storeList = [];
@@ -19,5 +20,6 @@ export class HTMLasJSON {
       this.salesGrowthProjection = [];
       this.marketShareBySector = [];
       this.sectorList = [];
+      this.firstYearEndingMonthYear = null;
     }
   }

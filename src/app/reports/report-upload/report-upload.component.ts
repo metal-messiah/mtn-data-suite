@@ -55,7 +55,8 @@ export class ReportUploadComponent implements OnInit {
   categories: string[] = [
     'Company Store',
     'Existing Competition',
-    'Proposed Competition'
+    'Proposed Competition',
+    'Do Not Include'
   ];
 
   constructor(
@@ -80,17 +81,12 @@ export class ReportUploadComponent implements OnInit {
     //   analyst: `${this.auth.sessionUser.firstName} ${
     //     this.auth.sessionUser.lastName
     //   }`,
-    //   retailerName: '',
     //   type: '',
     //   siteNumber: '',
-    //   storeAddress: '',
     //   state: '',
     //   modelName: '',
     //   fieldResDate: new Date(),
-    //   firstYearEndingMonthYear: new Date(),
     //   reportDate: new Date(),
-    //   projectNumber: null,
-    //   opens: new Date().getFullYear(),
     //   demographicDataYear: new Date().getFullYear(),
     //   inflationRate: null,
     //   secondYearAcceptance: null,
@@ -101,21 +97,16 @@ export class ReportUploadComponent implements OnInit {
       analyst: `${this.auth.sessionUser.firstName} ${
         this.auth.sessionUser.lastName
       }`,
-      retailerName: 'Winn Dixie',
       type: 'New',
-      siteNumber: '4.1',
-      storeAddress: '123 fake',
-      state: 'ut',
-      modelName: 'model',
+      siteNumber: '1000.1',
+      state: 'FL',
+      modelName: 'Jacksonville FL 18 Kitson',
       fieldResDate: new Date(),
-      firstYearEndingMonthYear: new Date(),
       reportDate: new Date(),
-      projectNumber: 1,
-      opens: new Date().getFullYear(),
       demographicDataYear: new Date().getFullYear(),
-      inflationRate: 3,
+      inflationRate: 0.5,
       secondYearAcceptance: 3,
-      thirdYearAcceptance: 3
+      thirdYearAcceptance: 2
     };
   }
 
@@ -138,6 +129,10 @@ export class ReportUploadComponent implements OnInit {
           this.snackBar.open(error, null, { duration: 2000 });
         });
     });
+  }
+
+  getFirstYearAsNumber() {
+    return 2000 + Number(this.htmlAsJson.firstYearEndingMonthYear.trim().split(' ')[1]);
   }
 
   changeCategory(event, mapKey) {
@@ -195,10 +190,13 @@ export class ReportUploadComponent implements OnInit {
   generateTables() {
     console.log('GENERATE TABLES');
     this.tableImageUrls = [];
-    this.tableJson = this.jsonToTablesService.generateTables(
-      this.inputData,
-      this.htmlAsJson
-    );
+
+    this.jsonToTablesService.init(this.inputData, this.htmlAsJson);
+
+    // this.tableJson = this.jsonToTablesService.generateTables(
+    //   this.inputData,
+    //   this.htmlAsJson
+    // );
   }
 
   stepForward() {

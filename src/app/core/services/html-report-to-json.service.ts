@@ -20,6 +20,7 @@ import { CompanyService } from '../../core/services/company.service';
 
 import { Observable, Observer, of, Subject, forkJoin } from 'rxjs/index';
 import { ReportUploadComponent } from '../../reports/report-upload/report-upload.component';
+import { first } from 'rxjs/operators';
 
 /*
   The HtmlReportToJson service should
@@ -39,6 +40,38 @@ export class HtmlReportToJsonService {
   output$: Subject<HTMLasJSON>;
 
   inputData: ReportUploadInterface;
+
+  currentTableType: string = null;
+  currentTableIndex = 0;
+
+  storeFieldsMap = {
+    StoreName: { name: 'storeName', type: 'string' },
+    MapKey: { name: 'mapKey', type: 'string' },
+    UniqueID: { name: 'uniqueId', type: 'number' },
+    Latitude: { name: 'latitude', type: 'number' },
+    Longitude: { name: 'longitude', type: 'number' },
+    Area: { name: 'salesArea', type: 'number' },
+    Sales: { name: 'actualSales', type: 'number' },
+    Share: { name: 'marketShare', type: 'number' },
+    Power: { name: 'effectivePower', type: 'number' },
+    Curve: { name: 'curve', type: 'number' },
+    PWTA: { name: 'PWTA', type: 'number' },
+    Location: { name: 'location', type: 'string' }
+  };
+
+  volumeFieldsMap = {
+    StoreName: { name: 'storeName', type: 'string' },
+    MapKey: { name: 'mapKey', type: 'string' },
+    Area: { name: 'salesArea', type: 'number' },
+    Sales: { name: 'currentSales', type: 'number' },
+    FutureSales: { name: 'futureSales', type: 'number' },
+    SqFt: { name: 'salesPSF', type: 'number' },
+    PWTA: { name: 'PWTA', type: 'number' },
+    Power: { name: 'effectivePower', type: 'number' },
+    Change: { name: 'taChange', type: 'number' },
+    'Change%': { name: 'taChangePerc', type: 'number' },
+    Location: { name: 'location', type: 'string' }
+  };
 
   constructor(
     public auth: AuthService,
@@ -68,314 +101,6 @@ export class HtmlReportToJsonService {
       : null;
   }
 
-  generateTables(modelData: ReportUploadInterface, json: HTMLasJSON) {
-    const formattedTables = {
-      targetStore: null,
-      projectionsTable: null,
-      currentStoresWeeklySummary: null,
-      projectedStoresWeeklySummary: null,
-      sourceOfVolume: {
-        companyStores: [],
-        existingCompetition: [],
-        proposedCompetition: [],
-        averages: {
-          companyStores: {
-            fitStorePower: { values: [], average: null },
-            contributionToSite: { values: [], average: null }
-          },
-          existingCompetition: {
-            fitStorePower: { values: [], average: null },
-            contributionToSite: { values: [], average: null }
-          },
-          proposedCompetition: {
-            fitStorePower: { values: [], average: null },
-            contributionToSite: { values: [], average: null }
-          }
-        }
-      }
-    };
-
-    const { retailerName, siteNumber, type } = modelData;
-    const matchingStore = json.storeList.filter(
-      item => item.mapKey === siteNumber
-    )[0];
-
-    const salesGrowthProjection = json.salesGrowthProjection[1]
-      ? json.salesGrowthProjection[1]
-      : json.salesGrowthProjection[0]
-        ? json.salesGrowthProjection[0]
-        : null;
-
-    const output = {
-      projectionsTable: ProjectionsTable
-    };
-
-    console.log(matchingStore);
-
-    //////// PROJECTIONS TABLE ////////
-    const projectionsTable = new ProjectionsTable();
-    if (matchingStore && salesGrowthProjection) {
-      projectionsTable.isValid = true;
-      projectionsTable.mapKey = siteNumber || null; // cell 1 of table
-      projectionsTable.scenario = retailerName || null; // cell 2 of table
-      projectionsTable.projectedFitImage = matchingStore.effectivePower || null; // cell 3
-      projectionsTable.salesArea = matchingStore.salesArea || null; // cell 4
-      projectionsTable.year1Ending = Math.round(
-        Number(salesGrowthProjection.firstYearAverageSales) * 0.001
-      );
-      projectionsTable.year2Ending = Math.round(
-        Number(salesGrowthProjection.secondYearAverageSales) * 0.001
-      );
-      projectionsTable.year3Ending = Math.round(
-        Number(salesGrowthProjection.thirdYearAverageSales) * 0.001
-      );
-      projectionsTable.comment = type;
-    }
-
-    formattedTables.projectionsTable = projectionsTable;
-
-    ///////////////////////////////////////////////
-    //////// CURRENT STORES WEEKLY SUMMARY ////////
-
-    formattedTables.currentStoresWeeklySummary = json.storeList.filter(
-      store => store.uniqueId
-    );
-
-    /////////////////////////////////////////////////
-    //////// PROJECTED STORES WEEKLY SUMMARY ////////
-
-    formattedTables.projectedStoresWeeklySummary = json.storeList.map(store => {
-      const beforematch = json.projectedVolumesBefore.filter(
-        j => j.mapKey === store.mapKey
-      )[0];
-
-      const aftermatch = json.projectedVolumesAfter.filter(
-        j => j.mapKey === store.mapKey
-      )[0];
-
-      const currentSales = beforematch.currentSales;
-      const futureSales = beforematch.futureSales;
-
-      const contributionToSite =
-        Number(beforematch.futureSales) - Number(aftermatch.futureSales);
-      const contributionToSitePerc =
-        (Number(contributionToSite) / Number(futureSales)) * 100;
-
-      store['projectedSales'] =
-        Math.round((Number(futureSales) - Number(contributionToSite)) / 1000) *
-        1000;
-
-      store['projectedSalesPSF'] = store['projectedSales'] / store.salesArea;
-
-      return store;
-    });
-
-    ////////////////////////////////////////
-    //////// SOURCE OF VOLUME (SOV) ////////
-
-    formattedTables.sourceOfVolume.companyStores = json.storeList
-      .filter(
-        store =>
-          store.category === 'Company Store' &&
-          (store.uniqueId || store.mapKey === siteNumber)
-      )
-      .map(store => {
-        const beforematch = json.projectedVolumesBefore.filter(
-          j => j.mapKey === store.mapKey
-        )[0];
-
-        const aftermatch = json.projectedVolumesAfter.filter(
-          j => j.mapKey === store.mapKey
-        )[0];
-
-        store['currentSales'] = beforematch.currentSales;
-
-        store['futureSales'] = beforematch.futureSales;
-
-        store['contributionToSite'] =
-          Math.abs(Number(beforematch.futureSales) - Number(aftermatch.futureSales));
-        store['contributionToSitePerc'] =
-          (Number(store['contributionToSite']) / Number(store['futureSales'])) *
-          100;
-
-        store['resultingVolume'] = store.mapKey === matchingStore.mapKey ? aftermatch.futureSales :
-          store['futureSales'] - store['contributionToSite'];
-
-        store['distance'] =
-          this.mapService.getDistanceBetween(
-            { lat: store.latitude, lng: store.longitude },
-            { lat: matchingStore.latitude, lng: matchingStore.longitude }
-          ) * 0.000621371;
-
-        formattedTables.sourceOfVolume.averages.companyStores.fitStorePower.values.push(
-          store.effectivePower
-        );
-        formattedTables.sourceOfVolume.averages.companyStores.contributionToSite.values.push(
-          store['contributionToSite']
-        );
-
-        return store;
-      });
-
-    formattedTables.sourceOfVolume.existingCompetition = json.storeList
-      .filter(
-        store =>
-          store.category === 'Existing Competition' &&
-          (store.uniqueId || store.mapKey === siteNumber)
-      )
-      .map(store => {
-        const beforematch = json.projectedVolumesBefore.filter(
-          j => j.mapKey === store.mapKey
-        )[0];
-
-        const aftermatch = json.projectedVolumesAfter.filter(
-          j => j.mapKey === store.mapKey
-        )[0];
-
-        store['currentSales'] = beforematch.currentSales;
-
-        store['futureSales'] = beforematch.futureSales;
-
-        store['contributionToSite'] =
-          Math.abs(Number(beforematch.futureSales) - Number(aftermatch.futureSales));
-        store['contributionToSitePerc'] =
-          (Number(store['contributionToSite']) / Number(store['futureSales'])) *
-          100;
-        store['resultingVolume'] =
-          Number(store['futureSales']) - Number(store['contributionToSite']);
-
-        store['distance'] =
-          this.mapService.getDistanceBetween(
-            { lat: store.latitude, lng: store.longitude },
-            { lat: matchingStore.latitude, lng: matchingStore.longitude }
-          ) * 0.000621371;
-
-        formattedTables.sourceOfVolume.averages.existingCompetition.fitStorePower.values.push(
-          store.effectivePower
-        );
-        formattedTables.sourceOfVolume.averages.existingCompetition.contributionToSite.values.push(
-          store['contributionToSite']
-        );
-        return store;
-      });
-
-    formattedTables.sourceOfVolume.proposedCompetition = json.storeList
-      .filter(
-        store =>
-          store.category === 'Proposed Competition' &&
-          (store.uniqueId || store.mapKey === siteNumber)
-      )
-      .map(store => {
-        const beforematch = json.projectedVolumesBefore.filter(
-          j => j.mapKey === store.mapKey
-        )[0];
-
-        const aftermatch = json.projectedVolumesAfter.filter(
-          j => j.mapKey === store.mapKey
-        )[0];
-
-        store['currentSales'] = beforematch.currentSales;
-
-        store['futureSales'] = beforematch.futureSales;
-
-        store['contributionToSite'] =
-          Math.abs(Number(beforematch.futureSales) - Number(aftermatch.futureSales));
-        store['contributionToSitePerc'] =
-          (Number(store['contributionToSite']) / Number(store['futureSales'])) *
-          100;
-        store['resultingVolume'] =
-          store['futureSales'] - store['contributionToSite'];
-
-        store['distance'] =
-          this.mapService.getDistanceBetween(
-            { lat: store.latitude, lng: store.longitude },
-            { lat: matchingStore.latitude, lng: matchingStore.longitude }
-          ) * 0.000621371;
-
-        formattedTables.sourceOfVolume.averages.proposedCompetition.fitStorePower.values.push(
-          store.effectivePower
-        );
-        formattedTables.sourceOfVolume.averages.proposedCompetition.contributionToSite.values.push(
-          store['contributionToSite']
-        );
-        return store;
-      });
-
-    if (
-      formattedTables.sourceOfVolume.averages.companyStores.fitStorePower.values
-        .length
-    ) {
-      formattedTables.sourceOfVolume.averages.companyStores.fitStorePower.average =
-        formattedTables.sourceOfVolume.averages.companyStores.fitStorePower.values.reduce(
-          (a, b) => a + b
-        ) /
-        formattedTables.sourceOfVolume.averages.companyStores.fitStorePower
-          .values.length;
-    }
-    if (
-      formattedTables.sourceOfVolume.averages.companyStores.contributionToSite.values
-        .length
-    ) {
-      formattedTables.sourceOfVolume.averages.companyStores.contributionToSite.average =
-        formattedTables.sourceOfVolume.averages.companyStores.contributionToSite.values.reduce(
-          (a, b) => a + b
-        ) /
-        formattedTables.sourceOfVolume.averages.companyStores.contributionToSite
-          .values.length;
-    }
-
-    if (
-      formattedTables.sourceOfVolume.averages.existingCompetition.fitStorePower
-        .values.length
-    ) {
-      formattedTables.sourceOfVolume.averages.existingCompetition.fitStorePower.average =
-        formattedTables.sourceOfVolume.averages.existingCompetition.fitStorePower.values.reduce(
-          (a, b) => a + b
-        ) /
-        formattedTables.sourceOfVolume.averages.existingCompetition
-          .fitStorePower.values.length;
-    }
-    if (
-      formattedTables.sourceOfVolume.averages.existingCompetition.contributionToSite
-        .values.length
-    ) {
-      formattedTables.sourceOfVolume.averages.existingCompetition.contributionToSite.average =
-        formattedTables.sourceOfVolume.averages.existingCompetition.contributionToSite.values.reduce(
-          (a, b) => a + b
-        ) /
-        formattedTables.sourceOfVolume.averages.existingCompetition
-          .contributionToSite.values.length;
-    }
-
-    if (
-      formattedTables.sourceOfVolume.averages.proposedCompetition.fitStorePower
-        .values.length
-    ) {
-      formattedTables.sourceOfVolume.averages.proposedCompetition.fitStorePower.average =
-        formattedTables.sourceOfVolume.averages.proposedCompetition.fitStorePower.values.reduce(
-          (a, b) => a + b
-        ) /
-        formattedTables.sourceOfVolume.averages.proposedCompetition
-          .fitStorePower.values.length;
-    }
-    if (
-      formattedTables.sourceOfVolume.averages.proposedCompetition.contributionToSite
-        .values.length
-    ) {
-      formattedTables.sourceOfVolume.averages.proposedCompetition.contributionToSite.average =
-        formattedTables.sourceOfVolume.averages.proposedCompetition.contributionToSite.values.reduce(
-          (a, b) => a + b
-        ) /
-        formattedTables.sourceOfVolume.averages.proposedCompetition
-          .contributionToSite.values.length;
-    }
-
-    formattedTables.targetStore = matchingStore
-
-    console.log(formattedTables);
-    return formattedTables;
-  }
-
   convertHTMLtoJSON(HTML_STRING, inputData) {
     this.inputData = inputData;
     this.dom = this.parser.parseFromString(HTML_STRING, 'text/html');
@@ -384,306 +109,263 @@ export class HtmlReportToJsonService {
     this.generateStoreList();
   }
 
+  determineTableType(table) {
+    const firstHeaderCell = table.children[1].children[0].children[0];
+
+    // console.log(this.currentTableIndex, 'First Header Cell:', firstHeaderCell.innerText.trim());
+    if (!firstHeaderCell.innerText.trim()) {
+      const titleElem =
+        table.previousElementSibling.previousElementSibling
+          .previousElementSibling;
+
+      // console.log(titleElem.innerText)
+
+      return titleElem.tagName === 'P'
+        ? titleElem.innerText && titleElem.innerText !== ' '
+          ? titleElem.innerText.replace(/\s+/g, ' ')
+          : null
+        : null;
+    } else {
+      return firstHeaderCell.innerText.replace(/\s+/g, ' ');
+    }
+  }
+
   generateStoreList() {
     ////////////////////////////
     //////// STORE LIST ////////
+    const t = this.determineTableType(this.tables[this.currentTableIndex]);
+    this.currentTableType = t ? t : this.currentTableType;
 
-    const storeList1Rows = this.tables[0].children[2].children;
-    for (let i = 0; i < storeList1Rows.length; i++) {
-      const storeListItem = new StoreListItem();
-      const cells = storeList1Rows[i].children; // array containing each cell of current row
-      if (
-        cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
-        cells.length > 1
-      ) {
-        storeListItem.storeName = this.formatString(
-          cells[0].firstElementChild.firstElementChild.innerHTML
-        );
-        storeListItem.mapKey = this.formatString(
-          cells[1].firstElementChild.firstElementChild.innerHTML
-        );
-        storeListItem.uniqueId = this.convertToNumber(
-          cells[2].firstElementChild.firstElementChild.innerHTML
-        );
-        storeListItem.latitude = this.convertToNumber(
-          cells[3].firstElementChild.firstElementChild.innerHTML
-        );
-        storeListItem.longitude = this.convertToNumber(
-          cells[4].firstElementChild.firstElementChild.innerHTML
-        );
-        storeListItem.salesArea = this.convertToNumber(
-          cells[5].firstElementChild.firstElementChild.innerHTML
-        );
-        storeListItem.totalSize = Math.round(
-          Number(storeListItem.salesArea) / 0.72
-        );
-        storeListItem.actualSales = this.convertToNumber(
-          cells[6].firstElementChild.firstElementChild.innerHTML
-        );
-        storeListItem.actualSalesPSF =
-          Number(storeListItem.actualSales) / Number(storeListItem.salesArea);
+    if (this.currentTableType === 'Store List') {
+      // console.log('build stores');
+      const storeListHeader = this.tables[this.currentTableIndex].children[1]
+        .children[1].children;
 
-        storeListItem.parentCompanyId = null;
-        storeListItem.category =
-          Number(storeListItem.mapKey) > 100
-            ? 'Company Store'
-            : 'Existing Competition';
+      const storeListFields = {};
 
-        storeListItem.marketShare = this.convertToNumber(
-          cells[7].firstElementChild.firstElementChild.innerHTML
-        );
-
-        this.outputJSON.storeList.push(storeListItem);
+      for (let i = 0; i < storeListHeader.length; i++) {
+        const field = this.storeFieldsMap[
+          storeListHeader[i].innerText.replace(/\s+/g, '')
+        ];
+        storeListFields[i] = field;
+        // console.log(storeListHeader[i].innerText.replace(/\s+/g, ''), storeListFields[i]);
       }
-    }
 
-    const storeList2Rows = this.tables[1].children[2].children;
-    for (let i = 0; i < storeList2Rows.length; i++) {
-      const storeListItem = this.outputJSON.storeList[i];
-      const cells = storeList2Rows[i].children; // array containing each cell of current row
-      if (
-        cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
-        cells.length > 1
-      ) {
-        storeListItem.effectivePower = this.convertToNumber(
-          cells[2].firstElementChild.firstElementChild.innerHTML
-        );
-        storeListItem.curve = this.convertToNumber(
-          cells[3].firstElementChild.firstElementChild.innerHTML
-        );
-        storeListItem.PWTA = this.convertToNumber(
-          cells[4].firstElementChild.firstElementChild.innerHTML
-        );
+      const storeListRows = this.tables[this.currentTableIndex].children[2]
+        .children;
+      for (let i = 0; i < storeListRows.length; i++) {
+        const storeListItem = this.outputJSON.storeList[i]
+          ? this.outputJSON.storeList[i]
+          : new StoreListItem();
+        const cells = storeListRows[i].children; // array containing each cell of current row
+        if (
+          cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
+          cells.length > 1
+        ) {
+          for (let j = 0; j < cells.length; j++) {
+            storeListItem[storeListFields[j].name] =
+              storeListFields[j].type === 'string'
+                ? this.formatString(
+                    cells[j].firstElementChild.firstElementChild.innerHTML
+                  )
+                : this.convertToNumber(
+                    cells[j].firstElementChild.firstElementChild.innerHTML
+                  );
+          }
+          if (!this.outputJSON.storeList[i]) {
+            this.outputJSON.storeList.push(storeListItem);
+          }
+        }
       }
+      this.currentTableIndex++;
+      this.generateStoreList();
+    } else {
+      this.currentTableType = null;
+      this.outputJSON.storeList = this.outputJSON.storeList
+        // .filter(
+        //   storeListItem =>
+        //     storeListItem.uniqueId != null ||
+        //     this.inputData.siteNumber === storeListItem.mapKey
+        // )
+        .map(storeListItem => {
+          storeListItem.parentCompanyId = null;
+          storeListItem.category =
+            storeListItem.mapKey === this.inputData.siteNumber
+              ? 'Company Store'
+              : storeListItem.uniqueId
+                ? 'Existing Competition'
+                : 'Do Not Include';
+          storeListItem.actualSalesPSF =
+            Number(storeListItem.actualSales) / Number(storeListItem.salesArea);
+          storeListItem.totalSize = Math.round(
+            Number(storeListItem.salesArea) / 0.72
+          );
+          return storeListItem;
+        });
+      this.generateProjectedBefore();
     }
-
-    const storeList3Rows = this.tables[2].children[2].children;
-    for (let i = 0; i < storeList3Rows.length; i++) {
-      const storeListItem = this.outputJSON.storeList[i];
-      const cells = storeList3Rows[i].children; // array containing each cell of current row
-      if (
-        cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
-        cells.length > 1
-      ) {
-        storeListItem.location = this.formatString(
-          cells[2].firstElementChild.firstElementChild.innerHTML
-        );
-      }
-    }
-
-    this.outputJSON.storeList = this.outputJSON.storeList.filter(
-      storeListItem =>
-        storeListItem.uniqueId ||
-        this.inputData.siteNumber === storeListItem.mapKey
-    );
-
-    this.generateProjectedBefore();
-
-    // const simpleBannerObservables = [];
-    // const bannerObservables = [];
-    // const hasBanner = {};
-
-    // this.outputJSON.storeList.forEach(storeListItem => {
-    //   simpleBannerObservables.push(
-    //     this.bannerService.getAllByQuery(storeListItem.storeName)
-    //   );
-    // });
-
-    // if (simpleBannerObservables.length) {
-    //   forkJoin(simpleBannerObservables).subscribe(simpleBanners => {
-    //     console.log('SIMPLE BANNERS', simpleBanners);
-    //     simpleBanners.forEach(simpleBanner => {
-    //       if (simpleBanner.totalElements) {
-    //         const bestBanner = simpleBanner.content[0];
-    //         hasBanner[bestBanner.id] = bestBanner.bannerName;
-    //         bannerObservables.push(
-    //           this.bannerService.getOneById(bestBanner.id)
-    //         );
-    //       }
-    //     });
-
-    //     console.log(hasBanner);
-
-    //     forkJoin(bannerObservables).subscribe(banners => {
-    //       console.log('BANNERS', banners);
-    //       banners.forEach(banner => {
-    //         if (banner.company.parentCompany) {
-    //           // console.log(banner.company.parentCompany)
-    //           const storeQuery = hasBanner[banner.id];
-    //           console.log(storeQuery);
-    //           const idx = this.outputJSON.storeList.findIndex(s =>
-    //             s.storeName.includes(storeQuery)
-    //           );
-    //           console.log(idx);
-    //           if (idx !== -1) {
-    //             const obj = this.outputJSON.storeList[idx];
-    //             obj.parentCompanyId = banner.company.parentCompany.id;
-    //             this.outputJSON.storeList[idx] = obj;
-    //           }
-    //         }
-    //       });
-
-    //       this.generateProjectedBefore();
-    //     });
-    //   });
-    // } else {
-    //   this.generateProjectedBefore();
-    // }
   }
 
   generateProjectedBefore() {
     //////////////////////////////////////////
     //////// PROJECTED VOLUMES BEFORE ////////
+    const t = this.determineTableType(this.tables[this.currentTableIndex]);
+    // console.log(t)
+    this.currentTableType = t
+      ? t !== this.currentTableType
+        ? t
+        : this.currentTableType + '_2'
+      : this.currentTableType;
 
-    const projectedBefore1Rows = this.tables[3].children[2].children;
-    for (let i = 0; i < projectedBefore1Rows.length; i++) {
-      const volumeItem = new VolumeItem();
-      const cells = projectedBefore1Rows[i].children; // array containing each cell of current row
-      if (
-        cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
-        cells.length > 1
-      ) {
-        volumeItem.storeName = this.formatString(
-          cells[0].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.mapKey = this.formatString(
-          cells[1].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.salesArea = this.convertToNumber(
-          cells[2].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.currentSales = this.convertToNumber(
-          cells[3].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.futureSales = this.convertToNumber(
-          cells[4].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.salesPSF = this.convertToNumber(
-          cells[5].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.PWTA = this.convertToNumber(
-          cells[6].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.effectivePower = this.convertToNumber(
-          cells[7].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.taChange = this.convertToNumber(
-          cells[8].firstElementChild.firstElementChild.innerHTML
-        );
-        this.outputJSON.projectedVolumesBefore.push(volumeItem);
+    // console.log(this.currentTableType);
+
+    if (this.currentTableType === 'Projected Volumes') {
+      // console.log('build volumes');
+      const header = this.tables[this.currentTableIndex].children[1].children[1]
+        .children;
+
+      const volumeListFields = {};
+      let matchedSales = false;
+
+
+      for (let i = 0; i < header.length; i++) {
+        let text = header[i].innerText
+          .replace(/\s+/g, '')
+          .replace('/', '')
+          .replace(/\./g, '');
+        // console.log(text);
+        if (text === 'Sales') {
+          if (matchedSales) {
+            text = 'FutureSales';
+            const firstHeader = this.tables[this.currentTableIndex].children[1]
+              .children[0].children;
+
+              this.outputJSON.firstYearEndingMonthYear = this.formatString(firstHeader[i].innerText);
+            
+          } else {
+            matchedSales = true;
+          }
+        }
+        // console.log(text);
+        const field = this.volumeFieldsMap[text];
+
+        volumeListFields[i] = field;
       }
-    }
+      console.log(volumeListFields);
 
-    const projectedBefore2Rows = this.tables[4].children[2].children;
-    for (let i = 0; i < projectedBefore2Rows.length; i++) {
-      const volumeItem = this.outputJSON.projectedVolumesBefore[i];
-      const cells = projectedBefore2Rows[i].children; // array containing each cell of current row
-      if (
-        cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
-        cells.length > 1
-      ) {
-        volumeItem.taChangePerc = this.convertToNumber(
-          cells[2].firstElementChild.firstElementChild.innerHTML
-        );
+      const volumeListRows = this.tables[this.currentTableIndex].children[2]
+        .children;
+      for (let i = 0; i < volumeListRows.length; i++) {
+        const volumeListItem = this.outputJSON.projectedVolumesBefore[i]
+          ? this.outputJSON.projectedVolumesBefore[i]
+          : new VolumeItem();
+        const cells = volumeListRows[i].children; // array containing each cell of current row
+        if (
+          cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
+          cells.length > 1
+        ) {
+          for (let j = 0; j < cells.length; j++) {
+            volumeListItem[volumeListFields[j].name] =
+              volumeListFields[j].type === 'string'
+                ? this.formatString(
+                    cells[j].firstElementChild.firstElementChild.innerHTML
+                  )
+                : this.convertToNumber(
+                    cells[j].firstElementChild.firstElementChild.innerHTML
+                  );
+          }
+          if (!this.outputJSON.projectedVolumesBefore[i]) {
+            this.outputJSON.projectedVolumesBefore.push(volumeListItem);
+          } else {
+            this.outputJSON.projectedVolumesBefore[i] = volumeListItem;
+          }
+        }
       }
+      
+      this.currentTableIndex++;
+      // console.log(this.outputJSON.projectedVolumesBefore);
+      this.generateProjectedBefore();
+    } else {
+      this.generateProjectedAfter();
     }
-
-    const projectedBefore3Rows = this.tables[5].children[2].children;
-    for (let i = 0; i < projectedBefore3Rows.length; i++) {
-      const volumeItem = this.outputJSON.projectedVolumesBefore[i];
-      const cells = projectedBefore3Rows[i].children; // array containing each cell of current row
-      if (
-        cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
-        cells.length > 1
-      ) {
-        volumeItem.location = this.formatString(
-          cells[2].firstElementChild.firstElementChild.innerHTML
-        );
-      }
-    }
-
-    this.generateProjectedAfter();
   }
 
   generateProjectedAfter() {
     /////////////////////////////////////////
     //////// PROJECTED VOLUMES AFTER ////////
+    const t = this.determineTableType(this.tables[this.currentTableIndex]);
+    this.currentTableType = t ? t : this.currentTableType;
+    // console.log(this.currentTableType);
 
-    const projectedAfter1Rows = this.tables[6].children[2].children;
-    for (let i = 0; i < projectedAfter1Rows.length; i++) {
-      const volumeItem = new VolumeItem();
-      const cells = projectedAfter1Rows[i].children; // array containing each cell of current row
-      if (
-        cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
-        cells.length > 1
-      ) {
-        volumeItem.storeName = this.formatString(
-          cells[0].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.mapKey = this.formatString(
-          cells[1].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.salesArea = this.convertToNumber(
-          cells[2].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.currentSales = this.convertToNumber(
-          cells[3].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.futureSales = this.convertToNumber(
-          cells[4].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.salesPSF = this.convertToNumber(
-          cells[5].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.PWTA = this.convertToNumber(
-          cells[6].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.effectivePower = this.convertToNumber(
-          cells[7].firstElementChild.firstElementChild.innerHTML
-        );
-        volumeItem.taChange = this.convertToNumber(
-          cells[8].firstElementChild.firstElementChild.innerHTML
-        );
-        this.outputJSON.projectedVolumesAfter.push(volumeItem);
+    if (this.currentTableType === 'Projected Volumes') {
+      // console.log('AFTER');
+      const header = this.tables[this.currentTableIndex].children[1].children[1]
+        .children;
+
+      const volumeListFields = {};
+      let matchedSales = false;
+
+      for (let i = 0; i < header.length; i++) {
+        let text = header[i].innerText
+          .replace(/\s+/g, '')
+          .replace('/', '')
+          .replace(/\./g, '');
+
+        if (text === 'Sales') {
+          if (matchedSales) {
+            text = 'FutureSales';
+          } else {
+            matchedSales = true;
+          }
+        }
+
+        const field = this.volumeFieldsMap[text];
+
+        volumeListFields[i] = field;
       }
-    }
+      // console.log(volumeListFields);
 
-    const projectedAfter2Rows = this.tables[7].children[2].children;
-    for (let i = 0; i < projectedAfter2Rows.length; i++) {
-      const volumeItem = this.outputJSON.projectedVolumesAfter[i];
-      const cells = projectedAfter2Rows[i].children; // array containing each cell of current row
-      if (
-        cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
-        cells.length > 1
-      ) {
-        volumeItem.taChangePerc = this.convertToNumber(
-          cells[2].firstElementChild.firstElementChild.innerHTML
-        );
+      const volumeListRows = this.tables[this.currentTableIndex].children[2]
+        .children;
+      for (let i = 0; i < volumeListRows.length; i++) {
+        const volumeListItem = this.outputJSON.projectedVolumesAfter[i]
+          ? this.outputJSON.projectedVolumesAfter[i]
+          : new VolumeItem();
+        const cells = volumeListRows[i].children; // array containing each cell of current row
+        if (
+          cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
+          cells.length > 1
+        ) {
+          for (let j = 0; j < cells.length; j++) {
+            volumeListItem[volumeListFields[j].name] =
+              volumeListFields[j].type === 'string'
+                ? this.formatString(
+                    cells[j].firstElementChild.firstElementChild.innerHTML
+                  )
+                : this.convertToNumber(
+                    cells[j].firstElementChild.firstElementChild.innerHTML
+                  );
+          }
+          if (!this.outputJSON.projectedVolumesAfter[i]) {
+            this.outputJSON.projectedVolumesAfter.push(volumeListItem);
+          } else {
+            this.outputJSON.projectedVolumesAfter[i] = volumeListItem;
+          }
+        }
       }
+      this.currentTableIndex++;
+      this.generateProjectedAfter();
+    } else {
+      this.generateSalesGrowthProjection();
     }
-
-    const projectedAfter3Rows = this.tables[8].children[2].children;
-    for (let i = 0; i < projectedAfter3Rows.length; i++) {
-      const volumeItem = this.outputJSON.projectedVolumesAfter[i];
-      const cells = projectedAfter3Rows[i].children; // array containing each cell of current row
-      if (
-        cells[1].firstElementChild.firstElementChild.innerHTML !== '&nbsp;' &&
-        cells.length > 1
-      ) {
-        volumeItem.location = this.formatString(
-          cells[2].firstElementChild.firstElementChild.innerHTML
-        );
-      }
-    }
-
-    this.generateSalesGrowthProjection();
   }
 
   generateSalesGrowthProjection() {
     /////////////////////////////////////////
     //////// Sales Growth Projection ////////
 
-    const salesGrowthProjection1Rows = this.tables[9].children[1].children;
+    const salesGrowthProjection1Rows = this.tables[this.currentTableIndex]
+      .children[1].children;
     const sgpMapping = {
       first: [],
       second: [],
@@ -784,7 +466,7 @@ export class HtmlReportToJsonService {
       );
       this.outputJSON.salesGrowthProjection.push(salesGrowthProjectionItem);
     }
-
+    this.currentTableIndex++;
     this.generateMarketShareBySector();
   }
 
@@ -792,7 +474,8 @@ export class HtmlReportToJsonService {
     ////////////////////////////////////////
     //////// MARKET SHARE BY SECTOR ////////
 
-    const marketShareBySector1Rows = this.tables[10].children[2].children;
+    const marketShareBySector1Rows = this.tables[this.currentTableIndex]
+      .children[2].children;
     for (let i = 0; i < marketShareBySector1Rows.length; i++) {
       const marketShareBySectorItem = new MarketShareBySectorItem();
       const cells = marketShareBySector1Rows[i].children; // array containing each cell of current row
@@ -836,7 +519,7 @@ export class HtmlReportToJsonService {
         this.outputJSON.marketShareBySector.push(marketShareBySectorItem);
       }
     }
-
+    this.currentTableIndex++;
     this.generateSectorList();
   }
 
@@ -844,7 +527,8 @@ export class HtmlReportToJsonService {
     /////////////////////////////
     //////// SECTOR LIST ////////
 
-    const sectorList1Rows = this.tables[11].children[2].children;
+    const sectorList1Rows = this.tables[this.currentTableIndex].children[2]
+      .children;
     for (let i = 0; i < sectorList1Rows.length; i++) {
       const sectorListItem = new SectorListItem();
       const cells = sectorList1Rows[i].children; // array containing each cell of current row
