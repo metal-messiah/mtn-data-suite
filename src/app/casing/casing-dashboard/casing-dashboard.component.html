@@ -166,6 +166,7 @@
   <!--<button mat-menu-item (click)="setMarkerType(markerType.LABEL)">{{markerType.LABEL.valueOf()}}</button>-->
   <button mat-menu-item (click)="setMarkerType(markerType.LOGO)">{{markerType.LOGO.valueOf()}}</button>
   <button mat-menu-item (click)="setMarkerType(markerType.VALIDATION)">{{markerType.VALIDATION.valueOf()}}</button>
+  <button mat-menu-item (click)="setMarkerType(markerType.PROJECT_COMPLETION)">{{markerType.PROJECT_COMPLETION.valueOf()}}</button>
 </mat-menu>
 
 <mat-menu #drawingToolsMenu="matMenu" [overlapTrigger]="false">
@@ -243,14 +244,6 @@
   <div *ngIf="casingDashboardService.getSelectedProject()">
     <button mat-menu-item (click)="casingDashboardService.openProjectSelectionDialog()">
       <i class="fas fa-folder"></i>&nbsp;Change Project
-    </button>
-    <button mat-menu-item *ngIf="!markCasedStores"
-            (click)="markStoresCasedForProject(true)">
-      <i class="fas fa-check-circle"></i>&nbsp;Mark Cased Stores
-    </button>
-    <button mat-menu-item *ngIf="markCasedStores"
-            (click)="markStoresCasedForProject(false)">
-      <i class="far fa-check-circle"></i>&nbsp;Un-mark Cased Stores
     </button>
     <button mat-menu-item
             *ngIf="!casingDashboardService.getSelectedProject().hasBoundary && !projectBoundaryService.isShowingBoundary()"

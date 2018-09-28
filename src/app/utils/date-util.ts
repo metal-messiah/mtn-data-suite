@@ -33,4 +33,11 @@ export class DateUtil {
     // const adjustedDate = new Date(newDate.getTime() + timeZoneDifference);
     // return adjustedDate;
   }
+
+  static monthsBetween(d1: Date, d2: Date) {
+    let diff = (d2.getTime() - d1.getTime()) / 1000;
+    diff /= (60 * 60 * 24 * 30.417); // seconds in a month
+    return Math.abs(Math.round(diff));
+  }
+
 }

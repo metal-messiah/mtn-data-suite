@@ -3,6 +3,7 @@ import { SimplifiedSite } from './simplified-site';
 import { Entity } from 'app/models/entity';
 import { SimplifiedStoreVolume } from './simplified-store-volume';
 import { SimplifiedUserProfile } from './simplified-user-profile';
+import { DateUtil } from '../../utils/date-util';
 
 export class SimplifiedStore implements Entity {
 
@@ -33,6 +34,9 @@ export class SimplifiedStore implements Entity {
     }
     if (obj.validatedBy) {
       this.validatedBy = new SimplifiedUserProfile(obj.validatedBy);
+    }
+    if (obj.validatedDate) {
+      this.validatedDate = DateUtil.getDate(obj.validatedDate)
     }
   }
 }

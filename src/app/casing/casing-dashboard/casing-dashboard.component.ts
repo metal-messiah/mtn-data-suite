@@ -254,7 +254,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   private getStoresInBounds(bounds) {
-    return this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes(), this.markCasedStores)
+    const includeProjectIds = this.storeMapLayer.markerType === MarkerType.PROJECT_COMPLETION;
+    return this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes(), includeProjectIds)
       .pipe(tap(page => {
         this.storeMapLayer.setEntities(page.content);
         this.ngZone.run(() => {
@@ -489,7 +490,12 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   setMarkerType(markerType: MarkerType) {
     this.storeMapLayer.setMarkerType(markerType);
-    this.getEntities(this.mapService.getBounds());
+    if (this.storeMapLayer.markerType === MarkerType.PROJECT_COMPLETION) {
+      // Need to retrieve cased Project Ids
+      this.getEntities(this.mapService.getBounds());
+    } else {
+      this.storeMapLayer.refreshOptions();
+    }
   }
 
   openDatabaseSearch() {
@@ -632,13 +638,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   filterClosed() {
     this.casingDashboardService.saveFilters().subscribe(() => console.log('Saved Filters'));
-    this.getEntities(this.mapService.getBounds());
-  }
-
-
-  markStoresCasedForProject(doMark: boolean) {
-    this.markCasedStores = doMark;
-    localStorage.setItem('markCasedStores', JSON.stringify(this.markCasedStores));
     this.getEntities(this.mapService.getBounds());
   }
 

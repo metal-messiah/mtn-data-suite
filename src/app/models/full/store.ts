@@ -7,6 +7,7 @@ import { SimplifiedStoreVolume } from '../simplified/simplified-store-volume';
 import { SimplifiedStoreStatus } from '../simplified/simplified-store-status';
 import { SimplifiedStoreSurvey } from '../simplified/simplified-store-survey';
 import { SimplifiedUserProfile } from '../simplified/simplified-user-profile';
+import { DateUtil } from '../../utils/date-util';
 
 export class Store extends AuditingEntity {
 
@@ -76,6 +77,9 @@ export class Store extends AuditingEntity {
     }
     if (obj.validatedBy) {
       this.validatedBy = new SimplifiedUserProfile(obj.validatedBy);
+    }
+    if (obj.validatedDate) {
+      this.validatedDate = DateUtil.getDate(obj.validatedDate)
     }
   }
 }

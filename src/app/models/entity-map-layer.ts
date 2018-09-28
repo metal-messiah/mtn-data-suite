@@ -7,15 +7,15 @@ import { EntityMappable } from '../interfaces/entity-mappable';
 import { Subject } from 'rxjs';
 import { Mappable } from '../interfaces/mappable';
 import { MapService } from '../core/services/map.service';
+import { StoreIconProvider } from '../utils/StoreIconProvider';
 
 export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<EntityMappable> {
 
   selection$ = new Subject<Entity>();
 
   selectionMode: MapSelectionMode = MapSelectionMode.SINGLE_SELECT;
-  markerType: MarkerType = MarkerType.PIN;
 
-  private mappables: EntityMappable[];
+  protected mappables: EntityMappable[];
 
   protected selectedEntityIds: Set<number>;
 
@@ -31,10 +31,6 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
     this.selectedEntityIds = idSet;
     this.createMappable = createMappable;
     this.initSelection();
-    const m = localStorage.getItem('markerType');
-    if (m != null) {
-      this.markerType = JSON.parse(m);
-    }
   }
 
   private initSelection() {
@@ -67,11 +63,6 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
     this.clearMarkers();
     this.createMarkersFromMappables(this.mappables);
     this.addToMap(this.mapService.getMap());
-  }
-
-  setMarkerType(markerType: MarkerType) {
-    this.markerType = markerType;
-    localStorage.setItem('markerType', JSON.stringify(markerType));
   }
 
   selectEntitiesWithIds(ids: number[]) {
@@ -166,7 +157,8 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
   protected setMarkerOptions(marker: google.maps.Marker): void {
     const mappable: Mappable = marker.get('mappable');
     marker.setDraggable(mappable.isDraggable());
-    marker.setIcon(mappable.getIcon(this.markerType));
-    marker.setLabel(mappable.getLabel(this.markerType));
+    marker.setIcon(mappable.getIcon());
+    marker.setLabel(mappable.getLabel());
   }
+
 }
