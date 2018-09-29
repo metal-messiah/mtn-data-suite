@@ -87,8 +87,8 @@ export class HtmlReportToJsonService {
   }
 
   convertToNumber(s: String) {
-    return s.replace(/[^0-9.]/g, '') !== ''
-      ? Number(s.replace(/[^0-9.]/g, ''))
+    return s.replace(/[^0-9.-]/g, '') !== ''
+      ? Number(s.replace(/[^0-9.-]/g, ''))
       : null;
   }
 
@@ -106,6 +106,8 @@ export class HtmlReportToJsonService {
     this.dom = this.parser.parseFromString(HTML_STRING, 'text/html');
     this.outputJSON = new HTMLasJSON();
     this.tables = this.dom.getElementsByTagName('table'); // list of all table elements
+    this.currentTableIndex = 0;
+    this.currentTableType = null;
     this.generateStoreList();
   }
 

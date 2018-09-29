@@ -12,6 +12,7 @@ export class HTMLasJSON {
     marketShareBySector: MarketShareBySectorItem[];
     sectorList: SectorListItem[];
     firstYearEndingMonthYear: string;
+    inflationRate: number;
   
     constructor() {
       this.storeList = [];
