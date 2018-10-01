@@ -16,6 +16,14 @@ export class Store extends AuditingEntity {
   storeType: string;
   dateOpened: Date;
   dateClosed: Date;
+  fit: string;
+  format: string;
+  areaSales: number;
+  areaSalesPercentOfTotal: number;
+  areaTotal: number;
+  areaIsEstimate: boolean;
+  storeIsOpen24: boolean;
+  naturalFoodsAreIntegrated: boolean;
   floating: boolean;
   legacyLocationId: number;
   validatedDate: Date;

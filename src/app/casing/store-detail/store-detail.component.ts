@@ -46,8 +46,7 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
       storeType: ['', [Validators.required]],
       dateOpened: new Date(),
       dateClosed: new Date(),
-      floating: false,
-      legacyLocationId: ''
+      floating: false
     });
   }
 
@@ -79,9 +78,12 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
   };
 
   private prepareSaveStore(): Store {
-    const saveStore = new Store(this.form.value);
-    const strippedAE = new AuditingEntity(this.store);
-    Object.assign(saveStore, strippedAE);
+    const saveStore = JSON.parse(JSON.stringify(this.store));
+    Object.keys(this.form.controls).forEach(key => {
+      if (this.form.get(key).dirty) {
+        saveStore[key] = this.form.get(key).value
+      }
+    });
     return saveStore;
   }
 

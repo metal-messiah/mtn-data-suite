@@ -257,7 +257,7 @@
             </mat-form-field>
           </mat-expansion-panel>
           <!-- Fit/Format -->
-          <mat-expansion-panel [formGroup]="storeSurveyForm">
+          <mat-expansion-panel [formGroup]="storeForm">
             <mat-expansion-panel-header>
               <mat-panel-title><i class="fas fa-tag"></i>&nbsp;&nbsp;Fit/Format</mat-panel-title>
             </mat-expansion-panel-header>
@@ -278,7 +278,7 @@
             </div>
           </mat-expansion-panel>
           <!-- Hours -->
-          <mat-expansion-panel [formGroup]="storeSurveyForm">
+          <mat-expansion-panel [formGroup]="storeForm">
             <mat-expansion-panel-header>
               <mat-panel-title><i class="fas fa-clock"></i>&nbsp;&nbsp;Hours</mat-panel-title>
             </mat-expansion-panel-header>
@@ -409,7 +409,7 @@
             </div>
           </mat-expansion-panel>
           <!-- Area -->
-          <mat-expansion-panel [formGroup]="storeSurveyForm">
+          <mat-expansion-panel [formGroup]="storeForm">
             <mat-expansion-panel-header>
               <mat-panel-title><i class="fas fa-ruler-combined"></i>&nbsp;&nbsp;Area</mat-panel-title>
             </mat-expansion-panel-header>
@@ -425,11 +425,11 @@
                          formControlName="areaSalesPercentOfTotal">
                   <span matSuffix>%</span>
                   <mat-hint>Between 0.01% and 100%</mat-hint>
-                  <mat-error *ngIf="storeSurveyForm.get('areaSalesPercentOfTotal').invalid">Between 0.01% and 100%
+                  <mat-error *ngIf="storeForm.get('areaSalesPercentOfTotal').invalid">Between 0.01% and 100%
                   </mat-error>
                 </mat-form-field>
-                <button type="button" mat-mini-fab color="primary" [mat-menu-trigger-for]="areaMore">
-                  <i class="fas fa-ellipsis-v"></i>
+                <button type="button" mat-mini-fab (click)="openAreaCalculator()">
+                  <i class="fas fa-calculator"></i>
                 </button>
               </div>
               <mat-form-field>
@@ -673,14 +673,6 @@
     </div>
   </div>
 </div>
-
-<mat-menu #areaMore="matMenu" [overlapTrigger]="false">
-  <button type="button" mat-menu-item (click)="openAreaCalculator()">
-    <i class="fas fa-calculator"></i>&nbsp;&nbsp;Area Calculator
-  </button>
-  <button type="button" mat-menu-item (click)="calculateSalesAreaFromTotal()">Calculate Sales from Total</button>
-  <button type="button" mat-menu-item (click)="calculateTotalAreaFromSales()">Calculate Total from Sales</button>
-</mat-menu>
 
 <mat-menu #volumeMore="matMenu" [overlapTrigger]="false">
   <button type="button" mat-menu-item (click)="calculateDepartmentVolumesFromTotal()">
