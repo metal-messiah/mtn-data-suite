@@ -13,6 +13,10 @@ export class StoreSurvey extends AuditingEntity {
   fuelIsOpen24: boolean;
   pharmacyIsOpen24: boolean;
   pharmacyHasDriveThrough: boolean;
+  pharmacyScriptsWeekly: number;
+  pharmacyAvgDollarsPerScript: number;
+  pharmacyPharmacistCount: number;
+  pharmacyTechnicianCount: number;
   departmentBakery: boolean;
   departmentBank: boolean;
   departmentBeer: boolean;

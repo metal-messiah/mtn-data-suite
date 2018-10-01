@@ -65,7 +65,8 @@
             <mat-action-row>
               <mat-progress-bar mode="indeterminate" *ngIf="loadingProject"></mat-progress-bar>
               <button type="button" id="add-dashboard-project-button" mat-raised-button color="accent"
-                      (click)="addDashboardProject()" *ngIf="casingDashboardService.getSelectedProject() && canAddSelectedProject()">
+                      (click)="addDashboardProject()"
+                      *ngIf="casingDashboardService.getSelectedProject() && canAddSelectedProject()">
                 Add {{casingDashboardService.getSelectedProject().projectName}}
               </button>
               <button type="button" id="add-project-button" mat-raised-button color="primary"
@@ -341,7 +342,7 @@
             <mat-expansion-panel-header>
               <mat-panel-title><i class="fas fa-prescription-bottle"></i>&nbsp;&nbsp;Pharmacy</mat-panel-title>
             </mat-expansion-panel-header>
-            <div [formGroup]="storeCasingForm">
+            <div [formGroup]="storeSurveyForm">
               <mat-form-field>
                 <input matInput type="number" placeholder="Number of Pharmacists"
                        formControlName="pharmacyPharmacistCount">
@@ -361,16 +362,16 @@
               </mat-form-field>
               <mat-form-field>
                 <input matInput type="number" placeholder="Estimated Weekly $" disabled
-                       [value]="storeCasingForm.get('pharmacyAvgDollarsPerScript').value * storeCasingForm.get('pharmacyScriptsWeekly').value">
+                       [value]="storeSurveyForm.get('pharmacyAvgDollarsPerScript').value * storeSurveyForm.get('pharmacyScriptsWeekly').value">
                 <span matPrefix>$&nbsp;</span>
               </mat-form-field>
-            </div>
-            <div [formGroup]="storeSurveyForm" class="checklist">
-              <div class="checklist-item">
-                <mat-checkbox formControlName="pharmacyIsOpen24">Pharmacy is Open 24hrs</mat-checkbox>
-              </div>
-              <div class="checklist-item">
-                <mat-checkbox formControlName="pharmacyHasDriveThrough">Pharmacy has drive-through</mat-checkbox>
+              <div class="checklist">
+                <div class="checklist-item">
+                  <mat-checkbox formControlName="pharmacyIsOpen24">Pharmacy is Open 24hrs</mat-checkbox>
+                </div>
+                <div class="checklist-item">
+                  <mat-checkbox formControlName="pharmacyHasDriveThrough">Pharmacy has drive-through</mat-checkbox>
+                </div>
               </div>
             </div>
           </mat-expansion-panel>

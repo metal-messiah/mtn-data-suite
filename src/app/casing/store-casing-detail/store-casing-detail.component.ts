@@ -4,7 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatSnackBar } from '@angular/material';
 
-import { AuditingEntity } from '../../models/auditing-entity';
 import { AreaCalculatorComponent } from '../area-calculator/area-calculator.component';
 import { CasingDashboardService } from '../casing-dashboard/casing-dashboard.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
@@ -138,10 +137,6 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       conditionShelvingGondolas: '',
       conditionWalls: '',
       fuelGallonsWeekly: ['', [Validators.min(0)]],
-      pharmacyScriptsWeekly: ['', [Validators.min(0)]],
-      pharmacyAvgDollarsPerScript: ['', [Validators.min(0)]],
-      pharmacyPharmacistCount: ['', [Validators.min(0)]],
-      pharmacyTechnicianCount: ['', [Validators.min(0)]],
       storeStatus: ''
     });
 
@@ -173,6 +168,10 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       fuelIsOpen24: '',
       pharmacyIsOpen24: '',
       pharmacyHasDriveThrough: '',
+      pharmacyScriptsWeekly: ['', [Validators.min(0)]],
+      pharmacyAvgDollarsPerScript: ['', [Validators.min(0)]],
+      pharmacyPharmacistCount: ['', [Validators.min(0)]],
+      pharmacyTechnicianCount: ['', [Validators.min(0)]],
       departmentBakery: '',
       departmentBank: '',
       departmentBeer: '',
