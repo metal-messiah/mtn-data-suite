@@ -55,7 +55,7 @@ mat-form-field {
 }
 
 table {
-  /* width: 8.5in; */
+  /* width: 10in; */
   width: 100%;
   margin: 0 auto;
 }
@@ -70,13 +70,13 @@ tr:nth-child(even) {
 
 th {
   background: white;
-  font-size: small;
+  font-size: x-small;
 }
 
 td {
   padding: 5px 10px;
   text-align: center;
-  font-size: small;
+  font-size: x-small;
 }
 
 mat-progress-bar {
@@ -97,6 +97,37 @@ mat-progress-bar {
   font-style: italic;
   color: gray;
   margin: 20px 0;
+}
+
+.title-left {
+  position: absolute;
+  left: 0;
+  margin-left: 25px;
+  font-size: large;
+}
+
+.title-right {
+  position: absolute;
+  right: 0;
+  margin-right: 25px;
+  font-size: large;
+}
+
+.select-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dotted gray;
+}
+
+.select-group mat-form-field {
+  margin: 10px;
+}
+
+.select-group-header {
+  padding-top: 10px;
+  margin-top: 20px;
+  color: gray;
 }
 
 /* img{

@@ -6,6 +6,7 @@ import { ProjectionsTable } from '../../models/projections-table';
 import { MapService } from '../../core/services/map.service';
 import { AuthService } from '../../core/services/auth.service';
 import { StoreListItem } from '../../models/store-list-item';
+import { MatSnackBar, SimpleSnackBar } from '@angular/material';
 
 @Injectable()
 export class JsonToTablesService {
@@ -15,6 +16,11 @@ export class JsonToTablesService {
   json: HTMLasJSON;
   matchingStore: StoreListItem;
   salesGrowthProjection;
+
+  maxPerSOVCategory = 15;
+
+  showedSnackbar = false;
+  snackbarRef: any;
 
   formattedTables = {
     targetStore: null,
@@ -42,12 +48,13 @@ export class JsonToTablesService {
     }
   };
 
-  constructor(public auth: AuthService) {
+  constructor(public auth: AuthService, private snackBar: MatSnackBar) {
     this.mapService = new MapService(auth);
   }
 
   init(modelData: ReportUploadInterface, json: HTMLasJSON) {
     this.modelData = modelData;
+    this.maxPerSOVCategory = modelData.maxPerSOV;
     this.json = json;
     const { siteNumber, type } = modelData;
     this.matchingStore = json.storeList.filter(
@@ -113,6 +120,10 @@ export class JsonToTablesService {
     }
   }
 
+  getStoresByCategory(category) {
+    return this.json.storeList.filter(store => store.category === category);
+  }
+
   getProjectionComment() {
     return this.modelData.type;
   }
@@ -172,8 +183,10 @@ export class JsonToTablesService {
   getSOVStores(category) {
     // categories => Company Store, Proposed Competition, Existing Competition
 
-    return this.json.storeList
+    const output = this.json.storeList
+      // only get the ones matching the cat
       .filter(store => store.category === category)
+      // create an array with new properties added
       .map(store => {
         const { beforematch, aftermatch } = this.getSOVMatches(store);
 
@@ -208,6 +221,7 @@ export class JsonToTablesService {
 
         return store;
       })
+      // sort by target, then by contribution to site
       .sort((a, b) => {
         if (a.mapKey === this.modelData.siteNumber) {
           return -1;
@@ -215,8 +229,43 @@ export class JsonToTablesService {
         if (b.mapKey === this.modelData.siteNumber) {
           return 1;
         }
-        return 0;
+        return b['contributionToSite'] - a['contributionToSite'];
       });
+    // only return 15 at most
+    const overflow = output
+      .map((s, i) => {
+        if (i >= this.maxPerSOVCategory) {
+          return s['contributionToSite'];
+        }
+      })
+      .filter(s => s);
+    // console.log(overflow);
+
+    if (overflow.length) {
+      const threshold = overflow[0];
+      const overflowSum = overflow.reduce((prev, next) => prev + next);
+
+      if (!this.showedSnackbar) {
+        this.showedSnackbar = true;
+        const msg = `SOV does not include anything less than $${threshold.toLocaleString()} (Showing ${output.length -
+          overflow.length}/${
+          output.length
+        } Stores). A total Contribution To Site of $${overflowSum.toLocaleString()} was excluded from the SOV Report.
+        If needed, adjust 'Maximum Records per SOV Category
+' on step 1, or mark individual sites as 'Do Not Include' on step 2.`;
+
+        this.showSnackbar(msg);
+      }
+    }
+
+    return output.splice(0, this.maxPerSOVCategory);
+  }
+
+  showSnackbar(message) {
+    console.log('show snackbar');
+    setTimeout(() => {
+      this.snackbarRef = this.snackBar.open(message, 'OK', { duration: 99999 });
+    }, 1);
   }
 
   getSOVContributionToSite(store) {}

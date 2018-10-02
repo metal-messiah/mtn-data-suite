@@ -1,9 +1,9 @@
-import { Component, NgZone, OnInit, ViewChild, Inject } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
-import { MatSnackBar, MatStepper } from "@angular/material";
-import { debounceTime, finalize, tap } from "rxjs/internal/operators";
-import { AuthService } from "../../core/services/auth.service";
-import * as _ from "lodash";
+import { Component, NgZone, OnInit, ViewChild, Inject } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
+import { MatSnackBar, MatStepper } from '@angular/material';
+import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
+import { AuthService } from '../../core/services/auth.service';
+import * as _ from 'lodash';
 
 import { HtmlReportToJsonService } from '../../core/services/html-report-to-json.service';
 import { HtmlDimensionsService } from '../../core/services/html-dimensions.service';
@@ -40,13 +40,17 @@ export class ReportUploadComponent implements OnInit {
   exportData: Blob;
 
   mapImage: string;
+  googleMapsKey = 'AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ';
+  googleMapsBasemap = 'hybrid';
+  googleMapsZoom = 15;
 
   tableDomIds: string[] = [
     'projectionsTable',
     'currentStoresWeeklySummaryTable',
     'projectedStoresWeeklySummaryTable',
     'sourceOfVolumeTable',
-    'mapImage'
+    'mapImage',
+    'descriptionsRatings'
   ];
 
   tableJson: {
@@ -69,12 +73,40 @@ export class ReportUploadComponent implements OnInit {
 
   interface: ReportUploadInterface;
 
+  descriptions: {
+    streetConditions: string;
+    comments: string;
+    trafficControls: string;
+    cotenants: string;
+    access: {
+      north: string;
+      east: string;
+      south: string;
+      west: string;
+    };
+    ingressEgress: string;
+    visibility: {
+      north: string;
+      east: string;
+      south: string;
+      west: string;
+    };
+    populationDensity: {
+      north: string;
+      east: string;
+      south: string;
+      west: string;
+    };
+  };
+
   categories: string[] = [
     'Company Store',
     'Existing Competition',
     'Proposed Competition',
     'Do Not Include'
   ];
+
+  groupOptions: string[] = ['Excellent', 'Good', 'Average', 'Fair', 'Poor'];
 
   constructor(
     private snackBar: MatSnackBar,
@@ -104,11 +136,41 @@ export class ReportUploadComponent implements OnInit {
       type: 'New',
       siteNumber: '1000.1',
       modelName: 'Jacksonville FL 18 Kitson',
-      fieldResDate: new Date()
+      fieldResDate: new Date(),
+      maxPerSOV: 15
     };
   }
 
   ngOnInit() {}
+
+  handleDescriptionsForm(form) {
+    this.descriptions = {
+      streetConditions: form.value.streetConditions,
+      comments: form.value.comments,
+      trafficControls: form.value.trafficControls,
+      cotenants: form.value.cotenants,
+      access: {
+        north: form.value.accessNorth,
+        east: form.value.accessEast,
+        south: form.value.accessSouth,
+        west: form.value.accessWest
+      },
+      ingressEgress: form.value.ingressEgress,
+      visibility: {
+        north: form.value.visibilityNorth,
+        east: form.value.visibilityEast,
+        south: form.value.visibilitySouth,
+        west: form.value.visibilityWest
+      },
+      populationDensity: {
+        north: form.value.populationDensityNorth,
+        east: form.value.populationDensityEast,
+        south: form.value.populationDensitySouth,
+        west: form.value.populationDensityWest
+      }
+    };
+    console.log(this.descriptions)
+  }
 
   toggleBasemap(type) {
     const base = type === 'sat' ? 'hybrid' : 'roadmap';
@@ -125,15 +187,45 @@ export class ReportUploadComponent implements OnInit {
     }
   }
 
-  getMapImage() {
+  getMapImage(basemap?: string, zoom?: number) {
+    if (basemap) {
+      this.googleMapsBasemap = basemap;
+    }
+    if (zoom) {
+      this.googleMapsZoom = this.googleMapsZoom - zoom;
+    }
     // map image
     const target = this.jsonToTablesService.getTargetStore();
-    const { latitude, longitude, storeName } = target;
-    console.log(latitude, longitude, storeName);
+    const stores = this.jsonToTablesService.getProjectedStoresWeeklySummary();
 
-    this.mapImage = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=16&size=470x350&maptype=hybrid&markers=color:red%7Clabel:${
-      storeName[0]
-    }%7C${latitude},${longitude}&key=AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ`;
+    const storePins = stores
+      .map(s => {
+        if (s.latitude && s.longitude) {
+          const isTarget = s.mapKey === target.mapKey;
+          const color = isTarget
+            ? 'red'
+            : s.category === 'Company Store'
+              ? 'blue'
+              : 'yellow';
+          return `&markers=color:${color}%7Clabel:${
+            isTarget ? s.storeName[0] : ''
+          }%7C${s.latitude},${s.longitude}`;
+        }
+      })
+      .join('');
+
+    const { latitude, longitude, storeName } = target;
+    // console.log(latitude, longitude, storeName);
+
+    this.mapImage = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=${
+      this.googleMapsZoom
+    }&size=470x350&maptype=${this.googleMapsBasemap}&${storePins}&key=${
+      this.googleMapsKey
+    }`;
+  }
+
+  compileCSVFromTextBoxes() {
+    // A generated list of the stores they marked as Company stores in step 2, one per row. Sort Alphabetically and then by Map Key
   }
 
   export() {
@@ -153,6 +245,32 @@ export class ReportUploadComponent implements OnInit {
         data.forEach((fileData, i) => {
           zip.file(`${this.tableDomIds[i]}.png`, fileData);
         });
+
+        const sisterStoreAffects = this.jsonToTablesService
+          .getStoresByCategory('Company Store')
+          .sort((a, b) => {
+            if (a.storeName === b.storeName) {
+              return Number(a.mapKey) - Number(b.mapKey);
+            } else {
+              return a.storeName < b.storeName ? -1 : 1;
+            }
+          })
+          .map(store => `,${store.storeName} ${store.mapKey}`)
+          .join('\r\n');
+
+        const csv = `Street Conditions,${
+          this.descriptions.streetConditions
+        }\nComments,${
+          this.descriptions.comments
+        }\nTraffic Controls,${
+          this.descriptions.streetConditions
+        }\nCo-tenants,${
+          this.descriptions.cotenants
+        }\nSister Store Affects ${
+          sisterStoreAffects
+        }`;
+
+        zip.file(`descriptions.csv`, new Blob([csv]));
 
         zip.generateAsync({ type: 'blob' }).then(blob => {
           saveAs(
@@ -190,6 +308,7 @@ export class ReportUploadComponent implements OnInit {
       console.log(this.htmlAsJson.storeList[idx]);
     }
   }
+
 
   resetFile() {
     console.log('RESET FILE');
@@ -248,6 +367,7 @@ export class ReportUploadComponent implements OnInit {
   generateTables() {
     console.log('GENERATE TABLES');
 
+    this.jsonToTablesService.showedSnackbar = false;
     this.jsonToTablesService.init(this.inputData, this.htmlAsJson);
     this.getMapImage();
     // this.tableJson = this.jsonToTablesService.generateTables(

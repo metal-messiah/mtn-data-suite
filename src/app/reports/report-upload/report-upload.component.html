@@ -29,6 +29,12 @@
           <input required matInput name="fieldResDate" type="date" [ngModel]="interface.fieldResDate | date:'yyyy-MM-dd'">
           <mat-hint>Field Res Date</mat-hint>
         </mat-form-field>
+        <mat-form-field>
+          <input required matInput name="maxPerSOV" type="number" step="1" min="1" [ngModel]="interface.maxPerSOV">
+          <mat-hint>Maximum Records per SOV Category</mat-hint>
+        </mat-form-field>
+
+
 
         <div class="submit">
           <button type="button" mat-flat-button [color]="htmlFile ? 'primary' : 'warn'" (click)="htmlFileInput.click()"
@@ -38,12 +44,116 @@
           <span style="margin-left:20px;" *ngIf="htmlFile"><i *ngIf="htmlAsString" class="fas fa-check-circle" style="color:green;"></i>
             {{htmlFile ? htmlFile.name : ''}}</span>
           <br />
-          <button (click)="convertHtmlToJson(reportUploadForm)" [color]="'warn'"
-            [disabled]="reportUploadForm.invalid || !htmlFile || !htmlAsString" mat-flat-button matStepperNext style="margin-top:20px;">Assign
-            Store Categories</button>
+          <button (click)="convertHtmlToJson(reportUploadForm)" [color]="'warn'" [disabled]="reportUploadForm.invalid || !htmlFile || !htmlAsString"
+            mat-flat-button matStepperNext style="margin-top:20px;">Write Report Descriptions</button>
         </div>
       </form>
-
+    </div>
+  </mat-step>
+  <mat-step>
+    <ng-template matStepLabel>Descriptions</ng-template>
+    <div class="report-upload-wrapper">
+      <form #descriptionsForm="ngForm">
+        <mat-form-field>
+          <textarea matInput name="streetConditions" [ngModel]="''"></textarea>
+          <mat-hint>Street Conditions</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <textarea matInput name="comments" [ngModel]="''"></textarea>
+          <mat-hint>Comments</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <textarea matInput name="trafficControls" [ngModel]="''"></textarea>
+          <mat-hint>Traffic Controls</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <textarea matInput name="cotenants" [ngModel]="''"></textarea>
+          <mat-hint>Co-Tenants</mat-hint>
+        </mat-form-field>
+        <div class='select-group-header bold'>Access</div>
+        <div class='select-group'>
+          <mat-form-field>
+            <mat-select placeholder='North' name="accessNorth" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='East' name="accessEast" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='South' name="accessSouth" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='West' name="accessWest" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class='select-group-header bold'>Ingress/Egress</div>
+        <div class='select-group'>
+          <mat-form-field>
+            <mat-select placeholder='Ingress/Egress' name="ingressEgress" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class='select-group-header bold'>Visibility</div>
+        <div class='select-group'>
+          <mat-form-field>
+            <mat-select placeholder='North' name="visibilityNorth" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='East' name="visibilityEast" [ngModel]="'Average'">
+              <mat-option [value]='option' *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='South' name="visibilitySouth" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='West' name="visibilityWest" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class='select-group-header bold'>Population Density</div>
+        <div class='select-group'>
+          <mat-form-field>
+            <mat-select placeholder='North' name="populationDensityNorth" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='East' name="populationDensityEast" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='South' name="populationDensitySouth" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='West' name="populationDensityWest" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class='submit'>
+          <button [color]="'primary'" mat-flat-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
+          <button [color]="'warn'" mat-flat-button matStepperNext (click)="handleDescriptionsForm(descriptionsForm)"
+            style="margin-top:20px;">Generate
+            Tables From Data</button>
+        </div>
+      </form>
     </div>
   </mat-step>
   <mat-step>
@@ -165,17 +275,18 @@
       <hr>
       <table cellspacing="0" id="sourceOfVolumeTable" *ngIf="inputData && jsonToTablesService.isInitialized()">
         <tr>
-          <th colspan="12">
-            <h2>Source of Volume</h2>
-            <h3>{{inputData.retailerName}}</h3>
-            <hr>
+          <th style='height:100px' colspan="12">
+            <h2>
+              <span class="title-left">Source of Volume</span>
+              <span class="title-right">{{jsonToTablesService.getTargetStore().storeName}}</span>
+            </h2>
           </th>
         </tr>
         <tr>
           <th colspan="5"></th>
           <th colspan="2">Size (Sq. Ft.)*</th>
           <th></th>
-          <th colspan="4">{{htmlAsJson.firstYearEndingMonthYear.split(' ')[1] + 1}} Volume</th>
+          <th colspan="4">{{htmlAsJson.firstYearEndingMonthYear}} Volume</th>
         </tr>
         <tr>
           <th>Primary Sources of Projected Volume</th>
@@ -198,7 +309,7 @@
         </tr>
         <tr *ngFor="let store of jsonToTablesService.getSOVStores('Company Store')" [class]="jsonToTablesService.isTargetStore(store) ? 'bold blue': 'blue'">
           <td>{{store.storeName}}</td>
-          <td>{{store.location}}</td>
+          <td nowrap>{{store.location}}</td>
           <td>{{store.mapKey}}</td>
           <td>{{store.effectivePower | number:'1.0-2'}}</td>
           <td>{{store.distance | number:'1.0-2'}} mi.</td>
@@ -235,7 +346,7 @@
         </tr>
         <tr *ngFor="let store of jsonToTablesService.getSOVStores('Existing Competition')" class="yellow">
           <td>{{store.storeName}}</td>
-          <td>{{store.location}}</td>
+          <td nowrap>{{store.location}}</td>
           <td>{{store.mapKey}}</td>
           <td>{{store.effectivePower | number:'1.0-2'}}</td>
           <td>{{store.distance | number:'1.0-2'}} mi.</td>
@@ -272,7 +383,7 @@
         </tr>
         <tr *ngFor="let store of jsonToTablesService.getSOVStores('Proposed Competition')" class="pink">
           <td>{{store.storeName}}</td>
-          <td>{{store.location}}</td>
+          <td nowrap>{{store.location}}</td>
           <td>{{store.mapKey}}</td>
           <td>{{store.effectivePower | number:'1.0-2'}}</td>
           <td>{{store.distance | number:'1.0-2'}} mi.</td>
@@ -346,13 +457,87 @@
         </tr>
 
       </table>
-      <br>
+      <table cellspacing="0" id="descriptionsRatings" *ngIf="htmlAsJson && descriptions && jsonToTablesService.isInitialized()">
+        <tr *ngIf="descriptions">
+          <th class="table-section-header" colspan="2">
+            Site Evaluation
+          </th>
+        </tr>
+        <tr>
+          <td class="bold" colspan="2" style="text-align:left;">Access</td>
+        </tr>
+        <tr *ngIf="descriptions.access">
+          <td>North</td>
+          <td>{{descriptions.access.north}}</td>
+        </tr>
+        <tr *ngIf="descriptions.access">
+          <td>South</td>
+          <td>{{descriptions.access.south}}</td>
+        </tr>
+        <tr *ngIf="descriptions.access">
+          <td>East</td>
+          <td>{{descriptions.access.east}}</td>
+        </tr>
+        <tr *ngIf="descriptions.access">
+          <td>West</td>
+          <td>{{descriptions.access.west}}</td>
+        </tr>
+        <tr *ngIf="descriptions.ingressEgress">
+          <td class="bold" style="text-align:left;">Ingress/Egress</td>
+          <td>{{descriptions.ingressEgress}}</td>
+        </tr>
+        <tr>
+          <td class="bold" colspan="2" style="text-align:left;">Visibility</td>
+        </tr>
+        <tr *ngIf="descriptions.visibility">
+          <td>North</td>
+          <td>{{descriptions.visibility.north}}</td>
+        </tr>
+        <tr *ngIf="descriptions.visibility">
+          <td>South</td>
+          <td>{{descriptions.visibility.south}}</td>
+        </tr>
+        <tr *ngIf="descriptions.visibility">
+          <td>East</td>
+          <td>{{descriptions.visibility.east}}</td>
+        </tr>
+        <tr *ngIf="descriptions.visibility">
+          <td>West</td>
+          <td>{{descriptions.visibility.west}}</td>
+        </tr>
+        <tr>
+          <td class="bold" colspan="2" style="text-align:left;">Population Density</td>
+        </tr>
+        <tr *ngIf="descriptions.populationDensity">
+          <td>North</td>
+          <td>{{descriptions.populationDensity.north}}</td>
+        </tr>
+        <tr *ngIf="descriptions.populationDensity">
+          <td>South</td>
+          <td>{{descriptions.populationDensity.south}}</td>
+        </tr>
+        <tr *ngIf="descriptions.populationDensity">
+          <td>East</td>
+          <td>{{descriptions.populationDensity.east}}</td>
+        </tr>
+        <tr *ngIf="descriptions.populationDensity">
+          <td>West</td>
+          <td>{{descriptions.populationDensity.west}}</td>
+        </tr>
+      </table>
+      <hr>
       <div *ngIf="mapImage" style="display: flex;
       align-items: center;
-      justify-content: space-around;">
+      justify-content: center;">
         <img [src]="mapImage" id="mapImage">
-        <button [color]="getCurrentBasemap() == 'sat' ? 'warn':'primary'" (click)="toggleBasemap('sat')" mat-flat-button style="margin:5px;">Sat</button>
-        <button [color]="getCurrentBasemap() == 'road' ? 'warn':'primary'" (click)="toggleBasemap('road')" mat-flat-button style="margin:5px;">Road</button>
+        <div>
+          <button [color]="googleMapsBasemap === 'hybrid' ? 'warn':'primary'" (click)="getMapImage('hybrid')"
+            mat-flat-button style="margin:5px;">Sat</button><br>
+          <button [color]="googleMapsBasemap === 'roadmap' ? 'warn':'primary'" (click)="getMapImage('roadmap')"
+            mat-flat-button style="margin:5px;">Road</button><br>
+          <button [color]="'primary'" (click)="getMapImage(null, -1)" mat-flat-button style="margin:5px;"><i class="fas fa-search-plus"></i></button><br>
+          <button [color]="'primary'" (click)="getMapImage(null, 1)" mat-flat-button style="margin:5px;"><i class="fas fa-search-minus"></i></button><br>
+        </div>
       </div>
       <hr>
       <button [color]="'primary'" mat-flat-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
@@ -368,7 +553,7 @@
         images of the tables you've generated, a map, and a .csv file with your write-ups</div>
       <hr>
       <button [color]="'primary'" mat-flat-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
-      <button [color]="'warn'" mat-flat-button matStepperR (click)="stepper.reset()" style="margin-top:20px;">Start
+      <button [color]="'warn'" mat-flat-button matStepperR (click)="stepper.reset(); resetFile();" style="margin-top:20px;">Start
         Over</button>
 
     </div>

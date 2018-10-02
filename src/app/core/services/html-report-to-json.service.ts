@@ -243,7 +243,7 @@ export class HtmlReportToJsonService {
 
             this.outputJSON.firstYearEndingMonthYear = this.formatString(
               firstHeader[i].innerText
-            );
+            ).trim();
           } else {
             matchedSales = true;
           }
