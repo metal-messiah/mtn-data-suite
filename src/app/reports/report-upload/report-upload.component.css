@@ -132,9 +132,20 @@ mat-progress-bar {
   color: gray;
 }
 
-.footnote{
+.footnote {
   background: white;
   font-style: italic;
   color: gray;
   font-size: xx-small;
+}
+
+.categories-box {
+  padding: 5px 50px;
+  border: 1px solid gray;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 50vw;
+  min-width: 500px;
+  margin: 0 auto;
 }

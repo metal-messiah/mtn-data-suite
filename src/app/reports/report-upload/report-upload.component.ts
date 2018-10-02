@@ -156,7 +156,7 @@ export class ReportUploadComponent implements OnInit {
         west: form.value.populationDensityWest
       }
     };
-    console.log(this.descriptions)
+    console.log(this.descriptions);
   }
 
   toggleBasemap(type) {
@@ -233,7 +233,6 @@ export class ReportUploadComponent implements OnInit {
           zip.file(`${this.tableDomIds[i]}.png`, fileData);
         });
 
-
         const sisterStoreAffects = this.jsonToTablesService
           .getStoresForExport('Company Store')
           .sort((a, b) => {
@@ -254,9 +253,7 @@ export class ReportUploadComponent implements OnInit {
           this.descriptions.streetConditions
         }\r\n\r\nCo-tenants\r\n${
           this.descriptions.cotenants
-        }\r\n\r\nSister Store Affects\r\n${
-          sisterStoreAffects
-        }`;
+        }\r\n\r\nSister Store Affects\r\n${sisterStoreAffects}`;
 
         zip.file(`descriptions.txt`, new Blob([txt]));
 
@@ -297,6 +294,33 @@ export class ReportUploadComponent implements OnInit {
     }
   }
 
+  changeCombinedCategory(event, combo) {
+    console.log(combo, ' change to ', event.target.value);
+    this.htmlAsJson.storeList.forEach((s, i) => {
+      if (s.storeName === combo.storeName && s.uniqueId) {
+        this.htmlAsJson.storeList[i].category = event.target.value;
+      }
+    });
+  }
+
+  getExistingStoresCount(storeName) {
+    return this.htmlAsJson.storeList.filter(s => s.storeName === storeName && s.uniqueId).length;
+  }
+
+  getExistingStoresCombined() {
+    return this.htmlAsJson.storeList
+      .filter(s => s.uniqueId !== null)
+      .map(s => {
+        return { storeName: s.storeName, category: s.category };
+      })
+      .filter((elem, idx, arr) => {
+        return arr.findIndex(e => e.storeName === elem.storeName) === idx;
+      });
+  }
+
+  getProposedStores() {
+    return this.htmlAsJson.storeList.filter(s => s.uniqueId === null);
+  }
 
   resetFile() {
     console.log('RESET FILE');
