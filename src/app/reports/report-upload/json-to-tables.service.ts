@@ -120,8 +120,8 @@ export class JsonToTablesService {
     }
   }
 
-  getStoresByCategory(category) {
-    return this.json.storeList.filter(store => store.category === category);
+  getStoresForExport(category) {
+    return this.json.storeList.filter(store => store.category === category && !this.isTargetStore(store));
   }
 
   getProjectionComment() {

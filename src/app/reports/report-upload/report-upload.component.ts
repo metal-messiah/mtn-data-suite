@@ -247,7 +247,7 @@ export class ReportUploadComponent implements OnInit {
         });
 
         const sisterStoreAffects = this.jsonToTablesService
-          .getStoresByCategory('Company Store')
+          .getStoresForExport('Company Store')
           .sort((a, b) => {
             if (a.storeName === b.storeName) {
               return Number(a.mapKey) - Number(b.mapKey);
