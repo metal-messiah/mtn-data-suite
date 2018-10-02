@@ -130,6 +130,13 @@ mat-progress-bar {
   color: gray;
 }
 
+.footnote{
+  background: white;
+  font-style: italic;
+  color: gray;
+  font-size: xx-small;
+}
+
 /* img{
   display: block;
   margin: 0 auto;

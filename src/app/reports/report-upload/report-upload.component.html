@@ -417,29 +417,12 @@
         </tr>
         <tr>
           <td><b>Sales Potential</b></td>
-          <td colspan="3"></td>
+          <td>
+            <b>Assume Store Opens {{htmlAsJson.firstYearEndingMonthYear}}</b>
+          </td>
+          <td colspan="2"></td>
           <td colspan="5"><b>Sales Transfers from Company Stores</b></td>
           <td>${{jsonToTablesService.getSalesTransfersFromCompanyStores() |
-            number:'1.0-0'}}
-          </td>
-          <td colspan="2"></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td colspan="3"></td>
-          <td colspan="5"><b>Sales Transfers from Competition</b></td>
-          <td>${{
-            jsonToTablesService.getSalesTransfersFromCompetition() |
-            number:'1.0-0'}}
-          </td>
-          <td colspan="2"></td>
-        </tr>
-        <tr>
-          <td><b>Assume Store Opens {{htmlAsJson.firstYearEndingMonthYear}}</b></td>
-          <td colspan="3"></td>
-          <td colspan="5"><b>Total Sales Transfer</b></td>
-          <td>${{
-            jsonToTablesService.getTotalSalesTransfers() |
             number:'1.0-0'}}
           </td>
           <td colspan="2"></td>
@@ -448,7 +431,26 @@
           <td><b>{{getFirstYearAsNumber() + 1}} - After Open 1 Year</b></td>
           <td><b>${{jsonToTablesService.getAfterOpen1Year() | number:'1.0-0'}}</b></td>
           <td colspan="2"></td>
-          <td colspan="5"><b>Percent of Sales Explained After One Year</b></td>
+          <td colspan="5"><b>Sales Transfers from Competition</b></td>
+          <td>${{
+            jsonToTablesService.getSalesTransfersFromCompetition() |
+            number:'1.0-0'}}
+          </td>
+          <td colspan="2"></td>
+        </tr>
+        <tr>
+          <td class='footnote' colspan="5" rowspan="2">
+            {{jsonToTablesService.snackbarMsg}}
+          </td>
+          <td colspan="4"><b>Total Sales Transfer</b></td>
+          <td>${{
+            jsonToTablesService.getTotalSalesTransfers() |
+            number:'1.0-0'}}
+          </td>
+          <td colspan="2"></td>
+        </tr>
+        <tr>
+          <td colspan="4"><b>Percent of Sales Explained After One Year</b></td>
           <td>{{
             jsonToTablesService.getPercentOfSalesExplained() | number:'1.1-1'
             }}%
@@ -457,6 +459,7 @@
         </tr>
 
       </table>
+      <hr>
       <table style="max-width: 2.5in;" cellspacing="0" id="descriptionsRatings" *ngIf="htmlAsJson && descriptions && jsonToTablesService.isInitialized()">
         <tr *ngIf="descriptions">
           <th class="table-section-header" colspan="2">

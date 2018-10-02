@@ -21,6 +21,7 @@ export class JsonToTablesService {
 
   showedSnackbar = false;
   snackbarRef: any;
+  snackbarMsg: string;
 
   formattedTables = {
     targetStore: null,
@@ -247,24 +248,22 @@ export class JsonToTablesService {
 
       if (!this.showedSnackbar) {
         this.showedSnackbar = true;
-        const msg = `SOV does not include anything less than $${threshold.toLocaleString()} (Showing ${output.length -
+        this.snackbarMsg = `Does not include anything less than $${threshold.toLocaleString()} (Showing ${output.length -
           overflow.length}/${
           output.length
-        } Stores). A total Contribution To Site of $${overflowSum.toLocaleString()} was excluded from the SOV Report.
-        If needed, adjust 'Maximum Records per SOV Category
-' on step 1, or mark individual sites as 'Do Not Include' on step 2.`;
+        } Stores). A total Contribution To Site of $${overflowSum.toLocaleString()} was excluded from the Report.`;
 
-        this.showSnackbar(msg);
+        this.showSnackbar();
       }
     }
 
     return output.splice(0, this.maxPerSOVCategory);
   }
 
-  showSnackbar(message) {
+  showSnackbar() {
     console.log('show snackbar');
     setTimeout(() => {
-      this.snackbarRef = this.snackBar.open(message, 'OK', { duration: 99999 });
+      this.snackbarRef = this.snackBar.open(this.snackbarMsg, 'OK', { duration: 99999 });
     }, 1);
   }
 

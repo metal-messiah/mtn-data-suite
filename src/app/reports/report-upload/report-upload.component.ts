@@ -53,18 +53,6 @@ export class ReportUploadComponent implements OnInit {
     'descriptionsRatings'
   ];
 
-  tableJson: {
-    targetStore: object;
-    projectionsTable: object;
-    currentStoresWeeklySummary: object[];
-    projectedStoresWeeklySummary: object[];
-    sourceOfVolume: {
-      companyStores: object[];
-      existingCompetition: object[];
-      proposedCompetition: object[];
-    };
-  };
-
   fileReader: FileReader;
   inputData: ReportUploadInterface;
   stepper: MatStepper;
@@ -246,6 +234,7 @@ export class ReportUploadComponent implements OnInit {
           zip.file(`${this.tableDomIds[i]}.png`, fileData);
         });
 
+
         const sisterStoreAffects = this.jsonToTablesService
           .getStoresForExport('Company Store')
           .sort((a, b) => {
@@ -255,22 +244,22 @@ export class ReportUploadComponent implements OnInit {
               return a.storeName < b.storeName ? -1 : 1;
             }
           })
-          .map(store => `,${store.storeName} ${store.mapKey}`)
+          .map(store => `${store.storeName} ${store.mapKey}`)
           .join('\r\n');
 
-        const csv = `Street Conditions,${
+        const txt = `Street Conditions\r\n${
           this.descriptions.streetConditions
-        }\nComments,${
+        }\r\n\r\nComments\r\n${
           this.descriptions.comments
-        }\nTraffic Controls,${
+        }\r\n\r\nTraffic Controls\r\n${
           this.descriptions.streetConditions
-        }\nCo-tenants,${
+        }\r\n\r\nCo-tenants\r\n${
           this.descriptions.cotenants
-        }\nSister Store Affects ${
+        }\r\n\r\nSister Store Affects\r\n${
           sisterStoreAffects
         }`;
 
-        zip.file(`descriptions.csv`, new Blob([csv]));
+        zip.file(`descriptions.txt`, new Blob([txt]));
 
         zip.generateAsync({ type: 'blob' }).then(blob => {
           saveAs(
@@ -370,10 +359,6 @@ export class ReportUploadComponent implements OnInit {
     this.jsonToTablesService.showedSnackbar = false;
     this.jsonToTablesService.init(this.inputData, this.htmlAsJson);
     this.getMapImage();
-    // this.tableJson = this.jsonToTablesService.generateTables(
-    //   this.inputData,
-    //   this.htmlAsJson
-    // );
   }
 
   stepForward() {
