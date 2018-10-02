@@ -17,7 +17,8 @@ export class JsonToTablesService {
   matchingStore: StoreListItem;
   salesGrowthProjection;
 
-  maxPerSOVCategory = 15;
+  // maxPerSOVCategory = 15;
+  maxSOV = 25;
 
   showedSnackbar = false;
   snackbarRef: any;
@@ -55,7 +56,6 @@ export class JsonToTablesService {
 
   init(modelData: ReportUploadInterface, json: HTMLasJSON) {
     this.modelData = modelData;
-    this.maxPerSOVCategory = modelData.maxPerSOV;
     this.json = json;
     const { siteNumber, type } = modelData;
     this.matchingStore = json.storeList.filter(
@@ -181,10 +181,62 @@ export class JsonToTablesService {
     return { beforematch, aftermatch };
   }
 
+  getTruncatedSOVStores() {
+    const stores = this.json.storeList
+      // only get the ones matching the cat
+      .filter(store => store.category !== 'Do Not Include')
+      .map(store => {
+        const { beforematch, aftermatch } = this.getSOVMatches(store);
+        store['contributionToSite'] = !this.isTargetStore(store)
+          ? Math.abs(
+              Number(beforematch.futureSales) - Number(aftermatch.futureSales)
+            )
+          : null;
+        return store;
+      })
+      // sort by target, then by contribution to site
+      .sort((a, b) => {
+        if (a.mapKey === this.modelData.siteNumber) {
+          return -1;
+        }
+        if (b.mapKey === this.modelData.siteNumber) {
+          return 1;
+        }
+        return b['contributionToSite'] - a['contributionToSite'];
+      });
+    // only return the max at most
+    const overflow = stores
+      .map((s, i) => {
+        if (i >= this.maxSOV) {
+          return s['contributionToSite'];
+        }
+      })
+      .filter(s => s);
+    // console.log(overflow);
+
+    if (overflow.length) {
+      const threshold = stores[this.maxSOV - 1]['contributionToSite'];
+      const overflowSum = overflow.reduce((prev, next) => prev + next);
+
+      if (!this.showedSnackbar) {
+        this.showedSnackbar = true;
+        this.snackbarMsg = `*Does not include contributions less than $${threshold.toLocaleString()} (Showing ${stores.length -
+          overflow.length}/${
+          stores.length
+        } Stores). A total Contribution To Site of $${overflowSum.toLocaleString()} was excluded from the Report.`;
+
+        this.showSnackbar();
+      }
+    }
+
+    return stores.splice(0, this.maxSOV);
+
+  }
+
   getSOVStores(category) {
     // categories => Company Store, Proposed Competition, Existing Competition
 
-    const output = this.json.storeList
+    return this.getTruncatedSOVStores()
       // only get the ones matching the cat
       .filter(store => store.category === category)
       // create an array with new properties added
@@ -222,42 +274,6 @@ export class JsonToTablesService {
 
         return store;
       })
-      // sort by target, then by contribution to site
-      .sort((a, b) => {
-        if (a.mapKey === this.modelData.siteNumber) {
-          return -1;
-        }
-        if (b.mapKey === this.modelData.siteNumber) {
-          return 1;
-        }
-        return b['contributionToSite'] - a['contributionToSite'];
-      });
-    // only return 15 at most
-    const overflow = output
-      .map((s, i) => {
-        if (i >= this.maxPerSOVCategory) {
-          return s['contributionToSite'];
-        }
-      })
-      .filter(s => s);
-    // console.log(overflow);
-
-    if (overflow.length) {
-      const threshold = overflow[0];
-      const overflowSum = overflow.reduce((prev, next) => prev + next);
-
-      if (!this.showedSnackbar) {
-        this.showedSnackbar = true;
-        this.snackbarMsg = `Does not include anything less than $${threshold.toLocaleString()} (Showing ${output.length -
-          overflow.length}/${
-          output.length
-        } Stores). A total Contribution To Site of $${overflowSum.toLocaleString()} was excluded from the Report.`;
-
-        this.showSnackbar();
-      }
-    }
-
-    return output.splice(0, this.maxPerSOVCategory);
   }
 
   showSnackbar() {

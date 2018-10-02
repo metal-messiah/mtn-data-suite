@@ -124,8 +124,7 @@ export class ReportUploadComponent implements OnInit {
       type: 'New',
       siteNumber: '1000.1',
       modelName: 'Jacksonville FL 18 Kitson',
-      fieldResDate: new Date(),
-      maxPerSOV: 15
+      fieldResDate: new Date()
     };
   }
 

@@ -4,5 +4,4 @@ export interface ReportUploadInterface {
   siteNumber: String;
   modelName: String;
   fieldResDate: Date;
-  maxPerSOV: number;
 }
