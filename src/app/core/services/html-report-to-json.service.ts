@@ -183,6 +183,7 @@ export class HtmlReportToJsonService {
       this.generateStoreList();
     } else {
       this.currentTableType = null;
+      const target = this.outputJSON.storeList.filter( s => s.mapKey === this.inputData.siteNumber )[0]
       this.outputJSON.storeList = this.outputJSON.storeList
         // .filter(
         //   storeListItem =>
@@ -192,7 +193,7 @@ export class HtmlReportToJsonService {
         .map(storeListItem => {
           storeListItem.parentCompanyId = null;
           storeListItem.category =
-            storeListItem.mapKey === this.inputData.siteNumber
+            storeListItem.mapKey === this.inputData.siteNumber || storeListItem.storeName === target.storeName
               ? 'Company Store'
               : storeListItem.uniqueId
                 ? 'Existing Competition'
