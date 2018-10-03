@@ -29,6 +29,7 @@ import { BannerService } from './services/banner.service';
 import { StoreSourceService } from './services/store-source.service';
 import { EntitySelectionService } from './services/entity-selection.service';
 import { CompanyService } from './services/company.service';
+import { ExtractionService } from './services/extraction.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -41,6 +42,7 @@ import { CompanyService } from './services/company.service';
     DetailFormService,
     EntityListService,
     ErrorService,
+    ExtractionService,
     GeocoderService,
     GroupService,
     MapService,

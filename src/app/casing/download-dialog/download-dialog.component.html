@@ -1,0 +1,26 @@
+<div>
+  <h2 mat-dialog-title>Download</h2>
+  <div mat-dialog-content>
+    <div style="margin-bottom: 10px;" *ngIf="selectedStoreIds && selectedStoreIds.length > 0">
+      Selected Stores: {{selectedStoreIds.length}}
+    </div>
+    <h3 style="margin-bottom: 10px;" *ngIf="!selectedStoreIds || selectedStoreIds.length < 1">
+      No Stores Selected! Please go back and select stores.
+    </h3>
+    <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+    <div>
+      <mat-form-field>
+        <mat-select [disabled]="loading" placeholder="Select a Field Set" [(ngModel)]="selectedFieldSet">
+          <mat-option *ngFor="let fieldSet of fieldSets" [value]="fieldSet">{{fieldSet.fieldSetName}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-raised-button mat-dialog-close>Close</button>
+    <button mat-raised-button color="accent" (click)="download()" [disabled]="!selectedStoreIds || selectedStoreIds.length < 1 || downloading">
+      <span *ngIf="!downloading"><i class="fas fa-download"></i>&nbsp;Download</span>
+      <span><i class="fas fa-spinner fa-pulse" *ngIf="downloading"></i></span>
+    </button>
+  </div>
+</div>
