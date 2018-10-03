@@ -10,7 +10,6 @@ import { MatSnackBar, SimpleSnackBar } from '@angular/material';
 
 @Injectable()
 export class JsonToTablesService {
-  mapService: MapService;
 
   modelData: ReportUploadInterface;
   json: HTMLasJSON;
@@ -51,7 +50,6 @@ export class JsonToTablesService {
   };
 
   constructor(public auth: AuthService, private snackBar: MatSnackBar) {
-    this.mapService = new MapService(auth);
   }
 
   init(modelData: ReportUploadInterface, json: HTMLasJSON) {
@@ -264,7 +262,7 @@ export class JsonToTablesService {
             : store['futureSales'] - store['contributionToSite'];
 
         store['distance'] =
-          this.mapService.getDistanceBetween(
+          MapService.getDistanceBetween(
             { lat: store.latitude, lng: store.longitude },
             {
               lat: this.matchingStore.latitude,
