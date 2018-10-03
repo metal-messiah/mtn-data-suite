@@ -21,7 +21,8 @@ import { CompanyService } from '../../core/services/company.service';
 import { Observable, Observer, of, Subject, forkJoin } from 'rxjs/index';
 import { ReportUploadComponent } from '../../reports/report-upload/report-upload.component';
 import { first } from 'rxjs/operators';
-
+import { SimplifiedStore } from '../../models/simplified/simplified-store';
+import { MatSnackBar, SimpleSnackBar } from '@angular/material';
 /*
   The HtmlReportToJson service should
   - create a json template
@@ -77,7 +78,8 @@ export class HtmlReportToJsonService {
     public auth: AuthService,
     public storeService: StoreService,
     public bannerService: BannerService,
-    public companyService: CompanyService
+    public companyService: CompanyService,
+    public snackBar: MatSnackBar
   ) {
     this.parser = new DOMParser();
     this.output$ = new Subject<HTMLasJSON>();
@@ -183,17 +185,15 @@ export class HtmlReportToJsonService {
       this.generateStoreList();
     } else {
       this.currentTableType = null;
-      const target = this.outputJSON.storeList.filter( s => s.mapKey === this.inputData.siteNumber )[0]
-      this.outputJSON.storeList = this.outputJSON.storeList
-        // .filter(
-        //   storeListItem =>
-        //     storeListItem.uniqueId != null ||
-        //     this.inputData.siteNumber === storeListItem.mapKey
-        // )
-        .map(storeListItem => {
+      const target = this.outputJSON.storeList.filter(
+        s => s.mapKey === this.inputData.siteNumber
+      )[0];
+      this.outputJSON.storeList = this.outputJSON.storeList.map(
+        storeListItem => {
           storeListItem.parentCompanyId = null;
           storeListItem.category =
-            storeListItem.mapKey === this.inputData.siteNumber || storeListItem.storeName === target.storeName
+            storeListItem.mapKey === this.inputData.siteNumber ||
+            storeListItem.storeName === target.storeName
               ? 'Company Store'
               : storeListItem.uniqueId
                 ? 'Existing Competition'
@@ -203,10 +203,40 @@ export class HtmlReportToJsonService {
           storeListItem.totalSize = Math.round(
             Number(storeListItem.salesArea) / 0.72
           );
+
           return storeListItem;
-        });
+        }
+      );
+      this.updateStoreTotalAreas();
       this.generateProjectedBefore();
     }
+  }
+
+  updateStoreTotalAreas() {
+    const storeIds = this.outputJSON.storeList
+      .filter(s => s.uniqueId)
+      .map(s => s.uniqueId);
+    this.storeService.getAllByIds(storeIds).subscribe(
+      data => {
+        data.forEach((store: SimplifiedStore) => {
+          const idx = this.outputJSON.storeList.findIndex(
+            s => s.uniqueId === store.id
+          );
+          if (idx !== -1) {
+            this.outputJSON.storeList[idx].totalSize = store.areaTotal;
+          }
+        });
+        
+      },
+      err => {
+        setTimeout(() => {
+          this.snackBar.open('Failed to retrieve total area from database... used estimation calculations instead', 'OK', {
+            duration: 99999
+          });
+        }, 1);
+        
+      }
+    );
   }
 
   generateProjectedBefore() {
@@ -568,8 +598,6 @@ export class HtmlReportToJsonService {
 
     this.sendResult();
   }
-
- 
 
   sendResult() {
     this.output$.next(this.outputJSON);

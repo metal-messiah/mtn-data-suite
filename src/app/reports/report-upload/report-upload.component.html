@@ -317,7 +317,7 @@
           <td>{{store.effectivePower | number:'1.0-2'}}</td>
           <td>{{store.distance | number:'1.0-2'}} mi.</td>
           <td>{{store.salesArea | number:'1.0-2'}}</td>
-          <td>{{store.totalSize | number:'1.0-2'}}</td>
+          <td class='editable' (click)="editTotalArea($event.target.innerText, store)">{{store.totalSize | number:'1.0-2'}}</td>
           <td>{{store.actualSales / 1000 | number:'1.0-2'}}</td>
           <td>{{store.projectedSales / 1000 | number:'1.0-2'}}</td>
           <td>{{store.contributionToSite ? (store.contributionToSite / 1000).toFixed(0) : '-'}}</td>

@@ -1,6 +1,6 @@
 import { Component, NgZone, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { MatSnackBar, MatStepper } from '@angular/material';
+import { MatSnackBar, MatStepper, MatDialog } from '@angular/material';
 import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
 import { AuthService } from '../../core/services/auth.service';
 import * as _ from 'lodash';
@@ -20,6 +20,7 @@ import { JsonToTablesService } from './json-to-tables.service';
 
 import { HttpClient } from '@angular/common/http';
 import { RestService } from '../../core/services/rest.service';
+import { EditTotalSizeDialogComponent } from '../edit-total-size-dialog/edit-total-size-dialog.component';
 
 @Component({
   selector: 'mds-report-upload',
@@ -104,7 +105,8 @@ export class ReportUploadComponent implements OnInit {
     private jsonToTablesService: JsonToTablesService,
     private http: HttpClient,
     private rest: RestService,
-    public auth: AuthService
+    public auth: AuthService,
+    public dialog: MatDialog,
   ) {
     this.fileReader = new FileReader();
     this.fileReader.onload = event => this.handleFileContents(event); // desired file content
@@ -129,6 +131,14 @@ export class ReportUploadComponent implements OnInit {
   }
 
   ngOnInit() {}
+
+  editTotalArea(value, store) {
+    const dialogRef = this.dialog.open(EditTotalSizeDialogComponent, {
+      data: {value: value, store: store, jsonToTablesService: this.jsonToTablesService}
+    });
+  }
+
+  
 
   handleDescriptionsForm(form) {
     this.descriptions = {
@@ -304,7 +314,9 @@ export class ReportUploadComponent implements OnInit {
   }
 
   getExistingStoresCount(storeName) {
-    return this.htmlAsJson.storeList.filter(s => s.storeName === storeName && s.uniqueId).length;
+    return this.htmlAsJson.storeList.filter(
+      s => s.storeName === storeName && s.uniqueId
+    ).length;
   }
 
   getExistingStoresCombined() {

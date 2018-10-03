@@ -7,6 +7,8 @@ import { MapService } from '../../core/services/map.service';
 import { AuthService } from '../../core/services/auth.service';
 import { StoreListItem } from '../../models/store-list-item';
 import { MatSnackBar, SimpleSnackBar } from '@angular/material';
+import { StoreService } from '../../core/services/store.service';
+import { Store } from '../../models/full/store';
 
 @Injectable()
 export class JsonToTablesService {
@@ -50,7 +52,11 @@ export class JsonToTablesService {
     }
   };
 
-  constructor(public auth: AuthService, private snackBar: MatSnackBar) {
+  constructor(
+    public auth: AuthService,
+    private snackBar: MatSnackBar,
+    public storeService: StoreService
+  ) {
     this.mapService = new MapService(auth);
   }
 
@@ -122,7 +128,9 @@ export class JsonToTablesService {
   }
 
   getStoresForExport(category) {
-    return this.json.storeList.filter(store => store.category === category && !this.isTargetStore(store));
+    return this.json.storeList.filter(
+      store => store.category === category && !this.isTargetStore(store)
+    );
   }
 
   getProjectionComment() {
@@ -230,57 +238,79 @@ export class JsonToTablesService {
     }
 
     return stores.splice(0, this.maxSOV);
-
   }
 
   getSOVStores(category) {
     // categories => Company Store, Proposed Competition, Existing Competition
 
-    return this.getTruncatedSOVStores()
-      // only get the ones matching the cat
-      .filter(store => store.category === category)
-      // create an array with new properties added
-      .map(store => {
-        const { beforematch, aftermatch } = this.getSOVMatches(store);
+    return (
+      this.getTruncatedSOVStores()
+        // only get the ones matching the cat
+        .filter(store => store.category === category)
+        // create an array with new properties added
+        .map(store => {
+          const { beforematch, aftermatch } = this.getSOVMatches(store);
 
-        store['currentSales'] = beforematch.currentSales;
+          store['currentSales'] = beforematch.currentSales;
 
-        store['futureSales'] = beforematch.futureSales;
+          store['futureSales'] = beforematch.futureSales;
 
-        store['contributionToSite'] = !this.isTargetStore(store)
-          ? Math.abs(
-              Number(beforematch.futureSales) - Number(aftermatch.futureSales)
-            )
-          : null;
-        store['contributionToSitePerc'] = !this.isTargetStore(store)
-          ? (Number(store['contributionToSite']) /
-              Number(store['futureSales'])) *
-            100
-          : null;
+          store['contributionToSite'] = !this.isTargetStore(store)
+            ? Math.abs(
+                Number(beforematch.futureSales) - Number(aftermatch.futureSales)
+              )
+            : null;
+          store['contributionToSitePerc'] = !this.isTargetStore(store)
+            ? (Number(store['contributionToSite']) /
+                Number(store['futureSales'])) *
+              100
+            : null;
 
-        store['resultingVolume'] =
-          store.mapKey === this.matchingStore.mapKey
-            ? aftermatch.futureSales
-            : store['futureSales'] - store['contributionToSite'];
+          store['resultingVolume'] =
+            store.mapKey === this.matchingStore.mapKey
+              ? aftermatch.futureSales
+              : store['futureSales'] - store['contributionToSite'];
 
-        store['distance'] =
-          this.mapService.getDistanceBetween(
-            { lat: store.latitude, lng: store.longitude },
-            {
-              lat: this.matchingStore.latitude,
-              lng: this.matchingStore.longitude
-            }
-          ) * 0.000621371;
+          store['distance'] =
+            this.mapService.getDistanceBetween(
+              { lat: store.latitude, lng: store.longitude },
+              {
+                lat: this.matchingStore.latitude,
+                lng: this.matchingStore.longitude
+              }
+            ) * 0.000621371;
 
-        return store;
-      })
+          return store;
+        })
+    );
   }
 
   showSnackbar() {
     console.log('show snackbar');
     setTimeout(() => {
-      this.snackbarRef = this.snackBar.open(this.snackbarMsg, 'OK', { duration: 99999 });
+      this.snackbarRef = this.snackBar.open(this.snackbarMsg, 'OK', {
+        duration: 99999
+      });
     }, 1);
+  }
+
+  updateSOVTotalSize(store, value) {
+    if (store.uniqueId) {
+      this.storeService.getOneById(store.uniqueId).subscribe((s: Store) => {
+        s['areaTotal'] = value;
+        this.storeService.update(s).subscribe(res => {
+          console.log('updated db', res);
+        });
+      });
+    } else {
+      this.snackbarMsg = 'Updated the local table but could not update the database because the store does not exist there.';
+      this.showSnackbar();
+    }
+    const idx = this.json.storeList.findIndex(s => s.mapKey === store.mapKey);
+    if (idx !== -1) {
+      this.json.storeList[idx].totalSize = value;
+    }
+    console.log('updated json');
   }
 
   getSOVContributionToSite(store) {}

@@ -149,3 +149,16 @@ mat-progress-bar {
   min-width: 500px;
   margin: 0 auto;
 }
+
+.invalid{
+  border: 1px solid red;
+  color: red;
+}
+
+.editable{
+  cursor: pointer;
+}
+
+.editable:hover{
+  text-decoration: underline;
+}
