@@ -16,6 +16,8 @@ export class SimplifiedStore implements Entity {
   projectIds: number[];
   validatedDate: Date;
   validatedBy: SimplifiedUserProfile;
+  areaSales: number;
+  areaTotal: number;
 
   site: SimplifiedSite;
   banner: SimplifiedBanner;

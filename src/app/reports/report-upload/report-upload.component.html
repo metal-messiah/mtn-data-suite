@@ -5,17 +5,13 @@
   <ng-template matStepperIcon="done">
     <i class="fas fa-check"></i>
   </ng-template>
-  <mat-step [completed]="!reportUploadForm.invalid && htmlAsJson">
+  <mat-step [completed]="!reportUploadForm.invalid && htmlAsString">
     <ng-template matStepLabel>Import Data</ng-template>
     <div class="report-upload-wrapper">
       <form #reportUploadForm="ngForm">
         <mat-form-field>
           <input required matInput name="analyst" type="text" [ngModel]="interface.analyst">
           <mat-hint>Analyst Full Name</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input required matInput name="retailerName" type="text" [ngModel]="interface.retailerName">
-          <mat-hint>Retailer Name</mat-hint>
         </mat-form-field>
         <mat-form-field>
           <input required matInput name="type" type="text" [ngModel]="interface.type">
@@ -26,14 +22,6 @@
           <mat-hint>Site Number</mat-hint>
         </mat-form-field>
         <mat-form-field>
-          <input required matInput name="storeAddress" type="text" [ngModel]="interface.storeAddress">
-          <mat-hint>Store Address</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input required matInput name="state" type="text" [ngModel]="interface.state">
-          <mat-hint>State</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
           <input required matInput name="modelName" type="text" [ngModel]="interface.modelName">
           <mat-hint>Model Name</mat-hint>
         </mat-form-field>
@@ -41,51 +29,128 @@
           <input required matInput name="fieldResDate" type="date" [ngModel]="interface.fieldResDate | date:'yyyy-MM-dd'">
           <mat-hint>Field Res Date</mat-hint>
         </mat-form-field>
-        <mat-form-field>
-          <input required matInput name="firstYearEndingMonthYear" type="month" [ngModel]="interface.firstYearEndingMonthYear | date:'yyyy-MM'">
-          <mat-hint>First Year Ending Date</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input required matInput name="reportDate" type="date" [ngModel]="interface.reportDate | date:'yyyy-MM-dd'">
-          <mat-hint>Report Date</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input required matInput name="projectNumber" type="number" [ngModel]="interface.projectNumber">
-          <mat-hint>Project Number</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input required matInput min="1950" max="2050" name="opens" type="number" [ngModel]="interface.opens">
-          <mat-hint>Opens</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input required matInput name="demographicDataYear" step="1" max="2050" min="1950" type="number" [ngModel]="interface.demographicDataYear">
-          <mat-hint>Demographic Data Year</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input required matInput name="inflationRate" step="0.1" min="0" type="number" [ngModel]="interface.inflationRate">
-          <mat-hint>Inflation Rate</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input required matInput name="secondYearAcceptance" step="0.1" min="0" type="number" [ngModel]="interface.secondYearAcceptance">
-          <mat-hint>Second Year Acceptance</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-          <input required matInput name="thirdYearAcceptance" step="0.1" min="0" type="number" [ngModel]="interface.thirdYearAcceptance">
-          <mat-hint>Third Year Acceptance</mat-hint>
-        </mat-form-field>
+        
+
+
+
         <div class="submit">
           <button type="button" mat-flat-button [color]="htmlFile ? 'primary' : 'warn'" (click)="htmlFileInput.click()"
             [disabled]="compilingJson || reportUploadForm.invalid"><i class="fas fa-spinner fa-spin" *ngIf="compilingJson"></i>
             {{compilingJson ? ' Fetching Data From Server': 'Upload HTML File'}}</button>
-          <input hidden type="file" accept=".html" #htmlFileInput (change)="readFile($event, reportUploadForm)" />
-          <span style="margin-left:20px;" *ngIf="htmlAsJson"><i class="fas fa-check-circle" style="color:green;"></i>
-            {{htmlFile.name}}</span>
+          <input hidden type="file" accept=".html" #htmlFileInput (change)="readFile($event)" />
+          <span style="margin-left:20px;" *ngIf="htmlFile"><i *ngIf="htmlAsString" class="fas fa-check-circle" style="color:green;"></i>
+            {{htmlFile ? htmlFile.name : ''}}</span>
           <br />
-          <button [color]="!reportUploadForm.invalid && htmlAsJson ? 'primary' : 'warn'" [disabled]="reportUploadForm.invalid || !htmlAsJson"
-            mat-flat-button matStepperNext style="margin-top:20px;">Assign Store Categories</button>
+          <button (click)="convertHtmlToJson(reportUploadForm)" [color]="'warn'" [disabled]="reportUploadForm.invalid || !htmlFile || !htmlAsString"
+            mat-flat-button matStepperNext style="margin-top:20px;">Write Report Descriptions</button>
         </div>
       </form>
-
+    </div>
+  </mat-step>
+  <mat-step>
+    <ng-template matStepLabel>Descriptions</ng-template>
+    <div class="report-upload-wrapper">
+      <form #descriptionsForm="ngForm">
+        <mat-form-field>
+          <textarea matInput name="streetConditions" [ngModel]="''"></textarea>
+          <mat-hint>Street Conditions</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <textarea matInput name="comments" [ngModel]="''"></textarea>
+          <mat-hint>Comments</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <textarea matInput name="trafficControls" [ngModel]="''"></textarea>
+          <mat-hint>Traffic Controls</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <textarea matInput name="cotenants" [ngModel]="''"></textarea>
+          <mat-hint>Co-Tenants</mat-hint>
+        </mat-form-field>
+        <div class='select-group-header bold'>Access</div>
+        <div class='select-group'>
+          <mat-form-field>
+            <mat-select placeholder='North' name="accessNorth" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='East' name="accessEast" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='South' name="accessSouth" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='West' name="accessWest" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class='select-group-header bold'>Ingress/Egress</div>
+        <div class='select-group'>
+          <mat-form-field>
+            <mat-select placeholder='Ingress/Egress' name="ingressEgress" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class='select-group-header bold'>Visibility</div>
+        <div class='select-group'>
+          <mat-form-field>
+            <mat-select placeholder='North' name="visibilityNorth" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='East' name="visibilityEast" [ngModel]="'Average'">
+              <mat-option [value]='option' *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='South' name="visibilitySouth" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='West' name="visibilityWest" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class='select-group-header bold'>Population Density</div>
+        <div class='select-group'>
+          <mat-form-field>
+            <mat-select placeholder='North' name="populationDensityNorth" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='East' name="populationDensityEast" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='South' name="populationDensitySouth" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select placeholder='West' name="populationDensityWest" [ngModel]="'Average'">
+              <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class='submit'>
+          <button [color]="'primary'" mat-flat-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
+          <button [color]="'warn'" mat-flat-button matStepperNext (click)="handleDescriptionsForm(descriptionsForm)"
+            style="margin-top:20px;">Generate
+            Tables From Data</button>
+        </div>
+      </form>
     </div>
   </mat-step>
   <mat-step>
@@ -99,7 +164,7 @@
       width: 50vw;
       min-width: 500px;
       margin: 0 auto;"
-        *ngFor="let store of htmlAsJson.storeList; let i=index;" [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : 'pink'">
+        *ngFor="let store of htmlAsJson.storeList; let i=index;" [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
         <div>
           <span style="margin-right: 20px;">{{store.mapKey}}</span>
           <span style="margin-right: 20px;">{{store.storeName}}</span>
@@ -109,288 +174,388 @@
         </select>
       </div>
     </div>
+    <hr>
     <button [color]="'primary'" mat-flat-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
-    <button [color]="'primary'" mat-flat-button matStepperNext (click)="generateTables()" style="margin-top:20px;">Generate
+    <button [color]="'warn'" mat-flat-button matStepperNext (click)="generateTables()" style="margin-top:20px;">Generate
       Tables From Data</button>
 
   </mat-step>
   <mat-step>
     <ng-template matStepLabel>Preview Tables</ng-template>
-    <mat-progress-bar *ngIf="compilingImages" mode="indeterminate"></mat-progress-bar>
-    <button (click)="saveAsImage()"
-      mat-flat-button>Save Tables As Images</button>
-      <br>
-      <a style="margin:5px" mat-flat-button *ngFor="let url of tableImageUrls; let i = index;" [href]="url" download>Download Image {{i+1}}</a>
-    <table id="projectionsTable" cellspacing="0" #projectionsTable *ngIf="tableJson">
-      <tr>
-        <th colspan="8">
-          <h2>Projections</h2>
-        </th>
-      </tr>
-      <tr>
-        <th>Map Key</th>
-        <th>Scenario</th>
-        <th>Projected FIT Image</th>
-        <th>Sales Area</th>
-        <th>Year 1 Ending</th>
-        <th>Year 2 Ending</th>
-        <th>Year 3 Ending</th>
-        <th>Comment</th>
-      </tr>
-      <tr>
-        <td>{{tableJson.projectionsTable.mapKey}}</td>
-        <td>{{tableJson.projectionsTable.scenario}}</td>
-        <td>{{tableJson.projectionsTable.projectedFitImage}}</td>
-        <td>{{tableJson.projectionsTable.salesArea | number}}</td>
-        <td>${{tableJson.projectionsTable.year1Ending}}</td>
-        <td>${{tableJson.projectionsTable.year2Ending}}</td>
-        <td>${{tableJson.projectionsTable.year3Ending}}</td>
-        <td>{{tableJson.projectionsTable.comment}}</td>
-      </tr>
-    </table>
-    <hr />
-    <table cellspacing="0" id="currentStoresWeeklySummaryTable" *ngIf="tableJson && inputData">
-      <tr>
-        <th colspan="8">
-          <h2>Current Stores Weekly Summary - {{inputData.fieldResDate | date:'MMMM y'}}</h2>
-        </th>
-      </tr>
-      <tr>
-        <th>Map Key</th>
-        <th>Store Name</th>
-        <th>Location</th>
-        <th>Volume</th>
-        <th>Sq. Ft</th>
-        <th>Sales Area</th>
-        <th>PWTA</th>
-        <th>FIT Power</th>
-      </tr>
-      <tr *ngFor="let store of tableJson.currentStoresWeeklySummary">
-        <td>{{store.mapKey}}</td>
-        <td>{{store.storeName}}</td>
-        <td>{{store.location}}</td>
-        <td>${{store.actualSales | number:'1.0-2'}}</td>
-        <td>${{store.actualSalesPSF | number:'1.0-2'}}</td>
-        <td>{{store.salesArea | number}}</td>
-        <td>{{store.PWTA | number}}</td>
-        <td>{{store.effectivePower | number}}</td>
-      </tr>
-    </table>
-    <hr />
-    <table cellspacing="0" id="projectedStoresWeeklySummaryTable" *ngIf="tableJson && inputData">
-      <tr>
-        <th colspan="8">
-          <h2>Projected Stores Weekly Summary - {{inputData.firstYearEndingMonthYear | date:'MMMM y'}}</h2>
-        </th>
-      </tr>
-      <tr>
-        <th>Map Key</th>
-        <th>Store Name</th>
-        <th>Location</th>
-        <th>Volume</th>
-        <th>Sq. Ft</th>
-        <th>Sales Area</th>
-        <th>PWTA</th>
-        <th>FIT Power</th>
-      </tr>
-      <tr [ngClass]="store.mapKey.length >= 3 ? 'red-highlight' : ''" *ngFor="let store of tableJson.projectedStoresWeeklySummary">
-        <td>{{store.mapKey}}</td>
-        <td>{{store.storeName}}</td>
-        <td>{{store.location}}</td>
-        <td>${{store.projectedSales | number:'1.0-2'}}</td>
-        <td>${{store.projectedSalesPSF | number:'1.0-2'}}</td>
-        <td>{{store.salesArea | number}}</td>
-        <td>{{store.PWTA | number}}</td>
-        <td>{{store.effectivePower | number}}</td>
-      </tr>
-    </table>
-    <hr>
-    <table cellspacing="0" id="sourceOfVolumeTable" *ngIf="tableJson && inputData">
-      <tr>
-        <th colspan="12">
-          <h2>Source of Volume</h2>
-          <h3>{{inputData.retailerName}}</h3>
-          <hr>
-        </th>
-      </tr>
-      <tr>
-        <th colspan="5"></th>
-        <th colspan="2">Size (Sq. Ft.)*</th>
-        <th></th>
-        <th colspan="4">{{inputData.opens + 1}} Volume</th>
-      </tr>
-      <tr>
-        <th>Primary Sources of Projected Volume</th>
-        <th>Location</th>
-        <th>Map Key</th>
-        <th>FIT Store Power</th>
-        <th>Straight Line Dist. From Site</th>
-        <th>Sales Area</th>
-        <th>Est. Total Area</th>
-        <th>Sales As of {{inputData.firstYearEndingMonthYear | date:'MMMM y'}}</th>
-        <th>Pop Growth, Infl. & Comp. Chngs.</th>
-        <th colspan="2">Contribution to Site</th>
-        <th>Resulting Volume</th>
-      </tr>
-      <tr *ngIf="tableJson.sourceOfVolume.companyStores.length" class="blue">
-        <td class="table-section-header">
-          Company Stores
-        </td>
-        <td colspan="11"></td>
-      </tr>
-      <tr *ngFor="let store of tableJson.sourceOfVolume.companyStores" class="blue">
-        <td>{{store.storeName}}</td>
-        <td>{{store.location}}</td>
-        <td>{{store.mapKey}}</td>
-        <td>{{store.effectivePower | number:'1.0-2'}}</td>
-        <td>{{store.distance | number:'1.0-2'}} mi.</td>
-        <td>{{store.salesArea | number:'1.0-2'}}</td>
-        <td>{{store.totalSize | number:'1.0-2'}}</td>
-        <td>{{store.actualSales / 1000 | number:'1.0-2'}}</td>
-        <td>{{store.projectedSales / 1000 | number:'1.0-2'}}</td>
-        <td>{{store.contributionToSite / 1000 | number:'1.0-0'}}</td>
-        <td>{{store.contributionToSitePerc | number:'0.0-2'}}%</td>
-        <td>{{store.resultingVolume | number:'1.0-2'}}</td>
-      </tr>
-      <tr *ngIf="tableJson.sourceOfVolume.companyStores.length" class="blue">
-        <td><b>Average Power</b></td>
-        <td colspan="2"></td>
-        <td style="border-top:1px solid black;">
-          <b>
-            {{tableJson.sourceOfVolume.averages.companyStores.fitStorePower.average | number:'1.0-0'}}
-          </b>
-        </td>
-        <td colspan="5"></td>
-        <td style="border-top:1px solid black;">
-          <b>
-            ${{tableJson.sourceOfVolume.averages.companyStores.contributionToSite.average / 1000 | number:'1.0-0'}}
-          </b>
-        </td>
-        <td colspan="2"></td>
-      </tr>
-      <tr *ngIf="tableJson.sourceOfVolume.existingCompetition.length" class="yellow">
-        <td class="table-section-header">
-          Existing Competition
-        </td>
-        <td colspan="11"></td>
-      </tr>
-      <tr *ngFor="let store of tableJson.sourceOfVolume.existingCompetition" class="yellow">
-        <td>{{store.storeName}}</td>
-        <td>{{store.location}}</td>
-        <td>{{store.mapKey}}</td>
-        <td>{{store.effectivePower | number:'1.0-2'}}</td>
-        <td>{{store.distance | number:'1.0-2'}} mi.</td>
-        <td>{{store.salesArea | number:'1.0-2'}}</td>
-        <td>{{store.totalSize | number:'1.0-2'}}</td>
-        <td>{{store.actualSales / 1000 | number:'1.0-2'}}</td>
-        <td>{{store.projectedSales / 1000 | number:'1.0-2'}}</td>
-        <td>{{store.contributionToSite / 1000 | number:'1.0-0'}}</td>
-        <td>{{store.contributionToSitePerc | number:'0.0-2'}}%</td>
-        <td>{{store.resultingVolume | number:'1.0-2'}}</td>
-      </tr>
-      <tr *ngIf="tableJson.sourceOfVolume.existingCompetition.length" class="yellow">
-        <td><b>Average Power</b></td>
-        <td colspan="2"></td>
-        <td style="border-top:1px solid black;">
-          <b>
-            {{tableJson.sourceOfVolume.averages.existingCompetition.fitStorePower.average | number:'1.0-0'}}
-          </b>
-        </td>
-        <td colspan="5"></td>
-        <td style="border-top:1px solid black;">
-          <b>
-            ${{tableJson.sourceOfVolume.averages.existingCompetition.contributionToSite.average / 1000 |
-            number:'1.0-0'}}
-          </b>
-        </td>
-        <td colspan="2"></td>
-      </tr>
-      <tr *ngIf="tableJson.sourceOfVolume.proposedCompetition.length" class="pink">
-        <td class="table-section-header">
-          Proposed Competition
-        </td>
-        <td colspan="11"></td>
-      </tr>
-      <tr *ngFor="let store of tableJson.sourceOfVolume.proposedCompetition" class="pink">
-        <td>{{store.storeName}}</td>
-        <td>{{store.location}}</td>
-        <td>{{store.mapKey}}</td>
-        <td>{{store.effectivePower | number:'1.0-2'}}</td>
-        <td>{{store.distance | number:'1.0-2'}} mi.</td>
-        <td>{{store.salesArea | number:'1.0-2'}}</td>
-        <td>{{store.totalSize | number:'1.0-2'}}</td>
-        <td>{{store.actualSales / 1000 | number:'1.0-2'}}</td>
-        <td>{{store.projectedSales / 1000 | number:'1.0-2'}}</td>
-        <td>{{store.contributionToSite / 1000 | number:'1.0-0'}}</td>
-        <td>{{store.contributionToSitePerc | number:'0.0-2'}}%</td>
-        <td>{{store.resultingVolume /1000 | number:'1.0-2'}}</td>
-      </tr>
-      <tr *ngIf="tableJson.sourceOfVolume.proposedCompetition.length" class="pink">
-        <td><b>Average Power</b></td>
-        <td colspan="2"></td>
-        <td style="border-top:1px solid black;">
-          <b>
-            {{tableJson.sourceOfVolume.averages.proposedCompetition.fitStorePower.average | number:'1.0-0'}}
-          </b>
-        </td>
-        <td colspan="5"></td>
-        <td style="border-top:1px solid black;">
-          <b>
-            ${{tableJson.sourceOfVolume.averages.proposedCompetition.contributionToSite.average / 1000 |
-            number:'1.0-0'}}
-          </b>
-        </td>
-        <td colspan="2"></td>
-      </tr>
-      <tr>
-        <td colspan="12"></td>
-      </tr>
-      <tr>
-        <td><b>Sales Potential</b></td>
-        <td colspan="3"></td>
-        <td colspan="5"><b>Sales Transfers from Company Stores</b></td>
-        <td>${{tableJson.sourceOfVolume.averages.companyStores.contributionToSite.average / 1000 |
-          number:'1.0-0'}}
-        </td>
-        <td colspan="2"></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td colspan="3"></td>
-        <td colspan="5"><b>Sales Transfers from Competition</b></td>
-        <td>${{
-          (tableJson.sourceOfVolume.averages.proposedCompetition.contributionToSite.average +
-          tableJson.sourceOfVolume.averages.existingCompetition.contributionToSite.average) / 1000 |
-          number:'1.0-0'}}
-        </td>
-        <td colspan="2"></td>
-      </tr>
-      <tr>
-        <td><b>Assume Store Opens {{inputData.opens}}</b></td>
-        <td colspan="3"></td>
-        <td colspan="5"><b>Total Sales Transfer</b></td>
-        <td>${{
-          (tableJson.sourceOfVolume.averages.companyStores.contributionToSite.average +
-          tableJson.sourceOfVolume.averages.proposedCompetition.contributionToSite.average +
-          tableJson.sourceOfVolume.averages.existingCompetition.contributionToSite.average) / 1000 |
-          number:'1.0-0'}}
-        </td>
-        <td colspan="2"></td>
-      </tr>
-      <tr>
-        <td><b>{{inputData.opens + 1}} - After Open 1 Year</b></td>
-        <td><b>${{tableJson.targetStore.resultingVolume /1000}}</b></td>
-        <td colspan="2"></td>
-        <td colspan="5"><b>Percent of Sales Explained After One Year</b></td>
-        <td>{{
-          ((tableJson.sourceOfVolume.averages.companyStores.contributionToSite.average +
-          tableJson.sourceOfVolume.averages.proposedCompetition.contributionToSite.average +
-          tableJson.sourceOfVolume.averages.existingCompetition.contributionToSite.average) /
-          tableJson.targetStore.resultingVolume) / 1000}}%
-        </td>
-        <td colspan="2"></td>
-      </tr>
+    <div *ngIf="htmlAsJson">
 
-    </table>
+
+      <table id="projectionsTable" cellspacing="0" #projectionsTable *ngIf="jsonToTablesService.isInitialized()">
+        <tr>
+          <th colspan="8">
+            <h2>Projections</h2>
+          </th>
+        </tr>
+        <tr>
+          <th>Map Key</th>
+          <th>Scenario</th>
+          <th>Projected FIT Image</th>
+          <th>Sales Area</th>
+          <th>Year 1 Ending</th>
+          <th>Year 2 Ending</th>
+          <th>Year 3 Ending</th>
+          <th>Comment</th>
+        </tr>
+        <tr>
+          <td>{{jsonToTablesService.getProjectionMapKey()}}</td>
+          <td>{{jsonToTablesService.getProjectionScenario()}}</td>
+          <td>{{jsonToTablesService.getProjectionProjectedFitImage()}}</td>
+          <td>{{jsonToTablesService.getProjectionSalesArea() | number}}</td>
+          <td>${{jsonToTablesService.getProjectionYear1Ending()}}</td>
+          <td>${{jsonToTablesService.getProjectionYear2Ending()}}</td>
+          <td>${{jsonToTablesService.getProjectionYear3Ending()}}</td>
+          <td>{{jsonToTablesService.getProjectionComment()}}</td>
+        </tr>
+      </table>
+      <hr />
+      <table cellspacing="0" id="currentStoresWeeklySummaryTable" *ngIf="inputData && jsonToTablesService.isInitialized()">
+        <tr>
+          <th colspan="8">
+            <h2>Current Stores Weekly Summary - {{inputData.fieldResDate | date:'MMM y'}}</h2>
+          </th>
+        </tr>
+        <tr>
+          <th>Map Key</th>
+          <th>Store Name</th>
+          <th>Location</th>
+          <th>Volume</th>
+          <th>Sq. Ft</th>
+          <th>Sales Area</th>
+          <th>PWTA</th>
+          <th>FIT Power</th>
+        </tr>
+        <tr *ngFor="let store of jsonToTablesService.getCurrentStoresWeeklySummary()">
+          <td>{{store.mapKey}}</td>
+          <td>{{store.storeName}}</td>
+          <td>{{store.location}}</td>
+          <td>${{store.actualSales | number:'1.0-2'}}</td>
+          <td>${{store.actualSalesPSF | number:'1.0-2'}}</td>
+          <td>{{store.salesArea | number}}</td>
+          <td>{{store.PWTA | number}}</td>
+          <td>{{store.effectivePower | number}}</td>
+        </tr>
+      </table>
+      <hr />
+      <table cellspacing="0" id="projectedStoresWeeklySummaryTable" *ngIf="inputData && jsonToTablesService.isInitialized()">
+        <tr>
+          <th colspan="8">
+            <h2>Projected Stores Weekly Summary - {{htmlAsJson.firstYearEndingMonthYear}}</h2>
+          </th>
+        </tr>
+        <tr>
+          <th>Map Key</th>
+          <th>Store Name</th>
+          <th>Location</th>
+          <th>Volume</th>
+          <th>Sq. Ft</th>
+          <th>Sales Area</th>
+          <th>PWTA</th>
+          <th>FIT Power</th>
+        </tr>
+        <tr [ngClass]="jsonToTablesService.isTargetStore(store) ? 'red-highlight' : store.category === 'Proposed Competition' ? 'bold' : ''"
+          *ngFor="let store of jsonToTablesService.getProjectedStoresWeeklySummary()">
+          <td>{{store.mapKey}}</td>
+          <td>{{store.storeName}}</td>
+          <td>{{store.location}}</td>
+          <td>${{store.projectedSales | number:'1.0-2'}}</td>
+          <td>${{store.projectedSalesPSF | number:'1.0-2'}}</td>
+          <td>{{store.salesArea | number}}</td>
+          <td>{{store.PWTA | number}}</td>
+          <td>{{store.effectivePower | number}}</td>
+        </tr>
+      </table>
+      <hr>
+      <table cellspacing="0" id="sourceOfVolumeTable" *ngIf="inputData && jsonToTablesService.isInitialized()">
+        <tr>
+          <th style='height:100px' colspan="12">
+            <h2>
+              <span class="title-left">Source of Volume</span>
+              <span class="title-right">{{jsonToTablesService.getTargetStore().storeName}}</span>
+            </h2>
+          </th>
+        </tr>
+        <tr>
+          <th colspan="5"></th>
+          <th colspan="2">Size (Sq. Ft.)*</th>
+          <th></th>
+          <th colspan="4">{{htmlAsJson.firstYearEndingMonthYear}} Volume</th>
+        </tr>
+        <tr>
+          <th>Primary Sources of Projected Volume</th>
+          <th>Location</th>
+          <th>Map Key</th>
+          <th>FIT Store Power</th>
+          <th>Straight Line Dist. From Site</th>
+          <th>Sales Area</th>
+          <th>Est. Total Area</th>
+          <th>Sales As of {{inputData.fieldResDate | date:'MMM y'}}</th>
+          <th>Pop Growth, Infl. & Comp. Chngs.</th>
+          <th colspan="2">Contribution to Site</th>
+          <th>Resulting Volume</th>
+        </tr>
+        <tr *ngIf="jsonToTablesService.getSOVStoreCount('Company Store')" class="blue">
+          <td class="table-section-header">
+            Company Stores
+          </td>
+          <td colspan="11"></td>
+        </tr>
+        <tr *ngFor="let store of jsonToTablesService.getSOVStores('Company Store')" [class]="jsonToTablesService.isTargetStore(store) ? 'bold blue': 'blue'">
+          <td>{{store.storeName}}</td>
+          <td nowrap>{{store.location}}</td>
+          <td>{{store.mapKey}}</td>
+          <td>{{store.effectivePower | number:'1.0-2'}}</td>
+          <td>{{store.distance | number:'1.0-2'}} mi.</td>
+          <td>{{store.salesArea | number:'1.0-2'}}</td>
+          <td>{{store.totalSize | number:'1.0-2'}}</td>
+          <td>{{store.actualSales / 1000 | number:'1.0-2'}}</td>
+          <td>{{store.projectedSales / 1000 | number:'1.0-2'}}</td>
+          <td>{{store.contributionToSite ? (store.contributionToSite / 1000).toFixed(0) : '-'}}</td>
+          <td>{{store.contributionToSitePerc ? (store.contributionToSitePerc).toFixed(1) + '%' : '-'}}</td>
+          <td>{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
+        </tr>
+        <tr *ngIf="jsonToTablesService.getSOVStoreCount('Company Store')" class="blue">
+          <td><b>Average Power</b></td>
+          <td colspan="2"></td>
+          <td style="border-top:1px solid black;">
+            <b>
+              {{jsonToTablesService.getSOVAverages('Company Store').fitStorePowerAverage | number:'1.0-0'}}
+            </b>
+          </td>
+          <td colspan="5"></td>
+          <td style="border-top:1px solid black;">
+            <b>
+              ${{jsonToTablesService.getSOVAverages('Company Store').contributionToSiteAverage / 1000 |
+              number:'1.0-0'}}
+            </b>
+          </td>
+          <td colspan="2"></td>
+        </tr>
+        <tr *ngIf="jsonToTablesService.getSOVStoreCount('Existing Competition')" class="yellow">
+          <td class="table-section-header">
+            Existing Competition
+          </td>
+          <td colspan="11"></td>
+        </tr>
+        <tr *ngFor="let store of jsonToTablesService.getSOVStores('Existing Competition')" class="yellow">
+          <td>{{store.storeName}}</td>
+          <td nowrap>{{store.location}}</td>
+          <td>{{store.mapKey}}</td>
+          <td>{{store.effectivePower | number:'1.0-2'}}</td>
+          <td>{{store.distance | number:'1.0-2'}} mi.</td>
+          <td>{{store.salesArea | number:'1.0-2'}}</td>
+          <td>{{store.totalSize | number:'1.0-2'}}</td>
+          <td>{{store.actualSales / 1000 | number:'1.0-2'}}</td>
+          <td>{{store.projectedSales / 1000 | number:'1.0-2'}}</td>
+          <td>{{store.contributionToSite / 1000 | number:'1.0-0'}}</td>
+          <td>{{store.contributionToSitePerc | number:'0.0-2'}}%</td>
+          <td>{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
+        </tr>
+        <tr *ngIf="jsonToTablesService.getSOVStoreCount('Existing Competition')" class="yellow">
+          <td><b>Average Power</b></td>
+          <td colspan="2"></td>
+          <td style="border-top:1px solid black;">
+            <b>
+              {{jsonToTablesService.getSOVAverages('Existing Competition').fitStorePowerAverage | number:'1.0-0'}}
+            </b>
+          </td>
+          <td colspan="5"></td>
+          <td style="border-top:1px solid black;">
+            <b>
+              ${{jsonToTablesService.getSOVAverages('Existing Competition').contributionToSiteAverage / 1000 |
+              number:'1.0-0'}}
+            </b>
+          </td>
+          <td colspan="2"></td>
+        </tr>
+        <tr *ngIf="jsonToTablesService.getSOVStoreCount('Proposed Competition')" class="pink">
+          <td class="table-section-header">
+            Proposed Competition
+          </td>
+          <td colspan="11"></td>
+        </tr>
+        <tr *ngFor="let store of jsonToTablesService.getSOVStores('Proposed Competition')" class="pink">
+          <td>{{store.storeName}}</td>
+          <td nowrap>{{store.location}}</td>
+          <td>{{store.mapKey}}</td>
+          <td>{{store.effectivePower | number:'1.0-2'}}</td>
+          <td>{{store.distance | number:'1.0-2'}} mi.</td>
+          <td>{{store.salesArea | number:'1.0-2'}}</td>
+          <td>{{store.totalSize | number:'1.0-2'}}</td>
+          <td>{{store.actualSales / 1000 | number:'1.0-2'}}</td>
+          <td>{{store.projectedSales / 1000 | number:'1.0-2'}}</td>
+          <td>{{store.contributionToSite / 1000 | number:'1.0-0'}}</td>
+          <td>{{store.contributionToSitePerc | number:'0.0-2'}}%</td>
+          <td>{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
+        </tr>
+        <tr *ngIf="jsonToTablesService.getSOVStoreCount('Proposed Competition')" class="pink">
+          <td><b>Average Power</b></td>
+          <td colspan="2"></td>
+          <td style="border-top:1px solid black;">
+            <b>
+              {{jsonToTablesService.getSOVAverages('Proposed Competition').fitStorePowerAverage | number:'1.0-0'}}
+            </b>
+          </td>
+          <td colspan="5"></td>
+          <td style="border-top:1px solid black;">
+            <b>
+              ${{jsonToTablesService.getSOVAverages('Proposed Competition').contributionToSiteAverage / 1000 |
+              number:'1.0-0'}}
+            </b>
+          </td>
+          <td colspan="2"></td>
+        </tr>
+        <tr>
+          <td colspan="12"></td>
+        </tr>
+        <tr>
+          <td><b>Sales Potential</b></td>
+          <td>
+            <b>Assume Store Opens {{htmlAsJson.firstYearEndingMonthYear}}</b>
+          </td>
+          <td colspan="2"></td>
+          <td colspan="5"><b>Sales Transfers from Company Stores</b></td>
+          <td>${{jsonToTablesService.getSalesTransfersFromCompanyStores() |
+            number:'1.0-0'}}
+          </td>
+          <td colspan="2"></td>
+        </tr>
+        <tr>
+          <td><b>{{getFirstYearAsNumber() + 1}} - After Open 1 Year</b></td>
+          <td><b>${{jsonToTablesService.getAfterOpen1Year() | number:'1.0-0'}}</b></td>
+          <td colspan="2"></td>
+          <td colspan="5"><b>Sales Transfers from Competition</b></td>
+          <td>${{
+            jsonToTablesService.getSalesTransfersFromCompetition() |
+            number:'1.0-0'}}
+          </td>
+          <td colspan="2"></td>
+        </tr>
+        <tr>
+          <td class='footnote' colspan="5" rowspan="2">
+            {{jsonToTablesService.snackbarMsg}}
+          </td>
+          <td colspan="4"><b>Total Sales Transfer</b></td>
+          <td>${{
+            jsonToTablesService.getTotalSalesTransfers() |
+            number:'1.0-0'}}
+          </td>
+          <td colspan="2"></td>
+        </tr>
+        <tr>
+          <td colspan="4"><b>Percent of Sales Explained After One Year</b></td>
+          <td>{{
+            jsonToTablesService.getPercentOfSalesExplained() | number:'1.1-1'
+            }}%
+          </td>
+          <td colspan="2"></td>
+        </tr>
+
+      </table>
+      <hr>
+      <table style="max-width: 2.5in;" cellspacing="0" id="descriptionsRatings" *ngIf="htmlAsJson && descriptions && jsonToTablesService.isInitialized()">
+        <tr *ngIf="descriptions">
+          <th class="table-section-header" colspan="2">
+            Site Evaluation
+          </th>
+        </tr>
+        <tr>
+          <td class="bold" colspan="2" style="text-align:left;">Access</td>
+        </tr>
+        <tr *ngIf="descriptions.access">
+          <td>North</td>
+          <td>{{descriptions.access.north}}</td>
+        </tr>
+        <tr *ngIf="descriptions.access">
+          <td>South</td>
+          <td>{{descriptions.access.south}}</td>
+        </tr>
+        <tr *ngIf="descriptions.access">
+          <td>East</td>
+          <td>{{descriptions.access.east}}</td>
+        </tr>
+        <tr *ngIf="descriptions.access">
+          <td>West</td>
+          <td>{{descriptions.access.west}}</td>
+        </tr>
+        <tr *ngIf="descriptions.ingressEgress">
+          <td class="bold" style="text-align:left;">Ingress/Egress</td>
+          <td>{{descriptions.ingressEgress}}</td>
+        </tr>
+        <tr>
+          <td class="bold" colspan="2" style="text-align:left;">Visibility</td>
+        </tr>
+        <tr *ngIf="descriptions.visibility">
+          <td>North</td>
+          <td>{{descriptions.visibility.north}}</td>
+        </tr>
+        <tr *ngIf="descriptions.visibility">
+          <td>South</td>
+          <td>{{descriptions.visibility.south}}</td>
+        </tr>
+        <tr *ngIf="descriptions.visibility">
+          <td>East</td>
+          <td>{{descriptions.visibility.east}}</td>
+        </tr>
+        <tr *ngIf="descriptions.visibility">
+          <td>West</td>
+          <td>{{descriptions.visibility.west}}</td>
+        </tr>
+        <tr>
+          <td class="bold" colspan="2" style="text-align:left;">Population Density</td>
+        </tr>
+        <tr *ngIf="descriptions.populationDensity">
+          <td>North</td>
+          <td>{{descriptions.populationDensity.north}}</td>
+        </tr>
+        <tr *ngIf="descriptions.populationDensity">
+          <td>South</td>
+          <td>{{descriptions.populationDensity.south}}</td>
+        </tr>
+        <tr *ngIf="descriptions.populationDensity">
+          <td>East</td>
+          <td>{{descriptions.populationDensity.east}}</td>
+        </tr>
+        <tr *ngIf="descriptions.populationDensity">
+          <td>West</td>
+          <td>{{descriptions.populationDensity.west}}</td>
+        </tr>
+      </table>
+      <hr>
+      <div *ngIf="mapImage" style="display: flex;
+      align-items: center;
+      justify-content: center;">
+        <img [src]="mapImage" id="mapImage">
+        <div>
+          <button [color]="googleMapsBasemap === 'hybrid' ? 'warn':'primary'" (click)="getMapImage('hybrid')"
+            mat-flat-button style="margin:5px;">Sat</button><br>
+          <button [color]="googleMapsBasemap === 'roadmap' ? 'warn':'primary'" (click)="getMapImage('roadmap')"
+            mat-flat-button style="margin:5px;">Road</button><br>
+          <button [color]="'primary'" (click)="getMapImage(null, -1)" mat-flat-button style="margin:5px;"><i class="fas fa-search-plus"></i></button><br>
+          <button [color]="'primary'" (click)="getMapImage(null, 1)" mat-flat-button style="margin:5px;"><i class="fas fa-search-minus"></i></button><br>
+        </div>
+      </div>
+      <hr>
+      <button [color]="'primary'" mat-flat-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
+      <button [color]="'warn'" mat-flat-button matStepperNext (click)="export()" style="margin-top:20px;">Export</button>
+    </div>
+  </mat-step>
+  <mat-step>
+    <ng-template matStepLabel>Export</ng-template>
+    <div>
+      <div *ngIf="compilingImages" class="desc">Exporting Data</div>
+      <mat-progress-bar *ngIf="compilingImages" mode="indeterminate"></mat-progress-bar>
+      <div *ngIf="!compilingImages" class="desc">A .zip file export has been successfully compiled, and contains .png
+        images of the tables you've generated, a map, and a .csv file with your write-ups</div>
+      <hr>
+      <button [color]="'primary'" mat-flat-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
+      <button [color]="'warn'" mat-flat-button matStepperR (click)="stepper.reset(); resetFile();" style="margin-top:20px;">Start
+        Over</button>
+
+    </div>
   </mat-step>
 </mat-horizontal-stepper>

@@ -6,42 +6,52 @@ import { AuthService } from '../../core/services/auth.service';
 import * as _ from 'lodash';
 
 import { HtmlReportToJsonService } from '../../core/services/html-report-to-json.service';
+import { HtmlDimensionsService } from '../../core/services/html-dimensions.service';
 import { HTMLasJSON } from '../../models/html-as-json';
 
 import { ReportUploadInterface } from './report-upload-interface';
 import { StoreListItem } from '../../models/store-list-item';
 
 import htmlToImage from 'html-to-image';
+import { saveAs } from 'file-saver';
+import jsZip from 'jszip';
+
+import { JsonToTablesService } from './json-to-tables.service';
+
+import { HttpClient } from '@angular/common/http';
+import { RestService } from '../../core/services/rest.service';
 
 @Component({
   selector: 'mds-report-upload',
   templateUrl: './report-upload.component.html',
   styleUrls: ['./report-upload.component.css'],
-  providers: [HtmlReportToJsonService]
+  providers: [
+    HtmlReportToJsonService,
+    JsonToTablesService,
+    HtmlDimensionsService
+  ]
 })
 export class ReportUploadComponent implements OnInit {
   htmlFile: File;
   htmlAsString: String;
   htmlAsJson: HTMLasJSON;
-  tableImageUrls: string[];
+
+  exportPromises: Promise<any>[] = [];
+  exportData: Blob;
+
+  mapImage: string;
+  googleMapsKey = 'AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ';
+  googleMapsBasemap = 'hybrid';
+  googleMapsZoom = 15;
+
   tableDomIds: string[] = [
     'projectionsTable',
     'currentStoresWeeklySummaryTable',
     'projectedStoresWeeklySummaryTable',
-    'sourceOfVolumeTable'
+    'sourceOfVolumeTable',
+    'mapImage',
+    'descriptionsRatings'
   ];
-
-  tableJson: {
-    targetStore: object;
-    projectionsTable: object;
-    currentStoresWeeklySummary: object[];
-    projectedStoresWeeklySummary: object[];
-    sourceOfVolume: {
-      companyStores: object[];
-      existingCompetition: object[];
-      proposedCompetition: object[];
-    };
-  };
 
   fileReader: FileReader;
   inputData: ReportUploadInterface;
@@ -51,16 +61,49 @@ export class ReportUploadComponent implements OnInit {
 
   interface: ReportUploadInterface;
 
+  descriptions: {
+    streetConditions: string;
+    comments: string;
+    trafficControls: string;
+    cotenants: string;
+    access: {
+      north: string;
+      east: string;
+      south: string;
+      west: string;
+    };
+    ingressEgress: string;
+    visibility: {
+      north: string;
+      east: string;
+      south: string;
+      west: string;
+    };
+    populationDensity: {
+      north: string;
+      east: string;
+      south: string;
+      west: string;
+    };
+  };
+
   categories: string[] = [
     'Company Store',
     'Existing Competition',
-    'Proposed Competition'
+    'Proposed Competition',
+    'Do Not Include'
   ];
+
+  groupOptions: string[] = ['Excellent', 'Good', 'Average', 'Fair', 'Poor'];
 
   constructor(
     private snackBar: MatSnackBar,
     private ngZone: NgZone,
     private htmlReportToJsonService: HtmlReportToJsonService,
+    private htmlDimensionsService: HtmlDimensionsService,
+    private jsonToTablesService: JsonToTablesService,
+    private http: HttpClient,
+    private rest: RestService,
     public auth: AuthService
   ) {
     this.fileReader = new FileReader();
@@ -78,43 +121,170 @@ export class ReportUploadComponent implements OnInit {
       analyst: `${this.auth.sessionUser.firstName} ${
         this.auth.sessionUser.lastName
       }`,
-      retailerName: '',
-      type: '',
-      siteNumber: '',
-      storeAddress: '',
-      state: '',
-      modelName: '',
-      fieldResDate: new Date(),
-      firstYearEndingMonthYear: new Date(),
-      reportDate: new Date(),
-      projectNumber: null,
-      opens: new Date().getFullYear(),
-      demographicDataYear: new Date().getFullYear(),
-      inflationRate: null,
-      secondYearAcceptance: null,
-      thirdYearAcceptance: null
+      type: 'New',
+      siteNumber: '1000.1',
+      modelName: 'Jacksonville FL 18 Kitson',
+      fieldResDate: new Date()
     };
   }
 
   ngOnInit() {}
 
-  saveAsImage() {
+  handleDescriptionsForm(form) {
+    this.descriptions = {
+      streetConditions: form.value.streetConditions,
+      comments: form.value.comments,
+      trafficControls: form.value.trafficControls,
+      cotenants: form.value.cotenants,
+      access: {
+        north: form.value.accessNorth,
+        east: form.value.accessEast,
+        south: form.value.accessSouth,
+        west: form.value.accessWest
+      },
+      ingressEgress: form.value.ingressEgress,
+      visibility: {
+        north: form.value.visibilityNorth,
+        east: form.value.visibilityEast,
+        south: form.value.visibilitySouth,
+        west: form.value.visibilityWest
+      },
+      populationDensity: {
+        north: form.value.populationDensityNorth,
+        east: form.value.populationDensityEast,
+        south: form.value.populationDensitySouth,
+        west: form.value.populationDensityWest
+      }
+    };
+    console.log(this.descriptions)
+  }
+
+  toggleBasemap(type) {
+    const base = type === 'sat' ? 'hybrid' : 'roadmap';
+    this.mapImage = this.mapImage
+      .replace('hybrid', base)
+      .replace('roadmap', base);
+  }
+
+  getCurrentBasemap() {
+    if (this.mapImage.includes('roadmap')) {
+      return 'road';
+    } else {
+      return 'sat';
+    }
+  }
+
+  getMapImage(basemap?: string, zoom?: number) {
+    if (basemap) {
+      this.googleMapsBasemap = basemap;
+    }
+    if (zoom) {
+      this.googleMapsZoom = this.googleMapsZoom - zoom;
+    }
+    // map image
+    const target = this.jsonToTablesService.getTargetStore();
+    const stores = this.jsonToTablesService.getProjectedStoresWeeklySummary();
+
+    const storePins = stores
+      .map(s => {
+        if (s.latitude && s.longitude) {
+          const isTarget = s.mapKey === target.mapKey;
+          const color = isTarget
+            ? 'red'
+            : s.category === 'Company Store'
+              ? 'blue'
+              : 'yellow';
+          return `&markers=color:${color}%7Clabel:${
+            isTarget ? s.storeName[0] : ''
+          }%7C${s.latitude},${s.longitude}`;
+        }
+      })
+      .join('');
+
+    const { latitude, longitude, storeName } = target;
+    // console.log(latitude, longitude, storeName);
+
+    this.mapImage = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=${
+      this.googleMapsZoom
+    }&size=470x350&maptype=${this.googleMapsBasemap}&${storePins}&key=${
+      this.googleMapsKey
+    }`;
+  }
+
+  compileCSVFromTextBoxes() {
+    // A generated list of the stores they marked as Company stores in step 2, one per row. Sort Alphabetically and then by Map Key
+  }
+
+  export() {
     this.compilingImages = true;
-    this.tableImageUrls = [];
+    // convert tables to images
     this.tableDomIds.forEach(id => {
       const node = document.getElementById(id);
-
-      htmlToImage
-        .toPng(node)
-        .then(dataUrl => {
-          this.compilingImages = false;
-          this.tableImageUrls.push(dataUrl);
-        })
-        .catch(error => {
-          this.compilingImages = false;
-          this.snackBar.open(error, null, { duration: 2000 });
-        });
+      this.exportPromises.push(htmlToImage.toBlob(node));
     });
+
+    Promise.all(this.exportPromises)
+      .then(data => {
+        this.compilingImages = false;
+        console.log(data);
+        const zip = new jsZip();
+        // table images
+        data.forEach((fileData, i) => {
+          zip.file(`${this.tableDomIds[i]}.png`, fileData);
+        });
+
+
+        const sisterStoreAffects = this.jsonToTablesService
+          .getStoresForExport('Company Store')
+          .sort((a, b) => {
+            if (a.storeName === b.storeName) {
+              return Number(a.mapKey) - Number(b.mapKey);
+            } else {
+              return a.storeName < b.storeName ? -1 : 1;
+            }
+          })
+          .map(store => `${store.storeName} ${store.mapKey}`)
+          .join('\r\n');
+
+        const txt = `Street Conditions\r\n${
+          this.descriptions.streetConditions
+        }\r\n\r\nComments\r\n${
+          this.descriptions.comments
+        }\r\n\r\nTraffic Controls\r\n${
+          this.descriptions.streetConditions
+        }\r\n\r\nCo-tenants\r\n${
+          this.descriptions.cotenants
+        }\r\n\r\nSister Store Affects\r\n${
+          sisterStoreAffects
+        }`;
+
+        zip.file(`descriptions.txt`, new Blob([txt]));
+
+        zip.generateAsync({ type: 'blob' }).then(blob => {
+          saveAs(
+            blob,
+            `${
+              this.inputData.modelName
+                ? this.inputData.modelName
+                : 'MTNRA_Reports_Export'
+            }.zip`
+          );
+        });
+
+        // saveAs(data, 'test.png')
+      })
+      .catch(error => {
+        this.compilingImages = false;
+        this.snackBar.open(error, null, { duration: 2000 });
+        console.log(false);
+      });
+  }
+
+  getFirstYearAsNumber() {
+    return (
+      2000 +
+      Number(this.htmlAsJson.firstYearEndingMonthYear.trim().split(' ')[1])
+    );
   }
 
   changeCategory(event, mapKey) {
@@ -127,8 +297,17 @@ export class ReportUploadComponent implements OnInit {
     }
   }
 
-  readFile(event, form) {
-    this.inputData = form.value;
+
+  resetFile() {
+    console.log('RESET FILE');
+    this.htmlFile = null;
+    this.htmlAsString = null;
+    this.htmlAsJson = null;
+  }
+
+  readFile(event) {
+    this.resetFile();
+
     const { files } = event.target;
 
     if (files && files.length === 1) {
@@ -153,29 +332,32 @@ export class ReportUploadComponent implements OnInit {
   handleFileContents(event) {
     if (event.target.result) {
       this.htmlAsString = event.target.result;
-
-      this.compilingJson = true;
-      this.htmlReportToJsonService.convertHTMLtoJSON(
-        this.htmlAsString,
-        this.inputData
-      );
     }
+  }
+
+  convertHtmlToJson(form) {
+    this.inputData = form.value;
+    this.compilingJson = true;
+    this.htmlReportToJsonService.convertHTMLtoJSON(
+      this.htmlAsString,
+      this.inputData
+    );
   }
 
   handleHtmlAsJson(htmlAsJson) {
     this.compilingJson = false;
     this.htmlAsJson = htmlAsJson;
+
     console.log(htmlAsJson);
     // this.generateTables();
   }
 
   generateTables() {
     console.log('GENERATE TABLES');
-    this.tableImageUrls = [];
-    this.tableJson = this.htmlReportToJsonService.generateTables(
-      this.inputData,
-      this.htmlAsJson
-    );
+
+    this.jsonToTablesService.showedSnackbar = false;
+    this.jsonToTablesService.init(this.inputData, this.htmlAsJson);
+    this.getMapImage();
   }
 
   stepForward() {

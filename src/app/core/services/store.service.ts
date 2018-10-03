@@ -164,4 +164,11 @@ export class StoreService extends CrudService<Store> {
   protected createEntityFromObj(entityObj): Store {
     return new Store(entityObj);
   }
+
+  getAllByIds(ids: number[]) {
+    const url = this.rest.getHost() + this.endpoint;
+    const params = new HttpParams().set('ids', ids.toString());
+    return this.http.get<Store[]>(url, {headers: this.rest.getHeaders(), params: params})
+      .pipe(map(stores => stores.map(store => new SimplifiedStore(store))));
+  }
 }

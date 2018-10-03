@@ -44,14 +44,20 @@ mat-form-field {
 .pink {
   background: lightcoral !important;
 }
+.grey {
+  background: black;
+  color: gray;
+}
 
-.red-highlight{
-    color: red;
-    font-weight:bold;
+.red-highlight {
+  color: red;
+  font-weight: bold;
 }
 
 table {
+  /* width: 10in; */
   width: 100%;
+  margin: 0 auto;
 }
 
 tr:nth-child(odd) {
@@ -59,19 +65,76 @@ tr:nth-child(odd) {
 }
 
 tr:nth-child(even) {
-    background: white;
-  }
+  background: white;
+}
 
-th{
-    background: white;
+th {
+  background: white;
+  font-size: x-small;
 }
 
 td {
   padding: 5px 10px;
   text-align: center;
+  font-size: x-small;
+  white-space: nowrap;
 }
 
-mat-progress-bar{
-    width: 50%;
-    margin: 0 auto;
+mat-progress-bar {
+  width: 50%;
+  margin: 0 auto;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+::ng-deep .mat-horizontal-stepper-header-container {
+  visibility: hidden !important;
+}
+
+.desc {
+  text-align: center;
+  font-style: italic;
+  color: gray;
+  margin: 20px 0;
+}
+
+.title-left {
+  position: absolute;
+  left: 0;
+  margin-left: 25px;
+  font-size: large;
+}
+
+.title-right {
+  position: absolute;
+  right: 0;
+  margin-right: 25px;
+  font-size: large;
+}
+
+.select-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  border: 1px dotted gray;
+}
+
+.select-group mat-form-field {
+  margin: 10px 5px 0 5px;
+  max-width: 20%;
+}
+
+.select-group-header {
+  padding-top: 10px;
+  margin-top: 20px;
+  color: gray;
+}
+
+.footnote{
+  background: white;
+  font-style: italic;
+  color: gray;
+  font-size: xx-small;
 }
