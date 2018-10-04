@@ -38,7 +38,7 @@
           <button type="button" mat-flat-button [color]="htmlFile ? 'primary' : 'warn'" (click)="htmlFileInput.click()"
             [disabled]="compilingJson || reportUploadForm.invalid"><i class="fas fa-spinner fa-spin" *ngIf="compilingJson"></i>
             {{compilingJson ? ' Fetching Data From Server': 'Upload HTML File'}}</button>
-          <input hidden type="file" accept=".html" #htmlFileInput (change)="readFile($event, reportUploadForm)" />
+          <input hidden type="file" accept=".html" id="htmlFileInput" #htmlFileInput (change)="readFile($event, reportUploadForm)" />
           <span class="file-tip" *ngIf="htmlFile">
             <i *ngIf="htmlAsString && siteNumberIsValid" class="fas fa-check-circle" style="color:green;margin-right:5px;"></i>
             <b>{{htmlFile ? htmlFile.name : ''}}</b>
@@ -195,7 +195,7 @@
     <div *ngIf="htmlAsJson">
 
       <div class="flex-container">
-        <table id="projectionsTable" cellspacing="0" #projectionsTable *ngIf="jsonToTablesService.isInitialized()">
+        <table class="force10" id="projectionsTable" cellspacing="0" #projectionsTable *ngIf="jsonToTablesService.isInitialized()">
           <tr>
             <th colspan="8">
               <h2>Projections</h2>
@@ -225,7 +225,7 @@
       </div>
       <hr />
       <div class="flex-container">
-        <table cellspacing="0" id="currentStoresWeeklySummaryTable" *ngIf="inputData && jsonToTablesService.isInitialized()">
+        <table class="force10" cellspacing="0" id="currentStoresWeeklySummaryTable" *ngIf="inputData && jsonToTablesService.isInitialized()">
           <tr>
             <th colspan="8">
               <h2>Current Stores Weekly Summary - {{inputData.fieldResDate | date:'MMM y'}}</h2>
@@ -265,7 +265,7 @@
       </div>
       <hr />
       <div class='flex-container'>
-        <table cellspacing="0" id="projectedStoresWeeklySummaryTable" *ngIf="inputData && jsonToTablesService.isInitialized()">
+        <table class="force10" cellspacing="0" id="projectedStoresWeeklySummaryTable" *ngIf="inputData && jsonToTablesService.isInitialized()">
           <tr>
             <th colspan="8">
               <h2>Projected Stores Weekly Summary - {{htmlAsJson.firstYearEndingMonthYear}}</h2>
@@ -306,7 +306,7 @@
       </div>
       <hr>
       <div class="flex-container">
-        <table cellspacing="0" id="sourceOfVolumeTable" *ngIf="inputData && jsonToTablesService.isInitialized()">
+        <table class="force10" cellspacing="0" id="sourceOfVolumeTable" *ngIf="inputData && jsonToTablesService.isInitialized()">
           <tr>
             <th style='height:50px; position: relative;' colspan="12">
               
@@ -474,7 +474,7 @@
           </tr>
           <tr>
             <td class='footnote' colspan="5" rowspan="2">
-              {{jsonToTablesService.snackbarMsg}}
+              Sales effects based on gravity model analysis. {{jsonToTablesService.truncatedMsg}}
             </td>
             <td colspan="4"><b>Total Sales Transfer</b></td>
             <td>${{
@@ -593,7 +593,7 @@
         images of the tables you've generated, a map, and a .csv file with your write-ups</div>
       <hr>
       <button [color]="'primary'" mat-flat-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
-      <button [color]="'warn'" mat-flat-button matStepperR (click)="stepper.reset(); resetFile();" style="margin-top:20px;">Start
+      <button [color]="'warn'" mat-flat-button matStepperR (click)="stepper.reset(); resetFile(); clearFileInput()" style="margin-top:20px;">Start
         Over</button>
 
     </div>

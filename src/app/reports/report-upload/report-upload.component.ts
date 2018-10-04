@@ -1,25 +1,25 @@
-import { Component, NgZone, OnInit, ViewChild, Inject } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
-import { MatSnackBar, MatStepper, MatDialog } from '@angular/material';
-import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
-import { AuthService } from '../../core/services/auth.service';
-import * as _ from 'lodash';
+import { Component, NgZone, OnInit, ViewChild, Inject } from "@angular/core";
+import { FormBuilder } from "@angular/forms";
+import { MatSnackBar, MatStepper, MatDialog } from "@angular/material";
+import { debounceTime, finalize, tap } from "rxjs/internal/operators";
+import { AuthService } from "../../core/services/auth.service";
+import * as _ from "lodash";
 
-import { HtmlReportToJsonService } from '../../core/services/html-report-to-json.service';
-import { HtmlDimensionsService } from '../../core/services/html-dimensions.service';
-import { HTMLasJSON } from '../../models/html-as-json';
+import { HtmlReportToJsonService } from "../../core/services/html-report-to-json.service";
+import { HtmlDimensionsService } from "../../core/services/html-dimensions.service";
+import { HTMLasJSON } from "../../models/html-as-json";
 
-import { ReportUploadInterface } from './report-upload-interface';
-import { StoreListItem } from '../../models/store-list-item';
+import { ReportUploadInterface } from "./report-upload-interface";
+import { StoreListItem } from "../../models/store-list-item";
 
-import htmlToImage from 'html-to-image';
-import { saveAs } from 'file-saver';
-import jsZip from 'jszip';
+import htmlToImage from "html-to-image";
+import { saveAs } from "file-saver";
+import jsZip from "jszip";
 
-import { JsonToTablesService } from './json-to-tables.service';
+import { JsonToTablesService } from "./json-to-tables.service";
 
-import { HttpClient } from '@angular/common/http';
-import { RestService } from '../../core/services/rest.service';
+import { HttpClient } from "@angular/common/http";
+import { RestService } from "../../core/services/rest.service";
 import { EditTotalSizeDialogComponent } from '../edit-total-size-dialog/edit-total-size-dialog.component';
 
 @Component({
@@ -343,6 +343,10 @@ export class ReportUploadComponent implements OnInit {
     this.htmlFile = null;
     this.htmlAsString = null;
     this.htmlAsJson = null;
+  }
+
+  clearFileInput() {
+    document.getElementById('htmlFileInput')['value'] = null;
   }
 
   readFile(event, form) {

@@ -62,22 +62,30 @@ mat-form-field {
 
 table {
   width: 10in;
+  border: none;
   /* display: block; */
   /* width: 100%; */
   /* margin: 0 auto; */
 }
 
+.force10{
+  min-width: 10in;
+}
+
 tr:nth-child(odd) {
   background: #eee;
+  border: none;
 }
 
 tr:nth-child(even) {
   background: white;
+  border: none;
 }
 
 th {
   background: white;
   font-size: x-small;
+  border: none;
 }
 
 td {
@@ -85,6 +93,7 @@ td {
   text-align: center;
   font-size: x-small;
   white-space: nowrap;
+  border: none;
 }
 
 mat-progress-bar {

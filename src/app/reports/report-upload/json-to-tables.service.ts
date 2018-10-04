@@ -20,7 +20,8 @@ export class JsonToTablesService {
   salesGrowthProjection;
 
   // maxPerSOVCategory = 15;
-  maxSOV = 25;
+  maxSOV = 20;
+  truncatedMsg = '';
 
   showedSnackbar = false;
   snackbarRef: any;
@@ -228,10 +229,11 @@ export class JsonToTablesService {
 
       if (!this.showedSnackbar) {
         this.showedSnackbar = true;
-        this.snackbarMsg = `*Does not include contributions less than $${threshold.toLocaleString()} (Showing ${stores.length -
+        this.truncatedMsg = `*Does not show contributions less than $${threshold.toLocaleString()} (Showing ${stores.length -
           overflow.length}/${
           stores.length
-        } Stores). A total Contribution To Site of $${overflowSum.toLocaleString()} was excluded from the Report.`;
+        } Stores). A total Contribution To Site of $${overflowSum.toLocaleString()} was excluded from the Report.`
+        this.snackbarMsg = this.truncatedMsg;
 
         this.showSnackbar();
       }
