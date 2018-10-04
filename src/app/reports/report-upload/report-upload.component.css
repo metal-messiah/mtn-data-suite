@@ -6,6 +6,12 @@ body {
   overflow-x: hidden;
 }
 
+.flex-container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .report-upload-wrapper {
   display: flex;
   align-items: center;
@@ -55,9 +61,10 @@ mat-form-field {
 }
 
 table {
-  /* width: 10in; */
-  width: 100%;
-  margin: 0 auto;
+  width: 10in;
+  /* display: block; */
+  /* width: 100%; */
+  /* margin: 0 auto; */
 }
 
 tr:nth-child(odd) {
