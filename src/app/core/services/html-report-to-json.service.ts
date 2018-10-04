@@ -113,6 +113,25 @@ export class HtmlReportToJsonService {
     this.generateStoreList();
   }
 
+  checkSiteNumber(HTML_STRING, siteNumber) {
+    try {
+      const d = this.parser.parseFromString(HTML_STRING, 'text/html');
+      const tables = d.getElementsByTagName('table');
+      const storeListRows = tables[0].children[2].children;
+      let isValid = false;
+      for (let i = 0; i < storeListRows.length; i++) {
+        const mapKey =
+          storeListRows[i].children[1].firstElementChild.firstElementChild; // array containing each cell of current row
+        if (mapKey.innerHTML.trim() === siteNumber) {
+          isValid = true;
+        }
+      }
+      return isValid;
+    } catch (err) {
+      return false;
+    }
+  }
+
   determineTableType(table) {
     const firstHeaderCell = table.children[1].children[0].children[0];
 
@@ -226,15 +245,17 @@ export class HtmlReportToJsonService {
             this.outputJSON.storeList[idx].totalSize = store.areaTotal;
           }
         });
-        
       },
       err => {
         setTimeout(() => {
-          this.snackBar.open('Failed to retrieve total area from database... used estimation calculations instead', 'OK', {
-            duration: 99999
-          });
+          this.snackBar.open(
+            'Failed to retrieve total area from database... used estimation calculations instead',
+            'OK',
+            {
+              duration: 99999
+            }
+          );
         }, 1);
-        
       }
     );
   }

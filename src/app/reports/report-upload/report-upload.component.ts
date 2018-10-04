@@ -37,6 +37,8 @@ export class ReportUploadComponent implements OnInit {
   htmlAsString: String;
   htmlAsJson: HTMLasJSON;
 
+  siteNumberIsValid = false;
+
   exportPromises: Promise<any>[] = [];
   exportData: Blob;
 
@@ -106,7 +108,7 @@ export class ReportUploadComponent implements OnInit {
     private http: HttpClient,
     private rest: RestService,
     public auth: AuthService,
-    public dialog: MatDialog,
+    public dialog: MatDialog
   ) {
     this.fileReader = new FileReader();
     this.fileReader.onload = event => this.handleFileContents(event); // desired file content
@@ -134,11 +136,13 @@ export class ReportUploadComponent implements OnInit {
 
   editTotalArea(value, store) {
     const dialogRef = this.dialog.open(EditTotalSizeDialogComponent, {
-      data: {value: value, store: store, jsonToTablesService: this.jsonToTablesService}
+      data: {
+        value: value,
+        store: store,
+        jsonToTablesService: this.jsonToTablesService
+      }
     });
   }
-
-  
 
   handleDescriptionsForm(form) {
     this.descriptions = {
@@ -341,7 +345,8 @@ export class ReportUploadComponent implements OnInit {
     this.htmlAsJson = null;
   }
 
-  readFile(event) {
+  readFile(event, form) {
+    this.inputData = form.value;
     this.resetFile();
 
     const { files } = event.target;
@@ -365,9 +370,19 @@ export class ReportUploadComponent implements OnInit {
 
   validateForm() {}
 
+  validateSiteNumber(siteNumber) {
+    if (this.htmlAsString) {
+      this.siteNumberIsValid = this.htmlReportToJsonService.checkSiteNumber(
+        this.htmlAsString,
+        siteNumber
+      );
+    }
+  }
+
   handleFileContents(event) {
     if (event.target.result) {
       this.htmlAsString = event.target.result;
+      this.validateSiteNumber(this.inputData.siteNumber);
     }
   }
 

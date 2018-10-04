@@ -18,7 +18,7 @@
           <mat-hint>Type</mat-hint>
         </mat-form-field>
         <mat-form-field>
-          <input required matInput name="siteNumber" type="text" [ngModel]="interface.siteNumber">
+          <input (input)="validateSiteNumber($event.target.value)" required matInput name="siteNumber" type="text" [ngModel]="interface.siteNumber">
           <mat-hint>Site Number</mat-hint>
         </mat-form-field>
         <mat-form-field>
@@ -37,11 +37,17 @@
           <button type="button" mat-flat-button [color]="htmlFile ? 'primary' : 'warn'" (click)="htmlFileInput.click()"
             [disabled]="compilingJson || reportUploadForm.invalid"><i class="fas fa-spinner fa-spin" *ngIf="compilingJson"></i>
             {{compilingJson ? ' Fetching Data From Server': 'Upload HTML File'}}</button>
-          <input hidden type="file" accept=".html" #htmlFileInput (change)="readFile($event)" />
-          <span style="margin-left:20px;" *ngIf="htmlFile"><i *ngIf="htmlAsString" class="fas fa-check-circle" style="color:green;"></i>
-            {{htmlFile ? htmlFile.name : ''}}</span>
+          <input hidden type="file" accept=".html" #htmlFileInput (change)="readFile($event, reportUploadForm)" />
+          <span style="margin-left:20px;font-size:small;" *ngIf="htmlFile && siteNumberIsValid">
+            <i *ngIf="htmlAsString" class="fas fa-check-circle" style="color:green;margin-right:5px;"></i>
+            <b>{{htmlFile ? htmlFile.name : ''}}</b> is ready for processing
+          </span>
+          <span style="margin-left:20px;font-size:small;" *ngIf="htmlFile && !siteNumberIsValid">
+              <i *ngIf="htmlAsString" class="fas fa-exclamation-triangle" style="color:orange;margin-right:5px;"></i>
+              Invalid Site Number
+            </span>
           <br />
-          <button (click)="convertHtmlToJson(reportUploadForm)" [color]="'warn'" [disabled]="reportUploadForm.invalid || !htmlFile || !htmlAsString"
+          <button (click)="convertHtmlToJson(reportUploadForm)" [color]="'warn'" [disabled]="reportUploadForm.invalid || !htmlFile || !htmlAsString || !siteNumberIsValid"
             mat-flat-button matStepperNext style="margin-top:20px;">Write Report Descriptions</button>
         </div>
       </form>
@@ -147,8 +153,7 @@
         <div class='submit'>
           <button [color]="'primary'" mat-flat-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
           <button [color]="'warn'" mat-flat-button matStepperNext (click)="handleDescriptionsForm(descriptionsForm)"
-            style="margin-top:20px;">Generate
-            Tables From Data</button>
+            style="margin-top:20px;">Assign Categories</button>
         </div>
       </form>
     </div>
