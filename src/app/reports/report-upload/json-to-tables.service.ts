@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 
 import { HTMLasJSON } from '../../models/html-as-json';
-import { ReportUploadInterface } from '../../reports/report-upload/report-upload-interface';
-import { ProjectionsTable } from '../../models/projections-table';
+import { ReportUploadInterface } from './report-upload-interface';
 import { MapService } from '../../core/services/map.service';
 import { AuthService } from '../../core/services/auth.service';
 import { StoreListItem } from '../../models/store-list-item';
-import { MatSnackBar, SimpleSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material';
+import { StoreService } from '../../core/services/store.service';
+import { Store } from '../../models/full/store';
 
 @Injectable()
 export class JsonToTablesService {
@@ -17,7 +18,8 @@ export class JsonToTablesService {
   salesGrowthProjection;
 
   // maxPerSOVCategory = 15;
-  maxSOV = 25;
+  maxSOV = 20;
+  truncatedMsg = '';
 
   showedSnackbar = false;
   snackbarRef: any;
@@ -49,7 +51,11 @@ export class JsonToTablesService {
     }
   };
 
-  constructor(public auth: AuthService, private snackBar: MatSnackBar) {
+  constructor(
+    public auth: AuthService,
+    private snackBar: MatSnackBar,
+    public storeService: StoreService
+  ) {
   }
 
   init(modelData: ReportUploadInterface, json: HTMLasJSON) {
@@ -67,10 +73,7 @@ export class JsonToTablesService {
   }
 
   isInitialized() {
-    if (this.modelData && this.json) {
-      return true;
-    }
-    return false;
+    return this.modelData && this.json;
   }
 
   getProjectionMapKey() {
@@ -120,7 +123,9 @@ export class JsonToTablesService {
   }
 
   getStoresForExport(category) {
-    return this.json.storeList.filter(store => store.category === category && !this.isTargetStore(store));
+    return this.json.storeList.filter(
+      store => store.category === category && !this.isTargetStore(store)
+    );
   }
 
   getProjectionComment() {
@@ -218,70 +223,99 @@ export class JsonToTablesService {
 
       if (!this.showedSnackbar) {
         this.showedSnackbar = true;
-        this.snackbarMsg = `*Does not include contributions less than $${threshold.toLocaleString()} (Showing ${stores.length -
+        this.truncatedMsg = `*Does not show contributions less than $${threshold.toLocaleString()} (Showing ${stores.length -
           overflow.length}/${
           stores.length
-        } Stores). A total Contribution To Site of $${overflowSum.toLocaleString()} was excluded from the Report.`;
+        } Stores). A total Contribution To Site of $${overflowSum.toLocaleString()} was excluded from the Report.`
+        this.snackbarMsg = this.truncatedMsg;
 
         this.showSnackbar();
       }
     }
 
     return stores.splice(0, this.maxSOV);
-
   }
 
   getSOVStores(category) {
     // categories => Company Store, Proposed Competition, Existing Competition
+    return (
+      this.getTruncatedSOVStores()
+        // only get the ones matching the cat
+        .filter(store => store.category === category)
+        // create an array with new properties added
+        .map(store => {
+          const { beforematch, aftermatch } = this.getSOVMatches(store);
 
-    return this.getTruncatedSOVStores()
-      // only get the ones matching the cat
-      .filter(store => store.category === category)
-      // create an array with new properties added
-      .map(store => {
-        const { beforematch, aftermatch } = this.getSOVMatches(store);
+          store['currentSales'] = beforematch.currentSales;
 
-        store['currentSales'] = beforematch.currentSales;
+          store['futureSales'] = beforematch.futureSales;
 
-        store['futureSales'] = beforematch.futureSales;
+          store['contributionToSite'] = !this.isTargetStore(store)
+            ? Math.abs(
+                Number(beforematch.futureSales) - Number(aftermatch.futureSales)
+              )
+            : null;
+          store['contributionToSitePerc'] = !this.isTargetStore(store)
+            ? (Number(store['contributionToSite']) /
+                Number(store['futureSales'])) *
+              100
+            : null;
 
-        store['contributionToSite'] = !this.isTargetStore(store)
-          ? Math.abs(
-              Number(beforematch.futureSales) - Number(aftermatch.futureSales)
-            )
-          : null;
-        store['contributionToSitePerc'] = !this.isTargetStore(store)
-          ? (Number(store['contributionToSite']) /
-              Number(store['futureSales'])) *
-            100
-          : null;
+          store['resultingVolume'] =
+            store.mapKey === this.matchingStore.mapKey
+              ? aftermatch.futureSales
+              : store['futureSales'] - store['contributionToSite'];
 
-        store['resultingVolume'] =
-          store.mapKey === this.matchingStore.mapKey
-            ? aftermatch.futureSales
-            : store['futureSales'] - store['contributionToSite'];
+          store['distance'] =
+            MapService.getDistanceBetween(
+              { lat: store.latitude, lng: store.longitude },
+              {
+                lat: this.matchingStore.latitude,
+                lng: this.matchingStore.longitude
+              }
+            ) * 0.000621371;
 
-        store['distance'] =
-          MapService.getDistanceBetween(
-            { lat: store.latitude, lng: store.longitude },
-            {
-              lat: this.matchingStore.latitude,
-              lng: this.matchingStore.longitude
-            }
-          ) * 0.000621371;
+          return store;
+        })
+    );
+  }
 
-        return store;
-      })
+  getSummaryAverage(dataset, field) {
+    const data =
+      dataset === 'current'
+        ? this.getCurrentStoresWeeklySummary().map(s => s[field])
+        : this.getProjectedStoresWeeklySummary().map(s => s[field]);
+    return data.reduce((prev, next) => prev + next) / data.length;
   }
 
   showSnackbar() {
     console.log('show snackbar');
     setTimeout(() => {
-      this.snackbarRef = this.snackBar.open(this.snackbarMsg, 'OK', { duration: 99999 });
+      this.snackbarRef = this.snackBar.open(this.snackbarMsg, 'OK', {
+        duration: 99999
+      });
     }, 1);
   }
 
-  getSOVContributionToSite(store) {}
+  updateSOVTotalSize(store, value) {
+    if (store.uniqueId) {
+      this.storeService.getOneById(store.uniqueId).subscribe((s: Store) => {
+        s['areaTotal'] = value;
+        this.storeService.update(s).subscribe(res => {
+          console.log('updated db', res);
+        });
+      });
+    } else {
+      this.snackbarMsg =
+        'Updated the local table but could not update the database because the store does not exist there.';
+      this.showSnackbar();
+    }
+    const idx = this.json.storeList.findIndex(s => s.mapKey === store.mapKey);
+    if (idx !== -1) {
+      this.json.storeList[idx].totalSize = value;
+    }
+    console.log('updated json');
+  }
 
   getSOVAverages(category) {
     // categories => Company Store, Proposed Competition, Existing Competition

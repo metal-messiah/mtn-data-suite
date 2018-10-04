@@ -1,6 +1,6 @@
 import { Component, NgZone, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { MatSnackBar, MatStepper } from '@angular/material';
+import { MatSnackBar, MatStepper, MatDialog } from '@angular/material';
 import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
 import { AuthService } from '../../core/services/auth.service';
 import * as _ from 'lodash';
@@ -20,6 +20,7 @@ import { JsonToTablesService } from './json-to-tables.service';
 
 import { HttpClient } from '@angular/common/http';
 import { RestService } from '../../core/services/rest.service';
+import { EditTotalSizeDialogComponent } from '../edit-total-size-dialog/edit-total-size-dialog.component';
 
 @Component({
   selector: 'mds-report-upload',
@@ -35,6 +36,8 @@ export class ReportUploadComponent implements OnInit {
   htmlFile: File;
   htmlAsString: String;
   htmlAsJson: HTMLasJSON;
+
+  siteNumberIsValid = false;
 
   exportPromises: Promise<any>[] = [];
   exportData: Blob;
@@ -104,7 +107,8 @@ export class ReportUploadComponent implements OnInit {
     private jsonToTablesService: JsonToTablesService,
     private http: HttpClient,
     private rest: RestService,
-    public auth: AuthService
+    public auth: AuthService,
+    public dialog: MatDialog
   ) {
     this.fileReader = new FileReader();
     this.fileReader.onload = event => this.handleFileContents(event); // desired file content
@@ -121,14 +125,24 @@ export class ReportUploadComponent implements OnInit {
       analyst: `${this.auth.sessionUser.firstName} ${
         this.auth.sessionUser.lastName
       }`,
-      type: 'New',
-      siteNumber: '1000.1',
-      modelName: 'Jacksonville FL 18 Kitson',
+      type: '',
+      siteNumber: '',
+      modelName: '',
       fieldResDate: new Date()
     };
   }
 
   ngOnInit() {}
+
+  editTotalArea(value, store) {
+    const dialogRef = this.dialog.open(EditTotalSizeDialogComponent, {
+      data: {
+        value: value,
+        store: store,
+        jsonToTablesService: this.jsonToTablesService
+      }
+    });
+  }
 
   handleDescriptionsForm(form) {
     this.descriptions = {
@@ -156,7 +170,7 @@ export class ReportUploadComponent implements OnInit {
         west: form.value.populationDensityWest
       }
     };
-    console.log(this.descriptions)
+    console.log(this.descriptions);
   }
 
   toggleBasemap(type) {
@@ -233,7 +247,6 @@ export class ReportUploadComponent implements OnInit {
           zip.file(`${this.tableDomIds[i]}.png`, fileData);
         });
 
-
         const sisterStoreAffects = this.jsonToTablesService
           .getStoresForExport('Company Store')
           .sort((a, b) => {
@@ -254,9 +267,7 @@ export class ReportUploadComponent implements OnInit {
           this.descriptions.streetConditions
         }\r\n\r\nCo-tenants\r\n${
           this.descriptions.cotenants
-        }\r\n\r\nSister Store Affects\r\n${
-          sisterStoreAffects
-        }`;
+        }\r\n\r\nSister Store Affects\r\n${sisterStoreAffects}`;
 
         zip.file(`descriptions.txt`, new Blob([txt]));
 
@@ -297,6 +308,35 @@ export class ReportUploadComponent implements OnInit {
     }
   }
 
+  changeCombinedCategory(event, combo) {
+    console.log(combo, ' change to ', event.target.value);
+    this.htmlAsJson.storeList.forEach((s, i) => {
+      if (s.storeName === combo.storeName && s.uniqueId) {
+        this.htmlAsJson.storeList[i].category = event.target.value;
+      }
+    });
+  }
+
+  getExistingStoresCount(storeName) {
+    return this.htmlAsJson.storeList.filter(
+      s => s.storeName === storeName && s.uniqueId
+    ).length;
+  }
+
+  getExistingStoresCombined() {
+    return this.htmlAsJson.storeList
+      .filter(s => s.uniqueId !== null)
+      .map(s => {
+        return { storeName: s.storeName, category: s.category };
+      })
+      .filter((elem, idx, arr) => {
+        return arr.findIndex(e => e.storeName === elem.storeName) === idx;
+      });
+  }
+
+  getProposedStores() {
+    return this.htmlAsJson.storeList.filter(s => s.uniqueId === null);
+  }
 
   resetFile() {
     console.log('RESET FILE');
@@ -305,7 +345,12 @@ export class ReportUploadComponent implements OnInit {
     this.htmlAsJson = null;
   }
 
-  readFile(event) {
+  clearFileInput() {
+    document.getElementById('htmlFileInput')['value'] = null;
+  }
+
+  readFile(event, form) {
+    this.inputData = form.value;
     this.resetFile();
 
     const { files } = event.target;
@@ -329,9 +374,19 @@ export class ReportUploadComponent implements OnInit {
 
   validateForm() {}
 
+  validateSiteNumber(siteNumber) {
+    if (this.htmlAsString) {
+      this.siteNumberIsValid = this.htmlReportToJsonService.checkSiteNumber(
+        this.htmlAsString,
+        siteNumber
+      );
+    }
+  }
+
   handleFileContents(event) {
     if (event.target.result) {
       this.htmlAsString = event.target.result;
+      this.validateSiteNumber(this.inputData.siteNumber);
     }
   }
 

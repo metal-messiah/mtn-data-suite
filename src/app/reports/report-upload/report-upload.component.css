@@ -6,6 +6,12 @@ body {
   overflow-x: hidden;
 }
 
+.flex-container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .report-upload-wrapper {
   display: flex;
   align-items: center;
@@ -55,22 +61,31 @@ mat-form-field {
 }
 
 table {
-  /* width: 10in; */
-  width: 100%;
-  margin: 0 auto;
+  width: 10in;
+  border: none;
+  /* display: block; */
+  /* width: 100%; */
+  /* margin: 0 auto; */
+}
+
+.force10{
+  min-width: 10in;
 }
 
 tr:nth-child(odd) {
   background: #eee;
+  border: none;
 }
 
 tr:nth-child(even) {
   background: white;
+  border: none;
 }
 
 th {
   background: white;
   font-size: x-small;
+  border: none;
 }
 
 td {
@@ -78,6 +93,7 @@ td {
   text-align: center;
   font-size: x-small;
   white-space: nowrap;
+  border: none;
 }
 
 mat-progress-bar {
@@ -102,15 +118,13 @@ mat-progress-bar {
 
 .title-left {
   position: absolute;
-  left: 0;
-  margin-left: 25px;
+  left: 50px;
   font-size: large;
 }
 
 .title-right {
   position: absolute;
-  right: 0;
-  margin-right: 25px;
+  right: 50px;
   font-size: large;
 }
 
@@ -132,9 +146,38 @@ mat-progress-bar {
   color: gray;
 }
 
-.footnote{
+.footnote {
   background: white;
   font-style: italic;
   color: gray;
   font-size: xx-small;
+}
+
+.categories-box {
+  padding: 5px 50px;
+  border: 1px solid gray;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 50vw;
+  min-width: 500px;
+  margin: 0 auto;
+}
+
+.invalid {
+  border: 1px solid red;
+  color: red;
+}
+
+.editable {
+  cursor: pointer;
+}
+
+.editable:hover {
+  text-decoration: underline;
+}
+
+.file-tip {
+  margin-left: 20px;
+  font-size: small;
 }
