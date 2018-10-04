@@ -285,6 +285,14 @@ export class JsonToTablesService {
     );
   }
 
+  getSummaryAverage(dataset, field) {
+    const data =
+      dataset === 'current'
+        ? this.getCurrentStoresWeeklySummary().map(s => s[field])
+        : this.getProjectedStoresWeeklySummary().map(s => s[field]);
+    return data.reduce((prev, next) => prev + next) / data.length;
+  }
+
   showSnackbar() {
     console.log('show snackbar');
     setTimeout(() => {
@@ -303,7 +311,8 @@ export class JsonToTablesService {
         });
       });
     } else {
-      this.snackbarMsg = 'Updated the local table but could not update the database because the store does not exist there.';
+      this.snackbarMsg =
+        'Updated the local table but could not update the database because the store does not exist there.';
       this.showSnackbar();
     }
     const idx = this.json.storeList.findIndex(s => s.mapKey === store.mapKey);

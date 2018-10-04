@@ -18,7 +18,8 @@
           <mat-hint>Type</mat-hint>
         </mat-form-field>
         <mat-form-field>
-          <input (input)="validateSiteNumber($event.target.value)" required matInput name="siteNumber" type="text" [ngModel]="interface.siteNumber">
+          <input (input)="validateSiteNumber($event.target.value)" required matInput name="siteNumber" type="text"
+            [ngModel]="interface.siteNumber">
           <mat-hint>Site Number</mat-hint>
         </mat-form-field>
         <mat-form-field>
@@ -29,7 +30,7 @@
           <input required matInput name="fieldResDate" type="date" [ngModel]="interface.fieldResDate | date:'yyyy-MM-dd'">
           <mat-hint>Field Res Date</mat-hint>
         </mat-form-field>
-        
+
 
 
 
@@ -38,14 +39,14 @@
             [disabled]="compilingJson || reportUploadForm.invalid"><i class="fas fa-spinner fa-spin" *ngIf="compilingJson"></i>
             {{compilingJson ? ' Fetching Data From Server': 'Upload HTML File'}}</button>
           <input hidden type="file" accept=".html" #htmlFileInput (change)="readFile($event, reportUploadForm)" />
-          <span style="margin-left:20px;font-size:small;" *ngIf="htmlFile && siteNumberIsValid">
-            <i *ngIf="htmlAsString" class="fas fa-check-circle" style="color:green;margin-right:5px;"></i>
-            <b>{{htmlFile ? htmlFile.name : ''}}</b> is ready for processing
+          <span class="file-tip" *ngIf="htmlFile">
+            <i *ngIf="htmlAsString && siteNumberIsValid" class="fas fa-check-circle" style="color:green;margin-right:5px;"></i>
+            <b>{{htmlFile ? htmlFile.name : ''}}</b>
           </span>
-          <span style="margin-left:20px;font-size:small;" *ngIf="htmlFile && !siteNumberIsValid">
-              <i *ngIf="htmlAsString" class="fas fa-exclamation-triangle" style="color:orange;margin-right:5px;"></i>
-              Invalid Site Number
-            </span>
+          <span class="file-tip" *ngIf="htmlFile && !siteNumberIsValid">
+            <i *ngIf="htmlAsString" class="fas fa-skull" style="color:orangered;margin-right:5px;"></i>
+            Site Number Not Found In File
+          </span>
           <br />
           <button (click)="convertHtmlToJson(reportUploadForm)" [color]="'warn'" [disabled]="reportUploadForm.invalid || !htmlFile || !htmlAsString || !siteNumberIsValid"
             mat-flat-button matStepperNext style="margin-top:20px;">Write Report Descriptions</button>
@@ -162,8 +163,7 @@
     <ng-template matStepLabel>Assign Categories</ng-template>
     <h3 style="text-align: center;">Existing Stores</h3>
     <div *ngIf="htmlAsJson" class="categories-wrapper">
-      <div class="categories-box"
-        *ngFor="let store of getExistingStoresCombined(); let i=index;" [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
+      <div class="categories-box" *ngFor="let store of getExistingStoresCombined(); let i=index;" [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
         <div>
           <span style="margin-right: 20px;">{{store.storeName}} ({{getExistingStoresCount(store.storeName)}})</span>
         </div>
@@ -174,17 +174,16 @@
     </div>
     <h3 style="text-align: center;">Proposed Stores</h3>
     <div *ngIf="htmlAsJson" class="categories-wrapper">
-        <div class='categories-box'
-          *ngFor="let store of getProposedStores(); let i=index;" [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
-          <div>
-            <span style="margin-right: 20px;">{{store.mapKey}}</span>
-            <span style="margin-right: 20px;">{{store.storeName}}</span>
-          </div>
-          <select [value]="store.category" (change)="changeCategory($event, store.mapKey)">
-            <option *ngFor="let cat of categories">{{cat}}</option>
-          </select>
+      <div class='categories-box' *ngFor="let store of getProposedStores(); let i=index;" [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
+        <div>
+          <span style="margin-right: 20px;">{{store.mapKey}}</span>
+          <span style="margin-right: 20px;">{{store.storeName}}</span>
         </div>
+        <select [value]="store.category" (change)="changeCategory($event, store.mapKey)">
+          <option *ngFor="let cat of categories">{{cat}}</option>
+        </select>
       </div>
+    </div>
     <hr>
     <button [color]="'primary'" mat-flat-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
     <button [color]="'warn'" mat-flat-button matStepperNext (click)="generateTables()" style="margin-top:20px;">Generate
@@ -245,10 +244,20 @@
           <td>{{store.storeName}}</td>
           <td>{{store.location}}</td>
           <td>${{store.actualSales | number:'1.0-2'}}</td>
-          <td>${{store.actualSalesPSF | number:'1.0-2'}}</td>
+          <td>${{store.actualSalesPSF | number:'1.2-2'}}</td>
           <td>{{store.salesArea | number}}</td>
           <td>{{store.PWTA | number}}</td>
           <td>{{store.effectivePower | number}}</td>
+        </tr>
+        <tr class="bold">
+          <td>Average</td>
+          <td></td>
+          <td></td>
+          <td>${{jsonToTablesService.getSummaryAverage('current', 'actualSales') | number:'1.0-0'}}</td>
+          <td>${{jsonToTablesService.getSummaryAverage('current', 'actualSalesPSF') | number:'1.2-2'}}</td>
+          <td>{{jsonToTablesService.getSummaryAverage('current', 'salesArea') | number:'1.0-0'}}</td>
+          <td></td>
+          <td>{{jsonToTablesService.getSummaryAverage('current', 'effectivePower') | number:'1.0-0'}}</td>
         </tr>
       </table>
       <hr />
@@ -278,6 +287,16 @@
           <td>{{store.salesArea | number}}</td>
           <td>{{store.PWTA | number}}</td>
           <td>{{store.effectivePower | number}}</td>
+        </tr>
+        <tr class="bold">
+          <td>Average</td>
+          <td></td>
+          <td></td>
+          <td>${{jsonToTablesService.getSummaryAverage('projected', 'actualSales') | number:'1.0-0'}}</td>
+          <td>${{jsonToTablesService.getSummaryAverage('projected', 'actualSalesPSF') | number:'1.2-2'}}</td>
+          <td>{{jsonToTablesService.getSummaryAverage('projected', 'salesArea') | number:'1.0-0'}}</td>
+          <td></td>
+          <td>{{jsonToTablesService.getSummaryAverage('projected', 'effectivePower') | number:'1.0-0'}}</td>
         </tr>
       </table>
       <hr>
@@ -322,7 +341,8 @@
           <td>{{store.effectivePower | number:'1.0-2'}}</td>
           <td>{{store.distance | number:'1.0-2'}} mi.</td>
           <td>{{store.salesArea | number:'1.0-2'}}</td>
-          <td class='editable' (click)="editTotalArea($event.target.innerText, store)">{{store.totalSize | number:'1.0-2'}}</td>
+          <td class='editable' (click)="editTotalArea($event.target.innerText, store)">{{store.totalSize |
+            number:'1.0-2'}}</td>
           <td>{{store.actualSales / 1000 | number:'1.0-2'}}</td>
           <td>{{store.projectedSales / 1000 | number:'1.0-2'}}</td>
           <td>{{store.contributionToSite ? (store.contributionToSite / 1000).toFixed(0) : '-'}}</td>

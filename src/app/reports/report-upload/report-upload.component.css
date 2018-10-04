@@ -102,15 +102,13 @@ mat-progress-bar {
 
 .title-left {
   position: absolute;
-  left: 0;
-  margin-left: 25px;
+  left: 50px;
   font-size: large;
 }
 
 .title-right {
   position: absolute;
-  right: 0;
-  margin-right: 25px;
+  right: 50px;
   font-size: large;
 }
 
@@ -150,15 +148,20 @@ mat-progress-bar {
   margin: 0 auto;
 }
 
-.invalid{
+.invalid {
   border: 1px solid red;
   color: red;
 }
 
-.editable{
+.editable {
   cursor: pointer;
 }
 
-.editable:hover{
+.editable:hover {
   text-decoration: underline;
+}
+
+.file-tip {
+  margin-left: 20px;
+  font-size: small;
 }
