@@ -1,0 +1,16 @@
+<div class='flex-container'>
+  <div>
+    <h3 *ngIf="selectedFiles.length">Selected Images</h3>
+    <h3 *ngIf="!selectedFiles.length">
+      <i class="fas fa-spinner fa-spin"></i>
+    </h3>
+    <div class='flex-container' *ngFor="let file of selectedFiles">
+      <img [src]="file.url">
+      <mat-form-field>
+        <input matInput type="text" [value]="getValue(file)" [id]="file.public_id">
+        <mat-hint *ngIf="file.public_id === copiedId">Copied to Clipboard</mat-hint>
+      </mat-form-field>
+      <button mat-flat-button color="primary" (click)="copyToClipboard(file.public_id)">Copy</button>
+    </div>
+  </div>
+</div>
