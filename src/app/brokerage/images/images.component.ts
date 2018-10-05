@@ -24,6 +24,8 @@ export class ImagesComponent implements OnInit {
   selectedFiles;
   copiedId: string;
 
+  initialized = false;
+
   constructor() {
     // window['global'] = window;
     this.signature = `cloud_name=${this.cloudName}&timestamp=${
@@ -39,14 +41,11 @@ export class ImagesComponent implements OnInit {
       cloud_name: this.cloudName,
       api_key: this.apiKey,
       username: this.username,
-      timestamp: this.timeStamp
+      timestamp: this.timeStamp,
+      max_files: 100
     };
 
-    this.mediaLibrary = cloudinary.openMediaLibrary(this.config, {
-      insertHandler: data => {
-        this.setSelectedFiles(data.assets);
-      }
-    });
+    this.openCloudinary();
 
     this.selectedFiles = [];
   }
@@ -69,20 +68,36 @@ export class ImagesComponent implements OnInit {
     this.clearTextSelection();
   }
 
-  getImageDimensions(img) {
+  startOver() {
+    this.initialized = false;
+    this.selectedFiles = [];
+    this.openCloudinary();
+  }
 
-    console.log(img)
-      // const scale =
-      //   this.naturalHeight > 100
-      //     ? this.naturalHeight / 100
-      //     : this.naturalWidth > 120
-      //       ? this.naturalWidth / 120
-      //       : 1;
-      // const width = Math.round(this.naturalWidth / scale);
-      // const height = Math.round(this.naturalHeight / scale);
-      // console.log({width, height})
-      // return {width, height}
-    
+  openCloudinary() {
+    this.mediaLibrary = cloudinary.openMediaLibrary(this.config, {
+      insertHandler: data => {
+        this.setSelectedFiles(data.assets);
+      }
+    });
+
+    setTimeout(() => {
+      this.initialized = true;
+    }, 5000);
+  }
+
+  getImageDimensions(img) {
+    console.log(img);
+    // const scale =
+    //   this.naturalHeight > 100
+    //     ? this.naturalHeight / 100
+    //     : this.naturalWidth > 120
+    //       ? this.naturalWidth / 120
+    //       : 1;
+    // const width = Math.round(this.naturalWidth / scale);
+    // const height = Math.round(this.naturalHeight / scale);
+    // console.log({width, height})
+    // return {width, height}
   }
 
   clearTextSelection() {

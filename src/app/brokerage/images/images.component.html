@@ -1,7 +1,10 @@
 <div class='flex-container'>
   <div>
-    <h3 *ngIf="selectedFiles.length">Selected Images</h3>
-    <h3 *ngIf="!selectedFiles.length">
+    <button style="margin-top:25px;" *ngIf="initialized" mat-flat-button color="primary" (click)="startOver()"><i class="fas fa-images"></i> Search Again
+    </button>
+    <h3 *ngIf="selectedFiles.length">Selected Images
+    </h3>
+    <h3 *ngIf="!initialized">
       <i class="fas fa-spinner fa-spin"></i>
     </h3>
     <div class='flex-container' *ngFor="let file of selectedFiles">
@@ -10,7 +13,8 @@
         <input matInput type="text" [value]="getValue(file)" [id]="file.public_id">
         <mat-hint *ngIf="file.public_id === copiedId">Copied to Clipboard</mat-hint>
       </mat-form-field>
-      <button mat-flat-button color="primary" (click)="copyToClipboard(file.public_id)">Copy</button>
+      <button mat-flat-button color="primary" (click)="copyToClipboard(file.public_id)"><i class="fas fa-clipboard"></i>
+        Copy</button>
     </div>
   </div>
 </div>
