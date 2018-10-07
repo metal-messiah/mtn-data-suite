@@ -16,10 +16,6 @@ export class StoreCasing extends AuditingEntity {
   conditionShelvingGondolas: string;
   conditionWalls: string;
   fuelGallonsWeekly: number;
-  pharmacyScriptsWeekly: number;
-  pharmacyAvgDollarsPerScript: number;
-  pharmacyPharmacistCount: number;
-  pharmacyTechnicianCount: number;
   legacyCasingId: number;
   storeStatus: string;
 

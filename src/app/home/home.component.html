@@ -51,6 +51,13 @@
           </mat-list-item>
           <mat-divider></mat-divider>
         </div>
+        <div *ngIf="userCanReport()">
+          <mat-list-item routerLink="/reports">
+            <div mat-list-icon><i class="fas fa-newspaper"></i></div>
+            <h3 mat-line>Reports</h3>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+        </div>
         <div *ngIf="userIsAdmin()">
           <!-- TODO Add my profile-->
           <mat-list-item>

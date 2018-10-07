@@ -36,6 +36,9 @@ import { StoreMapLayer } from '../../models/store-map-layer';
 import { SiteMapLayer } from '../../models/site-map-layer';
 import { GeometryUtil } from '../../utils/geometry-util';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
+import { NewProjectNameComponent } from '../../shared/new-project-name/new-project-name.component';
+import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
+import { ProjectBoundary } from '../../models/project-boundary';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY
@@ -55,8 +58,8 @@ export enum CardState {
 })
 export class CasingDashboardComponent implements OnInit, OnDestroy {
 
-  private readonly MAX_DATA_ZOOM = 7;
-  private readonly DATA_POINT_ZOOM = 10;
+  private readonly MAX_DATA_ZOOM = 8;
+  private readonly DATA_POINT_ZOOM = 12;
 
   selectedStore: Store | SimplifiedStore;
   selectedSite: Site | SimplifiedSite;
@@ -106,7 +109,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
               private dialog: MatDialog,
               private authService: AuthService,
               private errorService: ErrorService,
-              private entitySelectionService: EntitySelectionService,
+              public entitySelectionService: EntitySelectionService,
               public projectBoundaryService: ProjectBoundaryService) {
   }
 
@@ -168,7 +171,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
           this.mapService.setZoom(17);
         });
       }
-    })
+    });
   }
 
   private getDebounce() {
@@ -254,7 +257,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   private getStoresInBounds(bounds) {
-    return this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes(), this.markCasedStores)
+    const includeProjectIds = this.storeMapLayer.markerType === MarkerType.PROJECT_COMPLETION;
+    return this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes(), includeProjectIds)
       .pipe(tap(page => {
         this.storeMapLayer.setEntities(page.content);
         this.ngZone.run(() => {
@@ -489,7 +493,12 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   setMarkerType(markerType: MarkerType) {
     this.storeMapLayer.setMarkerType(markerType);
-    this.getEntities(this.mapService.getBounds());
+    if (this.storeMapLayer.markerType === MarkerType.PROJECT_COMPLETION) {
+      // Need to retrieve cased Project Ids
+      this.getEntities(this.mapService.getBounds());
+    } else {
+      this.storeMapLayer.refreshOptions();
+    }
   }
 
   openDatabaseSearch() {
@@ -635,13 +644,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.getEntities(this.mapService.getBounds());
   }
 
-
-  markStoresCasedForProject(doMark: boolean) {
-    this.markCasedStores = doMark;
-    localStorage.setItem('markCasedStores', JSON.stringify(this.markCasedStores));
-    this.getEntities(this.mapService.getBounds());
-  }
-
   saveProjectBoundary() {
     this.savingBoundary = true;
     this.projectBoundaryService.saveProjectBoundaries()
@@ -660,6 +662,46 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   enableProjectBoundaryEditing() {
     this.selectedDashboardMode = CasingDashboardMode.EDIT_PROJECT_BOUNDARY;
     this.projectBoundaryService.enableProjectBoundaryEditing();
+  }
+
+  selectAllInBoundary() {
+    if (this.projectBoundaryService.isShowingBoundary()) {
+      const geoJsonString = JSON.stringify(this.projectBoundaryService.projectBoundary.geojson);
+      this.selectAllInShape(geoJsonString, true);
+    } else {
+      this.projectBoundaryService.showProjectBoundaries().subscribe(boundary => {
+        if (boundary != null) {
+          this.selectAllInShape(boundary.geojson, true);
+        } else {
+          this.snackBar.open('No Boundary for Project', null, {duration: 2000, verticalPosition: 'top'});
+        }
+      })
+    }
+  }
+
+  private selectAllInShape(geoJsonString: string, clearPreviousSelection: boolean) {
+    this.storeService.getIdsInShape(geoJsonString, this.casingDashboardService.filter)
+      .subscribe((ids: { siteIds: number[], storeIds: number[] }) => {
+        if (clearPreviousSelection) {
+          this.entitySelectionService.clearSelectedIds();
+        }
+        ids.storeIds.forEach(storeId => this.entitySelectionService.storeIds.add(storeId));
+        ids.siteIds.forEach(siteId => this.entitySelectionService.siteIds.add(siteId));
+        this.storeMapLayer.refreshOptions();
+        if (this.mapService.getZoom() <= this.DATA_POINT_ZOOM && this.mapService.getZoom() > this.MAX_DATA_ZOOM) {
+          this.mapDataLayer.refresh();
+        }
+      })
+  }
+
+  openDownloadDialog() {
+    const config = {data: {selectedStoreIds: this.storeMapLayer.getSelectedEntityIds()}, maxWidth: '90%'};
+    const downloadDialog = this.dialog.open(DownloadDialogComponent, config);
+    downloadDialog.afterClosed().subscribe(project => {
+      if (project) {
+        downloadDialog.close();
+      }
+    })
   }
 
 }

@@ -6,14 +6,6 @@ export class StoreSurvey extends AuditingEntity {
 
   surveyDate: Date;
   note: string;
-  fit: string;
-  format: string;
-  areaSales: number;
-  areaSalesPercentOfTotal: number;
-  areaTotal: number;
-  areaIsEstimate: boolean;
-  storeIsOpen24: boolean;
-  naturalFoodsAreIntegrated: boolean;
   registerCountNormal: number;
   registerCountExpress: number;
   registerCountSelfCheckout: number;
@@ -21,6 +13,10 @@ export class StoreSurvey extends AuditingEntity {
   fuelIsOpen24: boolean;
   pharmacyIsOpen24: boolean;
   pharmacyHasDriveThrough: boolean;
+  pharmacyScriptsWeekly: number;
+  pharmacyAvgDollarsPerScript: number;
+  pharmacyPharmacistCount: number;
+  pharmacyTechnicianCount: number;
   departmentBakery: boolean;
   departmentBank: boolean;
   departmentBeer: boolean;

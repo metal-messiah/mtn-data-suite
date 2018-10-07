@@ -126,6 +126,18 @@ export class StoreService extends CrudService<Store> {
       .pipe(map(simpleStore => new SimplifiedStore(simpleStore)));
   }
 
+  validateStore(storeId: number): Observable<SimplifiedStore> {
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/validate`;
+    return this.http.put<SimplifiedStore>(url, null, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new SimplifiedStore(store)));
+  }
+
+  invalidateStore(storeId: number): Observable<SimplifiedStore> {
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/invalidate`;
+    return this.http.put<SimplifiedStore>(url, null, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new SimplifiedStore(store)));
+  }
+
   getLabel(store: Store | SimplifiedStore) {
     let label = null;
     // if (store.banner != null) {
@@ -151,5 +163,12 @@ export class StoreService extends CrudService<Store> {
 
   protected createEntityFromObj(entityObj): Store {
     return new Store(entityObj);
+  }
+
+  getAllByIds(ids: number[]) {
+    const url = this.rest.getHost() + this.endpoint;
+    const params = new HttpParams().set('ids', ids.toString());
+    return this.http.get<Store[]>(url, {headers: this.rest.getHeaders(), params: params})
+      .pipe(map(stores => stores.map(store => new SimplifiedStore(store))));
   }
 }

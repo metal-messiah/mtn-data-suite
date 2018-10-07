@@ -28,6 +28,8 @@ import { RoutingStateService } from './services/routing-state.service';
 import { BannerService } from './services/banner.service';
 import { StoreSourceService } from './services/store-source.service';
 import { EntitySelectionService } from './services/entity-selection.service';
+import { CompanyService } from './services/company.service';
+import { ExtractionService } from './services/extraction.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -36,9 +38,11 @@ import { EntitySelectionService } from './services/entity-selection.service';
     AuthService,
     AuthGuard,
     BannerService,
+    CompanyService,
     DetailFormService,
     EntityListService,
     ErrorService,
+    ExtractionService,
     GeocoderService,
     GroupService,
     MapService,

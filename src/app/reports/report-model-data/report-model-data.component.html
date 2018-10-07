@@ -1,0 +1,44 @@
+<div class="list-wrapper">
+  <form [formGroup]="modelMetaDataForm">
+    <mat-form-field>
+      <input required matInput placeholder="Analyst Full Name" type="text" formControlName="analyst">
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput placeholder="Type" type="text" formControlName="type">
+    </mat-form-field>
+    <mat-form-field>
+      <input required matInput placeholder="Model Name" type="text" formControlName="modelName">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput [matDatepicker]="fieldResDatePicker" placeholder="Field Research Date"
+             formControlName="fieldResDate">
+      <mat-datepicker-toggle matSuffix [for]="fieldResDatePicker"></mat-datepicker-toggle>
+      <mat-datepicker #fieldResDatePicker></mat-datepicker>
+    </mat-form-field>
+
+    <div>
+      <button type="button" mat-raised-button
+              [color]="htmlFile ? 'primary' : 'warn'"
+              (click)="htmlFileInput.click()"
+              [disabled]="parsingHtml">
+        <i class="fas fa-spinner fa-spin" *ngIf="parsingHtml"></i>
+        {{parsingHtml ? ' Fetching Data From Server': 'Upload HTML File'}}
+      </button>
+      <span class="file-tip" *ngIf="htmlFile">
+        <i class="fas fa-check-circle" style="color:green;margin-right:5px;"></i>
+        <b>{{htmlFile ? htmlFile.name : ''}}</b>
+      </span>
+      <input hidden type="file" accept=".html" id="htmlFileInput" #htmlFileInput (change)="readFile($event)"/>
+    </div>
+    <div>
+      <button (click)="submitModelData()" [color]="'warn'" [disabled]="modelMetaDataForm.invalid || !htmlFile || parsingHtml || postProcessing"
+              mat-raised-button style="margin-top:20px;">Next
+      </button>
+      <span class="file-tip" *ngIf="parsingHtml || postProcessing">
+        <i class="fas fa-spinner fa-pulse" style="margin-right:5px;"></i>
+        <b *ngIf="parsingHtml">Parsing HTML file...</b>
+        <b *ngIf="postProcessing">Processing Data...</b>
+      </span>
+    </div>
+  </form>
+</div>

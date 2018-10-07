@@ -16,8 +16,8 @@ export class CasingDashboardService {
   private selectedProject: SimplifiedProject;
 
   constructor(private dialog: MatDialog) {
-    const filter = JSON.parse(localStorage.getItem('casingDashboardFilters'));
-    this.filter = filter ? filter : new StoreFilter();
+    const filter: StoreFilter = JSON.parse(localStorage.getItem('casingDashboardFilters'));
+    this.filter = (filter && Object.keys(filter).length > 0) ? filter : new StoreFilter();
     const selectedProject = JSON.parse(localStorage.getItem('selectedProject'));
     if (selectedProject != null) {
       this.selectedProject = new SimplifiedProject(selectedProject);

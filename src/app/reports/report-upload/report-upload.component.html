@@ -1,0 +1,177 @@
+<div class="content">
+  <mat-horizontal-stepper [linear]='true' #stepper id="stepper">
+    <ng-template matStepperIcon="edit">
+      <i class="fas fa-pencil-alt"></i>
+    </ng-template>
+    <ng-template matStepperIcon="done">
+      <i class="fas fa-check"></i>
+    </ng-template>
+    <mat-step>
+      <ng-template matStepLabel>Import Data</ng-template>
+      <mds-report-model-data></mds-report-model-data>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Descriptions</ng-template>
+      <div class="report-upload-wrapper">
+        <form #descriptionsForm="ngForm">
+          <mat-form-field>
+            <textarea matInput name="streetConditions" [ngModel]="''"></textarea>
+            <mat-hint>Street Conditions</mat-hint>
+          </mat-form-field>
+          <mat-form-field>
+            <textarea matInput name="comments" [ngModel]="''"></textarea>
+            <mat-hint>Comments</mat-hint>
+          </mat-form-field>
+          <mat-form-field>
+            <textarea matInput name="trafficControls" [ngModel]="''"></textarea>
+            <mat-hint>Traffic Controls</mat-hint>
+          </mat-form-field>
+          <mat-form-field>
+            <textarea matInput name="cotenants" [ngModel]="''"></textarea>
+            <mat-hint>Co-Tenants</mat-hint>
+          </mat-form-field>
+          <div class='select-group-header bold'>Access</div>
+          <div class='select-group'>
+            <mat-form-field>
+              <mat-select placeholder='North' name="accessNorth" [ngModel]="'Average'">
+                <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-select placeholder='South' name="accessSouth" [ngModel]="'Average'">
+                <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-select placeholder='East' name="accessEast" [ngModel]="'Average'">
+                <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-select placeholder='West' name="accessWest" [ngModel]="'Average'">
+                <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class='select-group-header bold'>Ingress/Egress</div>
+          <div class='select-group'>
+            <mat-form-field>
+              <mat-select placeholder='Ingress/Egress' name="ingressEgress" [ngModel]="'Average'">
+                <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class='select-group-header bold'>Visibility</div>
+          <div class='select-group'>
+            <mat-form-field>
+              <mat-select placeholder='North' name="visibilityNorth" [ngModel]="'Average'">
+                <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-select placeholder='South' name="visibilitySouth" [ngModel]="'Average'">
+                <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-select placeholder='East' name="visibilityEast" [ngModel]="'Average'">
+                <mat-option [value]='option' *ngFor="let option of groupOptions">{{option}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-select placeholder='West' name="visibilityWest" [ngModel]="'Average'">
+                <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class='select-group-header bold'>Population Density</div>
+          <div class='select-group'>
+            <mat-form-field>
+              <mat-select placeholder='North' name="populationDensityNorth" [ngModel]="'Average'">
+                <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-select placeholder='South' name="populationDensitySouth" [ngModel]="'Average'">
+                <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-select placeholder='East' name="populationDensityEast" [ngModel]="'Average'">
+                <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-select placeholder='West' name="populationDensityWest" [ngModel]="'Average'">
+                <mat-option [value]="option" *ngFor="let option of groupOptions">{{option}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class='submit'>
+            <button [color]="'primary'" mat-raised-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back
+            </button>
+            <button [color]="'warn'" mat-raised-button matStepperNext (click)="handleDescriptionsForm(descriptionsForm)"
+                    style="margin-top:20px;">Assign Categories
+            </button>
+          </div>
+        </form>
+      </div>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Assign Categories</ng-template>
+      <h3 style="text-align: center;">Existing Stores</h3>
+      <div *ngIf="reportBuilderService.reportTableData" class="categories-wrapper">
+        <div class="categories-box" *ngFor="let store of getExistingStoresCombined(); let i=index;"
+             [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
+          <div>
+            <span style="margin-right: 20px;">{{store.storeName}} ({{getExistingStoresCount(store.storeName)}})</span>
+          </div>
+          <select [value]="store.category" (change)="changeCombinedCategory($event, store)">
+            <option *ngFor="let cat of categories">{{cat}}</option>
+          </select>
+        </div>
+      </div>
+      <h3 style="text-align: center;">Proposed Stores</h3>
+      <div *ngIf="reportBuilderService.reportTableData" class="categories-wrapper">
+        <div class='categories-box' *ngFor="let store of getProposedStores(); let i=index;"
+             [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
+          <div>
+            <span style="margin-right: 20px;">{{store.mapKey}}</span>
+            <span style="margin-right: 20px;">{{store.storeName}}</span>
+          </div>
+          <select [value]="store.category" (change)="changeCategory($event, store.mapKey)">
+            <option *ngFor="let cat of categories">{{cat}}</option>
+          </select>
+        </div>
+      </div>
+      <hr>
+      <button [color]="'primary'" mat-raised-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
+      <button [color]="'warn'" mat-raised-button (click)="generateTables()" style="margin-top:20px;">
+        Generate Tables From Data
+      </button>
+
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Preview Tables</ng-template>
+      <mds-report-tables *ngIf="jsonToTablesService.isInitialized()"></mds-report-tables>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Export</ng-template>
+      <div>
+        <div *ngIf="reportBuilderService.compilingImages" class="desc">Exporting Data</div>
+        <mat-progress-bar *ngIf="reportBuilderService.compilingImages" mode="indeterminate"></mat-progress-bar>
+        <div *ngIf="!reportBuilderService.compilingImages" class="desc">Your download will appear shortly. A .zip file
+          export has been successfully compiled, and contains .png images of the tables you've generated, a map, and a
+          .csv file with your write-ups
+        </div>
+        <hr>
+        <button [color]="'primary'" mat-raised-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
+        <button [color]="'warn'" mat-raised-button matStepperR (click)="stepper.reset(); clearFileInput()"
+                style="margin-top:20px;">Start
+          Over
+        </button>
+
+      </div>
+    </mat-step>
+  </mat-horizontal-stepper>
+</div>

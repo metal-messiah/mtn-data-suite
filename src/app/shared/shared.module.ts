@@ -16,6 +16,8 @@ import { UserProfileSelectComponent } from './user-profile-select/user-profile-s
 import { DataFieldInfoDialogComponent } from './data-field-info-dialog/data-field-info-dialog.component';
 import { AppInfoDialogComponent } from './app-info-dialog/app-info-dialog.component';
 import { NewProjectNameComponent } from './new-project-name/new-project-name.component';
+import { StoreInfoCardComponent } from './store-info-card/store-info-card.component';
+import { SiteInfoCardComponent } from './site-info-card/site-info-card.component';
 
 @NgModule({
   imports: [
@@ -35,7 +37,9 @@ import { NewProjectNameComponent } from './new-project-name/new-project-name.com
     UserProfileSelectComponent,
     DataFieldInfoDialogComponent,
     AppInfoDialogComponent,
-    NewProjectNameComponent
+    NewProjectNameComponent,
+    StoreInfoCardComponent,
+    SiteInfoCardComponent
   ],
   providers: [
     BreakpointObserver,
@@ -62,7 +66,9 @@ import { NewProjectNameComponent } from './new-project-name/new-project-name.com
     PathNotFoundComponent,
     ReactiveFormsModule,
     DataFieldComponent,
-    DataFieldInfoDialogComponent
+    DataFieldInfoDialogComponent,
+    StoreInfoCardComponent,
+    SiteInfoCardComponent
   ]
 })
 export class SharedModule {

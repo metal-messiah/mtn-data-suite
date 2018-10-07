@@ -6,6 +6,8 @@ import { SimplifiedStoreModel } from '../simplified/simplified-store-model';
 import { SimplifiedStoreVolume } from '../simplified/simplified-store-volume';
 import { SimplifiedStoreStatus } from '../simplified/simplified-store-status';
 import { SimplifiedStoreSurvey } from '../simplified/simplified-store-survey';
+import { SimplifiedUserProfile } from '../simplified/simplified-user-profile';
+import { DateUtil } from '../../utils/date-util';
 
 export class Store extends AuditingEntity {
 
@@ -14,8 +16,18 @@ export class Store extends AuditingEntity {
   storeType: string;
   dateOpened: Date;
   dateClosed: Date;
+  fit: string;
+  format: string;
+  areaSales: number;
+  areaSalesPercentOfTotal: number;
+  areaTotal: number;
+  areaIsEstimate: boolean;
+  storeIsOpen24: boolean;
+  naturalFoodsAreIntegrated: boolean;
   floating: boolean;
   legacyLocationId: number;
+  validatedDate: Date;
+  validatedBy: SimplifiedUserProfile;
 
   banner: SimplifiedBanner;
 
@@ -70,6 +82,12 @@ export class Store extends AuditingEntity {
         .sort((a: SimplifiedStoreStatus, b: SimplifiedStoreStatus) => {
           return b.statusStartDate.getTime() - a.statusStartDate.getTime();
         });
+    }
+    if (obj.validatedBy) {
+      this.validatedBy = new SimplifiedUserProfile(obj.validatedBy);
+    }
+    if (obj.validatedDate) {
+      this.validatedDate = DateUtil.getDate(obj.validatedDate)
     }
   }
 }
