@@ -58,7 +58,7 @@ export class ReportUploadComponent implements OnInit {
     private ngZone: NgZone,
     private htmlReportToJsonService: HtmlToModelParser,
     private htmlDimensionsService: HtmlDimensionsService,
-    private jsonToTablesService: JsonToTablesService,
+    public jsonToTablesService: JsonToTablesService,
     public auth: AuthService,
     public reportBuilderService: ReportBuilderService
   ) {

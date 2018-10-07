@@ -12,6 +12,8 @@ export class ReportBuilderService {
 
   reportDataLoaded$: Subject<void> = new Subject();
 
+  compilingImages = false;
+
   constructor() {
   }
 

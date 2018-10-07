@@ -158,15 +158,15 @@
     <mat-step>
       <ng-template matStepLabel>Export</ng-template>
       <div>
-        <div *ngIf="compilingImages" class="desc">Exporting Data</div>
-        <mat-progress-bar *ngIf="compilingImages" mode="indeterminate"></mat-progress-bar>
-        <div *ngIf="!compilingImages" class="desc">Your download will appear shortly. A .zip file export has been
-          successfully compiled, and contains .png images of the tables you've generated, a map, and a .csv file with
-          your write-ups
+        <div *ngIf="reportBuilderService.compilingImages" class="desc">Exporting Data</div>
+        <mat-progress-bar *ngIf="reportBuilderService.compilingImages" mode="indeterminate"></mat-progress-bar>
+        <div *ngIf="!reportBuilderService.compilingImages" class="desc">Your download will appear shortly. A .zip file
+          export has been successfully compiled, and contains .png images of the tables you've generated, a map, and a
+          .csv file with your write-ups
         </div>
         <hr>
         <button [color]="'primary'" mat-raised-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
-        <button [color]="'warn'" mat-raised-button matStepperR (click)="stepper.reset(); resetFile(); clearFileInput()"
+        <button [color]="'warn'" mat-raised-button matStepperR (click)="stepper.reset(); clearFileInput()"
                 style="margin-top:20px;">Start
           Over
         </button>

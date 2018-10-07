@@ -6,6 +6,7 @@ import { MatDialog, MatSnackBar } from '@angular/material';
 import htmlToImage from 'html-to-image';
 import jsZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { ReportBuilderService } from '../services/report-builder.service';
 
 @Component({
   selector: 'mds-report-tables',
@@ -18,8 +19,6 @@ export class ReportTablesComponent implements OnInit {
   googleMapsKey = 'AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ';
   googleMapsBasemap = 'hybrid';
   googleMapsZoom = 15;
-
-  compilingImages = false;
 
   tableDomIds: string[] = [
     'projectionsTable',
@@ -34,6 +33,7 @@ export class ReportTablesComponent implements OnInit {
 
   constructor(public jsonToTablesService: JsonToTablesService,
               public snackBar: MatSnackBar,
+              public reportBuilderService: ReportBuilderService,
               public dialog: MatDialog) {
     console.log('Constructed ReportTablesComponent')
   }
@@ -61,7 +61,7 @@ export class ReportTablesComponent implements OnInit {
   }
 
   export() {
-    this.compilingImages = true;
+    this.reportBuilderService.compilingImages = true;
     // convert tables to images
     this.tableDomIds.forEach(id => {
       const node = document.getElementById(id);
@@ -70,7 +70,7 @@ export class ReportTablesComponent implements OnInit {
 
     Promise.all(this.exportPromises)
       .then(data => {
-        this.compilingImages = false;
+        this.reportBuilderService.compilingImages = false;
         console.log(data);
         const zip = new jsZip();
         // table images
@@ -108,7 +108,7 @@ export class ReportTablesComponent implements OnInit {
         });
       })
       .catch(error => {
-        this.compilingImages = false;
+        this.reportBuilderService.compilingImages = false;
         this.snackBar.open(error, null, {duration: 2000});
       });
   }
