@@ -16,6 +16,7 @@ import { CasingModule } from './casing/casing.module';
 import { DataUploadModule } from './data-upload/data-upload.module';
 import { ExtractionModule } from './extraction/extraction.module';
 import { ReportsModule } from './reports/reports.module';
+import { BrokerageModule } from './brokerage/brokerage.module';
 
 @NgModule({
   imports: [
@@ -30,6 +31,7 @@ import { ReportsModule } from './reports/reports.module';
     DbSupportModule,
     ExtractionModule,
     ReportsModule,
+    BrokerageModule,
     AppRoutingModule // must come last?
   ],
   declarations: [AppComponent, HomeComponent],

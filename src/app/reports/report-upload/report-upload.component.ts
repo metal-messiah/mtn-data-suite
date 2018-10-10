@@ -14,7 +14,9 @@ import { StoreListItem } from '../../models/store-list-item';
 
 import htmlToImage from 'html-to-image';
 import { saveAs } from 'file-saver';
+
 import jsZip from 'jszip';
+declare var cloudinary: any;
 
 import { JsonToTablesService } from './json-to-tables.service';
 
@@ -132,7 +134,9 @@ export class ReportUploadComponent implements OnInit {
     };
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    
+  }
 
   editTotalArea(value, store) {
     const dialogRef = this.dialog.open(EditTotalSizeDialogComponent, {

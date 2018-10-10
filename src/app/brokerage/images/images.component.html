@@ -1,7 +1,19 @@
 <div class='flex-container'>
-  <div>
-    <button style="margin-top:25px;" *ngIf="initialized" mat-flat-button color="primary" (click)="startOver()"><i class="fas fa-images"></i> Search Again
+  <div style="text-align: center;">
+    <button style="margin:25px;" *ngIf="initialized" mat-flat-button color="primary" (click)="startOver()"><i class="fas fa-images"></i>
+      Search Again
     </button>
+    <button style="margin:25px;" *ngIf="initialized" mat-flat-button color="warn" (click)="fileInput.click()"><i class="fas fa-file"></i>
+      {{file ? file.name : 'Load File'}}
+    </button>
+    <button mat-flat-button color="warn" *ngIf="file && selectedFiles && identifier" (click)="exportNewCsv()">Export</button>
+    <input #fileInput type="file" (change)="readCsv($event)" accept=".csv" hidden>
+    <br>
+    <mat-form-field *ngIf="csvAsString">
+      <mat-select placeholder="Identifier" (selectionChange)="identifierChange($event)">
+        <mat-option [value]="field" *ngFor="let field of csvFields">{{field}}</mat-option>
+      </mat-select>
+    </mat-form-field>
     <h3 *ngIf="selectedFiles.length">Selected Images
     </h3>
     <h3 *ngIf="!initialized">
@@ -9,12 +21,17 @@
     </h3>
     <div class='flex-container' *ngFor="let file of selectedFiles">
       <img [src]="file.url">
-      <mat-form-field>
-        <input matInput type="text" [value]="getValue(file)" [id]="file.public_id">
+      <mat-form-field (click)="copyToClipboard(file.public_id)">
+        <input disabled matInput type="text" [value]="getValue(file)" [id]="file.public_id">
         <mat-hint *ngIf="file.public_id === copiedId">Copied to Clipboard</mat-hint>
       </mat-form-field>
-      <button mat-flat-button color="primary" (click)="copyToClipboard(file.public_id)"><i class="fas fa-clipboard"></i>
-        Copy</button>
+      <mat-form-field *ngIf="getIdentifierTargetNames().length">
+        <mat-select placeholder="Target" (selectionChange)="targetChange($event, getValue(file))">
+          <mat-option [disabled]="targetIsTaken(target)" [value]="target" *ngFor="let target of getIdentifierTargetNames()">{{target}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <!-- <button mat-flat-button color="primary" (click)="copyToClipboard(file.public_id)"><i class="fas fa-clipboard"></i>
+        Copy</button> -->
     </div>
   </div>
 </div>

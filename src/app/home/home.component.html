@@ -58,6 +58,13 @@
           </mat-list-item>
           <mat-divider></mat-divider>
         </div>
+        <div *ngIf="userIsBroker()">
+          <mat-list-item routerLink="/brokerage">
+            <div mat-list-icon><i class="fas fa-building"></i></div>
+            <h3 mat-line>Brokerage</h3>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+        </div>
         <div *ngIf="userIsAdmin()">
           <!-- TODO Add my profile-->
           <mat-list-item>

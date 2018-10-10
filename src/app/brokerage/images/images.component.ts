@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material';
+
+import { saveAs } from 'file-saver';
 import shajs from 'sha.js';
 declare var cloudinary: any;
 
@@ -26,7 +29,23 @@ export class ImagesComponent implements OnInit {
 
   initialized = false;
 
-  constructor() {
+  file: File;
+  fileReader: FileReader;
+  csvAsString: string;
+  csvFields: string[];
+  csvArray: any[];
+
+  identifier: string;
+  identifierTargets: object = {};
+  identifierIdx: number;
+
+  constructor(private snackBar: MatSnackBar) {
+    this.fileReader = new FileReader();
+    this.fileReader.onload = event => this.handleFileContents(event); // desired file content
+    this.fileReader.onerror = error =>
+      this.snackBar.open(error.toString(), null, {
+        duration: 2000
+      });
     // window['global'] = window;
     this.signature = `cloud_name=${this.cloudName}&timestamp=${
       this.timeStamp
@@ -59,6 +78,7 @@ export class ImagesComponent implements OnInit {
   copyToClipboard(id) {
     const target: any = document.getElementById(id);
 
+    target.disabled = false;
     /* Select the text field */
     target.select();
 
@@ -66,6 +86,7 @@ export class ImagesComponent implements OnInit {
     document.execCommand('copy');
     this.copiedId = id;
     this.clearTextSelection();
+    target.disabled = true;
   }
 
   startOver() {
@@ -86,18 +107,99 @@ export class ImagesComponent implements OnInit {
     }, 5000);
   }
 
-  getImageDimensions(img) {
-    console.log(img);
-    // const scale =
-    //   this.naturalHeight > 100
-    //     ? this.naturalHeight / 100
-    //     : this.naturalWidth > 120
-    //       ? this.naturalWidth / 120
-    //       : 1;
-    // const width = Math.round(this.naturalWidth / scale);
-    // const height = Math.round(this.naturalHeight / scale);
-    // console.log({width, height})
-    // return {width, height}
+  readCsv(event) {
+    const { files } = event.target;
+    if (files && files.length === 1) {
+      // only want 1 file at a time!
+      this.file = files[0];
+      if (this.file.name.includes('.csv')) {
+        // just double checking that it is a .csv file
+        this.fileReader.readAsText(this.file);
+      } else {
+        this.snackBar.open('Only valid .csv files are accepted', null, {
+          duration: 2000
+        });
+      }
+    } else {
+      // notify about file constraints
+      this.snackBar.open('1 file at a time please', null, { duration: 2000 });
+    }
+  }
+
+  handleFileContents(event) {
+    if (event.target.result) {
+      this.csvAsString = event.target.result;
+      this.csvArray = this.csvAsString.split('\r\n').map(row => row.split(','));
+
+      if (this.csvAsString) {
+        this.csvFields = this.getCSVHeaders();
+      }
+    }
+  }
+
+  getCSVHeaders() {
+    return this.csvAsString.split('\r\n')[0].split(',');
+  }
+
+  identifierChange(event) {
+    this.identifier = event.value;
+    this.identifierTargets = {};
+
+    this.identifierIdx = this.csvFields.findIndex(f => f === this.identifier);
+    if (this.identifierIdx >= 0) {
+      this.csvAsString.split('\r\n').forEach((row, i) => {
+        if (i) {
+          // skip the header row
+          const idTarget = row.split(',')[this.identifierIdx];
+          if (idTarget) {
+            this.identifierTargets[idTarget] = '';
+          }
+        }
+      });
+    }
+    console.log(this.identifierTargets);
+  }
+
+  getIdentifierTargetNames() {
+    return Object.keys(this.identifierTargets);
+  }
+
+  targetChange(event, name) {
+    const prop = event.value;
+    this.identifierTargets[prop] = name;
+    console.log(this.identifierTargets);
+  }
+
+  targetIsTaken(target) {
+    return this.identifierTargets[target] !== '';
+  }
+
+  exportNewCsv() {
+    let output = '';
+    this.csvArray.forEach( (row, i) => {
+      output += row.join(',');
+      if (!row.includes('logo') && i === 0) {
+        output += ',logo'
+      }
+      if (i !== 0) {
+        Object.keys(this.identifierTargets).forEach(key => {
+          if (key === row[this.identifierIdx]) {
+            output += ',' + this.identifierTargets[key] 
+          }
+        })
+      }
+      output += '\r\n';
+    })
+
+    // console.log(output);
+    saveAs(
+      new Blob([output]),
+      `${
+        this.file
+          ? this.file.name.split('.')[0] + '_logos'
+          : 'export_logos'
+      }.csv`
+    );
   }
 
   clearTextSelection() {
