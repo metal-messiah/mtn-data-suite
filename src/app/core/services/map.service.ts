@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import {} from '@types/googlemaps';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
-import { Observable, Observer, of, Subject } from 'rxjs/index';
-import { AuthService } from './auth.service';
+import { Observable, Observer, of, Subject } from 'rxjs';
 
 /*
   The MapService should
@@ -15,7 +14,7 @@ import { AuthService } from './auth.service';
 @Injectable()
 export class MapService {
 
-  map: google.maps.Map;
+  private map: google.maps.Map;
   boundsChanged$: Subject<{ east; north; south; west }>;
   mapClick$: Subject<Coordinates>;
 
@@ -30,7 +29,49 @@ export class MapService {
 
   dataPointFeatures: google.maps.Data.Feature[];
 
-  constructor(private authService: AuthService) {
+  static getDistanceLabel(distance: number) {
+    if (distance < 1000) {
+      return Math.round(distance * 3.28084) + ' ft';
+    } else {
+      const miles: number = distance * 0.000621371;
+      return miles.toFixed(2) + ' mi';
+    }
+  }
+
+  static getDistanceBetween(startPoint, endPoint) {
+    const startLatLng = new google.maps.LatLng(startPoint.lat, startPoint.lng);
+    const endLatLng = new google.maps.LatLng(endPoint.lat, endPoint.lng);
+    return google.maps.geometry.spherical.computeDistanceBetween(
+      startLatLng,
+      endLatLng
+    );
+  }
+
+  static getHeading(startPoint, endPoint) {
+    const startLatLng = new google.maps.LatLng(startPoint.lat, startPoint.lng);
+    const endLatLng = new google.maps.LatLng(endPoint.lat, endPoint.lng);
+    return google.maps.geometry.spherical.computeHeading(
+      startLatLng,
+      endLatLng
+    );
+  }
+
+  static point2LatLng(point: google.maps.Point, map: google.maps.Map) {
+    const topRight = map
+      .getProjection()
+      .fromLatLngToPoint(map.getBounds().getNorthEast());
+    const bottomLeft = map
+      .getProjection()
+      .fromLatLngToPoint(map.getBounds().getSouthWest());
+    const scale = Math.pow(2, map.getZoom());
+    const worldPoint = new google.maps.Point(
+      point.x / scale + bottomLeft.x,
+      point.y / scale + topRight.y
+    );
+    return map.getProjection().fromPointToLatLng(worldPoint);
+  }
+
+  constructor() {
     this.dataPointFeatures = [];
   }
 
@@ -169,6 +210,7 @@ export class MapService {
       this.drawingManager,
       'overlaycomplete',
       event => {
+
         this.drawingEvents.push(event);
         this.drawingComplete$.next(event);
       }
@@ -192,24 +234,6 @@ export class MapService {
       this.circleRadiusListener.remove();
       this.circleRadiusListener = null;
     }
-  }
-
-  getDistanceBetween(startPoint, endPoint) {
-    const startLatLng = new google.maps.LatLng(startPoint.lat, startPoint.lng);
-    const endLatLng = new google.maps.LatLng(endPoint.lat, endPoint.lng);
-    return google.maps.geometry.spherical.computeDistanceBetween(
-      startLatLng,
-      endLatLng
-    );
-  }
-
-  getHeading(startPoint, endPoint) {
-    const startLatLng = new google.maps.LatLng(startPoint.lat, startPoint.lng);
-    const endLatLng = new google.maps.LatLng(endPoint.lat, endPoint.lng);
-    return google.maps.geometry.spherical.computeHeading(
-      startLatLng,
-      endLatLng
-    );
   }
 
   setDrawingModeToClick() {
@@ -251,14 +275,14 @@ export class MapService {
 
       const eventListener$ = new Subject<google.maps.Point>();
       eventListener$.subscribe(point => {
-        const latLng = this.point2LatLng(point, this.map);
+        const latLng = MapService.point2LatLng(point, this.map);
         startMarker.setPosition(latLng);
         const distance = google.maps.geometry.spherical.computeDistanceBetween(
           startPoint,
           latLng
         );
         const label = {
-          text: this.getDistanceLabel(distance),
+          text: MapService.getDistanceLabel(distance),
           color: 'black',
           fontWeight: 'bold'
         };
@@ -311,44 +335,37 @@ export class MapService {
   setDrawingModeToPolygon() {
     this.clearCircleRadiusListener();
     this.drawingMode = google.maps.drawing.OverlayType.POLYGON;
-    this.drawingManager.setDrawingMode(this.drawingMode);  }
+    this.drawingManager.setDrawingMode(this.drawingMode);
+  }
 
-  searchFor(
-    queryString: string,
-    bounds?: google.maps.LatLngBoundsLiteral
-  ): Observable<GooglePlace[]> {
+  searchFor(queryString: string, bounds?: google.maps.LatLngBoundsLiteral): Observable<GooglePlace[]> {
     return Observable.create((observer: Observer<any>) => {
-      if (bounds == null) {
-        try {
-          const fields = [
-            'formatted_address',
-            'geometry',
-            'icon',
-            'id',
-            'name',
-            'place_id'
-          ];
-          // this.placesService.findPlaceFromQuery(
-          //   { fields: fields, query: queryString },
-          //   (results, status) => {
-          //     if (status === google.maps.places.PlacesServiceStatus.OK) {
-          //       observer.next(results.map(place => new GooglePlace(place)));
-          //     } else {
-          //       observer.error(status);
-          //     }
-          //   }
-          // );
-        } catch (err) {
-          console.log(err);
+
+      const callback = (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          observer.next(results.map(place => new GooglePlace(place)));
+        } else {
+          observer.error(status);
         }
+        observer.complete();
+      };
+
+      if (bounds == null) {
+        const fields = [
+          'formatted_address',
+          'geometry',
+          'icon',
+          'id',
+          'name',
+          'place_id'
+        ];
+        this.placesService.findPlaceFromQuery({fields: fields, query: queryString}, callback);
       } else {
         const request = {
           bounds: bounds,
           name: queryString
         };
-        this.placesService.nearbySearch(request, response => {
-          observer.next(response.map(place => new GooglePlace(place)));
-        });
+        this.placesService.nearbySearch(request, callback);
       }
     });
   }
@@ -372,27 +389,4 @@ export class MapService {
     return this.map;
   }
 
-  private point2LatLng(point: google.maps.Point, map: google.maps.Map) {
-    const topRight = map
-      .getProjection()
-      .fromLatLngToPoint(map.getBounds().getNorthEast());
-    const bottomLeft = map
-      .getProjection()
-      .fromLatLngToPoint(map.getBounds().getSouthWest());
-    const scale = Math.pow(2, map.getZoom());
-    const worldPoint = new google.maps.Point(
-      point.x / scale + bottomLeft.x,
-      point.y / scale + topRight.y
-    );
-    return map.getProjection().fromPointToLatLng(worldPoint);
-  }
-
-  private getDistanceLabel(distance: number) {
-    if (distance < 1000) {
-      return Math.round(distance * 3.28084) + ' ft';
-    } else {
-      const miles: number = distance * 0.000621371;
-      return miles.toFixed(2) + ' mi';
-    }
-  }
 }

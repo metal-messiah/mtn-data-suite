@@ -1,3 +1,3 @@
 export interface Entity {
-  readonly id: number|string;
+  readonly id: number;
 }

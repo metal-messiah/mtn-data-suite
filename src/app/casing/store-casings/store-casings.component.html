@@ -7,7 +7,10 @@
   </mat-toolbar>
   <div class="row content">
     <div class="list-wrapper">
-      <div id="new-casing-button-wrapper">
+      <div class="single-item-row" *ngIf="store">
+        <strong>{{store.storeName}}<span *ngIf="store.storeNumber">&nbsp;({{store.storeNumber}})</span></strong>
+      </div>
+      <div class="single-item-row">
         <button mat-raised-button color="accent" (click)="createNewCasing()" [disabled]="loading">
           <i class="fas fa-plus"></i>&nbsp;&nbsp;Create New Casing
         </button>

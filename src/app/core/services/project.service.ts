@@ -4,7 +4,7 @@ import { RestService } from './rest.service';
 import { Pageable } from '../../models/pageable';
 import { Project } from '../../models/full/project';
 import { CrudService } from '../../interfaces/crud-service';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
 import { Boundary } from '../../models/full/boundary';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';

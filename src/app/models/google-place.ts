@@ -49,7 +49,7 @@ export class GooglePlace implements PlaceResult, Mappable {
       strokeColor: Color.WHITE,
       strokeWeight: 2.5,
       anchor: new google.maps.Point(80, 510),
-      labelOrigin: new google.maps.Point(255, 230),
+      labelOrigin: new google.maps.Point(255, -80),
       rotation: 0
     };
   };
@@ -57,7 +57,7 @@ export class GooglePlace implements PlaceResult, Mappable {
   getLabel(markerType?: MarkerType): string | MarkerLabel {
     if (markerType !== MarkerType.LOGO) {
       return {
-        text: this.name[0],
+        text: this.name,
         color: Color.BLACK
       };
     }

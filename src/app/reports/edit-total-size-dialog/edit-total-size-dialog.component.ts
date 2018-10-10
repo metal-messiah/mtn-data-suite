@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
-import { JsonToTablesService } from '../report-upload/json-to-tables.service';
+import { JsonToTablesService } from '../services/json-to-tables.service';
 import { StoreListItem } from '../../models/store-list-item';
 
 @Component({
@@ -29,13 +29,13 @@ export class EditTotalSizeDialogComponent implements OnInit {
   ngOnInit() {}
 
   changeValue(val) {
-    console.log(val)
+    console.log(val);
     this.value = val;
   }
 
   updateAll(form) {
     if (form.valid) {
-    this.jsonToTablesService.updateSOVTotalSize(this.store, this.value)
+    this.jsonToTablesService.updateSOVTotalSize(this.store, this.value);
     this.dialogRef.close();
     }
   }

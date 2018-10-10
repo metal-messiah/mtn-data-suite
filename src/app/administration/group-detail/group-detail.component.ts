@@ -10,7 +10,7 @@ import { GroupService } from '../../core/services/group.service';
 import { DetailFormComponent } from '../../interfaces/detail-form-component';
 import { Group } from '../../models/full/group';
 import { UserProfile } from '../../models/full/user-profile';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'mds-group-detail',
@@ -86,25 +86,14 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
   }
 
   getSavableObj(): Group {
-    const formModel = this.groupForm.value;
-
-    // deep copy of members
-    const membersDeepCopy: UserProfile[] = formModel.members.map(
-      (member: UserProfile) => Object.assign({}, member)
-    );
-
-    return new Group({
-      id: this.group.id,
-      displayName: formModel.displayName,
-      description: formModel.description,
-      members: membersDeepCopy,
-      createdBy: this.group.createdBy,
-      createdDate: this.group.createdDate,
-      updatedBy: this.group.updatedBy,
-      updatedDate: this.group.updatedDate,
-      version: this.group.version,
-      jiffy: 'blag'
+    const updatedGroup = JSON.parse(JSON.stringify(this.group));
+    Object.keys(this.groupForm.controls).forEach(key => {
+      if (this.groupForm.get(key).dirty) {
+        updatedGroup[key] = this.groupForm.get(key).value
+      }
     });
+
+    return updatedGroup;
   }
 
   getTypeName(): string {

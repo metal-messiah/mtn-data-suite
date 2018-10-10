@@ -1,4 +1,5 @@
-import {AuditingEntity} from '../auditing-entity';
+import { AuditingEntity } from '../auditing-entity';
+import { Company } from './company';
 
 export class Banner extends AuditingEntity {
 
@@ -7,6 +8,8 @@ export class Banner extends AuditingEntity {
   defaultStoreFit: string;
   defaultSalesArea: number;
   logoFileName: string;
+
+  company: Company;
 
   constructor(obj) {
     super(obj);

@@ -45,10 +45,6 @@ export class StoreVolumesSelectionComponent implements OnInit {
         () => this.loadVolumes(storeId)));
   }
 
-  close() {
-    this.dialogRef.close();
-  }
-
   copyVolume(volume: SimplifiedStoreVolume) {
     this.dialogRef.close(volume);
   }

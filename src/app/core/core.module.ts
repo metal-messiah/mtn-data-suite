@@ -27,7 +27,9 @@ import { StoreSurveyService } from './services/store-survey.service';
 import { RoutingStateService } from './services/routing-state.service';
 import { BannerService } from './services/banner.service';
 import { StoreSourceService } from './services/store-source.service';
+import { EntitySelectionService } from './services/entity-selection.service';
 import { CompanyService } from './services/company.service';
+import { ExtractionService } from './services/extraction.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -40,6 +42,7 @@ import { CompanyService } from './services/company.service';
     DetailFormService,
     EntityListService,
     ErrorService,
+    ExtractionService,
     GeocoderService,
     GroupService,
     MapService,
@@ -60,7 +63,8 @@ import { CompanyService } from './services/company.service';
     StoreService,
     StoreSurveyService,
     StoreVolumeService,
-    UserProfileService
+    UserProfileService,
+    EntitySelectionService
   ]
 })
 export class CoreModule {

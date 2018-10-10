@@ -6,7 +6,7 @@ import { StoreService } from '../../core/services/store.service';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { UserProfile } from '../../models/full/user-profile';
 import { Router } from '@angular/router';
-import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
+import { UserProfileSelectComponent } from '../user-profile-select/user-profile-select.component';
 import { Entity } from '../../models/entity';
 import { AuthService } from '../../core/services/auth.service';
 

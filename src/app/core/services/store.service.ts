@@ -11,11 +11,10 @@ import { SimplifiedStoreVolume } from '../../models/simplified/simplified-store-
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { SimplifiedStoreCasing } from '../../models/simplified/simplified-store-casing';
 import { StoreVolume } from '../../models/full/store-volume';
-import { StoreSurvey } from '../../models/full/store-survey';
-import { ShoppingCenterSurvey } from '../../models/full/shopping-center-survey';
 import { StoreCasing } from '../../models/full/store-casing';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
+import { StoreFilter } from '../../models/store-filter';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 
 @Injectable()
@@ -47,7 +46,30 @@ export class StoreService extends CrudService<Store> {
       .pipe(map(newCasing => new StoreCasing(newCasing)));
   }
 
-  getStoresOfTypeInBounds(bounds: {north, south, east, west}, types: string[],
+  getIdsInShape(shape: string, filter: StoreFilter): Observable<{siteIds: number[], storeIds: number[]}> {
+    const url = this.rest.getHost() + this.endpoint;
+    let params = new HttpParams();
+    params = params.set('geojson', shape);
+    params = params.set('active', String(filter.active));
+    params = params.set('future', String(filter.future));
+    params = params.set('historical', String(filter.historical));
+    return this.http.get<{siteIds: number[], storeIds: number[]}>(url, {headers: this.rest.getHeaders(), params: params});
+  }
+
+  getIdsInRadius(latitude: number, longitude: number, radiusMeters: number, filter: StoreFilter)
+    : Observable<{siteIds: number[], storeIds: number[]}> {
+    const url = this.rest.getHost() + this.endpoint;
+    let params = new HttpParams();
+    params = params.set('latitude', String(latitude));
+    params = params.set('longitude', String(longitude));
+    params = params.set('radiusMeters', String(radiusMeters));
+    params = params.set('active', String(filter.active));
+    params = params.set('future', String(filter.future));
+    params = params.set('historical', String(filter.historical));
+    return this.http.get<{siteIds: number[], storeIds: number[]}>(url, {headers: this.rest.getHeaders(), params: params});
+  }
+
+  getStoresOfTypeInBounds(bounds: { north, south, east, west }, types: string[],
                           includeProjectIds?: boolean): Observable<Pageable<SimplifiedStore>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams().set('size', '300');
@@ -104,30 +126,39 @@ export class StoreService extends CrudService<Store> {
       .pipe(map(simpleStore => new SimplifiedStore(simpleStore)));
   }
 
-  getLatestStoreSurvey(storeId: number): Observable<StoreSurvey> {
-    const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-surveys/latest`;
-    return this.http.get<StoreSurvey>(url, {headers: this.rest.getHeaders()})
-      .pipe(map(storeSurvey => new StoreSurvey(storeSurvey)));
+  validateStore(storeId: number): Observable<SimplifiedStore> {
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/validate`;
+    return this.http.put<SimplifiedStore>(url, null, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new SimplifiedStore(store)));
   }
 
-
-  getLatestShoppingCenterSurvey(storeId: number): Observable<ShoppingCenterSurvey> {
-    const url = this.rest.getHost() + this.endpoint + `/${storeId}/shopping-center-surveys/latest`;
-    return this.http.get<ShoppingCenterSurvey>(url, {headers: this.rest.getHeaders()})
-      .pipe(map(shoppingCenterSurvey => new ShoppingCenterSurvey(shoppingCenterSurvey)));
+  invalidateStore(storeId: number): Observable<SimplifiedStore> {
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/invalidate`;
+    return this.http.put<SimplifiedStore>(url, null, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new SimplifiedStore(store)));
   }
 
   getLabel(store: Store | SimplifiedStore) {
     let label = null;
-    if (store.banner != null) {
-      label = store.banner.bannerName;
-    } else {
+    // if (store.banner != null) {
+    //   label = store.banner.bannerName;
+    // } else {
       label = store.storeName;
-    }
+    // }
     if (store.storeNumber != null) {
       label = `${label} (${store.storeNumber})`;
     }
     return label;
+  }
+
+  assignToUser(storeIds: number[], userId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/assign-to-user';
+    let params = new HttpParams();
+    if (userId != null) {
+      params = params.set('user-id', String(userId));
+    }
+    return this.http.put<SimplifiedSite[]>(url, storeIds, {headers: this.rest.getHeaders(), params: params})
+      .pipe(map(sites => sites.map(site => new SimplifiedSite(site))));
   }
 
   protected createEntityFromObj(entityObj): Store {

@@ -1,21 +1,25 @@
-<form class="lat-long-search-form box">
+<div class="box">
   <h1 mat-dialog-title>
     Google Search
   </h1>
   <div mat-dialog-content>
     <div id="search-bar">
       <mat-form-field class="example-full-width">
-        <input matInput placeholder="Search for something" [formControl]="googleFormControl">
+        <input matInput placeholder="Search for something" [(ngModel)]="searchQuery">
       </mat-form-field>
       <div>
-        <button mat-mini-fab color="primary" type="submit" (click)="search()">
-          <i class="fas fa-search"></i>
+        <button mat-mini-fab color="primary" type="submit" (click)="search()" [disabled]="searching">
+          <i class="fas fa-search" *ngIf="!searching"></i>
+          <i class="fas fa-spinner fa-pulse" *ngIf="searching"></i>
         </button>
       </div>
     </div>
+    <div class="checklist">
+      <mat-checkbox [(ngModel)]="limitToView">Limit To View</mat-checkbox>
+    </div>
     <div id="search-results">
       <mat-nav-list>
-        <mat-list-item *ngIf="noSearchResults">No Search Results</mat-list-item>
+        <mat-list-item *ngIf="searchError">{{searchError}}</mat-list-item>
         <mat-list-item *ngFor="let place of places" (click)="goToStore(place)">
           <h3 matLine>{{place.name}}</h3>
           <p matLine>
@@ -26,7 +30,7 @@
     </div>
   </div>
   <div mat-dialog-actions>
-    <button mat-raised-button color="accent" type="button" (click)="closeDialog()">Close</button>
-    <button mat-raised-button color="primary" type="button" (click)="searchWithMap()">Search with Map</button>
+    <button mat-raised-button color="accent" type="button" [disabled]="searching" (click)="closeDialog()">Close</button>
+    <button mat-raised-button color="primary" type="button" [disabled]="searching" (click)="searchWithMap()">Search with Map</button>
   </div>
-</form>
+</div>

@@ -14,7 +14,7 @@ import { DetailFormComponent } from '../../interfaces/detail-form-component';
 import { DetailFormService } from '../../core/services/detail-form.service';
 import { SimplifiedGroup } from '../../models/simplified/simplified-group';
 import { SimplifiedRole } from '../../models/simplified/simplified-role';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/internal/operators';
 import { Pageable } from '../../models/pageable';
 
@@ -120,21 +120,13 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
   }
 
   getSavableObj(): UserProfile {
-    const formModel = this.userProfileForm.value;
-
-    return new UserProfile({
-      id: this.userProfile.id,
-      email: formModel.email,
-      firstName: formModel.firstName,
-      lastName: formModel.lastName,
-      group: formModel.group,
-      role: formModel.role,
-      createdBy: this.userProfile.createdBy,
-      createdDate: this.userProfile.createdDate,
-      updatedBy: this.userProfile.updatedBy,
-      updatedDate: this.userProfile.updatedDate,
-      version: this.userProfile.version
+    const savable = JSON.parse(JSON.stringify(this.userProfile));
+    Object.keys(this.userProfileForm.controls).forEach(key => {
+      if (this.userProfileForm.get(key).dirty) {
+        savable[key] = this.userProfileForm.get(key).value
+      }
     });
+    return savable;
   }
 
   getTypeName(): string {
@@ -146,13 +138,7 @@ export class UserDetailComponent implements OnInit, CanComponentDeactivate, Deta
   };
 
   onObjectChange() {
-    this.userProfileForm.reset({
-      email: this.userProfile.email,
-      firstName: this.userProfile.firstName,
-      lastName: this.userProfile.lastName,
-      group: this.userProfile.group,
-      role: this.userProfile.role
-    });
+    this.userProfileForm.reset(this.userProfile);
 
     if (this.userProfile.id !== undefined) {
       this.userProfileForm.patchValue({

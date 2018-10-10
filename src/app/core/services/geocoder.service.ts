@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import LatLngLiteral = google.maps.LatLngLiteral;
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class GeocoderService {

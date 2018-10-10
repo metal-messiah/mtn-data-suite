@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { StoreEntityFormComponent } from './store-entity-form.component';
+import { ReportTablesComponent } from './report-tables.component';
 
-describe('StoreEntityFormComponent', () => {
-  let component: StoreEntityFormComponent;
-  let fixture: ComponentFixture<StoreEntityFormComponent>;
+describe('ReportTablesComponent', () => {
+  let component: ReportTablesComponent;
+  let fixture: ComponentFixture<ReportTablesComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ StoreEntityFormComponent ]
+      declarations: [ ReportTablesComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(StoreEntityFormComponent);
+    fixture = TestBed.createComponent(ReportTablesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

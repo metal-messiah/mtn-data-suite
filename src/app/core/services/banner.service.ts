@@ -5,7 +5,7 @@ import { Banner } from '../../models/full/banner';
 import { CrudService } from '../../interfaces/crud-service';
 import { RestService } from './rest.service';
 import { SimplifiedBanner } from '../../models/simplified/simplified-banner';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class BannerService extends CrudService<Banner> {

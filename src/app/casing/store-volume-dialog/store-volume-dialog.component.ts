@@ -4,11 +4,11 @@ import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.com
 import { Store } from '../../models/full/store';
 import { FormBuilder } from '@angular/forms';
 import { StoreService } from '../../core/services/store.service';
-import { SimplifiedStoreVolume } from '../../models/simplified/simplified-store-volume';
 import { ErrorService } from '../../core/services/error.service';
 import { StoreVolumeService } from '../../core/services/store-volume.service';
 import { finalize } from 'rxjs/internal/operators';
 import { NewStoreVolumeComponent } from '../new-store-volume/new-store-volume.component';
+import { StoreVolume } from '../../models/full/store-volume';
 
 @Component({
   selector: 'mds-store-volume-dialog',
@@ -18,6 +18,9 @@ import { NewStoreVolumeComponent } from '../new-store-volume/new-store-volume.co
 export class StoreVolumeDialogComponent implements OnInit {
 
   store: Store;
+  storeVolumes: StoreVolume[];
+
+  loading = false;
 
   deletingVolume = false;
 
@@ -32,23 +35,31 @@ export class StoreVolumeDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.initStore(this.data.store);
+    this.store = this.data.store;
+    this.loadVolumes(this.data.store.id);
   }
 
-  initStore(store: Store) {
-    this.store = store;
-    this.store.storeVolumes = this.store.storeVolumes.sort((a: SimplifiedStoreVolume, b: SimplifiedStoreVolume) => {
-      return b.volumeDate.getTime() - a.volumeDate.getTime();
-    });
+  loadVolumes(storeId: number) {
+    this.loading = true;
+    this.storeService.getAllVolumes(storeId)
+      .pipe(finalize(() => this.loading = false))
+      .subscribe((storeVolumes: StoreVolume[]) => {
+        this.storeVolumes = storeVolumes.sort((a: StoreVolume, b: StoreVolume) => {
+          return b.volumeDate.getTime() - a.volumeDate.getTime();
+        });
+      }, err => this.errorService.handleServerError('Failed to retrieve store volumes', err,
+        () => console.log(err),
+        () => this.loadVolumes(storeId)));
   }
 
-  deleteVolume(volume: SimplifiedStoreVolume) {
+  deleteVolume(volume: StoreVolume) {
     this.deletingVolume = true;
     this.storeService.deleteVolume(this.store.id, volume)
       .pipe(finalize(() => this.deletingVolume = false))
       .subscribe((store: Store) => {
+        this.store = store;
         this.snackBar.open('Successfully deleted volume', null, {duration: 2000});
-        this.initStore(store);
+        this.loadVolumes(store.id);
       }, err => {
         this.errorService.handleServerError('Failed to delete Volume', err,
           () => console.log(err),
@@ -61,15 +72,12 @@ export class StoreVolumeDialogComponent implements OnInit {
       data: {storeId: this.store.id},
       maxWidth: '300px'
     });
-    newVolumeDialog.afterClosed().subscribe(store => {
+    newVolumeDialog.afterClosed().subscribe((store: Store) => {
       if (store) {
-        this.initStore(store);
+        this.store = store;
+        this.loadVolumes(store.id);
       }
     })
   }
 
-  editVolume(storeVolume: SimplifiedStoreVolume) {
-
-    // TODO Implement
-  }
 }

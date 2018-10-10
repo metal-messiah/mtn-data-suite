@@ -1,8 +1,12 @@
-<h2 mat-dialog-title>Shopping Center Tenants</h2>
+<h2 mat-dialog-title>
+  <span>Shopping Center Tenants&nbsp;&nbsp;<i class="fas fa-info-circle" (click)="showInfo()"></i></span>
+</h2>
 <div mat-dialog-content [formGroup]="form">
-  <mat-form-field>
-    <textarea formControlName="newTenantNames" placeholder="Add Tenants (comma separated list)" matInput></textarea>
-  </mat-form-field>
+  <div class="flex-space-between">
+    <mat-form-field>
+      <textarea formControlName="newTenantNames" placeholder="Add Tenants (comma separated list)" matInput></textarea>
+    </mat-form-field>
+  </div>
   <div id="add-buttons" class="flex flex-space-around">
     <button type="button" mat-raised-button color="accent" [disabled]="newTenantNames.pristine"
             (click)="parseTenants(false)">
@@ -13,6 +17,13 @@
       Add as Outparcel
     </button>
   </div>
+  <div class="vacancy-control">
+    <button mat-mini-fab (click)="vacantCount = vacantCount - 1;" [disabled]="vacantCount < 1">
+      <i class="fas fa-minus"></i>
+    </button>
+    <span>Vacancies: {{vacantCount}}</span>
+    <button mat-mini-fab (click)="vacantCount = vacantCount + 1;"><i class="fas fa-plus"></i></button>
+  </div>
   <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
   <div id="accordion-wrapper">
     <mat-accordion formArrayName="tenants">
@@ -20,7 +31,7 @@
         <mat-expansion-panel-header>
           <mat-panel-title>
             <span *ngIf="tenant.dirty && tenant.get('id').value != null">
-              <i class="fas fa-pencil-alt edited"></i>&nbsp;&nbsp;
+              <i class="fas fa-asterisk edited"></i>&nbsp;&nbsp;
             </span>
             <span>{{tenant.get('name').value}}</span>
           </mat-panel-title>
@@ -33,15 +44,17 @@
           </mat-form-field>
           <mat-checkbox formControlName="outparcel" labelPosition="before">Is Outparcel</mat-checkbox>
         </div>
-        <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-        <mat-action-row *ngIf="!loading">
+        <mat-action-row>
           <button type="button" mat-raised-button color="warn"
+                  [disabled]="saving"
                   (click)="deleteTenant(tenant.value, i)">
             <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
           </button>
           <button type="button" mat-raised-button color="accent"
-                  [disabled]="tenant.pristine || tenant.invalid" (click)="updateTenant(tenant)">
-            <i class="fas fa-save"></i>&nbsp;&nbsp;Save
+                  [disabled]="tenant.pristine || tenant.invalid || saving"
+                  (click)="updateTenant(tenant)">
+            <span *ngIf="!saving"><i class="fas fa-save"></i>&nbsp;&nbsp;Save</span>
+            <span *ngIf="saving"><i class="fas fa-spinner fa-pulse"></i></span>
           </button>
         </mat-action-row>
       </mat-expansion-panel>
@@ -49,5 +62,6 @@
   </div>
 </div>
 <div mat-dialog-actions class="flex-justify-center">
-  <button type="button" mat-raised-button mat-dialog-close>Close</button>
+  <button type="button" *ngIf="!form.dirty" color="primary" (click)="close()" mat-raised-button>Close</button>
+  <button type="button" *ngIf="form.dirty" disabled mat-raised-button>Save Tenant Edits First</button>
 </div>

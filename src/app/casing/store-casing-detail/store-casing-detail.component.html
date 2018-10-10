@@ -2,7 +2,7 @@
   <mat-toolbar class="row header flex-space-between">
     <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-chevron-left"></i></button>
     <span class="component-title" *ngIf="!store">Store Casing</span>
-    <span class="component-title" *ngIf="store">{{store.storeName}}</span>
+    <span class="component-title" *ngIf="store">{{store.storeName}}<span *ngIf="store.storeNumber">&nbsp;({{store.storeNumber}})</span></span>
     <div>
       <button type="button" mat-icon-button color="warn" *ngIf="validatingForms.invalid">
         <i class="fas fa-exclamation-triangle fa-2x"></i>
@@ -65,7 +65,8 @@
             <mat-action-row>
               <mat-progress-bar mode="indeterminate" *ngIf="loadingProject"></mat-progress-bar>
               <button type="button" id="add-dashboard-project-button" mat-raised-button color="accent"
-                      (click)="addDashboardProject()" *ngIf="casingDashboardService.getSelectedProject() && canAddSelectedProject()">
+                      (click)="addDashboardProject()"
+                      *ngIf="casingDashboardService.getSelectedProject() && canAddSelectedProject()">
                 Add {{casingDashboardService.getSelectedProject().projectName}}
               </button>
               <button type="button" id="add-project-button" mat-raised-button color="primary"
@@ -120,9 +121,6 @@
                 </mat-checkbox>
                 <mat-checkbox formControlName="accessibilityMainIntersectionHasTrafficLight">
                   Main intersection has traffic light
-                </mat-checkbox>
-                <mat-checkbox formControlName="accessibilityMainIntersectionNeedsTrafficLight">
-                  Main intersection needs traffic light
                 </mat-checkbox>
                 <mat-checkbox formControlName="accessibilityMultipleRetailersBeforeSite">
                   Multiple other retailers before store
@@ -260,7 +258,7 @@
             </mat-form-field>
           </mat-expansion-panel>
           <!-- Fit/Format -->
-          <mat-expansion-panel [formGroup]="storeSurveyForm">
+          <mat-expansion-panel [formGroup]="storeForm">
             <mat-expansion-panel-header>
               <mat-panel-title><i class="fas fa-tag"></i>&nbsp;&nbsp;Fit/Format</mat-panel-title>
             </mat-expansion-panel-header>
@@ -281,7 +279,7 @@
             </div>
           </mat-expansion-panel>
           <!-- Hours -->
-          <mat-expansion-panel [formGroup]="storeSurveyForm">
+          <mat-expansion-panel [formGroup]="storeForm">
             <mat-expansion-panel-header>
               <mat-panel-title><i class="fas fa-clock"></i>&nbsp;&nbsp;Hours</mat-panel-title>
             </mat-expansion-panel-header>
@@ -344,7 +342,7 @@
             <mat-expansion-panel-header>
               <mat-panel-title><i class="fas fa-prescription-bottle"></i>&nbsp;&nbsp;Pharmacy</mat-panel-title>
             </mat-expansion-panel-header>
-            <div [formGroup]="storeCasingForm">
+            <div [formGroup]="storeSurveyForm">
               <mat-form-field>
                 <input matInput type="number" placeholder="Number of Pharmacists"
                        formControlName="pharmacyPharmacistCount">
@@ -364,16 +362,16 @@
               </mat-form-field>
               <mat-form-field>
                 <input matInput type="number" placeholder="Estimated Weekly $" disabled
-                       [value]="storeCasingForm.get('pharmacyAvgDollarsPerScript').value * storeCasingForm.get('pharmacyScriptsWeekly').value">
+                       [value]="storeSurveyForm.get('pharmacyAvgDollarsPerScript').value * storeSurveyForm.get('pharmacyScriptsWeekly').value">
                 <span matPrefix>$&nbsp;</span>
               </mat-form-field>
-            </div>
-            <div [formGroup]="storeSurveyForm" class="checklist">
-              <div class="checklist-item">
-                <mat-checkbox formControlName="pharmacyIsOpen24">Pharmacy is Open 24hrs</mat-checkbox>
-              </div>
-              <div class="checklist-item">
-                <mat-checkbox formControlName="pharmacyHasDriveThrough">Pharmacy has drive-through</mat-checkbox>
+              <div class="checklist">
+                <div class="checklist-item">
+                  <mat-checkbox formControlName="pharmacyIsOpen24">Pharmacy is Open 24hrs</mat-checkbox>
+                </div>
+                <div class="checklist-item">
+                  <mat-checkbox formControlName="pharmacyHasDriveThrough">Pharmacy has drive-through</mat-checkbox>
+                </div>
               </div>
             </div>
           </mat-expansion-panel>
@@ -412,7 +410,7 @@
             </div>
           </mat-expansion-panel>
           <!-- Area -->
-          <mat-expansion-panel [formGroup]="storeSurveyForm">
+          <mat-expansion-panel [formGroup]="storeForm">
             <mat-expansion-panel-header>
               <mat-panel-title><i class="fas fa-ruler-combined"></i>&nbsp;&nbsp;Area</mat-panel-title>
             </mat-expansion-panel-header>
@@ -428,11 +426,11 @@
                          formControlName="areaSalesPercentOfTotal">
                   <span matSuffix>%</span>
                   <mat-hint>Between 0.01% and 100%</mat-hint>
-                  <mat-error *ngIf="storeSurveyForm.get('areaSalesPercentOfTotal').invalid">Between 0.01% and 100%
+                  <mat-error *ngIf="storeForm.get('areaSalesPercentOfTotal').invalid">Between 0.01% and 100%
                   </mat-error>
                 </mat-form-field>
-                <button type="button" mat-mini-fab color="primary" [mat-menu-trigger-for]="areaMore">
-                  <i class="fas fa-ellipsis-v"></i>
+                <button type="button" mat-mini-fab (click)="openAreaCalculator()">
+                  <i class="fas fa-calculator"></i>
                 </button>
               </div>
               <mat-form-field>
@@ -460,7 +458,7 @@
               </div>
               <div class="button-in-row">
                 <button type="button" mat-raised-button color="accent" [disabled]="savingVolume"
-                        (click)="showExistingVolumes()"><i class="fas fa-copy"></i>&nbsp;Copy Existing Volume
+                        (click)="showExistingVolumes()"><i class="fas fa-history"></i>&nbsp;View/Copy Previous Volumes
                 </button>
               </div>
             </div>
@@ -676,14 +674,6 @@
     </div>
   </div>
 </div>
-
-<mat-menu #areaMore="matMenu" [overlapTrigger]="false">
-  <button type="button" mat-menu-item (click)="openAreaCalculator()">
-    <i class="fas fa-calculator"></i>&nbsp;&nbsp;Area Calculator
-  </button>
-  <button type="button" mat-menu-item (click)="calculateSalesAreaFromTotal()">Calculate Sales from Total</button>
-  <button type="button" mat-menu-item (click)="calculateTotalAreaFromSales()">Calculate Total from Sales</button>
-</mat-menu>
 
 <mat-menu #volumeMore="matMenu" [overlapTrigger]="false">
   <button type="button" mat-menu-item (click)="calculateDepartmentVolumesFromTotal()">

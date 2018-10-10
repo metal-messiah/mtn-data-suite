@@ -3,26 +3,21 @@ import { SelectProjectComponent } from '../select-project/select-project.compone
 import { MatDialog } from '@angular/material';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
 import { Observable, Subject } from 'rxjs';
+import { StoreFilter } from '../../models/store-filter';
 
 @Injectable()
 export class CasingDashboardService {
 
   // Filters
-  includeActive = true;
-  includeFuture = false;
-  includeHistorical = false;
+  filter: StoreFilter;
 
   projectChanged$: Subject<SimplifiedProject>;
 
   private selectedProject: SimplifiedProject;
 
   constructor(private dialog: MatDialog) {
-    const filters = JSON.parse(localStorage.getItem('casingDashboardFilters'));
-    if (filters != null) {
-      this.includeActive = filters.includeActive;
-      this.includeFuture = filters.includeFuture;
-      this.includeHistorical = filters.includeHistorical;
-    }
+    const filter: StoreFilter = JSON.parse(localStorage.getItem('casingDashboardFilters'));
+    this.filter = (filter && Object.keys(filter).length > 0) ? filter : new StoreFilter();
     const selectedProject = JSON.parse(localStorage.getItem('selectedProject'));
     if (selectedProject != null) {
       this.selectedProject = new SimplifiedProject(selectedProject);
@@ -63,11 +58,7 @@ export class CasingDashboardService {
   saveFilters(): Observable<boolean> {
     return Observable.create(observer => {
       try {
-        localStorage.setItem('casingDashboardFilters', JSON.stringify({
-          includeActive: this.includeActive,
-          includeFuture: this.includeFuture,
-          includeHistorical: this.includeHistorical
-        }));
+        localStorage.setItem('casingDashboardFilters', JSON.stringify(this.filter));
         observer.next(true);
       } catch (e) {
         observer.error(e);

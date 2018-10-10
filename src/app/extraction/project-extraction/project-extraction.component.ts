@@ -3,7 +3,7 @@ import { Location } from '@angular/common';
 import { SelectProjectComponent } from '../../casing/select-project/select-project.component';
 import { MatDialog } from '@angular/material';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
-import { ExtractionService } from '../extraction.service';
+import { ExtractionService } from '../../core/services/extraction.service';
 import { finalize } from 'rxjs/internal/operators';
 import { ErrorService } from '../../core/services/error.service';
 import { ExtractionFieldSetService } from '../../core/services/extraction-field-set.service';

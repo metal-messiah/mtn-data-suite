@@ -1,16 +1,14 @@
 import { MapPointLayer } from './map-point-layer';
-import { Mappable } from '../interfaces/mappable';
-import { GooglePlace } from './google-place';
-import { PgMappable } from './pg-mappable';
 import { SpreadsheetMappable } from './spreadsheet-mappable';
 import { SpreadsheetRecord } from './spreadsheet-record';
+import { MapService } from '../core/services/map.service';
 
 export class SpreadsheetLayer extends MapPointLayer<SpreadsheetMappable> {
 
   spreadsheetMappables: SpreadsheetMappable[];
 
-  constructor(map: google.maps.Map) {
-    super(map);
+  constructor(mapService: MapService) {
+    super(mapService);
     this.spreadsheetMappables = [];
   }
 
@@ -19,9 +17,9 @@ export class SpreadsheetLayer extends MapPointLayer<SpreadsheetMappable> {
     this.spreadsheetMappables = [];
     const recordMappable = new SpreadsheetMappable(spreadsheetRecord);
     this.createMarkerFromMappable(recordMappable);
-    this.addToMap(this.map);
-    this.map.setCenter(recordMappable.getCoordinates());
-    this.map.setZoom(15);
+    this.addToMap(this.mapService.getMap());
+    this.mapService.setCenter(recordMappable.getCoordinates());
+    this.mapService.setZoom(15);
   }
 
 }

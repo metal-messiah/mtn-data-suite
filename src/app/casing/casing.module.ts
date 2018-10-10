@@ -16,9 +16,7 @@ import { GoogleSearchComponent } from './google-search/google-search.component';
 import { DatabaseSearchComponent } from './database-search/database-search.component';
 import { ShoppingCenterDetailComponent } from './shopping-center-detail/shopping-center-detail.component';
 import { StoreDetailComponent } from './store-detail/store-detail.component';
-import { StoreEntityFormComponent } from './store-entity-form/store-entity-form.component';
 import { StoreSummaryCardComponent } from './store-summary-card/store-summary-card.component';
-import { StoreInfoCardComponent } from './store-info-card/store-info-card.component';
 import { StoreCasingsComponent } from './store-casings/store-casings.component';
 import { StoreStatusesDialogComponent } from './store-statuses-dialog/store-statuses-dialog.component';
 import { StoreVolumeDialogComponent } from './store-volume-dialog/store-volume-dialog.component';
@@ -28,9 +26,9 @@ import { StoreVolumesSelectionComponent } from './store-volumes-selection/store-
 import { TenantListDialogComponent } from './tenant-list-dialog/tenant-list-dialog.component';
 import { AccessListDialogComponent } from './access-list-dialog/access-list-dialog.component';
 import { QuadDialogComponent } from './quad-dialog/quad-dialog.component';
-import { SiteInfoCardComponent } from './site-info-card/site-info-card.component';
 import { NewStoreStatusComponent } from './new-store-status/new-store-status.component';
 import { NewStoreVolumeComponent } from './new-store-volume/new-store-volume.component';
+import { DownloadDialogComponent } from './download-dialog/download-dialog.component';
 
 @NgModule({
   imports: [
@@ -53,20 +51,18 @@ import { NewStoreVolumeComponent } from './new-store-volume/new-store-volume.com
     SelectProjectComponent,
     ShoppingCenterDetailComponent,
     SiteDetailComponent,
-    SiteInfoCardComponent,
     SiteListComponent,
     SiteOverviewComponent,
     StoreCasingDetailComponent,
     StoreCasingsComponent,
     StoreDetailComponent,
-    StoreEntityFormComponent,
-    StoreInfoCardComponent,
     StoreStatusesDialogComponent,
     StoreSummaryCardComponent,
     StoreVolumeDialogComponent,
     StoreVolumesSelectionComponent,
     TenantListDialogComponent,
-    NewStoreVolumeComponent
+    NewStoreVolumeComponent,
+    DownloadDialogComponent
   ],
   entryComponents: [
     AccessListDialogComponent,
@@ -81,7 +77,8 @@ import { NewStoreVolumeComponent } from './new-store-volume/new-store-volume.com
     StoreVolumesSelectionComponent,
     TenantListDialogComponent,
     NewStoreStatusComponent,
-    NewStoreVolumeComponent
+    NewStoreVolumeComponent,
+    DownloadDialogComponent
   ],
   providers: [CasingDashboardService]
 })

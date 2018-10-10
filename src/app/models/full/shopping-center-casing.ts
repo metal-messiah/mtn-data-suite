@@ -7,7 +7,6 @@ export class ShoppingCenterCasing extends AuditingEntity {
 
   casingDate: Date;
   note: string;
-  ratingParkingLot: string;
   ratingBuildings: string;
   ratingLighting: string;
   ratingSynergy: string;

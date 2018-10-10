@@ -9,7 +9,7 @@ import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { Coordinates } from '../../models/coordinates';
 import { Pageable } from '../../models/pageable';
 import { Store } from '../../models/full/store';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
 
 @Injectable()

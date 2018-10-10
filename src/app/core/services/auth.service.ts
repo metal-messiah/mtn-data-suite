@@ -8,7 +8,7 @@ import { RestService } from './rest.service';
 import { UserProfile } from '../../models/full/user-profile';
 import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
 import { MatDialog } from '@angular/material';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class AuthService {

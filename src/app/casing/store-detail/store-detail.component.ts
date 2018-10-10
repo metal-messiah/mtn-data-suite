@@ -11,7 +11,7 @@ import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { RoutingStateService } from '../../core/services/routing-state.service';
 import { finalize, tap } from 'rxjs/internal/operators';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'mds-store-detail',
@@ -46,8 +46,7 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
       storeType: ['', [Validators.required]],
       dateOpened: new Date(),
       dateClosed: new Date(),
-      floating: false,
-      legacyLocationId: ''
+      floating: false
     });
   }
 
@@ -79,9 +78,12 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
   };
 
   private prepareSaveStore(): Store {
-    const saveStore = new Store(this.form.value);
-    const strippedAE = new AuditingEntity(this.store);
-    Object.assign(saveStore, strippedAE);
+    const saveStore = JSON.parse(JSON.stringify(this.store));
+    Object.keys(this.form.controls).forEach(key => {
+      if (this.form.get(key).dirty) {
+        saveStore[key] = this.form.get(key).value
+      }
+    });
     return saveStore;
   }
 

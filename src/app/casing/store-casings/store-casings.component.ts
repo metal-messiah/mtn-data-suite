@@ -11,7 +11,8 @@ import { MatDialog, MatSnackBar } from '@angular/material';
 import { ErrorService } from '../../core/services/error.service';
 import { StoreCasingService } from '../../core/services/store-casing.service';
 import { finalize } from 'rxjs/internal/operators';
-import { Observable, of } from 'rxjs/index';
+import { Observable, of } from 'rxjs';
+import { Store } from '../../models/full/store';
 
 @Component({
   selector: 'mds-store-casings',
@@ -22,6 +23,8 @@ export class StoreCasingsComponent implements OnInit {
 
   storeId: number;
   loading = false;
+
+  store: Store;
   casings: SimplifiedStoreCasing[];
 
   constructor(private storeService: StoreService,
@@ -37,7 +40,12 @@ export class StoreCasingsComponent implements OnInit {
 
   ngOnInit() {
     this.storeId = parseInt(this.route.snapshot.paramMap.get('storeId'), 10);
+    this.loadStore(this.storeId);
     this.loadCasings(this.storeId);
+  }
+
+  private loadStore(storeId: number) {
+    this.storeService.getOneById(storeId).subscribe((store: Store) => this.store = store);
   }
 
   loadCasings(storeId: number) {

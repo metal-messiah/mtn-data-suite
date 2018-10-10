@@ -12,7 +12,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 import { RoutingStateService } from '../../core/services/routing-state.service';
 import { QuadDialogComponent } from '../quad-dialog/quad-dialog.component';
 import { finalize, tap } from 'rxjs/internal/operators';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'mds-site-detail',

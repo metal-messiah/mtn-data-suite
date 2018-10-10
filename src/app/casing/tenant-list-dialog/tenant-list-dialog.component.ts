@@ -18,6 +18,9 @@ export class TenantListDialogComponent implements OnInit {
   form: FormGroup;
 
   loading = false;
+  saving = false;
+
+  vacantCount: number;
 
   constructor(private fb: FormBuilder,
               private shoppingCenterSurveyService: ShoppingCenterSurveyService,
@@ -37,6 +40,7 @@ export class TenantListDialogComponent implements OnInit {
 
   ngOnInit() {
     this.shoppingCenterSurveyId = this.data.shoppingCenterSurveyId;
+    this.vacantCount = this.data.vacantCount;
     this.loading = true;
     this.shoppingCenterSurveyService.getAllTenants(this.shoppingCenterSurveyId)
       .pipe(finalize(() => this.loading = false))
@@ -66,12 +70,19 @@ export class TenantListDialogComponent implements OnInit {
   }
 
   parseTenants(isOutparcel: boolean) {
+    let vacantCount = 0;
     const newTenants: ShoppingCenterTenant[] = this.newTenantNames.value.split(',')
       .map((name: string) => name.trim())
       .filter(name => name !== '')
-      .map(name => {
-        return new ShoppingCenterTenant({name: name, outparcel: isOutparcel});
-      });
+      .filter(name => {
+        const isVacant = name.toLowerCase() === 'vacant' || name.toLowerCase() === 'bacon' || name.toLowerCase() === 'empty';
+        if (isVacant) {
+          vacantCount++;
+        }
+        return !isVacant;
+      })
+      .map(name => new ShoppingCenterTenant({name: name, outparcel: isOutparcel}));
+    this.vacantCount += vacantCount;
     if (newTenants.length > 0) {
       this.loading = true;
       this.shoppingCenterSurveyService.createNewTenants(this.shoppingCenterSurveyId, newTenants)
@@ -82,13 +93,16 @@ export class TenantListDialogComponent implements OnInit {
           this.sortTenants();
           this.snackBar.open('Successfully Added Tenants', null, {duration: 1000});
         });
+    } else if (vacantCount > 0) {
+      this.newTenantNames.reset();
+      this.snackBar.open('Successfully Added Vacancies', null, {duration: 1000});
     }
   }
 
   deleteTenant(tenant: ShoppingCenterTenant, index: number) {
-    this.loading = true;
+    this.saving = true;
     this.shoppingCenterTenantService.delete(tenant.id)
-      .pipe(finalize(() => this.loading = false))
+      .pipe(finalize(() => this.saving = false))
       .subscribe(() => {
         this.tenants.removeAt(index);
         this.snackBar.open('Successfully Deleted Tenant', null, {duration: 1000});
@@ -96,7 +110,9 @@ export class TenantListDialogComponent implements OnInit {
   }
 
   updateTenant(tenantFormControl: AbstractControl) {
+    this.saving = true;
     this.shoppingCenterTenantService.update(new ShoppingCenterTenant(tenantFormControl.value))
+      .pipe(finalize(() => this.saving = false))
       .subscribe((tenant: ShoppingCenterTenant) => {
         tenantFormControl.reset(tenant);
         this.sortTenants();
@@ -107,6 +123,18 @@ export class TenantListDialogComponent implements OnInit {
   private sortTenants() {
     this.tenants.controls.sort((a: FormControl, b: FormControl) => {
       return a.get('name').value.localeCompare(b.get('name').value);
+    });
+  }
+
+  showInfo() {
+    const msg = 'Enter the names of the Tenants or "Vacant", "Empty", or "Bacon" separated by "comma"';
+    this.snackBar.open(msg, 'Ok');
+  }
+
+  close() {
+    this.dialogRef.close({
+      vacant: this.vacantCount,
+      occupied: this.tenants.length
     });
   }
 

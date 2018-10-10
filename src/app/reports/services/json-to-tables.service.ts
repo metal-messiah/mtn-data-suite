@@ -1,21 +1,20 @@
 import { Injectable } from '@angular/core';
 
-import { HTMLasJSON } from '../../models/html-as-json';
-import { ReportUploadInterface } from '../../reports/report-upload/report-upload-interface';
-import { ProjectionsTable } from '../../models/projections-table';
+import { ReportData } from '../../models/report-data';
 import { MapService } from '../../core/services/map.service';
 import { AuthService } from '../../core/services/auth.service';
 import { StoreListItem } from '../../models/store-list-item';
-import { MatSnackBar, SimpleSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material';
 import { StoreService } from '../../core/services/store.service';
 import { Store } from '../../models/full/store';
 
 @Injectable()
 export class JsonToTablesService {
-  mapService: MapService;
 
-  modelData: ReportUploadInterface;
-  json: HTMLasJSON;
+  reportTableData: ReportData;
+  reportMetaData;
+  descriptions;
+
   matchingStore: StoreListItem;
   salesGrowthProjection;
 
@@ -58,32 +57,28 @@ export class JsonToTablesService {
     private snackBar: MatSnackBar,
     public storeService: StoreService
   ) {
-    this.mapService = new MapService(auth);
   }
 
-  init(modelData: ReportUploadInterface, json: HTMLasJSON) {
-    this.modelData = modelData;
-    this.json = json;
-    const { siteNumber, type } = modelData;
-    this.matchingStore = json.storeList.filter(
-      item => item.mapKey === siteNumber
-    )[0];
-    this.salesGrowthProjection = json.salesGrowthProjection[1]
-      ? json.salesGrowthProjection[1]
-      : json.salesGrowthProjection[0]
-        ? json.salesGrowthProjection[0]
-        : null;
+  init(reportMetaData, reportTableData: ReportData, descriptions) {
+    this.reportMetaData = reportMetaData;
+    this.reportTableData = reportTableData;
+    this.descriptions = descriptions;
+    const siteNumber = reportTableData.selectedMapKey;
+    this.matchingStore = reportTableData.storeList
+      .filter(item => item.mapKey === siteNumber)[0];
+    if (reportTableData.salesGrowthProjection[1]) {
+      this.salesGrowthProjection = reportTableData.salesGrowthProjection[1];
+    } else if (reportTableData.salesGrowthProjection[0]) {
+      this.salesGrowthProjection = reportTableData.salesGrowthProjection[0];
+    }
   }
 
   isInitialized() {
-    if (this.modelData && this.json) {
-      return true;
-    }
-    return false;
+    return this.reportMetaData && this.reportTableData;
   }
 
   getProjectionMapKey() {
-    return this.modelData.siteNumber || null;
+    return this.reportTableData.selectedMapKey || null;
   }
 
   getProjectionScenario() {
@@ -129,28 +124,28 @@ export class JsonToTablesService {
   }
 
   getStoresForExport(category) {
-    return this.json.storeList.filter(
+    return this.reportTableData.storeList.filter(
       store => store.category === category && !this.isTargetStore(store)
     );
   }
 
   getProjectionComment() {
-    return this.modelData.type;
+    return this.reportMetaData.type;
   }
 
   getCurrentStoresWeeklySummary() {
-    return this.json.storeList.filter(store => store.uniqueId);
+    return this.reportTableData.storeList.filter(store => store.uniqueId);
   }
 
   getProjectedStoresWeeklySummary() {
-    return this.json.storeList
+    return this.reportTableData.storeList
       .filter(store => store.category !== 'Do Not Include')
       .map(store => {
-        const beforematch = this.json.projectedVolumesBefore.filter(
+        const beforematch = this.reportTableData.projectedVolumesBefore.filter(
           j => j.mapKey === store.mapKey
         )[0];
 
-        const aftermatch = this.json.projectedVolumesAfter.filter(
+        const aftermatch = this.reportTableData.projectedVolumesAfter.filter(
           j => j.mapKey === store.mapKey
         )[0];
 
@@ -173,25 +168,23 @@ export class JsonToTablesService {
       });
   }
 
-  getSOVStoreCount(category) {
-    return (
-      this.json.storeList.filter(store => store.category === category).length >
-      0
-    );
+  getSOVStoreCount(category): number {
+    return this.reportTableData.storeList.filter(store => store.category === category).length;
   }
+
   getSOVMatches(store) {
-    const beforematch = this.json.projectedVolumesBefore.filter(
+    const beforematch = this.reportTableData.projectedVolumesBefore.filter(
       j => j.mapKey === store.mapKey
     )[0];
 
-    const aftermatch = this.json.projectedVolumesAfter.filter(
+    const aftermatch = this.reportTableData.projectedVolumesAfter.filter(
       j => j.mapKey === store.mapKey
     )[0];
     return { beforematch, aftermatch };
   }
 
   getTruncatedSOVStores() {
-    const stores = this.json.storeList
+    const stores = this.reportTableData.storeList
       // only get the ones matching the cat
       .filter(store => store.category !== 'Do Not Include')
       .map(store => {
@@ -205,10 +198,10 @@ export class JsonToTablesService {
       })
       // sort by target, then by contribution to site
       .sort((a, b) => {
-        if (a.mapKey === this.modelData.siteNumber) {
+        if (a.mapKey === this.reportTableData.selectedMapKey) {
           return -1;
         }
-        if (b.mapKey === this.modelData.siteNumber) {
+        if (b.mapKey === this.reportTableData.selectedMapKey) {
           return 1;
         }
         return b['contributionToSite'] - a['contributionToSite'];
@@ -221,7 +214,6 @@ export class JsonToTablesService {
         }
       })
       .filter(s => s);
-    // console.log(overflow);
 
     if (overflow.length) {
       const threshold = stores[this.maxSOV - 1]['contributionToSite'];
@@ -244,7 +236,6 @@ export class JsonToTablesService {
 
   getSOVStores(category) {
     // categories => Company Store, Proposed Competition, Existing Competition
-
     return (
       this.getTruncatedSOVStores()
         // only get the ones matching the cat
@@ -274,7 +265,7 @@ export class JsonToTablesService {
               : store['futureSales'] - store['contributionToSite'];
 
           store['distance'] =
-            this.mapService.getDistanceBetween(
+            MapService.getDistanceBetween(
               { lat: store.latitude, lng: store.longitude },
               {
                 lat: this.matchingStore.latitude,
@@ -287,12 +278,11 @@ export class JsonToTablesService {
     );
   }
 
-  getSummaryAverage(dataset, field) {
-    const data =
-      dataset === 'current'
-        ? this.getCurrentStoresWeeklySummary().map(s => s[field])
-        : this.getProjectedStoresWeeklySummary().map(s => s[field]);
-    return data.reduce((prev, next) => prev + next) / data.length;
+  getSummaryAverage(dataSet, field) {
+    const data = dataSet === 'current' ? this.getCurrentStoresWeeklySummary() : this.getProjectedStoresWeeklySummary();
+    const values = data.map(s => s[field]);
+    const sum =  values.reduce((prev, next) => prev + next);
+    return sum / values.length;
   }
 
   showSnackbar() {
@@ -317,14 +307,12 @@ export class JsonToTablesService {
         'Updated the local table but could not update the database because the store does not exist there.';
       this.showSnackbar();
     }
-    const idx = this.json.storeList.findIndex(s => s.mapKey === store.mapKey);
+    const idx = this.reportTableData.storeList.findIndex(s => s.mapKey === store.mapKey);
     if (idx !== -1) {
-      this.json.storeList[idx].totalSize = value;
+      this.reportTableData.storeList[idx].totalSize = value;
     }
     console.log('updated json');
   }
-
-  getSOVContributionToSite(store) {}
 
   getSOVAverages(category) {
     // categories => Company Store, Proposed Competition, Existing Competition
@@ -332,10 +320,7 @@ export class JsonToTablesService {
     let fitStorePowerAverage = 0;
     const contributionToSiteValues = [];
     let contributionToSiteAverage = 0;
-    this.json.storeList
-      .filter(
-        store => store.category === category && !this.isTargetStore(store)
-      )
+    this.reportTableData.storeList.filter(store => store.category === category && !this.isTargetStore(store))
       .forEach(store => {
         fitStorePowerValues.push(store.effectivePower);
         contributionToSiteValues.push(store['contributionToSite']);
@@ -378,7 +363,7 @@ export class JsonToTablesService {
   }
 
   isTargetStore(store) {
-    return store.mapKey === this.modelData.siteNumber;
+    return store.mapKey === this.reportTableData.selectedMapKey;
   }
 
   getTargetStore() {

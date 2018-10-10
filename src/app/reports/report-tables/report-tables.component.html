@@ -1,0 +1,396 @@
+<div>
+  <div class="flex-container">
+    <table class="force10" cellspacing="0" id="projectionsTable">
+      <tr>
+        <th>Map Key</th>
+        <th>Scenario</th>
+        <th>Projected FIT Image</th>
+        <th>Sales Area</th>
+        <th>Year 1 Ending</th>
+        <th>Year 2 Ending</th>
+        <th>Year 3 Ending</th>
+        <th>Comment</th>
+      </tr>
+      <tr>
+        <td>{{jsonToTablesService.getProjectionMapKey()}}</td>
+        <td>{{jsonToTablesService.getProjectionScenario()}}</td>
+        <td>{{jsonToTablesService.getProjectionProjectedFitImage()}}</td>
+        <td>{{jsonToTablesService.getProjectionSalesArea() | number}}</td>
+        <td>${{jsonToTablesService.getProjectionYear1Ending()}}</td>
+        <td>${{jsonToTablesService.getProjectionYear2Ending()}}</td>
+        <td>${{jsonToTablesService.getProjectionYear3Ending()}}</td>
+        <td>{{jsonToTablesService.getProjectionComment()}}</td>
+      </tr>
+    </table>
+  </div>
+  <hr/>
+  <div class="flex-container">
+    <table class="force10" cellspacing="0" id="currentStoresWeeklySummaryTable">
+      <tr>
+        <th colspan="8">
+          <h2>Current Stores Weekly Summary - {{jsonToTablesService.reportMetaData.fieldResDate | date:'MMM y'}}</h2>
+        </th>
+      </tr>
+      <tr>
+        <th>Map Key</th>
+        <th>Store Name</th>
+        <th>Location</th>
+        <th>Volume</th>
+        <th>Sq. Ft</th>
+        <th>Sales Area</th>
+        <th>PWTA</th>
+        <th>FIT Power</th>
+      </tr>
+      <tr *ngFor="let store of jsonToTablesService.getCurrentStoresWeeklySummary()">
+        <td>{{store.mapKey}}</td>
+        <td>{{store.storeName}}</td>
+        <td>{{store.location}}</td>
+        <td>${{store.actualSales | number:'1.0-2'}}</td>
+        <td>${{store.actualSalesPSF | number:'1.2-2'}}</td>
+        <td>{{store.salesArea | number}}</td>
+        <td>{{store.PWTA | number}}</td>
+        <td>{{store.effectivePower | number}}</td>
+      </tr>
+      <tr class="bold">
+        <td>Average</td>
+        <td></td>
+        <td></td>
+        <td>${{jsonToTablesService.getSummaryAverage('current', 'actualSales') | number:'1.0-0'}}</td>
+        <td>${{jsonToTablesService.getSummaryAverage('current', 'actualSalesPSF') | number:'1.2-2'}}</td>
+        <td>{{jsonToTablesService.getSummaryAverage('current', 'salesArea') | number:'1.0-0'}}</td>
+        <td></td>
+        <td>{{jsonToTablesService.getSummaryAverage('current', 'effectivePower') | number:'1.0-0'}}</td>
+      </tr>
+    </table>
+  </div>
+  <hr/>
+  <div class='flex-container'>
+    <table class="force10" cellspacing="0" id="projectedStoresWeeklySummaryTable">
+      <tr>
+        <th colspan="8">
+          <h2>Projected Stores Weekly Summary - {{jsonToTablesService.reportTableData.firstYearEndingMonthYear}}</h2>
+        </th>
+      </tr>
+      <tr>
+        <th>Map Key</th>
+        <th>Store Name</th>
+        <th>Location</th>
+        <th>Volume</th>
+        <th>Sq. Ft</th>
+        <th>Sales Area</th>
+        <th>PWTA</th>
+        <th>FIT Power</th>
+      </tr>
+      <tr
+        [ngClass]="jsonToTablesService.isTargetStore(store) ? 'red-highlight' : store.category === 'Proposed Competition' ? 'bold' : ''"
+        *ngFor="let store of jsonToTablesService.getProjectedStoresWeeklySummary()">
+        <td>{{store.mapKey}}</td>
+        <td>{{store.storeName}}</td>
+        <td>{{store.location}}</td>
+        <td>${{store.projectedSales | number:'1.0-2'}}</td>
+        <td>${{store.projectedSalesPSF | number:'1.0-2'}}</td>
+        <td>{{store.salesArea | number}}</td>
+        <td>{{store.PWTA | number}}</td>
+        <td>{{store.effectivePower | number}}</td>
+      </tr>
+      <tr class="bold">
+        <td>Average</td>
+        <td></td>
+        <td></td>
+        <td>${{jsonToTablesService.getSummaryAverage('projected', 'projectedSales') | number:'1.0-0'}}</td>
+        <td>${{jsonToTablesService.getSummaryAverage('projected', 'projectedSalesPSF') | number:'1.2-2'}}</td>
+        <td>{{jsonToTablesService.getSummaryAverage('projected', 'salesArea') | number:'1.0-0'}}</td>
+        <td></td>
+        <td>{{jsonToTablesService.getSummaryAverage('projected', 'effectivePower') | number:'1.0-0'}}</td>
+      </tr>
+    </table>
+  </div>
+  <hr>
+  <p>Click on a total area "cell" to edit a store's total area.</p>
+  <div class="flex-container">
+    <table cellspacing="0" id="sourceOfVolumeTable">
+      <tr>
+        <th style='height:50px; position: relative;' colspan="12">
+          <span class="title-left">Source of Volume</span>
+          <span class="title-right">{{jsonToTablesService.getTargetStore().storeName}}</span>
+        </th>
+      </tr>
+      <tr>
+        <th colspan="5"></th>
+        <th colspan="2">Size (Sq. Ft.)*</th>
+        <th></th>
+        <th colspan="4">{{jsonToTablesService.reportTableData.firstYearEndingMonthYear}} Volume</th>
+      </tr>
+      <tr>
+        <th>Primary Sources of Projected Volume</th>
+        <th>Location</th>
+        <th>Map Key</th>
+        <th>FIT Store Power</th>
+        <th>Straight Line Dist. From Site</th>
+        <th>Sales Area</th>
+        <th>Est. Total Area</th>
+        <th>Sales As of {{jsonToTablesService.reportMetaData.fieldResDate | date:'MMM y'}}</th>
+        <th>Pop Growth, Infl. & Comp. Chngs.</th>
+        <th colspan="2">Contribution to Site</th>
+        <th>Resulting Volume</th>
+      </tr>
+      <tr *ngIf="jsonToTablesService.getSOVStoreCount('Company Store') > 0" class="blue">
+        <td class="table-section-header">
+          Company Stores
+        </td>
+        <td colspan="11"></td>
+      </tr>
+      <tr *ngFor="let store of jsonToTablesService.getSOVStores('Company Store')"
+          [class]="jsonToTablesService.isTargetStore(store) ? 'bold blue': 'blue'">
+        <td>{{store.storeName}}</td>
+        <td nowrap>{{store.location}}</td>
+        <td>{{store.mapKey}}</td>
+        <td>{{store.effectivePower | number:'1.0-2'}}</td>
+        <td>{{store.distance | number:'1.0-2'}} mi.</td>
+        <td>{{store.salesArea | number:'1.0-2'}}</td>
+        <td class='editable' (click)="editTotalArea($event.target.innerText, store)">{{store.totalSize |
+          number:'1.0-2'}}
+        </td>
+        <td *ngIf="jsonToTablesService.isTargetStore(store)">-</td>
+        <td *ngIf="!jsonToTablesService.isTargetStore(store)">{{store.actualSales / 1000 | number:'1.0-2'}}</td>
+        <td *ngIf="jsonToTablesService.isTargetStore(store)">-</td>
+        <td *ngIf="!jsonToTablesService.isTargetStore(store)">{{store.futureSales / 1000 | number:'1.0-0'}}</td>
+        <td>{{store.contributionToSite ? (store.contributionToSite / 1000).toFixed(0) : '-'}}</td>
+        <td *ngIf="jsonToTablesService.isTargetStore(store)">-</td>
+        <td *ngIf="!jsonToTablesService.isTargetStore(store)">{{store.contributionToSitePerc | number:'1.0-1'}}%</td>
+        <td>{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.getSOVStoreCount('Company Store') > 1" class="blue">
+        <td><b>Average Power</b></td>
+        <td colspan="2"></td>
+        <td style="border-top:1px solid black;">
+          <b>
+            {{jsonToTablesService.getSOVAverages('Company Store').fitStorePowerAverage | number:'1.0-0'}}
+          </b>
+        </td>
+        <td colspan="5"></td>
+        <td style="border-top:1px solid black;">
+          <b>
+            ${{jsonToTablesService.getSOVAverages('Company Store').contributionToSiteAverage / 1000 |
+            number:'1.0-0'}}
+          </b>
+        </td>
+        <td colspan="2"></td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.getSOVStoreCount('Existing Competition') > 0" class="yellow">
+        <td class="table-section-header">
+          Existing Competition
+        </td>
+        <td colspan="11"></td>
+      </tr>
+      <tr *ngFor="let store of jsonToTablesService.getSOVStores('Existing Competition')" class="yellow">
+        <td>{{store.storeName}}</td>
+        <td nowrap>{{store.location}}</td>
+        <td>{{store.mapKey}}</td>
+        <td>{{store.effectivePower | number:'1.0-2'}}</td>
+        <td>{{store.distance | number:'1.0-2'}} mi.</td>
+        <td>{{store.salesArea | number:'1.0-2'}}</td>
+        <td class='editable' (click)="editTotalArea($event.target.innerText, store)">{{store.totalSize |
+          number:'1.0-2'}}
+        </td>
+        <td>{{store.actualSales / 1000 | number:'1.0-0'}}</td>
+        <td>{{store.futureSales / 1000 | number:'1.0-0'}}</td>
+        <td>{{store.contributionToSite / 1000 | number:'1.0-0'}}</td>
+        <td>{{store.contributionToSitePerc | number:'0.0-1'}}%</td>
+        <td>{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.getSOVStoreCount('Existing Competition') > 1" class="yellow">
+        <td><b>Average Power</b></td>
+        <td colspan="2"></td>
+        <td style="border-top:1px solid black;">
+          <b>
+            {{jsonToTablesService.getSOVAverages('Existing Competition').fitStorePowerAverage | number:'1.0-0'}}
+          </b>
+        </td>
+        <td colspan="5"></td>
+        <td style="border-top:1px solid black;">
+          <b>
+            ${{jsonToTablesService.getSOVAverages('Existing Competition').contributionToSiteAverage / 1000 |
+            number:'1.0-0'}}
+          </b>
+        </td>
+        <td colspan="2"></td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.getSOVStoreCount('Proposed Competition') > 0" class="pink">
+        <td class="table-section-header">
+          Proposed Competition
+        </td>
+        <td colspan="11"></td>
+      </tr>
+      <tr *ngFor="let store of jsonToTablesService.getSOVStores('Proposed Competition')" class="pink">
+        <td>{{store.storeName}}</td>
+        <td nowrap>{{store.location}}</td>
+        <td>{{store.mapKey}}</td>
+        <td>{{store.effectivePower | number:'1.0-2'}}</td>
+        <td>{{store.distance | number:'1.0-2'}} mi.</td>
+        <td>{{store.salesArea | number:'1.0-2'}}</td>
+        <td class='editable' (click)="editTotalArea($event.target.innerText, store)">{{store.totalSize |
+          number:'1.0-2'}}
+        </td>
+        <td>{{store.actualSales / 1000 | number:'1.0-0'}}</td>
+        <td>{{store.futureSales / 1000 | number:'1.0-0'}}</td>
+        <td>{{store.contributionToSite / 1000 | number:'1.0-0'}}</td>
+        <td>{{store.contributionToSitePerc | number:'0.0-1'}}%</td>
+        <td>{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.getSOVStoreCount('Proposed Competition') > 1" class="pink">
+        <td><b>Average Power</b></td>
+        <td colspan="2"></td>
+        <td style="border-top:1px solid black;">
+          <b>
+            {{jsonToTablesService.getSOVAverages('Proposed Competition').fitStorePowerAverage | number:'1.0-0'}}
+          </b>
+        </td>
+        <td colspan="5"></td>
+        <td style="border-top:1px solid black;">
+          <b>
+            ${{jsonToTablesService.getSOVAverages('Proposed Competition').contributionToSiteAverage / 1000 |
+            number:'1.0-0'}}
+          </b>
+        </td>
+        <td colspan="2"></td>
+      </tr>
+      <tr>
+        <td colspan="12"></td>
+      </tr>
+      <tr>
+        <td><b>Sales Potential</b></td>
+        <td>
+          <b>Assume Store Opens {{jsonToTablesService.reportTableData.firstYearEndingMonthYear}}</b>
+        </td>
+        <td colspan="2"></td>
+        <td colspan="5"><b>Sales Transfers from Company Stores</b></td>
+        <td>${{jsonToTablesService.getSalesTransfersFromCompanyStores() | number:'1.0-0'}}
+        </td>
+        <td colspan="2"></td>
+      </tr>
+      <tr>
+        <td><b>{{getFirstYearAsNumber() + 1}} - After Open 1 Year</b></td>
+        <td><b>${{jsonToTablesService.getAfterOpen1Year() | number:'1.0-0'}}</b></td>
+        <td colspan="2"></td>
+        <td colspan="5"><b>Sales Transfers from Competition</b></td>
+        <td>${{jsonToTablesService.getSalesTransfersFromCompetition() | number:'1.0-0'}}
+        </td>
+        <td colspan="2"></td>
+      </tr>
+      <tr>
+        <td class='footnote' colspan="5" rowspan="2">
+          *Area devoted to food group<br>Sales effects based on gravity model analysis. {{jsonToTablesService.truncatedMsg}}
+        </td>
+        <td colspan="4"><b>Total Sales Transfer</b></td>
+        <td>${{jsonToTablesService.getTotalSalesTransfers() | number:'1.0-0'}}
+        </td>
+        <td colspan="2"></td>
+      </tr>
+      <tr>
+        <td colspan="4"><b>Percent of Sales Explained After One Year</b></td>
+        <td>{{
+          jsonToTablesService.getPercentOfSalesExplained() | number:'1.1-1'
+          }}%
+        </td>
+        <td colspan="2"></td>
+      </tr>
+
+    </table>
+  </div>
+  <hr>
+  <div class="flex-container">
+    <table style="max-width: 2.5in;" cellspacing="0" id="descriptionsRatings">
+      <tr>
+        <th class="table-section-header" colspan="2">
+          Site Evaluation
+        </th>
+      </tr>
+      <tr>
+        <td class="bold" colspan="2" style="text-align:left;">Access</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.descriptions.access">
+        <td>North</td>
+        <td>{{jsonToTablesService.descriptions.access.north}}</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.descriptions.access">
+        <td>South</td>
+        <td>{{jsonToTablesService.descriptions.access.south}}</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.descriptions.access">
+        <td>East</td>
+        <td>{{jsonToTablesService.descriptions.access.east}}</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.descriptions.access">
+        <td>West</td>
+        <td>{{jsonToTablesService.descriptions.access.west}}</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.descriptions.ingressEgress">
+        <td class="bold" style="text-align:left;">Ingress/Egress</td>
+        <td>{{jsonToTablesService.descriptions.ingressEgress}}</td>
+      </tr>
+      <tr>
+        <td class="bold" colspan="2" style="text-align:left;">Visibility</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.descriptions.visibility">
+        <td>North</td>
+        <td>{{jsonToTablesService.descriptions.visibility.north}}</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.descriptions.visibility">
+        <td>South</td>
+        <td>{{jsonToTablesService.descriptions.visibility.south}}</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.descriptions.visibility">
+        <td>East</td>
+        <td>{{jsonToTablesService.descriptions.visibility.east}}</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.descriptions.visibility">
+        <td>West</td>
+        <td>{{jsonToTablesService.descriptions.visibility.west}}</td>
+      </tr>
+      <tr>
+        <td class="bold" colspan="2" style="text-align:left;">Population Density</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.descriptions.populationDensity">
+        <td>North</td>
+        <td>{{jsonToTablesService.descriptions.populationDensity.north}}</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.descriptions.populationDensity">
+        <td>South</td>
+        <td>{{jsonToTablesService.descriptions.populationDensity.south}}</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.descriptions.populationDensity">
+        <td>East</td>
+        <td>{{jsonToTablesService.descriptions.populationDensity.east}}</td>
+      </tr>
+      <tr *ngIf="jsonToTablesService.descriptions.populationDensity">
+        <td>West</td>
+        <td>{{jsonToTablesService.descriptions.populationDensity.west}}</td>
+      </tr>
+    </table>
+  </div>
+  <hr>
+  <div *ngIf="mapImage" style="display: flex; align-items: center; justify-content: center;">
+    <img [src]="mapImage" id="mapImage">
+    <div>
+      <button [color]="googleMapsBasemap === 'hybrid' ? 'warn':'primary'" (click)="getMapImage('hybrid')"
+              mat-raised-button style="margin:5px;">Sat
+      </button>
+      <br>
+      <button [color]="googleMapsBasemap === 'roadmap' ? 'warn':'primary'" (click)="getMapImage('roadmap')"
+              mat-raised-button style="margin:5px;">Road
+      </button>
+      <br>
+      <button [color]="'primary'" (click)="getMapImage(null, -1)" mat-raised-button style="margin:5px;"><i
+        class="fas fa-search-plus"></i></button>
+      <br>
+      <button [color]="'primary'" (click)="getMapImage(null, 1)" mat-raised-button style="margin:5px;"><i
+        class="fas fa-search-minus"></i></button>
+      <br>
+    </div>
+  </div>
+  <hr>
+  <button [color]="'primary'" mat-raised-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
+  <button [color]="'warn'" mat-raised-button matStepperNext (click)="export()" style="margin-top:20px;">Export
+  </button>
+</div>

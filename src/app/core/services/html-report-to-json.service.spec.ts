@@ -1,15 +1,15 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { HtmlReportToJsonService } from './html-report-to-json.service';
+import { HtmlToModelParser } from './html-to-model-parser.service';
 
 describe('HtmlReportToJsonService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [HtmlReportToJsonService]
+      providers: [HtmlToModelParser]
     });
   });
 
-  it('should be created', inject([HtmlReportToJsonService], (service: HtmlReportToJsonService) => {
+  it('should be created', inject([HtmlToModelParser], (service: HtmlToModelParser) => {
     expect(service).toBeTruthy();
   }));
 });

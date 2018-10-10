@@ -54,13 +54,7 @@ mds-map {
 }
 
 #casing-dash-container {
-  height: calc(100% - 64px);
-}
-
-@media (max-width: 600px) {
-  #casing-dash-container {
-    height: calc(100% - 56px);
-  }
+  height: 100%;
 }
 
 .box {

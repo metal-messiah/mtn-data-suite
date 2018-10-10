@@ -16,7 +16,7 @@ import { PermissionService } from '../../core/services/permission.service';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
 import { DetailFormService } from '../../core/services/detail-form.service';
 import { finalize } from 'rxjs/internal/operators';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'mds-role-detail',

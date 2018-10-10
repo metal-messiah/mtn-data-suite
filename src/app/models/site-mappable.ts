@@ -10,16 +10,16 @@ import { EntityMappable } from '../interfaces/entity-mappable';
 
 export class SiteMappable implements EntityMappable {
 
-  id: number;
   private site: SimplifiedSite;
-  private readonly currentUserId: number;
-  private selected = false;
   private moving = false;
 
-  constructor(site: SimplifiedSite, currentUserId: number) {
+  private readonly sessionUserId: number;
+  private readonly isSelected: (Entity) => boolean;
+
+  constructor(site: SimplifiedSite, currentUserId: number, isSelected: (Entity) => boolean) {
     this.site = site;
-    this.id = site.id;
-    this.currentUserId = currentUserId;
+    this.sessionUserId = currentUserId;
+    this.isSelected = isSelected;
   }
 
   getCoordinates(): Coordinates {
@@ -39,8 +39,10 @@ export class SiteMappable implements EntityMappable {
   }
 
   getIcon(markerType?: MarkerType): string | Icon | Symbol {
-    const fillColor = this.getFillColor();
-    const strokeColor = this.getStrokeColor();
+    const selected = this.isSelected(this.getEntity());
+
+    const fillColor = this.getFillColor(selected);
+    const strokeColor = this.getStrokeColor(selected);
     const shape = this.getShape();
     const scale = 0.075;
     const anchor = this.getAnchor(shape);
@@ -70,45 +72,41 @@ export class SiteMappable implements EntityMappable {
     return this.site;
   }
 
-  setSelected(selected: boolean) {
-    this.selected = selected;
-  }
-
   setMoving(moving: boolean) {
     this.moving = moving;
   }
 
-  private getFillColor() {
+  private getFillColor(selected: boolean) {
     if (this.moving) {
       return Color.PURPLE;
     }
     if (this.site.assignee != null) {
-      if (this.site.assignee.id === this.currentUserId) {
-        if (this.selected) {
+      if (this.site.assignee.id === this.sessionUserId) {
+        if (selected) {
           return Color.GREEN_DARK;
         } else {
           return Color.GREEN;
         }
       } else {
-        if (this.selected) {
+        if (selected) {
           return Color.RED_DARK;
         } else {
           return Color.RED;
         }
       }
     }
-    if (this.selected) {
+    if (selected) {
       return Color.BLUE_DARK;
     } else {
       return Color.BLUE;
     }
   }
 
-  private getStrokeColor() {
+  private getStrokeColor(selected: boolean) {
     if (this.moving) {
       return Color.PURPLE_DARK;
     }
-    return this.selected ? Color.YELLOW : Color.WHITE;
+    return selected ? Color.YELLOW : Color.WHITE;
   }
 
   private getShape() {

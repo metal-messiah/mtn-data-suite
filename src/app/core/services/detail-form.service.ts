@@ -5,7 +5,7 @@ import { ErrorService } from './error.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { AuditingEntity } from '../../models/auditing-entity';
 import { RoutingStateService } from './routing-state.service';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/internal/operators';
 
 @Injectable()

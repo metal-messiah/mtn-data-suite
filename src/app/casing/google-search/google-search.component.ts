@@ -1,8 +1,8 @@
 import { Component, NgZone } from '@angular/core';
 import { MatDialogRef } from '@angular/material';
-import { FormControl } from '@angular/forms';
 import { GooglePlace } from '../../models/google-place';
 import { MapService } from '../../core/services/map.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'mds-search',
@@ -12,23 +12,29 @@ import { MapService } from '../../core/services/map.service';
 export class GoogleSearchComponent {
 
   places: GooglePlace[];
-  googleFormControl = new FormControl('');
-  noSearchResults = false;
+  searchQuery = '';
+  searchError;
+  searching = false;
+  limitToView = true;
 
   constructor(public dialogRef: MatDialogRef<GoogleSearchComponent>,
               private mapService: MapService,
-              private ngZone: NgZone) { }
+              private ngZone: NgZone) {
+  }
 
   closeDialog() {
     this.dialogRef.close();
   }
 
   search() {
-    const queryString = this.googleFormControl.value;
-    this.mapService.searchFor(queryString).subscribe( (searchResults: GooglePlace[]) => {
-      this.noSearchResults = (searchResults.length === 0);
-      this.ngZone.run(() => this.places = searchResults);
-    });
+    this.places = [];
+    this.searchError = null;
+    this.searching = true;
+    this.mapService.searchFor(this.searchQuery, this.limitToView ? this.mapService.getBounds() : null)
+      .pipe(finalize(() => this.searching = false))
+      .subscribe((searchResults: GooglePlace[]) => {
+        this.ngZone.run(() => this.places = searchResults);
+      }, (error) => this.searchError = error);
   }
 
   goToStore(place: GooglePlace) {
@@ -37,7 +43,7 @@ export class GoogleSearchComponent {
 
   searchWithMap() {
     this.dialogRef.close({
-      query: this.googleFormControl.value
+      query: this.searchQuery
     });
   }
 

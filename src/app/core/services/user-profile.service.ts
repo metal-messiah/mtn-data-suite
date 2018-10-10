@@ -5,7 +5,7 @@ import { UserProfile } from '../../models/full/user-profile';
 import { RestService } from './rest.service';
 import { CrudService } from '../../interfaces/crud-service';
 import { Pageable } from '../../models/pageable';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
 
 @Injectable()

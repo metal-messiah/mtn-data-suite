@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MapService } from '../../core/services/map.service';
-import { Subject } from 'rxjs/index';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'mds-map',

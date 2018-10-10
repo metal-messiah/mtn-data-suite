@@ -8,7 +8,8 @@ import { StoreSource } from '../../../models/full/store-source';
 import { PlannedGroceryService } from '../planned-grocery-service.service';
 import { ErrorService } from '../../../core/services/error.service';
 import { SimplifiedStoreStatus } from '../../../models/simplified/simplified-store-status';
-import { MatSnackBar } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
+import { QuadDialogComponent } from '../../../casing/quad-dialog/quad-dialog.component';
 
 @Component({
   selector: 'mds-pg-data-form',
@@ -47,6 +48,7 @@ export class PgDataFormComponent implements OnChanges {
   constructor(private pgService: PlannedGroceryService,
               private errorService: ErrorService,
               private fb: FormBuilder,
+              private dialog: MatDialog,
               private snackBar: MatSnackBar) {
     this.createForm();
   }
@@ -121,7 +123,11 @@ export class PgDataFormComponent implements OnChanges {
     const pgEditedDateMs = this.pgFeature.attributes.EditDate;
     const relevantStatuses = this.pgUpdatable.storeStatuses.filter(status => status.statusStartDate.getTime() <= pgEditedDateMs);
     const currentStatus = _.maxBy(relevantStatuses, 'statusStartDate');
-    return _.find(this.dbStatuses, {displayName: currentStatus.status});
+    if (currentStatus) {
+      return _.find(this.dbStatuses, {displayName: currentStatus.status});
+    } else {
+      return {displayName: 'NONE', pgStatusId: -1, rank: -1};
+    }
   }
 
   private getPgStatus(): { displayName: string, pgStatusId: number, rank: number } {
@@ -182,5 +188,17 @@ export class PgDataFormComponent implements OnChanges {
     return '';
   }
 
+  showQuadDialog() {
+    const dialogRef = this.dialog.open(QuadDialogComponent);
+
+    dialogRef.afterClosed().subscribe(quad => {
+      console.log(quad);
+      if (typeof quad === 'string' && quad !== '') {
+        const ctrl = this.form.get('quad');
+        ctrl.setValue(quad);
+        ctrl.markAsDirty();
+      }
+    });
+  }
 
 }

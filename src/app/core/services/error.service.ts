@@ -22,7 +22,11 @@ export class ErrorService {
       }
       case 400: {
         showRetry = false;
-        reason = `Bad Request: ${err['error']['message']}`;
+        let msg = err['message'];
+        if (!msg) {
+          msg = err['error']['message'];
+        }
+        reason = `Bad Request: ${msg}`;
         break;
       }
       case 401: {
