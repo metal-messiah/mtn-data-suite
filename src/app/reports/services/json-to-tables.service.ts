@@ -15,7 +15,7 @@ export class JsonToTablesService {
   reportMetaData;
   descriptions;
 
-  matchingStore: StoreListItem;
+  private matchingStore: StoreListItem;
   salesGrowthProjection;
 
   // maxPerSOVCategory = 15;
@@ -82,7 +82,7 @@ export class JsonToTablesService {
   }
 
   getProjectionScenario() {
-    return this.getTargetStore().storeName || null;
+    return this.matchingStore.storeName || null;
   }
 
   getProjectionProjectedFitImage() {
@@ -93,31 +93,29 @@ export class JsonToTablesService {
     return this.matchingStore.salesArea || null;
   }
 
-  getProjectionYear1Ending() {
+  getProjectionTotalArea() {
+    return this.matchingStore.totalArea || null;
+  }
+
+  getProjection(projectionName: string) {
     if (this.salesGrowthProjection) {
-      return Math.round(
-        Number(this.salesGrowthProjection.firstYearAverageSales) * 0.001
-      );
+      return Math.round(this.salesGrowthProjection[projectionName] * 0.001);
     } else {
       return null;
     }
   }
 
-  getProjectionYear2Ending() {
+  getProjectionPsf(projectionName: string) {
     if (this.salesGrowthProjection) {
-      return Math.round(
-        Number(this.salesGrowthProjection.secondYearAverageSales) * 0.001
-      );
+      return this.salesGrowthProjection[projectionName] / this.getProjectionSalesArea() ;
     } else {
       return null;
     }
   }
 
-  getProjectionYear3Ending() {
+  getProjectionYear1AnnualizedPsfFromTotal() {
     if (this.salesGrowthProjection) {
-      return Math.round(
-        Number(this.salesGrowthProjection.thirdYearAverageSales) * 0.001
-      );
+      return this.salesGrowthProjection.firstYearAverageSales * 52 / this.getProjectionTotalArea();
     } else {
       return null;
     }
@@ -309,7 +307,7 @@ export class JsonToTablesService {
     }
     const idx = this.reportTableData.storeList.findIndex(s => s.mapKey === store.mapKey);
     if (idx !== -1) {
-      this.reportTableData.storeList[idx].totalSize = value;
+      this.reportTableData.storeList[idx].totalArea = value;
     }
     console.log('updated json');
   }

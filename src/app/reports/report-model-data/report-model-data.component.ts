@@ -131,7 +131,7 @@ export class ReportModelDataComponent implements OnInit {
           stores.forEach((store: SimplifiedStore) => {
             const idx = reportData.storeList.findIndex(s => s.uniqueId === store.id);
             if (idx !== -1) {
-              reportData.storeList[idx].totalSize = store.areaTotal;
+              reportData.storeList[idx].totalArea = store.areaTotal;
             }
           });
         },
