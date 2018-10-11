@@ -137,7 +137,7 @@ export class ReportUploadComponent implements OnInit {
   }
 
   clearFileInput() {
-    document.getElementById('htmlFileInput')['value'] = null;
+    document.getElementById('fileInput')['value'] = null;
   }
 
   generateTables() {

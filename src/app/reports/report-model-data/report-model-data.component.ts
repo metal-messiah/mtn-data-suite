@@ -4,11 +4,11 @@ import { ReportData } from '../../models/report-data';
 import { MatSnackBar } from '@angular/material';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
-import { HtmlToModelParser } from '../../core/services/html-to-model-parser.service';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { StoreService } from '../../core/services/store.service';
 import { finalize, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { XlsToModelParserService } from '../../core/services/xls-to-model-parser.service';
 
 @Component({
   selector: 'mds-report-model-data',
@@ -17,12 +17,12 @@ import { Observable } from 'rxjs';
 })
 export class ReportModelDataComponent implements OnInit {
 
-  parsingHtml = false;
+  parsingFile = false;
   postProcessing = false;
 
   modelMetaDataForm: FormGroup;
 
-  htmlFile: File;
+  file: File;
   reportData: ReportData;
 
   fileReader: FileReader;
@@ -30,7 +30,7 @@ export class ReportModelDataComponent implements OnInit {
   constructor(public reportBuilderService: ReportBuilderService,
               private fb: FormBuilder,
               private auth: AuthService,
-              private htmlReportToJsonService: HtmlToModelParser,
+              private xlsToModelParserService: XlsToModelParserService,
               private storeService: StoreService,
               private snackBar: MatSnackBar) {
     this.fileReader = new FileReader();
@@ -43,8 +43,8 @@ export class ReportModelDataComponent implements OnInit {
   private createForm() {
     this.modelMetaDataForm = this.fb.group({
       analyst: `${this.auth.sessionUser.firstName} ${this.auth.sessionUser.lastName}`,
-      type: '',
-      modelName: '',
+      type: 'test',
+      modelName: 'test',
       fieldResDate: new Date()
     })
   }
@@ -56,10 +56,10 @@ export class ReportModelDataComponent implements OnInit {
 
     if (files && files.length === 1) {
       // only want 1 file at a time!
-      if (files[0].name.includes('.html')) {
-        this.htmlFile = files[0];
+      if (files[0].name.includes('.xls')) {
+        this.file = files[0];
       } else {
-        this.snackBar.open('Only valid .html files are accepted', null, {
+        this.snackBar.open('Only valid .xls files are accepted', null, {
           duration: 2000
         });
       }
@@ -71,7 +71,7 @@ export class ReportModelDataComponent implements OnInit {
 
   resetFile() {
     console.log('RESET FILE');
-    this.htmlFile = null;
+    this.file = null;
     this.reportData = null;
   }
 
@@ -79,27 +79,28 @@ export class ReportModelDataComponent implements OnInit {
     this.reportBuilderService.reportMetaData = this.modelMetaDataForm.value;
     this.fileReader.onload = () => {
       if (this.fileReader.result) {
-        this.parsingHtml = true;
-        this.htmlReportToJsonService.parseHtml(this.fileReader.result)
-          .pipe(finalize(() => this.parsingHtml = false))
-          .subscribe((reportData: ReportData) => {
-            this.postProcessing = true;
-            this.postProcessReportData(reportData)
-              .pipe(finalize(() => {
-                this.postProcessing = false;
-                this.reportBuilderService.setReportTableData(reportData);
-              }))
-              .subscribe();
-          }, err => {
-            console.error(err);
-            this.snackBar.open('Failed to parse html file!', 'Close')
-          });
+        this.parsingFile = true;
+        this.xlsToModelParserService.parseXls(this.fileReader.result);
+        // this.htmlReportToJsonService.parseHtml(this.fileReader.result)
+        //   .pipe(finalize(() => this.parsingHtml = false))
+        //   .subscribe((reportData: ReportData) => {
+        //     this.postProcessing = true;
+        //     this.postProcessReportData(reportData)
+        //       .pipe(finalize(() => {
+        //         this.postProcessing = false;
+        //         this.reportBuilderService.setReportTableData(reportData);
+        //       }))
+        //       .subscribe();
+        //   }, err => {
+        //     console.error(err);
+        //     this.snackBar.open('Failed to parse html file!', 'Close')
+        //   });
       } else {
         this.snackBar.open('Error Reading file! No result!', null, {duration: 5000});
       }
     };
     this.fileReader.onerror = error => this.snackBar.open(error.toString(), null, {duration: 2000});
-    this.fileReader.readAsText(this.htmlFile); // Triggers FileReader.onload
+    this.fileReader.readAsBinaryString(this.file); // Triggers FileReader.onload
   }
 
   private postProcessReportData(reportData: ReportData): Observable<any> {
