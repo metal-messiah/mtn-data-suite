@@ -18,13 +18,13 @@
               <tr *ngIf="volume.volumeMeat != null || volume.volumePercentMeat != null">
                 <td>
                   <mat-form-field>
-                    <input matInput placeholder="Meat Volume" type="number" [value]="volume.volumeMeat" readonly>
+                    <input matInput type="number" autocomplete="off" placeholder="Meat Volume" [value]="volume.volumeMeat" readonly>
                     <span matPrefix>$&nbsp;</span>
                   </mat-form-field>
                 </td>
                 <td>
                   <mat-form-field>
-                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentMeat" readonly>
+                    <input matInput type="number" autocomplete="off" placeholder="% of Total" [value]="volume.volumePercentMeat" readonly>
                     <span matSuffix>%</span>
                   </mat-form-field>
                 </td>
@@ -32,13 +32,13 @@
               <tr *ngIf="volume.volumeProduce != null || volume.volumePercentProduce != null">
                 <td>
                   <mat-form-field>
-                    <input matInput placeholder="Produce Volume" type="number" [value]="volume.volumeProduce" readonly>
+                    <input matInput type="number" readonly placeholder="Produce Volume" [value]="volume.volumeProduce">
                     <span matPrefix>$&nbsp;</span>
                   </mat-form-field>
                 </td>
                 <td>
                   <mat-form-field>
-                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentProduce" readonly>
+                    <input matInput type="number" readonly placeholder="% of Total" [value]="volume.volumePercentProduce" >
                     <span matSuffix>%</span>
                   </mat-form-field>
                 </td>
@@ -46,13 +46,13 @@
               <tr *ngIf="volume.volumeGrocery != null || volume.volumePercentGrocery != null">
                 <td>
                   <mat-form-field>
-                    <input matInput placeholder="Grocery Volume" type="number" [value]="volume.volumeGrocery" readonly>
+                    <input matInput type="number" readonly placeholder="Grocery Volume" [value]="volume.volumeGrocery">
                     <span matPrefix>$&nbsp;</span>
                   </mat-form-field>
                 </td>
                 <td>
                   <mat-form-field>
-                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentGrocery" readonly>
+                    <input matInput type="number" readonly placeholder="% of Total" [value]="volume.volumePercentGrocery">
                     <span matSuffix>%</span>
                   </mat-form-field>
                 </td>
@@ -60,13 +60,13 @@
               <tr *ngIf="volume.volumeNonFood != null || volume.volumePercentNonFood != null">
                 <td>
                   <mat-form-field>
-                    <input matInput placeholder="Non-Food Volume" type="number" [value]="volume.volumeNonFood" readonly>
+                    <input matInput type="number" readonly placeholder="Non-Food Volume" [value]="volume.volumeNonFood">
                     <span matPrefix>$&nbsp;</span>
                   </mat-form-field>
                 </td>
                 <td>
                   <mat-form-field>
-                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentNonFood" readonly>
+                    <input matInput type="number" readonly placeholder="% of Total" [value]="volume.volumePercentNonFood">
                     <span matSuffix>%</span>
                   </mat-form-field>
                 </td>
@@ -74,13 +74,13 @@
               <tr *ngIf="volume.volumeOther != null || volume.volumePercentOther != null">
                 <td>
                   <mat-form-field>
-                    <input matInput placeholder="Other Volume" type="number" [value]="volume.volumeOther" readonly>
+                    <input matInput type="number" readonly placeholder="Other Volume" [value]="volume.volumeOther">
                     <span matPrefix>$&nbsp;</span>
                   </mat-form-field>
                 </td>
                 <td>
                   <mat-form-field>
-                    <input matInput placeholder="% of Total" type="number" [value]="volume.volumePercentOther" readonly>
+                    <input matInput type="number" readonly placeholder="% of Total" [value]="volume.volumePercentOther">
                     <span matSuffix>%</span>
                   </mat-form-field>
                 </td>
@@ -88,14 +88,14 @@
             </table>
           </div>
           <mat-form-field>
-            <input matInput type="number" placeholder="Total Weekly Volume" [value]="volume.volumeTotal" readonly>
+            <input matInput type="number" readonly placeholder="Total Weekly Volume" [value]="volume.volumeTotal">
             <span matPrefix>$&nbsp;</span>
           </mat-form-field>
           <mat-form-field *ngIf="volume.volumeConfidence != null">
-            <input matInput type="text" placeholder="Volume Confidence" [value]="volume.volumeConfidence" readonly>
+            <input matInput type="text" readonly placeholder="Volume Confidence" [value]="volume.volumeConfidence">
           </mat-form-field>
           <mat-form-field *ngIf="volume.volumeNote != null">
-            <textarea matInput placeholder="Volume Notes" [value]="volume.volumeNote" readonly></textarea>
+            <textarea matInput type="text" readonly placeholder="Volume Notes" [value]="volume.volumeNote"></textarea>
           </mat-form-field>
         </div>
       </div>

@@ -7,10 +7,10 @@
 
   <h4>Site</h4>
   <mat-form-field *ngIf="pgUpdatable.siteId == null" hintLabel="Drag Marker on Map">
-    <input matInput type="number" placeholder="Latitude/Longitude" id="latitude"
+    <input matInput type="number" autocomplete="off" placeholder="Latitude" id="latitude"
            [value]="pgUpdatable ? pgUpdatable.latitude : null"
            required disabled>
-    <input matInput type="number" placeholder="Longitude" id="longitude"
+    <input matInput type="number" autocomplete="off" placeholder="Longitude" id="longitude"
            [value]="pgUpdatable ? pgUpdatable.longitude : null"
            required disabled>
   </mat-form-field>
@@ -52,7 +52,7 @@
     <mat-hint align="end">{{pgFeature ? pgFeature.attributes.NAME : null}}</mat-hint>
   </mat-form-field>
   <mat-form-field>
-    <input matInput type="number" placeholder="Total Area" formControlName="areaTotal">
+    <input matInput type="number" autocomplete="off" placeholder="Total Area" formControlName="areaTotal">
     <mat-hint align="end">{{pgFeature ? pgFeature.attributes.SIZESF : null}}</mat-hint>
   </mat-form-field>
   <mat-form-field>

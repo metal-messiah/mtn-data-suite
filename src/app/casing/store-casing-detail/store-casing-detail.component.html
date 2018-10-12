@@ -175,7 +175,7 @@
               <mat-checkbox formControlName="parkingHasTSpaces">Has T Spaces</mat-checkbox>
             </div>
             <mat-form-field>
-              <input matInput type="number" placeholder="# Parking Spaces" formControlName="parkingSpaceCount">
+              <input matInput type="number" autocomplete="off" placeholder="# Parking Spaces" formControlName="parkingSpaceCount">
             </mat-form-field>
             <mat-form-field>
               <mat-select placeholder="Parking Rating" formControlName="parkingRating">
@@ -201,13 +201,13 @@
                 </button>
               </div>
               <mat-form-field [formGroup]="shoppingCenterSurveyForm">
-                <input matInput type="number" placeholder="# Occupied" formControlName="tenantOccupiedCount">
+                <input matInput type="number" autocomplete="off" placeholder="# Occupied" formControlName="tenantOccupiedCount">
               </mat-form-field>
               <mat-form-field [formGroup]="shoppingCenterSurveyForm">
-                <input matInput type="number" placeholder="# Vacant" formControlName="tenantVacantCount">
+                <input matInput type="number" autocomplete="off" placeholder="# Vacant" formControlName="tenantVacantCount">
               </mat-form-field>
               <mat-form-field [formGroup]="shoppingCenterSurveyForm">
-                <input matInput type="number" placeholder="% Sqft Occupied" formControlName="sqFtPercentOccupied">
+                <input matInput type="number" autocomplete="off" placeholder="% Sqft Occupied" formControlName="sqFtPercentOccupied">
                 <span matSuffix>%</span>
                 <mat-error>Must be between 0 and 100%</mat-error>
               </mat-form-field>
@@ -226,13 +226,13 @@
             </mat-expansion-panel-header>
             <div [formGroup]="storeCasingForm">
               <mat-form-field>
-                <input matInput type="number" placeholder="Estimated Weekly Gallons"
+                <input matInput type="number" autocomplete="off" placeholder="Estimated Weekly Gallons"
                        formControlName="fuelGallonsWeekly">
               </mat-form-field>
             </div>
             <div [formGroup]="storeSurveyForm">
               <mat-form-field>
-                <input matInput type="number" placeholder="Number of Dispensers" formControlName="fuelDispenserCount">
+                <input matInput type="number" autocomplete="off" placeholder="Number of Dispensers" formControlName="fuelDispenserCount">
                 <mat-hint>Maximum number of cars that can fuel simultaneously</mat-hint>
               </mat-form-field>
               <div style="margin-top: 8px;">
@@ -344,24 +344,24 @@
             </mat-expansion-panel-header>
             <div [formGroup]="storeSurveyForm">
               <mat-form-field>
-                <input matInput type="number" placeholder="Number of Pharmacists"
+                <input matInput type="number" autocomplete="off" placeholder="Number of Pharmacists"
                        formControlName="pharmacyPharmacistCount">
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="Number of Technicians"
+                <input matInput type="number" autocomplete="off" placeholder="Number of Technicians"
                        formControlName="pharmacyTechnicianCount">
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="Estimated Avg. Prescription Price"
+                <input matInput type="number" autocomplete="off" placeholder="Estimated Avg. Prescription Price"
                        formControlName="pharmacyAvgDollarsPerScript">
                 <span matPrefix>$&nbsp;</span>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="Estimated Weekly Prescriptions"
+                <input matInput type="number" autocomplete="off" placeholder="Estimated Weekly Prescriptions"
                        formControlName="pharmacyScriptsWeekly">
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="Estimated Weekly $" disabled
+                <input matInput type="number" autocomplete="off" placeholder="Estimated Weekly $" disabled
                        [value]="storeSurveyForm.get('pharmacyAvgDollarsPerScript').value * storeSurveyForm.get('pharmacyScriptsWeekly').value">
                 <span matPrefix>$&nbsp;</span>
               </mat-form-field>
@@ -382,15 +382,15 @@
             </mat-expansion-panel-header>
             <div>
               <mat-form-field>
-                <input matInput type="number" placeholder="Normal" formControlName="registerCountNormal">
+                <input matInput type="number" autocomplete="off" placeholder="Normal" formControlName="registerCountNormal">
                 <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="Express" formControlName="registerCountExpress">
+                <input matInput type="number" autocomplete="off" placeholder="Express" formControlName="registerCountExpress">
                 <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="Self Checkout" formControlName="registerCountSelfCheckout">
+                <input matInput type="number" autocomplete="off" placeholder="Self Checkout" formControlName="registerCountSelfCheckout">
                 <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
             </div>
@@ -416,13 +416,13 @@
             </mat-expansion-panel-header>
             <div>
               <mat-form-field>
-                <input matInput type="number" placeholder="Sales Area" formControlName="areaSales">
+                <input matInput type="number" autocomplete="off" placeholder="Sales Area" formControlName="areaSales">
                 <span matSuffix>sqft</span>
                 <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
               <div class="flex flex-space-between">
                 <mat-form-field id="area-percent-input">
-                  <input matInput type="number" placeholder="Percent of Total Area"
+                  <input matInput type="number" autocomplete="off" placeholder="Percent of Total Area"
                          formControlName="areaSalesPercentOfTotal">
                   <span matSuffix>%</span>
                   <mat-hint>Between 0.01% and 100%</mat-hint>
@@ -434,7 +434,7 @@
                 </button>
               </div>
               <mat-form-field>
-                <input matInput type="number" placeholder="Total Area" formControlName="areaTotal">
+                <input matInput type="number" autocomplete="off" placeholder="Total Area" formControlName="areaTotal">
                 <span matSuffix>sqft</span>
                 <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
@@ -476,13 +476,13 @@
                   <tr>
                     <td>
                       <mat-form-field>
-                        <input matInput placeholder="Meat Volume" type="number" formControlName="volumeMeat">
+                        <input matInput type="number" autocomplete="off" placeholder="Meat Volume" formControlName="volumeMeat">
                         <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
-                        <input matInput placeholder="% of Total" type="number" formControlName="volumePercentMeat">
+                        <input matInput type="number" autocomplete="off" placeholder="% of Total" formControlName="volumePercentMeat">
                         <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
@@ -490,13 +490,13 @@
                   <tr>
                     <td>
                       <mat-form-field>
-                        <input matInput placeholder="Produce Volume" type="number" formControlName="volumeProduce">
+                        <input matInput type="number" autocomplete="off" placeholder="Produce Volume" formControlName="volumeProduce">
                         <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
-                        <input matInput placeholder="% of Total" type="number" formControlName="volumePercentProduce">
+                        <input matInput type="number" autocomplete="off" placeholder="% of Total" formControlName="volumePercentProduce">
                         <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
@@ -504,13 +504,13 @@
                   <tr>
                     <td>
                       <mat-form-field>
-                        <input matInput placeholder="Grocery Volume" type="number" formControlName="volumeGrocery">
+                        <input matInput type="number" autocomplete="off" placeholder="Grocery Volume" formControlName="volumeGrocery">
                         <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
-                        <input matInput placeholder="% of Total" type="number" formControlName="volumePercentGrocery">
+                        <input matInput type="number" autocomplete="off" placeholder="% of Total" formControlName="volumePercentGrocery">
                         <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
@@ -518,13 +518,13 @@
                   <tr>
                     <td>
                       <mat-form-field>
-                        <input matInput placeholder="Non-Food Volume" type="number" formControlName="volumeNonFood">
+                        <input matInput type="number" autocomplete="off" placeholder="Non-Food Volume" formControlName="volumeNonFood">
                         <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
-                        <input matInput placeholder="% of Total" type="number" formControlName="volumePercentNonFood">
+                        <input matInput type="number" autocomplete="off" placeholder="% of Total" formControlName="volumePercentNonFood">
                         <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
@@ -532,13 +532,13 @@
                   <tr>
                     <td>
                       <mat-form-field>
-                        <input matInput placeholder="Other Volume" type="number" formControlName="volumeOther">
+                        <input matInput type="number" autocomplete="off" placeholder="Other Volume" formControlName="volumeOther">
                         <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
-                        <input matInput placeholder="% of Total" type="number" formControlName="volumePercentOther">
+                        <input matInput type="number" autocomplete="off" placeholder="% of Total" formControlName="volumePercentOther">
                         <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
@@ -547,7 +547,7 @@
               </div>
               <div class="flex flex-space-between">
                 <mat-form-field class="example-full-width">
-                  <input matInput type="number" placeholder="Total Weekly Volume" formControlName="volumeTotal"
+                  <input matInput type="number" autocomplete="off" placeholder="Total Weekly Volume" formControlName="volumeTotal"
                          required>
                   <span matPrefix>$&nbsp;</span>
                   <mat-error *ngIf="storeVolumeForm.get('volumeTotal').invalid">Min: $10k, Max: $10M
@@ -592,62 +592,62 @@
                 <textarea formControlName="seasonalityNotes" matInput placeholder="Seasonality Notes"></textarea>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="January" formControlName="seasonalityJan">
+                <input matInput type="number" autocomplete="off" placeholder="January" formControlName="seasonalityJan">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="February" formControlName="seasonalityFeb">
+                <input matInput type="number" autocomplete="off" placeholder="February" formControlName="seasonalityFeb">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="March" formControlName="seasonalityMar">
+                <input matInput type="number" autocomplete="off" placeholder="March" formControlName="seasonalityMar">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="April" formControlName="seasonalityApr">
+                <input matInput type="number" autocomplete="off" placeholder="April" formControlName="seasonalityApr">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="May" formControlName="seasonalityMay">
+                <input matInput type="number" autocomplete="off" placeholder="May" formControlName="seasonalityMay">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="June" formControlName="seasonalityJun">
+                <input matInput type="number" autocomplete="off" placeholder="June" formControlName="seasonalityJun">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="July" formControlName="seasonalityJul">
+                <input matInput type="number" autocomplete="off" placeholder="July" formControlName="seasonalityJul">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="August" formControlName="seasonalityAug">
+                <input matInput type="number" autocomplete="off" placeholder="August" formControlName="seasonalityAug">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="September" formControlName="seasonalitySep">
+                <input matInput type="number" autocomplete="off" placeholder="September" formControlName="seasonalitySep">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="October" formControlName="seasonalityOct">
+                <input matInput type="number" autocomplete="off" placeholder="October" formControlName="seasonalityOct">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="November" formControlName="seasonalityNov">
+                <input matInput type="number" autocomplete="off" placeholder="November" formControlName="seasonalityNov">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" placeholder="December" formControlName="seasonalityDec">
+                <input matInput type="number" autocomplete="off" placeholder="December" formControlName="seasonalityDec">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
               </mat-form-field>
@@ -660,12 +660,12 @@
             </mat-expansion-panel-header>
             <div [formGroup]="storeCasingForm">
               <mat-form-field>
-                <textarea formControlName="note" matInput placeholder="Store Notes"></textarea>
+                <textarea matInput placeholder="Store Notes" formControlName="note" ></textarea>
               </mat-form-field>
             </div>
             <div [formGroup]="shoppingCenterCasingForm">
               <mat-form-field>
-                <textarea formControlName="note" matInput placeholder="Shopping Center Notes"></textarea>
+                <textarea matInput placeholder="Shopping Center Notes" formControlName="note"></textarea>
               </mat-form-field>
             </div>
           </mat-expansion-panel>
