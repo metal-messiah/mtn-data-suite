@@ -1,15 +1,21 @@
 <h1 mat-dialog-title>Area Calculator</h1>
-<div mat-dialog-content>
+<div mat-dialog-content [formGroup]="form">
   <mat-form-field>
-    <input matInput type="number" autocomplete="off" placeholder="Width" [formControl]="width">
+    <input matInput type="number" autocomplete="off" placeholder="Ft/Pace" formControlName="ftPace">
     <span matSuffix>ft</span>
   </mat-form-field>
   <mat-form-field>
-    <input matInput type="number" autocomplete="off" placeholder="Depth" [formControl]="depth">
-    <span matSuffix>ft</span>
+    <input matInput type="number" autocomplete="off" placeholder="Width" formControlName="width">
+    <span matSuffix>paces</span>
+    <mat-hint>{{getWidthFeet()}}&nbsp;ft</mat-hint>
   </mat-form-field>
   <mat-form-field>
-    <input matInput type="number" autocomplete="off" placeholder="+/- Adjustment" [formControl]="plusMinus">
+    <input matInput type="number" autocomplete="off" placeholder="Depth" formControlName="depth">
+    <span matSuffix>paces</span>
+    <mat-hint>{{getDepthFeet()}}&nbsp;ft</mat-hint>
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="+/- Adjustment" formControlName="plusMinus">
     <span matSuffix>sqft</span>
   </mat-form-field>
   <mds-data-field title="Calculated Area" [sqft]="getCalculatedArea()"></mds-data-field>
@@ -18,10 +24,10 @@
   <button type="submit" mat-icon-button color="primary" (click)="close()">
     <i class="fas fa-times-circle fa-2x"></i>
   </button>
-  <button mat-raised-button color="accent" (click)="setAsSalesArea()" [disabled]="width.invalid || depth.invalid">
+  <button mat-raised-button color="accent" (click)="setAsSalesArea()" [disabled]="form.invalid">
     <i class="fas fa-arrow-right"></i>&nbsp;Sales
   </button>
-  <button mat-raised-button color="accent" (click)="setAsTotalArea()" [disabled]="width.invalid || depth.invalid">
+  <button mat-raised-button color="accent" (click)="setAsTotalArea()" [disabled]="form.invalid">
     <i class="fas fa-arrow-right"></i>&nbsp;Total
   </button>
 </div>
