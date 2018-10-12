@@ -28,8 +28,8 @@
             <mds-data-field title="Store Status" [value]="casing.storeStatus"></mds-data-field>
             <mds-data-field title="Average Weekly Volume"
                             [currencyValue]="casing.storeVolume?.volumeTotal"></mds-data-field>
-            <mds-data-field title="Sales Area" [sqft]="casing.storeSurvey?.areaSales"></mds-data-field>
-            <mds-data-field title="Total Area" [sqft]="casing.storeSurvey?.areaTotal"></mds-data-field>
+            <mds-data-field title="Sales Area" [sqft]="store.areaSales"></mds-data-field>
+            <mds-data-field title="Total Area" [sqft]="store.areaTotal"></mds-data-field>
             <div *ngIf="casing.projects != null && casing.projects.length > 0">
               <h4>Used for Projects</h4>
               <ul>
