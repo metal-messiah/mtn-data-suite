@@ -5,7 +5,7 @@
   <div mat-dialog-content>
     <div id="search-bar">
       <mat-form-field class="example-full-width">
-        <input matInput type="number" placeholder="Store ID" [formControl]="databaseSearchFormControl">
+        <input matInput type="number" autocomplete="off" placeholder="Store ID" [formControl]="databaseSearchFormControl">
       </mat-form-field>
       <div>
         <button mat-mini-fab color="primary" type="submit" (click)="search()">

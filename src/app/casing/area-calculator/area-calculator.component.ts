@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
 
@@ -10,28 +10,46 @@ import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.com
 })
 export class AreaCalculatorComponent implements OnInit {
 
-  width: FormControl;
-  depth: FormControl;
-  plusMinus: FormControl;
+  form: FormGroup;
 
-  constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>) {
+  constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
+              private fb: FormBuilder) {
     this.createForm();
   }
 
   createForm() {
-    this.width = new FormControl('', [Validators.required, Validators.min(0)]);
-    this.depth = new FormControl('', [Validators.required, Validators.min(0)]);
-    this.plusMinus = new FormControl('');
+    this.form = this.fb.group({
+      ftPace: [null, [Validators.required, Validators.min(0)]],
+      width: [null, [Validators.required, Validators.min(0)]],
+      depth: [null, [Validators.required, Validators.min(0)]],
+      plusMinus: null
+    });
   }
 
   ngOnInit() {
   }
 
+  getWidthFeet() {
+    if (this.form.get('width').valid) {
+      const ftPace = parseFloat(this.form.get('ftPace').value);
+      return parseFloat(this.form.get('width').value) * ftPace;
+    }
+    return null;
+  }
+
+  getDepthFeet() {
+    if (this.form.get('depth').valid) {
+      const ftPace = parseFloat(this.form.get('ftPace').value);
+      return parseFloat(this.form.get('depth').value) * ftPace;
+    }
+    return null;
+  }
+
   getCalculatedArea() {
-    if (this.width.valid && this.depth.valid && this.plusMinus.valid) {
-      const width = parseInt(this.width.value, 10);
-      const depth = parseInt(this.depth.value, 10);
-      const plusMinus = parseInt(this.plusMinus.value, 10);
+    if (this.form.valid) {
+      const width = this.getWidthFeet();
+      const depth = this.getDepthFeet();
+      const plusMinus = parseInt(this.form.get('plusMinus').value, 10);
       if (!isNaN(width) && !isNaN(depth)) {
         let calculatedArea = width * depth;
         if (!isNaN(plusMinus)) {

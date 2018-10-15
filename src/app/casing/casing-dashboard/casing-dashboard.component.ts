@@ -58,8 +58,8 @@ export enum CardState {
 })
 export class CasingDashboardComponent implements OnInit, OnDestroy {
 
-  private readonly MAX_DATA_ZOOM = 8;
-  private readonly DATA_POINT_ZOOM = 12;
+  private readonly MAX_DATA_ZOOM = 6;
+  private readonly DATA_POINT_ZOOM = 9;
 
   selectedStore: Store | SimplifiedStore;
   selectedSite: Site | SimplifiedSite;

@@ -72,7 +72,7 @@ export class StoreService extends CrudService<Store> {
   getStoresOfTypeInBounds(bounds: { north, south, east, west }, types: string[],
                           includeProjectIds?: boolean): Observable<Pageable<SimplifiedStore>> {
     const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams().set('size', '300');
+    let params = new HttpParams().set('size', '500');
     params = params.set('store_types', types.toString());
     _.forEach(bounds, function (value, key) {
       params = params.set(key, value);
