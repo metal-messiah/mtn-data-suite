@@ -1,10 +1,11 @@
 <div class='spreadsheet-wrapper'>
-  <div class='left-panel' *ngIf="records">
-    <h2>{{currentRecordIndex + 1 }}/{{records.length.toLocaleString()}}</h2>
+  <div class='left-panel'>
+    <mds-file-input [fileTypes]="allowedFileTypes" [outputType]="outputType" (fileChanged)="handleFile($event)"></mds-file-input>
+    <h2 *ngIf="records.length">{{currentRecordIndex + 1 }}/{{records.length.toLocaleString()}}</h2>
     <mat-list>
       <mat-list-item *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex}"
-                     (click)="setCurrentSpreadsheetRecord(i)">
-        <div>
+        (click)="setCurrentSpreadsheetRecord(i)">
+        <div *ngIf="record">
           <span class='list-item-header'>{{record.displayName}}</span>
           <br>
           <span *ngIf="record.matchedStore" class="list-item-desc">{{record.matchedStore.id}}</span>
@@ -17,6 +18,7 @@
     <mds-map class="row content" (ready)="onMapReady()"></mds-map>
   </div>
   <div class="right-panel">
+
     <div class='loader' *ngIf="isFetching">
       <div>
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
@@ -27,11 +29,12 @@
       </div>
     </div>
     <button mat-icon-button color="accent" (click)="downloadMatches()"><i class="fas fa-download"></i></button>
-    <div class='flex-container'>
+    <div class='flex-container' *ngIf="currentRecord">
       <div>
-        <div class='large-text'>{{currentRecord ? currentRecord.displayName : ''}}</div>
+        <div class='large-text'>{{currentRecord.displayName}}</div>
       </div>
-      <button (click)="currentRecord.noMatch = true; setCurrentSpreadsheetRecord(currentRecordIndex + 1)" mat-button class=''>No Match</button>
+      <button (click)="currentRecord.noMatch = true; setCurrentSpreadsheetRecord(currentRecordIndex + 1)" mat-button
+        class=''>No Match</button>
     </div>
     <div class='accent-bar large-text'>Match to Existing</div>
     <div class='results-table'>
@@ -45,10 +48,9 @@
           </div>
         </div>
       </div>
-      <div [ngClass]="i % 2 != 0 ? 'results-item secondary-row':'results-item'"
-           *ngFor="let site of currentDBSiteResults; let i=index;">
+      <div [ngClass]="i % 2 != 0 ? 'results-item secondary-row':'results-item'" *ngFor="let site of currentDBSiteResults; let i=index;">
         <div class="results-header large-text flex-container">
-          <div [style.color]="site.distanceFrom < 0.5 ? 'green': '#ff9802'" class='site-distance'>
+          <div [style.color]="site.distanceFrom < 0.5 ? 'green': '#ff9802'" class='site-distance' *ngIf="site.distanceFrom">
             <i class="fas fa-arrow-circle-up" [style.transform]="site.heading"></i> {{site.distanceFrom.toFixed(2)}}
             Miles
           </div>
@@ -56,15 +58,15 @@
         </div>
         <mat-divider></mat-divider>
         <div (mouseenter)="siteHover(store, 'enter')" (mouseleave)="siteHover(store, 'leave')" class="results-each"
-             *ngFor="let store of site.stores">
-          <div class="flex-container">
+          *ngFor="let store of site.stores">
+          <div class="flex-container" *ngIf="store">
             <div class='store-attribute'>{{store.storeName}}</div>
             <div class='hidden-xs store-attribute'>{{store.storeType}}</div>
             <div class='hidden-xs store-attribute'>{{store.currentStoreStatus.status}}
               {{store.currentStoreStatus.statusStartDate | date}}
             </div>
-            <button (click)="currentRecord.matchedStore = store; setCurrentSpreadsheetRecord(currentRecordIndex + 1)" mat-button
-                    [ngClass]="{'highlighted': bestMatch.store.id == store.id && bestMatch.score <=4}">Match
+            <button (click)="currentRecord.matchedStore = store; setCurrentSpreadsheetRecord(currentRecordIndex + 1)"
+              mat-button [class]="bestMatch ? bestMatch.store.id == store.id && bestMatch.score <=4 ? 'highlighted' : '' : ''">Match
             </button>
           </div>
         </div>

@@ -1,0 +1,24 @@
+<h3>{{title}}</h3>
+<form #assignFieldsForm="ngForm">
+  <mat-form-field>
+    <mat-select matInput [(ngModel)]="name" name="name" required (selectionChange)="changeValue('name',$event.value)">
+      <mat-option placeholder="Name Field" [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
+    </mat-select>
+    <mat-hint>Name Field</mat-hint>
+  </mat-form-field><br>
+  <mat-form-field>
+    <mat-select matInput [(ngModel)]="lat" name="lat" required (selectionChange)="changeValue('lat',$event.value)">
+      <mat-option placeholder="Lat Field" [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
+    </mat-select>
+    <mat-hint>Latitude Field</mat-hint>
+  </mat-form-field><br>
+  <mat-form-field>
+    <mat-select matInput [(ngModel)]="lng" name="lng" required (selectionChange)="changeValue('lng',$event.value)">
+      <mat-option [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
+    </mat-select>
+    <mat-hint>Longitude Field</mat-hint>
+  </mat-form-field>
+  <br>
+  <br>
+  <button [disabled]="!assignFieldsForm.form.valid" type="submit" color="primary" mat-flat-button (click)="assignFields(assignFieldsForm)"><span><i *ngIf="sendingData" class="fas fa-spinner fa-spin"></i>Assign Fields</span></button>
+</form>
