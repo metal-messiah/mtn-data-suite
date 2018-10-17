@@ -69,7 +69,7 @@ table {
 }
 
 .force10{
-  min-width: 10in;
+  /*min-width: 10in;*/
 }
 
 tr:nth-child(odd) {

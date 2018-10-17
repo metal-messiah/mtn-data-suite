@@ -10,6 +10,8 @@ import { HtmlToModelParser } from '../core/services/html-to-model-parser.service
 import { JsonToTablesService } from './services/json-to-tables.service';
 import { HtmlDimensionsService } from '../core/services/html-dimensions.service';
 import { ReportTablesComponent } from './report-tables/report-tables.component';
+import { SiteEvaluationComponent } from './site-evaluation/site-evaluation.component';
+import { StoreCategorizationComponent } from './store-categorization/store-categorization.component';
 
 @NgModule({
   imports: [
@@ -20,7 +22,9 @@ import { ReportTablesComponent } from './report-tables/report-tables.component';
     ReportUploadComponent,
     EditTotalSizeDialogComponent,
     ReportModelDataComponent,
-    ReportTablesComponent],
+    ReportTablesComponent,
+    SiteEvaluationComponent,
+    StoreCategorizationComponent],
   entryComponents: [
     EditTotalSizeDialogComponent],
   providers: [

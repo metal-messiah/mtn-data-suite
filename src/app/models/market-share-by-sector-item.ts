@@ -1,13 +1,13 @@
 export class MarketShareBySectorItem {
-    sector: String;
-    projectedSales: Number;
-    projectedMS: Number;
-    effectivePower: Number;
-    futurePop1: Number;
-    projectedPotential: Number;
-    projectedPCW: Number;
-    leakage: Number;
-    distribution: Number;
-    futurePop2: Number;
-    futurePop3: Number;
+    sector: number;
+    projectedSales: number;
+    projectedMS: number;
+    effectivePower: number;
+    futurePop1: number;
+    projectedPotential: number;
+    projectedPCW: number;
+    leakage: number;
+    distribution: number;
+    futurePop2: number;
+    futurePop3: number;
   }

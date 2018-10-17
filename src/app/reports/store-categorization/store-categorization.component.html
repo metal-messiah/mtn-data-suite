@@ -1,0 +1,32 @@
+<div class="list-wrapper">
+  <h3 style="text-align: center;">Existing Stores</h3>
+  <div *ngIf="reportBuilderService.reportTableData" class="categories-wrapper">
+    <div class="categories-box" *ngFor="let store of getExistingStoresCombined(); let i=index;"
+         [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
+      <div>
+        <span style="margin-right: 20px;">{{store.storeName}} ({{getExistingStoresCount(store.storeName)}})</span>
+      </div>
+      <select [value]="store.category" (change)="changeCombinedCategory($event, store)">
+        <option *ngFor="let cat of categories">{{cat}}</option>
+      </select>
+    </div>
+  </div>
+  <h3 style="text-align: center;">Proposed Stores</h3>
+  <div *ngIf="reportBuilderService.reportTableData" class="categories-wrapper">
+    <div class='categories-box' *ngFor="let store of getProposedStores(); let i=index;"
+         [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
+      <div>
+        <span style="margin-right: 20px;">{{store.mapKey}}</span>
+        <span style="margin-right: 20px;">{{store.storeName}}</span>
+      </div>
+      <select [value]="store.category" (change)="changeCategory($event, store.mapKey)">
+        <option *ngFor="let cat of categories">{{cat}}</option>
+      </select>
+    </div>
+  </div>
+  <hr>
+  <button [color]="'primary'" mat-raised-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
+  <button [color]="'warn'" mat-raised-button (click)="generateTables()" style="margin-top:20px;">
+    Generate Tables From Data
+  </button>
+</div>

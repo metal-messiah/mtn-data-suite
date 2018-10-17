@@ -7,24 +7,24 @@ import { StoreListItem } from '../../models/store-list-item';
 import { MatSnackBar } from '@angular/material';
 import { StoreService } from '../../core/services/store.service';
 import { Store } from '../../models/full/store';
+import { SalesGrowthProjectionItem } from '../../models/sales-growth-projection-item';
+import { ReportBuilderService } from './report-builder.service';
 
 @Injectable()
 export class JsonToTablesService {
 
   reportTableData: ReportData;
   reportMetaData;
-  descriptions;
+  siteEvaluationData;
 
   private matchingStore: StoreListItem;
-  salesGrowthProjection;
+  salesGrowthProjection: SalesGrowthProjectionItem;
 
   // maxPerSOVCategory = 15;
   maxSOV = 20;
-  truncatedMsg = '';
 
   showedSnackbar = false;
   snackbarRef: any;
-  snackbarMsg: string;
 
   formattedTables = {
     targetStore: null,
@@ -59,22 +59,23 @@ export class JsonToTablesService {
   ) {
   }
 
-  init(reportMetaData, reportTableData: ReportData, descriptions) {
-    this.reportMetaData = reportMetaData;
-    this.reportTableData = reportTableData;
-    this.descriptions = descriptions;
-    const siteNumber = reportTableData.selectedMapKey;
-    this.matchingStore = reportTableData.storeList
+  init(reportBuilderService: ReportBuilderService) {
+    this.reportMetaData = reportBuilderService.reportMetaData;
+    this.reportTableData = reportBuilderService.reportTableData;
+    this.siteEvaluationData = reportBuilderService.siteEvaluationData;
+
+    const siteNumber = this.reportTableData.selectedMapKey;
+    this.matchingStore = this.reportTableData.storeList
       .filter(item => item.mapKey === siteNumber)[0];
-    if (reportTableData.salesGrowthProjection[1]) {
-      this.salesGrowthProjection = reportTableData.salesGrowthProjection[1];
-    } else if (reportTableData.salesGrowthProjection[0]) {
-      this.salesGrowthProjection = reportTableData.salesGrowthProjection[0];
+    if (this.reportTableData.salesGrowthProjection[1]) {
+      this.salesGrowthProjection = this.reportTableData.salesGrowthProjection[1];
+    } else if (this.reportTableData.salesGrowthProjection[0]) {
+      this.salesGrowthProjection = this.reportTableData.salesGrowthProjection[0];
     }
   }
 
   isInitialized() {
-    return this.reportMetaData && this.reportTableData;
+    return this.reportMetaData && this.reportTableData && this.siteEvaluationData;
   }
 
   getProjectionMapKey() {
@@ -139,21 +140,18 @@ export class JsonToTablesService {
     return this.reportTableData.storeList
       .filter(store => store.category !== 'Do Not Include')
       .map(store => {
-        const beforematch = this.reportTableData.projectedVolumesBefore.filter(
+        const beforeMatch = this.reportTableData.projectedVolumesBefore.filter(
           j => j.mapKey === store.mapKey
         )[0];
 
-        const aftermatch = this.reportTableData.projectedVolumesAfter.filter(
+        const afterMatch = this.reportTableData.projectedVolumesAfter.filter(
           j => j.mapKey === store.mapKey
         )[0];
 
-        const currentSales = beforematch.currentSales;
-        const futureSales = beforematch.futureSales;
+        const futureSales = beforeMatch.futureSales;
 
         const contributionToSite =
-          Number(beforematch.futureSales) - Number(aftermatch.futureSales);
-        const contributionToSitePerc =
-          (Number(contributionToSite) / Number(futureSales)) * 100;
+          Number(beforeMatch.futureSales) - Number(afterMatch.futureSales);
 
         store['projectedSales'] =
           Math.round(
@@ -219,13 +217,11 @@ export class JsonToTablesService {
 
       if (!this.showedSnackbar) {
         this.showedSnackbar = true;
-        this.truncatedMsg = `*Does not show contributions less than $${threshold.toLocaleString()} (Showing ${stores.length -
+        const truncatedMsg = `*Does not show contributions less than $${threshold.toLocaleString()} (Showing ${stores.length -
           overflow.length}/${
           stores.length
         } Stores). A total Contribution To Site of $${overflowSum.toLocaleString()} was excluded from the Report.`
-        this.snackbarMsg = this.truncatedMsg;
-
-        this.showSnackbar();
+        this.snackBar.open(truncatedMsg, 'OK');
       }
     }
 
@@ -283,15 +279,6 @@ export class JsonToTablesService {
     return sum / values.length;
   }
 
-  showSnackbar() {
-    console.log('show snackbar');
-    setTimeout(() => {
-      this.snackbarRef = this.snackBar.open(this.snackbarMsg, 'OK', {
-        duration: 99999
-      });
-    }, 1);
-  }
-
   updateSOVTotalSize(store, value) {
     if (store.uniqueId) {
       this.storeService.getOneById(store.uniqueId).subscribe((s: Store) => {
@@ -301,9 +288,8 @@ export class JsonToTablesService {
         });
       });
     } else {
-      this.snackbarMsg =
-        'Updated the local table but could not update the database because the store does not exist there.';
-      this.showSnackbar();
+      const snackBarMsg = 'Updated the local table but could not update the database because the store does not exist there.';
+      this.snackBar.open(snackBarMsg, 'OK');
     }
     const idx = this.reportTableData.storeList.findIndex(s => s.mapKey === store.mapKey);
     if (idx !== -1) {

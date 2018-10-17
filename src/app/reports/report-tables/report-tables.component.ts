@@ -91,13 +91,13 @@ export class ReportTablesComponent implements OnInit {
           .join('\r\n');
 
         const txt = `Street Conditions\r\n${
-          this.jsonToTablesService.descriptions.streetConditions
+          this.jsonToTablesService.siteEvaluationData.streetConditions
           }\r\n\r\nComments\r\n${
-          this.jsonToTablesService.descriptions.comments
+          this.jsonToTablesService.siteEvaluationData.comments
           }\r\n\r\nTraffic Controls\r\n${
-          this.jsonToTablesService.descriptions.streetConditions
+          this.jsonToTablesService.siteEvaluationData.streetConditions
           }\r\n\r\nCo-tenants\r\n${
-          this.jsonToTablesService.descriptions.cotenants
+          this.jsonToTablesService.siteEvaluationData.cotenants
           }\r\n\r\nSister Store Affects\r\n${sisterStoreAffects}`;
 
         zip.file(`descriptions.txt`, new Blob([txt]));

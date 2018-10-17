@@ -9,8 +9,9 @@ export class ReportBuilderService {
 
   reportTableData: ReportData;
   reportMetaData;
+  siteEvaluationData;
 
-  reportDataLoaded$: Subject<void> = new Subject();
+  next$: Subject<void> = new Subject();
 
   compilingImages = false;
 
@@ -19,7 +20,12 @@ export class ReportBuilderService {
 
   setReportTableData(reportData: ReportData) {
     this.reportTableData = reportData;
-    this.reportDataLoaded$.next();
+    this.next$.next();
+  }
+
+  setSiteEvaluationData(siteEvalData) {
+    this.siteEvaluationData = siteEvalData;
+    this.next$.next();
   }
 
 

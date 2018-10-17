@@ -1,23 +1,11 @@
 export class ProjectionsTable {
-  mapKey: String;
-  scenario: String;
-  projectedFitImage: Number;
-  salesArea: Number;
-  year1Ending: Number;
-  year2Ending: Number;
-  year3Ending: Number;
-  comment: String;
-  isValid: Boolean;
-
-  constructor() {
-    this.mapKey = null;
-    this.scenario = null;
-    this.projectedFitImage = null;
-    this.salesArea = null;
-    this.year1Ending = null;
-    this.year2Ending = null;
-    this.year3Ending = null;
-    this.comment = null;
-    this.isValid = false;
-  }
+  mapKey: number;
+  scenario: string;
+  projectedFitImage: number;
+  salesArea: number;
+  year1Ending: number;
+  year2Ending: number;
+  year3Ending: number;
+  comment: string;
+  isValid = false;
 }

@@ -80,21 +80,21 @@ export class ReportModelDataComponent implements OnInit {
     this.fileReader.onload = () => {
       if (this.fileReader.result) {
         this.parsingFile = true;
-        this.xlsToModelParserService.parseXls(this.fileReader.result);
+        this.xlsToModelParserService.parseXls(this.fileReader.result)
         // this.htmlReportToJsonService.parseHtml(this.fileReader.result)
-        //   .pipe(finalize(() => this.parsingHtml = false))
-        //   .subscribe((reportData: ReportData) => {
-        //     this.postProcessing = true;
-        //     this.postProcessReportData(reportData)
-        //       .pipe(finalize(() => {
-        //         this.postProcessing = false;
-        //         this.reportBuilderService.setReportTableData(reportData);
-        //       }))
-        //       .subscribe();
-        //   }, err => {
-        //     console.error(err);
-        //     this.snackBar.open('Failed to parse html file!', 'Close')
-        //   });
+          .pipe(finalize(() => this.parsingFile = false))
+          .subscribe((reportData: ReportData) => {
+            this.postProcessing = true;
+            this.postProcessReportData(reportData)
+              .pipe(finalize(() => {
+                this.postProcessing = false;
+                this.reportBuilderService.setReportTableData(reportData);
+              }))
+              .subscribe();
+          }, err => {
+            console.error(err);
+            this.snackBar.open('Failed to parse html file!', 'Close')
+          });
       } else {
         this.snackBar.open('Error Reading file! No result!', null, {duration: 5000});
       }

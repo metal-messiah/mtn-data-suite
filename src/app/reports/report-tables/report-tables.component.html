@@ -34,7 +34,7 @@
       <tr>
         <td>{{jsonToTablesService.getProjectionMapKey()}}</td>
         <td>{{jsonToTablesService.getProjectionScenario()}}</td>
-        <td>{{jsonToTablesService.getProjectionProjectedFitImage()}}</td>
+        <td>{{jsonToTablesService.getProjectionProjectedFitImage() | number:'1.0-0'}}</td>
         <td>{{jsonToTablesService.getProjectionSalesArea() | number}}</td>
         <td>{{jsonToTablesService.getProjectionTotalArea() | number}}</td>
         <td>${{jsonToTablesService.getProjection('firstYearAverageSales')}}k</td>
@@ -74,9 +74,9 @@
         <td>{{store.location}}</td>
         <td>${{store.actualSales | number:'1.0-2'}}</td>
         <td>${{store.actualSalesPSF | number:'1.2-2'}}</td>
-        <td>{{store.salesArea | number}}</td>
-        <td>{{store.PWTA | number}}</td>
-        <td>{{store.effectivePower | number}}</td>
+        <td>{{store.salesArea | number:'1.0-0'}}</td>
+        <td>{{store.PWTA | number:'1.0-0'}}</td>
+        <td>{{store.effectivePower | number:'1.0-0'}}</td>
       </tr>
       <tr class="bold">
         <td>Average</td>
@@ -116,9 +116,9 @@
         <td>{{store.location}}</td>
         <td>${{store.projectedSales | number:'1.0-2'}}</td>
         <td>${{store.projectedSalesPSF | number:'1.0-2'}}</td>
-        <td>{{store.salesArea | number}}</td>
-        <td>{{store.PWTA | number}}</td>
-        <td>{{store.effectivePower | number}}</td>
+        <td>{{store.salesArea | number:'1.0-0'}}</td>
+        <td>{{store.PWTA | number:'1.0-0'}}</td>
+        <td>{{store.effectivePower | number:'1.0-0'}}</td>
       </tr>
       <tr class="bold">
         <td>Average</td>
@@ -336,63 +336,63 @@
       <tr>
         <td class="bold" colspan="2" style="text-align:left;">Access</td>
       </tr>
-      <tr *ngIf="jsonToTablesService.descriptions.access">
+      <tr>
         <td>North</td>
-        <td>{{jsonToTablesService.descriptions.access.north}}</td>
+        <td>{{jsonToTablesService.siteEvaluationData.accessNorth}}</td>
       </tr>
-      <tr *ngIf="jsonToTablesService.descriptions.access">
+      <tr>
         <td>South</td>
-        <td>{{jsonToTablesService.descriptions.access.south}}</td>
+        <td>{{jsonToTablesService.siteEvaluationData.accessSouth}}</td>
       </tr>
-      <tr *ngIf="jsonToTablesService.descriptions.access">
+      <tr>
         <td>East</td>
-        <td>{{jsonToTablesService.descriptions.access.east}}</td>
+        <td>{{jsonToTablesService.siteEvaluationData.accessEast}}</td>
       </tr>
-      <tr *ngIf="jsonToTablesService.descriptions.access">
+      <tr>
         <td>West</td>
-        <td>{{jsonToTablesService.descriptions.access.west}}</td>
+        <td>{{jsonToTablesService.siteEvaluationData.accessWest}}</td>
       </tr>
-      <tr *ngIf="jsonToTablesService.descriptions.ingressEgress">
+      <tr>
         <td class="bold" style="text-align:left;">Ingress/Egress</td>
-        <td>{{jsonToTablesService.descriptions.ingressEgress}}</td>
+        <td>{{jsonToTablesService.siteEvaluationData.ingressEgress}}</td>
       </tr>
       <tr>
         <td class="bold" colspan="2" style="text-align:left;">Visibility</td>
       </tr>
-      <tr *ngIf="jsonToTablesService.descriptions.visibility">
+      <tr>
         <td>North</td>
-        <td>{{jsonToTablesService.descriptions.visibility.north}}</td>
+        <td>{{jsonToTablesService.siteEvaluationData.visibilityNorth}}</td>
       </tr>
-      <tr *ngIf="jsonToTablesService.descriptions.visibility">
+      <tr>
         <td>South</td>
-        <td>{{jsonToTablesService.descriptions.visibility.south}}</td>
+        <td>{{jsonToTablesService.siteEvaluationData.visibilitySouth}}</td>
       </tr>
-      <tr *ngIf="jsonToTablesService.descriptions.visibility">
+      <tr>
         <td>East</td>
-        <td>{{jsonToTablesService.descriptions.visibility.east}}</td>
+        <td>{{jsonToTablesService.siteEvaluationData.visibilityEast}}</td>
       </tr>
-      <tr *ngIf="jsonToTablesService.descriptions.visibility">
+      <tr>
         <td>West</td>
-        <td>{{jsonToTablesService.descriptions.visibility.west}}</td>
+        <td>{{jsonToTablesService.siteEvaluationData.visibilityWest}}</td>
       </tr>
       <tr>
         <td class="bold" colspan="2" style="text-align:left;">Population Density</td>
       </tr>
-      <tr *ngIf="jsonToTablesService.descriptions.populationDensity">
+      <tr>
         <td>North</td>
-        <td>{{jsonToTablesService.descriptions.populationDensity.north}}</td>
+        <td>{{jsonToTablesService.siteEvaluationData.populationDensityNorth}}</td>
       </tr>
-      <tr *ngIf="jsonToTablesService.descriptions.populationDensity">
+      <tr>
         <td>South</td>
-        <td>{{jsonToTablesService.descriptions.populationDensity.south}}</td>
+        <td>{{jsonToTablesService.siteEvaluationData.populationDensitySouth}}</td>
       </tr>
-      <tr *ngIf="jsonToTablesService.descriptions.populationDensity">
+      <tr>
         <td>East</td>
-        <td>{{jsonToTablesService.descriptions.populationDensity.east}}</td>
+        <td>{{jsonToTablesService.siteEvaluationData.populationDensityEast}}</td>
       </tr>
-      <tr *ngIf="jsonToTablesService.descriptions.populationDensity">
+      <tr>
         <td>West</td>
-        <td>{{jsonToTablesService.descriptions.populationDensity.west}}</td>
+        <td>{{jsonToTablesService.siteEvaluationData.populationDensityWest}}</td>
       </tr>
     </table>
   </div>

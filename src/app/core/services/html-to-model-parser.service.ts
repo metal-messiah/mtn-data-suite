@@ -307,7 +307,7 @@ export class HtmlToModelParser {
         const text = this.getCellText(cells, 0);
         const regex = /^.*Store\s([\d.]+):.*/;
         const match = regex.exec(text);
-        reportData.selectedMapKey = match[1];
+        reportData.selectedMapKey = parseFloat(match[1]);
       }
     }
 
@@ -341,7 +341,7 @@ export class HtmlToModelParser {
       const cells = marketShareBySector1Rows[i].children; // array containing each cell of current row
 
       if (this.getCellText(cells, 0) !== '&nbsp;' && cells.length > 2) {
-        marketShareBySectorItem.sector = this.formatString(this.getCellText(cells, 0));
+        marketShareBySectorItem.sector = this.convertToNumber(this.getCellText(cells, 0));
         marketShareBySectorItem.projectedSales = this.convertToNumber(this.getCellText(cells, 1));
         marketShareBySectorItem.projectedMS = this.convertToNumber(this.getCellText(cells, 2));
         marketShareBySectorItem.effectivePower = this.convertToNumber(this.getCellText(cells, 3));
@@ -368,7 +368,7 @@ export class HtmlToModelParser {
       const cells = sectorList1Rows[i].children; // array containing each cell of current row
 
       if (this.getCellText(cells, 0) !== '&nbsp;' && cells.length > 1) {
-        sectorListItem.sector = this.formatString(this.getCellText(cells, 0));
+        sectorListItem.sector = this.convertToNumber(this.getCellText(cells, 0));
         sectorListItem.name = this.formatString(this.getCellText(cells, 1));
         sectorListItem.latitude = this.convertToNumber(this.getCellText(cells, 2));
         sectorListItem.longitude = this.convertToNumber(this.getCellText(cells, 3));

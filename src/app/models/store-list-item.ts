@@ -1,6 +1,6 @@
 export class StoreListItem {
   storeName: string;
-  mapKey: string;
+  mapKey: number;
   uniqueId: number;
   latitude: number;
   longitude: number;
