@@ -266,13 +266,13 @@ export class PlannedGroceryComponent implements OnInit {
   private getStoresInBounds() {
     return this.storeService
       .getStoresOfTypeInBounds(this.mapService.getBounds(), this.storeTypes, false)
-      .pipe(tap(page => {
-          const allMatchingSites = _.uniqBy(page.content.map(store => {
+      .pipe(tap(list => {
+          const allMatchingSites = _.uniqBy(list.map(store => {
             store.site['stores'] = [];
             return store.site;
           }), 'id');
 
-          page.content.forEach(store => {
+          list.forEach(store => {
             const siteIdx = allMatchingSites.findIndex(site => site['id'] === store.site.id);
             allMatchingSites[siteIdx]['stores'].push(store);
           });
@@ -333,10 +333,9 @@ export class PlannedGroceryComponent implements OnInit {
                     : 0;
               });
             });
-
           }
 
-          this.storeMapLayer.setEntities(page.content);
+          this.storeMapLayer.setEntities(list);
           this.ngZone.run(() => {
           });
         })

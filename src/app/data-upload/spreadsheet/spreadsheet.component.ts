@@ -160,13 +160,13 @@ export class SpreadsheetComponent implements OnInit {
   private getStoresInBounds(bounds) {
     return this.storeService.getStoresOfTypeInBounds(bounds, this.storeTypes, false)
       .pipe(
-        tap((page: Pageable<SimplifiedStore>) => {
-          const allMatchingSites = _.uniqBy(page.content.map(store => {
+        tap((list: SimplifiedStore[]) => {
+          const allMatchingSites = _.uniqBy(list.map(store => {
             store.site['stores'] = []; // Used to group stores by site
             return store.site;
           }), 'id');
 
-          page.content.forEach(store => {
+          list.forEach(store => {
             const siteIdx = allMatchingSites.findIndex(site => site['id'] === store.site.id);
             allMatchingSites[siteIdx]['stores'].push(store)
           });
@@ -226,7 +226,7 @@ export class SpreadsheetComponent implements OnInit {
               });
 
               this.ngZone.run(() => {
-                this.storeMapLayer.setEntities(page.content);
+                this.storeMapLayer.setEntities(list);
               });
 
               console.log('currentdb', this.currentDBSiteResults)
