@@ -20,14 +20,14 @@
     </mat-step>
     <mat-step>
       <ng-template matStepLabel>Preview Tables</ng-template>
-      <mds-report-tables *ngIf="jsonToTablesService.isInitialized()"></mds-report-tables>
+      <mds-report-tables *ngIf="rbs.jsonToTablesUtil"></mds-report-tables>
     </mat-step>
     <mat-step>
       <ng-template matStepLabel>Export</ng-template>
       <div>
-        <div *ngIf="reportBuilderService.compilingImages" class="desc">Exporting Data</div>
-        <mat-progress-bar *ngIf="reportBuilderService.compilingImages" mode="indeterminate"></mat-progress-bar>
-        <div *ngIf="!reportBuilderService.compilingImages" class="desc">Your download will appear shortly. A .zip file
+        <div *ngIf="rbs.compilingImages" class="desc">Exporting Data</div>
+        <mat-progress-bar *ngIf="rbs.compilingImages" mode="indeterminate"></mat-progress-bar>
+        <div *ngIf="!rbs.compilingImages" class="desc">Your download will appear shortly. A .zip file
           export has been successfully compiled, and contains .png images of the tables you've generated, a map, and a
           .csv file with your write-ups
         </div>

@@ -27,7 +27,7 @@ export class ReportModelDataComponent implements OnInit {
 
   fileReader: FileReader;
 
-  constructor(public reportBuilderService: ReportBuilderService,
+  constructor(public rbs: ReportBuilderService,
               private fb: FormBuilder,
               private auth: AuthService,
               private xlsToModelParserService: XlsToModelParserService,
@@ -59,7 +59,7 @@ export class ReportModelDataComponent implements OnInit {
       if (files[0].name.includes('.xls')) {
         this.file = files[0];
       } else {
-        this.snackBar.open('Only valid .xls files are accepted', null, {
+        this.snackBar.open('Only valid .xls or .xlsx files are accepted', null, {
           duration: 2000
         });
       }
@@ -76,7 +76,7 @@ export class ReportModelDataComponent implements OnInit {
   }
 
   submitModelData() {
-    this.reportBuilderService.reportMetaData = this.modelMetaDataForm.value;
+    this.rbs.reportMetaData = this.modelMetaDataForm.value;
     this.fileReader.onload = () => {
       if (this.fileReader.result) {
         this.parsingFile = true;
@@ -88,7 +88,7 @@ export class ReportModelDataComponent implements OnInit {
             this.postProcessReportData(reportData)
               .pipe(finalize(() => {
                 this.postProcessing = false;
-                this.reportBuilderService.setReportTableData(reportData);
+                this.rbs.setReportTableData(reportData);
               }))
               .subscribe();
           }, err => {

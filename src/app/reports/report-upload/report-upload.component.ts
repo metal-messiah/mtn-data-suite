@@ -2,11 +2,6 @@ import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar, MatStepper } from '@angular/material';
 import { AuthService } from '../../core/services/auth.service';
 
-import { HtmlToModelParser } from '../../core/services/html-to-model-parser.service';
-import { HtmlDimensionsService } from '../../core/services/html-dimensions.service';
-
-import { JsonToTablesService } from '../services/json-to-tables.service';
-
 import { ReportBuilderService } from '../services/report-builder.service';
 
 @Component({
@@ -21,26 +16,20 @@ export class ReportUploadComponent implements OnInit {
   constructor(
     private snackBar: MatSnackBar,
     private ngZone: NgZone,
-    public jsonToTablesService: JsonToTablesService,
     public auth: AuthService,
-    public reportBuilderService: ReportBuilderService
+    public rbs: ReportBuilderService
   ) {
   }
 
   ngOnInit() {
-    this.reportBuilderService.next$.subscribe(() => this.ngZone.run(() => this.stepper.next()));
+    this.rbs.next$.subscribe(() => this.ngZone.run(() => {
+      this.stepper.next()
+      window.scrollTo(0, 0);
+    }));
   }
 
   clearFileInput() {
     document.getElementById('fileInput')['value'] = null;
-  }
-
-  generateTables() {
-    console.log('GENERATE TABLES');
-
-    this.jsonToTablesService.showedSnackbar = false;
-    this.jsonToTablesService.init(this.reportBuilderService);
-    this.stepper.next();
   }
 
 }

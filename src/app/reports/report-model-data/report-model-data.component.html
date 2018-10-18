@@ -28,7 +28,7 @@
         <i class="fas fa-check-circle" style="color:green;margin-right:5px;"></i>
         <b>{{file ? file.name : ''}}</b>
       </span>
-      <input hidden type="file" accept=".xls" id="fileInput" #fileInput (change)="readFile($event)"/>
+      <input hidden type="file" accept=".xls, .xlsx" id="fileInput" #fileInput (change)="readFile($event)"/>
     </div>
     <div>
       <button (click)="submitModelData()" [color]="'warn'" [disabled]="modelMetaDataForm.invalid || !file || parsingFile || postProcessing"

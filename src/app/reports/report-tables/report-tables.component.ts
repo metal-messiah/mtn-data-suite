@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { JsonToTablesService } from '../services/json-to-tables.service';
-import { EditTotalSizeDialogComponent } from '../edit-total-size-dialog/edit-total-size-dialog.component';
 import { MatDialog, MatSnackBar } from '@angular/material';
 
 import htmlToImage from 'html-to-image';
@@ -31,37 +29,24 @@ export class ReportTablesComponent implements OnInit {
 
   exportPromises: Promise<any>[] = [];
 
-  constructor(public jsonToTablesService: JsonToTablesService,
-              public snackBar: MatSnackBar,
-              public reportBuilderService: ReportBuilderService,
+  constructor(public snackBar: MatSnackBar,
+              public rbs: ReportBuilderService,
               public dialog: MatDialog) {
-    console.log('Constructed ReportTablesComponent')
   }
 
   ngOnInit() {
-    console.log('Initialized ReportTablesComponent')
     this.getMapImage();
   }
 
   getFirstYearAsNumber() {
     return (
       2000 +
-      Number(this.jsonToTablesService.reportTableData.firstYearEndingMonthYear.trim().split(' ')[1])
+      Number(this.rbs.jsonToTablesUtil.reportTableData.firstYearEndingMonthYear.trim().split(' ')[1])
     );
   }
 
-  editTotalArea(value, store) {
-    this.dialog.open(EditTotalSizeDialogComponent, {
-      data: {
-        value: value,
-        store: store,
-        jsonToTablesService: this.jsonToTablesService
-      }
-    });
-  }
-
   export() {
-    this.reportBuilderService.compilingImages = true;
+    this.rbs.compilingImages = true;
     // convert tables to images
     this.tableDomIds.forEach(id => {
       const node = document.getElementById(id);
@@ -70,7 +55,7 @@ export class ReportTablesComponent implements OnInit {
 
     Promise.all(this.exportPromises)
       .then(data => {
-        this.reportBuilderService.compilingImages = false;
+        this.rbs.compilingImages = false;
         console.log(data);
         const zip = new jsZip();
         // table images
@@ -78,7 +63,7 @@ export class ReportTablesComponent implements OnInit {
           zip.file(`${this.tableDomIds[i]}.png`, fileData);
         });
 
-        const sisterStoreAffects = this.jsonToTablesService
+        const sisterStoreAffects = this.rbs.jsonToTablesUtil
           .getStoresForExport('Company Store')
           .sort((a, b) => {
             if (a.storeName === b.storeName) {
@@ -91,24 +76,24 @@ export class ReportTablesComponent implements OnInit {
           .join('\r\n');
 
         const txt = `Street Conditions\r\n${
-          this.jsonToTablesService.siteEvaluationData.streetConditions
+          this.rbs.jsonToTablesUtil.siteEvaluationData.streetConditions
           }\r\n\r\nComments\r\n${
-          this.jsonToTablesService.siteEvaluationData.comments
+          this.rbs.jsonToTablesUtil.siteEvaluationData.comments
           }\r\n\r\nTraffic Controls\r\n${
-          this.jsonToTablesService.siteEvaluationData.streetConditions
+          this.rbs.jsonToTablesUtil.siteEvaluationData.streetConditions
           }\r\n\r\nCo-tenants\r\n${
-          this.jsonToTablesService.siteEvaluationData.cotenants
+          this.rbs.jsonToTablesUtil.siteEvaluationData.cotenants
           }\r\n\r\nSister Store Affects\r\n${sisterStoreAffects}`;
 
         zip.file(`descriptions.txt`, new Blob([txt]));
 
-        const modelName = this.jsonToTablesService.reportMetaData.modelName;
+        const modelName = this.rbs.jsonToTablesUtil.reportMetaData.modelName;
         zip.generateAsync({type: 'blob'}).then(blob => {
           saveAs(blob, `${modelName ? modelName : 'MTNRA_Reports_Export'}.zip`);
         });
       })
       .catch(error => {
-        this.reportBuilderService.compilingImages = false;
+        this.rbs.compilingImages = false;
         this.snackBar.open(error, null, {duration: 2000});
       });
   }
@@ -121,8 +106,8 @@ export class ReportTablesComponent implements OnInit {
       this.googleMapsZoom = this.googleMapsZoom - zoom;
     }
     // map image
-    const target = this.jsonToTablesService.getTargetStore();
-    const stores = this.jsonToTablesService.getProjectedStoresWeeklySummary();
+    const target = this.rbs.jsonToTablesUtil.getTargetStore();
+    const stores = this.rbs.jsonToTablesUtil.getProjectedStoresWeeklySummary();
 
     const storePins = stores
       .map(s => {

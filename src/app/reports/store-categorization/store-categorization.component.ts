@@ -15,49 +15,50 @@ export class StoreCategorizationComponent implements OnInit {
     'Do Not Include'
   ];
 
-  constructor(public reportBuilderService: ReportBuilderService) { }
+  constructor(public rbs: ReportBuilderService) { }
 
   ngOnInit() {
   }
 
   changeCategory(event, mapKey) {
-    const idx: number = this.reportBuilderService.reportTableData.storeList.findIndex(
+    const idx: number = this.rbs.reportTableData.storeList.findIndex(
       s => s.mapKey === mapKey
     );
     if (idx !== -1) {
-      this.reportBuilderService.reportTableData.storeList[idx].category = event.target.value;
-      console.log(this.reportBuilderService.reportTableData.storeList[idx]);
+      this.rbs.reportTableData.storeList[idx].category = event.target.value;
+      console.log(this.rbs.reportTableData.storeList[idx]);
     }
   }
 
   changeCombinedCategory(event, combo) {
     console.log(combo, ' change to ', event.target.value);
-    this.reportBuilderService.reportTableData.storeList.forEach((s, i) => {
+    this.rbs.reportTableData.storeList.forEach((s, i) => {
       if (s.storeName === combo.storeName && s.uniqueId) {
-        this.reportBuilderService.reportTableData.storeList[i].category = event.target.value;
+        this.rbs.reportTableData.storeList[i].category = event.target.value;
       }
     });
   }
 
   getExistingStoresCount(storeName) {
-    return this.reportBuilderService.reportTableData.storeList.filter(
+    return this.rbs.reportTableData.storeList.filter(
       s => s.storeName === storeName && s.uniqueId
     ).length;
   }
 
   getExistingStoresCombined() {
-    return this.reportBuilderService.reportTableData.storeList
+    return this.rbs.reportTableData.storeList
       .filter(s => s.uniqueId !== null)
       .map(s => {
         return {storeName: s.storeName, category: s.category};
       })
       .filter((elem, idx, arr) => {
         return arr.findIndex(e => e.storeName === elem.storeName) === idx;
-      });
+      })
+      .sort((a, b) => a.storeName.localeCompare(b.storeName));
   }
 
   getProposedStores() {
-    return this.reportBuilderService.reportTableData.storeList.filter(s => s.uniqueId === null);
+    return this.rbs.reportTableData.storeList.filter(s => s.uniqueId === null);
   }
 
 }

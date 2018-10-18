@@ -40,14 +40,18 @@ export class XlsToModelParserService {
 
     let row = 4;
     do {
+      const actualSales = this.getNumberFromCell(ws, 'G' + row);
+      const salesArea = this.getNumberFromCell(ws, 'F' + row);
+      const actualSalesPSF = actualSales / salesArea;
       storeListItems.push({
         storeName: ws['A' + row].v,
         mapKey: this.getNumberFromCell(ws, 'B' + row),
         uniqueId: this.getNumberFromCell(ws, 'C' + row),
         latitude: this.getNumberFromCell(ws, 'D' + row),
         longitude: this.getNumberFromCell(ws, 'E' + row),
-        salesArea: this.getNumberFromCell(ws, 'F' + row),
-        actualSales: this.getNumberFromCell(ws, 'G' + row),
+        salesArea: salesArea,
+        actualSales: actualSales,
+        actualSalesPSF: actualSalesPSF,
         marketShare: this.getNumberFromCell(ws, 'H' + row),
         effectivePower: this.getNumberFromCell(ws, 'I' + row),
         curve: this.getNumberFromCell(ws, 'J' + row),
@@ -55,7 +59,6 @@ export class XlsToModelParserService {
         location: ws['M' + row].v,
         parentCompanyId: null,
         category: null,
-        actualSalesPSF: null,
         totalArea: null
       })
     } while (!ws['A' + ++row].v.includes('Totals'));

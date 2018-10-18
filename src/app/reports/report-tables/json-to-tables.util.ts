@@ -1,81 +1,60 @@
-import { Injectable } from '@angular/core';
-
 import { ReportData } from '../../models/report-data';
 import { MapService } from '../../core/services/map.service';
-import { AuthService } from '../../core/services/auth.service';
 import { StoreListItem } from '../../models/store-list-item';
-import { MatSnackBar } from '@angular/material';
-import { StoreService } from '../../core/services/store.service';
-import { Store } from '../../models/full/store';
 import { SalesGrowthProjectionItem } from '../../models/sales-growth-projection-item';
-import { ReportBuilderService } from './report-builder.service';
+import { ReportBuilderService } from '../services/report-builder.service';
 
-@Injectable()
-export class JsonToTablesService {
+import * as _ from 'lodash';
 
-  reportTableData: ReportData;
-  reportMetaData;
-  siteEvaluationData;
+export class JsonToTablesUtil {
 
-  private matchingStore: StoreListItem;
-  salesGrowthProjection: SalesGrowthProjectionItem;
+  readonly reportTableData: ReportData;
+  readonly reportMetaData;
+  readonly siteEvaluationData;
 
-  // maxPerSOVCategory = 15;
-  maxSOV = 20;
+  private tableStores: StoreListItem[];
+  private sovOverflowStores: StoreListItem[];
 
-  showedSnackbar = false;
-  snackbarRef: any;
+  private readonly matchingStore: StoreListItem;
+  private readonly salesGrowthProjection: SalesGrowthProjectionItem;
 
-  formattedTables = {
-    targetStore: null,
-    projectionsTable: null,
-    currentStoresWeeklySummary: null,
-    projectedStoresWeeklySummary: null,
-    sourceOfVolume: {
-      companyStores: [],
-      existingCompetition: [],
-      proposedCompetition: [],
-      averages: {
-        companyStores: {
-          fitStorePower: { values: [], average: null },
-          contributionToSite: { values: [], average: null }
-        },
-        existingCompetition: {
-          fitStorePower: { values: [], average: null },
-          contributionToSite: { values: [], average: null }
-        },
-        proposedCompetition: {
-          fitStorePower: { values: [], average: null },
-          contributionToSite: { values: [], average: null }
-        }
-      }
-    }
-  };
+  private readonly maxSOV = 20;
 
-  constructor(
-    public auth: AuthService,
-    private snackBar: MatSnackBar,
-    public storeService: StoreService
-  ) {
-  }
 
-  init(reportBuilderService: ReportBuilderService) {
-    this.reportMetaData = reportBuilderService.reportMetaData;
-    this.reportTableData = reportBuilderService.reportTableData;
-    this.siteEvaluationData = reportBuilderService.siteEvaluationData;
+  constructor(rbs: ReportBuilderService) {
+    this.reportMetaData = rbs.reportMetaData;
+    this.reportTableData = rbs.reportTableData;
+    this.siteEvaluationData = rbs.siteEvaluationData;
 
     const siteNumber = this.reportTableData.selectedMapKey;
-    this.matchingStore = this.reportTableData.storeList
-      .filter(item => item.mapKey === siteNumber)[0];
+    this.matchingStore = this.reportTableData.storeList.filter(item => item.mapKey === siteNumber)[0];
     if (this.reportTableData.salesGrowthProjection[1]) {
       this.salesGrowthProjection = this.reportTableData.salesGrowthProjection[1];
     } else if (this.reportTableData.salesGrowthProjection[0]) {
       this.salesGrowthProjection = this.reportTableData.salesGrowthProjection[0];
     }
-  }
 
-  isInitialized() {
-    return this.reportMetaData && this.reportTableData && this.siteEvaluationData;
+    this.tableStores = this.reportTableData.storeList
+    // only get the ones matching the category
+      .filter(store => store.category !== 'Do Not Include')
+      .map(store => {
+        const {beforematch, aftermatch} = this.getSOVMatches(store);
+        const contributionToSite =  Math.abs(Number(beforematch.futureSales) - Number(aftermatch.futureSales));
+        store['contributionToSite'] = !this.isTargetStore(store) ? contributionToSite : null;
+        return store;
+      })
+      // sort by target, then by contribution to site
+      .sort((a, b) => {
+        if (a.mapKey === this.reportTableData.selectedMapKey) {
+          return -1;
+        }
+        if (b.mapKey === this.reportTableData.selectedMapKey) {
+          return 1;
+        }
+        return b['contributionToSite'] - a['contributionToSite'];
+      });
+    // only return the max at most
+    this.sovOverflowStores = this.tableStores.slice(this.maxSOV, this.tableStores.length);
   }
 
   getProjectionMapKey() {
@@ -108,7 +87,7 @@ export class JsonToTablesService {
 
   getProjectionPsf(projectionName: string) {
     if (this.salesGrowthProjection) {
-      return this.salesGrowthProjection[projectionName] / this.getProjectionSalesArea() ;
+      return this.salesGrowthProjection[projectionName] / this.getProjectionSalesArea();
     } else {
       return null;
     }
@@ -176,67 +155,48 @@ export class JsonToTablesService {
     const aftermatch = this.reportTableData.projectedVolumesAfter.filter(
       j => j.mapKey === store.mapKey
     )[0];
-    return { beforematch, aftermatch };
+    return {beforematch, aftermatch};
   }
 
   getTruncatedSOVStores() {
-    const stores = this.reportTableData.storeList
-      // only get the ones matching the cat
-      .filter(store => store.category !== 'Do Not Include')
-      .map(store => {
-        const { beforematch, aftermatch } = this.getSOVMatches(store);
-        store['contributionToSite'] = !this.isTargetStore(store)
-          ? Math.abs(
-              Number(beforematch.futureSales) - Number(aftermatch.futureSales)
-            )
-          : null;
-        return store;
-      })
-      // sort by target, then by contribution to site
-      .sort((a, b) => {
-        if (a.mapKey === this.reportTableData.selectedMapKey) {
-          return -1;
-        }
-        if (b.mapKey === this.reportTableData.selectedMapKey) {
-          return 1;
-        }
-        return b['contributionToSite'] - a['contributionToSite'];
-      });
-    // only return the max at most
-    const overflow = stores
-      .map((s, i) => {
-        if (i >= this.maxSOV) {
-          return s['contributionToSite'];
-        }
-      })
-      .filter(s => s);
+    return this.tableStores.slice(0, this.maxSOV);
+  }
 
-    if (overflow.length) {
-      const threshold = stores[this.maxSOV - 1]['contributionToSite'];
-      const overflowSum = overflow.reduce((prev, next) => prev + next);
-
-      if (!this.showedSnackbar) {
-        this.showedSnackbar = true;
-        const truncatedMsg = `*Does not show contributions less than $${threshold.toLocaleString()} (Showing ${stores.length -
-          overflow.length}/${
-          stores.length
-        } Stores). A total Contribution To Site of $${overflowSum.toLocaleString()} was excluded from the Report.`
-        this.snackBar.open(truncatedMsg, 'OK');
-      }
+  getTruncatedMessage() {
+    if (this.sovOverflowStores) {
+      const threshold = Math.ceil(_.maxBy(this.sovOverflowStores, 'contributionToSite')['contributionToSite']);
+      return `*Does not show contributions less than $${threshold.toLocaleString()} 
+      (Showing ${this.tableStores.length - this.sovOverflowStores.length}/${this.tableStores.length} Stores).`
     }
+    return null;
+  }
 
-    return stores.splice(0, this.maxSOV);
+  getTruncatedSumMessage() {
+    if (this.sovOverflowStores) {
+      return `A total Contribution To Site of $${this.getOverflowSum().toLocaleString()} was excluded from the Report.`
+    }
+    return null;
+  }
+
+  getOverflowSum() {
+    if (this.sovOverflowStores) {
+      const sum = this.sovOverflowStores.map(s => s['contributionToSite'])
+        .reduce((prev, next) => prev + next);
+      return Math.round(sum);
+    } else {
+      return 0;
+    }
   }
 
   getSOVStores(category) {
     // categories => Company Store, Proposed Competition, Existing Competition
     return (
       this.getTruncatedSOVStores()
-        // only get the ones matching the cat
+      // only get the ones matching the cat
         .filter(store => store.category === category)
         // create an array with new properties added
         .map(store => {
-          const { beforematch, aftermatch } = this.getSOVMatches(store);
+          const {beforematch, aftermatch} = this.getSOVMatches(store);
 
           store['currentSales'] = beforematch.currentSales;
 
@@ -244,13 +204,13 @@ export class JsonToTablesService {
 
           store['contributionToSite'] = !this.isTargetStore(store)
             ? Math.abs(
-                Number(beforematch.futureSales) - Number(aftermatch.futureSales)
-              )
+              Number(beforematch.futureSales) - Number(aftermatch.futureSales)
+            )
             : null;
           store['contributionToSitePerc'] = !this.isTargetStore(store)
             ? (Number(store['contributionToSite']) /
-                Number(store['futureSales'])) *
-              100
+            Number(store['futureSales'])) *
+            100
             : null;
 
           store['resultingVolume'] =
@@ -260,7 +220,7 @@ export class JsonToTablesService {
 
           store['distance'] =
             MapService.getDistanceBetween(
-              { lat: store.latitude, lng: store.longitude },
+              {lat: store.latitude, lng: store.longitude},
               {
                 lat: this.matchingStore.latitude,
                 lng: this.matchingStore.longitude
@@ -275,27 +235,8 @@ export class JsonToTablesService {
   getSummaryAverage(dataSet, field) {
     const data = dataSet === 'current' ? this.getCurrentStoresWeeklySummary() : this.getProjectedStoresWeeklySummary();
     const values = data.map(s => s[field]);
-    const sum =  values.reduce((prev, next) => prev + next);
+    const sum = values.reduce((prev, next) => prev + next);
     return sum / values.length;
-  }
-
-  updateSOVTotalSize(store, value) {
-    if (store.uniqueId) {
-      this.storeService.getOneById(store.uniqueId).subscribe((s: Store) => {
-        s['areaTotal'] = value;
-        this.storeService.update(s).subscribe(res => {
-          console.log('updated db', res);
-        });
-      });
-    } else {
-      const snackBarMsg = 'Updated the local table but could not update the database because the store does not exist there.';
-      this.snackBar.open(snackBarMsg, 'OK');
-    }
-    const idx = this.reportTableData.storeList.findIndex(s => s.mapKey === store.mapKey);
-    if (idx !== -1) {
-      this.reportTableData.storeList[idx].totalArea = value;
-    }
-    console.log('updated json');
   }
 
   getSOVAverages(category) {
@@ -320,7 +261,7 @@ export class JsonToTablesService {
       );
     }
 
-    return { fitStorePowerAverage, contributionToSiteAverage };
+    return {fitStorePowerAverage, contributionToSiteAverage};
   }
 
   getSalesTransfersFromCompanyStores() {

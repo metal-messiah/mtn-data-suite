@@ -14,7 +14,7 @@ export class SiteEvaluationComponent implements OnInit {
   readonly ratingOptions = ['Excellent', 'Good', 'Average', 'Fair', 'Poor'];
 
   constructor(private fb: FormBuilder,
-              private reportBuilderService: ReportBuilderService) {
+              private rbs: ReportBuilderService) {
   }
 
   ngOnInit() {
@@ -27,24 +27,24 @@ export class SiteEvaluationComponent implements OnInit {
       comments: '',
       trafficControls: '',
       cotenants: '',
-      accessNorth: '',
-      accessSouth: '',
-      accessEast: '',
-      accessWest: '',
-      ingressEgress: '',
-      visibilityNorth: '',
-      visibilitySouth: '',
-      visibilityEast: '',
-      visibilityWest: '',
-      populationDensityNorth: '',
-      populationDensitySouth: '',
-      populationDensityEast: '',
-      populationDensityWest: '',
+      accessNorth: 'Average',
+      accessSouth: 'Average',
+      accessEast: 'Average',
+      accessWest: 'Average',
+      ingressEgress: 'Average',
+      visibilityNorth: 'Average',
+      visibilitySouth: 'Average',
+      visibilityEast: 'Average',
+      visibilityWest: 'Average',
+      populationDensityNorth: 'Average',
+      populationDensitySouth: 'Average',
+      populationDensityEast: 'Average',
+      populationDensityWest: 'Average',
     });
   }
 
   next() {
-    this.reportBuilderService.setSiteEvaluationData(this.form.value);
+    this.rbs.setSiteEvaluationData(this.form.value);
   }
 
 }

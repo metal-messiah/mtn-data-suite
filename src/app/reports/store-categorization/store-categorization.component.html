@@ -1,6 +1,6 @@
 <div class="list-wrapper">
   <h3 style="text-align: center;">Existing Stores</h3>
-  <div *ngIf="reportBuilderService.reportTableData" class="categories-wrapper">
+  <div *ngIf="rbs.reportTableData" class="categories-wrapper">
     <div class="categories-box" *ngFor="let store of getExistingStoresCombined(); let i=index;"
          [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
       <div>
@@ -12,7 +12,7 @@
     </div>
   </div>
   <h3 style="text-align: center;">Proposed Stores</h3>
-  <div *ngIf="reportBuilderService.reportTableData" class="categories-wrapper">
+  <div *ngIf="rbs.reportTableData" class="categories-wrapper">
     <div class='categories-box' *ngFor="let store of getProposedStores(); let i=index;"
          [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
       <div>
@@ -26,7 +26,7 @@
   </div>
   <hr>
   <button [color]="'primary'" mat-raised-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
-  <button [color]="'warn'" mat-raised-button (click)="generateTables()" style="margin-top:20px;">
+  <button [color]="'warn'" mat-raised-button (click)="rbs.generateTables()" style="margin-top:20px;">
     Generate Tables From Data
   </button>
 </div>

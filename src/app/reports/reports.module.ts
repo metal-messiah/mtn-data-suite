@@ -7,11 +7,11 @@ import { EditTotalSizeDialogComponent } from './edit-total-size-dialog/edit-tota
 import { ReportModelDataComponent } from './report-model-data/report-model-data.component';
 import { ReportBuilderService } from './services/report-builder.service';
 import { HtmlToModelParser } from '../core/services/html-to-model-parser.service';
-import { JsonToTablesService } from './services/json-to-tables.service';
 import { HtmlDimensionsService } from '../core/services/html-dimensions.service';
 import { ReportTablesComponent } from './report-tables/report-tables.component';
 import { SiteEvaluationComponent } from './site-evaluation/site-evaluation.component';
 import { StoreCategorizationComponent } from './store-categorization/store-categorization.component';
+import { StoreDataVerificationComponent } from './store-data-verification/store-data-verification.component';
 
 @NgModule({
   imports: [
@@ -24,13 +24,13 @@ import { StoreCategorizationComponent } from './store-categorization/store-categ
     ReportModelDataComponent,
     ReportTablesComponent,
     SiteEvaluationComponent,
-    StoreCategorizationComponent],
+    StoreCategorizationComponent,
+    StoreDataVerificationComponent],
   entryComponents: [
     EditTotalSizeDialogComponent],
   providers: [
     ReportBuilderService,
     HtmlToModelParser,
-    JsonToTablesService,
     HtmlDimensionsService
   ]
 })
