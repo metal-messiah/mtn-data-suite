@@ -58,8 +58,8 @@ export enum CardState {
 })
 export class CasingDashboardComponent implements OnInit, OnDestroy {
 
-  private readonly MAX_DATA_ZOOM = 8;
-  private readonly DATA_POINT_ZOOM = 12;
+  private readonly MAX_DATA_ZOOM = 6;
+  private readonly DATA_POINT_ZOOM = 9;
 
   selectedStore: Store | SimplifiedStore;
   selectedSite: Site | SimplifiedSite;
@@ -251,21 +251,13 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   private getSitesInBounds(bounds) {
     // Get Sites without stores
-    return this.siteService.getSitesWithoutStoresInBounds(bounds).pipe(tap(page => {
-      this.siteMapLayer.setEntities(page.content);
-    }));
+    return this.siteService.getSitesWithoutStoresInBounds(bounds).pipe(tap(list => this.siteMapLayer.setEntities(list)));
   }
 
   private getStoresInBounds(bounds) {
     const includeProjectIds = this.storeMapLayer.markerType === MarkerType.PROJECT_COMPLETION;
     return this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes(), includeProjectIds)
-      .pipe(tap(page => {
-        this.storeMapLayer.setEntities(page.content);
-        this.ngZone.run(() => {
-          const message = `Showing ${page.numberOfElements} items of ${page.totalElements}`;
-          this.snackBar.open(message, null, {duration: 1000, verticalPosition: 'top'});
-        });
-      }));
+      .pipe(tap(list => this.storeMapLayer.setEntities(list)));
   }
 
   initSiteCreation(): void {
@@ -702,6 +694,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         downloadDialog.close();
       }
     })
+  }
+
+  userIsGuest() {
+    const role = this.authService.sessionUser.role;
+    return (role && role.displayName === 'Guest Analyst');
   }
 
 }

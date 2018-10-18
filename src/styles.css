@@ -39,12 +39,6 @@ mat-form-field {
   height: 100%;
 }
 
-@media (max-width: 600px) {
-  .box {
-    height: calc(100% - 56px);
-  }
-}
-
 .box .row.header {
   min-height: 56px;
   flex: 0 0.5 auto;
