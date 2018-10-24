@@ -23,7 +23,7 @@ export class ReportUploadComponent implements OnInit {
 
   ngOnInit() {
     this.rbs.next$.subscribe(() => this.ngZone.run(() => {
-      this.stepper.next()
+      this.stepper.next();
       window.scrollTo(0, 0);
     }));
   }

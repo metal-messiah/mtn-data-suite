@@ -1,3 +1,11 @@
+.content {
+  height: 100%;
+}
+
+mat-horizontal-stepper {
+  height: 100%;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -65,6 +73,7 @@ mat-progress-bar {
 
 ::ng-deep .mat-horizontal-stepper-header-container {
   visibility: hidden !important;
+  height: 10px;
 }
 
 .desc {

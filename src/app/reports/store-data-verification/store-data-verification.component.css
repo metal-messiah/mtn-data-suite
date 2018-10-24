@@ -1,0 +1,7 @@
+.list-wrapper {
+  max-width: 1200px;
+}
+
+mat-form-field {
+  max-width: 120px;
+}

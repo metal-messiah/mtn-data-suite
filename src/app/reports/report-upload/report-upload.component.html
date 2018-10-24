@@ -1,5 +1,5 @@
 <div class="content">
-  <mat-horizontal-stepper [linear]='true' #stepper id="stepper">
+  <mat-horizontal-stepper linear #stepper id="stepper">
     <ng-template matStepperIcon="edit">
       <i class="fas fa-pencil-alt"></i>
     </ng-template>
@@ -9,6 +9,10 @@
     <mat-step>
       <ng-template matStepLabel>Import Data</ng-template>
       <mds-report-model-data></mds-report-model-data>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Verify Store Data</ng-template>
+      <mds-store-data-verification *ngIf="rbs.reportTableData"></mds-store-data-verification>
     </mat-step>
     <mat-step>
       <ng-template matStepLabel>Site Evaluation</ng-template>

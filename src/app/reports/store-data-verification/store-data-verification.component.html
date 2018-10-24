@@ -1,3 +1,39 @@
-<p>
-  store-data-verification works!
-</p>
+<div class="list-wrapper">
+  <form [formGroup]="form" class="categories-wrapper">
+    <table>
+      <tr>
+        <th>Map Key</th>
+        <th>Store ID</th>
+        <th>Store Name</th>
+        <th>Location</th>
+        <th>Sales Area</th>
+        <th>Total Area</th>
+        <th></th>
+      </tr>
+      <tr formArrayName="stores" *ngFor="let store of rbs.reportTableData.storeList; let i = index;">
+        <td>{{store.mapKey}}</td>
+        <td>
+          <a [href]="origin + '/casing?store-id=' + store.uniqueId" target="_blank">{{store.uniqueId}}</a>
+        </td>
+        <td>{{store.storeName}}</td>
+        <td>{{store.location}}</td>
+        <td>{{store.salesArea}}</td>
+        <td [formGroupName]="i">
+          <!--<mat-form-field floatLabel="never" appearance="outline">-->
+            <input  type="number" placeholder="Total Area" formControlName="totalArea">
+          <!--</mat-form-field>-->
+        </td>
+        <td>
+          <button mat-mini-fab color="accent" [disabled]="form.get('stores').get(i.toString()).get('totalArea').pristine">
+            <i class="fas fa-save"></i>
+          </button>
+        </td>
+      </tr>
+    </table>
+  </form>
+
+  <div class='submit'>
+    <button [color]="'primary'" mat-raised-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
+    <button [color]="'warn'" mat-raised-button matStepperNext style="margin-top:20px;">Next</button>
+  </div>
+</div>
