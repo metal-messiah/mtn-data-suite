@@ -25,8 +25,6 @@
     </div>
   </div>
   <hr>
-  <button [color]="'primary'" mat-raised-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
-  <button [color]="'warn'" mat-raised-button (click)="rbs.generateTables()" style="margin-top:20px;">
-    Generate Tables From Data
-  </button>
+  <button [color]="'primary'" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back</button>
+  <button [color]="'warn'" mat-raised-button (click)="next()" style="margin-top:20px;">Next</button>
 </div>

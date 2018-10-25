@@ -76,13 +76,6 @@ mat-progress-bar {
   height: 10px;
 }
 
-.desc {
-  text-align: center;
-  font-style: italic;
-  color: gray;
-  margin: 20px 0;
-}
-
 .title-left {
   position: absolute;
   left: 50px;

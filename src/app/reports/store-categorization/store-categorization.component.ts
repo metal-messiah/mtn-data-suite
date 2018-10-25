@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ReportBuilderService } from '../services/report-builder.service';
+import { Router } from '@angular/router';
+import { Location } from '@angular/common';
+import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'mds-store-categorization',
@@ -15,9 +18,17 @@ export class StoreCategorizationComponent implements OnInit {
     'Do Not Include'
   ];
 
-  constructor(public rbs: ReportBuilderService) { }
+  constructor(public rbs: ReportBuilderService,
+              private snackBar: MatSnackBar,
+              private _location: Location,
+              private router: Router) { }
 
   ngOnInit() {
+    window.scrollTo(0, 0);
+    if (!this.rbs.reportTableData) {
+      this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
+      this.router.navigate(['reports']);
+    }
   }
 
   changeCategory(event, mapKey) {
@@ -59,6 +70,10 @@ export class StoreCategorizationComponent implements OnInit {
 
   getProposedStores() {
     return this.rbs.reportTableData.storeList.filter(s => s.uniqueId === null);
+  }
+
+  next() {
+    this.router.navigate(['reports/data-verification']);
   }
 
 }

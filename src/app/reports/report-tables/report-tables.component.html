@@ -1,4 +1,7 @@
-<div>
+<div *ngIf="!jsonToTablesUtil">
+  <i class="fas fa-spinner fa-pulse"></i>
+</div>
+<div *ngIf="jsonToTablesUtil" id="tables-body">
   <div class="flex-container">
     <table cellspacing="0" id="projectionsTable">
       <tr>
@@ -32,21 +35,21 @@
         <th>Comment</th>
       </tr>
       <tr>
-        <td>{{rbs.jsonToTablesUtil.getProjectionMapKey()}}</td>
-        <td>{{rbs.jsonToTablesUtil.getProjectionScenario()}}</td>
-        <td>{{rbs.jsonToTablesUtil.getProjectionProjectedFitImage() | number:'1.0-0'}}</td>
-        <td>{{rbs.jsonToTablesUtil.getProjectionSalesArea() | number}}</td>
-        <td>{{rbs.jsonToTablesUtil.getProjectionTotalArea() | number}}</td>
-        <td>${{rbs.jsonToTablesUtil.getProjection('firstYearAverageSales')}}k</td>
-        <td>{{rbs.jsonToTablesUtil.getProjectionPsf('firstYearAverageSales') | currency}}</td>
-        <td>${{rbs.jsonToTablesUtil.getProjection('secondYearAverageSales')}}k</td>
-        <td>{{rbs.jsonToTablesUtil.getProjectionPsf('secondYearAverageSales') | currency}}</td>
-        <td>${{rbs.jsonToTablesUtil.getProjection('thirdYearAverageSales')}}k</td>
-        <td>{{rbs.jsonToTablesUtil.getProjectionPsf('thirdYearAverageSales') | currency}}</td>
-        <td>${{rbs.jsonToTablesUtil.getProjection('firstYearAverageSales') * 52}}k</td>
-        <td>{{rbs.jsonToTablesUtil.getProjectionPsf('firstYearAverageSales') * 52 | currency}}</td>
-        <td>{{rbs.jsonToTablesUtil.getProjectionYear1AnnualizedPsfFromTotal() | currency}}</td>
-        <td>{{rbs.jsonToTablesUtil.getProjectionComment()}}</td>
+        <td>{{jsonToTablesUtil.getProjectionMapKey()}}</td>
+        <td>{{jsonToTablesUtil.getProjectionScenario()}}</td>
+        <td>{{jsonToTablesUtil.getProjectionProjectedFitImage() | number:'1.0-0'}}</td>
+        <td>{{jsonToTablesUtil.getProjectionSalesArea() | number}}</td>
+        <td>{{jsonToTablesUtil.getProjectionTotalArea() | number}}</td>
+        <td>${{jsonToTablesUtil.getProjection('firstYearAverageSales')}}k</td>
+        <td>{{jsonToTablesUtil.getProjectionPsf('firstYearAverageSales') | currency}}</td>
+        <td>${{jsonToTablesUtil.getProjection('secondYearAverageSales')}}k</td>
+        <td>{{jsonToTablesUtil.getProjectionPsf('secondYearAverageSales') | currency}}</td>
+        <td>${{jsonToTablesUtil.getProjection('thirdYearAverageSales')}}k</td>
+        <td>{{jsonToTablesUtil.getProjectionPsf('thirdYearAverageSales') | currency}}</td>
+        <td>${{jsonToTablesUtil.getProjection('firstYearAverageSales') * 52}}k</td>
+        <td>{{jsonToTablesUtil.getProjectionPsf('firstYearAverageSales') * 52 | currency}}</td>
+        <td>{{jsonToTablesUtil.getProjectionYear1AnnualizedPsfFromTotal() | currency}}</td>
+        <td>{{jsonToTablesUtil.getProjectionComment()}}</td>
       </tr>
     </table>
   </div>
@@ -55,7 +58,7 @@
     <table class="force10" cellspacing="0" id="currentStoresWeeklySummaryTable">
       <tr>
         <th colspan="8">
-          <h2>Current Stores Weekly Summary - {{rbs.jsonToTablesUtil.reportMetaData.fieldResDate | date:'MMM y'}}</h2>
+          <h2>Current Stores Weekly Summary - {{jsonToTablesUtil.reportMetaData.fieldResDate | date:'MMM y'}}</h2>
         </th>
       </tr>
       <tr>
@@ -68,7 +71,7 @@
         <th>PWTA</th>
         <th>FIT Power</th>
       </tr>
-      <tr *ngFor="let store of rbs.jsonToTablesUtil.getCurrentStoresWeeklySummary()">
+      <tr *ngFor="let store of jsonToTablesUtil.getCurrentStoresWeeklySummary()">
         <td>{{store.mapKey}}</td>
         <td>{{store.storeName}}</td>
         <td>{{store.location}}</td>
@@ -82,11 +85,11 @@
         <td>Average</td>
         <td></td>
         <td></td>
-        <td class="right-align">${{rbs.jsonToTablesUtil.getSummaryAverage('current', 'actualSales') | number:'1.0-0'}}</td>
-        <td class="right-align">${{rbs.jsonToTablesUtil.getSummaryAverage('current', 'actualSalesPSF') | number:'1.2-2'}}</td>
-        <td class="right-align">{{rbs.jsonToTablesUtil.getSummaryAverage('current', 'salesArea') | number:'1.0-0'}}</td>
+        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage('current', 'actualSales') | number:'1.0-0'}}</td>
+        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage('current', 'actualSalesPSF') | number:'1.2-2'}}</td>
+        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage('current', 'salesArea') | number:'1.0-0'}}</td>
         <td></td>
-        <td class="right-align">{{rbs.jsonToTablesUtil.getSummaryAverage('current', 'effectivePower') | number:'1.0-0'}}</td>
+        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage('current', 'effectivePower') | number:'1.0-0'}}</td>
       </tr>
     </table>
   </div>
@@ -95,7 +98,7 @@
     <table class="force10" cellspacing="0" id="projectedStoresWeeklySummaryTable">
       <tr>
         <th colspan="8">
-          <h2>Projected Stores Weekly Summary - {{rbs.jsonToTablesUtil.reportTableData.firstYearEndingMonthYear}}</h2>
+          <h2>Projected Stores Weekly Summary - {{jsonToTablesUtil.reportTableData.firstYearEndingMonthYear}}</h2>
         </th>
       </tr>
       <tr>
@@ -109,8 +112,8 @@
         <th>FIT Power</th>
       </tr>
       <tr
-        [ngClass]="rbs.jsonToTablesUtil.isTargetStore(store) ? 'red-highlight' : store.category === 'Proposed Competition' ? 'bold' : ''"
-        *ngFor="let store of rbs.jsonToTablesUtil.getProjectedStoresWeeklySummary()">
+        [ngClass]="jsonToTablesUtil.isTargetStore(store) ? 'red-highlight' : store.category === 'Proposed Competition' ? 'bold' : ''"
+        *ngFor="let store of jsonToTablesUtil.getProjectedStoresWeeklySummary()">
         <td>{{store.mapKey}}</td>
         <td>{{store.storeName}}</td>
         <td>{{store.location}}</td>
@@ -124,11 +127,11 @@
         <td>Average</td>
         <td></td>
         <td></td>
-        <td class="right-align">${{rbs.jsonToTablesUtil.getSummaryAverage('projected', 'projectedSales') | number:'1.0-0'}}</td>
-        <td class="right-align">${{rbs.jsonToTablesUtil.getSummaryAverage('projected', 'projectedSalesPSF') | number:'1.2-2'}}</td>
-        <td class="right-align">{{rbs.jsonToTablesUtil.getSummaryAverage('projected', 'salesArea') | number:'1.0-0'}}</td>
+        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage('projected', 'projectedSales') | number:'1.0-0'}}</td>
+        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage('projected', 'projectedSalesPSF') | number:'1.2-2'}}</td>
+        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage('projected', 'salesArea') | number:'1.0-0'}}</td>
         <td></td>
-        <td class="right-align">{{rbs.jsonToTablesUtil.getSummaryAverage('projected', 'effectivePower') | number:'1.0-0'}}</td>
+        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage('projected', 'effectivePower') | number:'1.0-0'}}</td>
       </tr>
     </table>
   </div>
@@ -138,75 +141,65 @@
       <tr>
         <th style='height:50px; position: relative;' colspan="12">
           <span class="title-left">Source of Volume</span>
-          <span class="title-right">{{rbs.jsonToTablesUtil.getTargetStore().storeName}}</span>
+          <span class="title-right">{{jsonToTablesUtil.getTargetStore().storeName}}</span>
         </th>
       </tr>
       <tr>
-        <th colspan="5"></th>
-        <th colspan="2">Size (sqft)*</th>
-        <th></th>
-        <th colspan="4">{{rbs.jsonToTablesUtil.reportTableData.firstYearEndingMonthYear}} Volume</th>
+        <th></th>                   <th></th>             <th></th>   <th>FIT</th>  <th>Straight</th>   <th colspan="2">Size (sqft)*</th> <th>Sales</th>                                                            <th colspan="4">{{jsonToTablesUtil.reportTableData.firstYearEndingMonthYear}} Volume</th>
       </tr>
       <tr>
-        <th>Primary Sources of Projected Volume</th>
-        <th>Location</th>
-        <th>Map Key</th>
-        <th>FIT Store Power</th>
-        <th>Straight Line Dist. From Site</th>
-        <th>Sales Area</th>
-        <th>Est. Total Area</th>
-        <th>Sales As of {{rbs.jsonToTablesUtil.reportMetaData.fieldResDate | date:'MMM y'}}</th>
-        <th>Pop Growth, Infl. & Comp. Chngs.</th>
-        <th colspan="2">Contribution to Site</th>
-        <th>Resulting Volume</th>
+        <th>Primary Sources of</th> <th>Address or</th>   <th>Map</th><th>Store</th><th>Line Dist.</th> <th>Sales</th> <th>Est. Total</th><th>as of</th>                                                            <th>+Pop Grwth, Infl.</th><th colspan="2">Contribution</th><th>Resulting</th>
       </tr>
-      <tr *ngIf="rbs.jsonToTablesUtil.getSOVStoreCount('Company Store') > 0" class="blue">
+      <tr>
+        <th>Projected Volume</th>   <th>Intersection</th> <th>Key</th><th>Power</th><th>From Site</th>  <th>Area</th>   <th>Area</th>     <th>{{jsonToTablesUtil.reportMetaData.fieldResDate | date:'MMM y'}}</th>  <th>& Comp. Chngs.</th>   <th colspan="2">to Site</th>      <th>Volume</th>
+      </tr>
+      <tr *ngIf="jsonToTablesUtil.getSOVStoreCount('Company Store') > 0" class="blue">
         <td class="table-section-header">
           Company Stores
         </td>
         <td colspan="11"></td>
       </tr>
-      <tr *ngFor="let store of rbs.jsonToTablesUtil.getSOVStores('Company Store')"
-          [class]="rbs.jsonToTablesUtil.isTargetStore(store) ? 'bold blue': 'blue'">
+      <tr *ngFor="let store of jsonToTablesUtil.getSOVStores('Company Store')"
+          [class]="jsonToTablesUtil.isTargetStore(store) ? 'bold blue': 'blue'">
         <td>{{store.storeName}}</td>
         <td nowrap>{{store.location}}</td>
         <td class="right-align">{{store.mapKey}}</td>
         <td class="right-align">{{store.effectivePower | number:'1.0-0'}}</td>
-        <td class="right-align" *ngIf="rbs.jsonToTablesUtil.isTargetStore(store)">-</td>
-        <td class="right-align" *ngIf="!rbs.jsonToTablesUtil.isTargetStore(store)">{{store.distance | number:'1.0-2'}} mi.</td>
+        <td class="right-align" *ngIf="jsonToTablesUtil.isTargetStore(store)">-</td>
+        <td class="right-align" *ngIf="!jsonToTablesUtil.isTargetStore(store)">{{store.distance | number:'1.0-2'}} mi.</td>
         <td class="right-align">{{store.salesArea | number:'1.0-2'}}</td>
         <td class="right-align">{{store.totalArea | number:'1.0-2'}}</td>
-        <td class="right-align" *ngIf="rbs.jsonToTablesUtil.isTargetStore(store)">-</td>
-        <td class="right-align" *ngIf="!rbs.jsonToTablesUtil.isTargetStore(store)">{{store.actualSales / 1000 | number:'1.0-2'}}</td>
-        <td class="right-align" *ngIf="rbs.jsonToTablesUtil.isTargetStore(store)">-</td>
-        <td class="right-align" *ngIf="!rbs.jsonToTablesUtil.isTargetStore(store)">{{store.futureSales / 1000 | number:'1.0-0'}}</td>
+        <td class="right-align" *ngIf="jsonToTablesUtil.isTargetStore(store)">-</td>
+        <td class="right-align" *ngIf="!jsonToTablesUtil.isTargetStore(store)">{{store.actualSales / 1000 | number:'1.0-2'}}</td>
+        <td class="right-align" *ngIf="jsonToTablesUtil.isTargetStore(store)">-</td>
+        <td class="right-align" *ngIf="!jsonToTablesUtil.isTargetStore(store)">{{store.futureSales / 1000 | number:'1.0-0'}}</td>
         <td class="right-align">{{store.contributionToSite ? (store.contributionToSite / 1000).toFixed(0) : '-'}}</td>
-        <td class="right-align" *ngIf="rbs.jsonToTablesUtil.isTargetStore(store)">-</td>
-        <td class="right-align" *ngIf="!rbs.jsonToTablesUtil.isTargetStore(store)">{{store.contributionToSitePerc | number:'1.0-1'}}%</td>
+        <td class="right-align" *ngIf="jsonToTablesUtil.isTargetStore(store)">-</td>
+        <td class="right-align" *ngIf="!jsonToTablesUtil.isTargetStore(store)">{{store.contributionToSitePerc | number:'1.0-1'}}%</td>
         <td class="right-align">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
       </tr>
-      <tr *ngIf="rbs.jsonToTablesUtil.getSOVStoreCount('Company Store') > 1" class="blue">
+      <tr *ngIf="jsonToTablesUtil.getSOVStoreCount('Company Store') > 1" class="blue">
         <td><b>Average Power</b></td>
         <td colspan="2"></td>
         <td class="right-align" style="border-top:1px solid black;">
-          <b>{{rbs.jsonToTablesUtil.getSOVAverages('Company Store').fitStorePowerAverage | number:'1.0-0'}}</b>
+          <b>{{jsonToTablesUtil.getSOVAverages('Company Store').fitStorePowerAverage | number:'1.0-0'}}</b>
         </td>
         <td colspan="5"></td>
-        <td style="border-top:1px solid black;">
+        <td class="right-align"  style="border-top:1px solid black;">
           <b>
-            ${{rbs.jsonToTablesUtil.getSOVAverages('Company Store').contributionToSiteAverage / 1000 |
+            ${{jsonToTablesUtil.getSOVAverages('Company Store').contributionToSiteAverage / 1000 |
             number:'1.0-0'}}
           </b>
         </td>
         <td colspan="2"></td>
       </tr>
-      <tr *ngIf="rbs.jsonToTablesUtil.getSOVStoreCount('Existing Competition') > 0" class="yellow">
+      <tr *ngIf="jsonToTablesUtil.getSOVStoreCount('Existing Competition') > 0" class="yellow">
         <td class="table-section-header">
           Existing Competition
         </td>
         <td colspan="11"></td>
       </tr>
-      <tr *ngFor="let store of rbs.jsonToTablesUtil.getSOVStores('Existing Competition')" class="yellow">
+      <tr *ngFor="let store of jsonToTablesUtil.getSOVStores('Existing Competition')" class="yellow">
         <td>{{store.storeName}}</td>
         <td nowrap>{{store.location}}</td>
         <td class="right-align">{{store.mapKey}}</td>
@@ -220,30 +213,30 @@
         <td class="right-align">{{store.contributionToSitePerc | number:'0.0-1'}}%</td>
         <td class="right-align">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
       </tr>
-      <tr *ngIf="rbs.jsonToTablesUtil.getSOVStoreCount('Existing Competition') > 1" class="yellow">
+      <tr *ngIf="jsonToTablesUtil.getSOVStoreCount('Existing Competition') > 1" class="yellow">
         <td><b>Average Power</b></td>
         <td colspan="2"></td>
-        <td style="border-top:1px solid black;">
+        <td class="right-align" style="border-top:1px solid black;">
           <b>
-            {{rbs.jsonToTablesUtil.getSOVAverages('Existing Competition').fitStorePowerAverage | number:'1.0-0'}}
+            {{jsonToTablesUtil.getSOVAverages('Existing Competition').fitStorePowerAverage | number:'1.0-0'}}
           </b>
         </td>
         <td colspan="5"></td>
-        <td style="border-top:1px solid black;">
+        <td class="right-align" style="border-top:1px solid black;">
           <b>
-            ${{rbs.jsonToTablesUtil.getSOVAverages('Existing Competition').contributionToSiteAverage / 1000 |
+            ${{jsonToTablesUtil.getSOVAverages('Existing Competition').contributionToSiteAverage / 1000 |
             number:'1.0-0'}}
           </b>
         </td>
         <td colspan="2"></td>
       </tr>
-      <tr *ngIf="rbs.jsonToTablesUtil.getSOVStoreCount('Proposed Competition') > 0" class="pink">
+      <tr *ngIf="jsonToTablesUtil.getSOVStoreCount('Proposed Competition') > 0" class="pink">
         <td class="table-section-header">
           Proposed Competition
         </td>
         <td colspan="11"></td>
       </tr>
-      <tr *ngFor="let store of rbs.jsonToTablesUtil.getSOVStores('Proposed Competition')" class="pink">
+      <tr *ngFor="let store of jsonToTablesUtil.getSOVStores('Proposed Competition')" class="pink">
         <td>{{store.storeName}}</td>
         <td nowrap>{{store.location}}</td>
         <td class="right-align">{{store.mapKey}}</td>
@@ -257,18 +250,18 @@
         <td class="right-align">{{store.contributionToSitePerc | number:'0.0-1'}}%</td>
         <td class="right-align">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
       </tr>
-      <tr *ngIf="rbs.jsonToTablesUtil.getSOVStoreCount('Proposed Competition') > 1" class="pink">
+      <tr *ngIf="jsonToTablesUtil.getSOVStoreCount('Proposed Competition') > 1" class="pink">
         <td><b>Average Power</b></td>
         <td colspan="2"></td>
-        <td style="border-top:1px solid black;">
+        <td class="right-align" style="border-top:1px solid black;">
           <b>
-            {{rbs.jsonToTablesUtil.getSOVAverages('Proposed Competition').fitStorePowerAverage | number:'1.0-0'}}
+            {{jsonToTablesUtil.getSOVAverages('Proposed Competition').fitStorePowerAverage | number:'1.0-0'}}
           </b>
         </td>
         <td colspan="5"></td>
-        <td style="border-top:1px solid black;">
+        <td class="right-align" style="border-top:1px solid black;">
           <b>
-            ${{rbs.jsonToTablesUtil.getSOVAverages('Proposed Competition').contributionToSiteAverage / 1000 |
+            ${{jsonToTablesUtil.getSOVAverages('Proposed Competition').contributionToSiteAverage / 1000 |
             number:'1.0-0'}}
           </b>
         </td>
@@ -280,37 +273,37 @@
       <tr>
         <td><b>Sales Potential</b></td>
         <td>
-          <b>Assume Store Opens {{rbs.jsonToTablesUtil.reportTableData.firstYearEndingMonthYear}}</b>
+          <b>Assume Store Opens {{jsonToTablesUtil.reportTableData.firstYearEndingMonthYear}}</b>
         </td>
         <td colspan="3"></td>
         <td colspan="4"><b>Sales Transfers from Company Stores</b></td>
-        <td>${{rbs.jsonToTablesUtil.getSalesTransfersFromCompanyStores() | number:'1.0-0'}}
+        <td class="right-align">${{jsonToTablesUtil.getSalesTransfersFromCompanyStores() | number:'1.0-0'}}
         </td>
         <td colspan="2"></td>
       </tr>
       <tr>
         <td><b>{{getFirstYearAsNumber() + 1}} - After Open 1 Year</b></td>
-        <td><b>${{rbs.jsonToTablesUtil.getAfterOpen1Year() | number:'1.0-0'}}</b></td>
+        <td><b>${{jsonToTablesUtil.getAfterOpen1Year() | number:'1.0-0'}}</b></td>
         <td colspan="3"></td>
         <td colspan="4"><b>Sales Transfers from Competition</b></td>
-        <td>${{rbs.jsonToTablesUtil.getSalesTransfersFromCompetition() | number:'1.0-0'}}
+        <td class="right-align">${{jsonToTablesUtil.getSalesTransfersFromCompetition() | number:'1.0-0'}}
         </td>
         <td colspan="2"></td>
       </tr>
       <tr>
         <td class="footnote">*Area devoted to food group</td>
-        <td class="footnote">{{rbs.jsonToTablesUtil.getTruncatedMessage()}}</td>
+        <td class="footnote">{{jsonToTablesUtil.getTruncatedMessage()}}</td>
         <td colspan="3"></td>
         <td colspan="4"><b>Total Sales Transfer</b></td>
-        <td>${{rbs.jsonToTablesUtil.getTotalSalesTransfers() | number:'1.0-0'}}</td>
+        <td class="right-align">${{jsonToTablesUtil.getTotalSalesTransfers() | number:'1.0-0'}}</td>
         <td colspan="2"></td>
       </tr>
       <tr>
         <td class='footnote'>Sales effects based on gravity model analysis.</td>
-        <td class="footnote">{{rbs.jsonToTablesUtil.getTruncatedSumMessage()}}</td>
+        <td class="footnote">{{jsonToTablesUtil.getTruncatedSumMessage()}}</td>
         <td colspan="3"></td>
         <td colspan="4"><b>Percent of Sales Explained After One Year</b></td>
-        <td>{{rbs.jsonToTablesUtil.getPercentOfSalesExplained() | number:'1.1-1'}}%</td>
+        <td class="right-align">{{jsonToTablesUtil.getPercentOfSalesExplained() | number:'1.1-1'}}%</td>
         <td colspan="2"></td>
       </tr>
 
@@ -329,61 +322,61 @@
       </tr>
       <tr>
         <td>North</td>
-        <td>{{rbs.jsonToTablesUtil.siteEvaluationData.accessNorth}}</td>
+        <td>{{jsonToTablesUtil.siteEvaluationData.accessNorth}}</td>
       </tr>
       <tr>
         <td>South</td>
-        <td>{{rbs.jsonToTablesUtil.siteEvaluationData.accessSouth}}</td>
+        <td>{{jsonToTablesUtil.siteEvaluationData.accessSouth}}</td>
       </tr>
       <tr>
         <td>East</td>
-        <td>{{rbs.jsonToTablesUtil.siteEvaluationData.accessEast}}</td>
+        <td>{{jsonToTablesUtil.siteEvaluationData.accessEast}}</td>
       </tr>
       <tr>
         <td>West</td>
-        <td>{{rbs.jsonToTablesUtil.siteEvaluationData.accessWest}}</td>
+        <td>{{jsonToTablesUtil.siteEvaluationData.accessWest}}</td>
       </tr>
       <tr>
         <td class="bold" style="text-align:left;">Ingress/Egress</td>
-        <td>{{rbs.jsonToTablesUtil.siteEvaluationData.ingressEgress}}</td>
+        <td>{{jsonToTablesUtil.siteEvaluationData.ingressEgress}}</td>
       </tr>
       <tr>
         <td class="bold" colspan="2" style="text-align:left;">Visibility</td>
       </tr>
       <tr>
         <td>North</td>
-        <td>{{rbs.jsonToTablesUtil.siteEvaluationData.visibilityNorth}}</td>
+        <td>{{jsonToTablesUtil.siteEvaluationData.visibilityNorth}}</td>
       </tr>
       <tr>
         <td>South</td>
-        <td>{{rbs.jsonToTablesUtil.siteEvaluationData.visibilitySouth}}</td>
+        <td>{{jsonToTablesUtil.siteEvaluationData.visibilitySouth}}</td>
       </tr>
       <tr>
         <td>East</td>
-        <td>{{rbs.jsonToTablesUtil.siteEvaluationData.visibilityEast}}</td>
+        <td>{{jsonToTablesUtil.siteEvaluationData.visibilityEast}}</td>
       </tr>
       <tr>
         <td>West</td>
-        <td>{{rbs.jsonToTablesUtil.siteEvaluationData.visibilityWest}}</td>
+        <td>{{jsonToTablesUtil.siteEvaluationData.visibilityWest}}</td>
       </tr>
       <tr>
         <td class="bold" colspan="2" style="text-align:left;">Population Density</td>
       </tr>
       <tr>
         <td>North</td>
-        <td>{{rbs.jsonToTablesUtil.siteEvaluationData.populationDensityNorth}}</td>
+        <td>{{jsonToTablesUtil.siteEvaluationData.populationDensityNorth}}</td>
       </tr>
       <tr>
         <td>South</td>
-        <td>{{rbs.jsonToTablesUtil.siteEvaluationData.populationDensitySouth}}</td>
+        <td>{{jsonToTablesUtil.siteEvaluationData.populationDensitySouth}}</td>
       </tr>
       <tr>
         <td>East</td>
-        <td>{{rbs.jsonToTablesUtil.siteEvaluationData.populationDensityEast}}</td>
+        <td>{{jsonToTablesUtil.siteEvaluationData.populationDensityEast}}</td>
       </tr>
       <tr>
         <td>West</td>
-        <td>{{rbs.jsonToTablesUtil.siteEvaluationData.populationDensityWest}}</td>
+        <td>{{jsonToTablesUtil.siteEvaluationData.populationDensityWest}}</td>
       </tr>
     </table>
   </div>
@@ -399,16 +392,19 @@
               mat-raised-button style="margin:5px;">Road
       </button>
       <br>
-      <button [color]="'primary'" (click)="getMapImage(null, -1)" mat-raised-button style="margin:5px;"><i
+      <button color="primary" (click)="getMapImage(null, -1)" mat-raised-button style="margin:5px;"><i
         class="fas fa-search-plus"></i></button>
       <br>
-      <button [color]="'primary'" (click)="getMapImage(null, 1)" mat-raised-button style="margin:5px;"><i
+      <button color="primary" (click)="getMapImage(null, 1)" mat-raised-button style="margin:5px;"><i
         class="fas fa-search-minus"></i></button>
       <br>
     </div>
   </div>
   <hr>
-  <button [color]="'primary'" mat-raised-button matStepperPrevious style="margin:20px 20px 0 0;">Go Back</button>
-  <button [color]="'warn'" mat-raised-button matStepperNext (click)="export()" style="margin-top:20px;">Export
+  <button color="primary" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back</button>
+  <button *ngIf="!this.rbs.compilingImages" color="warn" mat-raised-button (click)="export()" style="margin-top:20px;">Export
+  </button>
+  <button *ngIf="this.rbs.compilingImages" color="warn" mat-raised-button disabled>
+    <i class="fas fa-spinner fa-pulse"></i>
   </button>
 </div>

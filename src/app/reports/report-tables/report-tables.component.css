@@ -61,7 +61,7 @@ mat-form-field {
 }
 
 table {
-  width: 10in;
+  /*width: 10in;*/
   border: none;
   /* display: block; */
   /* width: 100%; */
@@ -84,13 +84,14 @@ tr:nth-child(even) {
 
 th {
   background: white;
-  font-size: 11pt;
+  font-size: 14pt;
   border: none;
+  padding: 1px 5px;
 }
 
 td {
   padding: 5px 10px;
-  font-size: 11pt;
+  font-size: 14pt;
   white-space: nowrap;
   border: none;
 }
@@ -183,4 +184,8 @@ mat-progress-bar {
   position: absolute;
   right: 50px;
   font-size: large;
+}
+
+#tables-body {
+  margin-bottom: 30px;
 }

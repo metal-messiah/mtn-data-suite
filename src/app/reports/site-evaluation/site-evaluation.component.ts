@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ReportBuilderService } from '../services/report-builder.service';
+import { Location } from '@angular/common';
+import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'mds-site-evaluation',
@@ -14,11 +17,20 @@ export class SiteEvaluationComponent implements OnInit {
   readonly ratingOptions = ['Excellent', 'Good', 'Average', 'Fair', 'Poor'];
 
   constructor(private fb: FormBuilder,
+              public _location: Location,
+              private router: Router,
+              private snackBar: MatSnackBar,
               private rbs: ReportBuilderService) {
   }
 
   ngOnInit() {
-    this.createForm();
+    window.scrollTo(0, 0);
+    if (!this.rbs.reportTableData) {
+      this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
+      this.router.navigate(['reports']);
+    } else {
+      this.createForm();
+    }
   }
 
   private createForm() {
@@ -45,6 +57,7 @@ export class SiteEvaluationComponent implements OnInit {
 
   next() {
     this.rbs.setSiteEvaluationData(this.form.value);
+    this.router.navigate(['reports/table-preview']);
   }
 
 }

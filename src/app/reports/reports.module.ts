@@ -12,6 +12,7 @@ import { ReportTablesComponent } from './report-tables/report-tables.component';
 import { SiteEvaluationComponent } from './site-evaluation/site-evaluation.component';
 import { StoreCategorizationComponent } from './store-categorization/store-categorization.component';
 import { StoreDataVerificationComponent } from './store-data-verification/store-data-verification.component';
+import { ReportDownloadComponent } from './download/report-download.component';
 
 @NgModule({
   imports: [
@@ -25,7 +26,8 @@ import { StoreDataVerificationComponent } from './store-data-verification/store-
     ReportTablesComponent,
     SiteEvaluationComponent,
     StoreCategorizationComponent,
-    StoreDataVerificationComponent],
+    StoreDataVerificationComponent,
+    ReportDownloadComponent],
   entryComponents: [
     EditTotalSizeDialogComponent],
   providers: [

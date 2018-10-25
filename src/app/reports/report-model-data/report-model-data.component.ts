@@ -9,6 +9,7 @@ import { StoreService } from '../../core/services/store.service';
 import { finalize, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { XlsToModelParserService } from '../../core/services/xls-to-model-parser.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'mds-report-model-data',
@@ -30,6 +31,7 @@ export class ReportModelDataComponent implements OnInit {
   constructor(public rbs: ReportBuilderService,
               private fb: FormBuilder,
               private auth: AuthService,
+              private router: Router,
               private xlsToModelParserService: XlsToModelParserService,
               private storeService: StoreService,
               private snackBar: MatSnackBar) {
@@ -43,8 +45,8 @@ export class ReportModelDataComponent implements OnInit {
   private createForm() {
     this.modelMetaDataForm = this.fb.group({
       analyst: `${this.auth.sessionUser.firstName} ${this.auth.sessionUser.lastName}`,
-      type: 'test',
-      modelName: 'test',
+      type: '',
+      modelName: '',
       fieldResDate: new Date()
     })
   }
@@ -89,6 +91,7 @@ export class ReportModelDataComponent implements OnInit {
               .pipe(finalize(() => {
                 this.postProcessing = false;
                 this.rbs.setReportTableData(reportData);
+                this.router.navigate(['reports/categorization']);
               }))
               .subscribe();
           }, err => {

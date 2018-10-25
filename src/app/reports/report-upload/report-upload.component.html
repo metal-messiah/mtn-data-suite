@@ -11,16 +11,16 @@
       <mds-report-model-data></mds-report-model-data>
     </mat-step>
     <mat-step>
+      <ng-template matStepLabel>Assign Categories</ng-template>
+      <mds-store-categorization></mds-store-categorization>
+    </mat-step>
+    <mat-step>
       <ng-template matStepLabel>Verify Store Data</ng-template>
       <mds-store-data-verification *ngIf="rbs.reportTableData"></mds-store-data-verification>
     </mat-step>
     <mat-step>
       <ng-template matStepLabel>Site Evaluation</ng-template>
       <mds-site-evaluation></mds-site-evaluation>
-    </mat-step>
-    <mat-step>
-      <ng-template matStepLabel>Assign Categories</ng-template>
-      <mds-store-categorization></mds-store-categorization>
     </mat-step>
     <mat-step>
       <ng-template matStepLabel>Preview Tables</ng-template>

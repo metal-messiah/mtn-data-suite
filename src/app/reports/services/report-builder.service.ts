@@ -23,16 +23,13 @@ export class ReportBuilderService {
 
   setReportTableData(reportData: ReportData) {
     this.reportTableData = reportData;
-    this.next$.next();
   }
 
   setSiteEvaluationData(siteEvalData) {
     this.siteEvaluationData = siteEvalData;
-    this.next$.next();
   }
 
   generateTables() {
-    this.jsonToTablesUtil = new JsonToTablesUtil(this);
     this.next$.next();
   }
 

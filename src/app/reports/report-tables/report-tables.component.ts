@@ -5,6 +5,9 @@ import htmlToImage from 'html-to-image';
 import jsZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { ReportBuilderService } from '../services/report-builder.service';
+import { JsonToTablesUtil } from './json-to-tables.util';
+import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'mds-report-tables',
@@ -18,6 +21,8 @@ export class ReportTablesComponent implements OnInit {
   googleMapsBasemap = 'hybrid';
   googleMapsZoom = 15;
 
+  jsonToTablesUtil: JsonToTablesUtil;
+
   tableDomIds: string[] = [
     'projectionsTable',
     'currentStoresWeeklySummaryTable',
@@ -27,43 +32,55 @@ export class ReportTablesComponent implements OnInit {
     'descriptionsRatings'
   ];
 
-  exportPromises: Promise<any>[] = [];
-
   constructor(public snackBar: MatSnackBar,
               public rbs: ReportBuilderService,
+              public _location: Location,
+              private router: Router,
               public dialog: MatDialog) {
   }
 
   ngOnInit() {
-    this.getMapImage();
+    window.scrollTo(0, 0);
+    if (!this.rbs.reportTableData) {
+      this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
+      this.router.navigate(['reports']);
+    } else {
+      this.jsonToTablesUtil = new JsonToTablesUtil(this.rbs);
+      this.getMapImage();
+    }
   }
 
   getFirstYearAsNumber() {
     return (
       2000 +
-      Number(this.rbs.jsonToTablesUtil.reportTableData.firstYearEndingMonthYear.trim().split(' ')[1])
+      Number(this.jsonToTablesUtil.reportTableData.firstYearEndingMonthYear.trim().split(' ')[1])
     );
   }
 
   export() {
     this.rbs.compilingImages = true;
+
+    const exportPromises: Promise<any>[] = [];
+
     // convert tables to images
     this.tableDomIds.forEach(id => {
       const node = document.getElementById(id);
-      this.exportPromises.push(htmlToImage.toBlob(node));
+      exportPromises.push(htmlToImage.toBlob(node));
     });
 
-    Promise.all(this.exportPromises)
+    Promise.all(exportPromises)
       .then(data => {
         this.rbs.compilingImages = false;
         console.log(data);
+        this.router.navigate(['reports/download']);
+
         const zip = new jsZip();
         // table images
         data.forEach((fileData, i) => {
           zip.file(`${this.tableDomIds[i]}.png`, fileData);
         });
 
-        const sisterStoreAffects = this.rbs.jsonToTablesUtil
+        const sisterStoreAffects = this.jsonToTablesUtil
           .getStoresForExport('Company Store')
           .sort((a, b) => {
             if (a.storeName === b.storeName) {
@@ -76,18 +93,18 @@ export class ReportTablesComponent implements OnInit {
           .join('\r\n');
 
         const txt = `Street Conditions\r\n${
-          this.rbs.jsonToTablesUtil.siteEvaluationData.streetConditions
+          this.jsonToTablesUtil.siteEvaluationData.streetConditions
           }\r\n\r\nComments\r\n${
-          this.rbs.jsonToTablesUtil.siteEvaluationData.comments
+          this.jsonToTablesUtil.siteEvaluationData.comments
           }\r\n\r\nTraffic Controls\r\n${
-          this.rbs.jsonToTablesUtil.siteEvaluationData.streetConditions
+          this.jsonToTablesUtil.siteEvaluationData.streetConditions
           }\r\n\r\nCo-tenants\r\n${
-          this.rbs.jsonToTablesUtil.siteEvaluationData.cotenants
+          this.jsonToTablesUtil.siteEvaluationData.cotenants
           }\r\n\r\nSister Store Affects\r\n${sisterStoreAffects}`;
 
         zip.file(`descriptions.txt`, new Blob([txt]));
 
-        const modelName = this.rbs.jsonToTablesUtil.reportMetaData.modelName;
+        const modelName = this.jsonToTablesUtil.reportMetaData.modelName;
         zip.generateAsync({type: 'blob'}).then(blob => {
           saveAs(blob, `${modelName ? modelName : 'MTNRA_Reports_Export'}.zip`);
         });
@@ -106,8 +123,8 @@ export class ReportTablesComponent implements OnInit {
       this.googleMapsZoom = this.googleMapsZoom - zoom;
     }
     // map image
-    const target = this.rbs.jsonToTablesUtil.getTargetStore();
-    const stores = this.rbs.jsonToTablesUtil.getProjectedStoresWeeklySummary();
+    const target = this.jsonToTablesUtil.getTargetStore();
+    const stores = this.jsonToTablesUtil.getProjectedStoresWeeklySummary();
 
     const storePins = stores
       .map(s => {

@@ -13,7 +13,7 @@ export class JsonToTablesUtil {
   readonly siteEvaluationData;
 
   private tableStores: StoreListItem[];
-  private sovOverflowStores: StoreListItem[];
+  private readonly sovOverflowStores: StoreListItem[];
 
   private readonly matchingStore: StoreListItem;
   private readonly salesGrowthProjection: SalesGrowthProjectionItem;
@@ -163,7 +163,7 @@ export class JsonToTablesUtil {
   }
 
   getTruncatedMessage() {
-    if (this.sovOverflowStores) {
+    if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
       const threshold = Math.ceil(_.maxBy(this.sovOverflowStores, 'contributionToSite')['contributionToSite']);
       return `*Does not show contributions less than $${threshold.toLocaleString()} 
       (Showing ${this.tableStores.length - this.sovOverflowStores.length}/${this.tableStores.length} Stores).`
@@ -172,14 +172,14 @@ export class JsonToTablesUtil {
   }
 
   getTruncatedSumMessage() {
-    if (this.sovOverflowStores) {
+    if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
       return `A total Contribution To Site of $${this.getOverflowSum().toLocaleString()} was excluded from the Report.`
     }
     return null;
   }
 
   getOverflowSum() {
-    if (this.sovOverflowStores) {
+    if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
       const sum = this.sovOverflowStores.map(s => s['contributionToSite'])
         .reduce((prev, next) => prev + next);
       return Math.round(sum);
