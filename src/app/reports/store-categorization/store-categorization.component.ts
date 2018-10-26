@@ -20,7 +20,7 @@ export class StoreCategorizationComponent implements OnInit {
 
   constructor(public rbs: ReportBuilderService,
               private snackBar: MatSnackBar,
-              private _location: Location,
+              public _location: Location,
               private router: Router) { }
 
   ngOnInit() {

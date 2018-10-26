@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ReportBuilderService } from '../services/report-builder.service';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Location } from '@angular/common';
 import { StoreService } from '../../core/services/store.service';
 import { StoreListItem } from '../../models/store-list-item';
@@ -60,6 +60,10 @@ export class StoreDataVerificationComponent implements OnInit {
     });
 
     this.router.navigate(['reports/site-evaluation'])
+  }
+
+  getStoreControls(): AbstractControl[] {
+    return (this.form.get('stores') as FormArray).controls;
   }
 
 }

@@ -9,7 +9,7 @@
         <th>Sales Area</th>
         <th>Total Area</th>
       </tr>
-      <tr formArrayName="stores" *ngFor="let store of form.get('stores').controls; let i = index;">
+      <tr formArrayName="stores" *ngFor="let store of getStoreControls(); let i = index;">
         <td>{{store.get('mapKey').value}}</td>
         <td>
           <a [href]="origin + '/casing?store-id=' + store.get('uniqueId').value" target="_blank">{{store.get('uniqueId').value}}</a>
