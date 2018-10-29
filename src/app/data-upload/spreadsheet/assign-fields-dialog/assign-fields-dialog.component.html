@@ -1,24 +1,121 @@
-<h3>{{title}}</h3>
-<form #assignFieldsForm="ngForm">
-  <mat-form-field>
-    <mat-select matInput [(ngModel)]="name" name="name" required (selectionChange)="changeValue('name',$event.value)">
-      <mat-option placeholder="Name Field" [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
-    </mat-select>
-    <mat-hint>Name Field</mat-hint>
-  </mat-form-field><br>
-  <mat-form-field>
-    <mat-select matInput [(ngModel)]="lat" name="lat" required (selectionChange)="changeValue('lat',$event.value)">
-      <mat-option placeholder="Lat Field" [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
-    </mat-select>
-    <mat-hint>Latitude Field</mat-hint>
-  </mat-form-field><br>
-  <mat-form-field>
-    <mat-select matInput [(ngModel)]="lng" name="lng" required (selectionChange)="changeValue('lng',$event.value)">
-      <mat-option [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
-    </mat-select>
-    <mat-hint>Longitude Field</mat-hint>
-  </mat-form-field>
-  <br>
-  <br>
-  <button [disabled]="!assignFieldsForm.form.valid" type="submit" color="primary" mat-flat-button (click)="assignFields(assignFieldsForm)"><span><i *ngIf="sendingData" class="fas fa-spinner fa-spin"></i>Assign Fields</span></button>
-</form>
+<h3>Configure Match Settings</h3>
+<mat-horizontal-stepper [linear]='true' #stepper>
+  <ng-template matStepperIcon="edit">
+    <i class="fas fa-pencil-alt"></i>
+  </ng-template>
+  <ng-template matStepperIcon="done">
+    <i class="fas fa-check"></i>
+  </ng-template>
+  <mat-step editable="false">
+    <ng-template matStepLabel>Match Type</ng-template>
+    <div class="dialog-wrapper">
+      <form [formGroup]="form">
+        <div style="margin-top:25px;" class="flex-container">
+          <button class="radio-button" [color]="form.value.matchType === 'storeNumber' ? 'warn' : 'primary'"
+            mat-flat-button (click)="storeNumberRadio.click()">Store Number</button>
+          <input hidden #storeNumberRadio type="radio" formControlName="matchType" value="storeNumber" checked>
+          <button class="radio-button" [color]="form.value.matchType === 'location' ? 'warn' : 'primary'"
+            mat-flat-button (click)="locationRadio.click()">Location</button>
+          <input hidden #locationRadio type="radio" formControlName="matchType" value="location">
+        </div>
+      </form>
+      <div class="nav-buttons">
+        <button disabled color="primary" mat-flat-button (click)="goBackward()">Back</button>
+        <button (click)="goForward()" mat-flat-button color="warn">Proceed</button>
+      </div>
+    </div>
+  </mat-step>
+  <mat-step editable="false">
+    <ng-template matStepLabel>Reference Fields</ng-template>
+    <div class="dialog-wrapper">
+      <form [formGroup]="form">
+        <mat-form-field *ngIf="form.value.matchType === 'location'">
+          <mat-select matInput formControlName="name" required>
+            <mat-option placeholder="Name Field" [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
+          </mat-select>
+          <mat-hint>Name Field</mat-hint>
+        </mat-form-field><br>
+        <mat-form-field *ngIf="form.value.matchType === 'location'">
+          <mat-select matInput formControlName="lat" required>
+            <mat-option placeholder="Lat Field" [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
+          </mat-select>
+          <mat-hint>Latitude Field</mat-hint>
+        </mat-form-field><br>
+        <mat-form-field *ngIf="form.value.matchType === 'location'">
+          <mat-select matInput formControlName="lng" required>
+            <mat-option [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
+          </mat-select>
+          <mat-hint>Longitude Field</mat-hint>
+        </mat-form-field><br>
+        <mat-form-field *ngIf="form.value.matchType === 'storeNumber'">
+          <mat-select matInput formControlName="company" required>
+            <mat-option [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
+          </mat-select>
+          <mat-hint>Company</mat-hint>
+        </mat-form-field><br>
+        <mat-form-field *ngIf="form.value.matchType === 'storeNumber'">
+          <mat-select matInput formControlName="storeNumber" required>
+            <mat-option [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
+          </mat-select>
+          <mat-hint>Store Number Field</mat-hint>
+        </mat-form-field>
+      </form>
+      <div class="nav-buttons">
+        <button color="primary" mat-flat-button (click)="goBackward()">Back</button>
+        <button [disabled]="!formIsValid(2)" color="warn" mat-flat-button (click)="goForward()">Proceed</button>
+      </div>
+    </div>
+  </mat-step>
+  <mat-step editable="false">
+    <ng-template matStepLabel>Update Fields</ng-template>
+    <div class="dialog-wrapper">
+      <button mat-flat-button (click)="addFieldMappingItem()">Add Field</button>
+      <div class="flex-container" *ngFor="let item of updateItems;">
+        <mat-form-field>
+          <mat-select [id]="item.id + '_fileField'" matInput (selectionChange)="updateSelectedFileField(item.id, $event.value)"
+            [(value)]="item.selectedFileField">
+            <mat-option [value]="fileField" *ngFor="let fileField of item.fileFields">{{fileField}}</mat-option>
+          </mat-select>
+          <mat-hint>File Field</mat-hint>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select [id]="item.id + '_storeField'" matInput (selectionChange)="updateSelectedStoreField(item.id, $event.value)"
+            [(value)]="item.selectedStoreField">
+            <mat-option [value]="storeField" *ngFor="let storeField of item.storeFields">{{storeField}}</mat-option>
+          </mat-select>
+          <mat-hint>Store Field</mat-hint>
+        </mat-form-field>
+      </div>
+      <div class="nav-buttons">
+        <button color="primary" mat-flat-button (click)="goBackward()">Back</button>
+        <button [disabled]="!formIsValid(3)" color="warn" mat-flat-button (click)="goForward();">Proceed</button>
+      </div>
+    </div>
+  </mat-step>
+  <mat-step editable="false">
+      <ng-template matStepLabel>Insert Fields</ng-template>
+      <div class="dialog-wrapper">
+        <button mat-flat-button (click)="addFieldMappingItem()">Add Field</button>
+        <div class="flex-container" *ngFor="let item of updateItems;">
+          <mat-form-field>
+            <mat-select [id]="item.id + '_fileField'" matInput (selectionChange)="updateSelectedFileField(item.id, $event.value)"
+              [(value)]="item.selectedFileField">
+              <mat-option [value]="fileField" *ngFor="let fileField of item.fileFields">{{fileField}}</mat-option>
+            </mat-select>
+            <mat-hint>File Field</mat-hint>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select [id]="item.id + '_storeField'" matInput (selectionChange)="updateSelectedStoreField(item.id, $event.value)"
+              [(value)]="item.selectedStoreField">
+              <mat-option [value]="storeField" *ngFor="let storeField of item.storeFields">{{storeField}}</mat-option>
+            </mat-select>
+            <mat-hint>Store Field</mat-hint>
+          </mat-form-field>
+        </div>
+        <div class="nav-buttons">
+          <button color="primary" mat-flat-button (click)="goBackward()">Back</button>
+          <button [disabled]="!formIsValid(3)" color="warn" mat-flat-button (click)="goForward();">Proceed</button>
+        </div>
+      </div>
+    </mat-step>
+</mat-horizontal-stepper>

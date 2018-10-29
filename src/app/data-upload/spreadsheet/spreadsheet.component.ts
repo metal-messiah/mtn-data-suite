@@ -118,7 +118,7 @@ export class SpreadsheetComponent implements OnInit {
   getSpreadsheetContent() {}
 
   siteHover(store, type) {
-    if (type === 'enter') {
+    if (type === 'enter' && this.records.length) {
       this.storeMapLayer.selectEntity(store);
     } else {
       this.storeMapLayer.clearSelection();
@@ -126,6 +126,7 @@ export class SpreadsheetComponent implements OnInit {
   }
 
   setCurrentSpreadsheetRecord(index: number) {
+    console.log('SET CURRENT RECORD', index);
     if (index < this.records.length) {
       this.bestMatch = null;
       this.currentRecordIndex = index;

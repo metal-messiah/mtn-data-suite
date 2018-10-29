@@ -65,6 +65,13 @@
           </mat-list-item>
           <mat-divider></mat-divider>
         </div>
+        <div>
+          <mat-list-item routerLink="/geocoding">
+            <div mat-list-icon><i class="fas fa-globe-americas"></i></div>
+            <h3 mat-line>Geocoding</h3>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+        </div>
         <div *ngIf="userIsAdmin()">
           <!-- TODO Add my profile-->
           <mat-list-item>

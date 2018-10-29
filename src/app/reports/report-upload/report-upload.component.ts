@@ -7,21 +7,7 @@ import { HtmlDimensionsService } from '../../core/services/html-dimensions.servi
 
 import { JsonToTablesService } from '../services/json-to-tables.service';
 
-<<<<<<< HEAD
-import htmlToImage from 'html-to-image';
-import { saveAs } from 'file-saver';
-
-import jsZip from 'jszip';
-declare var cloudinary: any;
-
-import { JsonToTablesService } from './json-to-tables.service';
-
-import { HttpClient } from '@angular/common/http';
-import { RestService } from '../../core/services/rest.service';
-import { EditTotalSizeDialogComponent } from '../edit-total-size-dialog/edit-total-size-dialog.component';
-=======
 import { ReportBuilderService } from '../services/report-builder.service';
->>>>>>> master
 
 @Component({
   selector: 'mds-report-upload',
@@ -79,21 +65,7 @@ export class ReportUploadComponent implements OnInit {
   }
 
   ngOnInit() {
-<<<<<<< HEAD
-    
-  }
-
-  editTotalArea(value, store) {
-    const dialogRef = this.dialog.open(EditTotalSizeDialogComponent, {
-      data: {
-        value: value,
-        store: store,
-        jsonToTablesService: this.jsonToTablesService
-      }
-    });
-=======
     this.reportBuilderService.reportDataLoaded$.subscribe(() => this.ngZone.run(() => this.stepper.next()))
->>>>>>> master
   }
 
   handleDescriptionsForm(form) {

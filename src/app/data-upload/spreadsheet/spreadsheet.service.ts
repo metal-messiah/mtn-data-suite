@@ -1,17 +1,17 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, Subject } from 'rxjs';
-import { SpreadsheetRecord } from '../../models/spreadsheet-record';
+import { Injectable } from "@angular/core";
+import { Observable, of, Subject } from "rxjs";
+import { SpreadsheetRecord } from "../../models/spreadsheet-record";
 // import * as records from './DFW.json';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class SpreadsheetService {
   // records = records['features'];
-  uniqueIdLabels = ['unique_id', 'uid', 'id'];
-  latLabels = ['lat', 'latitude', 'y'];
-  lngLabels = ['lng', 'long', 'longitude', 'x'];
-  nameLabels = ['name', 'storeName', 'store name'];
+  uniqueIdLabels = ["unique_id", "uid", "id"];
+  latLabels = ["lat", "latitude", "y"];
+  lngLabels = ["lng", "long", "longitude", "x"];
+  nameLabels = ["name", "storeName", "store name"];
 
   id_idx: number;
   lat_idx: number;
@@ -27,7 +27,7 @@ export class SpreadsheetService {
   }
 
   mapToSpreadsheet(csvAsText: string): Observable<any> {
-    const csvArray = csvAsText.split('\n').map(row => row.split(','));
+    const csvArray = csvAsText.split("\n").map(row => row.split(","));
 
     return of(
       csvArray.map((row, i) => {
@@ -45,7 +45,7 @@ export class SpreadsheetService {
   }
 
   getFields(csvAsText: string) {
-    const fields = csvAsText.split('\n')[0].split(',');
+    const fields = csvAsText.split("\n")[0].split(",");
     return fields;
   }
 
@@ -80,7 +80,14 @@ export class SpreadsheetService {
 
   assignFields(
     fields: string[],
-    assignments: { lat: string; lng: string; name: string }
+    assignments: {
+      lat: string;
+      lng: string;
+      name: string;
+      company: string;
+      storeNumber: string;
+      matchType: string;
+    }
   ) {
     this.lat_idx = fields.findIndex(field => field === assignments.lat);
     this.lng_idx = fields.findIndex(field => field === assignments.lng);

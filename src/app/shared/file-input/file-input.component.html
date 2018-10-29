@@ -1,0 +1,15 @@
+<div class="flex-container">
+  <button type="button" mat-raised-button [color]="file ? 'primary' : 'warn'" (click)="fileInput.click()" [disabled]="disabled">
+    <span class="file-tip" *ngIf="!file">
+      <i class="fas fa-file" style="color:orange;margin-right:5px;"></i>
+      <b>Upload File</b>
+    </span>
+    <span class="file-tip" *ngIf="file">
+      <i class="fas fa-check-circle" style="color:green;margin-right:5px;"></i>
+      <b>{{file.name | slice:0:10}}</b>
+      <b *ngIf="file.name.length >= 10">...</b>
+    </span>
+  </button>
+
+  <input hidden type="file" [accept]="fileTypes" id="fileInput" #fileInput (change)="readFile($event)" />
+</div>
