@@ -40,7 +40,7 @@
     </mat-form-field>
     <br>
     <br>
-    <button (click)="submit(form)" [disabled]="!file || !form.valid" mat-flat-button color="primary">Geocode File</button>
+    <button (click)="submit(form)" [disabled]="!file || !form.valid" mat-flat-button color="primary">Geocode {{length | number}} Records</button>
   </form>
 </div>
 <br>

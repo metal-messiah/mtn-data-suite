@@ -56,25 +56,43 @@ export class GeocodingComponent implements OnInit {
         this.status.text = data.text;
       }
     );
-    // this.resourceQuotaService
-    //   .getNewest('GEOCODING')
-    //   .subscribe((page: Pageable<ResourceQuota>) => {
-    //     this.newestResourceQuota = page.content[0];
-    //   });
 
-    // just for testing
-    this.newestResourceQuota = new ResourceQuota({
-      resourceName: 'GEOCODING',
-      periodStartDate: new Date(),
-      queryCount: 0,
-      quotaLimit: 20000
-    });
+    this.getNewestResourceQuota();
   }
 
   ngOnInit() {}
 
   getStatus() {
     return (this.status.done / this.status.total) * 100;
+  }
+
+  getNewestResourceQuota() {
+    this.resourceQuotaService.getNewest('GEOCODING').subscribe(
+      (page: Pageable<ResourceQuota>) => {
+        if (page.content.length) {
+          this.newestResourceQuota = page.content[0];
+        } else {
+          this.newestResourceQuota = this.createNewResourceQuota();
+        }
+      },
+      (err) => {
+        console.error('ERROR GETTING LATEST RESOURCE QUOTA!',  err);
+        this.newestResourceQuota = this.createNewResourceQuota();
+      }
+    );
+  }
+
+  createNewResourceQuota() {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const rq = new ResourceQuota({
+      resourceName: 'GEOCODING',
+      periodStartDate: firstDay,
+      queryCount: 0,
+      quotaLimit: 20000
+    });
+    this.resourceQuotaService.create(rq);
+    return rq;
   }
 
   handleFile(file) {
@@ -96,15 +114,7 @@ export class GeocodingComponent implements OnInit {
       const diff = this.differenceInDays(rqStart, now);
       if (diff > 31) {
         // older than a month
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        this.resourceQuotaService.create(
-          new ResourceQuota({
-            resourceName: 'GEOCODING',
-            periodStartDate: firstDay,
-            queryCount: 0,
-            quotaLimit: 20000
-          })
-        );
+        this.createNewResourceQuota();
         return true;
       } else if (
         this.newestResourceQuota.queryCount + this.length <=

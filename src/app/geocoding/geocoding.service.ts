@@ -26,10 +26,14 @@ export class GeocodingService {
   allRows: string[];
 
   index: number;
+  set = 1;
+  limit = 50;
 
   running$: Subject<boolean> = new Subject();
   output$: Subject<string[]> = new Subject();
   progress$: Subject<object> = new Subject();
+
+  promises: Promise<any>[] = [];
 
   constructor(private http: HttpClient, private rest: RestService) {
     this.reset();
@@ -51,6 +55,8 @@ export class GeocodingService {
 
     this.headerRow = null;
     this.allRows = null;
+
+    this.set = 1;
   }
 
   findField(field: string) {
@@ -71,22 +77,26 @@ export class GeocodingService {
     }
   }
 
-  getURL() {
-    // console.log('GET URL');
+  formatWebString(s) {
+    return s.replace(/&/g, 'and').replace(/#/g, '');
+  }
 
+  getURL(curr?: number) {
+    // console.log('GET URL');
+    curr = curr || 1;
     const r = this.allRows[this.index].split(',').map(c => c.trim());
     const addressString = [];
     if (this.addressIdx) {
-      addressString.push(r[this.addressIdx].replace(/&/g, 'and'));
+      addressString.push(this.formatWebString(r[this.addressIdx]));
     }
     if (this.cityIdx) {
-      addressString.push(r[this.cityIdx].replace(/&/g, 'and'));
+      addressString.push(this.formatWebString(r[this.cityIdx]));
     }
     if (this.stateIdx) {
-      addressString.push(r[this.stateIdx].replace(/&/g, 'and'));
+      addressString.push(this.formatWebString(r[this.stateIdx]));
     }
     if (this.zipIdx) {
-      addressString.push(r[this.zipIdx].replace(/&/g, 'and'));
+      addressString.push(this.formatWebString(r[this.zipIdx]));
     }
 
     const requestURL = encodeURI(
@@ -94,12 +104,43 @@ export class GeocodingService {
         .join(' ')
         .trim()}&key=AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ`
     );
-    this.getLatLong(requestURL).subscribe(data => this.handleGeocodeData(data));
+    this.promises.push(this.getLatLong(requestURL));
+    this.index++;
+    if (this.index <= this.allowed) {
+      if (curr < this.limit) {
+        this.getURL(curr + 1);
+      } else {
+        this.getPromises();
+      }
+    } else {
+      this.getPromises(true);
+    }
   }
 
-  handleGeocodeData(data) {
+  getPromises(save?: boolean) {
+    Promise.all(this.promises).then((all: any) => {
+      all.forEach((res, i) => {
+        this.handleGeocodeData(res, i + 1); // array of results
+      });
+      this.promises = [];
+      if (save) {
+        this.saveData();
+      } else {
+        setTimeout(() => {
+          this.set++;
+          this.getURL();
+        }, 1250);
+      }
+    });
+  }
+
+  handleGeocodeData(data, index) {
     let text = '';
-    if (data.results.length && this.index <= this.allowed) {
+    const factoredIdx = index + (this.set * this.limit - this.limit);
+
+    console.log(data, factoredIdx);
+
+    if (data.results.length && index <= this.allowed) {
       const latitude = data.results[0].geometry.location.lat;
       const longitude = data.results[0].geometry.location.lng;
       const geotype = data.results[0].geometry.location_type;
@@ -110,34 +151,21 @@ export class GeocodingService {
       text = `Found ${matchedAddress} at ${latitude}/${longitude}`;
 
       this.allRows[
-        this.index
+        factoredIdx
       ] += `,${latitude},${longitude},${geotype},${matchedAddress}`;
-      this.index++;
-      // console.log(index, csvRows.length);
-      if (this.index <= this.allowed) {
-        this.getURL();
-      } else {
-        this.saveData();
-      }
     } else {
       text = 'Failed to get data';
-      this.index++;
-      // console.log(index, csvRows.length);
-      if (this.index <= this.allowed) {
-        this.getURL();
-      } else {
-        this.saveData();
-      }
+      this.allRows[factoredIdx] += `,,,,${text}`;
     }
     this.progress$.next({
-      done: this.index - 1,
+      done: factoredIdx,
       total: this.allowed,
       text: text
     });
   }
 
   getLatLong(url) {
-    return this.http.get<any>(url);
+    return this.http.get<any>(url).toPromise();
   }
 
   saveData = () => {
