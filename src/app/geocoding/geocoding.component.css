@@ -20,6 +20,11 @@
   padding: 10px 25px;
 }
 
+.centered-div{
+  width: 90vw;
+    margin: 0 auto;
+}
+
 table{
     text-align: center;
     overflow:scroll;

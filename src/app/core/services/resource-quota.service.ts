@@ -26,6 +26,20 @@ export class ResourceQuotaService extends CrudService<ResourceQuota> {
     return this.http.get<Pageable<ResourceQuota>>(url, {headers: this.rest.getHeaders(), params: params});
   }
 
+  createNewResourceQuota(name) {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    console.log(firstDay)
+    const rq = new ResourceQuota({
+      resourceName: name,
+      periodStartDate: firstDay,
+      queryCount: 0,
+      quotaLimit: 20000
+    });
+    return this.create(rq)
+    
+  }
+
   protected createEntityFromObj(entityObj): ResourceQuota {
     return new ResourceQuota(entityObj);
   }

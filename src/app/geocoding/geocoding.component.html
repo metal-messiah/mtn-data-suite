@@ -5,50 +5,54 @@
     <div class="right"></div>
   </div>
 </mat-toolbar>
-<mds-file-input [fileTypes]="allowedFileTypes" [outputType]="outputType" (fileChanged)="handleFile($event)"></mds-file-input>
-<div class="flex-center" *ngIf="!canGeocode && file">
+<div *ngIf="!newestResourceQuota" class="flex-center">
+  <i class="fas fa-spinner fa-spin fa-3x"></i>
+</div>
+<mds-file-input *ngIf="newestResourceQuota" [fileTypes]="allowedFileTypes" [outputType]="outputType" (fileChanged)="handleFile($event)"></mds-file-input>
+<div class="centered-div" *ngIf="!canGeocode && file">
   Cannot geocode file without incurring extra charges... Please see IT for more information
 </div>
-<div class="flex-center" *ngIf="canGeocode">
+<div class="centered-div" *ngIf="canGeocode">
   <form #form="ngForm" *ngIf="headerRow">
     <mat-form-field>
       <mat-select name="addressField" ngModel required>
         <mat-option [value]="cell" *ngFor="let cell of headerRow">{{cell}}</mat-option>
       </mat-select>
-      <mat-hint>Address Field</mat-hint>
+      <mat-hint>Street Address / Full Address (Required)</mat-hint>
     </mat-form-field>
     <br>
     <mat-form-field>
       <mat-select name="cityField" ngModel>
         <mat-option [value]="cell" *ngFor="let cell of headerRow">{{cell}}</mat-option>
       </mat-select>
-      <mat-hint>City Field</mat-hint>
+      <mat-hint>City Field (Optional)</mat-hint>
     </mat-form-field>
     <br>
     <mat-form-field>
       <mat-select name="stateField" ngModel>
         <mat-option [value]="cell" *ngFor="let cell of headerRow">{{cell}}</mat-option>
       </mat-select>
-      <mat-hint>State Field</mat-hint>
+      <mat-hint>State Field (Optional)</mat-hint>
     </mat-form-field>
     <br>
     <mat-form-field>
       <mat-select name="zipField" ngModel>
         <mat-option [value]="cell" *ngFor="let cell of headerRow">{{cell}}</mat-option>
       </mat-select>
-      <mat-hint>Zipcode Field</mat-hint>
+      <mat-hint>Zipcode Field (Optional)</mat-hint>
     </mat-form-field>
     <br>
     <br>
-    <button (click)="submit(form)" [disabled]="!file || !form.valid" mat-flat-button color="primary">Geocode {{length | number}} Records</button>
+    <button (click)="submit(form)" [disabled]="!file || !form.valid" mat-flat-button color="primary">Geocode {{length |
+      number}} Records</button>
   </form>
 </div>
 <br>
 <br>
 <div *ngIf="running">
-  <div class="flex-center">{{status.done}}/{{status.total}}</div>
-  <div class="flex-center">{{status.text}}</div>
-  <div class="flex-center">
+  <div class="centered-div">{{status.done}}/{{status.total}}</div>
+  <div class="centered-div">{{status.text}}</div>
+  <div class="centered-div">
     <mat-progress-bar mode="determinate" [value]="getStatus()"></mat-progress-bar>
   </div>
 </div>
