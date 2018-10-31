@@ -13,6 +13,8 @@ export class FileInputComponent implements OnInit {
   outputType = 'text'; // text, dataUrl, buffer, binary
   @Input()
   disabled = false;
+  @Input()
+  buttonText = 'Upload File'
   @Output()
   fileChanged = new EventEmitter();
 

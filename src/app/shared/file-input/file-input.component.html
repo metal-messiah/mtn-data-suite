@@ -2,7 +2,7 @@
   <button type="button" mat-raised-button [color]="file ? 'primary' : 'warn'" (click)="fileInput.click()" [disabled]="disabled">
     <span class="file-tip" *ngIf="!file">
       <i class="fas fa-file" style="color:orange;margin-right:5px;"></i>
-      <b>Upload File</b>
+      <b>{{buttonText}}</b>
     </span>
     <span class="file-tip" *ngIf="file">
       <i class="fas fa-check-circle" style="color:orange;margin-right:5px;"></i>

@@ -20,20 +20,67 @@
   padding: 10px 25px;
 }
 
-.centered-div{
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.flex-between > button {
+  padding: 0 10px;
+  text-align: center;
+}
+
+.centered-div {
   width: 90vw;
-    margin: 0 auto;
+  margin: 0 auto;
+  text-align: center;
 }
 
-table{
-    text-align: center;
-    overflow:scroll;
+table {
+  text-align: center;
+  overflow: scroll;
 }
 
-tr:nth-child(even){
-    background-color: gray;
+tr:nth-child(even) {
+  background-color: gray;
 }
 
-td{
-    padding: 5px;
+td {
+  padding: 5px;
 }
+
+.loading-spinner {
+  text-align: center;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.green {
+  color: green;
+}
+
+.orange {
+  color: orange;
+}
+
+.red{
+  color: red;
+}
+
+.warning-info {
+  margin: 10px 0;
+  /* font-style: italic; */
+  font-weight: bold;
+}
+
+.math{
+  text-align: right;
+}
+
+.sum{
+  border-top: 1px solid gray;
+}
+

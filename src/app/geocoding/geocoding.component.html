@@ -5,53 +5,83 @@
     <div class="right"></div>
   </div>
 </mat-toolbar>
+
 <div *ngIf="!newestResourceQuota" class="flex-center">
-  <i class="fas fa-spinner fa-spin fa-3x"></i>
+  <div>
+    <div>Checking Quotas...</div>
+    <i class="fas fa-spinner fa-spin fa-3x loading-spinner"></i>
+  </div>
 </div>
-<mds-file-input *ngIf="newestResourceQuota" [fileTypes]="allowedFileTypes" [outputType]="outputType" (fileChanged)="handleFile($event)"></mds-file-input>
-<div class="centered-div" *ngIf="!canGeocode && file">
-  Cannot geocode file without incurring extra charges... Please see IT for more information
+
+<mds-file-input *ngIf="newestResourceQuota" buttonText="Upload CSV File" fileTypes=".csv" outputType="text"
+  (fileChanged)="handleFile($event)"></mds-file-input>
+
+<div style="width:250px;" class="centered-div" *ngIf="!canGeocode && file">
+  <div class='warning-info'>Can't geocode file without incurring extra charges</div>
+  <div class='math'>Geocodes Remaining: {{newestResourceQuota.quotaLimit -
+    newestResourceQuota.queryCount | number}}</div>
+  <div class="math">-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CSV File Length: {{length | number}}</div>
+  <div class="math sum">Quota Overage: <span class="red">{{(newestResourceQuota.quotaLimit -
+      newestResourceQuota.queryCount) - length | number}}</span></div>
+  <div class='warning-info'>Please see IT for more information</div>
 </div>
+
 <div class="centered-div" *ngIf="canGeocode">
   <form #form="ngForm" *ngIf="headerRow">
     <mat-form-field>
-      <mat-select name="addressField" ngModel required>
-        <mat-option [value]="cell" *ngFor="let cell of headerRow">{{cell}}</mat-option>
+      <mat-select name="addressField" ngModel>
+        <mat-option></mat-option>
+        <mat-option [value]="cell" [disabled]="disableField(form, 'addressField', cell)" *ngFor="let cell of headerRow">{{cell}}</mat-option>
       </mat-select>
-      <mat-hint>Street Address / Full Address (Required)</mat-hint>
+      <mat-hint>Street Address / Full Address</mat-hint>
     </mat-form-field>
     <br>
     <mat-form-field>
       <mat-select name="cityField" ngModel>
-        <mat-option [value]="cell" *ngFor="let cell of headerRow">{{cell}}</mat-option>
+        <mat-option></mat-option>
+        <mat-option [value]="cell" [disabled]="disableField(form, 'cityField', cell)" *ngFor="let cell of headerRow">{{cell}}</mat-option>
       </mat-select>
-      <mat-hint>City Field (Optional)</mat-hint>
+      <mat-hint>City Field</mat-hint>
     </mat-form-field>
     <br>
     <mat-form-field>
       <mat-select name="stateField" ngModel>
-        <mat-option [value]="cell" *ngFor="let cell of headerRow">{{cell}}</mat-option>
+        <mat-option></mat-option>
+        <mat-option [value]="cell" [disabled]="disableField(form, 'stateField', cell)" *ngFor="let cell of headerRow">{{cell}}</mat-option>
       </mat-select>
-      <mat-hint>State Field (Optional)</mat-hint>
+      <mat-hint>State Field</mat-hint>
     </mat-form-field>
     <br>
     <mat-form-field>
       <mat-select name="zipField" ngModel>
-        <mat-option [value]="cell" *ngFor="let cell of headerRow">{{cell}}</mat-option>
+        <mat-option></mat-option>
+        <mat-option [value]="cell" [disabled]="disableField(form, 'zipField', cell)" *ngFor="let cell of headerRow">{{cell}}</mat-option>
       </mat-select>
-      <mat-hint>Zipcode Field (Optional)</mat-hint>
+      <mat-hint>Zipcode Field</mat-hint>
     </mat-form-field>
     <br>
     <br>
-    <button (click)="submit(form)" [disabled]="!file || !form.valid" mat-flat-button color="primary">Geocode {{length |
-      number}} Records</button>
+    <div class='flex-between' *ngIf="!running">
+      <button (click)="submit(form)" [disabled]="!file || !validateForm(form)" mat-flat-button color="primary">Geocode
+        {{length |
+        number}} Records</button>
+      <div style="padding: 0px;width: 50%;" *ngIf="validateForm(form)">Maximum Accuracy: <b>{{estimateQuality(form)}}</b></div>
+    </div>
+    <div style="margin: 20px 0;" *ngIf="validateForm(form) && !running" class='centered-div'>
+      <span>Query Preview: <b>{{getQueryPreview(form)}}</b></span>
+    </div>
   </form>
 </div>
 <br>
 <br>
 <div *ngIf="running">
-  <div class="centered-div">{{status.done}}/{{status.total}}</div>
-  <div class="centered-div">{{status.text}}</div>
+  <!-- <div class="centered-div">{{status.done}}/{{status.total}}</div> -->
+  <div class="centered-div">
+    Successes: <span class="green">
+      <b>{{status.successes}}</b>
+    </span> | Failures: <span class="orange">
+      <b>{{status.failures}}</b>
+    </span></div>
   <div class="centered-div">
     <mat-progress-bar mode="determinate" [value]="getStatus()"></mat-progress-bar>
   </div>

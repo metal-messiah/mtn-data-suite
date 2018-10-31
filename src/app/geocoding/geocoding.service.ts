@@ -47,6 +47,7 @@ export class GeocodingService {
   length = 0;
 
   successes = 0;
+  failures = 0;
 
   constructor(
     private http: HttpClient,
@@ -78,6 +79,7 @@ export class GeocodingService {
     this.set = 1;
 
     this.successes = 0;
+    this.failures = 0;
 
     this.getNewestResourceQuota();
   }
@@ -87,13 +89,31 @@ export class GeocodingService {
       (page: Pageable<ResourceQuota>) => {
         if (page.content.length) {
           this.newestResourceQuota = page.content[0];
-          this.resourceQuota$.next(this.newestResourceQuota)
+          this.resourceQuota$.next(this.newestResourceQuota);
+          this.snackBar.open(
+            `${(this.newestResourceQuota.quotaLimit -
+              this.newestResourceQuota
+                .queryCount).toLocaleString()} Geocodes Remaining This Month`,
+            null,
+            {
+              duration: 5000
+            }
+          );
         } else {
           this.resourceQuotaService
             .createNewResourceQuota(this.resourceQuotaName)
             .subscribe((newRQ: ResourceQuota) => {
               this.newestResourceQuota = newRQ;
-              this.resourceQuota$.next(this.newestResourceQuota)
+              this.resourceQuota$.next(this.newestResourceQuota);
+              this.snackBar.open(
+                `${(this.newestResourceQuota.quotaLimit -
+                  this.newestResourceQuota
+                    .queryCount).toLocaleString()} Geocodes Remaining This Month`,
+                null,
+                {
+                  duration: 5000
+                }
+              );
             });
         }
       },
@@ -118,20 +138,23 @@ export class GeocodingService {
       const now = new Date();
       console.log(this.newestResourceQuota);
       if (rqStart.getMonth() < now.getMonth()) {
-        // older than a month
+        // the NEWEST RQ was assigned last month --> time to make a new resource quota
         this.resourceQuotaService
           .createNewResourceQuota(this.resourceQuotaName)
           .subscribe((newRQ: ResourceQuota) => {
+            // assign the newly created RQ and let the app know
             this.newestResourceQuota = newRQ;
-            this.resourceQuota$.next(this.newestResourceQuota)
+            this.resourceQuota$.next(this.newestResourceQuota);
           });
         return true;
       } else if (
         this.newestResourceQuota.queryCount + this.length <=
         this.newestResourceQuota.quotaLimit
       ) {
+        // Combining remaining queries and the length of the CSV does not exceed the limit
         return true;
       } else {
+        // Quota already exceeded or exceeded by file
         return false;
       }
     } else {
@@ -148,18 +171,13 @@ export class GeocodingService {
     }
   }
 
-  differenceInDays(firstDate, secondDate) {
-    return Math.round((secondDate - firstDate) / (1000 * 60 * 60 * 24));
-  }
-
-  findField(field: string) {
-    if (field) {
-      //   console.log(this.headerRow.split(',').map(c => c.trim()));
-      const idx = this.headerRow
+  findField(field: string, headerRow?: string) {
+    const hr = this.headerRow ? this.headerRow : headerRow;
+    if (field && hr) {
+      const idx = hr
         .split(',')
         .map(c => c.trim())
         .findIndex(f => f.toLowerCase() === field.toLowerCase());
-      //   console.log(field, idx);
       if (idx >= 0) {
         return idx;
       } else {
@@ -227,7 +245,7 @@ export class GeocodingService {
       // prep the promises array for the next set
       this.promises = [];
       if (save) {
-        this.saveData();
+        this.finalize();
       } else {
         // wait at least 1 second, then start building promises again
         setTimeout(() => {
@@ -265,13 +283,15 @@ export class GeocodingService {
     } else {
       text = 'Failed to get data';
       this.allRows[factoredIdx] += `,,,,${text}`;
+      this.failures++;
     }
 
     // update the progress bar
     this.progress$.next({
       done: factoredIdx,
       total: this.allowed,
-      text: text
+      successes: this.successes,
+      failures: this.failures
     });
   }
 
@@ -280,7 +300,18 @@ export class GeocodingService {
     return this.http.get<any>(url).toPromise();
   }
 
-  saveData = () => {
+  finalize() {
+    // observables for main component template -- shows/hides loading info
+    setTimeout(() => {
+      this.running$.next(false);
+      this.saveData();
+    }, 5000);
+
+    // update the ResourceQuota object on db to reflect queries
+    this.updateResoureQuotaCount();
+  }
+
+  saveData() {
     // convert the csv string array --> string --> blob
     const blob = new Blob([this.allRows.join('\r\n')], {
       type: 'text/plain'
@@ -289,21 +320,21 @@ export class GeocodingService {
     // save the blob as a file, and trigger browser download
     saveAs(blob, `${this.file.name.replace('.csv', '')}_geocoded.csv`);
 
-    // observables for main component template
-    this.running$.next(false);
-
-    // update the ResourceQuota object on db to reflect queries
-    this.updateResoureQuotaCount();
-  };
+    this.reset();
+  }
 
   updateResoureQuotaCount() {
     this.newestResourceQuota.queryCount += this.successes;
     this.resourceQuotaService
       .update(this.newestResourceQuota)
       .subscribe((rq: ResourceQuota) => {
-        this.snackBar.open(`Operation Complete`, null, { duration: 2000 });
+        this.snackBar.open(`Geocoding Complete -- Compiling File`, null, {
+          duration: 5000
+        });
       });
   }
+
+  getFieldIndicies(addressField, cityField, stateField, zipField) {}
 
   getAllRows(string) {
     // formats and breaks the file string into rows
@@ -323,6 +354,37 @@ export class GeocodingService {
     const allRows = this.getAllRows(file.fileOutput);
     this.length = allRows.length - 1;
     return this.length;
+  }
+
+  getQueryStringPreview(file, addressField, cityField, stateField, zipField) {
+    const allRows = this.getAllRows(file.fileOutput);
+    const headerRow = allRows[0];
+    // indices for finding the associated cell
+    const addressIdx = addressField
+      ? this.findField(addressField, headerRow)
+      : null;
+    const cityIdx = cityField ? this.findField(cityField, headerRow) : null;
+    const stateIdx = stateField ? this.findField(stateField, headerRow) : null;
+    const zipIdx = zipField ? this.findField(zipField, headerRow) : null;
+
+    const r = allRows[1].split(',').map(c => c.trim()); // current row
+
+    // get address parts from cells using mapped indicies
+    const addressString = [];
+    if (addressIdx) {
+      addressString.push(this.formatWebString(r[addressIdx]));
+    }
+    if (cityIdx) {
+      addressString.push(this.formatWebString(r[cityIdx]));
+    }
+    if (stateIdx) {
+      addressString.push(this.formatWebString(r[stateIdx]));
+    }
+    if (zipIdx) {
+      addressString.push(this.formatWebString(r[zipIdx]));
+    }
+
+    return addressString.join(', ');
   }
 
   handleFile(file, address, city, state, zip) {
