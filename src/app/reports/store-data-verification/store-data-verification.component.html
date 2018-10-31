@@ -18,7 +18,7 @@
         <td>{{store.get('location').value}}</td>
         <td>{{store.get('salesArea').value}}</td>
         <td [formGroupName]="i">
-          <input type="number" formControlName="totalArea">
+          <input type="number" formControlName="totalArea" min="0">
         </td>
       </tr>
     </table>

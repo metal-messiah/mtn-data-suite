@@ -6,23 +6,15 @@ import { SectorListItem } from './sector-list-item';
 
 export class ReportData {
 
-  storeList: StoreListItem[];
-  projectedVolumesBefore: VolumeItem[];
-  projectedVolumesAfter: VolumeItem[];
-  salesGrowthProjection: SalesGrowthProjectionItem[];
-  marketShareBySector: MarketShareBySectorItem[];
-  sectorList: SectorListItem[];
+  storeList: StoreListItem[] = [];
+  projectedVolumesBefore: VolumeItem[] = [];
+  projectedVolumesAfter: VolumeItem[] = [];
+  salesGrowthProjectionAverages: SalesGrowthProjectionItem;
+  salesGrowthProjectionYearEnd: SalesGrowthProjectionItem;
+  marketShareBySector: MarketShareBySectorItem[] = [];
+  sectorList: SectorListItem[] = [];
 
   firstYearEndingMonthYear: string;
   selectedMapKey: number;
 
-  constructor() {
-    this.storeList = [];
-    this.projectedVolumesBefore = [];
-    this.projectedVolumesAfter = [];
-    this.salesGrowthProjection = [];
-    this.marketShareBySector = [];
-    this.sectorList = [];
-    this.firstYearEndingMonthYear = null;
-  }
 }

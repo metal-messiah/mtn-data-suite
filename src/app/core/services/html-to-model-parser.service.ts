@@ -313,7 +313,7 @@ export class HtmlToModelParser {
 
     for (let i = 0; i < sgpMapping.first.length; i++) {
       const {first, second, third, fourth, fifth} = sgpMapping;
-      const salesGrowthProjectionItem = new SalesGrowthProjectionItem(
+      reportData.salesGrowthProjectionAverages = new SalesGrowthProjectionItem(
         first[i].sales,
         first[i].salesPSF,
         second[i].sales,
@@ -325,7 +325,6 @@ export class HtmlToModelParser {
         fifth[i].sales,
         fifth[i].salesPSF
       );
-      reportData.salesGrowthProjection.push(salesGrowthProjectionItem);
     }
     this.generateMarketShareBySector(reportData, tables, currentTableIndex + 1);
   }

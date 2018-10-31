@@ -43,7 +43,7 @@ export class StoreDataVerificationComponent implements OnInit {
         .filter(s => s.category !== 'Do Not Include')
         .map(si => {
           const group = this.fb.group(si);
-          group.get('totalArea').setValidators([Validators.required]);
+          group.get('totalArea').setValidators([Validators.required, Validators.min(0)]);
           return group;
         }))
     });

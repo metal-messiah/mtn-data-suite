@@ -123,7 +123,7 @@ export class ReportTablesComponent implements OnInit {
       this.googleMapsZoom = this.googleMapsZoom - zoom;
     }
     // map image
-    const target = this.jsonToTablesUtil.getTargetStore();
+    const target = this.jsonToTablesUtil.targetStore;
     const targetPin = `&markers=color:red%7Clabel:${target.storeName[0]}%7C${target.latitude},${target.longitude}`;
 
     const {latitude, longitude} = target;
