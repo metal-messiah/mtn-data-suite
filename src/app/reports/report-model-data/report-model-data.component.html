@@ -18,25 +18,25 @@
 
     <div>
       <button type="button" mat-raised-button
-              [color]="htmlFile ? 'primary' : 'warn'"
-              (click)="htmlFileInput.click()"
-              [disabled]="parsingHtml">
-        <i class="fas fa-spinner fa-spin" *ngIf="parsingHtml"></i>
-        {{parsingHtml ? ' Fetching Data From Server': 'Upload HTML File'}}
+              [color]="file ? 'primary' : 'warn'"
+              (click)="fileInput.click()"
+              [disabled]="parsingFile">
+        <i class="fas fa-spinner fa-spin" *ngIf="parsingFile"></i>
+        {{parsingFile ? ' Fetching Data From Server': 'Upload File'}}
       </button>
-      <span class="file-tip" *ngIf="htmlFile">
+      <span class="file-tip" *ngIf="file">
         <i class="fas fa-check-circle" style="color:green;margin-right:5px;"></i>
-        <b>{{htmlFile ? htmlFile.name : ''}}</b>
+        <b>{{file ? file.name : ''}}</b>
       </span>
-      <input hidden type="file" accept=".html" id="htmlFileInput" #htmlFileInput (change)="readFile($event)"/>
+      <input hidden type="file" accept=".xls, .xlsx" id="fileInput" #fileInput (change)="readFile($event)"/>
     </div>
     <div>
-      <button (click)="submitModelData()" [color]="'warn'" [disabled]="modelMetaDataForm.invalid || !htmlFile || parsingHtml || postProcessing"
+      <button (click)="submitModelData()" [color]="'warn'" [disabled]="modelMetaDataForm.invalid || !file || parsingFile || postProcessing"
               mat-raised-button style="margin-top:20px;">Next
       </button>
-      <span class="file-tip" *ngIf="parsingHtml || postProcessing">
+      <span class="file-tip" *ngIf="parsingFile || postProcessing">
         <i class="fas fa-spinner fa-pulse" style="margin-right:5px;"></i>
-        <b *ngIf="parsingHtml">Parsing HTML file...</b>
+        <b *ngIf="parsingFile">Parsing File...</b>
         <b *ngIf="postProcessing">Processing Data...</b>
       </span>
     </div>

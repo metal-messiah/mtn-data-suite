@@ -77,12 +77,12 @@ export class HtmlDimensionsService {
       // set the style for each unit, then calculate it's relative value against the baseline
       temp.style.width = baseline + map[key];
       factors[key] = baseline / temp.offsetWidth;
-    })
+    });
 
     Object.keys(map).forEach( key => {
       // use the ratios figured in the above loop to determine converted values
       units[key] = numeric * (factors[key] * factors[activeMap]);
-    })
+    });
 
     target.parentElement.removeChild(temp); // clean up
 

@@ -5,15 +5,16 @@ import { MarketShareBySectorItem } from './market-share-by-sector-item';
 import { SectorListItem } from './sector-list-item';
 
 export class ReportData {
-  selectedMapKey;
+
   storeList: StoreListItem[];
   projectedVolumesBefore: VolumeItem[];
   projectedVolumesAfter: VolumeItem[];
   salesGrowthProjection: SalesGrowthProjectionItem[];
   marketShareBySector: MarketShareBySectorItem[];
   sectorList: SectorListItem[];
+
   firstYearEndingMonthYear: string;
-  inflationRate: number;
+  selectedMapKey: number;
 
   constructor() {
     this.storeList = [];

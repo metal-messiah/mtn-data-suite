@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ReportData } from '../../models/report-data';
 import { Subject } from 'rxjs';
+import { JsonToTablesUtil } from '../report-tables/json-to-tables.util';
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +10,11 @@ export class ReportBuilderService {
 
   reportTableData: ReportData;
   reportMetaData;
+  siteEvaluationData;
 
-  reportDataLoaded$: Subject<void> = new Subject();
+  jsonToTablesUtil: JsonToTablesUtil;
+
+  next$: Subject<void> = new Subject();
 
   compilingImages = false;
 
@@ -19,8 +23,14 @@ export class ReportBuilderService {
 
   setReportTableData(reportData: ReportData) {
     this.reportTableData = reportData;
-    this.reportDataLoaded$.next();
   }
 
+  setSiteEvaluationData(siteEvalData) {
+    this.siteEvaluationData = siteEvalData;
+  }
+
+  generateTables() {
+    this.next$.next();
+  }
 
 }

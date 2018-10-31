@@ -16,10 +16,10 @@
       </div>
     </mat-card>
     <mat-list>
-      <mds-data-field *ngIf="store.currentStoreSurvey != null" title="Sales Area"
-                      [sqft]="store.currentStoreSurvey.areaSales"></mds-data-field>
-      <mds-data-field *ngIf="store.currentStoreSurvey != null" title="Total Area"
-                      [sqft]="store.currentStoreSurvey.areaTotal"></mds-data-field>
+      <mds-data-field *ngIf="store != null" title="Sales Area"
+                      [sqft]="store.areaSales"></mds-data-field>
+      <mds-data-field *ngIf="store != null" title="Total Area"
+                      [sqft]="store.areaTotal"></mds-data-field>
       <mds-data-field *ngIf="store.dateOpened != null" title="Date Opened"
                       [dateValue]="store.dateOpened"></mds-data-field>
       <mds-data-field *ngIf="store.dateClosed != null" title="Date Closed"
@@ -31,8 +31,8 @@
         <li *ngFor="let volume of store.storeVolumes">
           <strong>{{volume.volumeDate | date}}:</strong>&nbsp;
           <span>{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k</span>
-          <!--<span *ngIf="store.currentStoreSurvey != null && store.currentStoreSurvey.areaSales != null">-->
-            <!--&nbsp;({{volume.volumeTotal/store.currentStoreSurvey.areaSales | currency}}&nbsp;psf)-->
+          <!--<span *ngIf="store.currentStoreSurvey != null && store.areaSales != null">-->
+            <!--&nbsp;({{volume.volumeTotal/store.areaSales | currency}}&nbsp;psf)-->
           <!--</span>-->
           <span *ngIf="volume.volumeType">&nbsp;&nbsp;{{volume.volumeType}}</span>
         </li>

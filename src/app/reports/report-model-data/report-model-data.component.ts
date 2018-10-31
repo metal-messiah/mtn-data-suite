@@ -4,11 +4,12 @@ import { ReportData } from '../../models/report-data';
 import { MatSnackBar } from '@angular/material';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
-import { HtmlToModelParser } from '../../core/services/html-to-model-parser.service';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { StoreService } from '../../core/services/store.service';
 import { finalize, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { XlsToModelParserService } from '../../core/services/xls-to-model-parser.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'mds-report-model-data',
@@ -17,20 +18,21 @@ import { Observable } from 'rxjs';
 })
 export class ReportModelDataComponent implements OnInit {
 
-  parsingHtml = false;
+  parsingFile = false;
   postProcessing = false;
 
   modelMetaDataForm: FormGroup;
 
-  htmlFile: File;
+  file: File;
   reportData: ReportData;
 
   fileReader: FileReader;
 
-  constructor(public reportBuilderService: ReportBuilderService,
+  constructor(public rbs: ReportBuilderService,
               private fb: FormBuilder,
               private auth: AuthService,
-              private htmlReportToJsonService: HtmlToModelParser,
+              private router: Router,
+              private xlsToModelParserService: XlsToModelParserService,
               private storeService: StoreService,
               private snackBar: MatSnackBar) {
     this.fileReader = new FileReader();
@@ -56,10 +58,10 @@ export class ReportModelDataComponent implements OnInit {
 
     if (files && files.length === 1) {
       // only want 1 file at a time!
-      if (files[0].name.includes('.html')) {
-        this.htmlFile = files[0];
+      if (files[0].name.includes('.xls')) {
+        this.file = files[0];
       } else {
-        this.snackBar.open('Only valid .html files are accepted', null, {
+        this.snackBar.open('Only valid .xls or .xlsx files are accepted', null, {
           duration: 2000
         });
       }
@@ -71,23 +73,25 @@ export class ReportModelDataComponent implements OnInit {
 
   resetFile() {
     console.log('RESET FILE');
-    this.htmlFile = null;
+    this.file = null;
     this.reportData = null;
   }
 
   submitModelData() {
-    this.reportBuilderService.reportMetaData = this.modelMetaDataForm.value;
+    this.rbs.reportMetaData = this.modelMetaDataForm.value;
     this.fileReader.onload = () => {
       if (this.fileReader.result) {
-        this.parsingHtml = true;
-        this.htmlReportToJsonService.parseHtml(this.fileReader.result)
-          .pipe(finalize(() => this.parsingHtml = false))
+        this.parsingFile = true;
+        this.xlsToModelParserService.parseXls(this.fileReader.result)
+        // this.htmlReportToJsonService.parseHtml(this.fileReader.result)
+          .pipe(finalize(() => this.parsingFile = false))
           .subscribe((reportData: ReportData) => {
             this.postProcessing = true;
             this.postProcessReportData(reportData)
               .pipe(finalize(() => {
                 this.postProcessing = false;
-                this.reportBuilderService.setReportTableData(reportData);
+                this.rbs.setReportTableData(reportData);
+                this.router.navigate(['reports/categorization']);
               }))
               .subscribe();
           }, err => {
@@ -99,7 +103,7 @@ export class ReportModelDataComponent implements OnInit {
       }
     };
     this.fileReader.onerror = error => this.snackBar.open(error.toString(), null, {duration: 2000});
-    this.fileReader.readAsText(this.htmlFile); // Triggers FileReader.onload
+    this.fileReader.readAsBinaryString(this.file); // Triggers FileReader.onload
   }
 
   private postProcessReportData(reportData: ReportData): Observable<any> {
@@ -131,7 +135,7 @@ export class ReportModelDataComponent implements OnInit {
           stores.forEach((store: SimplifiedStore) => {
             const idx = reportData.storeList.findIndex(s => s.uniqueId === store.id);
             if (idx !== -1) {
-              reportData.storeList[idx].totalSize = store.areaTotal;
+              reportData.storeList[idx].totalArea = store.areaTotal;
             }
           });
         },

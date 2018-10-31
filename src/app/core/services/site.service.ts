@@ -7,7 +7,6 @@ import { CrudService } from '../../interfaces/crud-service';
 import { Site } from '../../models/full/site';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { Coordinates } from '../../models/coordinates';
-import { Pageable } from '../../models/pageable';
 import { Store } from '../../models/full/store';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
@@ -38,18 +37,15 @@ export class SiteService extends CrudService<Site> {
       .pipe(map((simpleSite) => new SimplifiedSite(simpleSite)));
   }
 
-  getSitesWithoutStoresInBounds(bounds: any): Observable<Pageable<SimplifiedSite>> {
+  getSitesWithoutStoresInBounds(bounds: any): Observable<SimplifiedSite[]> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams().set('size', '300');
     params = params.set('no_stores', 'true');
     _.forEach(bounds, function (value, key) {
       params = params.set(key, value);
     });
-    return this.http.get<Pageable<SimplifiedSite>>(url, {headers: this.rest.getHeaders(), params: params})
-      .pipe(map((page) => {
-        page.content = page.content.map(site => new SimplifiedSite(site));
-        return page;
-      }));
+    return this.http.get<SimplifiedSite[]>(url, {headers: this.rest.getHeaders(), params: params})
+      .pipe(map(list => list.map(site => new SimplifiedSite(site))));
   }
 
   getSitePointsInBounds(bounds: any): Observable<Coordinates[]> {
@@ -59,12 +55,6 @@ export class SiteService extends CrudService<Site> {
       params = params.set(key, value);
     });
     return this.http.get<Coordinates[]>(url, {headers: this.rest.getHeaders(), params: params})
-  }
-
-  getDuplicateSites(): Observable<Pageable<Site>> {
-    const url = this.rest.getHost() + this.endpoint;
-    const params = new HttpParams().set('duplicate', 'true');
-    return this.http.get<Pageable<Site>>(url, {headers: this.rest.getHeaders(), params: params})
   }
 
   assignToUser(siteIds: number[], userId: number) {

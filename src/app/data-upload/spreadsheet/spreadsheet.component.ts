@@ -311,7 +311,7 @@ export class SpreadsheetComponent implements OnInit {
               });
 
               this.ngZone.run(() => {
-                this.storeMapLayer.setEntities(page.content);
+                // this.storeMapLayer.setEntities(list);
               });
 
               console.log('currentdb', this.currentDBSiteResults);

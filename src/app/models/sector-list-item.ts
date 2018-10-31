@@ -1,9 +1,9 @@
 export class SectorListItem {
-    sector: String;
-    name: String;
-    latitude: Number;
-    longitude: Number;
-    pop: Number;
-    PCW: Number;
-    leakage: Number;
+    sector: number;
+    name: string;
+    latitude: number;
+    longitude: number;
+    pop: number;
+    PCW: number;
+    leakage: number;
   }

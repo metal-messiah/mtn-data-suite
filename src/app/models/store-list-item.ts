@@ -1,11 +1,11 @@
 export class StoreListItem {
   storeName: string;
-  mapKey: string;
+  mapKey: number;
   uniqueId: number;
   latitude: number;
   longitude: number;
   salesArea: number;
-  totalSize: number;
+  totalArea: number;
   actualSales: number;
   actualSalesPSF: number;
   marketShare: number;

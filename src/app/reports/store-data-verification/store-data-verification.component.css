@@ -1,0 +1,11 @@
+.list-wrapper {
+  max-width: 1200px;
+}
+
+mat-form-field {
+  max-width: 120px;
+}
+
+td input {
+  max-width: 100px;
+}

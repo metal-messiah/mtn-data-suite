@@ -2,7 +2,7 @@
 <div mat-dialog-content [formGroup]="form">
   <mat-progress-bar *ngIf="creating" mode="indeterminate"></mat-progress-bar>
   <mat-form-field>
-    <input matInput type="number" placeholder="Volume Total" formControlName="volumeTotal" required>
+    <input matInput type="number" autocomplete="off" required placeholder="Volume Total" formControlName="volumeTotal">
   </mat-form-field>
   <mat-form-field>
     <mat-select placeholder="Volume Type" formControlName="volumeType">

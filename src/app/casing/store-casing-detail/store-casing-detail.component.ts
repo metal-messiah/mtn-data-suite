@@ -345,7 +345,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       maxWidth: '90%'
     });
     volumesDialog.afterClosed().subscribe(result => {
-      if (result != null) {
+      if (result != null && result !== '') {
         if (this.storeCasing.storeVolume != null) {
           const data = {
             title: 'Replace Volume',
@@ -370,7 +370,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     const date = dateControl.value;
     this.storeVolumeForm.reset(volume);
     dateControl.setValue(date);
-    this.storeVolumeForm.markAsDirty();
+    this.storeVolumeForm.get('volumeTotal').markAsDirty();
     this.storeVolumeForm.get('source').setValue('MTN Casing App');
     this.saveForm();
   }
