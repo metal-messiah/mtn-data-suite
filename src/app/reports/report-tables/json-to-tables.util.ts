@@ -129,14 +129,14 @@ export class JsonToTablesUtil {
     if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
       const threshold = Math.ceil(_.maxBy(this.sovOverflowStores, 'contributionToSite')['contributionToSite']);
       return `*Does not show contributions less than $${threshold.toLocaleString()} 
-      (Showing ${this.sovStores.length}/${this.sovStores.length + this.sovOverflowStores.length} Stores).`
+      (Showing ${this.sovStores.length}/${this.sovStores.length + this.sovOverflowStores.length} stores).`
     }
     return null;
   }
 
   getTruncatedSumMessage() {
     if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
-      return `A total Contribution To Site of $${this.getOverflowSum().toLocaleString()} was excluded from the Report.`
+      return `A total Contribution To Site of $${this.getOverflowSum().toLocaleString()} was excluded from the report.`
     }
     return null;
   }
