@@ -40,6 +40,42 @@
         </mat-select>
       </mat-form-field>
       <mat-form-field>
+        <mat-select placeholder="Fit" formControlName="fit">
+          <mat-option>Clear Selection</mat-option>
+          <mat-option *ngFor="let fitOption of fitOptions" [value]="fitOption">{{fitOption}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-select placeholder="Format" formControlName="format">
+          <mat-option>Clear Selection</mat-option>
+          <mat-option *ngFor="let formatOption of formatOptions" [value]="formatOption">{{formatOption}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="number" autocomplete="off" placeholder="Sales Area" formControlName="areaSales">
+        <span matSuffix>sqft</span>
+        <mat-error>Leave blank if 0</mat-error>
+      </mat-form-field>
+      <mat-form-field id="area-percent-input">
+        <input matInput type="number" autocomplete="off" placeholder="Percent of Total Area"
+               formControlName="areaSalesPercentOfTotal">
+        <span matSuffix>%</span>
+        <mat-hint>Between 0.01% and 100%</mat-hint>
+        <mat-error *ngIf="form.get('areaSalesPercentOfTotal').invalid">Between 0.01% and 100%
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="number" autocomplete="off" placeholder="Total Area" formControlName="areaTotal">
+        <span matSuffix>sqft</span>
+        <mat-error>Leave blank if 0</mat-error>
+      </mat-form-field>
+      <div class="checklist">
+        <mat-checkbox formControlName="areaIsEstimate">Area Is Estimate</mat-checkbox>
+        <mat-checkbox formControlName="naturalFoodsAreIntegrated">Natural Foods are Integrated</mat-checkbox>
+        <mat-checkbox formControlName="storeIsOpen24">Open 24hrs</mat-checkbox>
+      </div>
+      <mat-form-field>
         <input matInput [matDatepicker]="dateOpened" placeholder="Store Opening Date"
                formControlName="dateOpened">
         <mat-datepicker-toggle matSuffix [for]="dateOpened"></mat-datepicker-toggle>
