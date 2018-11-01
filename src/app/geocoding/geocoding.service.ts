@@ -91,9 +91,10 @@ export class GeocodingService {
           this.newestResourceQuota = page.content[0];
           this.resourceQuota$.next(this.newestResourceQuota);
           this.snackBar.open(
-            `${(this.newestResourceQuota.quotaLimit -
-              this.newestResourceQuota
-                .queryCount).toLocaleString()} Geocodes Remaining This Month`,
+            `${(
+              this.newestResourceQuota.quotaLimit -
+              this.newestResourceQuota.queryCount
+            ).toLocaleString()} Geocodes Remaining This Month`,
             null,
             {
               duration: 5000
@@ -106,9 +107,10 @@ export class GeocodingService {
               this.newestResourceQuota = newRQ;
               this.resourceQuota$.next(this.newestResourceQuota);
               this.snackBar.open(
-                `${(this.newestResourceQuota.quotaLimit -
-                  this.newestResourceQuota
-                    .queryCount).toLocaleString()} Geocodes Remaining This Month`,
+                `${(
+                  this.newestResourceQuota.quotaLimit -
+                  this.newestResourceQuota.queryCount
+                ).toLocaleString()} Geocodes Remaining This Month`,
                 null,
                 {
                   duration: 5000
@@ -137,8 +139,11 @@ export class GeocodingService {
       const rqStart = new Date(this.newestResourceQuota.periodStartDate);
       const now = new Date();
       console.log(this.newestResourceQuota);
-      if (rqStart.getMonth() < now.getMonth()) {
-        // the NEWEST RQ was assigned last month --> time to make a new resource quota
+      if (
+        rqStart.getMonth() < now.getMonth() ||
+        rqStart.getFullYear() < now.getFullYear()
+      ) {
+        // the NEWEST RQ is over a month old --> time to make a new resource quota
         this.resourceQuotaService
           .createNewResourceQuota(this.resourceQuotaName)
           .subscribe((newRQ: ResourceQuota) => {
@@ -146,7 +151,7 @@ export class GeocodingService {
             this.newestResourceQuota = newRQ;
             this.resourceQuota$.next(this.newestResourceQuota);
           });
-        return true;
+        return this.length <= 20000;
       } else if (
         this.newestResourceQuota.queryCount + this.length <=
         this.newestResourceQuota.quotaLimit
@@ -247,7 +252,7 @@ export class GeocodingService {
       if (save) {
         this.finalize();
       } else {
-        // wait at least 1 second, then start building promises again
+        // wait at least 1 second (dont exceed 50/sec), then start building promises again
         setTimeout(() => {
           this.set++;
           this.getURL();
@@ -270,23 +275,22 @@ export class GeocodingService {
         /,/g,
         ' '
       );
-      // for progress bar caption
-      text = `Found ${matchedAddress} at ${latitude}/${longitude}`;
 
       // append the new data to the csv row string
       this.allRows[
         factoredIdx
       ] += `,${latitude},${longitude},${geotype},${matchedAddress}`;
 
-      // tally of successful geocodes for updating the ResourceQuota object at the end
+      // tally of successful geocodes for status bar / updating the ResourceQuota object at the end
       this.successes++;
     } else {
       text = 'Failed to get data';
       this.allRows[factoredIdx] += `,,,,${text}`;
+      // tally of failures for status bar
       this.failures++;
     }
 
-    // update the progress bar
+    // update the status bar
     this.progress$.next({
       done: factoredIdx,
       total: this.allowed,
@@ -302,6 +306,7 @@ export class GeocodingService {
 
   finalize() {
     // observables for main component template -- shows/hides loading info
+    // wait 5 seconds just so that there is time to read the status bar before it hides
     setTimeout(() => {
       this.running$.next(false);
       this.saveData();
@@ -333,8 +338,6 @@ export class GeocodingService {
         });
       });
   }
-
-  getFieldIndicies(addressField, cityField, stateField, zipField) {}
 
   getAllRows(string) {
     // formats and breaks the file string into rows
