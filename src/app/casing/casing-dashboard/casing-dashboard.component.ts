@@ -172,6 +172,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         });
       }
     });
+
+    // Check Project boundary service to see if boundary should be showing, if so, show it anew
+    if (this.projectBoundaryService.isShowingBoundary()) {
+      this.projectBoundaryService.showProjectBoundaries().subscribe();
+    }
   }
 
   private getDebounce() {
