@@ -659,6 +659,12 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   enableProjectBoundaryEditing() {
     this.selectedDashboardMode = CasingDashboardMode.EDIT_PROJECT_BOUNDARY;
     this.projectBoundaryService.enableProjectBoundaryEditing();
+    this.projectBoundaryService.zoomToProjectBoundary();
+  }
+
+  showBoundary() {
+    this.projectBoundaryService.showProjectBoundaries().subscribe();
+    this.projectBoundaryService.zoomToProjectBoundary();
   }
 
   selectAllInBoundary() {
@@ -672,7 +678,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         } else {
           this.snackBar.open('No Boundary for Project', null, {duration: 2000, verticalPosition: 'top'});
         }
-      })
+      });
+      this.projectBoundaryService.zoomToProjectBoundary();
     }
   }
 
