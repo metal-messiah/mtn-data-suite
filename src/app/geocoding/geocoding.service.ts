@@ -48,6 +48,7 @@ export class GeocodingService {
 
   successes = 0;
   failures = 0;
+  rooftops = 0;
 
   constructor(
     private http: HttpClient,
@@ -80,6 +81,7 @@ export class GeocodingService {
 
     this.successes = 0;
     this.failures = 0;
+    this.rooftops = 0;
 
     this.getNewestResourceQuota();
   }
@@ -283,6 +285,9 @@ export class GeocodingService {
 
       // tally of successful geocodes for status bar / updating the ResourceQuota object at the end
       this.successes++;
+      if (geotype === 'ROOFTOP') {
+        this.rooftops++;
+      }
     } else {
       text = 'Failed to get data';
       this.allRows[factoredIdx] += `,,,,${text}`;
@@ -295,7 +300,8 @@ export class GeocodingService {
       done: factoredIdx,
       total: this.allowed,
       successes: this.successes,
-      failures: this.failures
+      failures: this.failures,
+      rooftops: this.rooftops
     });
   }
 

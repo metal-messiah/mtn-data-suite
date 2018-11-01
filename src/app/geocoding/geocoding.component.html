@@ -29,7 +29,7 @@
 <div class="centered-div" *ngIf="canGeocode">
   <form #form="ngForm" *ngIf="headerRow">
     <mat-form-field>
-      <mat-select name="addressField" ngModel>
+      <mat-select name="addressField" [(ngModel)]="addressField">
         <mat-option></mat-option>
         <mat-option [value]="cell" [disabled]="disableField(form, 'addressField', cell)" *ngFor="let cell of headerRow">{{cell}}</mat-option>
       </mat-select>
@@ -37,7 +37,7 @@
     </mat-form-field>
     <br>
     <mat-form-field>
-      <mat-select name="cityField" ngModel>
+      <mat-select name="cityField" [(ngModel)]="cityField">
         <mat-option></mat-option>
         <mat-option [value]="cell" [disabled]="disableField(form, 'cityField', cell)" *ngFor="let cell of headerRow">{{cell}}</mat-option>
       </mat-select>
@@ -45,7 +45,7 @@
     </mat-form-field>
     <br>
     <mat-form-field>
-      <mat-select name="stateField" ngModel>
+      <mat-select name="stateField" [(ngModel)]="stateField">
         <mat-option></mat-option>
         <mat-option [value]="cell" [disabled]="disableField(form, 'stateField', cell)" *ngFor="let cell of headerRow">{{cell}}</mat-option>
       </mat-select>
@@ -53,7 +53,7 @@
     </mat-form-field>
     <br>
     <mat-form-field>
-      <mat-select name="zipField" ngModel>
+      <mat-select name="zipField" [(ngModel)]="zipField">
         <mat-option></mat-option>
         <mat-option [value]="cell" [disabled]="disableField(form, 'zipField', cell)" *ngFor="let cell of headerRow">{{cell}}</mat-option>
       </mat-select>
@@ -65,7 +65,7 @@
       <button (click)="submit(form)" [disabled]="!file || !validateForm(form)" mat-flat-button color="primary">Geocode
         {{length |
         number}} Records</button>
-      <div style="padding: 0px;width: 50%;" *ngIf="validateForm(form)">Maximum Accuracy: <b>{{estimateQuality(form)}}</b></div>
+      <div style="padding: 0px;width: 50%;" *ngIf="validateForm(form)">Maximum Accuracy: <b [ngClass]="getQualityColor(form)">{{estimateQuality(form)}}</b></div>
     </div>
     <div style="margin: 20px 0;" *ngIf="validateForm(form) && !running" class='centered-div'>
       <span>Query Preview: <b>{{getQueryPreview(form)}}</b></span>
@@ -76,11 +76,13 @@
 <br>
 <div *ngIf="running">
   <!-- <div class="centered-div">{{status.done}}/{{status.total}}</div> -->
-  <div class="centered-div">
-    Successes: <span class="green">
-      <b>{{status.successes}}</b>
-    </span> | Failures: <span class="orange">
-      <b>{{status.failures}}</b>
+  <div class="centered-div progress-text-wrapper">
+    <span class="green">
+      <i class="fas fa-home green"></i> Rooftop: <b>{{status.rooftops}}</b>
+    </span> | <span class="orange">
+      <i class="fas fa-question-circle orange"></i> Other: <b>{{status.done - status.rooftops}}</b>
+    </span> | <span class="red">
+      <i class="fas fa-exclamation-triangle red"></i> Failures: <b>{{status.failures}}</b>
     </span></div>
   <div class="centered-div">
     <mat-progress-bar mode="determinate" [value]="getStatus()"></mat-progress-bar>

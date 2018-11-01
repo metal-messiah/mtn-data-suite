@@ -59,14 +59,14 @@ td {
 }
 
 .green {
-  color: green;
+  color: #01b901;
 }
 
 .orange {
   color: orange;
 }
 
-.red{
+.red {
   color: red;
 }
 
@@ -76,11 +76,21 @@ td {
   font-weight: bold;
 }
 
-.math{
+.math {
   text-align: right;
 }
 
-.sum{
+.sum {
   border-top: 1px solid gray;
 }
 
+.progress-text-wrapper {
+  padding: 10px 0;
+  background: #2b3a41;
+  width: 400px;
+  border-radius: 10px 10px 0 0;
+}
+
+.mat-progress-bar {
+  height: 25px !important;
+}

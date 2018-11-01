@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { GeocodingService } from './geocoding.service';
 import { ResourceQuota } from '../models/resource-quota';
@@ -30,18 +30,26 @@ export class GeocodingComponent implements OnInit {
     total: number;
     successes: number;
     failures: number;
+    rooftops: number;
   } = {
     done: 0,
     total: 0,
     successes: 0,
-    failures: 0
+    failures: 0,
+    rooftops: 0
   };
+
+  addressField: string = null;
+  cityField: string = null;
+  stateField: string = null;
+  zipField: string = null;
 
   constructor(private geocodingService: GeocodingService) {
     // used to trigger loading bar
     this.geocodingService.running$.subscribe((data: boolean) => {
       this.running = data;
       if (!data) {
+        console.log('DONE RUNNING!');
         this.offset = 0;
       }
     });
@@ -58,6 +66,7 @@ export class GeocodingComponent implements OnInit {
         total: number;
         successes: number;
         failures: number;
+        rooftops: number;
       }) => {
         this.offset += 10;
         setTimeout(() => {
@@ -65,6 +74,7 @@ export class GeocodingComponent implements OnInit {
           this.status.total = data.total;
           this.status.successes = data.successes;
           this.status.failures = data.failures;
+          this.status.rooftops = data.rooftops;
         }, this.offset);
       }
     );
@@ -75,6 +85,13 @@ export class GeocodingComponent implements OnInit {
   }
 
   ngOnInit() {}
+
+  resetFormValues() {
+    this.addressField = null;
+    this.cityField = null;
+    this.stateField = null;
+    this.zipField = null;
+  }
 
   getStatus() {
     return (this.status.done / this.status.total) * 100;
@@ -112,6 +129,15 @@ export class GeocodingComponent implements OnInit {
     }
   }
 
+  getQualityColor(form) {
+    const label = this.estimateQuality(form);
+    return label === 'Rooftop'
+      ? 'green'
+      : label === 'Centroid'
+        ? 'orange'
+        : 'red';
+  }
+
   getQueryPreview(form) {
     const { addressField, cityField, stateField, zipField } = form.value;
     return this.geocodingService.getQueryStringPreview(
@@ -124,6 +150,7 @@ export class GeocodingComponent implements OnInit {
   }
 
   handleFile(file) {
+    this.resetFormValues();
     this.geocodingService.reset();
     this.file = file;
     this.headerRow = this.geocodingService.getHeaderRowArray(file);
