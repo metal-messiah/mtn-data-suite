@@ -1,6 +1,12 @@
 <div class='pg-wrapper'>
   <div class='left-panel' *ngIf="records != null">
-    <h2>{{currentRecordIndex + 1 }}/{{totalStoreSourceRecords}}</h2>
+    <div class="flex" style="justify-content: space-around; margin-top: 8px;">
+      <h2>{{currentRecordIndex + 1 }}/{{totalStoreSourceRecords}}</h2>
+      <button mat-mini-fab color="accent" (click)="refresh()" [disabled]="isRefreshing">
+        <i *ngIf="!isRefreshing" class="fas fa-sync"></i>
+        <i *ngIf="isRefreshing" class="fas fa-sync fa-spin"></i>
+      </button>
+    </div>
     <mat-list>
       <mat-list-item *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex}"
                      (click)="setCurrentRecord(i)">
