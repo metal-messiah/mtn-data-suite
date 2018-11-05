@@ -85,16 +85,24 @@
         <td>Average</td>
         <td></td>
         <td></td>
-        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.currentWeeklyStores, 'actualSales') | number:'1.0-0'}}</td>
-        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.currentWeeklyStores, 'actualSalesPSF') | number:'1.2-2'}}
+        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.currentWeeklyStores,
+          'actualSales') | number:'1.0-0'}}
         </td>
-        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.currentWeeklyStores, 'salesArea') | number:'1.0-0'}}</td>
+        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.currentWeeklyStores,
+          'actualSalesPSF') | number:'1.2-2'}}
+        </td>
+        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.currentWeeklyStores, 'salesArea')
+          | number:'1.0-0'}}
+        </td>
         <td></td>
-        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.currentWeeklyStores, 'effectivePower') | number:'1.0-0'}}
+        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.currentWeeklyStores,
+          'effectivePower') | number:'1.0-0'}}
         </td>
       </tr>
       <tr *ngIf="jsonToTablesUtil.currentWeeklyStoresOverflow.length > 0">
-        <td colspan="8" class="footnote">Excluding {{jsonToTablesUtil.currentWeeklyStoresOverflow.length}} stores with minimal contribution</td>
+        <td colspan="8" class="footnote">Excluding {{jsonToTablesUtil.currentWeeklyStoresOverflow.length}} stores with
+          minimal contribution
+        </td>
       </tr>
     </table>
   </div>
@@ -132,19 +140,26 @@
         <td>Average</td>
         <td></td>
         <td></td>
-        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.projectedWeeklyStores, 'projectedSales') |
+        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.projectedWeeklyStores,
+          'projectedSales') |
           number:'1.0-0'}}
         </td>
-        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.projectedWeeklyStores, 'projectedSalesPSF') |
+        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.projectedWeeklyStores,
+          'projectedSalesPSF') |
           number:'1.2-2'}}
         </td>
-        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.projectedWeeklyStores, 'salesArea') | number:'1.0-0'}}</td>
+        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.projectedWeeklyStores,
+          'salesArea') | number:'1.0-0'}}
+        </td>
         <td></td>
-        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.projectedWeeklyStores, 'effectivePower') | number:'1.0-0'}}
+        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.projectedWeeklyStores,
+          'effectivePower') | number:'1.0-0'}}
         </td>
       </tr>
       <tr *ngIf="jsonToTablesUtil.projectedWeeklyStoresOverflow.length > 0">
-        <td colspan="8" class="footnote">Excluding {{jsonToTablesUtil.projectedWeeklyStoresOverflow.length}} stores with minimal contribution</td>
+        <td colspan="8" class="footnote">Excluding {{jsonToTablesUtil.projectedWeeklyStoresOverflow.length}} stores with
+          minimal contribution
+        </td>
       </tr>
     </table>
   </div>
@@ -152,9 +167,11 @@
   <div class="flex-container">
     <table cellspacing="0" id="sourceOfVolumeTable">
       <tr>
-        <th style='height:50px; position: relative;' colspan="12">
-          <span class="title-left">Source of Volume</span>
-          <span class="title-right">{{jsonToTablesUtil.targetStore.storeName}}</span>
+        <th colspan="12" style="padding: 10px;">
+          <div style="display: flex; width: 100%; justify-content: space-between; font-size: xx-large;">
+            <span>Source of Volume</span>
+            <span>{{jsonToTablesUtil.targetStore.storeName}}</span>
+          </div>
         </th>
       </tr>
       <tr>
@@ -300,9 +317,6 @@
           <b>${{jsonToTablesUtil.getSovContributionToSiteSubtotal('Proposed Competition') / 1000 | number:'1.0-0'}}</b>
         </td>
         <td colspan="2"></td>
-      </tr>
-      <tr>
-        <td colspan="12"></td>
       </tr>
       <tr>
         <td><b>Sales Potential</b></td>

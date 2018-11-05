@@ -24,12 +24,14 @@ export class SiteEvaluationComponent implements OnInit {
   }
 
   ngOnInit() {
-    window.scrollTo(0, 0);
     if (!this.rbs.reportTableData) {
-      this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
-      this.router.navigate(['reports']);
+      setTimeout(() => {
+        this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
+        this.router.navigate(['reports']);
+      }, 10)
     } else {
       this.createForm();
+      document.getElementById('reports-content-wrapper').scrollTop = 0;
     }
   }
 

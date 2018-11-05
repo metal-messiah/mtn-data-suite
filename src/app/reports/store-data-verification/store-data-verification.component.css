@@ -1,5 +1,6 @@
-.list-wrapper {
-  max-width: 1200px;
+.wrapper {
+  margin: 40px auto;
+  width: fit-content;
 }
 
 mat-form-field {

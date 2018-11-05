@@ -30,6 +30,7 @@ export class GooglePlace implements PlaceResult, Mappable {
   reviews: google.maps.places.PlaceReview[];
   utc_offset: number;
   website: string;
+  aspects: google.maps.places.PlaceAspectRating[];
 
   constructor(obj) {
     Object.assign(this, obj);
@@ -67,5 +68,4 @@ export class GooglePlace implements PlaceResult, Mappable {
   isDraggable(): boolean {
     return false;
   };
-
 }

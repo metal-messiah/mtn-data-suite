@@ -1,5 +1,6 @@
+/// <reference types="@types/googlemaps" />
+
 import { Injectable } from '@angular/core';
-import {} from '@types/googlemaps';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
 import { Observable, Observer, of, Subject } from 'rxjs';

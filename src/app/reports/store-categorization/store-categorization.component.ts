@@ -21,14 +21,17 @@ export class StoreCategorizationComponent implements OnInit {
   constructor(public rbs: ReportBuilderService,
               private snackBar: MatSnackBar,
               public _location: Location,
-              private router: Router) { }
+              private router: Router) {
+  }
 
   ngOnInit() {
-    window.scrollTo(0, 0);
     if (!this.rbs.reportTableData) {
-      this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
-      this.router.navigate(['reports']);
+      setTimeout(() => {
+        this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
+        this.router.navigate(['reports']);
+      }, 10)
     }
+    document.getElementById('reports-content-wrapper').scrollTop = 0;
   }
 
   changeCategory(event, mapKey) {

@@ -45,8 +45,8 @@ export class ReportModelDataComponent implements OnInit {
   private createForm() {
     this.modelMetaDataForm = this.fb.group({
       analyst: `${this.auth.sessionUser.firstName} ${this.auth.sessionUser.lastName}`,
-      type: '',
-      modelName: '',
+      type: 'test',
+      modelName: 'test',
       fieldResDate: new Date()
     })
   }

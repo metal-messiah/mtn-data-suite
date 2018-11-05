@@ -131,7 +131,7 @@ export class PgDataFormComponent implements OnChanges {
   }
 
   private getPgStatus(): { displayName: string, pgStatusId: number, rank: number } {
-    return _.find(this.dbStatuses, {pgStatusId: this.pgFeature.attributes.STATUS});
+    return this.dbStatuses.find(status => status.pgStatusId === this.pgFeature.attributes.STATUS);
   }
 
   private prepareSubmission(): PlannedGroceryUpdatable {
