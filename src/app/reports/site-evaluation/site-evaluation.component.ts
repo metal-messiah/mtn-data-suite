@@ -13,6 +13,7 @@ import { MatSnackBar } from '@angular/material';
 export class SiteEvaluationComponent implements OnInit {
 
   form: FormGroup;
+  ratingsForm: FormGroup;
 
   readonly ratingOptions = ['Excellent', 'Good', 'Average', 'Fair', 'Poor'];
 
@@ -37,10 +38,17 @@ export class SiteEvaluationComponent implements OnInit {
 
   private createForm() {
     this.form = this.fb.group({
+      executiveSummary: '',
+      scenario: '',
+      assumedPower: '',
+      competitiveChanges: '',
       streetConditions: '',
       comments: '',
       trafficControls: '',
       cotenants: '',
+      affectedSisterStores: ''
+    });
+    this.ratingsForm = this.fb.group({
       accessNorth: 'Average',
       accessSouth: 'Average',
       accessEast: 'Average',
@@ -53,12 +61,13 @@ export class SiteEvaluationComponent implements OnInit {
       populationDensityNorth: 'Average',
       populationDensitySouth: 'Average',
       populationDensityEast: 'Average',
-      populationDensityWest: 'Average',
-    });
+      populationDensityWest: 'Average'
+    })
   }
 
   next() {
-    this.rbs.setSiteEvaluationData(this.form.value);
+    this.rbs.setSiteEvaluationNarrative(this.form.value);
+    this.rbs.setSiteEvaluationRatings(this.ratingsForm.value);
     this.router.navigate(['reports/table-preview']);
   }
 

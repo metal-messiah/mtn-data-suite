@@ -1,93 +1,112 @@
 <div class="narrative-wrapper">
-  <form *ngIf="form" [formGroup]="form">
-    <mat-form-field>
-      <textarea matInput placeholder="Street Conditions" formControlName="streetConditions"></textarea>
-    </mat-form-field>
-    <mat-form-field>
-      <textarea matInput placeholder="Comments" formControlName="comments"></textarea>
-    </mat-form-field>
-    <mat-form-field>
-      <textarea matInput placeholder="Traffic Controls" formControlName="trafficControls"></textarea>
-    </mat-form-field>
-    <mat-form-field>
-      <textarea matInput placeholder="Co-Tenants" formControlName="cotenants"></textarea>
-    </mat-form-field>
-    <h3 class='select-group-header bold'>Access</h3>
-    <div class='select-group'>
+  <form *ngIf="form && ratingsForm" >
+    <div [formGroup]="form">
       <mat-form-field>
-        <mat-select placeholder='North' formControlName="accessNorth">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
+        <textarea matInput placeholder="Executive Summary" formControlName="executiveSummary"></textarea>
       </mat-form-field>
       <mat-form-field>
-        <mat-select placeholder='South' formControlName="accessSouth">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
+        <textarea matInput placeholder="Scenario" formControlName="scenario"></textarea>
       </mat-form-field>
       <mat-form-field>
-        <mat-select placeholder='East' formControlName="accessEast">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
+        <textarea matInput placeholder="Assumed Power" formControlName="assumedPower"></textarea>
       </mat-form-field>
       <mat-form-field>
-        <mat-select placeholder='West' formControlName="accessWest">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
+        <textarea matInput placeholder="Competitive Changes" formControlName="competitiveChanges"></textarea>
+      </mat-form-field>
+      <mat-form-field>
+        <textarea matInput placeholder="Street Conditions" formControlName="streetConditions"></textarea>
+      </mat-form-field>
+      <mat-form-field>
+        <textarea matInput placeholder="Comments" formControlName="comments"></textarea>
+      </mat-form-field>
+      <mat-form-field>
+        <textarea matInput placeholder="Traffic Controls" formControlName="trafficControls"></textarea>
+      </mat-form-field>
+      <mat-form-field>
+        <textarea matInput placeholder="Co-Tenants" formControlName="cotenants"></textarea>
+      </mat-form-field>
+      <mat-form-field>
+        <textarea matInput placeholder="Affected Sister Stores" formControlName="affectedSisterStores"></textarea>
       </mat-form-field>
     </div>
-    <h3 class='select-group-header bold'>Ingress/Egress</h3>
-    <div class='select-group'>
-      <mat-form-field>
-        <mat-select placeholder='Ingress/Egress' formControlName="ingressEgress">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-    <h3 class='select-group-header bold'>Visibility</h3>
-    <div class='select-group'>
-      <mat-form-field>
-        <mat-select placeholder='North' formControlName="visibilityNorth">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='South' formControlName="visibilitySouth">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='East' formControlName="visibilityEast">
-          <mat-option [value]='option' *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='West' formControlName="visibilityWest">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-    <h3 class='select-group-header'>Population Density</h3>
-    <div class='select-group'>
-      <mat-form-field>
-        <mat-select placeholder='North' formControlName="populationDensityNorth">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='South' formControlName="populationDensitySouth">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='East' formControlName="populationDensityEast">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='West' formControlName="populationDensityWest">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
+    <div [formGroup]="ratingsForm">
+      <h3 class='select-group-header bold'>Access</h3>
+      <div class='select-group'>
+        <mat-form-field>
+          <mat-select placeholder='North' formControlName="accessNorth">
+            <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select placeholder='South' formControlName="accessSouth">
+            <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select placeholder='East' formControlName="accessEast">
+            <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select placeholder='West' formControlName="accessWest">
+            <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <h3 class='select-group-header bold'>Ingress/Egress</h3>
+      <div class='select-group'>
+        <mat-form-field>
+          <mat-select placeholder='Ingress/Egress' formControlName="ingressEgress">
+            <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <h3 class='select-group-header bold'>Visibility</h3>
+      <div class='select-group'>
+        <mat-form-field>
+          <mat-select placeholder='North' formControlName="visibilityNorth">
+            <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select placeholder='South' formControlName="visibilitySouth">
+            <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select placeholder='East' formControlName="visibilityEast">
+            <mat-option [value]='option' *ngFor="let option of ratingOptions">{{option}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select placeholder='West' formControlName="visibilityWest">
+            <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <h3 class='select-group-header'>Population Density</h3>
+      <div class='select-group'>
+        <mat-form-field>
+          <mat-select placeholder='North' formControlName="populationDensityNorth">
+            <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select placeholder='South' formControlName="populationDensitySouth">
+            <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select placeholder='East' formControlName="populationDensityEast">
+            <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select placeholder='West' formControlName="populationDensityWest">
+            <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
     </div>
   </form>
   <div class='submit'>

@@ -94,15 +94,27 @@ export class ReportTablesComponent implements OnInit {
           .map(store => `${store.storeName} ${store.mapKey}`)
           .join('\r\n');
 
-        const txt = `Street Conditions\r\n${
-          this.jsonToTablesUtil.siteEvaluationData.streetConditions
-          }\r\n\r\nComments\r\n${
-          this.jsonToTablesUtil.siteEvaluationData.comments
-          }\r\n\r\nTraffic Controls\r\n${
-          this.jsonToTablesUtil.siteEvaluationData.streetConditions
-          }\r\n\r\nCo-tenants\r\n${
-          this.jsonToTablesUtil.siteEvaluationData.cotenants
-          }\r\n\r\nSister Store Affects\r\n${sisterStoreAffects}`;
+        let txt = '';
+        Object.keys(this.jsonToTablesUtil.siteEvaluationNarrative).forEach(key => {
+          txt += `${key}\r\n
+          ${this.jsonToTablesUtil.siteEvaluationNarrative[key]}\r\n
+          \r\n`
+        });
+
+        // const x = `Street Conditions\r\n
+        // ${this.jsonToTablesUtil.siteEvaluationNarrative.streetConditions}\r\n
+        // \r\n
+        // Comments\r\n
+        // ${this.jsonToTablesUtil.siteEvaluationNarrative.comments}\r\n
+        // \r\n
+        // Traffic Controls\r\n
+        // ${this.jsonToTablesUtil.siteEvaluationNarrative.streetConditions}\r\n
+        // \r\n
+        // Co-tenants\r\n
+        // ${this.jsonToTablesUtil.siteEvaluationNarrative.cotenants}\r\n
+        // \r\n
+        // Sister Store Affects\r\n
+        // ${sisterStoreAffects}`;
 
         zip.file(`descriptions.txt`, new Blob([txt]));
 

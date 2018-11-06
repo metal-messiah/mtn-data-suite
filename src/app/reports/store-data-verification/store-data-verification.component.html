@@ -24,9 +24,7 @@
   <div class='submit'>
     <h3 *ngIf="form.invalid" style="color: #ff4c3e;">All Total Areas are Required</h3>
     <button [color]="'primary'" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back</button>
-    <button [color]="'warn'" mat-raised-button (click)="next()" style="margin-top:20px;" >
-      Continue
-    </button>
+    <button [color]="'warn'" mat-raised-button (click)="next()" style="margin-top:20px;" >Next</button>
   </div>
 </form>
 

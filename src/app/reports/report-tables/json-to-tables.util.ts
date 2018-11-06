@@ -9,7 +9,8 @@ export class JsonToTablesUtil {
 
   readonly reportTableData: ReportData;
   readonly reportMetaData;
-  readonly siteEvaluationData;
+  readonly siteEvaluationNarrative;
+  readonly siteEvaluationRatings;
 
   readonly sovStores: StoreListItem[];
   private readonly sovOverflowStores: StoreListItem[];
@@ -26,7 +27,8 @@ export class JsonToTablesUtil {
   constructor(rbs: ReportBuilderService) {
     this.reportMetaData = rbs.reportMetaData;
     this.reportTableData = rbs.reportTableData;
-    this.siteEvaluationData = rbs.siteEvaluationData;
+    this.siteEvaluationNarrative = rbs.siteEvaluationNarrative;
+    this.siteEvaluationRatings = rbs.siteEvaluationRatings;
 
     this.targetStore = this.reportTableData.storeList.find(item => item.mapKey === this.reportTableData.selectedMapKey);
 
