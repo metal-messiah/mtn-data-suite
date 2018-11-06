@@ -226,7 +226,9 @@ export class GeocodingService {
     );
 
     // put as many promises into an array as we can fit (limit)
+
     this.promises.push(this.getLatLong(requestURL));
+
     this.index++;
     if (this.index <= this.allowed) {
       if (curr < this.limit) {
@@ -243,6 +245,7 @@ export class GeocodingService {
   }
 
   getPromises(save?: boolean) {
+    console.log(this.promises);
     Promise.all(this.promises).then((all: any) => {
       // this returns an array of promise responses
       all.forEach((res, i) => {
@@ -306,6 +309,18 @@ export class GeocodingService {
   }
 
   getLatLong(url) {
+    if (
+      url ===
+      'https://maps.googleapis.com/maps/api/geocode/json?address=&key=AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ'
+    ) {
+      this.errorService.handleServerError(
+        `A Row In The File Is Creating an Invalid Request`,
+        url,
+        () => {
+          // do nothing
+        }
+      );
+    }
     // the call object for the geocoder api (converted to a promise for batch simplicity)
     return this.http.get<any>(url).toPromise();
   }
