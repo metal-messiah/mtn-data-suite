@@ -1,22 +1,22 @@
-import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
-import { MatSnackBar } from "@angular/material";
-import * as XLSX from "xlsx";
-import { WorkBook, WorkSheet } from "xlsx";
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { MatSnackBar } from '@angular/material';
+import * as XLSX from 'xlsx';
+import { WorkBook, WorkSheet } from 'xlsx';
 
 @Component({
-  selector: "mds-file-input",
-  templateUrl: "./file-input.component.html",
-  styleUrls: ["./file-input.component.css"]
+  selector: 'mds-file-input',
+  templateUrl: './file-input.component.html',
+  styleUrls: ['./file-input.component.css']
 })
 export class FileInputComponent implements OnInit {
   @Input()
-  fileTypes = "*"; // file_extension|audio/*|video/*|image/*|media_type
+  fileTypes = '*'; // file_extension|audio/*|video/*|image/*|media_type
   @Input()
-  outputType = "text"; // text, dataUrl, buffer, binary
+  outputType = 'text'; // text, dataUrl, buffer, binary
   @Input()
   disabled = false;
   @Input()
-  buttonText = "Upload File";
+  buttonText = 'Upload File';
   @Output()
   fileChanged = new EventEmitter();
 
@@ -50,15 +50,15 @@ export class FileInputComponent implements OnInit {
         // console.log(this.fileReader.result);
         if (this.fileReader.result) {
           let xlsxAsCsv = null;
-          if (this.file.name.includes(".xls")) {
+          if (this.file.name.includes('.xls')) {
             const wb: XLSX.WorkBook = XLSX.read(this.fileReader.result, {
-              type: "binary"
+              type: 'binary'
             });
             Object.keys(wb.Sheets).forEach((key: string, i: number) => {
               if (i === 0) {
                 xlsxAsCsv = XLSX.utils
                   .sheet_to_csv(wb.Sheets[key])
-                  .replace(/\n/g, "\r\n");
+                  .replace(/\n/g, '\r\n');
               }
             });
           }
@@ -68,7 +68,7 @@ export class FileInputComponent implements OnInit {
             fileOutput: xlsxAsCsv ? xlsxAsCsv : this.fileReader.result
           });
         } else {
-          this.snackBar.open("Error Reading file! No result!", null, {
+          this.snackBar.open('Error Reading file! No result!', null, {
             duration: 5000
           });
         }
@@ -78,18 +78,18 @@ export class FileInputComponent implements OnInit {
         this.snackBar.open(error.toString(), null, { duration: 2000 });
 
       // Trigger FileReader.onload
-      if (this.outputType === "binary" || this.file.name.includes(".xls")) {
+      if (this.outputType === 'binary' || this.file.name.includes('.xls')) {
         this.fileReader.readAsBinaryString(this.file);
-      } else if (this.outputType === "text") {
+      } else if (this.outputType === 'text') {
         this.fileReader.readAsText(this.file);
-      } else if (this.outputType === "dataUrl") {
+      } else if (this.outputType === 'dataUrl') {
         this.fileReader.readAsDataURL(this.file);
-      } else if (this.outputType === "buffer") {
+      } else if (this.outputType === 'buffer') {
         this.fileReader.readAsArrayBuffer(this.file);
       }
     } else {
       // notify about file constraints
-      this.snackBar.open("1 file at a time please", null, { duration: 2000 });
+      this.snackBar.open('1 file at a time please', null, { duration: 2000 });
     }
   }
 }
