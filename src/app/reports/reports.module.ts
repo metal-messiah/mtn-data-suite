@@ -5,7 +5,6 @@ import { ReportsComponent } from './reports.component';
 import { EditTotalSizeDialogComponent } from './edit-total-size-dialog/edit-total-size-dialog.component';
 import { ReportModelDataComponent } from './report-model-data/report-model-data.component';
 import { ReportBuilderService } from './services/report-builder.service';
-import { HtmlToModelParser } from '../core/services/html-to-model-parser.service';
 import { HtmlDimensionsService } from '../core/services/html-dimensions.service';
 import { ReportTablesComponent } from './report-tables/report-tables.component';
 import { SiteEvaluationComponent } from './site-evaluation/site-evaluation.component';
@@ -16,7 +15,8 @@ import { ReportDownloadComponent } from './download/report-download.component';
 @NgModule({
   imports: [
     SharedModule,
-    ReportsRoutingModule],
+    ReportsRoutingModule
+  ],
   declarations: [
     ReportsComponent,
     EditTotalSizeDialogComponent,
@@ -25,13 +25,15 @@ import { ReportDownloadComponent } from './download/report-download.component';
     SiteEvaluationComponent,
     StoreCategorizationComponent,
     StoreDataVerificationComponent,
-    ReportDownloadComponent],
+    ReportDownloadComponent
+  ],
   entryComponents: [
-    EditTotalSizeDialogComponent],
+    EditTotalSizeDialogComponent
+  ],
   providers: [
     ReportBuilderService,
-    HtmlToModelParser,
     HtmlDimensionsService
   ]
 })
-export class ReportsModule {}
+export class ReportsModule {
+}

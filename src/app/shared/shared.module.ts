@@ -18,6 +18,7 @@ import { AppInfoDialogComponent } from './app-info-dialog/app-info-dialog.compon
 import { NewProjectNameComponent } from './new-project-name/new-project-name.component';
 import { StoreInfoCardComponent } from './store-info-card/store-info-card.component';
 import { SiteInfoCardComponent } from './site-info-card/site-info-card.component';
+import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
 
 @NgModule({
   imports: [
@@ -39,7 +40,8 @@ import { SiteInfoCardComponent } from './site-info-card/site-info-card.component
     AppInfoDialogComponent,
     NewProjectNameComponent,
     StoreInfoCardComponent,
-    SiteInfoCardComponent
+    SiteInfoCardComponent,
+    ThousandsCurrencyPipe
   ],
   providers: [
     BreakpointObserver,
@@ -68,7 +70,8 @@ import { SiteInfoCardComponent } from './site-info-card/site-info-card.component
     DataFieldComponent,
     DataFieldInfoDialogComponent,
     StoreInfoCardComponent,
-    SiteInfoCardComponent
+    SiteInfoCardComponent,
+    ThousandsCurrencyPipe
   ]
 })
 export class SharedModule {

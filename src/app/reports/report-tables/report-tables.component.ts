@@ -21,7 +21,7 @@ export class ReportTablesComponent implements OnInit {
   googleMapsBasemap = 'hybrid';
   googleMapsZoom = 15;
 
-  jsonToTablesUtil: JsonToTablesUtil;
+  tablesUtil: JsonToTablesUtil;
 
   tableDomIds: string[] = [
     'projectionsTable',
@@ -46,7 +46,7 @@ export class ReportTablesComponent implements OnInit {
         this.router.navigate(['reports']);
       }, 10)
     } else {
-      this.jsonToTablesUtil = new JsonToTablesUtil(this.rbs);
+      this.tablesUtil = new JsonToTablesUtil(this.rbs);
       this.getMapImage();
       document.getElementById('reports-content-wrapper').scrollTop = 0;
     }
@@ -55,7 +55,7 @@ export class ReportTablesComponent implements OnInit {
   getFirstYearAsNumber() {
     return (
       2000 +
-      Number(this.jsonToTablesUtil.reportTableData.firstYearEndingMonthYear.trim().split(' ')[1])
+      Number(this.tablesUtil.tableData.firstYearEndingMonthYear.trim().split(' ')[1])
     );
   }
 
@@ -82,7 +82,7 @@ export class ReportTablesComponent implements OnInit {
           zip.file(`${this.tableDomIds[i]}.png`, fileData);
         });
 
-        const sisterStoreAffects = this.jsonToTablesUtil
+        const sisterStoreAffects = this.tablesUtil
           .getStoresForExport('Company Store')
           .sort((a, b) => {
             if (a.storeName === b.storeName) {
@@ -95,9 +95,9 @@ export class ReportTablesComponent implements OnInit {
           .join('\r\n');
 
         let txt = '';
-        Object.keys(this.jsonToTablesUtil.siteEvaluationNarrative).forEach(key => {
+        Object.keys(this.tablesUtil.siteEvaluationNarrative).forEach(key => {
           txt += `${key}\r\n
-          ${this.jsonToTablesUtil.siteEvaluationNarrative[key]}\r\n
+          ${this.tablesUtil.siteEvaluationNarrative[key]}\r\n
           \r\n`
         });
 
@@ -118,7 +118,7 @@ export class ReportTablesComponent implements OnInit {
 
         zip.file(`descriptions.txt`, new Blob([txt]));
 
-        const modelName = this.jsonToTablesUtil.reportMetaData.modelName;
+        const modelName = this.tablesUtil.reportMetaData.modelName;
         zip.generateAsync({type: 'blob'}).then(blob => {
           saveAs(blob, `${modelName ? modelName : 'MTNRA_Reports_Export'}.zip`);
         });
@@ -137,7 +137,7 @@ export class ReportTablesComponent implements OnInit {
       this.googleMapsZoom = this.googleMapsZoom - zoom;
     }
     // map image
-    const target = this.jsonToTablesUtil.targetStore;
+    const target = this.tablesUtil.targetStore;
     const targetPin = `&markers=color:red%7Clabel:${target.storeName[0]}%7C${target.latitude},${target.longitude}`;
 
     const {latitude, longitude} = target;

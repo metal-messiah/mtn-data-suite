@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 
 export class JsonToTablesUtil {
 
-  readonly reportTableData: ReportData;
+  readonly tableData: ReportData;
   readonly reportMetaData;
   readonly siteEvaluationNarrative;
   readonly siteEvaluationRatings;
@@ -26,13 +26,13 @@ export class JsonToTablesUtil {
 
   constructor(rbs: ReportBuilderService) {
     this.reportMetaData = rbs.reportMetaData;
-    this.reportTableData = rbs.reportTableData;
+    this.tableData = rbs.reportTableData;
     this.siteEvaluationNarrative = rbs.siteEvaluationNarrative;
     this.siteEvaluationRatings = rbs.siteEvaluationRatings;
 
-    this.targetStore = this.reportTableData.storeList.find(item => item.mapKey === this.reportTableData.selectedMapKey);
+    this.targetStore = this.tableData.storeList.find(item => item.mapKey === this.tableData.selectedMapKey);
 
-    const tableStores = this.reportTableData.storeList
+    const tableStores = this.tableData.storeList
     // only get the ones matching the category
       .filter(store => store.category !== 'Do Not Include')
       .map(store => {
@@ -45,10 +45,10 @@ export class JsonToTablesUtil {
     this.sovStores = tableStores
     // sort by target, then by contribution to site
       .sort((a, b) => {
-        if (a.mapKey === this.reportTableData.selectedMapKey) {
+        if (a.mapKey === this.tableData.selectedMapKey) {
           return -1;
         }
-        if (b.mapKey === this.reportTableData.selectedMapKey) {
+        if (b.mapKey === this.tableData.selectedMapKey) {
           return 1;
         }
         return b['contributionToSite'] - a['contributionToSite'];
@@ -107,24 +107,8 @@ export class JsonToTablesUtil {
     this.projectedWeeklyStoresOverflow = partitionedProjected[1];
   }
 
-  getProjection(projectionName: string) {
-    return Math.round(this.reportTableData.salesGrowthProjectionYearEnd[projectionName] * 0.001);
-  }
-
-  getProjectionPsf(projectionName: string) {
-    return this.reportTableData.salesGrowthProjectionAverages[projectionName] / this.targetStore.salesArea;
-  }
-
-  getProjectionYear1AnnualizedPsfFromTotal() {
-    return this.reportTableData.salesGrowthProjectionAverages.firstYearAverageSales * 52 / this.targetStore.totalArea;
-  }
-
   getStoresForExport(category) {
-    return this.reportTableData.storeList.filter(store => store.category === category && !this.isTargetStore(store));
-  }
-
-  getProjectionComment() {
-    return this.reportMetaData.type;
+    return this.tableData.storeList.filter(store => store.category === category && !this.isTargetStore(store));
   }
 
   getTruncatedMessage() {
@@ -205,7 +189,7 @@ export class JsonToTablesUtil {
   }
 
   isTargetStore(store) {
-    return store.mapKey === this.reportTableData.selectedMapKey;
+    return store.mapKey === this.tableData.selectedMapKey;
   }
 
   getAfterOpen1Year() {
@@ -217,8 +201,8 @@ export class JsonToTablesUtil {
   }
 
   private getSovBeforeAndAfterStores(store) {
-    const beforeMatch = this.reportTableData.projectedVolumesBefore.find(j => j.mapKey === store.mapKey);
-    const afterMatch = this.reportTableData.projectedVolumesAfter.find(j => j.mapKey === store.mapKey);
+    const beforeMatch = this.tableData.projectedVolumesBefore.find(j => j.mapKey === store.mapKey);
+    const afterMatch = this.tableData.projectedVolumesAfter.find(j => j.mapKey === store.mapKey);
     return {storeBeforeSiteOpen: beforeMatch, storeAfterSiteOpen: afterMatch};
   }
 

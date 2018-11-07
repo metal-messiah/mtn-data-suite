@@ -6,7 +6,6 @@ import { StoreListItem } from '../../models/store-list-item';
 import { Observable } from 'rxjs';
 import { SectorListItem } from '../../models/sector-list-item';
 import { MarketShareBySectorItem } from '../../models/market-share-by-sector-item';
-import { SalesGrowthProjectionItem } from '../../models/sales-growth-projection-item';
 import { VolumeItem } from '../../models/volume-item';
 
 @Injectable({
@@ -23,8 +22,7 @@ export class XlsToModelParserService {
       reportData.storeList = this.getStoreList(wb.Sheets[wb.SheetNames[0]]);
       reportData.projectedVolumesBefore = this.getProjectedVolumes(wb.Sheets[wb.SheetNames[1]]);
       reportData.projectedVolumesAfter = this.getProjectedVolumes(wb.Sheets[wb.SheetNames[2]]);
-      reportData.salesGrowthProjectionAverages = this.getSalesGrowthProjectionAverages(wb.Sheets[wb.SheetNames[3]]);
-      reportData.salesGrowthProjectionYearEnd = this.getSalesGrowthProjectionYearEnd(wb.Sheets[wb.SheetNames[3]]);
+      reportData.salesGrowthProjections = this.getSalesGrowthProjectionAverages(wb.Sheets[wb.SheetNames[3]]);
       reportData.marketShareBySector = this.getMarketShareBySector(wb.Sheets[wb.SheetNames[4]]);
       reportData.sectorList = this.getSectorList(wb.Sheets[wb.SheetNames[5]]);
 
@@ -90,24 +88,19 @@ export class XlsToModelParserService {
     return volumeItems;
   }
 
-  private getSalesGrowthProjectionAverages(ws: WorkSheet): SalesGrowthProjectionItem {
-    return new SalesGrowthProjectionItem(
-      ws['B10'].v, ws['D10'].v,
-      ws['B11'].v, ws['D11'].v,
-      ws['B12'].v, ws['D12'].v,
-      ws['B13'].v, ws['D13'].v,
-      ws['B14'].v, ws['D14'].v
-    );
-  }
-
-  private getSalesGrowthProjectionYearEnd(ws: WorkSheet): SalesGrowthProjectionItem {
-    return new SalesGrowthProjectionItem(
-      ws['B16'].v, ws['D16'].v,
-      ws['B17'].v, ws['D17'].v,
-      ws['B18'].v, ws['D18'].v,
-      ws['B19'].v, ws['D19'].v,
-      ws['B20'].v, ws['D20'].v
-    );
+  private getSalesGrowthProjectionAverages(ws: WorkSheet) {
+    return {
+      firstYearAverageSales: ws['B10'].v,      firstYearAverageSalesPSF: ws['D10'].v,
+      secondYearAverageSales: ws['B11'].v,     secondYearAverageSalesPSF: ws['D11'].v,
+      thirdYearAverageSales: ws['B12'].v,      thirdYearAverageSalesPSF: ws['D12'].v,
+      fourthYearAverageSales: ws['B13'].v,     fourthYearAverageSalesPSF: ws['D13'].v,
+      fifthYearAverageSales: ws['B14'].v,      fifthYearAverageSalesPSF: ws['D14'].v,
+      firstYearEndingSales: ws['B16'].v,       firstYearEndingSalesPSF: ws['D16'].v,
+      secondYearEndingSales: ws['B17'].v,      secondYearEndingSalesPSF: ws['D17'].v,
+      thirdYearEndingSales: ws['B18'].v,       thirdYearEndingSalesPSF: ws['D18'].v,
+      fourthYearEndingSales: ws['B19'].v,      fourthYearEndingSalesPSF: ws['D19'].v,
+      fifthYearEndingSales: ws['B20'].v,      fifthYearEndingSalesPSF: ws['D20'].v
+    };
   }
 
   private getMarketShareBySector(ws: WorkSheet): MarketShareBySectorItem[] {
