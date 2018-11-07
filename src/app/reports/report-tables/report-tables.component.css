@@ -72,6 +72,10 @@ tr:nth-child(even) {
   border: none;
 }
 
+tr.white-row {
+  background: white;
+}
+
 th {
   background: white;
   font-size: 14pt;
@@ -171,4 +175,8 @@ mat-progress-bar {
 #sourceOfVolumeTable {
   min-width: 430mm;
   max-width: 430mm;
+}
+
+.summary td {
+  border-top: 1px solid black;
 }
