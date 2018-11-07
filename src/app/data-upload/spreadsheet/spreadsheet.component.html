@@ -1,74 +1,107 @@
-<div class='spreadsheet-wrapper'>
-  <div class='left-panel' *ngIf="records">
-    <h2>{{currentRecordIndex + 1 }}/{{records.length.toLocaleString()}}</h2>
-    <mat-list>
+<div class='main-wrapper'>
+  <div class='left-panel'>
+    <mds-file-input [fileTypes]="allowedFileTypes" [outputType]="outputType" (fileChanged)="handleFile($event)"></mds-file-input>
+    <h2 *ngIf="records.length">{{currentRecordIndex + 1 }}/{{records.length}}</h2>
+    <mat-list *ngIf="records.length">
       <mat-list-item *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex}"
-                     (click)="setCurrentSpreadsheetRecord(i)">
+        (click)="setCurrentSpreadsheetRecord(i)">
         <div>
           <span class='list-item-header'>{{record.displayName}}</span>
           <br>
-          <span *ngIf="record.matchedStore" class="list-item-desc">{{record.matchedStore.id}}</span>
-          <span *ngIf="record.noMatch" class="list-item-desc">NO MATCH</span>
+          <span class="list-item-desc">{{record.coordinates.lat}}, {{record.coordinates.lng}}</span>
         </div>
       </mat-list-item>
     </mat-list>
   </div>
-  <div class="center-panel hidden-sm">
-    <mds-map class="row content" (ready)="onMapReady()"></mds-map>
+  <div *ngIf="!records.length" class="informative">
+    <p>Upload a file to begin matching to the database</p>
   </div>
-  <div class="right-panel">
+  <div *ngIf="records.length" class="center-panel hidden-sm">
+    <mds-map #map class="row content" (ready)="onMapReady($event)"></mds-map>
+  </div>
+  <div *ngIf="records.length" class="right-panel">
     <div class='loader' *ngIf="isFetching">
       <div>
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         <br>
         <div class='large-text'>
-          Loading Data
+          Fetching Data
         </div>
       </div>
     </div>
-    <button mat-icon-button color="accent" (click)="downloadMatches()"><i class="fas fa-download"></i></button>
-    <div class='flex-container'>
-      <div>
-        <div class='large-text'>{{currentRecord ? currentRecord.displayName : ''}}</div>
-      </div>
-      <button (click)="currentRecord.noMatch = true; setCurrentSpreadsheetRecord(currentRecordIndex + 1)" mat-button class=''>No Match</button>
-    </div>
-    <div class='accent-bar large-text'>Match to Existing</div>
-    <div class='results-table'>
+    <mat-horizontal-stepper [linear]='true' #stepper style="padding-bottom: 50px;">
+      <ng-template matStepperIcon="edit">
+        <i class="fas fa-pencil-alt"></i>
+      </ng-template>
+      <ng-template matStepperIcon="done">
+        <i class="fas fa-check"></i>
+      </ng-template>
+      <mat-step editable="false">
+        <ng-template matStepLabel>Match Site</ng-template>
+        <!-- CONTENT FOR FIRST SECTION! -->
 
-      <div class='loader' *ngIf="gettingEntities">
         <div>
-          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-          <br>
-          <div class='large-text'>
-            Fetching Stores From MTNRA Database
-          </div>
+
+          <button (click)="noMatch()" mat-button class=''>Add Site
+          </button>
         </div>
-      </div>
-      <div [ngClass]="i % 2 != 0 ? 'results-item secondary-row':'results-item'"
-           *ngFor="let site of currentDBSiteResults; let i=index;">
-        <div class="results-header large-text flex-container">
-          <div [style.color]="site.distanceFrom < 0.5 ? 'green': '#ff9802'" class='site-distance'>
-            <i class="fas fa-arrow-circle-up" [style.transform]="site.heading"></i> {{site.distanceFrom.toFixed(2)}}
-            Miles
-          </div>
-          <div class='site-title'>{{site.address1 + ", " + site.city + ", " + site.state }}</div>
-        </div>
-        <mat-divider></mat-divider>
-        <div (mouseenter)="siteHover(store, 'enter')" (mouseleave)="siteHover(store, 'leave')" class="results-each"
-             *ngFor="let store of site.stores">
-          <div class="flex-container">
-            <div class='store-attribute'>{{store.storeName}}</div>
-            <div class='hidden-xs store-attribute'>{{store.storeType}}</div>
-            <div class='hidden-xs store-attribute'>{{store.currentStoreStatus.status}}
-              {{store.currentStoreStatus.statusStartDate | date}}
+        <div class='accent-bar large-text'>Match to Existing</div>
+        <div class='results-table'>
+
+          <div class='loader' *ngIf="gettingEntities">
+            <div>
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              <br>
+              <div class='large-text'>
+                Fetching Stores From MTNRA Database
+              </div>
             </div>
-            <button (click)="currentRecord.matchedStore = store; setCurrentSpreadsheetRecord(currentRecordIndex + 1)" mat-button
-                    [ngClass]="{'highlighted': bestMatch.store.id == store.id && bestMatch.score <=4}">Match
-            </button>
           </div>
+          <div [ngClass]="i % 2 != 0 ? 'results-item secondary-row':'results-item'" *ngFor="let site of currentDBSiteResults; let i=index;">
+            <div class="results-header large-text flex-container">
+
+
+              <i mat-icon-button [mat-menu-trigger-for]="siteMenu" class="site-menu fas fa-ellipsis-v"></i>
+
+              <mat-menu #siteMenu="matMenu">
+                <button (click)="matchShoppingCenter(site.shoppingCenterId);" mat-menu-item>Add Sister Shopping
+                  Center
+                  Site
+                </button>
+              </mat-menu>
+
+              <div *ngIf="site.distanceFrom" [style.color]="site.distanceFrom < 0.5 ? 'green': '#ff9802'" class='site-distance'>
+                <i class="fas fa-arrow-circle-up" [style.transform]="site.heading"></i>
+                {{site.distanceFrom.toFixed(2)}}
+                Miles
+              </div>
+              <div class='site-title'>{{site.address1 + ", " + site.city + ", " + site.state }}</div>
+              <button (click)="matchSite(site.id)" mat-button class=' add-store'>Add Store
+              </button>
+            </div>
+            <mat-divider></mat-divider>
+            <div (mouseenter)="siteHover(store, 'enter')" (mouseleave)="siteHover(store, 'leave')" class="results-each"
+              *ngFor="let store of site.stores">
+              <div class="flex-container">
+                <div class='store-attribute'>{{store.storeName}}</div>
+                <div class='hidden-xs store-attribute'>{{store.storeType}}</div>
+                <div class='hidden-xs store-attribute'>{{store.currentStoreStatus}}</div>
+                <button (click)="matchStore(store.id)" mat-button matStepperNext [ngClass]="{'highlighted': bestMatch && bestMatch.store.id == store.id && bestMatch.score <=4}">
+                  Match
+                </button>
+              </div>
+            </div>
+          </div>
+
         </div>
-      </div>
-    </div>
+        <!-- </form> -->
+      </mat-step>
+      <mat-step>
+        <ng-template matStepLabel>Match/Edit Data</ng-template>
+        <mds-pg-data-form *ngIf="pgUpdatable" [pgUpdatable]="pgUpdatable" [pgFeature]="pgRecord" [storeSource]="currentStoreSource"
+          (cancelEvent)="cancelStep2()" (completedEvent)="nextRecord()">
+        </mds-pg-data-form>
+      </mat-step>
+    </mat-horizontal-stepper>
   </div>
 </div>

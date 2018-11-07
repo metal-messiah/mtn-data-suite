@@ -57,4 +57,13 @@ export class HomeComponent implements OnInit {
     return this.userCanExtract();
   }
 
+  // For now, only allow admins to see broker stuff
+  userIsBroker(): boolean {
+    const role = this.auth.sessionUser.role;
+    if (role != null) {
+      return role.displayName.toLowerCase().includes('admin');
+    }
+    return false;
+  }
+
 }

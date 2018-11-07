@@ -16,12 +16,16 @@ import { CasingModule } from './casing/casing.module';
 import { DataUploadModule } from './data-upload/data-upload.module';
 import { ExtractionModule } from './extraction/extraction.module';
 import { ReportsModule } from './reports/reports.module';
+import { BrokerageModule } from './brokerage/brokerage.module';
+import { GeocodingModule } from './geocoding/geocoding.module';
 
 @NgModule({
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    ServiceWorkerModule.register('/ngsw-worker.js', {enabled: environment.production}),
+    ServiceWorkerModule.register('/ngsw-worker.js', {
+      enabled: environment.production
+    }),
     CoreModule,
     SharedModule,
     AdministrationModule,
@@ -30,6 +34,8 @@ import { ReportsModule } from './reports/reports.module';
     DbSupportModule,
     ExtractionModule,
     ReportsModule,
+    BrokerageModule,
+    GeocodingModule,
     AppRoutingModule // must come last?
   ],
   declarations: [AppComponent, HomeComponent],
@@ -37,5 +43,4 @@ import { ReportsModule } from './reports/reports.module';
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class AppModule {
-}
+export class AppModule {}

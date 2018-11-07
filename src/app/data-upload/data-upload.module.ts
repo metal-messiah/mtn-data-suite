@@ -6,17 +6,20 @@ import { OptionsMenuComponent } from './options-menu/options-menu.component';
 import { PlannedGroceryComponent } from './planned-grocery/planned-grocery.component';
 import { SpreadsheetComponent } from './spreadsheet/spreadsheet.component';
 import { PgDataFormComponent } from './planned-grocery/pg-data-form/pg-data-form.component';
+import { AssignFieldsDialogComponent } from './spreadsheet/assign-fields-dialog/assign-fields-dialog.component';
+import { MatDialogModule } from '@angular/material';
 
 @NgModule({
-  imports: [SharedModule, DataUploadRoutingModule],
+  imports: [SharedModule, DataUploadRoutingModule, MatDialogModule],
   declarations: [
     DataUploadComponent,
     OptionsMenuComponent,
     PlannedGroceryComponent,
     SpreadsheetComponent,
-    PgDataFormComponent
+    PgDataFormComponent,
+    AssignFieldsDialogComponent
   ],
-  entryComponents: [],
-  providers: []
+  entryComponents: [AssignFieldsDialogComponent],
+  providers: [AssignFieldsDialogComponent]
 })
 export class DataUploadModule {}

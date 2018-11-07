@@ -14,7 +14,6 @@ import { Observable, Observer, of, Subject } from 'rxjs';
  */
 @Injectable()
 export class MapService {
-
   private map: google.maps.Map;
   boundsChanged$: Subject<{ east; north; south; west }>;
   mapClick$: Subject<Coordinates>;
@@ -79,10 +78,10 @@ export class MapService {
   initialize(element: HTMLElement) {
     // Create map
     this.map = new google.maps.Map(element, {
-      center: {lat: 39.8283, lng: -98.5795},
+      center: { lat: 39.8283, lng: -98.5795 },
       zoom: 8
     });
-    this.map.getStreetView().setOptions({imageDateControl: true});
+    this.map.getStreetView().setOptions({ imageDateControl: true });
     this.placesService = new google.maps.places.PlacesService(this.map);
     this.boundsChanged$ = new Subject<{ east; north; south; west }>();
     this.mapClick$ = new Subject<Coordinates>();
@@ -174,7 +173,7 @@ export class MapService {
     }
     return {
       zoom: 10,
-      center: {lat: 39.8283, lng: -98.5795},
+      center: { lat: 39.8283, lng: -98.5795 },
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
   }
@@ -211,7 +210,6 @@ export class MapService {
       this.drawingManager,
       'overlaycomplete',
       event => {
-
         this.drawingEvents.push(event);
         this.drawingComplete$.next(event);
       }
@@ -339,9 +337,11 @@ export class MapService {
     this.drawingManager.setDrawingMode(this.drawingMode);
   }
 
-  searchFor(queryString: string, bounds?: google.maps.LatLngBoundsLiteral): Observable<GooglePlace[]> {
+  searchFor(
+    queryString: string,
+    bounds?: google.maps.LatLngBoundsLiteral
+  ): Observable<GooglePlace[]> {
     return Observable.create((observer: Observer<any>) => {
-
       const callback = (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
           observer.next(results.map(place => new GooglePlace(place)));
@@ -360,7 +360,11 @@ export class MapService {
           'name',
           'place_id'
         ];
-        this.placesService.findPlaceFromQuery({fields: fields, query: queryString}, callback);
+       
+          // this.placesService.findPlaceFromQuery(
+          //   { fields: fields, query: queryString },
+          //   callback
+          // );
       } else {
         const request = {
           bounds: bounds,
@@ -389,5 +393,4 @@ export class MapService {
   getMap() {
     return this.map;
   }
-
 }
