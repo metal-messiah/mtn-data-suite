@@ -228,16 +228,16 @@ export class SpreadsheetComponent implements OnInit {
     return this.storeService
       .getStoresOfTypeInBounds(bounds, this.storeTypes, false)
       .pipe(
-        tap((page: Pageable<SimplifiedStore>) => {
+        tap((stores: SimplifiedStore[]) => {
           const allMatchingSites = _.uniqBy(
-            page.content.map(store => {
+            stores.map(store => {
               store.site['stores'] = []; // Used to group stores by site
               return store.site;
             }),
             'id'
           );
 
-          page.content.forEach(store => {
+          stores.forEach(store => {
             const siteIdx = allMatchingSites.findIndex(
               site => site['id'] === store.site.id
             );

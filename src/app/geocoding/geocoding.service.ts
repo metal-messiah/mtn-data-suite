@@ -87,10 +87,10 @@ export class GeocodingService {
   }
 
   getNewestResourceQuota() {
-    this.resourceQuotaService.getNewest(this.resourceQuotaName).subscribe(
-      (page: Pageable<ResourceQuota>) => {
-        if (page.content.length) {
-          this.newestResourceQuota = page.content[0];
+    this.resourceQuotaService.getNewest(this.resourceQuotaName)
+      .subscribe(
+      (quota: ResourceQuota) => {
+          this.newestResourceQuota = quota;
           this.resourceQuota$.next(this.newestResourceQuota);
           this.snackBar.open(
             `${(
@@ -102,7 +102,9 @@ export class GeocodingService {
               duration: 5000
             }
           );
-        } else {
+      },
+      err => {
+        if (err.status === 404) {
           this.resourceQuotaService
             .createNewResourceQuota(this.resourceQuotaName)
             .subscribe((newRQ: ResourceQuota) => {
@@ -119,19 +121,9 @@ export class GeocodingService {
                 }
               );
             });
+        } else {
+          this.errorService.handleServerError(`Failed to retrieve geocoder quota information`, err, () => {});
         }
-      },
-      err => {
-        this.errorService.handleServerError(
-          `Failed to retrieve geocoder quota information`,
-          err,
-          () => {
-            // do nothing
-          },
-          () => {
-            // do nothing
-          }
-        );
       }
     );
   }
