@@ -1,10 +1,6 @@
-* {
-  box-sizing: border-box;
-}
-
-body {
-  overflow-x: hidden;
-}
+/** {*/
+  /*box-sizing: border-box;*/
+/*}*/
 
 .flex-container{
   display: flex;
@@ -12,23 +8,8 @@ body {
   justify-content: center;
 }
 
-.report-upload-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 0 50px 0;
-  background: white;
-}
-
-form {
-  width: 80%;
-}
-
 .submit {
   margin: 25px 0;
-}
-mat-form-field {
-  width: 100%;
 }
 
 .categories-wrapper {
@@ -66,6 +47,7 @@ table {
   /* display: block; */
   /* width: 100%; */
   /* margin: 0 auto; */
+  padding-bottom: 50px
 }
 
 .force10{
@@ -109,9 +91,9 @@ mat-progress-bar {
   font-weight: bold;
 }
 
-::ng-deep .mat-horizontal-stepper-header-container {
-  visibility: hidden !important;
-}
+/*::ng-deep .mat-horizontal-stepper-header-container {*/
+  /*visibility: hidden !important;*/
+/*}*/
 
 .desc {
   text-align: center;
@@ -156,19 +138,6 @@ mat-progress-bar {
   margin: 0 auto;
 }
 
-.invalid {
-  border: 1px solid red;
-  color: red;
-}
-
-.editable {
-  cursor: pointer;
-}
-
-.editable:hover {
-  text-decoration: underline;
-}
-
 .file-tip {
   margin-left: 20px;
   font-size: small;
@@ -187,5 +156,11 @@ mat-progress-bar {
 }
 
 #tables-body {
-  margin-bottom: 30px;
+  width: fit-content;
+  margin: 30px auto;
+}
+
+#sourceOfVolumeTable {
+  min-width: 430mm;
+  max-width: 430mm;
 }

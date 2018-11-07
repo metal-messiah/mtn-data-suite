@@ -1,6 +1,6 @@
-<div class="list-wrapper">
+<div class="wrapper" *ngIf="rbs.reportTableData">
   <h3 style="text-align: center;">Existing Stores</h3>
-  <div *ngIf="rbs.reportTableData" class="categories-wrapper">
+  <div class="categories-wrapper">
     <div class="categories-box" *ngFor="let store of getExistingStoresCombined(); let i=index;"
          [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
       <div>
@@ -11,20 +11,23 @@
       </select>
     </div>
   </div>
-  <h3 style="text-align: center;">Proposed Stores</h3>
-  <div *ngIf="rbs.reportTableData" class="categories-wrapper">
-    <div class='categories-box' *ngFor="let store of getProposedStores(); let i=index;"
-         [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
-      <div>
-        <span style="margin-right: 20px;">{{store.mapKey}}</span>
-        <span style="margin-right: 20px;">{{store.storeName}}</span>
+  <div *ngIf="getProposedStores().length > 0">
+    <h3 style="text-align: center;">Proposed Stores</h3>
+    <div *ngIf="rbs.reportTableData" class="categories-wrapper">
+      <div class='categories-box' *ngFor="let store of getProposedStores(); let i=index;"
+           [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
+        <div>
+          <span style="margin-right: 20px;">{{store.mapKey}}</span>
+          <span style="margin-right: 20px;">{{store.storeName}}</span>
+        </div>
+        <select [value]="store.category" (change)="changeCategory($event, store.mapKey)">
+          <option *ngFor="let cat of categories">{{cat}}</option>
+        </select>
       </div>
-      <select [value]="store.category" (change)="changeCategory($event, store.mapKey)">
-        <option *ngFor="let cat of categories">{{cat}}</option>
-      </select>
     </div>
   </div>
   <hr>
-  <button [color]="'primary'" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back</button>
-  <button [color]="'warn'" mat-raised-button (click)="next()" style="margin-top:20px;">Next</button>
+  <button [color]="'primary'" type="button" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back
+  </button>
+  <button [color]="'warn'" type="button" mat-raised-button (click)="next()" style="margin-top:20px;">Next</button>
 </div>

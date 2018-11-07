@@ -6,7 +6,6 @@ import { StoreService } from '../../core/services/store.service';
 import { Store } from '../../models/full/store';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatSnackBar } from '@angular/material';
-import { AuditingEntity } from '../../models/auditing-entity';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { RoutingStateService } from '../../core/services/routing-state.service';
@@ -26,6 +25,12 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
   form: FormGroup;
 
   storeTypeOptions = ['ACTIVE', 'FUTURE', 'HISTORICAL'];
+  fitOptions = ['Aldi', 'Asian', 'Club', 'Conventional', 'Discount', 'Hispanic', 'Natural Foods', 'Quality/Service',
+    'Save A Lot', 'Sprouts', 'Supercenter', 'Trader Joe\'s', 'Warehouse', 'Whole Foods'];
+  formatOptions = ['Asian', 'Club', 'Combo', 'Conventional', 'Conventional Mass Merchandiser', 'Discount', 'Ethnic',
+    'Food/Drug Combo', 'Hispanic', 'Independent', 'International', 'Limited Assortment', 'Natural Foods',
+    'Natural/Gourmet Foods', 'Super Combo', 'Supercenter', 'Superette/Small Grocery', 'Supermarket', 'Superstore',
+    'Trader Joe\'s', 'Warehouse'];
 
   constructor(private storeService: StoreService,
               private router: Router,
@@ -46,6 +51,14 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
       storeType: ['', [Validators.required]],
       dateOpened: new Date(),
       dateClosed: new Date(),
+      fit: '',
+      format: '',
+      areaSales: ['', [Validators.min(1)]],
+      areaSalesPercentOfTotal: ['', [Validators.min(0.01), Validators.max(100)]],
+      areaTotal: ['', [Validators.min(1)]],
+      areaIsEstimate: '',
+      storeIsOpen24: '',
+      naturalFoodsAreIntegrated: '',
       floating: false
     });
   }

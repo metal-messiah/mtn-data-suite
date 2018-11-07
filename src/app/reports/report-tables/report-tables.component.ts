@@ -40,13 +40,15 @@ export class ReportTablesComponent implements OnInit {
   }
 
   ngOnInit() {
-    window.scrollTo(0, 0);
     if (!this.rbs.reportTableData) {
-      this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
-      this.router.navigate(['reports']);
+      setTimeout(() => {
+        this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
+        this.router.navigate(['reports']);
+      }, 10)
     } else {
       this.jsonToTablesUtil = new JsonToTablesUtil(this.rbs);
       this.getMapImage();
+      document.getElementById('reports-content-wrapper').scrollTop = 0;
     }
   }
 
@@ -123,30 +125,14 @@ export class ReportTablesComponent implements OnInit {
       this.googleMapsZoom = this.googleMapsZoom - zoom;
     }
     // map image
-    const target = this.jsonToTablesUtil.getTargetStore();
-    const stores = this.jsonToTablesUtil.getProjectedStoresWeeklySummary();
-
-    const storePins = stores
-      .map(s => {
-        if (s.latitude && s.longitude) {
-          const isTarget = s.mapKey === target.mapKey;
-          const color = isTarget
-            ? 'red'
-            : s.category === 'Company Store'
-              ? 'blue'
-              : 'yellow';
-          return `&markers=color:${color}%7Clabel:${
-            isTarget ? s.storeName[0] : ''
-            }%7C${s.latitude},${s.longitude}`;
-        }
-      })
-      .join('');
+    const target = this.jsonToTablesUtil.targetStore;
+    const targetPin = `&markers=color:red%7Clabel:${target.storeName[0]}%7C${target.latitude},${target.longitude}`;
 
     const {latitude, longitude} = target;
 
     this.mapImage = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=${
       this.googleMapsZoom
-      }&size=470x350&maptype=${this.googleMapsBasemap}&${storePins}&key=${
+      }&size=470x350&maptype=${this.googleMapsBasemap}&${targetPin}&key=${
       this.googleMapsKey
       }`;
   }

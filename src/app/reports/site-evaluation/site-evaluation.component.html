@@ -1,5 +1,5 @@
-<div class="list-wrapper">
-  <form [formGroup]="form">
+<div class="narrative-wrapper">
+  <form *ngIf="form" [formGroup]="form">
     <mat-form-field>
       <textarea matInput placeholder="Street Conditions" formControlName="streetConditions"></textarea>
     </mat-form-field>
@@ -89,9 +89,11 @@
         </mat-select>
       </mat-form-field>
     </div>
-    <div class='submit'>
-      <button [color]="'primary'" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back</button>
-      <button [color]="'warn'" mat-raised-button (click)="next()"style="margin-top:20px;">Next</button>
-    </div>
   </form>
+  <div class='submit'>
+    <button [color]="'primary'" type="button" mat-raised-button (click)="_location.back()"
+            style="margin:20px 20px 0 0;">Go Back
+    </button>
+    <button [color]="'warn'" type="button" mat-raised-button (click)="next()" style="margin-top:20px;">Next</button>
+  </div>
 </div>

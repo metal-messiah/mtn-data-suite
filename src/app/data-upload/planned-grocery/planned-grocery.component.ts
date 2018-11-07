@@ -47,7 +47,7 @@ export class PlannedGroceryComponent implements OnInit {
   totalStoreSourceRecords: number;
 
   // Planned Grocery Data
-  pgRecord: {attributes, geometry};
+  pgRecord: { attributes, geometry };
 
   // Database Data (Potential Matches)
   currentDBResults: object[];
@@ -60,6 +60,7 @@ export class PlannedGroceryComponent implements OnInit {
   // Flags
   gettingEntities = false;
   isFetching = false;
+  isRefreshing = false;
 
   // Reference Values
   storeTypes: string[] = ['ACTIVE', 'FUTURE', 'HISTORICAL'];
@@ -340,5 +341,16 @@ export class PlannedGroceryComponent implements OnInit {
           });
         })
       );
+  }
+
+  refresh() {
+    this.isRefreshing = true;
+    this.pgService.pingRefresh()
+      .pipe(finalize(() => this.isRefreshing = false))
+      .subscribe(() => {
+        this.getPGSources();
+      }, err => {
+        this.errorService.handleServerError('Failed to refresh PG records', err, () => {}, () => this.refresh())
+      })
   }
 }

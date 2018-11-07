@@ -172,6 +172,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         });
       }
     });
+
+    // Check Project boundary service to see if boundary should be showing, if so, show it anew
+    if (this.projectBoundaryService.isShowingBoundary()) {
+      this.projectBoundaryService.showProjectBoundaries().subscribe();
+    }
   }
 
   private getDebounce() {
@@ -654,6 +659,12 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   enableProjectBoundaryEditing() {
     this.selectedDashboardMode = CasingDashboardMode.EDIT_PROJECT_BOUNDARY;
     this.projectBoundaryService.enableProjectBoundaryEditing();
+    this.projectBoundaryService.zoomToProjectBoundary();
+  }
+
+  showBoundary() {
+    this.projectBoundaryService.showProjectBoundaries().subscribe();
+    this.projectBoundaryService.zoomToProjectBoundary();
   }
 
   selectAllInBoundary() {
@@ -667,7 +678,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         } else {
           this.snackBar.open('No Boundary for Project', null, {duration: 2000, verticalPosition: 'top'});
         }
-      })
+      });
+      this.projectBoundaryService.zoomToProjectBoundary();
     }
   }
 

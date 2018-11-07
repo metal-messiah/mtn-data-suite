@@ -23,7 +23,8 @@ export class XlsToModelParserService {
       reportData.storeList = this.getStoreList(wb.Sheets[wb.SheetNames[0]]);
       reportData.projectedVolumesBefore = this.getProjectedVolumes(wb.Sheets[wb.SheetNames[1]]);
       reportData.projectedVolumesAfter = this.getProjectedVolumes(wb.Sheets[wb.SheetNames[2]]);
-      reportData.salesGrowthProjection = this.getSalesGrowthProjection(wb.Sheets[wb.SheetNames[3]]);
+      reportData.salesGrowthProjectionAverages = this.getSalesGrowthProjectionAverages(wb.Sheets[wb.SheetNames[3]]);
+      reportData.salesGrowthProjectionYearEnd = this.getSalesGrowthProjectionYearEnd(wb.Sheets[wb.SheetNames[3]]);
       reportData.marketShareBySector = this.getMarketShareBySector(wb.Sheets[wb.SheetNames[4]]);
       reportData.sectorList = this.getSectorList(wb.Sheets[wb.SheetNames[5]]);
 
@@ -89,23 +90,24 @@ export class XlsToModelParserService {
     return volumeItems;
   }
 
-  private getSalesGrowthProjection(ws: WorkSheet): SalesGrowthProjectionItem[] {
-    return [
-      new SalesGrowthProjectionItem(
-        ws['B10'].v, ws['D10'].v,
-        ws['B11'].v, ws['D11'].v,
-        ws['B12'].v, ws['D12'].v,
-        ws['B13'].v, ws['D13'].v,
-        ws['B14'].v, ws['D14'].v
-      ),
-      new SalesGrowthProjectionItem(
-        ws['B16'].v, ws['D16'].v,
-        ws['B17'].v, ws['D17'].v,
-        ws['B18'].v, ws['D18'].v,
-        ws['B19'].v, ws['D19'].v,
-        ws['B20'].v, ws['D20'].v
-      ),
-    ];
+  private getSalesGrowthProjectionAverages(ws: WorkSheet): SalesGrowthProjectionItem {
+    return new SalesGrowthProjectionItem(
+      ws['B10'].v, ws['D10'].v,
+      ws['B11'].v, ws['D11'].v,
+      ws['B12'].v, ws['D12'].v,
+      ws['B13'].v, ws['D13'].v,
+      ws['B14'].v, ws['D14'].v
+    );
+  }
+
+  private getSalesGrowthProjectionYearEnd(ws: WorkSheet): SalesGrowthProjectionItem {
+    return new SalesGrowthProjectionItem(
+      ws['B16'].v, ws['D16'].v,
+      ws['B17'].v, ws['D17'].v,
+      ws['B18'].v, ws['D18'].v,
+      ws['B19'].v, ws['D19'].v,
+      ws['B20'].v, ws['D20'].v
+    );
   }
 
   private getMarketShareBySector(ws: WorkSheet): MarketShareBySectorItem[] {

@@ -35,11 +35,11 @@
         <th>Comment</th>
       </tr>
       <tr>
-        <td>{{jsonToTablesUtil.getProjectionMapKey()}}</td>
-        <td>{{jsonToTablesUtil.getProjectionScenario()}}</td>
-        <td>{{jsonToTablesUtil.getProjectionProjectedFitImage() | number:'1.0-0'}}</td>
-        <td>{{jsonToTablesUtil.getProjectionSalesArea() | number}}</td>
-        <td>{{jsonToTablesUtil.getProjectionTotalArea() | number}}</td>
+        <td>{{jsonToTablesUtil.targetStore.mapKey}}</td>
+        <td>{{jsonToTablesUtil.targetStore.storeName}}</td>
+        <td>{{jsonToTablesUtil.targetStore.effectivePower | number:'1.0-0'}}</td>
+        <td>{{jsonToTablesUtil.targetStore.salesArea | number}}</td>
+        <td>{{jsonToTablesUtil.targetStore.totalArea | number}}</td>
         <td>${{jsonToTablesUtil.getProjection('firstYearAverageSales')}}k</td>
         <td>{{jsonToTablesUtil.getProjectionPsf('firstYearAverageSales') | currency}}</td>
         <td>${{jsonToTablesUtil.getProjection('secondYearAverageSales')}}k</td>
@@ -71,7 +71,7 @@
         <th>PWTA</th>
         <th>FIT Power</th>
       </tr>
-      <tr *ngFor="let store of jsonToTablesUtil.getCurrentStoresWeeklySummary()">
+      <tr *ngFor="let store of jsonToTablesUtil.currentWeeklyStores">
         <td>{{store.mapKey}}</td>
         <td>{{store.storeName}}</td>
         <td>{{store.location}}</td>
@@ -85,11 +85,24 @@
         <td>Average</td>
         <td></td>
         <td></td>
-        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage('current', 'actualSales') | number:'1.0-0'}}</td>
-        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage('current', 'actualSalesPSF') | number:'1.2-2'}}</td>
-        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage('current', 'salesArea') | number:'1.0-0'}}</td>
+        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.currentWeeklyStores,
+          'actualSales') | number:'1.0-0'}}
+        </td>
+        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.currentWeeklyStores,
+          'actualSalesPSF') | number:'1.2-2'}}
+        </td>
+        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.currentWeeklyStores, 'salesArea')
+          | number:'1.0-0'}}
+        </td>
         <td></td>
-        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage('current', 'effectivePower') | number:'1.0-0'}}</td>
+        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.currentWeeklyStores,
+          'effectivePower') | number:'1.0-0'}}
+        </td>
+      </tr>
+      <tr *ngIf="jsonToTablesUtil.currentWeeklyStoresOverflow.length > 0">
+        <td colspan="8" class="footnote">Excluding {{jsonToTablesUtil.currentWeeklyStoresOverflow.length}} stores with
+          minimal contribution
+        </td>
       </tr>
     </table>
   </div>
@@ -113,7 +126,7 @@
       </tr>
       <tr
         [ngClass]="jsonToTablesUtil.isTargetStore(store) ? 'red-highlight' : store.category === 'Proposed Competition' ? 'bold' : ''"
-        *ngFor="let store of jsonToTablesUtil.getProjectedStoresWeeklySummary()">
+        *ngFor="let store of jsonToTablesUtil.projectedWeeklyStores">
         <td>{{store.mapKey}}</td>
         <td>{{store.storeName}}</td>
         <td>{{store.location}}</td>
@@ -127,11 +140,26 @@
         <td>Average</td>
         <td></td>
         <td></td>
-        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage('projected', 'projectedSales') | number:'1.0-0'}}</td>
-        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage('projected', 'projectedSalesPSF') | number:'1.2-2'}}</td>
-        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage('projected', 'salesArea') | number:'1.0-0'}}</td>
+        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.projectedWeeklyStores,
+          'projectedSales') |
+          number:'1.0-0'}}
+        </td>
+        <td class="right-align">${{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.projectedWeeklyStores,
+          'projectedSalesPSF') |
+          number:'1.2-2'}}
+        </td>
+        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.projectedWeeklyStores,
+          'salesArea') | number:'1.0-0'}}
+        </td>
         <td></td>
-        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage('projected', 'effectivePower') | number:'1.0-0'}}</td>
+        <td class="right-align">{{jsonToTablesUtil.getSummaryAverage(jsonToTablesUtil.projectedWeeklyStores,
+          'effectivePower') | number:'1.0-0'}}
+        </td>
+      </tr>
+      <tr *ngIf="jsonToTablesUtil.projectedWeeklyStoresOverflow.length > 0">
+        <td colspan="8" class="footnote">Excluding {{jsonToTablesUtil.projectedWeeklyStoresOverflow.length}} stores with
+          minimal contribution
+        </td>
       </tr>
     </table>
   </div>
@@ -139,67 +167,102 @@
   <div class="flex-container">
     <table cellspacing="0" id="sourceOfVolumeTable">
       <tr>
-        <th style='height:50px; position: relative;' colspan="12">
-          <span class="title-left">Source of Volume</span>
-          <span class="title-right">{{jsonToTablesUtil.getTargetStore().storeName}}</span>
+        <th colspan="12" style="padding: 10px;">
+          <div style="display: flex; width: 100%; justify-content: space-between; font-size: xx-large;">
+            <span>Source of Volume</span>
+            <span>{{jsonToTablesUtil.targetStore.storeName}}</span>
+          </div>
         </th>
       </tr>
       <tr>
-        <th></th>                   <th></th>             <th></th>   <th>FIT</th>  <th>Straight</th>   <th colspan="2">Size (sqft)*</th> <th>Sales</th>                                                            <th colspan="4">{{jsonToTablesUtil.reportTableData.firstYearEndingMonthYear}} Volume</th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th>FIT</th>
+        <th>Straight</th>
+        <th colspan="2">Size (sqft)*</th>
+        <th>Sales</th>
+        <th colspan="4">{{jsonToTablesUtil.reportTableData.firstYearEndingMonthYear}} Volume</th>
       </tr>
       <tr>
-        <th>Primary Sources of</th> <th>Address or</th>   <th>Map</th><th>Store</th><th>Line Dist.</th> <th>Sales</th> <th>Est. Total</th><th>as of</th>                                                            <th>+Pop Grwth, Infl.</th><th colspan="2">Contribution</th><th>Resulting</th>
+        <th>Primary Sources of</th>
+        <th>Address or</th>
+        <th>Map</th>
+        <th>Store</th>
+        <th>Line Dist.</th>
+        <th>Sales</th>
+        <th>Est. Total</th>
+        <th>as of</th>
+        <th>+Pop Grwth, Infl.</th>
+        <th colspan="2">Contribution</th>
+        <th>Resulting</th>
       </tr>
       <tr>
-        <th>Projected Volume</th>   <th>Intersection</th> <th>Key</th><th>Power</th><th>From Site</th>  <th>Area</th>   <th>Area</th>     <th>{{jsonToTablesUtil.reportMetaData.fieldResDate | date:'MMM y'}}</th>  <th>& Comp. Chngs.</th>   <th colspan="2">to Site</th>      <th>Volume</th>
+        <th>Projected Volume</th>
+        <th>Intersection</th>
+        <th>Key</th>
+        <th>Power</th>
+        <th>From Site</th>
+        <th>Area</th>
+        <th>Area</th>
+        <th>{{jsonToTablesUtil.reportMetaData.fieldResDate | date:'MMM y'}}</th>
+        <th>& Comp. Chngs.</th>
+        <th colspan="2">to Site</th>
+        <th>Volume</th>
       </tr>
-      <tr *ngIf="jsonToTablesUtil.getSOVStoreCount('Company Store') > 0" class="blue">
+      <tr *ngIf="jsonToTablesUtil.getSovStoresOfCategory('Company Store').length > 0" class="blue">
         <td class="table-section-header">
           Company Stores
         </td>
         <td colspan="11"></td>
       </tr>
-      <tr *ngFor="let store of jsonToTablesUtil.getSOVStores('Company Store')"
+      <tr *ngFor="let store of jsonToTablesUtil.getSovStoresOfCategory('Company Store')"
           [class]="jsonToTablesUtil.isTargetStore(store) ? 'bold blue': 'blue'">
         <td>{{store.storeName}}</td>
         <td nowrap>{{store.location}}</td>
         <td class="right-align">{{store.mapKey}}</td>
         <td class="right-align">{{store.effectivePower | number:'1.0-0'}}</td>
         <td class="right-align" *ngIf="jsonToTablesUtil.isTargetStore(store)">-</td>
-        <td class="right-align" *ngIf="!jsonToTablesUtil.isTargetStore(store)">{{store.distance | number:'1.0-2'}} mi.</td>
+        <td class="right-align" *ngIf="!jsonToTablesUtil.isTargetStore(store)">{{store.distance | number:'1.0-2'}} mi.
+        </td>
         <td class="right-align">{{store.salesArea | number:'1.0-2'}}</td>
         <td class="right-align">{{store.totalArea | number:'1.0-2'}}</td>
         <td class="right-align" *ngIf="jsonToTablesUtil.isTargetStore(store)">-</td>
-        <td class="right-align" *ngIf="!jsonToTablesUtil.isTargetStore(store)">{{store.actualSales / 1000 | number:'1.0-2'}}</td>
+        <td class="right-align" *ngIf="!jsonToTablesUtil.isTargetStore(store)">{{store.actualSales / 1000 |
+          number:'1.0-2'}}
+        </td>
         <td class="right-align" *ngIf="jsonToTablesUtil.isTargetStore(store)">-</td>
-        <td class="right-align" *ngIf="!jsonToTablesUtil.isTargetStore(store)">{{store.futureSales / 1000 | number:'1.0-0'}}</td>
+        <td class="right-align" *ngIf="!jsonToTablesUtil.isTargetStore(store)">{{store.futureSales / 1000 |
+          number:'1.0-0'}}
+        </td>
         <td class="right-align">{{store.contributionToSite ? (store.contributionToSite / 1000).toFixed(0) : '-'}}</td>
         <td class="right-align" *ngIf="jsonToTablesUtil.isTargetStore(store)">-</td>
-        <td class="right-align" *ngIf="!jsonToTablesUtil.isTargetStore(store)">{{store.contributionToSitePerc | number:'1.0-1'}}%</td>
+        <td class="right-align" *ngIf="!jsonToTablesUtil.isTargetStore(store)">
+          {{store.contributionToSitePerc | number:'1.0-1'}}%
+        </td>
         <td class="right-align">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
       </tr>
-      <tr *ngIf="jsonToTablesUtil.getSOVStoreCount('Company Store') > 1" class="blue">
-        <td><b>Average Power</b></td>
-        <td colspan="2"></td>
+      <tr *ngIf="jsonToTablesUtil.getSovStoresOfCategory('Company Store').length > 1" class="blue">
+        <td></td>
+        <td colspan="2" class="right-align"><b>Average Power</b></td>
         <td class="right-align" style="border-top:1px solid black;">
-          <b>{{jsonToTablesUtil.getSOVAverages('Company Store').fitStorePowerAverage | number:'1.0-0'}}</b>
+          <b>{{jsonToTablesUtil.getSovFitAverageForCategory('Company Store') | number:'1.0-0'}}</b>
         </td>
-        <td colspan="5"></td>
-        <td class="right-align"  style="border-top:1px solid black;">
+        <td colspan="5" class="right-align"><b>Subtotal</b></td>
+        <td class="right-align" style="border-top:1px solid black;">
           <b>
-            ${{jsonToTablesUtil.getSOVAverages('Company Store').contributionToSiteAverage / 1000 |
-            number:'1.0-0'}}
+            ${{jsonToTablesUtil.getSovContributionToSiteSubtotal('Company Store') / 1000 | number:'1.0-0'}}
           </b>
         </td>
         <td colspan="2"></td>
       </tr>
-      <tr *ngIf="jsonToTablesUtil.getSOVStoreCount('Existing Competition') > 0" class="yellow">
+      <tr *ngIf="jsonToTablesUtil.getSovStoresOfCategory('Existing Competition').length > 0" class="yellow">
         <td class="table-section-header">
           Existing Competition
         </td>
         <td colspan="11"></td>
       </tr>
-      <tr *ngFor="let store of jsonToTablesUtil.getSOVStores('Existing Competition')" class="yellow">
+      <tr *ngFor="let store of jsonToTablesUtil.getSovStoresOfCategory('Existing Competition')" class="yellow">
         <td>{{store.storeName}}</td>
         <td nowrap>{{store.location}}</td>
         <td class="right-align">{{store.mapKey}}</td>
@@ -213,30 +276,23 @@
         <td class="right-align">{{store.contributionToSitePerc | number:'0.0-1'}}%</td>
         <td class="right-align">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
       </tr>
-      <tr *ngIf="jsonToTablesUtil.getSOVStoreCount('Existing Competition') > 1" class="yellow">
-        <td><b>Average Power</b></td>
-        <td colspan="2"></td>
+      <tr *ngIf="jsonToTablesUtil.getSovStoresOfCategory('Existing Competition').length > 1" class="yellow">
+        <td></td>
+        <td colspan="2" class="right-align"><b>Average Power</b></td>
         <td class="right-align" style="border-top:1px solid black;">
-          <b>
-            {{jsonToTablesUtil.getSOVAverages('Existing Competition').fitStorePowerAverage | number:'1.0-0'}}
-          </b>
+          <b>{{jsonToTablesUtil.getSovFitAverageForCategory('Existing Competition') | number:'1.0-0'}}</b>
         </td>
-        <td colspan="5"></td>
+        <td colspan="5" class="right-align"><b>Subtotal</b></td>
         <td class="right-align" style="border-top:1px solid black;">
-          <b>
-            ${{jsonToTablesUtil.getSOVAverages('Existing Competition').contributionToSiteAverage / 1000 |
-            number:'1.0-0'}}
-          </b>
+          <b>${{jsonToTablesUtil.getSovContributionToSiteSubtotal('Existing Competition') / 1000 | number:'1.0-0'}}</b>
         </td>
         <td colspan="2"></td>
       </tr>
-      <tr *ngIf="jsonToTablesUtil.getSOVStoreCount('Proposed Competition') > 0" class="pink">
-        <td class="table-section-header">
-          Proposed Competition
-        </td>
+      <tr *ngIf="jsonToTablesUtil.getSovStoresOfCategory('Proposed Competition').length > 0" class="pink">
+        <td class="table-section-header">Proposed Competition</td>
         <td colspan="11"></td>
       </tr>
-      <tr *ngFor="let store of jsonToTablesUtil.getSOVStores('Proposed Competition')" class="pink">
+      <tr *ngFor="let store of jsonToTablesUtil.getSovStoresOfCategory('Proposed Competition')" class="pink">
         <td>{{store.storeName}}</td>
         <td nowrap>{{store.location}}</td>
         <td class="right-align">{{store.mapKey}}</td>
@@ -250,35 +306,24 @@
         <td class="right-align">{{store.contributionToSitePerc | number:'0.0-1'}}%</td>
         <td class="right-align">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
       </tr>
-      <tr *ngIf="jsonToTablesUtil.getSOVStoreCount('Proposed Competition') > 1" class="pink">
-        <td><b>Average Power</b></td>
-        <td colspan="2"></td>
+      <tr *ngIf="jsonToTablesUtil.getSovStoresOfCategory('Proposed Competition').length > 1" class="pink">
+        <td></td>
+        <td colspan="2" class="right-align"><b>Average Power</b></td>
         <td class="right-align" style="border-top:1px solid black;">
-          <b>
-            {{jsonToTablesUtil.getSOVAverages('Proposed Competition').fitStorePowerAverage | number:'1.0-0'}}
-          </b>
+          <b>{{jsonToTablesUtil.getSovFitAverageForCategory('Proposed Competition') | number:'1.0-0'}}</b>
         </td>
-        <td colspan="5"></td>
+        <td colspan="5" class="right-align"><b>Subtotal</b></td>
         <td class="right-align" style="border-top:1px solid black;">
-          <b>
-            ${{jsonToTablesUtil.getSOVAverages('Proposed Competition').contributionToSiteAverage / 1000 |
-            number:'1.0-0'}}
-          </b>
+          <b>${{jsonToTablesUtil.getSovContributionToSiteSubtotal('Proposed Competition') / 1000 | number:'1.0-0'}}</b>
         </td>
         <td colspan="2"></td>
-      </tr>
-      <tr>
-        <td colspan="12"></td>
       </tr>
       <tr>
         <td><b>Sales Potential</b></td>
-        <td>
-          <b>Assume Store Opens {{jsonToTablesUtil.reportTableData.firstYearEndingMonthYear}}</b>
-        </td>
+        <td><b>Assume Store Opens {{jsonToTablesUtil.reportTableData.firstYearEndingMonthYear}}</b></td>
         <td colspan="3"></td>
         <td colspan="4"><b>Sales Transfers from Company Stores</b></td>
-        <td class="right-align">${{jsonToTablesUtil.getSalesTransfersFromCompanyStores() | number:'1.0-0'}}
-        </td>
+        <td class="right-align">${{jsonToTablesUtil.getSalesTransfersFromCompanyStores() | number:'1.0-0'}}</td>
         <td colspan="2"></td>
       </tr>
       <tr>
@@ -286,27 +331,23 @@
         <td><b>${{jsonToTablesUtil.getAfterOpen1Year() | number:'1.0-0'}}</b></td>
         <td colspan="3"></td>
         <td colspan="4"><b>Sales Transfers from Competition</b></td>
-        <td class="right-align">${{jsonToTablesUtil.getSalesTransfersFromCompetition() | number:'1.0-0'}}
-        </td>
+        <td class="right-align">${{jsonToTablesUtil.getSalesTransfersFromCompetition() | number:'1.0-0'}}</td>
         <td colspan="2"></td>
       </tr>
       <tr>
         <td class="footnote">*Area devoted to food group</td>
-        <td class="footnote">{{jsonToTablesUtil.getTruncatedMessage()}}</td>
-        <td colspan="3"></td>
+        <td class="footnote" colspan="4">{{jsonToTablesUtil.getTruncatedMessage()}}</td>
         <td colspan="4"><b>Total Sales Transfer</b></td>
         <td class="right-align">${{jsonToTablesUtil.getTotalSalesTransfers() | number:'1.0-0'}}</td>
         <td colspan="2"></td>
       </tr>
       <tr>
         <td class='footnote'>Sales effects based on gravity model analysis.</td>
-        <td class="footnote">{{jsonToTablesUtil.getTruncatedSumMessage()}}</td>
-        <td colspan="3"></td>
+        <td class="footnote" colspan="4">{{jsonToTablesUtil.getTruncatedSumMessage()}}</td>
         <td colspan="4"><b>Percent of Sales Explained After One Year</b></td>
         <td class="right-align">{{jsonToTablesUtil.getPercentOfSalesExplained() | number:'1.1-1'}}%</td>
         <td colspan="2"></td>
       </tr>
-
     </table>
   </div>
   <hr>
@@ -402,7 +443,8 @@
   </div>
   <hr>
   <button color="primary" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back</button>
-  <button *ngIf="!this.rbs.compilingImages" color="warn" mat-raised-button (click)="export()" style="margin-top:20px;">Export
+  <button *ngIf="!this.rbs.compilingImages" color="warn" mat-raised-button (click)="export()" style="margin-top:20px;">
+    Export
   </button>
   <button *ngIf="this.rbs.compilingImages" color="warn" mat-raised-button disabled>
     <i class="fas fa-spinner fa-pulse"></i>
