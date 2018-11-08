@@ -107,10 +107,6 @@ export class JsonToTablesUtil {
     this.projectedWeeklyStoresOverflow = partitionedProjected[1];
   }
 
-  getStoresForExport(category) {
-    return this.tableData.storeList.filter(store => store.category === category && !this.isTargetStore(store));
-  }
-
   getTruncatedMessage() {
     if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
       const threshold = Math.ceil(_.maxBy(this.sovOverflowStores, 'contributionToSite')['contributionToSite']);
@@ -216,30 +212,4 @@ export class JsonToTablesUtil {
     }
   }
 
-  private getTruncatedSovStores(tableStores: StoreListItem[]) {
-    return tableStores.slice(0, this.maxSovCount)
-    // create an array with new properties added
-      .map(store => {
-        const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store);
-
-        store['currentSales'] = storeBeforeSiteOpen.currentSales;
-        store['futureSales'] = storeBeforeSiteOpen.futureSales;
-        store['contributionToSite'] = !this.isTargetStore(store) ?
-          (storeBeforeSiteOpen.futureSales - storeAfterSiteOpen.futureSales) : null;
-        store['contributionToSitePerc'] = !this.isTargetStore(store) ? (store['contributionToSite'] / store['futureSales']) * 100 : null;
-        store['resultingVolume'] = store.mapKey === this.targetStore.mapKey ? storeAfterSiteOpen.futureSales
-          : store['futureSales'] - store['contributionToSite'];
-
-        store['distance'] =
-          MapService.getDistanceBetween(
-            {lat: store.latitude, lng: store.longitude},
-            {
-              lat: this.targetStore.latitude,
-              lng: this.targetStore.longitude
-            }
-          ) * 0.000621371;
-
-        return store;
-      });
-  }
 }

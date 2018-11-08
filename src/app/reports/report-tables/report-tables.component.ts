@@ -82,39 +82,18 @@ export class ReportTablesComponent implements OnInit {
           zip.file(`${this.tableDomIds[i]}.png`, fileData);
         });
 
-        const sisterStoreAffects = this.tablesUtil
-          .getStoresForExport('Company Store')
-          .sort((a, b) => {
-            if (a.storeName === b.storeName) {
-              return Number(a.mapKey) - Number(b.mapKey);
-            } else {
-              return a.storeName < b.storeName ? -1 : 1;
-            }
-          })
-          .map(store => `${store.storeName} ${store.mapKey}`)
-          .join('\r\n');
-
         let txt = '';
-        Object.keys(this.tablesUtil.siteEvaluationNarrative).forEach(key => {
-          txt += `${key}\r\n
-          ${this.tablesUtil.siteEvaluationNarrative[key]}\r\n
-          \r\n`
+
+        Object.keys(this.tablesUtil.reportMetaData).forEach(key => {
+          txt += `${key}:\r\n${this.tablesUtil.reportMetaData[key]}\r\n\r\n`
         });
 
-        // const x = `Street Conditions\r\n
-        // ${this.jsonToTablesUtil.siteEvaluationNarrative.streetConditions}\r\n
-        // \r\n
-        // Comments\r\n
-        // ${this.jsonToTablesUtil.siteEvaluationNarrative.comments}\r\n
-        // \r\n
-        // Traffic Controls\r\n
-        // ${this.jsonToTablesUtil.siteEvaluationNarrative.streetConditions}\r\n
-        // \r\n
-        // Co-tenants\r\n
-        // ${this.jsonToTablesUtil.siteEvaluationNarrative.cotenants}\r\n
-        // \r\n
-        // Sister Store Affects\r\n
-        // ${sisterStoreAffects}`;
+        txt += `Store Name:\r\n${this.tablesUtil.targetStore.storeName}\r\n\r\n`;
+        txt += `Map Key:\r\n${this.tablesUtil.targetStore.mapKey}\r\n\r\n`;
+
+        Object.keys(this.tablesUtil.siteEvaluationNarrative).forEach(key => {
+          txt += `${key}:\r\n${this.tablesUtil.siteEvaluationNarrative[key]}\r\n\r\n`
+        });
 
         zip.file(`descriptions.txt`, new Blob([txt]));
 
@@ -138,7 +117,7 @@ export class ReportTablesComponent implements OnInit {
     }
     // map image
     const target = this.tablesUtil.targetStore;
-    const targetPin = `&markers=color:red%7Clabel:${target.storeName[0]}%7C${target.latitude},${target.longitude}`;
+    const targetPin = `&markers=color:red%7C${target.latitude},${target.longitude}`;
 
     const {latitude, longitude} = target;
 

@@ -62,7 +62,22 @@ export class SiteEvaluationComponent implements OnInit {
       populationDensitySouth: 'Average',
       populationDensityEast: 'Average',
       populationDensityWest: 'Average'
-    })
+    });
+
+    const sisterStoresAffected = this.rbs.reportTableData.storeList
+      .filter(store => {
+        return store.category === 'Company Store' && store.mapKey !== this.rbs.reportTableData.selectedMapKey
+      })
+      .sort((a, b) => {
+        if (a.storeName === b.storeName) {
+          return a.mapKey - b.mapKey;
+        } else {
+          return a.storeName.localeCompare(b.storeName);
+        }
+      })
+      .map(store => `${store.storeName} ${store.mapKey}`)
+      .join('\r\n');
+    this.form.get('affectedSisterStores').setValue(sisterStoresAffected)
   }
 
   next() {
