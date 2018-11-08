@@ -109,7 +109,8 @@ export class JsonToTablesUtil {
 
   getTruncatedMessage() {
     if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
-      const threshold = Math.ceil(_.maxBy(this.sovOverflowStores, 'contributionToSite')['contributionToSite']);
+      const maxExcludedContribution: number = _.maxBy(this.sovOverflowStores, 'contributionToSite')['contributionToSite'];
+      const threshold = Math.round(maxExcludedContribution);
       return `*Does not show contributions less than $${threshold.toLocaleString()} 
       (Showing ${this.sovStores.length}/${this.sovStores.length + this.sovOverflowStores.length} stores).`
     }

@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "mtn-app-suite"
+    "default": "mtn-app-suite",
+    "staging": "mtn-test-d8f61"
   }
 }
