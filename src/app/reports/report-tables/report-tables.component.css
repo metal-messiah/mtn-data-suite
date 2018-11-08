@@ -47,8 +47,16 @@ table {
   /* display: block; */
   /* width: 100%; */
   /* margin: 0 auto; */
-  padding-bottom: 50px
 }
+
+@media
+only screen and ( min-resolution: 200dpi),
+only screen and ( min-resolution: 1.25dppx) {
+  table {
+    padding-bottom: 50px
+  }
+}
+
 
 .force10{
   /*min-width: 10in;*/
@@ -62,6 +70,10 @@ tr:nth-child(odd) {
 tr:nth-child(even) {
   background: white;
   border: none;
+}
+
+tr.white-row {
+  background: white;
 }
 
 th {
@@ -163,4 +175,8 @@ mat-progress-bar {
 #sourceOfVolumeTable {
   min-width: 430mm;
   max-width: 430mm;
+}
+
+.summary td {
+  border-top: 1px solid black;
 }

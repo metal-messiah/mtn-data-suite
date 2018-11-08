@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReportBuilderService } from '../services/report-builder.service';
 import { ReportData } from '../../models/report-data';
 import { MatSnackBar } from '@angular/material';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { StoreService } from '../../core/services/store.service';
@@ -45,8 +45,9 @@ export class ReportModelDataComponent implements OnInit {
   private createForm() {
     this.modelMetaDataForm = this.fb.group({
       analyst: `${this.auth.sessionUser.firstName} ${this.auth.sessionUser.lastName}`,
-      type: 'test',
-      modelName: 'test',
+      clientName: ['', [Validators.required]],
+      type: ['', [Validators.required]],
+      modelName: ['', [Validators.required]],
       fieldResDate: new Date()
     })
   }
@@ -135,7 +136,7 @@ export class ReportModelDataComponent implements OnInit {
           stores.forEach((store: SimplifiedStore) => {
             const idx = reportData.storeList.findIndex(s => s.uniqueId === store.id);
             if (idx !== -1) {
-              reportData.storeList[idx].totalArea = store.areaTotal;
+              reportData.storeList[idx].totalArea = Math.round(store.areaTotal / 100) * 100;
             }
           });
         },

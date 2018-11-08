@@ -19,6 +19,7 @@ import { NewProjectNameComponent } from './new-project-name/new-project-name.com
 import { StoreInfoCardComponent } from './store-info-card/store-info-card.component';
 import { SiteInfoCardComponent } from './site-info-card/site-info-card.component';
 import { FileInputComponent } from './file-input/file-input.component';
+import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
 
 @NgModule({
   imports: [
@@ -41,7 +42,8 @@ import { FileInputComponent } from './file-input/file-input.component';
     NewProjectNameComponent,
     StoreInfoCardComponent,
     SiteInfoCardComponent,
-    FileInputComponent
+    FileInputComponent,
+    ThousandsCurrencyPipe
   ],
   providers: [
     BreakpointObserver,
@@ -71,7 +73,8 @@ import { FileInputComponent } from './file-input/file-input.component';
     DataFieldInfoDialogComponent,
     StoreInfoCardComponent,
     SiteInfoCardComponent,
-    FileInputComponent
+    FileInputComponent,
+    ThousandsCurrencyPipe
   ]
 })
 export class SharedModule {

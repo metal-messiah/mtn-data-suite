@@ -3,34 +3,26 @@ import { ReportData } from '../../models/report-data';
 import { Subject } from 'rxjs';
 import { JsonToTablesUtil } from '../report-tables/json-to-tables.util';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class ReportBuilderService {
 
   reportTableData: ReportData;
   reportMetaData;
-  siteEvaluationData;
-
-  jsonToTablesUtil: JsonToTablesUtil;
-
-  next$: Subject<void> = new Subject();
+  siteEvaluationNarrative;
+  siteEvaluationRatings;
 
   compilingImages = false;
-
-  constructor() {
-  }
 
   setReportTableData(reportData: ReportData) {
     this.reportTableData = reportData;
   }
 
-  setSiteEvaluationData(siteEvalData) {
-    this.siteEvaluationData = siteEvalData;
+  setSiteEvaluationNarrative(siteEvalNarrative) {
+    this.siteEvaluationNarrative = siteEvalNarrative;
   }
 
-  generateTables() {
-    this.next$.next();
+  setSiteEvaluationRatings(siteEvalRatings) {
+    this.siteEvaluationRatings = siteEvalRatings;
   }
 
 }

@@ -7,9 +7,10 @@ import * as _ from 'lodash';
 
 export class JsonToTablesUtil {
 
-  readonly reportTableData: ReportData;
+  readonly tableData: ReportData;
   readonly reportMetaData;
-  readonly siteEvaluationData;
+  readonly siteEvaluationNarrative;
+  readonly siteEvaluationRatings;
 
   readonly sovStores: StoreListItem[];
   private readonly sovOverflowStores: StoreListItem[];
@@ -25,12 +26,13 @@ export class JsonToTablesUtil {
 
   constructor(rbs: ReportBuilderService) {
     this.reportMetaData = rbs.reportMetaData;
-    this.reportTableData = rbs.reportTableData;
-    this.siteEvaluationData = rbs.siteEvaluationData;
+    this.tableData = rbs.reportTableData;
+    this.siteEvaluationNarrative = rbs.siteEvaluationNarrative;
+    this.siteEvaluationRatings = rbs.siteEvaluationRatings;
 
-    this.targetStore = this.reportTableData.storeList.find(item => item.mapKey === this.reportTableData.selectedMapKey);
+    this.targetStore = this.tableData.storeList.find(item => item.mapKey === this.tableData.selectedMapKey);
 
-    const tableStores = this.reportTableData.storeList
+    const tableStores = this.tableData.storeList
     // only get the ones matching the category
       .filter(store => store.category !== 'Do Not Include')
       .map(store => {
@@ -43,10 +45,10 @@ export class JsonToTablesUtil {
     this.sovStores = tableStores
     // sort by target, then by contribution to site
       .sort((a, b) => {
-        if (a.mapKey === this.reportTableData.selectedMapKey) {
+        if (a.mapKey === this.tableData.selectedMapKey) {
           return -1;
         }
-        if (b.mapKey === this.reportTableData.selectedMapKey) {
+        if (b.mapKey === this.tableData.selectedMapKey) {
           return 1;
         }
         return b['contributionToSite'] - a['contributionToSite'];
@@ -105,29 +107,10 @@ export class JsonToTablesUtil {
     this.projectedWeeklyStoresOverflow = partitionedProjected[1];
   }
 
-  getProjection(projectionName: string) {
-    return Math.round(this.reportTableData.salesGrowthProjectionYearEnd[projectionName] * 0.001);
-  }
-
-  getProjectionPsf(projectionName: string) {
-    return this.reportTableData.salesGrowthProjectionAverages[projectionName] / this.targetStore.salesArea;
-  }
-
-  getProjectionYear1AnnualizedPsfFromTotal() {
-    return this.reportTableData.salesGrowthProjectionAverages.firstYearAverageSales * 52 / this.targetStore.totalArea;
-  }
-
-  getStoresForExport(category) {
-    return this.reportTableData.storeList.filter(store => store.category === category && !this.isTargetStore(store));
-  }
-
-  getProjectionComment() {
-    return this.reportMetaData.type;
-  }
-
   getTruncatedMessage() {
     if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
-      const threshold = Math.ceil(_.maxBy(this.sovOverflowStores, 'contributionToSite')['contributionToSite']);
+      const maxExcludedContribution: number = _.maxBy(this.sovOverflowStores, 'contributionToSite')['contributionToSite'];
+      const threshold = Math.round(maxExcludedContribution);
       return `*Does not show contributions less than $${threshold.toLocaleString()} 
       (Showing ${this.sovStores.length}/${this.sovStores.length + this.sovOverflowStores.length} stores).`
     }
@@ -203,7 +186,7 @@ export class JsonToTablesUtil {
   }
 
   isTargetStore(store) {
-    return store.mapKey === this.reportTableData.selectedMapKey;
+    return store.mapKey === this.tableData.selectedMapKey;
   }
 
   getAfterOpen1Year() {
@@ -215,8 +198,8 @@ export class JsonToTablesUtil {
   }
 
   private getSovBeforeAndAfterStores(store) {
-    const beforeMatch = this.reportTableData.projectedVolumesBefore.find(j => j.mapKey === store.mapKey);
-    const afterMatch = this.reportTableData.projectedVolumesAfter.find(j => j.mapKey === store.mapKey);
+    const beforeMatch = this.tableData.projectedVolumesBefore.find(j => j.mapKey === store.mapKey);
+    const afterMatch = this.tableData.projectedVolumesAfter.find(j => j.mapKey === store.mapKey);
     return {storeBeforeSiteOpen: beforeMatch, storeAfterSiteOpen: afterMatch};
   }
 
@@ -230,30 +213,4 @@ export class JsonToTablesUtil {
     }
   }
 
-  private getTruncatedSovStores(tableStores: StoreListItem[]) {
-    return tableStores.slice(0, this.maxSovCount)
-    // create an array with new properties added
-      .map(store => {
-        const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store);
-
-        store['currentSales'] = storeBeforeSiteOpen.currentSales;
-        store['futureSales'] = storeBeforeSiteOpen.futureSales;
-        store['contributionToSite'] = !this.isTargetStore(store) ?
-          (storeBeforeSiteOpen.futureSales - storeAfterSiteOpen.futureSales) : null;
-        store['contributionToSitePerc'] = !this.isTargetStore(store) ? (store['contributionToSite'] / store['futureSales']) * 100 : null;
-        store['resultingVolume'] = store.mapKey === this.targetStore.mapKey ? storeAfterSiteOpen.futureSales
-          : store['futureSales'] - store['contributionToSite'];
-
-        store['distance'] =
-          MapService.getDistanceBetween(
-            {lat: store.latitude, lng: store.longitude},
-            {
-              lat: this.targetStore.latitude,
-              lng: this.targetStore.longitude
-            }
-          ) * 0.000621371;
-
-        return store;
-      });
-  }
 }
