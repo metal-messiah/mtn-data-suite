@@ -36,12 +36,10 @@ import { StoreMapLayer } from '../../models/store-map-layer';
 import { SiteMapLayer } from '../../models/site-map-layer';
 import { GeometryUtil } from '../../utils/geometry-util';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
-import { NewProjectNameComponent } from '../../shared/new-project-name/new-project-name.component';
 import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
-import { ProjectBoundary } from '../../models/project-boundary';
 
 export enum CasingDashboardMode {
-  DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY
+  DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
 }
 
 export enum CardState {
@@ -95,6 +93,9 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   subscriptions: Subscription[] = [];
 
+  // Duplicate Selection
+  selectedSiteId: number;
+
   constructor(public mapService: MapService,
               public geocoderService: GeocoderService,
               public casingDashboardService: CasingDashboardService,
@@ -145,6 +146,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
           this.siteMapLayer.clearSelection();
           this.selectedStore = store;
           this.selectedCardState = CardState.SELECTED_STORE;
+        } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
+          this.openSiteMergeDialog(store.site.id);
         }
       });
     }));
@@ -154,6 +157,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
           this.storeMapLayer.clearSelection();
           this.selectedSite = site;
           this.selectedCardState = CardState.SELECTED_SITE;
+        } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
+          this.openSiteMergeDialog(site.id);
         }
       });
     }));
@@ -269,6 +274,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
     // Create new Layer for new Location
     this.newSiteLayer = new NewSiteLayer(this.mapService, this.mapService.getCenter());
+  }
+
+  cancelDuplicateSelection(): void {
+    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+
   }
 
   cancelSiteCreation(): void {
@@ -712,5 +722,15 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     const role = this.authService.sessionUser.role;
     return (role && role.displayName === 'Guest Analyst');
   }
+
+  initiateDuplicateSelection(siteId: number) {
+    this.selectedDashboardMode = CasingDashboardMode.DUPLICATE_SELECTION;
+    this.selectedSiteId = siteId;
+  }
+
+  openSiteMergeDialog(duplicateSiteId: number) {
+    console.log(`Duplicate Selection ${this.selectedSiteId}: ${duplicateSiteId}`);
+  }
+
 
 }

@@ -29,6 +29,7 @@ import { QuadDialogComponent } from './quad-dialog/quad-dialog.component';
 import { NewStoreStatusComponent } from './new-store-status/new-store-status.component';
 import { NewStoreVolumeComponent } from './new-store-volume/new-store-volume.component';
 import { DownloadDialogComponent } from './download-dialog/download-dialog.component';
+import { SiteMergeDialogComponent } from './site-merge-dialog/site-merge-dialog.component';
 
 @NgModule({
   imports: [
@@ -62,7 +63,8 @@ import { DownloadDialogComponent } from './download-dialog/download-dialog.compo
     StoreVolumesSelectionComponent,
     TenantListDialogComponent,
     NewStoreVolumeComponent,
-    DownloadDialogComponent
+    DownloadDialogComponent,
+    SiteMergeDialogComponent
   ],
   entryComponents: [
     AccessListDialogComponent,
