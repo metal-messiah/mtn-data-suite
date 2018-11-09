@@ -31,6 +31,9 @@
     <i class="fas fa-arrows-alt"></i>&nbsp;Move
   </button>
   <button mat-menu-item [disabled]="true"><i class="far fa-clock"></i>&nbsp;History</button>
+  <button mat-menu-item (click)="selectDuplicateSite()">
+    <i class="fas fa-clone"></i>&nbsp;Merge Duplicate
+  </button>
   <button mat-menu-item (click)="setDuplicateFlag(true)" *ngIf="!site.duplicate">
     <i class="fas fa-flag"></i>&nbsp;Flag as Duplicate
   </button>

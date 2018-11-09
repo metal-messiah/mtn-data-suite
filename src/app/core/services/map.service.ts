@@ -360,11 +360,11 @@ export class MapService {
           'name',
           'place_id'
         ];
-       
-          // this.placesService.findPlaceFromQuery(
-          //   { fields: fields, query: queryString },
-          //   callback
-          // );
+
+          this.placesService.findPlaceFromQuery(
+            { fields: fields, query: queryString },
+            callback
+          );
       } else {
         const request = {
           bounds: bounds,

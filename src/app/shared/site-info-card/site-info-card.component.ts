@@ -23,6 +23,7 @@ export class SiteInfoCardComponent implements OnInit {
 
   @Output() onUpdate = new EventEmitter<Entity>();
   @Output() initiateMove = new EventEmitter<Entity>();
+  @Output() initiateDuplicateSelection = new EventEmitter<Entity>();
 
   constructor(public siteService: SiteService,
               public storeService: StoreService,
@@ -92,6 +93,10 @@ export class SiteInfoCardComponent implements OnInit {
 
   emitChanges() {
     this.onUpdate.emit(this.site);
+  }
+
+  selectDuplicateSite() {
+    this.initiateDuplicateSelection.emit(this.site);
   }
 
 }
