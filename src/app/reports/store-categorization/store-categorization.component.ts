@@ -61,7 +61,7 @@ export class StoreCategorizationComponent implements OnInit {
 
   getExistingStoresCombined() {
     return this.rbs.reportTableData.storeList
-      .filter(s => s.uniqueId !== null)
+      .filter(s => s.uniqueId !== null && s.mapKey % 1 === 0)
       .map(s => {
         return {storeName: s.storeName, category: s.category};
       })
@@ -72,7 +72,7 @@ export class StoreCategorizationComponent implements OnInit {
   }
 
   getProposedStores() {
-    return this.rbs.reportTableData.storeList.filter(s => s.uniqueId === null);
+    return this.rbs.reportTableData.storeList.filter(s => s.uniqueId === null || s.mapKey % 1 > 0);
   }
 
   next() {

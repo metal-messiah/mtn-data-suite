@@ -8,9 +8,7 @@ import { SectorListItem } from '../../models/sector-list-item';
 import { MarketShareBySectorItem } from '../../models/market-share-by-sector-item';
 import { VolumeItem } from '../../models/volume-item';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class XlsToModelParserService {
 
   parseXls(fileString): Observable<ReportData> {
@@ -147,17 +145,22 @@ export class XlsToModelParserService {
   }
 
   private getCurrentVolumes(ws: WorkSheet): {mapKey: number, assumedPower: number}[] {
-    const items = [];
+    try {
+      const items = [];
 
-    let row = 4;
-    do {
-      items.push({
-        mapKey: this.getNumberFromCell(ws, 'B' + row),
-        assumedPower: this.getNumberFromCell(ws, 'H' + row)
-      })
-    } while (ws['A' + ++row].v !== 'Totals');
+      let row = 4;
+      do {
+        items.push({
+          mapKey: this.getNumberFromCell(ws, 'B' + row),
+          assumedPower: this.getNumberFromCell(ws, 'H' + row)
+        })
+      } while (ws['A' + ++row].v !== 'Totals');
 
-    return items;
+      return items;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
   }
 
   private getFirstYearEndingMonthYear(wb: WorkBook): string {

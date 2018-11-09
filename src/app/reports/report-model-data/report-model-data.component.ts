@@ -8,13 +8,14 @@ import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { StoreService } from '../../core/services/store.service';
 import { finalize, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { XlsToModelParserService } from '../../core/services/xls-to-model-parser.service';
+import { XlsToModelParserService } from '../services/xls-to-model-parser.service';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'mds-report-model-data',
   templateUrl: './report-model-data.component.html',
-  styleUrls: ['./report-model-data.component.css']
+  styleUrls: ['./report-model-data.component.css'],
+  providers: [XlsToModelParserService]
 })
 export class ReportModelDataComponent implements OnInit {
 

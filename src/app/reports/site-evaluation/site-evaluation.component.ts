@@ -37,9 +37,12 @@ export class SiteEvaluationComponent implements OnInit {
   }
 
   private createForm() {
-    const cvRecord = this.rbs.reportTableData.currentVolumes.find(record => {
-      return record.mapKey === this.rbs.reportTableData.selectedMapKey;
-    });
+    let cvRecord;
+    if (this.rbs.reportTableData.currentVolumes) {
+      cvRecord = this.rbs.reportTableData.currentVolumes.find(record => {
+        return record.mapKey === this.rbs.reportTableData.selectedMapKey;
+      });
+    }
     const sisterStoresAffected = this.rbs.reportTableData.storeList
       .filter(store => {
         return store.category === 'Company Store' && store.mapKey !== this.rbs.reportTableData.selectedMapKey
