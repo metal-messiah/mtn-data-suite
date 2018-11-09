@@ -7,6 +7,11 @@
       <th>Location</th>
       <th>Sales Area</th>
       <th>Total Area</th>
+      <th>Total Change</th>
+      <th>Total %</th>
+      <th>TA Change</th>
+      <th>TA %</th>
+      <th>Use TA Change</th>
     </tr>
     <tr formArrayName="stores" *ngFor="let store of getStoreControls(); let i = index;">
       <td>{{store.get('mapKey').value}}</td>
@@ -15,9 +20,16 @@
       </td>
       <td>{{store.get('storeName').value}}</td>
       <td>{{store.get('location').value}}</td>
-      <td>{{store.get('salesArea').value}}</td>
-      <td [formGroupName]="i">
+      <td class="right-align">{{store.get('salesArea').value}}</td>
+      <td [formGroupName]="i" class="right-align">
         <input type="number" formControlName="totalArea" min="0">
+      </td>
+      <td class="right-align">{{store.get('totalChange').value | thousandsCurrency}}</td>
+      <td class="right-align">{{store.get('totalChangePerc').value | percent:'1.0-1'}}</td>
+      <td class="right-align">{{store.get('tradeAreaChange').value | thousandsCurrency}}</td>
+      <td class="right-align">{{store.get('tradeAreaChangePerc').value | percent:'1.0-1'}}</td>
+      <td [formGroupName]="i" style="text-align: center;">
+        <input type="checkbox" formControlName="useTradeAreaChange">
       </td>
     </tr>
   </table>

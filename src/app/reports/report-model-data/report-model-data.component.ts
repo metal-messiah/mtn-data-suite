@@ -10,6 +10,7 @@ import { finalize, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { XlsToModelParserService } from '../services/xls-to-model-parser.service';
 import { Router } from '@angular/router';
+import { StoreListItem } from '../../models/store-list-item';
 
 @Component({
   selector: 'mds-report-model-data',
@@ -25,7 +26,6 @@ export class ReportModelDataComponent implements OnInit {
   modelMetaDataForm: FormGroup;
 
   file: File;
-  reportData: ReportData;
 
   fileReader: FileReader;
 
@@ -76,7 +76,6 @@ export class ReportModelDataComponent implements OnInit {
   resetFile() {
     console.log('RESET FILE');
     this.file = null;
-    this.reportData = null;
   }
 
   submitModelData() {
@@ -110,14 +109,36 @@ export class ReportModelDataComponent implements OnInit {
 
   private postProcessReportData(reportData: ReportData): Observable<any> {
     this.setStoreListItemCategories(reportData);
+    this.calculateContributions(reportData);
     return this.updateStoreTotalAreas(reportData);
+  }
+
+  private calculateContributions(reportData: ReportData) {
+    reportData.storeList.forEach((store: StoreListItem) => {
+      const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store, reportData);
+      store['tradeAreaChange'] = storeBeforeSiteOpen.taChange - storeAfterSiteOpen.taChange;
+      store['totalChange'] = storeBeforeSiteOpen.futureSales - storeAfterSiteOpen.futureSales;
+      if (storeBeforeSiteOpen.futureSales && storeBeforeSiteOpen.futureSales !== 0) {
+        store['tradeAreaChangePerc'] = store['tradeAreaChange'] / storeBeforeSiteOpen.futureSales;
+        store['totalChangePerc'] = store['totalChange'] / storeBeforeSiteOpen.futureSales;
+      } else {
+        store['tradeAreaChangePerc'] = null;
+        store['totalChangePerc'] = null;
+      }
+    });
+  }
+
+  private getSovBeforeAndAfterStores(store: StoreListItem, reportData: ReportData) {
+    const beforeMatch = reportData.projectedVolumesBefore.find(j => j.mapKey === store.mapKey);
+    const afterMatch = reportData.projectedVolumesAfter.find(j => j.mapKey === store.mapKey);
+    return {storeBeforeSiteOpen: beforeMatch, storeAfterSiteOpen: afterMatch};
   }
 
   private setStoreListItemCategories(reportData: ReportData) {
     const target = reportData.storeList.filter(s => s.mapKey === reportData.selectedMapKey)[0];
 
     reportData.storeList.forEach(storeListItem => {
-      if (storeListItem.mapKey === target.mapKey || storeListItem.storeName === target.storeName) {
+      if (storeListItem.mapKey === target.mapKey || (storeListItem.storeName === target.storeName && storeListItem.mapKey % 1 === 0) ) {
         storeListItem.category = 'Company Store';
       } else if (storeListItem.uniqueId) {
         storeListItem.category = 'Existing Competition';

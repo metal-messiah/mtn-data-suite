@@ -10,3 +10,15 @@ mat-form-field {
 td input {
   max-width: 100px;
 }
+
+td.right-align {
+  text-align: right;
+}
+
+td.right-align input {
+  text-align: right;
+}
+
+td {
+  padding: 5px 10px;
+}

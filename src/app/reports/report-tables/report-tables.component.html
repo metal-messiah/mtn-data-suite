@@ -225,10 +225,10 @@
         <td class="right-align">{{store.mapKey}}</td>
         <td class="right-align">{{store.effectivePower | number:'1.0-0'}}</td>
         <td class="right-align" *ngIf="tablesUtil.isTargetStore(store)">-</td>
-        <td class="right-align" *ngIf="!tablesUtil.isTargetStore(store)">{{store.distance | number:'1.0-2'}} mi.
+        <td class="right-align" *ngIf="!tablesUtil.isTargetStore(store)">{{store.distance | number:'1.2-2'}} mi.
         </td>
-        <td class="right-align">{{store.salesArea | number:'1.0-2'}}</td>
-        <td class="right-align">{{store.totalArea | number:'1.0-2'}}</td>
+        <td class="right-align">{{store.salesArea | number:'1.0-0'}}</td>
+        <td class="right-align">{{store.totalArea | number:'1.0-0'}}</td>
         <td class="right-align" *ngIf="tablesUtil.isTargetStore(store)">-</td>
         <td class="right-align" *ngIf="!tablesUtil.isTargetStore(store)">{{store.actualSales / 1000 |
           number:'1.0-2'}}
@@ -240,9 +240,10 @@
         <td class="right-align">{{store.contributionToSite ? (store.contributionToSite / 1000).toFixed(0) : '-'}}</td>
         <td class="right-align" *ngIf="tablesUtil.isTargetStore(store)">-</td>
         <td class="right-align" *ngIf="!tablesUtil.isTargetStore(store)">
-          {{store.contributionToSitePerc | number:'1.0-1'}}%
+          {{store.contributionToSitePerc | number:'1.1-1'}}%
         </td>
-        <td class="right-align">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
+        <td class="right-align" *ngIf="!store.closing">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
+        <td class="right-align" *ngIf="store.closing">-</td>
       </tr>
       <tr *ngIf="tablesUtil.getSovStoresOfCategory('Company Store').length > 1" class="blue">
         <td></td>
@@ -269,14 +270,15 @@
         <td nowrap>{{store.location}}</td>
         <td class="right-align">{{store.mapKey}}</td>
         <td class="right-align">{{store.effectivePower | number:'1.0-0'}}</td>
-        <td class="right-align">{{store.distance | number:'1.0-2'}} mi.</td>
-        <td class="right-align">{{store.salesArea | number:'1.0-2'}}</td>
-        <td class="right-align">{{store.totalArea | number:'1.0-2'}}</td>
+        <td class="right-align">{{store.distance | number:'1.2-2'}} mi.</td>
+        <td class="right-align">{{store.salesArea | number:'1.0-0'}}</td>
+        <td class="right-align">{{store.totalArea | number:'1.0-0'}}</td>
         <td class="right-align">{{store.actualSales / 1000 | number:'1.0-0'}}</td>
         <td class="right-align">{{store.futureSales / 1000 | number:'1.0-0'}}</td>
         <td class="right-align">{{store.contributionToSite / 1000 | number:'1.0-0'}}</td>
-        <td class="right-align">{{store.contributionToSitePerc | number:'0.0-1'}}%</td>
-        <td class="right-align">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
+        <td class="right-align">{{store.contributionToSitePerc | number:'1.1-1'}}%</td>
+        <td class="right-align" *ngIf="!store.closing">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
+        <td class="right-align" *ngIf="store.closing">-</td>
       </tr>
       <tr *ngIf="tablesUtil.getSovStoresOfCategory('Existing Competition').length > 1" class="yellow">
         <td></td>
@@ -299,14 +301,15 @@
         <td nowrap>{{store.location}}</td>
         <td class="right-align">{{store.mapKey}}</td>
         <td class="right-align">{{store.effectivePower | number:'1.0-0'}}</td>
-        <td class="right-align">{{store.distance | number:'1.0-2'}} mi.</td>
-        <td class="right-align">{{store.salesArea | number:'1.0-2'}}</td>
-        <td class="right-align">{{store.totalArea | number:'1.0-2'}}</td>
+        <td class="right-align">{{store.distance | number:'1.2-2'}} mi.</td>
+        <td class="right-align">{{store.salesArea | number:'1.0-0'}}</td>
+        <td class="right-align">{{store.totalArea | number:'1.0-0'}}</td>
         <td class="right-align">{{store.actualSales / 1000 | number:'1.0-0'}}</td>
         <td class="right-align">{{store.futureSales / 1000 | number:'1.0-0'}}</td>
         <td class="right-align">{{store.contributionToSite / 1000 | number:'1.0-0'}}</td>
-        <td class="right-align">{{store.contributionToSitePerc | number:'0.0-1'}}%</td>
-        <td class="right-align">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
+        <td class="right-align">{{store.contributionToSitePerc | number:'1.1-1'}}%</td>
+        <td class="right-align" *ngIf="!store.closing">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
+        <td class="right-align" *ngIf="store.closing">-</td>
       </tr>
       <tr *ngIf="tablesUtil.getSovStoresOfCategory('Proposed Competition').length > 1" class="pink">
         <td></td>

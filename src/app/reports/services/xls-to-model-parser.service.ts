@@ -57,7 +57,8 @@ export class XlsToModelParserService {
         location: ws['M' + row].v,
         parentCompanyId: null,
         category: null,
-        totalArea: null
+        totalArea: null,
+        useTradeAreaChange: false
       })
     } while (!ws['A' + ++row].v.includes('Totals'));
 
