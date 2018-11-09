@@ -25,6 +25,7 @@ export class XlsToModelParserService {
       reportData.salesGrowthProjections = this.getSalesGrowthProjectionAverages(wb.Sheets[wb.SheetNames[3]]);
       reportData.marketShareBySector = this.getMarketShareBySector(wb.Sheets[wb.SheetNames[4]]);
       reportData.sectorList = this.getSectorList(wb.Sheets[wb.SheetNames[5]]);
+      reportData.currentVolumes = this.getCurrentVolumes(wb.Sheets[wb.SheetNames[6]]); // Contains Assumed Power of site
 
       reportData.firstYearEndingMonthYear = this.getFirstYearEndingMonthYear(wb);
       reportData.selectedMapKey = this.getSelectedMapKey(wb);
@@ -141,6 +142,20 @@ export class XlsToModelParserService {
         leakage: this.getNumberFromCell(ws, 'G' + row)
       })
     } while (ws['A' + ++row].t === 'n');
+
+    return items;
+  }
+
+  private getCurrentVolumes(ws: WorkSheet): {mapKey: number, assumedPower: number}[] {
+    const items = [];
+
+    let row = 4;
+    do {
+      items.push({
+        mapKey: this.getNumberFromCell(ws, 'B' + row),
+        assumedPower: this.getNumberFromCell(ws, 'H' + row)
+      })
+    } while (ws['A' + ++row].v !== 'Totals');
 
     return items;
   }

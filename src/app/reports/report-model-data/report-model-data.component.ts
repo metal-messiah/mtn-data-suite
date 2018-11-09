@@ -123,7 +123,7 @@ export class ReportModelDataComponent implements OnInit {
       } else {
         storeListItem.category = 'Do Not Include';
       }
-    })
+    });
   }
 
   private updateStoreTotalAreas(reportData: ReportData) {
