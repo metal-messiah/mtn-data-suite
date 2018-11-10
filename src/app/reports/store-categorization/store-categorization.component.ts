@@ -54,14 +54,12 @@ export class StoreCategorizationComponent implements OnInit {
   }
 
   getExistingStoresCount(storeName) {
-    return this.rbs.reportTableData.storeList.filter(
-      s => s.storeName === storeName && s.uniqueId
-    ).length;
+    return this.rbs.reportTableData.storeList.filter(s => s.storeName === storeName && s.uniqueId).length;
   }
 
   getExistingStoresCombined() {
     return this.rbs.reportTableData.storeList
-      .filter(s => s.uniqueId !== null)
+      .filter(s => s.uniqueId !== null && s.mapKey % 1 === 0 && s.mapKey !== this.rbs.reportTableData.selectedMapKey)
       .map(s => {
         return {storeName: s.storeName, category: s.category};
       })
@@ -72,7 +70,9 @@ export class StoreCategorizationComponent implements OnInit {
   }
 
   getProposedStores() {
-    return this.rbs.reportTableData.storeList.filter(s => s.uniqueId === null);
+    return this.rbs.reportTableData.storeList.filter(s => s.uniqueId === null ||
+      s.mapKey % 1 > 0 ||
+      s.mapKey === this.rbs.reportTableData.selectedMapKey);
   }
 
   next() {

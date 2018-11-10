@@ -8,9 +8,7 @@ import { SectorListItem } from '../../models/sector-list-item';
 import { MarketShareBySectorItem } from '../../models/market-share-by-sector-item';
 import { VolumeItem } from '../../models/volume-item';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class XlsToModelParserService {
 
   parseXls(fileString): Observable<ReportData> {
@@ -25,6 +23,7 @@ export class XlsToModelParserService {
       reportData.salesGrowthProjections = this.getSalesGrowthProjectionAverages(wb.Sheets[wb.SheetNames[3]]);
       reportData.marketShareBySector = this.getMarketShareBySector(wb.Sheets[wb.SheetNames[4]]);
       reportData.sectorList = this.getSectorList(wb.Sheets[wb.SheetNames[5]]);
+      reportData.currentVolumes = this.getCurrentVolumes(wb.Sheets[wb.SheetNames[6]]); // Contains Assumed Power of site
 
       reportData.firstYearEndingMonthYear = this.getFirstYearEndingMonthYear(wb);
       reportData.selectedMapKey = this.getSelectedMapKey(wb);
@@ -58,7 +57,8 @@ export class XlsToModelParserService {
         location: ws['M' + row].v,
         parentCompanyId: null,
         category: null,
-        totalArea: null
+        totalArea: null,
+        useTradeAreaChange: false
       })
     } while (!ws['A' + ++row].v.includes('Totals'));
 
@@ -143,6 +143,25 @@ export class XlsToModelParserService {
     } while (ws['A' + ++row].t === 'n');
 
     return items;
+  }
+
+  private getCurrentVolumes(ws: WorkSheet): {mapKey: number, assumedPower: number}[] {
+    try {
+      const items = [];
+
+      let row = 4;
+      do {
+        items.push({
+          mapKey: this.getNumberFromCell(ws, 'B' + row),
+          assumedPower: this.getNumberFromCell(ws, 'H' + row)
+        })
+      } while (ws['A' + ++row].v !== 'Totals');
+
+      return items;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
   }
 
   private getFirstYearEndingMonthYear(wb: WorkBook): string {

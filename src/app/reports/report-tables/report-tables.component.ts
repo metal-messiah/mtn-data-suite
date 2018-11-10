@@ -8,6 +8,7 @@ import { ReportBuilderService } from '../services/report-builder.service';
 import { JsonToTablesUtil } from './json-to-tables.util';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'mds-report-tables',
@@ -82,20 +83,9 @@ export class ReportTablesComponent implements OnInit {
           zip.file(`${this.tableDomIds[i]}.png`, fileData);
         });
 
-        let txt = '';
-
-        Object.keys(this.tablesUtil.reportMetaData).forEach(key => {
-          txt += `${key}:\r\n${this.tablesUtil.reportMetaData[key]}\r\n\r\n`
-        });
-
-        txt += `Store Name:\r\n${this.tablesUtil.targetStore.storeName}\r\n\r\n`;
-        txt += `Map Key:\r\n${this.tablesUtil.targetStore.mapKey}\r\n\r\n`;
-
-        Object.keys(this.tablesUtil.siteEvaluationNarrative).forEach(key => {
-          txt += `${key}:\r\n${this.tablesUtil.siteEvaluationNarrative[key]}\r\n\r\n`
-        });
-
-        zip.file(`descriptions.txt`, new Blob([txt]));
+        zip.file(`descriptions.txt`, new Blob([this.getDescriptionsFileData()]));
+        zip.file(`marketShareBySector.csv`, new Blob([this.getSectorMarketShareData()]));
+        zip.file(`sovMapData.csv`, new Blob([this.getSovMapData()]));
 
         const modelName = this.tablesUtil.reportMetaData.modelName;
         zip.generateAsync({type: 'blob'}).then(blob => {
@@ -104,8 +94,53 @@ export class ReportTablesComponent implements OnInit {
       })
       .catch(error => {
         this.rbs.compilingImages = false;
+        console.error(error);
         this.snackBar.open(error, null, {duration: 2000});
       });
+  }
+
+  private getSovMapData() {
+
+    const fieldResearchYear = this.rbs.reportMetaData.fieldResDate.getFullYear();
+    const firstYearEndYear = this.tablesUtil.tableData.firstYearEndingMonthYear;
+
+    const sovMapData = this.tablesUtil.sovStores.map(s => {
+      const obj = {
+        mapKey: s.mapKey,
+        latitude: s.latitude,
+        longitude: s.longitude,
+        category: s.category
+      };
+      obj[`currentSales${fieldResearchYear}`] = s['actualSales'];
+      obj[`futureSales${firstYearEndYear}`] = s['futureSales'];
+      obj['contributionToSite'] = s['contributionToSite'];
+      obj['contributionToSitePerc'] = s['contributionToSitePerc'];
+      obj['resultingVolume'] = s['closing'] ? s['resultingVolume'] : 0;
+      return obj;
+    });
+    const ws = XLSX.utils.json_to_sheet(sovMapData);
+    return XLSX.utils.sheet_to_csv(ws);
+  }
+
+  private getSectorMarketShareData() {
+    const ws = XLSX.utils.json_to_sheet(this.rbs.reportTableData.marketShareBySector);
+    return XLSX.utils.sheet_to_csv(ws);
+  }
+
+  private getDescriptionsFileData() {
+    let txt = '';
+
+    Object.keys(this.tablesUtil.reportMetaData).forEach(key => {
+      txt += `${key}:\r\n${this.tablesUtil.reportMetaData[key]}\r\n\r\n`
+    });
+
+    txt += `Store Name:\r\n${this.tablesUtil.targetStore.storeName}\r\n\r\n`;
+    txt += `Map Key:\r\n${this.tablesUtil.targetStore.mapKey}\r\n\r\n`;
+
+    Object.keys(this.tablesUtil.siteEvaluationNarrative).forEach(key => {
+      txt += `${key}:\r\n${this.tablesUtil.siteEvaluationNarrative[key]}\r\n\r\n`
+    });
+    return txt;
   }
 
   getMapImage(basemap?: string, zoom?: number) {

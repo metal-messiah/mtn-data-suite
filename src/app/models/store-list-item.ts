@@ -15,4 +15,5 @@ export class StoreListItem {
   location: string;
   parentCompanyId: number;
   category: string;
+  useTradeAreaChange = false;
 }

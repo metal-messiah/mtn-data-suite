@@ -37,8 +37,9 @@ export class JsonToTablesUtil {
       .filter(store => store.category !== 'Do Not Include')
       .map(store => {
         const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store);
-        const contributionToSite = Math.abs(storeBeforeSiteOpen.futureSales - storeAfterSiteOpen.futureSales);
+        const contributionToSite = store.useTradeAreaChange ? store['tradeAreaChange'] : store['totalChange'];
         store['contributionToSite'] = !this.isTargetStore(store) ? contributionToSite : null;
+        store['contributionToSitePerc'] = !this.isTargetStore(store) ? (store['contributionToSite'] / storeBeforeSiteOpen.futureSales) * 100 : null;
         return store;
       });
 
@@ -51,7 +52,7 @@ export class JsonToTablesUtil {
         if (b.mapKey === this.tableData.selectedMapKey) {
           return 1;
         }
-        return b['contributionToSite'] - a['contributionToSite'];
+        return Math.abs(b['contributionToSite']) - Math.abs(a['contributionToSite']);
       })
       // only return the max at most
       .slice(0, this.maxSovCount)
@@ -59,11 +60,9 @@ export class JsonToTablesUtil {
       .map(store => {
         const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store);
 
+        store['closing'] = !storeAfterSiteOpen.futureSales;
         store['currentSales'] = storeBeforeSiteOpen.currentSales;
         store['futureSales'] = storeBeforeSiteOpen.futureSales;
-        store['contributionToSite'] = !this.isTargetStore(store) ?
-          (storeBeforeSiteOpen.futureSales - storeAfterSiteOpen.futureSales) : null;
-        store['contributionToSitePerc'] = !this.isTargetStore(store) ? (store['contributionToSite'] / store['futureSales']) * 100 : null;
         store['resultingVolume'] = store.mapKey === this.targetStore.mapKey ? storeAfterSiteOpen.futureSales
           : store['futureSales'] - store['contributionToSite'];
 
@@ -81,6 +80,7 @@ export class JsonToTablesUtil {
 
     this.sovOverflowStores = tableStores.slice(this.maxSovCount, tableStores.length);
 
+    // Current Summary
     const cStores = tableStores.filter(store => store.actualSales).sort((a, b) => a.mapKey - b.mapKey);
     const partitionedCurrent = _.partition(cStores, store => {
       return this.sovStores.find(s => Math.round(s.mapKey) === Math.round(store.mapKey)) != null;
@@ -88,6 +88,7 @@ export class JsonToTablesUtil {
     this.currentWeeklyStores = partitionedCurrent[0];
     this.currentWeeklyStoresOverflow = partitionedCurrent[1];
 
+    // Projected Summary
     const pStores = tableStores
       // store or replacement is major contributor
       .map(store => {

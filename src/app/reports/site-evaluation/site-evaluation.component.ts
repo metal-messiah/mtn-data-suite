@@ -37,16 +37,36 @@ export class SiteEvaluationComponent implements OnInit {
   }
 
   private createForm() {
+    let cvRecord;
+    if (this.rbs.reportTableData.currentVolumes) {
+      cvRecord = this.rbs.reportTableData.currentVolumes.find(record => {
+        return record.mapKey === this.rbs.reportTableData.selectedMapKey;
+      });
+    }
+    const sisterStoresAffected = this.rbs.reportTableData.storeList
+      .filter(store => {
+        return store.category === 'Company Store' && store.mapKey !== this.rbs.reportTableData.selectedMapKey
+      })
+      .sort((a, b) => {
+        if (a.storeName === b.storeName) {
+          return a.mapKey - b.mapKey;
+        } else {
+          return a.storeName.localeCompare(b.storeName);
+        }
+      })
+      .map(store => `${store.storeName} ${store.mapKey}`)
+      .join('\r\n');
+
     this.form = this.fb.group({
       executiveSummary: '',
       scenario: '',
-      assumedPower: '',
+      assumedPower: cvRecord ? cvRecord.assumedPower : '',
       competitiveChanges: '',
       streetConditions: '',
       comments: '',
       trafficControls: '',
       cotenants: '',
-      affectedSisterStores: ''
+      affectedSisterStores: sisterStoresAffected ? sisterStoresAffected : ''
     });
     this.ratingsForm = this.fb.group({
       accessNorth: 'Average',
@@ -63,21 +83,6 @@ export class SiteEvaluationComponent implements OnInit {
       populationDensityEast: 'Average',
       populationDensityWest: 'Average'
     });
-
-    const sisterStoresAffected = this.rbs.reportTableData.storeList
-      .filter(store => {
-        return store.category === 'Company Store' && store.mapKey !== this.rbs.reportTableData.selectedMapKey
-      })
-      .sort((a, b) => {
-        if (a.storeName === b.storeName) {
-          return a.mapKey - b.mapKey;
-        } else {
-          return a.storeName.localeCompare(b.storeName);
-        }
-      })
-      .map(store => `${store.storeName} ${store.mapKey}`)
-      .join('\r\n');
-    this.form.get('affectedSisterStores').setValue(sisterStoresAffected)
   }
 
   next() {

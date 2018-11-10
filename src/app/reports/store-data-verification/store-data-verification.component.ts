@@ -51,11 +51,15 @@ export class StoreDataVerificationComponent implements OnInit {
 
   next() {
     (this.form.get('stores') as FormArray).controls.forEach(siControl => {
+      const mapKey = siControl.get('mapKey').value;
+      const storeListItem: StoreListItem = this.rbs.reportTableData.storeList.find(s => s.mapKey === mapKey);
       const totalAreaControl = siControl.get('totalArea');
       if (totalAreaControl.dirty) {
-        const mapKey = siControl.get('mapKey').value;
-        const storeListItem: StoreListItem = this.rbs.reportTableData.storeList.find(s => s.mapKey === mapKey);
         storeListItem.totalArea = totalAreaControl.value;
+      }
+      const useTradeAreaChangeControl = siControl.get('useTradeAreaChange');
+      if (useTradeAreaChangeControl.dirty) {
+        storeListItem.useTradeAreaChange = useTradeAreaChangeControl.value;
       }
     });
 
