@@ -663,8 +663,9 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   showBoundary() {
-    this.projectBoundaryService.showProjectBoundaries().subscribe();
-    this.projectBoundaryService.zoomToProjectBoundary();
+    this.projectBoundaryService.showProjectBoundaries().subscribe(() => {
+      this.projectBoundaryService.zoomToProjectBoundary();
+    });
   }
 
   selectAllInBoundary() {
