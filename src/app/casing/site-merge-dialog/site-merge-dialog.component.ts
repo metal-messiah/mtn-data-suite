@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'mds-site-merge-dialog',
@@ -7,7 +8,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SiteMergeDialogComponent implements OnInit {
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit() {
   }
