@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialogModule } from '@angular/material/dialog';
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { SiteService } from '../../core/services/site.service';
+import { Site } from '../../models/full/site';
 
 @Component({
   selector: 'mds-site-merge-dialog',
@@ -8,10 +10,26 @@ import { MatDialogModule } from '@angular/material/dialog';
 })
 export class SiteMergeDialogComponent implements OnInit {
 
-  constructor() {
+  siteId: number;
+  duplicateSiteId: number;
+
+  constructor(public dialogRef: MatDialogRef<SiteMergeDialogComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: any,
+              private siteService: SiteService
+
+  ) {
+    this.siteId = data.selectedSiteId;
+    this.duplicateSiteId = data.duplicateSiteId;
   }
 
   ngOnInit() {
+    this.siteService.getOneById(this.siteId).subscribe()
+    // TODO Get both sites
+
+  }
+
+  mergeSites() {
+
   }
 
 }

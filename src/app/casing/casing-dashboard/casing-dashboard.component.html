@@ -129,18 +129,12 @@
           <button mat-raised-button color="accent" (click)="editNewLocation()">Create</button>
         </mat-toolbar>
 
-        //Duplicate Selection
+        <!--Duplicate Selection-->
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DUPLICATE_SELECTION" color="primary"
                      class="flex-space-between">
           <button mat-raised-button color="warn" (click)="cancelDuplicateSelection()">Cancel</button>
           <div>Select Duplicate</div>
-          <div>
-            <button type="button" mat-mini-fab color="accent" (click)="merge()"
-                    [disabled]="mergeCheck">
-              <i *ngIf="!gettingEntities" class="fas fa-download"></i>
-              <i *ngIf="gettingEntities" class="fas fa-spinner fa-pulse"></i>Merge
-            </button>
-          </div>
+          <span></span>
         </mat-toolbar>
 
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" color="primary"

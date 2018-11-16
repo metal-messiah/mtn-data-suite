@@ -80,7 +80,8 @@ import { SiteMergeDialogComponent } from './site-merge-dialog/site-merge-dialog.
     TenantListDialogComponent,
     NewStoreStatusComponent,
     NewStoreVolumeComponent,
-    DownloadDialogComponent
+    DownloadDialogComponent,
+    SiteMergeDialogComponent
   ],
   providers: [CasingDashboardService]
 })

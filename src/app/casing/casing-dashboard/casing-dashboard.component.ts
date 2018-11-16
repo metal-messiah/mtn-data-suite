@@ -37,6 +37,7 @@ import { SiteMapLayer } from '../../models/site-map-layer';
 import { GeometryUtil } from '../../utils/geometry-util';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
 import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
+import { SiteMergeDialogComponent } from '../site-merge-dialog/site-merge-dialog.component';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -729,7 +730,13 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   openSiteMergeDialog(duplicateSiteId: number) {
-    console.log(`Duplicate Selection ${this.selectedSiteId}: ${duplicateSiteId}`);
+    const siteMergeDialog = this.dialog.open(SiteMergeDialogComponent, {
+      maxWidth: '90%',
+      data: {duplicateSiteId: duplicateSiteId, selectedSiteId: this.selectedSiteId}
+    });
+    siteMergeDialog.afterClosed().subscribe( result => {
+      console.log(result);
+    })
   }
 
 
