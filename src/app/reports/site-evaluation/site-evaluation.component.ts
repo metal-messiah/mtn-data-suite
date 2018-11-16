@@ -15,7 +15,7 @@ export class SiteEvaluationComponent implements OnInit {
   form: FormGroup;
   ratingsForm: FormGroup;
 
-  readonly ratingOptions = ['Excellent', 'Good', 'Average', 'Fair', 'Poor'];
+  readonly ratingOptions = ['Excellent', 'Good', 'Average', 'Fair', 'Poor', 'TBD'];
 
   constructor(private fb: FormBuilder,
               public _location: Location,
