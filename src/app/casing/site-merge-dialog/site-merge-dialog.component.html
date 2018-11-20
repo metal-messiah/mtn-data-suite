@@ -1,7 +1,55 @@
-<h3 mat-dialog-title>Merge Sites</h3>
+<h3 mat-dialog-title class="Title">Merge Sites</h3>
 <div mat-dialog-content>
-</div>
-<div mat-dialog-actions class="flex-space-between">
-  <button mat-raised-button [mat-dialog-close]="null">Close</button>
-  <button mat-raised-button color="accent" (click)="mergeSites()">Merge</button>
-</div>
+
+  <!--Material Radio Buttons-->
+
+    <div>
+      <mat-radio-group class="radio-group">
+        <mat-radio-button class="radio-button" value="1">shoppingCenterName</mat-radio-button>
+        <mat-radio-button class="radio-button" value="2">shoppingCenterName</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div>
+      <mat-radio-group class="radio-group">
+        <mat-radio-button class="radio-button" value="1">site.address1</mat-radio-button>
+        <mat-radio-button class="radio-button" value="2">site.address2</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div>
+      <mat-radio-group>
+        <mat-radio-button class="radio-button" value="1">site.city</mat-radio-button>
+        <mat-radio-button class="radio-button" value="2">site.city</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div>
+      <mat-radio-group>
+        <mat-radio-button class="radio-button" value="1">site.state</mat-radio-button>
+        <mat-radio-button class="radio-button" value="2">site.state</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div>
+      <mat-radio-group>
+        <mat-radio-button class="radio-button" value="1">site.postalcose</mat-radio-button>
+        <mat-radio-button class="radio-button" value="2">site.postalcose</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+  </div>
+
+  <!--Material Footer-->
+  <div mat-dialog-actions class="flex-space-between">
+    <button mat-raised-button [mat-dialog-close]="null">Close</button>
+    <button mat-raised-button color="accent" (click)="mergeSites()">Merge</button>
+  </div>
