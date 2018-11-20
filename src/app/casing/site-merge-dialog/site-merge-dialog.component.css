@@ -1,7 +1,6 @@
 .radio-group {
-  display: inline-block;
-  flex-direction: row;
-  justify-content: space-between;
+  display: inline-flex;
+  flex-direction: column;
 }
 
 .radio-button {
@@ -10,4 +9,8 @@
 
 .mat-dialog-content {
   margin: 0px;
+}
+
+.mat-dialog-title {
+  text-align: center;
 }

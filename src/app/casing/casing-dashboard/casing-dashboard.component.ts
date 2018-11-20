@@ -183,7 +183,10 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     if (this.projectBoundaryService.isShowingBoundary()) {
       this.projectBoundaryService.showProjectBoundaries().subscribe();
     }
+    this.openTestSiteMergeDialog();
   }
+
+
 
   private getDebounce() {
     return debounce(() => of(true)
@@ -738,6 +741,17 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       console.log(result);
     })
   }
+
+  openTestSiteMergeDialog() {
+    const siteMergeDialog = this.dialog.open(SiteMergeDialogComponent, {
+      maxWidth: '90%',
+      data: {duplicateSiteId: 33513, selectedSiteId: 30114}
+    });
+    siteMergeDialog.afterClosed().subscribe( result => {
+      console.log(result);
+    })
+  }
+
 
 
 }
