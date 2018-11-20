@@ -53,6 +53,10 @@ export class ReportTablesComponent implements OnInit {
     }
   }
 
+  getOpeningMonth() {
+    return this.tablesUtil.tableData.firstYearEndingMonthYear.trim().split(' ')[0];
+  }
+
   getFirstYearAsNumber() {
     return (
       2000 +

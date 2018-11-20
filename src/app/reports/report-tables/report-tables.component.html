@@ -325,14 +325,14 @@
       </tr>
       <tr>
         <td><b>Sales Potential</b></td>
-        <td><b>Assume Store Opens {{tablesUtil.tableData.firstYearEndingMonthYear}}</b></td>
+        <td><b>Assume Store Opens {{getOpeningMonth() + " " + (getFirstYearAsNumber() - 1)}}</b></td>
         <td colspan="3"></td>
         <td colspan="4"><b>Sales Transfers from Company Stores</b></td>
         <td class="right-align">${{tablesUtil.getSalesTransfersFromCompanyStores() | number:'1.0-0'}}</td>
         <td colspan="2"></td>
       </tr>
       <tr>
-        <td><b>{{getFirstYearAsNumber() + 1}} - After Open 1 Year</b></td>
+        <td><b>{{getFirstYearAsNumber()}} - After Open 1 Year</b></td>
         <td><b>${{tablesUtil.getAfterOpen1Year() | number:'1.0-0'}}</b></td>
         <td colspan="3"></td>
         <td colspan="4"><b>Sales Transfers from Competition</b></td>
