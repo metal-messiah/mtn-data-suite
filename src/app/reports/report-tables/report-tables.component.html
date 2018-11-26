@@ -60,7 +60,7 @@
     <table class="force10" cellspacing="0" id="currentStoresWeeklySummaryTable">
       <tr>
         <th colspan="8">
-          <h2>Current Stores Weekly Summary - {{tablesUtil.reportMetaData.fieldResDate | date:'MMM y'}}</h2>
+          <h2>Current Stores Weekly Summary - {{tablesUtil.reportMetaData.fieldResDate | date:'MMM yyyy'}}</h2>
         </th>
       </tr>
       <tr>
@@ -113,7 +113,7 @@
     <table class="force10" cellspacing="0" id="projectedStoresWeeklySummaryTable">
       <tr>
         <th colspan="8">
-          <h2>Projected Stores Weekly Summary - {{tablesUtil.tableData.firstYearEndingMonthYear}}</h2>
+          <h2>Projected Stores Weekly Summary - {{tablesUtil.tableData.firstYearEndingDate | date:'MMM yyyy'}}</h2>
         </th>
       </tr>
       <tr>
@@ -184,7 +184,7 @@
         <th>Straight</th>
         <th colspan="2">Size (sqft)*</th>
         <th>Sales</th>
-        <th colspan="4">{{tablesUtil.tableData.firstYearEndingMonthYear}} Volume</th>
+        <th colspan="4">{{tablesUtil.tableData.firstYearEndingDate | date: 'MMM yyyy'}} Volume</th>
       </tr>
       <tr>
         <th>Primary Sources of</th>
@@ -207,7 +207,7 @@
         <th>From Site</th>
         <th>Area</th>
         <th>Area</th>
-        <th>{{tablesUtil.reportMetaData.fieldResDate | date:'MMM y'}}</th>
+        <th>{{tablesUtil.reportMetaData.fieldResDate | date:'MMM yyyy'}}</th>
         <th>& Comp. Chngs.</th>
         <th colspan="2">to Site</th>
         <th>Volume</th>
@@ -325,14 +325,14 @@
       </tr>
       <tr>
         <td><b>Sales Potential</b></td>
-        <td><b>Assume Store Opens {{getOpeningMonth() + " " + (getFirstYearAsNumber() - 1)}}</b></td>
+        <td><b>Assume Store Opens {{tablesUtil.tableData.storeOpeningDate | date: 'MMM yyyy'}}</b></td>
         <td colspan="3"></td>
         <td colspan="4"><b>Sales Transfers from Company Stores</b></td>
         <td class="right-align">${{tablesUtil.getSalesTransfersFromCompanyStores() | number:'1.0-0'}}</td>
         <td colspan="2"></td>
       </tr>
       <tr>
-        <td><b>{{getFirstYearAsNumber()}} - After Open 1 Year</b></td>
+        <td><b>{{tablesUtil.tableData.firstYearEndingDate | date: 'MMM yyyy'}} - After Open 1 Year</b></td>
         <td><b>${{tablesUtil.getAfterOpen1Year() | number:'1.0-0'}}</b></td>
         <td colspan="3"></td>
         <td colspan="4"><b>Sales Transfers from Competition</b></td>

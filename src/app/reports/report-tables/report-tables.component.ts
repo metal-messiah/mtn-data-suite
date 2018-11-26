@@ -53,17 +53,6 @@ export class ReportTablesComponent implements OnInit {
     }
   }
 
-  getOpeningMonth() {
-    return this.tablesUtil.tableData.firstYearEndingMonthYear.trim().split(' ')[0];
-  }
-
-  getFirstYearAsNumber() {
-    return (
-      2000 +
-      Number(this.tablesUtil.tableData.firstYearEndingMonthYear.trim().split(' ')[1])
-    );
-  }
-
   export() {
     this.rbs.compilingImages = true;
 
@@ -106,7 +95,7 @@ export class ReportTablesComponent implements OnInit {
   private getSovMapData() {
 
     const fieldResearchYear = this.rbs.reportMetaData.fieldResDate.getFullYear();
-    const firstYearEndYear = this.tablesUtil.tableData.firstYearEndingMonthYear;
+    const firstYearEndYear = this.tablesUtil.tableData.firstYearEndingDate.getFullYear();
 
     const sovMapData = this.tablesUtil.sovStores.map(s => {
       const obj = {
