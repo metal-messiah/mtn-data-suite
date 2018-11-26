@@ -166,27 +166,30 @@ export class PlannedGroceryComponent implements OnInit {
   setCurrentRecord(index: number) {
     this.bestMatch = null;
     this.currentRecordIndex = index;
-    this.currentStoreSource = this.records[index];
 
-    this.isFetching = true;
-    this.currentDBResults = [];
+    if (this.records.length > 0) {
+      this.currentStoreSource = this.records[index];
 
-    this.pgService.getFeatureByObjectId(this.currentStoreSource.sourceNativeId)
-      .pipe(finalize(() => (this.isFetching = false)))
-      .subscribe(record => {
-        if (!record || !record['features'] || record['features'].length < 1) {
-          this.ngZone.run(() => this.snackBar
-            .open(`Feature not found with id: ${this.currentStoreSource.sourceNativeId}`)
-          )
-        } else {
-          this.pgRecord = record['features'][0];
-          this.mapService.setCenter({lat: this.pgRecord.geometry.y, lng: this.pgRecord.geometry.x});
-          this.mapService.setZoom(15);
+      this.isFetching = true;
+      this.currentDBResults = [];
 
-          this.setPgFeature(false);
-          this.cancelStep2();
-        }
-      });
+      this.pgService.getFeatureByObjectId(this.currentStoreSource.sourceNativeId)
+        .pipe(finalize(() => (this.isFetching = false)))
+        .subscribe(record => {
+          if (!record || !record['features'] || record['features'].length < 1) {
+            this.ngZone.run(() => this.snackBar
+              .open(`Feature not found with id: ${this.currentStoreSource.sourceNativeId}`)
+            )
+          } else {
+            this.pgRecord = record['features'][0];
+            this.mapService.setCenter({lat: this.pgRecord.geometry.y, lng: this.pgRecord.geometry.x});
+            this.mapService.setZoom(15);
+
+            this.setPgFeature(false);
+            this.cancelStep2();
+          }
+        });
+    }
   }
 
   onMapReady(event) {
