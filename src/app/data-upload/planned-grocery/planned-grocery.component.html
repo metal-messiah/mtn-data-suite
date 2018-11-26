@@ -56,10 +56,7 @@
             <div class='small-text'>
               {{pgRecord ? pgRecord.attributes ? pgRecord.attributes.SIZESF ?
               pgRecord.attributes.SIZESF.toLocaleString()
-              + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{pgRecord ? " | Status: "+
-              statuses[pgRecord.attributes.STATUS]['pg']
-              : ''}}
-
+              + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{getPgRecordStatus(pgRecord)}}
             </div>
           </div>
           <button (click)="noMatch()" mat-button class=''>Add Site

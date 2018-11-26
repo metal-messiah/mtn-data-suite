@@ -353,4 +353,10 @@ export class PlannedGroceryComponent implements OnInit {
         this.errorService.handleServerError('Failed to refresh PG records', err, () => {}, () => this.refresh())
       })
   }
+
+  getPgRecordStatus(pgRecord) {
+    if (pgRecord && pgRecord.attributes.STATUS) {
+      return ' | Status: ' + this.statuses[pgRecord.attributes.STATUS]['pg']
+    }
+  }
 }
