@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
 
-import htmlToImage from 'html-to-image';
-import jsZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { ReportBuilderService } from '../services/report-builder.service';
 import { JsonToTablesUtil } from './json-to-tables.util';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import * as XLSX from 'xlsx';
+import { finalize } from 'rxjs/operators';
+import { ErrorService } from '../../core/services/error.service';
 
 @Component({
   selector: 'mds-report-tables',
@@ -17,7 +16,7 @@ import * as XLSX from 'xlsx';
 })
 export class ReportTablesComponent implements OnInit {
 
-  mapImage: string;
+  mapImageUrl: string;
   googleMapsKey = 'AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ';
   googleMapsBasemap = 'hybrid';
   googleMapsZoom = 15;
@@ -37,6 +36,7 @@ export class ReportTablesComponent implements OnInit {
               public rbs: ReportBuilderService,
               public _location: Location,
               private router: Router,
+              private errorService: ErrorService,
               public dialog: MatDialog) {
   }
 
@@ -48,48 +48,172 @@ export class ReportTablesComponent implements OnInit {
       }, 10)
     } else {
       this.tablesUtil = new JsonToTablesUtil(this.rbs);
-      this.getMapImage();
+      this.updateMapImageUrl();
       document.getElementById('reports-content-wrapper').scrollTop = 0;
     }
   }
 
   export() {
     this.rbs.compilingImages = true;
-
-    const exportPromises: Promise<any>[] = [];
-
-    // convert tables to images
-    this.tableDomIds.forEach(id => {
-      const node = document.getElementById(id);
-      exportPromises.push(htmlToImage.toBlob(node));
-    });
-
-    Promise.all(exportPromises)
-      .then(data => {
-        this.rbs.compilingImages = false;
-        console.log(data);
+    this.rbs.getReportZip(this.getReportData())
+      .pipe(finalize(() => this.rbs.compilingImages = false))
+      .subscribe(blob => {
+        saveAs(blob, `${this.rbs.reportMetaData.modelName}.zip`);
         this.router.navigate(['reports/download']);
+      }, err => this.errorService.handleServerError('Failed to create zip file', err, null));
+  }
 
-        const zip = new jsZip();
-        // table images
-        data.forEach((fileData, i) => {
-          zip.file(`${this.tableDomIds[i]}.png`, fileData);
-        });
+  private getSovReportData() {
+    return {
+      firstYearEndDate: this.tablesUtil.tableData.firstYearEndingDate,
+      fieldResDate: this.tablesUtil.reportMetaData.fieldResDate,
+      openingDate: this.tablesUtil.tableData.storeOpeningDate,
+      salesTransferFromCompanyStores: this.tablesUtil.getSalesTransfersFromCompanyStores(),
+      salesTransferFromCompetition: this.tablesUtil.getSalesTransfersFromCompetition(),
+      totalSalesTransfer: this.tablesUtil.getTotalSalesTransfers(),
+      percentOfSalesExplainedAfterOneYear: this.tablesUtil.getPercentOfSalesExplained(),
+      showingCount: this.tablesUtil.sovStores.length,
+      totalCount: this.tablesUtil.sovStores.length + this.tablesUtil.sovOverflowStores.length,
+      totalContributionExcluded: this.tablesUtil.getOverflowSum(),
+      targetStoreMapKey: this.tablesUtil.targetStore.mapKey,
+      companyStores: this.getSovStoresForTable('Company Store'),
+      companyStoresSummary: this.getSovCompanyStoresSummary('Company Store'),
+      existingCompetition: this.getSovStoresForTable('Existing Competition'),
+      existingCompetitionSummary: this.getSovCompanyStoresSummary('Existing Competition'),
+      proposedCompetition: this.getSovStoresForTable('Proposed Competition'),
+      proposedCompetitionSummary: this.getSovCompanyStoresSummary('Proposed Competition'),
+    };
+  }
 
-        zip.file(`descriptions.txt`, new Blob([this.getDescriptionsFileData()]));
-        zip.file(`marketShareBySector.csv`, new Blob([this.getSectorMarketShareData()]));
-        zip.file(`sovMapData.csv`, new Blob([this.getSovMapData()]));
+  private getSovCompanyStoresSummary(category: string) {
+    return {
+      fitAverage: this.tablesUtil.getSovFitAverageForCategory(category),
+      contributionSum: this.tablesUtil.getSovContributionToSiteSubtotal(category)
+    }
+  }
 
-        const modelName = this.tablesUtil.reportMetaData.modelName;
-        zip.generateAsync({type: 'blob'}).then(blob => {
-          saveAs(blob, `${modelName ? modelName : 'MTNRA_Reports_Export'}.zip`);
-        });
+  private getSovStoresForTable(category: string) {
+    return this.tablesUtil.getSovStoresOfCategory(category)
+      .map(store => {
+        return {
+          storeName: store.storeName,
+          address: store.location,
+          mapKey: store.mapKey,
+          power: store.effectivePower,
+          distance: store['distance'],
+          salesArea: store.salesArea,
+          totalArea: store.totalArea,
+          currentSales: store.actualSales,
+          futureSales: store['futureSales'],
+          contributionDollars: store['contributionToSite'],
+          contributionPercent: store['contributionToSitePerc'],
+          resultingVolume: store['resultingVolume'],
+          closing: store['closing']
+        }
       })
-      .catch(error => {
-        this.rbs.compilingImages = false;
-        console.error(error);
-        this.snackBar.open(error, null, {duration: 2000});
-      });
+  }
+
+  private getReportData() {
+    return {
+      projections: this.getProjectionsTableData(),
+      currentSummary: this.getCurrentSummaryTableData(),
+      projectedSummary: this.getProjectedSummaryTableData(),
+      sovData: this.getSovReportData(),
+      mapUrl: this.mapImageUrl,
+      ratings: this.tablesUtil.siteEvaluationRatings,
+      narrativeData: this.getNarrativeData(),
+      marketShareData: this.rbs.reportTableData.marketShareBySector,
+      sovMapData: this.getSovMapData()
+    }
+  }
+
+  private getProjectedSummaryTableData() {
+    return {
+      firstYearEndingDate: this.tablesUtil.tableData.firstYearEndingDate,
+      targetStoreMapKey: this.tablesUtil.targetStore.mapKey,
+      stores: this.getProjectedSummaryStores(),
+      summary: this.getProjectedSummaryAverages(),
+      overflowCount: this.tablesUtil.currentWeeklyStoresOverflow.length
+    }
+  }
+
+  private getProjectedSummaryStores() {
+    return this.tablesUtil.projectedWeeklyStores.map(store => {
+      return {
+        mapKey: store.mapKey,
+        storeName: store.storeName,
+        location: store.location,
+        volume: store['projectedSales'],
+        psf: store['projectedSalesPSF'],
+        salesArea: store.salesArea,
+        pwta: store.PWTA,
+        fitPower: store.effectivePower
+      }
+    })
+  }
+
+  private getProjectedSummaryAverages() {
+    return {
+      volume: this.tablesUtil.getSummaryAverage(this.tablesUtil.projectedWeeklyStores, 'actualSales'),
+      psf: this.tablesUtil.getSummaryAverage(this.tablesUtil.projectedWeeklyStores, 'actualSalesPSF'),
+      salesArea: this.tablesUtil.getSummaryAverage(this.tablesUtil.projectedWeeklyStores, 'salesArea'),
+      power: this.tablesUtil.getSummaryAverage(this.tablesUtil.projectedWeeklyStores, 'effectivePower'),
+    }
+  }
+
+  private getCurrentSummaryTableData() {
+    return {
+      fieldResDate: this.tablesUtil.reportMetaData.fieldResDate,
+      stores: this.getCurrentSummaryStores(),
+      summary: this.getCurrentSummaryAverages(),
+      overflowCount: this.tablesUtil.currentWeeklyStoresOverflow.length
+    }
+  }
+
+  private getCurrentSummaryAverages() {
+    return {
+      volume: this.tablesUtil.getSummaryAverage(this.tablesUtil.currentWeeklyStores, 'actualSales'),
+      psf: this.tablesUtil.getSummaryAverage(this.tablesUtil.currentWeeklyStores, 'actualSalesPSF'),
+      salesArea: this.tablesUtil.getSummaryAverage(this.tablesUtil.currentWeeklyStores, 'salesArea'),
+      power: this.tablesUtil.getSummaryAverage(this.tablesUtil.currentWeeklyStores, 'effectivePower'),
+    }
+  }
+
+  private getCurrentSummaryStores() {
+    return this.tablesUtil.currentWeeklyStores.map(store => {
+      return {
+        mapKey: store.mapKey,
+        storeName: store.storeName,
+        location: store.location,
+        volume: store.actualSales,
+        psf: store.actualSalesPSF,
+        salesArea: store.salesArea,
+        pwta: store.PWTA,
+        fitPower: store.effectivePower
+      }
+    })
+  }
+
+  private getProjectionsTableData() {
+    const ts = this.tablesUtil.targetStore;
+    const sgps = this.tablesUtil.tableData.salesGrowthProjections;
+    return {
+      mapKey: ts.mapKey,
+      storeName: ts.storeName,
+      power: ts.effectivePower,
+      salesArea: ts.salesArea,
+      totalArea: ts.totalArea,
+      firstYearEndingSales: sgps.firstYearEndingSales,
+      firstYearEndingSalesPSF: sgps.firstYearEndingSalesPSF,
+      secondYearEndingSales: sgps.secondYearEndingSales,
+      secondYearEndingSalesPSF: sgps.secondYearEndingSalesPSF,
+      thirdYearEndingSales: sgps.thirdYearEndingSales,
+      thirdYearEndingSalesPSF: sgps.thirdYearEndingSalesPSF,
+      firstYearAnnualizedSales: sgps.firstYearEndingSales * 52,
+      firstYearAnnualizedSalesPSF: sgps.firstYearEndingSales * 52 / ts.salesArea,
+      firstYearAnnualizedSalesPSFTotalArea: sgps.firstYearEndingSales * 52 / ts.totalArea,
+      comment: this.tablesUtil.reportMetaData.type
+    }
   }
 
   private getSovMapData() {
@@ -97,7 +221,7 @@ export class ReportTablesComponent implements OnInit {
     const fieldResearchYear = this.rbs.reportMetaData.fieldResDate.getFullYear();
     const firstYearEndYear = this.tablesUtil.tableData.firstYearEndingDate.getFullYear();
 
-    const sovMapData = this.tablesUtil.sovStores.map(s => {
+    return this.tablesUtil.sovStores.map(s => {
       const obj = {
         mapKey: s.mapKey,
         latitude: s.latitude,
@@ -111,16 +235,9 @@ export class ReportTablesComponent implements OnInit {
       obj['resultingVolume'] = s['closing'] ? s['resultingVolume'] : 0;
       return obj;
     });
-    const ws = XLSX.utils.json_to_sheet(sovMapData);
-    return XLSX.utils.sheet_to_csv(ws);
   }
 
-  private getSectorMarketShareData() {
-    const ws = XLSX.utils.json_to_sheet(this.rbs.reportTableData.marketShareBySector);
-    return XLSX.utils.sheet_to_csv(ws);
-  }
-
-  private getDescriptionsFileData() {
+  private getNarrativeData() {
     let txt = '';
 
     Object.keys(this.tablesUtil.reportMetaData).forEach(key => {
@@ -136,7 +253,7 @@ export class ReportTablesComponent implements OnInit {
     return txt;
   }
 
-  getMapImage(basemap?: string, zoom?: number) {
+  updateMapImageUrl(basemap?: string, zoom?: number) {
     if (basemap) {
       this.googleMapsBasemap = basemap;
     }
@@ -149,7 +266,7 @@ export class ReportTablesComponent implements OnInit {
 
     const {latitude, longitude} = target;
 
-    this.mapImage = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=${
+    this.mapImageUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=${
       this.googleMapsZoom
       }&size=470x350&maptype=${this.googleMapsBasemap}&${targetPin}&key=${
       this.googleMapsKey

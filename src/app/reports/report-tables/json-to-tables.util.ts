@@ -13,7 +13,7 @@ export class JsonToTablesUtil {
   readonly siteEvaluationRatings;
 
   readonly sovStores: StoreListItem[];
-  private readonly sovOverflowStores: StoreListItem[];
+  readonly sovOverflowStores: StoreListItem[];
   readonly currentWeeklyStores: StoreListItem[];
   readonly currentWeeklyStoresOverflow: StoreListItem[] = [];
   readonly projectedWeeklyStores: StoreListItem[];
@@ -39,7 +39,8 @@ export class JsonToTablesUtil {
         const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store);
         const contributionToSite = store.useTradeAreaChange ? store['tradeAreaChange'] : store['totalChange'];
         store['contributionToSite'] = !this.isTargetStore(store) ? contributionToSite : null;
-        store['contributionToSitePerc'] = !this.isTargetStore(store) ? (store['contributionToSite'] / storeBeforeSiteOpen.futureSales) * 100 : null;
+        store['contributionToSitePerc'] = !this.isTargetStore(store) ? (store['contributionToSite'] /
+          storeBeforeSiteOpen.futureSales) * 100 : null;
         return store;
       });
 
@@ -110,12 +111,15 @@ export class JsonToTablesUtil {
 
   getTruncatedMessage() {
     if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
-      const maxExcludedContribution: number = _.maxBy(this.sovOverflowStores, 'contributionToSite')['contributionToSite'];
-      const threshold = Math.round(maxExcludedContribution);
-      return `*Does not show contributions less than $${threshold.toLocaleString()} 
+      return `*Does not show contributions less than $${this.getMaxExcludedContribution().toLocaleString()} 
       (Showing ${this.sovStores.length}/${this.sovStores.length + this.sovOverflowStores.length} stores).`
     }
     return null;
+  }
+
+  getMaxExcludedContribution() {
+    const maxExcludedContribution: number = _.maxBy(this.sovOverflowStores, 'contributionToSite')['contributionToSite'];
+    return Math.round(maxExcludedContribution);
   }
 
   getTruncatedSumMessage() {
@@ -165,37 +169,27 @@ export class JsonToTablesUtil {
 
   getSalesTransfersFromCompanyStores() {
     return (
-      this.getSovContributionToSiteSubtotal('Company Store') / 1000
+      this.getSovContributionToSiteSubtotal('Company Store')
     );
   }
 
   getSalesTransfersFromCompetition() {
-    return (
-      (this.getSovContributionToSiteSubtotal('Proposed Competition') +
-        this.getSovContributionToSiteSubtotal('Existing Competition')) /
-      1000
-    );
+    return this.getSovContributionToSiteSubtotal('Proposed Competition') +
+        this.getSovContributionToSiteSubtotal('Existing Competition');
   }
 
   getTotalSalesTransfers() {
-    return (
-      (this.getSovContributionToSiteSubtotal('Proposed Competition') +
+    return this.getSovContributionToSiteSubtotal('Proposed Competition') +
         this.getSovContributionToSiteSubtotal('Existing Competition') +
-        this.getSovContributionToSiteSubtotal('Company Store')) /
-      1000
-    );
+        this.getSovContributionToSiteSubtotal('Company Store');
   }
 
   isTargetStore(store) {
     return store.mapKey === this.tableData.selectedMapKey;
   }
 
-  getAfterOpen1Year() {
-    return this.targetStore['resultingVolume'] / 1000;
-  }
-
   getPercentOfSalesExplained() {
-    return (this.getTotalSalesTransfers() / this.getAfterOpen1Year()) * 100;
+    return (this.getTotalSalesTransfers() / this.targetStore['resultingVolume']) * 100;
   }
 
   private getSovBeforeAndAfterStores(store) {
@@ -204,7 +198,7 @@ export class JsonToTablesUtil {
     return {storeBeforeSiteOpen: beforeMatch, storeAfterSiteOpen: afterMatch};
   }
 
-  private getOverflowSum() {
+  public getOverflowSum() {
     if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
       const sum = this.sovOverflowStores.map(s => s['contributionToSite'])
         .reduce((prev, next) => prev + next);

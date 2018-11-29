@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { ReportData } from '../../models/report-data';
-import { Subject } from 'rxjs';
-import { JsonToTablesUtil } from '../report-tables/json-to-tables.util';
+import { HttpClient } from '@angular/common/http';
+import { RestService } from '../../core/services/rest.service';
 
 @Injectable()
 export class ReportBuilderService {
+
+  protected endpoint = '/api/report';
 
   reportTableData: ReportData;
   reportMetaData;
@@ -12,6 +14,9 @@ export class ReportBuilderService {
   siteEvaluationRatings;
 
   compilingImages = false;
+
+  constructor(protected http: HttpClient, protected rest: RestService) {
+  }
 
   setReportTableData(reportData: ReportData) {
     this.reportTableData = reportData;
@@ -23,6 +28,11 @@ export class ReportBuilderService {
 
   setSiteEvaluationRatings(siteEvalRatings) {
     this.siteEvaluationRatings = siteEvalRatings;
+  }
+
+  getReportZip(reportData: any) {
+    const url = this.rest.getHost() + this.endpoint + `/zip`;
+    return this.http.post(url, reportData, {headers: this.rest.getHeaders(), responseType: 'blob'});
   }
 
 }
