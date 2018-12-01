@@ -129,8 +129,7 @@ export class ReportTablesComponent implements OnInit {
 
   private getProjectedSummaryTableData() {
     return {
-      firstYearEndingDate: this.tablesUtil.tableData.firstYearEndingDate,
-      targetStoreMapKey: this.tablesUtil.targetStore.mapKey,
+      date: this.tablesUtil.tableData.firstYearEndingDate,
       stores: this.getProjectedSummaryStores(),
       summary: this.getProjectedSummaryAverages(),
       overflowCount: this.tablesUtil.currentWeeklyStoresOverflow.length
@@ -147,15 +146,17 @@ export class ReportTablesComponent implements OnInit {
         psf: store['projectedSalesPSF'],
         salesArea: store.salesArea,
         pwta: store.PWTA,
-        fitPower: store.effectivePower
+        fitPower: store.effectivePower,
+        category: store.category,
+        isSite: store.mapKey === this.tablesUtil.targetStore.mapKey
       }
     })
   }
 
   private getProjectedSummaryAverages() {
     return {
-      volume: this.tablesUtil.getSummaryAverage(this.tablesUtil.projectedWeeklyStores, 'actualSales'),
-      psf: this.tablesUtil.getSummaryAverage(this.tablesUtil.projectedWeeklyStores, 'actualSalesPSF'),
+      volume: this.tablesUtil.getSummaryAverage(this.tablesUtil.projectedWeeklyStores, 'projectedSales'),
+      psf: this.tablesUtil.getSummaryAverage(this.tablesUtil.projectedWeeklyStores, 'projectedSalesPSF'),
       salesArea: this.tablesUtil.getSummaryAverage(this.tablesUtil.projectedWeeklyStores, 'salesArea'),
       power: this.tablesUtil.getSummaryAverage(this.tablesUtil.projectedWeeklyStores, 'effectivePower'),
     }
@@ -163,7 +164,7 @@ export class ReportTablesComponent implements OnInit {
 
   private getCurrentSummaryTableData() {
     return {
-      fieldResDate: this.tablesUtil.reportMetaData.fieldResDate,
+      date: this.tablesUtil.reportMetaData.fieldResDate,
       stores: this.getCurrentSummaryStores(),
       summary: this.getCurrentSummaryAverages(),
       overflowCount: this.tablesUtil.currentWeeklyStoresOverflow.length
