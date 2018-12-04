@@ -122,7 +122,11 @@ export class ReportTablesComponent implements OnInit {
       mapUrl: this.mapImageUrl,
       ratings: this.tablesUtil.siteEvaluationRatings,
       narrativeData: this.getNarrativeData(),
+      marketShareDataHeaders: ['sector', 'projectedSales', 'projectedMS', 'effectivePower', 'futurePop1', 'projectedPotential',
+        'projectedPCW', 'leakage', 'distribution', 'futurePop2', 'futurePop3'],
       marketShareData: this.rbs.reportTableData.marketShareBySector,
+      sovMapDataHeaders: ['mapKey', 'latitude', 'longitude', 'category', 'currentSales', 'firstYearEndingSales', 'contributionToSite',
+        'contributionToSitePerc', 'resultingVolume'],
       sovMapData: this.getSovMapData()
     }
   }
@@ -219,22 +223,18 @@ export class ReportTablesComponent implements OnInit {
 
   private getSovMapData() {
 
-    const fieldResearchYear = this.rbs.reportMetaData.fieldResDate.getFullYear();
-    const firstYearEndYear = this.tablesUtil.tableData.firstYearEndingDate.getFullYear();
-
     return this.tablesUtil.sovStores.map(s => {
-      const obj = {
+      return {
         mapKey: s.mapKey,
         latitude: s.latitude,
         longitude: s.longitude,
-        category: s.category
+        category: s.category,
+        currentSales: s['actualSales'],
+        firstYearEndingSales: s['futureSales'],
+        contributionToSite: s['contributionToSite'],
+        contributionToSitePerc: s['contributionToSitePerc'],
+        resultingVolume: s['closing'] ? 0 : s['resultingVolume']
       };
-      obj[`currentSales${fieldResearchYear}`] = s['actualSales'];
-      obj[`futureSales${firstYearEndYear}`] = s['futureSales'];
-      obj['contributionToSite'] = s['contributionToSite'];
-      obj['contributionToSitePerc'] = s['contributionToSitePerc'];
-      obj['resultingVolume'] = s['closing'] ? s['resultingVolume'] : 0;
-      return obj;
     });
   }
 
