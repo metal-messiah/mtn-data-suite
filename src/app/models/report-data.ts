@@ -34,7 +34,8 @@ export class ReportData {
   sectorList: SectorListItem[] = [];
   currentVolumes: {mapKey: number, assumedPower: number}[];
 
-  firstYearEndingMonthYear: string;
+  firstYearEndingDate: Date;
+  storeOpeningDate: Date;
   selectedMapKey: number;
 
 }

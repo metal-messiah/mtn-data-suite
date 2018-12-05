@@ -25,7 +25,9 @@ export class XlsToModelParserService {
       reportData.sectorList = this.getSectorList(wb.Sheets[wb.SheetNames[5]]);
       reportData.currentVolumes = this.getCurrentVolumes(wb.Sheets[wb.SheetNames[6]]); // Contains Assumed Power of site
 
-      reportData.firstYearEndingMonthYear = this.getFirstYearEndingMonthYear(wb);
+      reportData.firstYearEndingDate = this.getFirstYearEndingDate(wb);
+      reportData.storeOpeningDate = new Date(reportData.firstYearEndingDate);
+      reportData.storeOpeningDate.setMonth(reportData.storeOpeningDate.getMonth() - 11);
       reportData.selectedMapKey = this.getSelectedMapKey(wb);
 
       observer.next(reportData);
@@ -164,10 +166,12 @@ export class XlsToModelParserService {
     }
   }
 
-  private getFirstYearEndingMonthYear(wb: WorkBook): string {
-    const sheetName = wb.SheetNames[1];
+  private getFirstYearEndingDate(wb: WorkBook): Date {
+    const sheetName = wb.SheetNames[4];
     const sheet = wb.Sheets[sheetName];
-    return sheet['E2'].v;
+    const dateString: string = sheet['E4'].v;
+    const firstYearEndingDate = new Date(dateString);
+    return firstYearEndingDate;
   }
 
   private getSelectedMapKey(wb: WorkBook): number {

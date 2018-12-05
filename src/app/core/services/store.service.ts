@@ -5,7 +5,6 @@ import * as _ from 'lodash';
 import { RestService } from './rest.service';
 import { CrudService } from '../../interfaces/crud-service';
 import { Store } from '../../models/full/store';
-import { Pageable } from '../../models/pageable';
 import { SimplifiedStoreStatus } from '../../models/simplified/simplified-store-status';
 import { SimplifiedStoreVolume } from '../../models/simplified/simplified-store-volume';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';

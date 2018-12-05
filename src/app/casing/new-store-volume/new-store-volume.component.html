@@ -2,7 +2,12 @@
 <div mat-dialog-content [formGroup]="form">
   <mat-progress-bar *ngIf="creating" mode="indeterminate"></mat-progress-bar>
   <mat-form-field>
-    <input matInput type="number" autocomplete="off" required placeholder="Volume Total" formControlName="volumeTotal">
+    <input matInput type="number" autocomplete="off" required placeholder="Total Weekly Grocery Volume"
+           formControlName="volumeTotal">
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="Total Weekly Box Volume"
+           formControlName="volumeBoxTotal">
   </mat-form-field>
   <mat-form-field>
     <mat-select placeholder="Volume Type" formControlName="volumeType">
@@ -20,5 +25,6 @@
 <div mat-dialog-actions>
   <button type="button" mat-raised-button [mat-dialog-close]="false">Cancel</button>
   <button type="submit" mat-raised-button [disabled]="form.invalid || creating" (click)="create()"
-          color="accent">Create</button>
+          color="accent">Create
+  </button>
 </div>

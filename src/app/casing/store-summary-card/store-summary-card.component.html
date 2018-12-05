@@ -31,9 +31,6 @@
         <li *ngFor="let volume of store.storeVolumes">
           <strong>{{volume.volumeDate | date}}:</strong>&nbsp;
           <span>{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k</span>
-          <!--<span *ngIf="store.currentStoreSurvey != null && store.areaSales != null">-->
-            <!--&nbsp;({{volume.volumeTotal/store.areaSales | currency}}&nbsp;psf)-->
-          <!--</span>-->
           <span *ngIf="volume.volumeType">&nbsp;&nbsp;{{volume.volumeType}}</span>
         </li>
       </ul>
