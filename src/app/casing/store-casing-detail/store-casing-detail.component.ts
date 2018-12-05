@@ -142,6 +142,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
 
     this.storeVolumeForm = this.fb.group({
       volumeTotal: ['', [Validators.required, Validators.min(1000), Validators.max(10000000)]],
+      volumeBoxTotal: ['', [Validators.min(1000), Validators.max(10000000)]],
       volumeDate: new Date(),
       volumeType: ['', [Validators.required]],
       source: ['MTN Casing App', [Validators.required]],
@@ -237,7 +238,8 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       note: '',
       ratingBuildings: '',
       ratingLighting: '',
-      ratingSynergy: ''
+      ratingSynergy: '',
+      ratingTenantBuildings: ''
     });
 
     this.shoppingCenterSurveyForm = this.fb.group({
@@ -379,6 +381,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     this.savingVolume = true;
     const newVolume = new StoreVolume({
       volumeTotal: volume.volumeTotal,
+      volumeBoxTotal: volume.volumeBoxTotal,
       volumeDate: new Date(),
       volumeType: volume.volumeType,
       source: 'MTN Casing App',
