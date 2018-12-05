@@ -183,7 +183,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     if (this.projectBoundaryService.isShowingBoundary()) {
       this.projectBoundaryService.showProjectBoundaries().subscribe();
     }
-    this.openTestSiteMergeDialog();
+    // this.openTestSiteMergeDialog();
   }
 
 
