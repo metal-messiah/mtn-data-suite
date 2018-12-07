@@ -14,7 +14,7 @@ export class LoadComponent implements OnInit {
 
 	fields: string[] = [];
 
-	allowedFileTypes = '.csv,.json';
+	allowedFileTypes = '.csv,.json,.xls,.xlsx';
 	outputType = 'text';
 
 	storedProjects;
@@ -32,6 +32,7 @@ export class LoadComponent implements OnInit {
 		@Inject(MAT_DIALOG_DATA) public data: any
 	) {
 		this.storedProjects = data.storedProjects;
+		dialogRef.disableClose = true;
 	}
 
 	ngOnInit() {}
