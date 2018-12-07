@@ -1,7 +1,6 @@
 import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { MapService } from '../../core/services/map.service';
 import { StoreMappable } from '../../models/store-mappable';
-import { Pageable } from '../../models/pageable';
 import { StoreService } from '../../core/services/store.service';
 import { SiteService } from '../../core/services/site.service';
 import { ErrorService } from '../../core/services/error.service';
@@ -25,10 +24,7 @@ import { SpreadsheetService } from './spreadsheet.service';
 import * as _ from 'lodash';
 import { StoreMapLayer } from '../../models/store-map-layer';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
-import { SpreadsheetUpdatable } from 'app/models/spreadsheet-updatable';
 import { Store } from 'app/models/full/store';
-import { stringify } from 'querystring';
-
 import { StorageService } from '../../core/services/storage.service';
 import { LoadComponent } from './load/load.component';
 import { AssignFieldsDialogComponent } from './assign-fields-dialog/assign-fields-dialog.component';
@@ -100,17 +96,14 @@ export class SpreadsheetComponent implements OnInit {
 		public dialog: MatDialog
 	) {
 		this.wordSimilarity = new WordSimilarity();
-
-		console.log('init');
 	}
 
 	ngOnInit() {
-		this.storageService.getLocalStorage(this.storageKey, true).subscribe((data) => {
-			this.storedProjects = data ? data : {};
-			console.log('stored projects', this.storedProjects);
-		});
+		// populate our object of stored projects to reference
+		this.getAllStoredProjects();
 
 		this.spreadsheetService.fieldsAreAssigned$.subscribe((success: boolean) => {
+			// done mapping fields in the dialogs... now build the list
 			if (success) {
 				this.buildList('file');
 			} else {
@@ -119,6 +112,7 @@ export class SpreadsheetComponent implements OnInit {
 		});
 
 		this.spreadsheetService.loadTypeAssigned$.subscribe((success: boolean) => {
+			// load type must be assigned before we can proceed --> file or storedProject
 			if (success) {
 				console.log('load type assigned');
 				const type = this.spreadsheetService.loadType;
@@ -136,6 +130,7 @@ export class SpreadsheetComponent implements OnInit {
 
 	buildList(type) {
 		if (type === 'file') {
+			// build the list from the file upload
 			const { fileOutput, fields } = this.spreadsheetService;
 
 			this.volumeRules = this.spreadsheetService.volumeRules;
@@ -148,27 +143,27 @@ export class SpreadsheetComponent implements OnInit {
 				this.createNewProject();
 			});
 		} else {
-			console.log('build list from stored project');
+			// Build the list from the chosen localstorage item
 			const storedProjectId = this.spreadsheetService.storedProjectId;
 			this.selectProject(storedProjectId);
 
-			const proj = this.getCurrentProject();
+			this.getCurrentProject().then((proj: any) => {
+				this.allRecords = proj.records.map((record) => {
+					return new SpreadsheetRecord(
+						record.uniqueId,
+						record.coordinates.lat,
+						record.coordinates.lng,
+						record.displayName,
+						record.attributes,
+						record.assignments,
+						record.validated
+					);
+				});
 
-			this.allRecords = proj.records.map((record) => {
-				return new SpreadsheetRecord(
-					record.uniqueId,
-					record.coordinates.lat,
-					record.coordinates.lng,
-					record.displayName,
-					record.attributes,
-					record.assignments,
-					record.validated
-				);
+				this.volumeRules = proj.volumeRules;
+
+				this.updateList(true);
 			});
-
-			this.volumeRules = proj.volumeRules;
-
-			this.updateList(true);
 		}
 	}
 
@@ -183,6 +178,25 @@ export class SpreadsheetComponent implements OnInit {
 
 			return resolve();
 		});
+	}
+
+	updateFieldsSummary() {
+		return this.currentRecord
+			.getUpdateFields()
+			.map((rule: { file: string; store: string }) => {
+				const { file, store } = rule;
+				let fileVal = this.currentRecord.getAttribute(file);
+				if (!isNaN(Number(fileVal))) {
+					// it is supposed to be a numeric value
+					fileVal = Number(fileVal).toLocaleString();
+					if (store === 'storeVolumes') {
+						fileVal = `$${fileVal}`;
+					}
+				}
+				return `${store.toUpperCase()} <i style="color: forestgreen" class="fas fa-arrow-circle-right"></i> ${file.toUpperCase()} 
+				(${fileVal})`;
+			})
+			.join('<br/>');
 	}
 
 	openLoadDialog() {
@@ -202,22 +216,6 @@ export class SpreadsheetComponent implements OnInit {
 			}
 		});
 	}
-
-	// handleFile(file) {
-	// 	// // console.log(file);
-
-	// 	this.file = file.file;
-	// 	this.fileOutput = file.fileOutput;
-
-	// 	this.fields = this.spreadsheetService.getFields(file.fileOutput);
-	// 	if (this.fields) {
-	// 		this.openFieldDialog();
-	// 	} else {
-	// 		this.snackBar.open('Couldnt Find Fields...');
-	// 	}
-	// }
-
-	getSpreadsheetContent() {}
 
 	siteHover(store, type) {
 		if (type === 'enter' && this.records.length) {
@@ -270,7 +268,6 @@ export class SpreadsheetComponent implements OnInit {
 		);
 
 		this.mapService.boundsChanged$.pipe(debounceTime(1000)).subscribe((bounds: { east; north; south; west }) => {
-			// console.log(bounds);
 			this.currentDBSiteResults = [];
 			this.getEntities(bounds);
 		});
@@ -423,7 +420,6 @@ export class SpreadsheetComponent implements OnInit {
 	}
 
 	cancelStep2() {
-		// this.pgUpdatable = null;
 		this.logic = null;
 		this.openForm = false;
 		this.stepper.reset();
@@ -432,7 +428,6 @@ export class SpreadsheetComponent implements OnInit {
 	}
 
 	findAttributeInStore(attr) {
-		// console.log(attr);
 		if (this.dbRecord[attr]) {
 			return this.dbRecord[attr];
 		}
@@ -457,18 +452,14 @@ export class SpreadsheetComponent implements OnInit {
 		// console.log('advance');
 		this.dbRecord = store;
 
-		console.log(this.dbRecord);
-
+		// get the list of fields matched in the opening dialogs
 		const updateFields = this.currentRecord.getUpdateFields(); // [{file: <field name>, store: <field name>}]
 		const insertFields = this.currentRecord.getInsertFields();
 
+		// get the values from the csv data and the store data and map them to the matched field
 		const updateFieldResults = updateFields.map((rule: { file: string; store: string }) => {
 			const fileValue = this.currentRecord.getAttribute(rule.file);
-			// const storeValue = this.dbRecord[rule.store];
-
 			const storeValue = this.findAttributeInStore(rule.store);
-			// console.log(storeValue);
-
 			return { storeField: rule.store, fileValue, storeValue };
 		});
 
@@ -479,12 +470,13 @@ export class SpreadsheetComponent implements OnInit {
 			return { storeField: rule.store, fileValue, storeValue };
 		});
 
+		// logic controls how the form behaves
 		this.logic = {
 			inserts: insertFieldResults,
 			updates: updateFieldResults,
 			volumeRules: this.volumeRules
 		};
-		console.log(this.logic.updates);
+
 		this.openForm = true;
 		this.stepper.next();
 	}
@@ -495,11 +487,7 @@ export class SpreadsheetComponent implements OnInit {
 	}
 
 	matchSite(siteId: number) {
-		// Create a NEW Store in Site
-
 		this.isFetching = true;
-
-		// console.log('match site here');
 		this.siteService.getOneById(siteId).pipe(finalize(() => (this.isFetching = false))).subscribe((site) => {
 			// we need to add a new store to this site eventually...
 			// this.siteService.addNewStore(new Store())
@@ -508,11 +496,7 @@ export class SpreadsheetComponent implements OnInit {
 
 	matchStore(storeId: number) {
 		this.isFetching = true;
-
-		// console.log('match store: ', storeId);
-
 		this.storeService.getOneById(storeId).pipe(finalize(() => (this.isFetching = false))).subscribe((store) => {
-			// console.log(store);
 			this.advance(store);
 		});
 	}
@@ -520,26 +504,33 @@ export class SpreadsheetComponent implements OnInit {
 	addStore() {}
 
 	nextRecord() {
-		// console.log('next record');
 		this.setSpreadsheetFeature(false);
 		this.currentRecord.setValidated(true);
 		this.stepper.reset();
 		this.updateList(true).then(() => {
-			const currentProject = this.getCurrentProject();
-			currentProject.records = this.allRecords;
-			currentProject.lastEdited = new Date();
-			this.updateCurrentProject(currentProject);
+			this.getCurrentProject().then((currentProject: any) => {
+				currentProject.records = this.allRecords;
+				currentProject.lastEdited = new Date();
+				this.updateCurrentProject(currentProject);
+			});
 		});
-		// this.setCurrentSpreadsheetRecord(0);
-		// this.getPGSources();
-
-		// this.storageService.setCookie(this.file.name, this.allRecords, 365).subscribe((success) => {
-		// 	console.log('Saved Cookie?', success);
-		// });
 	}
 
 	setSpreadsheetFeature(draggable: boolean) {
 		this.spreadsheetLayer.setRecord(this.currentRecord, draggable);
+	}
+
+	getAllStoredProjects() {
+		return new Promise((resolve, reject) => {
+			this.storageService.getLocalStorage(this.storageKey, true).subscribe(
+				(data) => {
+					this.storedProjects = data ? data : {};
+					console.log('stored projects', this.storedProjects);
+					return resolve();
+				},
+				(err) => reject(err)
+			);
+		});
 	}
 
 	getNewProjectId() {
@@ -564,7 +555,22 @@ export class SpreadsheetComponent implements OnInit {
 	}
 
 	getCurrentProject() {
-		return this.storedProjects[this.currentProjectId];
+		return new Promise((resolve, reject) => {
+			if (this.storedProjects[this.currentProjectId]) {
+				return resolve(this.storedProjects[this.currentProjectId]);
+			} else {
+				console.log(
+					'couldnt find stored project... maybe it was "imported" and our list is now dirty... lets reload the list and check again'
+				);
+				this.getAllStoredProjects().then(() => {
+					if (this.storedProjects[this.currentProjectId]) {
+						return resolve(this.storedProjects[this.currentProjectId]);
+					} else {
+						return reject('No Stored Object Found');
+					}
+				});
+			}
+		});
 	}
 
 	updateCurrentProject(data) {
@@ -577,8 +583,7 @@ export class SpreadsheetComponent implements OnInit {
 	saveStoredProjects() {
 		console.log('save projects to memory');
 		this.storageService.setLocalStorage(this.storageKey, this.storedProjects, true).subscribe(() => {
-			// this.snackBar.open('Saved Progress');
-			// console.log(this.storedProjects);
+			this.snackBar.open('Saved Progress', null, { duration: 1000 });
 		});
 	}
 }

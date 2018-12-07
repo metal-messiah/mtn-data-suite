@@ -3,17 +3,12 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import * as _ from 'lodash';
 
-import { PlannedGroceryUpdatable } from '../../../models/planned-grocery-updatable';
-import { StoreSource } from '../../../models/full/store-source';
 import { SpreadsheetService } from '../spreadsheet.service';
 import { ErrorService } from '../../../core/services/error.service';
-import { SimplifiedStoreStatus } from '../../../models/simplified/simplified-store-status';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { QuadDialogComponent } from '../../../casing/quad-dialog/quad-dialog.component';
-// import { SpreadsheetUpdatable } from 'app/models/spreadsheet-updatable';
 import { SpreadsheetRecord } from 'app/models/spreadsheet-record';
 import { Store } from 'app/models/full/store';
-import { Site } from 'app/models/full/site';
 import { StoreService } from 'app/core/services/store.service';
 import { StoreVolume } from 'app/models/full/store-volume';
 import { SimplifiedStoreVolume } from 'app/models/simplified/simplified-store-volume';
@@ -27,15 +22,9 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	@Input() dbRecord: Store;
 	@Input() currentRecord: SpreadsheetRecord;
 	@Input() logic: any;
-	//  {
-	// 	updates: { storeField: string; fileValue: string; storeValue: string }[];
-	// 	inserts: { storeField: string; fileValue: string; storeValue: string }[];
-	// };
 
 	@Output() cancelEvent = new EventEmitter<void>();
 	@Output() completedEvent = new EventEmitter<void>();
-
-	// spreadsheetUpdatable: object;
 
 	saving = false;
 
@@ -94,9 +83,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 		private fb: FormBuilder,
 		private dialog: MatDialog,
 		private snackBar: MatSnackBar
-	) {
-		// this.createForm();
-	}
+	) {}
 
 	ngOnInit() {
 		console.log('FORM INIT');
@@ -202,13 +189,9 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	private setFormFromLogic() {
 		console.log('set form from logic');
 		this.updateFields.forEach((storeField) => {
-			// console.log('check for ', storeField);
 			const formVal = this.form.get(storeField).value;
-			// console.log(formVal);
 			if (!formVal) {
-				// console.log('Set Form For ', storeField);
 				this.form.get(storeField).setValue(this.getValueFromLogicStoreField(storeField));
-				// console.log(this.getValueFromLogicStoreField(storeField));
 
 				if (storeField === 'storeVolumes') {
 					this.form.get('volume').setValue(this.getValueFromLogicStoreField(storeField));
@@ -217,16 +200,12 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 		});
 
 		this.storeFields.forEach((field) => {
-			// console.log('check for preset field: ', field);
 			let isValid = true;
 			const formItem = this.form.get(field);
 			isValid = formItem ? true : false;
 			const formVal = isValid ? formItem.value : null;
-			// console.log(formVal);
 			if (!formVal && isValid) {
-				// console.log('Set Form For ', field);
 				this.form.get(field).setValue(this.getDbRecordValue(field));
-				// console.log(this.getDbRecordValue(field));
 			}
 		});
 	}
@@ -240,7 +219,6 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	private resetForm() {
-		// console.log('reset form');
 		this.form.reset();
 		delete this.form;
 	}
@@ -270,7 +248,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 								if (this.updateFields.includes('storeVolumes')) {
 									console.log('STORE VOLUME!');
 									async = true;
-									// this.dbRecord.storeVolumes.push(vol);
+
 									const volumeValue = this.form.get('volume').value;
 									console.log('volumeValue: ', volumeValue);
 									const volumeDate = new Date(this.logic.volumeRules.volumeDate);

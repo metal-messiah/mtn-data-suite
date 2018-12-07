@@ -39,11 +39,24 @@
       <mat-step editable="false">
         <ng-template matStepLabel>Match Site</ng-template>
         <!-- CONTENT FOR FIRST SECTION! -->
-
+        <div class='flex-container' *ngIf="currentRecord">
+            <div>
+              <div class='large-text'>
+                
+                  {{currentRecord.displayName}}
+              
+              </div>
+              <div class='med-text'>Update Fields
+              </div>
+              <div class='small-text' [innerHTML]="updateFieldsSummary()">
+                
+  
+              </div>
+            </div>
+            <!-- <button (click)="noMatch()" mat-button class=''>Add Site
+            </button> -->
+          </div>
         <div>
-
-          <!-- <button (click)="noMatch()" mat-button class=''>Add Site
-          </button> -->
         </div>
         <div class='accent-bar large-text'>Match to Existing</div>
         <div class='results-table'>

@@ -43,7 +43,6 @@ export class AssignFieldsDialogComponent implements OnInit {
 
 	volumeDate = null;
 	volumeType: string = null;
-	// showVolumeFields = false;
 
 	@ViewChild('stepper') stepper: MatStepper;
 
@@ -56,9 +55,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 		private storeService: StoreService,
 		@Inject(MAT_DIALOG_DATA) public data: any
 	) {
-		console.log(data);
 		this.fields = data.fields;
-		console.log(this.fields);
 		this.spreadsheetService = data.spreadsheetService;
 
 		this.updateItems = [];
@@ -74,7 +71,6 @@ export class AssignFieldsDialogComponent implements OnInit {
 
 	ngOnInit() {
 		this.createForm();
-
 		this.getCompanies();
 	}
 
@@ -91,11 +87,6 @@ export class AssignFieldsDialogComponent implements OnInit {
 			insertFields: []
 		});
 	}
-
-	// changeValue(field, val) {
-	//   // console.log(field, val);
-	//   this.assignments[field] = val;
-	// }
 
 	getCompanies(attempts?: number) {
 		console.log('get companies');
@@ -127,11 +118,11 @@ export class AssignFieldsDialogComponent implements OnInit {
 							(b: Banner) => {
 								this.banners.push(b);
 							},
-							() => this.getBannersFromCompany(companyId, attempts + 1)
+							() => this.getBannersFromCompany(companyId, attempts + 1) // just a failsafe
 						);
 					});
 				},
-				() => this.getBannersFromCompany(companyId, attempts + 1)
+				() => this.getBannersFromCompany(companyId, attempts + 1) // just a failsafe
 			);
 		}
 	}
@@ -144,7 +135,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 					this.form.value.banner = b;
 					console.log(this.form.value);
 				},
-				() => this.getBannersFromCompany(bannerId, attempts + 1)
+				() => this.getBannersFromCompany(bannerId, attempts + 1) // failsafe
 			);
 		}
 	}
@@ -154,15 +145,15 @@ export class AssignFieldsDialogComponent implements OnInit {
 	}
 
 	assignFields() {
-		// console.log(form);
 		console.log('Assign Fields!');
 		const { matchType, company, storeNumber, lat, lng, name } = this.form.value;
 		if ((matchType === 'location' && lat && lng) || (matchType === 'storeNumber' && company && storeNumber)) {
 			this.sendingData = true;
-			this.spreadsheetService.assignFields(this.fields, this.form.value, {
+			const volumeRules = {
 				volumeDate: this.volumeDate,
 				volumeType: this.volumeType
-			});
+			};
+			this.spreadsheetService.assignFields(this.fields, this.form.value, volumeRules);
 			this.dialogRef.close();
 		}
 	}
@@ -210,14 +201,12 @@ export class AssignFieldsDialogComponent implements OnInit {
 		const prop = type === 'update' ? 'updateItems' : 'insertItems';
 		const idx = this[prop].findIndex((item) => item.id === id);
 		this[prop][idx].selectedFileField = val;
-		console.log(this[prop]);
 	}
 
 	updateSelectedStoreField(id, val, type) {
 		const prop = type === 'update' ? 'updateItems' : 'insertItems';
 		const idx = this[prop].findIndex((item) => item.id === id);
 		this[prop][idx].selectedStoreField = val;
-		console.log(this[prop]);
 
 		if (val === 'storeVolumes') {
 			this.volumeDate = new Date();
@@ -233,7 +222,6 @@ export class AssignFieldsDialogComponent implements OnInit {
 	}
 
 	addFieldMappingItem(type) {
-		// console.log('Add field mapping item');
 		// 'update' or 'insert'
 		this.storeService.getOneById(1).subscribe((store: Store) => {
 			console.log(store);

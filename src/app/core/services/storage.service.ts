@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import Cookies from 'js-cookie';
 import { Observable, of } from 'rxjs';
-import { getLocaleDayNames } from '@angular/common';
+import { saveAs } from 'file-saver';
 
 @Injectable()
 export class StorageService {
@@ -46,7 +46,7 @@ export class StorageService {
 		return of(isJson ? JSON.parse(localStorage.getItem(key)) : localStorage.getItem(key));
 	}
 
-	setLocalStorage(key: string, data: any, isJson: true): Observable<any> {
+	setLocalStorage(key: string, data: any, isJson: boolean): Observable<any> {
 		if (isJson) {
 			localStorage.setItem(key, JSON.stringify(data));
 		} else {
@@ -58,5 +58,53 @@ export class StorageService {
 	removeLocalStorage(key: string): Observable<any> {
 		localStorage.removeItem(key);
 		return of(true);
+	}
+
+	exportLocalStorage(key: string, isJson: boolean, child?: string): Promise<any> {
+		return new Promise((resolve, reject) => {
+			this.getLocalStorage(key, isJson).subscribe(
+				(item) => {
+					try {
+						let obj = child ? item[child] : item;
+						const name = obj.name ? obj.name : 'storage_item';
+						if (isJson) {
+							obj = JSON.stringify(obj);
+						}
+						saveAs(new Blob([ obj ]), `${name}.json`);
+						return resolve(true);
+					} catch (err) {
+						return reject(err);
+					}
+				},
+				(err) => reject(err)
+			);
+		});
+	}
+
+	importLocalStorage(key: string, data: any, isJson: boolean, child?: string): Promise<any> {
+		return new Promise((resolve, reject) => {
+			try {
+				if (child && isJson) {
+					this.getLocalStorage(key, isJson).subscribe((item) => {
+						item[child] = data;
+						this.setLocalStorage(key, item, isJson).subscribe(
+							(success) => {
+								return resolve(success);
+							},
+							(err) => reject(err)
+						);
+					});
+				} else {
+					this.setLocalStorage(key, data, isJson).subscribe(
+						(success) => {
+							return resolve(success);
+						},
+						(err) => reject(err)
+					);
+				}
+			} catch (err) {
+				return reject(err);
+			}
+		});
 	}
 }

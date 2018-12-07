@@ -19,13 +19,18 @@
         (click)="loadStoredProject(project.id)">
         <div class="project-name">{{project.data.name}}</div>
 
-        <div class="project-date">{{project.data.lastEdited | date}}</div>
+        <div class="project-date">{{project.data.lastEdited | date:'short'}}</div>
 
         <div class="project-status">
           {{getProjectStatus(project.id)}}
         </div>
         </div>
-        <div (click)="removeStoredProject(project.id)"><i class="fas fa-trash-alt"></i></div>
+        <div>
+          <i title="Permanantly Delete Session" (click)="removeStoredProject(project.id)" class="fas fa-trash-alt"></i>
+          <br />
+          <i title="Download Session As File For Sharing" (click)="shareStoredProject(project.id)" class="fas fa-download"></i>
+        </div>
+        
       </div>
     </mat-list-item>
   </mat-list>

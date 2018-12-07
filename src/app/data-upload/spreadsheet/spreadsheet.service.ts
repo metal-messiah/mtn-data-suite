@@ -2,11 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of, Subject, BehaviorSubject } from 'rxjs';
 import { SpreadsheetRecord } from '../../models/spreadsheet-record';
 import { FieldMappingItem } from './assign-fields-dialog/field-mapping-item';
-import { CompanyService } from 'app/core/services/company.service';
 import { SimplifiedCompany } from 'app/models/simplified/simplified-company';
-import { Company } from 'app/models/full/company';
-import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
-import { BannerService } from 'app/core/services/banner.service';
 import { Banner } from 'app/models/full/banner';
 import { Store } from 'app/models/full/store';
 // import * as records from './DFW.json';
@@ -15,7 +11,6 @@ import { Store } from 'app/models/full/store';
 	providedIn: 'root'
 })
 export class SpreadsheetService {
-	// records = records['features'];
 	uniqueIdLabels = [ 'unique_id', 'uid', 'id' ];
 	latLabels = [ 'lat', 'latitude', 'y' ];
 	lngLabels = [ 'lng', 'long', 'longitude', 'x' ];
@@ -46,7 +41,7 @@ export class SpreadsheetService {
 
 	public storedProjectId = null;
 
-	constructor(private companyService: CompanyService, private bannerService: BannerService) {}
+	constructor() {}
 
 	setStoredProjectId(id) {
 		this.storedProjectId = id;
@@ -120,11 +115,6 @@ export class SpreadsheetService {
 		}
 	}
 
-	// this.getLatLngFromCompanyStoreNumber(
-
-	//   row[this.findFieldIndex(this.assignments.storeNumber)]
-	// );
-
 	getStoreFromBanner(storeNumber) {
 		console.log(storeNumber);
 		const stores = this.assignments.banner['stores'];
@@ -194,23 +184,4 @@ export class SpreadsheetService {
 	findFieldIndex(fieldName) {
 		return this.fields.findIndex((field) => field === fieldName);
 	}
-
-	// loadSpreadsheet(): Observable<SpreadsheetRecord[]> {
-	//   const getUniqueId = feature => feature['unique_id'];
-	//   const getLatitude = feature => feature['Latitude'];
-	//   const getLongitude = feature => feature['Longitude'];
-	//   const getName = feature => feature['Label'];
-
-	//   return of(
-	//     this.records.map(
-	//       r =>
-	//         new SpreadsheetRecord(
-	//           getUniqueId(r),
-	//           getLatitude(r),
-	//           getLongitude(r),
-	//           getName(r)
-	//         )
-	//     )
-	//   );
-	// }
 }
