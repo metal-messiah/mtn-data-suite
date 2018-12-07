@@ -1,121 +1,216 @@
-import { Injectable } from "@angular/core";
-import { Observable, of, Subject } from "rxjs";
-import { SpreadsheetRecord } from "../../models/spreadsheet-record";
+import { Injectable } from '@angular/core';
+import { Observable, of, Subject, BehaviorSubject } from 'rxjs';
+import { SpreadsheetRecord } from '../../models/spreadsheet-record';
+import { FieldMappingItem } from './assign-fields-dialog/field-mapping-item';
+import { CompanyService } from 'app/core/services/company.service';
+import { SimplifiedCompany } from 'app/models/simplified/simplified-company';
+import { Company } from 'app/models/full/company';
+import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
+import { BannerService } from 'app/core/services/banner.service';
+import { Banner } from 'app/models/full/banner';
+import { Store } from 'app/models/full/store';
 // import * as records from './DFW.json';
 
 @Injectable({
-  providedIn: "root"
+	providedIn: 'root'
 })
 export class SpreadsheetService {
-  // records = records['features'];
-  uniqueIdLabels = ["unique_id", "uid", "id"];
-  latLabels = ["lat", "latitude", "y"];
-  lngLabels = ["lng", "long", "longitude", "x"];
-  nameLabels = ["name", "storeName", "store name"];
+	// records = records['features'];
+	uniqueIdLabels = [ 'unique_id', 'uid', 'id' ];
+	latLabels = [ 'lat', 'latitude', 'y' ];
+	lngLabels = [ 'lng', 'long', 'longitude', 'x' ];
+	nameLabels = [ 'name', 'storeName', 'store name' ];
 
-  id_idx: number;
-  lat_idx: number;
-  lng_idx: number;
-  name_idx: number;
+	file: File;
+	fileOutput: string;
+	fields: string[];
 
-  fieldsAreAssigned$: Subject<boolean> = new Subject();
+	assignments: {
+		lat: string;
+		lng: string;
+		name: string;
+		company: SimplifiedCompany;
+		banner: Banner;
+		storeNumber: string;
+		matchType: string;
+		updateFields: FieldMappingItem[];
+		insertFields: FieldMappingItem[];
+	};
 
-  constructor() {}
+	volumeRules;
 
-  cleanFieldname(field) {
-    return field.trim().toLowerCase();
-  }
+	loadType: string = null;
 
-  mapToSpreadsheet(csvAsText: string): Observable<any> {
-    const csvArray = csvAsText.split("\n").map(row => row.split(","));
+	public fieldsAreAssigned$: Subject<boolean> = new Subject();
+	public loadTypeAssigned$: Subject<boolean> = new Subject();
 
-    return of(
-      csvArray.map((row, i) => {
-        // skip the header row
-        if (i) {
-          return new SpreadsheetRecord(
-            row[this.id_idx],
-            Number(row[this.lat_idx]),
-            Number(row[this.lng_idx]),
-            row[this.name_idx]
-          );
-        }
-      })
-    );
-  }
+	public storedProjectId = null;
 
-  getFields(csvAsText: string) {
-    const fields = csvAsText.split("\n")[0].split(",");
-    return fields;
-  }
+	constructor(private companyService: CompanyService, private bannerService: BannerService) {}
 
-  getFieldIndices(fields) {
-    this.id_idx = fields.findIndex(field =>
-      this.uniqueIdLabels.includes(this.cleanFieldname(field))
-    );
-    this.lat_idx = fields.findIndex(field =>
-      this.latLabels.includes(this.cleanFieldname(field))
-    );
-    this.lng_idx = fields.findIndex(field =>
-      this.lngLabels.includes(this.cleanFieldname(field))
-    );
-    this.name_idx = fields.findIndex(field =>
-      this.nameLabels.includes(this.cleanFieldname(field))
-    );
+	setStoredProjectId(id) {
+		this.storedProjectId = id;
+	}
 
-    if (this.lat_idx >= 0 && this.lng_idx >= 0 && this.name_idx >= 0) {
-      return this.fieldsAreAssigned$.next(true);
-    } else {
-      return this.fieldsAreAssigned$.next(false);
-    }
-  }
+	setFile(file, fileOutput, fields) {
+		console.log('set file');
+		this.file = file;
+		this.fileOutput = fileOutput;
+		this.fields = fields;
+	}
 
-  parseSpreadsheet(csvAsText: string, fields: string[]): Observable<any> {
-    if (this.lat_idx >= 0 && this.lng_idx >= 0 && this.name_idx >= 0) {
-      return this.mapToSpreadsheet(csvAsText);
-    } else {
-      return of([]);
-    }
-  }
+	assignLoadType(type: string) {
+		console.log('assign load type', type);
+		this.loadType = type;
+		this.loadTypeAssigned$.next(true);
+	}
 
-  assignFields(
-    fields: string[],
-    assignments: {
-      lat: string;
-      lng: string;
-      name: string;
-      company: string;
-      storeNumber: string;
-      matchType: string;
-    }
-  ) {
-    this.lat_idx = fields.findIndex(field => field === assignments.lat);
-    this.lng_idx = fields.findIndex(field => field === assignments.lng);
-    this.name_idx = fields.findIndex(field => field === assignments.name);
+	cleanFieldname(field) {
+		return field.trim().toLowerCase();
+	}
 
-    if (assignments.lat && assignments.lng && assignments.name) {
-      this.fieldsAreAssigned$.next(true);
-    } else {
-      this.fieldsAreAssigned$.next(false);
-    }
-  }
+	mapToSpreadsheet(csvAsText: string, attempts?: number): Observable<any> {
+		attempts = attempts || 0;
 
-  // loadSpreadsheet(): Observable<SpreadsheetRecord[]> {
-  //   const getUniqueId = feature => feature['unique_id'];
-  //   const getLatitude = feature => feature['Latitude'];
-  //   const getLongitude = feature => feature['Longitude'];
-  //   const getName = feature => feature['Label'];
+		const csvArray = csvAsText.split('\n').map((row) => row.split(','));
+		if (this.assignments.matchType === 'location') {
+			return of(
+				csvArray.map((row, i) => {
+					// skip the header row
+					if (i) {
+						const attributes = {};
+						this.fields.forEach((field, idx) => {
+							attributes[field] = row[idx];
+						});
+						return new SpreadsheetRecord(
+							i,
+							Number(row[this.findFieldIndex(this.assignments.lat)]),
+							Number(row[this.findFieldIndex(this.assignments.lng)]),
+							row[this.findFieldIndex(this.assignments.name)],
+							attributes,
+							this.assignments
+						);
+					}
+				})
+			);
+		} else {
+			// storeNumbers!
+			return of(
+				csvArray.map((row, i) => {
+					// skip the header row
+					if (i) {
+						const { lat, lng, store } = this.getStoreFromBanner(
+							row[this.findFieldIndex(this.assignments.storeNumber)]
+						);
+						const attributes = {};
+						this.fields.forEach((field, idx) => {
+							attributes[field] = row[idx];
+						});
+						return new SpreadsheetRecord(
+							i,
+							lat,
+							lng,
+							row[this.findFieldIndex(this.assignments.name)],
+							store,
+							this.assignments
+						);
+					}
+				})
+			);
+		}
+	}
 
-  //   return of(
-  //     this.records.map(
-  //       r =>
-  //         new SpreadsheetRecord(
-  //           getUniqueId(r),
-  //           getLatitude(r),
-  //           getLongitude(r),
-  //           getName(r)
-  //         )
-  //     )
-  //   );
-  // }
+	// this.getLatLngFromCompanyStoreNumber(
+
+	//   row[this.findFieldIndex(this.assignments.storeNumber)]
+	// );
+
+	getStoreFromBanner(storeNumber) {
+		console.log(storeNumber);
+		const stores = this.assignments.banner['stores'];
+		const matches = stores.filter((s: Store) => s.storeNumber === storeNumber.toString());
+		const store = matches.length ? matches[0] : null;
+
+		console.log(store);
+
+		return { lat: store ? store.site.lat : 0, lng: store ? store.site.lng : 0, store: store };
+	}
+
+	setFlowParameters() {}
+
+	getFields(csvAsText: string) {
+		const fields = csvAsText.split('\n')[0].split(',');
+		return fields;
+	}
+
+	assignmentsAreValid() {
+		return (
+			(this.assignments.matchType === 'location' && this.assignments.lat && this.assignments.lng) ||
+			(this.assignments.matchType === 'storeNumber' && this.assignments.banner && this.assignments.storeNumber)
+		);
+	}
+
+	parseSpreadsheet(csvAsText: string, fields: string[]): Observable<any> {
+		if (this.assignmentsAreValid()) {
+			return this.mapToSpreadsheet(csvAsText);
+		} else {
+			return of([]);
+		}
+	}
+
+	assignFields(
+		fields: string[],
+		assignments: {
+			lat: string;
+			lng: string;
+			name: string;
+			company: SimplifiedCompany;
+			banner: Banner;
+			storeNumber: string;
+			matchType: string;
+			updateFields: FieldMappingItem[];
+			insertFields: FieldMappingItem[];
+		},
+		volumeRules: {
+			volumeDate: string;
+			volumeType: string;
+		}
+	) {
+		this.assignments = assignments;
+
+		console.log(this.assignments);
+
+		this.volumeRules = volumeRules;
+
+		console.log(this.volumeRules);
+
+		if (this.assignmentsAreValid()) {
+			this.fieldsAreAssigned$.next(true);
+		} else {
+			this.fieldsAreAssigned$.next(false);
+		}
+	}
+
+	findFieldIndex(fieldName) {
+		return this.fields.findIndex((field) => field === fieldName);
+	}
+
+	// loadSpreadsheet(): Observable<SpreadsheetRecord[]> {
+	//   const getUniqueId = feature => feature['unique_id'];
+	//   const getLatitude = feature => feature['Latitude'];
+	//   const getLongitude = feature => feature['Longitude'];
+	//   const getName = feature => feature['Label'];
+
+	//   return of(
+	//     this.records.map(
+	//       r =>
+	//         new SpreadsheetRecord(
+	//           getUniqueId(r),
+	//           getLatitude(r),
+	//           getLongitude(r),
+	//           getName(r)
+	//         )
+	//     )
+	//   );
+	// }
 }

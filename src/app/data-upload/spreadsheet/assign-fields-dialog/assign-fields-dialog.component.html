@@ -11,7 +11,7 @@
     <div class="dialog-wrapper">
       <form [formGroup]="form">
         <div style="margin-top:25px;" class="flex-container">
-          <button class="radio-button" [color]="form.value.matchType === 'storeNumber' ? 'warn' : 'primary'"
+          <button disabled class="radio-button" [color]="form.value.matchType === 'storeNumber' ? 'warn' : 'primary'"
             mat-flat-button (click)="storeNumberRadio.click()">Store Number</button>
           <input hidden #storeNumberRadio type="radio" formControlName="matchType" value="storeNumber" checked>
           <button class="radio-button" [color]="form.value.matchType === 'location' ? 'warn' : 'primary'"
@@ -30,31 +30,40 @@
     <div class="dialog-wrapper">
       <form [formGroup]="form">
         <mat-form-field *ngIf="form.value.matchType === 'location'">
-          <mat-select matInput formControlName="name" required>
+          <mat-select matInput formControlName="name" [required]="form.value.matchType === 'location'">
             <mat-option placeholder="Name Field" [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
           </mat-select>
           <mat-hint>Name Field</mat-hint>
         </mat-form-field><br>
         <mat-form-field *ngIf="form.value.matchType === 'location'">
-          <mat-select matInput formControlName="lat" required>
+          <mat-select matInput formControlName="lat" [required]="form.value.matchType === 'location'">
             <mat-option placeholder="Lat Field" [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
           </mat-select>
           <mat-hint>Latitude Field</mat-hint>
         </mat-form-field><br>
         <mat-form-field *ngIf="form.value.matchType === 'location'">
-          <mat-select matInput formControlName="lng" required>
+          <mat-select matInput formControlName="lng" [required]="form.value.matchType === 'location'">
             <mat-option [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
           </mat-select>
           <mat-hint>Longitude Field</mat-hint>
         </mat-form-field><br>
         <mat-form-field *ngIf="form.value.matchType === 'storeNumber'">
-          <mat-select matInput formControlName="company" required>
-            <mat-option [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
+          <mat-select (selectionChange)="getBannersFromCompany($event.value.id)" matInput formControlName="company" [required]="form.value.matchType === 'storeNumber'">
+            <mat-option [value]="company" *ngFor="let company of companies">{{company.companyName}}</mat-option>
           </mat-select>
           <mat-hint>Company</mat-hint>
         </mat-form-field><br>
+        <mat-form-field *ngIf="form.value.matchType === 'storeNumber' && banners.length && banners.length === bannerFetches">
+             <mat-select matInput formControlName="banner" [required]="form.value.matchType === 'storeNumber'">
+            <mat-option [value]="banner" *ngFor="let banner of banners">{{banner.bannerName}}</mat-option>
+          </mat-select>
+          <mat-hint>Banner</mat-hint>
+        </mat-form-field>
+        <mat-spinner *ngIf="form.value.matchType === 'storeNumber' && form.value.company && banners.length !== bannerFetches" mode="indeterminate"></mat-spinner>
+         <br>
+        
         <mat-form-field *ngIf="form.value.matchType === 'storeNumber'">
-          <mat-select matInput formControlName="storeNumber" required>
+          <mat-select matInput formControlName="storeNumber" [required]="form.value.matchType === 'storeNumber'">
             <mat-option [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
           </mat-select>
           <mat-hint>Store Number Field</mat-hint>
@@ -62,28 +71,41 @@
       </form>
       <div class="nav-buttons">
         <button color="primary" mat-flat-button (click)="goBackward()">Back</button>
-        <button [disabled]="!formIsValid(2)" color="warn" mat-flat-button (click)="goForward()">Proceed</button>
+        <button color="warn" mat-flat-button (click)="goForward()">Proceed</button>
       </div>
     </div>
   </mat-step>
   <mat-step editable="false">
     <ng-template matStepLabel>Update Fields</ng-template>
     <div class="dialog-wrapper">
-      <button mat-flat-button (click)="addFieldMappingItem()">Add Field</button>
-      <div class="flex-container" *ngFor="let item of updateItems;">
+      <button mat-flat-button (click)="addFieldMappingItem('update')">Add Field</button>
+      <div class="update-items-wrapper" *ngFor="let item of updateItems;">
         <mat-form-field>
-          <mat-select [id]="item.id + '_fileField'" matInput (selectionChange)="updateSelectedFileField(item.id, $event.value)"
+          <mat-select [id]="item.id + '_fileField'" matInput (selectionChange)="updateSelectedFileField(item.id, $event.value, 'update')"
             [(value)]="item.selectedFileField">
             <mat-option [value]="fileField" *ngFor="let fileField of item.fileFields">{{fileField}}</mat-option>
           </mat-select>
           <mat-hint>File Field</mat-hint>
         </mat-form-field>
+        <br />
         <mat-form-field>
-          <mat-select [id]="item.id + '_storeField'" matInput (selectionChange)="updateSelectedStoreField(item.id, $event.value)"
+          <mat-select [id]="item.id + '_storeField'" matInput (selectionChange)="updateSelectedStoreField(item.id, $event.value, 'update')"
             [(value)]="item.selectedStoreField">
             <mat-option [value]="storeField" *ngFor="let storeField of item.storeFields">{{storeField}}</mat-option>
           </mat-select>
           <mat-hint>Store Field</mat-hint>
+        </mat-form-field>
+        <br/>
+        <mat-form-field *ngIf="showVolumeFields(item)">
+          <mat-select matInput (selectionChange)="updateVolumeType($event.value)"
+            [(value)]="volumeType">
+            <mat-option [value]="type" *ngFor="let type of volumeTypes">{{type}}</mat-option>
+          </mat-select>
+          <mat-hint>Volume Type</mat-hint>
+        </mat-form-field>
+        <br/>
+        <mat-form-field *ngIf="showVolumeFields(item)">
+          <input matInput placeholder="Volume Date" type="date" [value]="volumeDate">
         </mat-form-field>
       </div>
       <div class="nav-buttons">
@@ -92,20 +114,20 @@
       </div>
     </div>
   </mat-step>
-  <mat-step editable="false">
+  <!-- <mat-step editable="false">
       <ng-template matStepLabel>Insert Fields</ng-template>
       <div class="dialog-wrapper">
-        <button mat-flat-button (click)="addFieldMappingItem()">Add Field</button>
-        <div class="flex-container" *ngFor="let item of updateItems;">
+        <button mat-flat-button (click)="addFieldMappingItem('insert')">Add Field</button>
+        <div class="flex-container" *ngFor="let item of insertItems;">
           <mat-form-field>
-            <mat-select [id]="item.id + '_fileField'" matInput (selectionChange)="updateSelectedFileField(item.id, $event.value)"
+            <mat-select [id]="item.id + '_fileField'" matInput (selectionChange)="updateSelectedFileField(item.id, $event.value, 'insert')"
               [(value)]="item.selectedFileField">
               <mat-option [value]="fileField" *ngFor="let fileField of item.fileFields">{{fileField}}</mat-option>
             </mat-select>
             <mat-hint>File Field</mat-hint>
           </mat-form-field>
           <mat-form-field>
-            <mat-select [id]="item.id + '_storeField'" matInput (selectionChange)="updateSelectedStoreField(item.id, $event.value)"
+            <mat-select [id]="item.id + '_storeField'" matInput (selectionChange)="updateSelectedStoreField(item.id, $event.value, 'insert')"
               [(value)]="item.selectedStoreField">
               <mat-option [value]="storeField" *ngFor="let storeField of item.storeFields">{{storeField}}</mat-option>
             </mat-select>
@@ -117,5 +139,5 @@
           <button [disabled]="!formIsValid(3)" color="warn" mat-flat-button (click)="goForward();">Proceed</button>
         </div>
       </div>
-    </mat-step>
+    </mat-step> -->
 </mat-horizontal-stepper>

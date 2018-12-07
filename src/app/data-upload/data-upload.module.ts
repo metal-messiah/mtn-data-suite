@@ -8,18 +8,23 @@ import { SpreadsheetComponent } from './spreadsheet/spreadsheet.component';
 import { PgDataFormComponent } from './planned-grocery/pg-data-form/pg-data-form.component';
 import { AssignFieldsDialogComponent } from './spreadsheet/assign-fields-dialog/assign-fields-dialog.component';
 import { MatDialogModule } from '@angular/material';
+import { SpreadsheetDataFormComponent } from './spreadsheet/spreadsheet-data-form/spreadsheet-data-form.component';
+import { LoadComponent } from './spreadsheet/load/load.component';
+import { SpreadsheetService } from './spreadsheet/spreadsheet.service';
 
 @NgModule({
-  imports: [SharedModule, DataUploadRoutingModule, MatDialogModule],
-  declarations: [
-    DataUploadComponent,
-    OptionsMenuComponent,
-    PlannedGroceryComponent,
-    SpreadsheetComponent,
-    PgDataFormComponent,
-    AssignFieldsDialogComponent
-  ],
-  entryComponents: [AssignFieldsDialogComponent],
-  providers: [AssignFieldsDialogComponent]
+	imports: [ SharedModule, DataUploadRoutingModule, MatDialogModule ],
+	declarations: [
+		DataUploadComponent,
+		OptionsMenuComponent,
+		PlannedGroceryComponent,
+		SpreadsheetComponent,
+		PgDataFormComponent,
+		SpreadsheetDataFormComponent,
+		AssignFieldsDialogComponent,
+		LoadComponent
+	],
+	entryComponents: [ AssignFieldsDialogComponent, LoadComponent ],
+	providers: [ AssignFieldsDialogComponent, LoadComponent, SpreadsheetService ]
 })
 export class DataUploadModule {}

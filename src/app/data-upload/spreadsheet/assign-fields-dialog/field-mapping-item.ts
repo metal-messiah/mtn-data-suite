@@ -1,35 +1,43 @@
+import { Store } from '../../../models/full/store';
+
 export class FieldMappingItem {
-  id: number;
-  storeFields: string[];
-  fileFields: string[];
+	id: number;
+	storeFields: string[];
+	fileFields: string[];
 
-  selectedFileField: string;
-  selectedStoreField: string;
+	selectedFileField: string;
+	selectedStoreField: string;
 
-  constructor(fileFields) {
-    this.id = Number(new Date());
+	constructor(fileFields) {
+		this.id = Number(new Date());
 
-    this.storeFields = [
-      'storeName',
-      'storeNumber',
-      'storeType',
-      'dateOpened',
-      'dateClosed',
-      'fit',
-      'format',
-      'areaSales',
-      'areaSalesPercentOfTotal',
-      'areaTotal',
-      'areaIsEstimate',
-      'storeIsOpen24',
-      'naturalFoodsAreIntegrated',
-      'floating',
-      'storeVolumes'
-    ];
+		this.storeFields = [
+			'storeName',
+			'storeNumber',
+			'storeType',
+			'dateOpened',
+			'areaSales',
+			'areaSalesPercentOfTotal',
+			'areaTotal',
+			'areaIsEstimate',
+			'storeVolumes',
 
-    this.fileFields = Object.assign([], fileFields);
+			'address',
+			'city',
+			'county',
+			'state',
+			'postalCode',
+			'quad',
+			'intersectionStreetPrimary',
+			'intersectionStreetSecondary',
+			'floating',
+			'naturalFoodsAreIntegrated',
+			'storeIsOpen24'
+		].sort();
 
-    this.selectedFileField = null;
-    this.selectedStoreField = null;
-  }
+		this.fileFields = Object.assign([], fileFields);
+
+		this.selectedFileField = null;
+		this.selectedStoreField = null;
+	}
 }

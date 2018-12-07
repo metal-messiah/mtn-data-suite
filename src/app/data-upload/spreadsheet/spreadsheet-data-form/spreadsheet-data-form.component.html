@@ -1,0 +1,112 @@
+<form [formGroup]="form" style="padding: 0 40px;">
+  <!-- <h4>Shopping Center</h4>
+  <mat-form-field>
+    <input matInput type="text" placeholder="Name" formControlName="shoppingCenterName"> -->
+    <!-- <mat-hint align="end">{{currentRecord ? currentRecord.attributes.NAMECENTER : null}}</mat-hint> -->
+  <!-- </mat-form-field> -->
+
+  <h4 *ngIf="showAll">Site</h4>
+  <mat-form-field *ngIf="dbRecord.site == null" hintLabel="Drag Marker on Map">
+    <input matInput type="number" autocomplete="off" placeholder="Latitude" id="latitude"
+           [value]="dbRecord ? dbRecord.site ? dbRecord.site.latitude : null : null"
+           required disabled>
+    <input matInput type="number" autocomplete="off" placeholder="Longitude" id="longitude"
+    value]="dbRecord ? dbRecord.site ? dbRecord.site.longitude : null : null"
+           required disabled>
+  </mat-form-field>
+  <mat-form-field *ngIf="shouldShow('address')">
+    <input matInput type="text" placeholder="Address" formControlName="address">
+    <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.site.address1 : null}}</mat-hint>
+  </mat-form-field>
+  <mat-form-field *ngIf="shouldShow('city')">
+    <input matInput type="text" placeholder="City" formControlName="city">
+    <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.site.city : null}}</mat-hint>
+  </mat-form-field>
+  <mat-form-field *ngIf="shouldShow('county')">
+    <input matInput type="text" placeholder="County" formControlName="county">
+    <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.site.county : null}}</mat-hint>
+  </mat-form-field>
+  <mat-form-field *ngIf="shouldShow('state')">
+    <input matInput type="text" placeholder="State" formControlName="state">
+    <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.site.state : null}}</mat-hint>
+  </mat-form-field>
+  <mat-form-field *ngIf="shouldShow('postalCode')">
+    <input matInput type="text" placeholder="Postal Code" formControlName="postalCode">
+    <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.site.postalCode : null}}</mat-hint>
+  </mat-form-field>
+  <div *ngIf="shouldShow('quad')" class="flex flex-justify-center" id="quad-button-wrapper">
+    <button type="button" mat-raised-button color="primary" (click)="showQuadDialog()">
+      Quad: {{form.get('quad').value}}
+    </button>
+  </div>
+  <mat-form-field *ngIf="shouldShow('intersectionStreetPrimary')">
+    <input matInput type="text" placeholder="Primary" formControlName="intersectionStreetPrimary">
+  </mat-form-field>
+  <mat-form-field *ngIf="shouldShow('intersectionStreetSecondary')">
+    <input matInput type="text" placeholder="Secondary" formControlName="intersectionStreetSecondary">
+  </mat-form-field>
+
+  <h4 *ngIf="showAll">Store</h4>
+  <mat-form-field *ngIf="shouldShow('storeName')">
+    <input matInput type="text" placeholder="Name" formControlName="storeName" required>
+    <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.storeName : null}}</mat-hint>
+  </mat-form-field>
+  <mat-form-field *ngIf="shouldShow('areaTotal')">
+    <input matInput type="number" autocomplete="off" placeholder="Total Area" formControlName="areaTotal">
+    <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.areaTotal : null}}</mat-hint>
+  </mat-form-field>
+  <mat-form-field *ngIf="shouldShow('areaSales')">
+      <input matInput type="number" autocomplete="off" placeholder="Sales Area" formControlName="areaSales">
+      <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.areaSales : null}}</mat-hint>
+    </mat-form-field>
+    <mat-form-field *ngIf="shouldShow('areaSalesPercentOfTotal')">
+        <input matInput type="number" autocomplete="off" placeholder="Sales Area / Total" formControlName="areaSalesPercentOfTotal">
+        <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.areaSalesPercentOfTotal : null}}</mat-hint>
+      </mat-form-field>
+      <mat-form-field *ngIf="shouldShow('storeVolumes')">
+          <input matInput type="number" autocomplete="off" placeholder="New Volume" formControlName="volume">
+          <mat-hint align="end">Database Value(s): {{dbRecord ? getStoreVolumes() : null}}</mat-hint>
+        </mat-form-field>
+          <mat-checkbox *ngIf="shouldShow('areaIsEstimate')" formControlName="areaIsEstimate">Area is Estimate</mat-checkbox>
+          <!-- <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.areaIsEstimate : null}}</mat-hint> -->
+        
+  <mat-form-field *ngIf="shouldShow('dateOpened')">
+    <input matInput [matDatepicker]="dateOpenedPicker" placeholder="Date Opened" formControlName="dateOpened">
+    <mat-datepicker-toggle matSuffix [for]="dateOpenedPicker"></mat-datepicker-toggle>
+    <mat-datepicker #dateOpenedPicker></mat-datepicker>
+    <!-- <mat-hint align="end">{{getcurrentRecordOpenDate()}}</mat-hint> -->
+  </mat-form-field>
+  
+  <mat-checkbox *ngIf="shouldShow('storeIsOpen24')" formControlName="storeIsOpen24">24 Hour Store</mat-checkbox>
+  <!-- <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.storeIsOpen24 : null}}</mat-hint> -->
+<br/>
+
+  <mat-checkbox *ngIf="shouldShow('naturalFoodsAreIntegrated')" formControlName="naturalFoodsAreIntegrated">Natural Foods</mat-checkbox>
+  <!-- <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.naturalFoodsAreIntegrated : null}}</mat-hint> -->
+<br />
+
+  <mat-checkbox *ngIf="shouldShow('floating')" formControlName="floating">Floating</mat-checkbox>
+  <!-- <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.floating : null}}</mat-hint> -->
+<br/>
+
+  <input *ngIf="shouldShow('storeType')" matInput type="text" placeholder="Store Type" formControlName="storeType">
+  <!-- <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.storeType : null}}</mat-hint> -->
+      
+      <!-- <mat-form-field *ngIf="shouldShow('fit')">
+          <mat-checkbox placeholder="Fit" formControlName="fit">Fit
+          <mat-hint align="end">Database Value: {{dbRecord ? dbRecord.fit : null}}</mat-hint>
+        </mat-form-field> -->
+
+  <!-- <div>
+    <p>Will <strong *ngIf="!doAddStatus">NOT</strong> update status from <strong>{{currentStatus.displayName}}</strong> to <strong>{{pgStatus.displayName}}</strong></p>
+  </div> -->
+
+  <div style="margin-top: 15px;">
+    <button mat-button type="button" (click)="cancelEvent.emit()" [disabled]="saving">Cancel</button>
+    <button mat-raised-button color="accent" type="submit" (click)="submit()" [disabled]="saving || form.invalid">
+      <span *ngIf="!saving">Submit</span>
+      <span *ngIf="saving"><i class="fas fa-spinner fa-pulse"></i></span>
+    </button>
+    <button mat-button type="button" (click)="toggleShowAll()">{{showAll ? "Show Updates" : "Show All"}}</button>
+  </div>
+</form>

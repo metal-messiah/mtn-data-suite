@@ -1,9 +1,9 @@
 <div class='main-wrapper'>
   <div class='left-panel'>
-    <mds-file-input [fileTypes]="allowedFileTypes" [outputType]="outputType" (fileChanged)="handleFile($event)"></mds-file-input>
+    
     <h2 *ngIf="records.length">{{currentRecordIndex + 1 }}/{{records.length}}</h2>
     <mat-list *ngIf="records.length">
-      <mat-list-item *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex}"
+      <mat-list-item *ngFor="let record of records; let i = index" [id]="i" [ngClass]="{highlighted: i === currentRecordIndex, validated: record.validated}"
         (click)="setCurrentSpreadsheetRecord(i)">
         <div>
           <span class='list-item-header'>{{record.displayName}}</span>
@@ -42,8 +42,8 @@
 
         <div>
 
-          <button (click)="noMatch()" mat-button class=''>Add Site
-          </button>
+          <!-- <button (click)="noMatch()" mat-button class=''>Add Site
+          </button> -->
         </div>
         <div class='accent-bar large-text'>Match to Existing</div>
         <div class='results-table'>
@@ -61,14 +61,14 @@
             <div class="results-header large-text flex-container">
 
 
-              <i mat-icon-button [mat-menu-trigger-for]="siteMenu" class="site-menu fas fa-ellipsis-v"></i>
+              <!-- <i mat-icon-button [mat-menu-trigger-for]="siteMenu" class="site-menu fas fa-ellipsis-v"></i>
 
               <mat-menu #siteMenu="matMenu">
                 <button (click)="matchShoppingCenter(site.shoppingCenterId);" mat-menu-item>Add Sister Shopping
                   Center
                   Site
                 </button>
-              </mat-menu>
+              </mat-menu> -->
 
               <div *ngIf="site.distanceFrom" [style.color]="site.distanceFrom < 0.5 ? 'green': '#ff9802'" class='site-distance'>
                 <i class="fas fa-arrow-circle-up" [style.transform]="site.heading"></i>
@@ -76,8 +76,8 @@
                 Miles
               </div>
               <div class='site-title'>{{site.address1 + ", " + site.city + ", " + site.state }}</div>
-              <button (click)="matchSite(site.id)" mat-button class=' add-store'>Add Store
-              </button>
+              <!-- <button (click)="matchSite(site.id)" mat-button class=' add-store'>Add Store -->
+              <!-- </button> -->
             </div>
             <mat-divider></mat-divider>
             <div (mouseenter)="siteHover(store, 'enter')" (mouseleave)="siteHover(store, 'leave')" class="results-each"
@@ -98,9 +98,18 @@
       </mat-step>
       <mat-step>
         <ng-template matStepLabel>Match/Edit Data</ng-template>
-        <mds-pg-data-form *ngIf="pgUpdatable" [pgUpdatable]="pgUpdatable" [pgFeature]="pgRecord" [storeSource]="currentStoreSource"
-          (cancelEvent)="cancelStep2()" (completedEvent)="nextRecord()">
-        </mds-pg-data-form>
+
+        <!-- <div class="location-match-wrapper">
+          <div *ngFor="let update of submittable.updates">
+              <div>UPDATING {{update.storeField}} FROM {{update.storeValue}} to {{update.fileValue}}</div>
+          </div>
+        </div> -->
+
+        <mds-spreadsheet-data-form *ngIf="logic && openForm" [logic]="logic" [dbRecord]="dbRecord"
+                          [currentRecord]="currentRecord"
+                          (cancelEvent)="cancelStep2()"
+                          (completedEvent)="nextRecord()">
+        </mds-spreadsheet-data-form>
       </mat-step>
     </mat-horizontal-stepper>
   </div>
