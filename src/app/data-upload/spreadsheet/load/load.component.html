@@ -11,10 +11,14 @@
 
   <h3 *ngIf="continueFromProgress">Stored Projects</h3>
   <mat-list *ngIf="continueFromProgress">
+      <div *ngIf="!getStoredProjectsAsArray().length">
+        No Stored Projects Found
+      </div>
     <mat-list-item
       *ngFor="let project of getStoredProjectsAsArray()"
     >
       <div class="project">
+        
         <div style="width: 100%"
         (click)="loadStoredProject(project.id)">
         <div class="project-name">{{project.data.name}}</div>
@@ -34,4 +38,5 @@
       </div>
     </mat-list-item>
   </mat-list>
+  
 </div>
