@@ -160,10 +160,6 @@ export class StoreIconProvider {
 	}
 
 	private getLabelOrigin(store: SimplifiedStore, rotation: number) {
-		if (rotation !== 0) {
-			console.log('CUSTOM LABEL FOR ', store.storeName);
-		}
-
 		let x = 255;
 		let y = 230;
 
@@ -190,25 +186,6 @@ export class StoreIconProvider {
 				y = 100;
 			}
 		}
-
-		console.log(x, y);
-
-		// if (store.site.duplicate) {
-		// 	return new google.maps.Point(255, 238);
-		// }
-		// if (store.storeType === 'HISTORICAL' || store.storeType === 'FUTURE') {
-		//   return new google.maps.Point(255, 190);
-		// }
-		// const zoom = this.mapService.getZoom();
-		// if (zoom > this.HIGH_ZOOM) {
-		// 	if (store.storeType === 'HISTORICAL') {
-		// 		return new google.maps.Point(-120, 0);
-		// 	} else if (store.storeType === 'FUTURE') {
-		// 		return new google.maps.Point(255, -255);
-		// 	}
-		// 	return new google.maps.Point(255, -80);
-		// }
-		// return new google.maps.Point(255, 230);
 
 		return new google.maps.Point(x, y);
 	}
