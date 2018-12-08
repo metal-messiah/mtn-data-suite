@@ -7,6 +7,10 @@ import * as _ from 'lodash';
 
 export class JsonToTablesUtil {
 
+  data;
+
+  mapImageUrl: string;
+
   readonly tableData: ReportData;
   readonly reportMetaData;
   readonly siteEvaluationNarrative;
@@ -21,8 +25,9 @@ export class JsonToTablesUtil {
 
   readonly targetStore: StoreListItem;
 
-  private readonly maxSovCount = 20;
+  private readonly googleMapsKey = 'AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ';
 
+  private readonly maxSovCount = 20;
 
   constructor(rbs: ReportBuilderService) {
     this.reportMetaData = rbs.reportMetaData;
@@ -91,7 +96,7 @@ export class JsonToTablesUtil {
 
     // Projected Summary
     const pStores = tableStores
-      // store or replacement is major contributor
+    // store or replacement is major contributor
       .map(store => {
         const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store);
         const contributionToSite = storeBeforeSiteOpen.futureSales - storeAfterSiteOpen.futureSales;
@@ -107,26 +112,212 @@ export class JsonToTablesUtil {
     });
     this.projectedWeeklyStores = partitionedProjected[0];
     this.projectedWeeklyStoresOverflow = partitionedProjected[1];
+
+
+    this.data = this.getReportData();
   }
 
-  getTruncatedMessage() {
-    if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
-      return `*Does not show contributions less than $${this.getMaxExcludedContribution().toLocaleString()} 
-      (Showing ${this.sovStores.length}/${this.sovStores.length + this.sovOverflowStores.length} stores).`
+  private getReportData() {
+    return {
+      projections: this.getProjectionsTableData(),
+      currentSummary: this.getCurrentSummaryTableData(),
+      projectedSummary: this.getProjectedSummaryTableData(),
+      sovData: this.getSovReportData(),
+      mapUrl: '',
+      ratings: this.siteEvaluationRatings,
+      narrativeData: this.getNarrativeData(),
+      marketShareDataHeaders: ['sector', 'projectedSales', 'projectedMS', 'effectivePower', 'futurePop1', 'projectedPotential',
+        'projectedPCW', 'leakage', 'distribution', 'futurePop2', 'futurePop3'],
+      marketShareData: this.tableData.marketShareBySector,
+      sovMapDataHeaders: ['mapKey', 'latitude', 'longitude', 'category', 'currentSales', 'firstYearEndingSales', 'contributionToSite',
+        'contributionToSitePerc', 'resultingVolume'],
+      sovMapData: this.getSovMapData()
     }
-    return null;
   }
 
-  getMaxExcludedContribution() {
-    const maxExcludedContribution: number = _.maxBy(this.sovOverflowStores, 'contributionToSite')['contributionToSite'];
-    return Math.round(maxExcludedContribution);
+  getMapUrl(basemap: string, zoom: number) {
+    // map image
+    const target = this.targetStore;
+    const targetPin = `&markers=color:red%7C${target.latitude},${target.longitude}`;
+
+    const {latitude, longitude} = target;
+
+    return `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}` +
+      `&zoom=${zoom}&size=470x350&maptype=${basemap}&${targetPin}&key=${this.googleMapsKey}`;
   }
 
-  getTruncatedSumMessage() {
-    if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
-      return `A total Contribution To Site of $${this.getOverflowSum().toLocaleString()} was excluded from the report.`
+  private getSovReportData() {
+    return {
+      firstYearEndDate: this.tableData.firstYearEndingDate,
+      fieldResDate: this.reportMetaData.fieldResDate,
+      openingDate: this.tableData.storeOpeningDate,
+      salesTransferFromCompanyStores: this.getSalesTransfersFromCompanyStores(),
+      salesTransferFromCompetition: this.getSalesTransfersFromCompetition(),
+      totalSalesTransfer: this.getTotalSalesTransfers(),
+      percentOfSalesExplainedAfterOneYear: this.getPercentOfSalesExplained(),
+      showingCount: this.sovStores.length,
+      totalCount: this.sovStores.length + this.sovOverflowStores.length,
+      totalContributionExcluded: this.getOverflowSum(),
+      targetStoreMapKey: this.targetStore.mapKey,
+      companyStores: this.getSovStoresForTable('Company Store'),
+      companyStoresSummary: this.getSovCompanyStoresSummary('Company Store'),
+      existingCompetition: this.getSovStoresForTable('Existing Competition'),
+      existingCompetitionSummary: this.getSovCompanyStoresSummary('Existing Competition'),
+      proposedCompetition: this.getSovStoresForTable('Proposed Competition'),
+      proposedCompetitionSummary: this.getSovCompanyStoresSummary('Proposed Competition'),
+    };
+  }
+
+  private getSovCompanyStoresSummary(category: string) {
+    return {
+      fitAverage: this.getSovFitAverageForCategory(category),
+      contributionSum: this.getSovContributionToSiteSubtotal(category)
     }
-    return null;
+  }
+
+  private getSovStoresForTable(category: string) {
+    return this.getSovStoresOfCategory(category)
+      .map(store => {
+        return {
+          storeName: store.storeName,
+          address: store.location,
+          mapKey: store.mapKey,
+          power: store.effectivePower,
+          distance: store['distance'],
+          salesArea: store.salesArea,
+          totalArea: store.totalArea,
+          currentSales: store.actualSales,
+          futureSales: store['futureSales'],
+          contributionDollars: store['contributionToSite'],
+          contributionPercent: store['contributionToSitePerc'],
+          resultingVolume: store['resultingVolume'],
+          closing: store['closing'],
+          isSite: store.mapKey === this.targetStore.mapKey
+        }
+      })
+  }
+
+  private getProjectedSummaryTableData() {
+    return {
+      date: this.tableData.firstYearEndingDate,
+      stores: this.getProjectedSummaryStores(),
+      summary: this.getProjectedSummaryAverages(),
+      overflowCount: this.currentWeeklyStoresOverflow.length
+    }
+  }
+
+  private getProjectedSummaryStores() {
+    return this.projectedWeeklyStores.map(store => {
+      return {
+        mapKey: store.mapKey,
+        storeName: store.storeName,
+        location: store.location,
+        volume: store['projectedSales'],
+        psf: store['projectedSalesPSF'],
+        salesArea: store.salesArea,
+        pwta: store.PWTA,
+        fitPower: store.effectivePower,
+        category: store.category,
+        isSite: store.mapKey === this.targetStore.mapKey
+      }
+    })
+  }
+
+  private getProjectedSummaryAverages() {
+    return {
+      volume: this.getSummaryAverage(this.projectedWeeklyStores, 'projectedSales'),
+      psf: this.getSummaryAverage(this.projectedWeeklyStores, 'projectedSalesPSF'),
+      salesArea: this.getSummaryAverage(this.projectedWeeklyStores, 'salesArea'),
+      power: this.getSummaryAverage(this.projectedWeeklyStores, 'effectivePower'),
+    }
+  }
+
+  private getCurrentSummaryTableData() {
+    return {
+      date: this.reportMetaData.fieldResDate,
+      stores: this.getCurrentSummaryStores(),
+      summary: this.getCurrentSummaryAverages(),
+      overflowCount: this.currentWeeklyStoresOverflow.length
+    }
+  }
+
+  private getCurrentSummaryAverages() {
+    return {
+      volume: this.getSummaryAverage(this.currentWeeklyStores, 'actualSales'),
+      psf: this.getSummaryAverage(this.currentWeeklyStores, 'actualSalesPSF'),
+      salesArea: this.getSummaryAverage(this.currentWeeklyStores, 'salesArea'),
+      power: this.getSummaryAverage(this.currentWeeklyStores, 'effectivePower'),
+    }
+  }
+
+  private getCurrentSummaryStores() {
+    return this.currentWeeklyStores.map(store => {
+      return {
+        mapKey: store.mapKey,
+        storeName: store.storeName,
+        location: store.location,
+        volume: store.actualSales,
+        psf: store.actualSalesPSF,
+        salesArea: store.salesArea,
+        pwta: store.PWTA,
+        fitPower: store.effectivePower
+      }
+    })
+  }
+
+  private getProjectionsTableData() {
+    const ts = this.targetStore;
+    const sgps = this.tableData.salesGrowthProjections;
+    return {
+      mapKey: ts.mapKey,
+      storeName: ts.storeName,
+      power: ts.effectivePower,
+      salesArea: ts.salesArea,
+      totalArea: ts.totalArea,
+      firstYearEndingSales: sgps.firstYearEndingSales,
+      firstYearEndingSalesPSF: sgps.firstYearEndingSalesPSF,
+      secondYearEndingSales: sgps.secondYearEndingSales,
+      secondYearEndingSalesPSF: sgps.secondYearEndingSalesPSF,
+      thirdYearEndingSales: sgps.thirdYearEndingSales,
+      thirdYearEndingSalesPSF: sgps.thirdYearEndingSalesPSF,
+      firstYearAnnualizedSales: sgps.firstYearEndingSales * 52,
+      firstYearAnnualizedSalesPSF: sgps.firstYearEndingSales * 52 / ts.salesArea,
+      firstYearAnnualizedSalesPSFTotalArea: sgps.firstYearEndingSales * 52 / ts.totalArea,
+      comment: this.reportMetaData.type
+    }
+  }
+
+  private getSovMapData() {
+
+    return this.sovStores.map(s => {
+      return {
+        mapKey: s.mapKey,
+        latitude: s.latitude,
+        longitude: s.longitude,
+        category: s.category,
+        currentSales: s['actualSales'],
+        firstYearEndingSales: s['futureSales'],
+        contributionToSite: s['contributionToSite'],
+        contributionToSitePerc: s['contributionToSitePerc'],
+        resultingVolume: s['closing'] ? 0 : s['resultingVolume']
+      };
+    });
+  }
+
+  private getNarrativeData() {
+    let txt = '';
+
+    Object.keys(this.reportMetaData).forEach(key => {
+      txt += `${key}:\r\n${this.reportMetaData[key]}\r\n\r\n`
+    });
+
+    txt += `Store Name:\r\n${this.targetStore.storeName}\r\n\r\n`;
+    txt += `Map Key:\r\n${this.targetStore.mapKey}\r\n\r\n`;
+
+    Object.keys(this.siteEvaluationNarrative).forEach(key => {
+      txt += `${key}:\r\n${this.siteEvaluationNarrative[key]}\r\n\r\n`
+    });
+    return txt;
   }
 
   getSovStoresOfCategory(category) {
@@ -175,13 +366,13 @@ export class JsonToTablesUtil {
 
   getSalesTransfersFromCompetition() {
     return this.getSovContributionToSiteSubtotal('Proposed Competition') +
-        this.getSovContributionToSiteSubtotal('Existing Competition');
+      this.getSovContributionToSiteSubtotal('Existing Competition');
   }
 
   getTotalSalesTransfers() {
     return this.getSovContributionToSiteSubtotal('Proposed Competition') +
-        this.getSovContributionToSiteSubtotal('Existing Competition') +
-        this.getSovContributionToSiteSubtotal('Company Store');
+      this.getSovContributionToSiteSubtotal('Existing Competition') +
+      this.getSovContributionToSiteSubtotal('Company Store');
   }
 
   isTargetStore(store) {
