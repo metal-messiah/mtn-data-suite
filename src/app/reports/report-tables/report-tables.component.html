@@ -416,11 +416,15 @@
     </div>
   </div>
   <hr>
-  <button color="primary" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back</button>
-  <button *ngIf="!this.rbs.compilingImages" color="warn" mat-raised-button (click)="export()" style="margin-top:20px;">
-    Export
-  </button>
-  <button *ngIf="this.rbs.compilingImages" color="warn" mat-raised-button disabled>
-    <i class="fas fa-spinner fa-pulse"></i>
-  </button>
+  <div>
+    <button color="primary" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back</button>
+    <button [disabled]="rbs.complingReport" color="warn" mat-raised-button (click)="startBuildingReport()"
+            style="margin-top:20px;">
+      Export
+    </button>
+    <span class="file-tip" *ngIf="rbs.complingReport">
+        <i class="fas fa-spinner fa-pulse" style="margin-right:5px;"></i>
+        <b>Compiling Report. This may take up to a minute...</b>
+    </span>
+  </div>
 </div>

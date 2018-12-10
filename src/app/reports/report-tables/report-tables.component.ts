@@ -6,7 +6,7 @@ import { ReportBuilderService } from '../services/report-builder.service';
 import { JsonToTablesUtil } from './json-to-tables.util';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { finalize } from 'rxjs/operators';
+import { delay } from 'rxjs/operators';
 import { ErrorService } from '../../core/services/error.service';
 
 @Component({
@@ -44,15 +44,31 @@ export class ReportTablesComponent implements OnInit {
     }
   }
 
-  export() {
-    this.rbs.compilingImages = true;
+  startBuildingReport() {
+    const REPORT_NAME = this.rbs.reportMetaData.modelName;
+    this.rbs.complingReport = true;
     this.data.mapUrl = this.util.getMapUrl(this.googleMapsBasemap, this.zoom);
-    this.rbs.getReportZip(this.data)
-      .pipe(finalize(() => this.rbs.compilingImages = false))
-      .subscribe(blob => {
-        saveAs(blob, `${this.rbs.reportMetaData.modelName}.zip`);
-        this.router.navigate(['reports/download']);
-      }, err => this.errorService.handleServerError('Failed to create zip file', err, null));
+    this.rbs.startReportBuilding(this.data, REPORT_NAME).subscribe(() => this.pollForZip(REPORT_NAME),
+      err => this.errorService.handleServerError('Failed to create zip file', err, () => console.log(err)));
+  }
+
+  pollForZip(REPORT_NAME: string) {
+    this.rbs.getReportZip(REPORT_NAME)
+      .pipe(delay(5000))
+      .subscribe(res => {
+          if (res.status === 202) {
+            console.log('Keep polling');
+            this.pollForZip(REPORT_NAME);
+          } else {
+            this.rbs.complingReport = false;
+            saveAs(res.body, `${REPORT_NAME}.zip`);
+            this.router.navigate(['reports/download']);
+          }
+        },
+        err => {
+          this.rbs.complingReport = false;
+          this.errorService.handleServerError('Failed to retrieve zip file', err, () => console.log(err))
+        });
   }
 
   getOverflowMessage() {

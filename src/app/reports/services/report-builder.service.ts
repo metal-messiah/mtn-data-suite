@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ReportData } from '../../models/report-data';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { RestService } from '../../core/services/rest.service';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class ReportBuilderService {
   siteEvaluationNarrative;
   siteEvaluationRatings;
 
-  compilingImages = false;
+  complingReport = false;
 
   constructor(protected http: HttpClient, protected rest: RestService) {
   }
@@ -30,9 +30,16 @@ export class ReportBuilderService {
     this.siteEvaluationRatings = siteEvalRatings;
   }
 
-  getReportZip(reportData: any) {
+  startReportBuilding(reportData: any, reportName: string) {
     const url = this.rest.getHost() + this.endpoint + `/zip`;
-    return this.http.post(url, reportData, {headers: this.rest.getHeaders(), responseType: 'blob'});
+    const params = new HttpParams().set('report-name', reportName);
+    return this.http.post(url, reportData, {headers: this.rest.getHeaders(), params: params});
+  }
+
+  getReportZip(reportName: string) {
+    const url = this.rest.getHost() + this.endpoint + `/zip`;
+    const params = new HttpParams().set('report-name', reportName);
+    return this.http.get(url, {headers: this.rest.getHeaders(), params: params, observe: 'response', responseType: 'blob'});
   }
 
 }
