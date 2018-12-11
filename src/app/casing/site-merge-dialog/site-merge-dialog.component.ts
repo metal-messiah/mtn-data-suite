@@ -15,9 +15,27 @@ export class SiteMergeDialogComponent implements OnInit {
 
   private selectedSite: Site;
 
-  site1;
-  site2;
+  site1: Site;
+  site2: Site;
   mergedSite;
+  siteAttrNames: string[] = [
+    'footprintSqft',
+    'positionInCenter',
+    'address1',
+    'city',
+    'state',
+    'postalCode',
+    'country',
+    'intersectionType',
+    'quad',
+    'intersectionStreetPrimary',
+    'intersectionStreetSecondary'
+    ];
+  scAttrNames: string[] = [
+    'name',
+    'owner',
+    'centerType'
+  ];
 
   constructor(public dialogRef: MatDialogRef<SiteMergeDialogComponent>,
               @Inject(MAT_DIALOG_DATA)

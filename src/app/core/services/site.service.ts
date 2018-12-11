@@ -8,7 +8,7 @@ import { Site } from '../../models/full/site';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { Coordinates } from '../../models/coordinates';
 import { Store } from '../../models/full/store';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
 
 @Injectable()
@@ -111,4 +111,7 @@ export class SiteService extends CrudService<Site> {
     return {lat: site.latitude, lng: site.longitude};
   }
 
+  mergeSite(site1, site2, mergedSite) {
+    return of(null);
+  }
 }

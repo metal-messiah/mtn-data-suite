@@ -4,12 +4,23 @@
   <!--Material Radio Buttons-->
 
   <div>
-    <div *ngFor="let ShoppingCenter of ShoppingCenters">
+    <div *ngFor="let siteAttrName of siteAttrNames"
+          [store]="siteAttrName">
       <mat-radio-group class="radio-group">
-        <mat-radio-button>{{mergedSite.shoppingCenter.name}}</mat-radio-button>
+        <mat-radio-button>{{site1}}</mat-radio-button>
       </mat-radio-group>
     </div>
   </div>
+
+  <div>
+    <div *ngFor="let scAttrName of scAttrNames"
+         [store]="scAttrName">
+      <mat-radio-group class="radio-group">
+        <mat-radio-button>{{site1}}</mat-radio-button>
+      </mat-radio-group>
+    </div>
+  </div>
+  
 
   <!--<div>-->
     <!--<div>-->
