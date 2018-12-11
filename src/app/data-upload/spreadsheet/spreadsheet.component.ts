@@ -105,7 +105,11 @@ export class SpreadsheetComponent implements OnInit {
 		this.spreadsheetService.fieldsAreAssigned$.subscribe((success: boolean) => {
 			// done mapping fields in the dialogs... now build the list
 			if (success) {
-				this.buildList('file');
+				if (this.spreadsheetService.matchType === 'location') {
+					this.buildList('file');
+				} else {
+					console.log('AUTO MATCH INITIATE!');
+				}
 			} else {
 				this.openLoadDialog();
 			}

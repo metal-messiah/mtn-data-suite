@@ -20,6 +20,8 @@ export class SpreadsheetService {
 	fileOutput: string;
 	fields: string[];
 
+	matchType: string;
+
 	assignments: {
 		lat: string;
 		lng: string;
@@ -54,6 +56,10 @@ export class SpreadsheetService {
 		this.fields = fields;
 	}
 
+	setMatchType(type) {
+		this.matchType = type;
+	}
+
 	assignLoadType(type: string) {
 		console.log('assign load type', type);
 		this.loadType = type;
@@ -68,7 +74,7 @@ export class SpreadsheetService {
 		attempts = attempts || 0;
 
 		const csvArray = csvAsText.split('\n').map((row) => row.split(','));
-		if (this.assignments.matchType === 'location') {
+		if (this.matchType === 'location') {
 			return of(
 				csvArray.map((row, i) => {
 					// skip the header row
@@ -135,8 +141,8 @@ export class SpreadsheetService {
 
 	assignmentsAreValid() {
 		return (
-			(this.assignments.matchType === 'location' && this.assignments.lat && this.assignments.lng) ||
-			(this.assignments.matchType === 'storeNumber' && this.assignments.banner && this.assignments.storeNumber)
+			(this.matchType === 'location' && this.assignments.lat && this.assignments.lng) ||
+			(this.matchType === 'storeNumber' && this.assignments.banner && this.assignments.storeNumber)
 		);
 	}
 

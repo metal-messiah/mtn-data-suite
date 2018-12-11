@@ -11,6 +11,7 @@ import { MatDialogModule } from '@angular/material';
 import { SpreadsheetDataFormComponent } from './spreadsheet/spreadsheet-data-form/spreadsheet-data-form.component';
 import { LoadComponent } from './spreadsheet/load/load.component';
 import { SpreadsheetService } from './spreadsheet/spreadsheet.service';
+import { AutomatchDialogComponent } from './spreadsheet/automatch-dialog/automatch-dialog.component';
 
 @NgModule({
 	imports: [ SharedModule, DataUploadRoutingModule, MatDialogModule ],
@@ -22,7 +23,8 @@ import { SpreadsheetService } from './spreadsheet/spreadsheet.service';
 		PgDataFormComponent,
 		SpreadsheetDataFormComponent,
 		AssignFieldsDialogComponent,
-		LoadComponent
+		LoadComponent,
+		AutomatchDialogComponent
 	],
 	entryComponents: [ AssignFieldsDialogComponent, LoadComponent ],
 	providers: [ AssignFieldsDialogComponent, LoadComponent, SpreadsheetService ]

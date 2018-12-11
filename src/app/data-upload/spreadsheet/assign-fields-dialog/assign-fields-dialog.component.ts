@@ -146,16 +146,19 @@ export class AssignFieldsDialogComponent implements OnInit {
 
 	assignFields() {
 		console.log('Assign Fields!');
-		const { matchType, company, storeNumber, lat, lng, name } = this.form.value;
-		if ((matchType === 'location' && lat && lng) || (matchType === 'storeNumber' && company && storeNumber)) {
-			this.sendingData = true;
-			const volumeRules = {
-				volumeDate: this.volumeDate,
-				volumeType: this.volumeType
-			};
-			this.spreadsheetService.assignFields(this.fields, this.form.value, volumeRules);
-			this.dialogRef.close();
-		}
+
+		this.sendingData = true;
+		const volumeRules = {
+			volumeDate: this.volumeDate,
+			volumeType: this.volumeType
+		};
+
+		const matchType = this.form.value.company ? 'storeNumber' : 'location';
+
+		this.spreadsheetService.setMatchType(matchType);
+
+		this.spreadsheetService.assignFields(this.fields, this.form.value, volumeRules);
+		this.dialogRef.close();
 	}
 
 	updateItemsAreValid() {
@@ -235,23 +238,19 @@ export class AssignFieldsDialogComponent implements OnInit {
 
 	formIsValid(step) {
 		const { controls, value } = this.form;
-		if (step === 2) {
-			if (value.matchType === 'location') {
-				return controls.name.valid && controls.lat.valid && controls.lng.valid;
-			}
-			if (value.matchType === 'storeNumber') {
-				return controls.company.valid && controls.storeNumber.valid;
-			}
+		if (step === 1) {
+			return controls.name.valid && ((value.lat && value.lng) || (value.company && value.storeNumber));
 		}
-		if (step === 3) {
+		if (step === 2) {
 			return this.updateItems.length > 0 && this.updateItemsAreValid() && this.insertItemsAreValid();
 		}
 	}
 
 	goForward() {
-		console.log(this.form);
-		if (this.stepper.selectedIndex === 2) {
-			this.assignFields();
+		if (this.stepper.selectedIndex === 1) {
+			if (this.formIsValid(2)) {
+				this.assignFields();
+			}
 		} else {
 			this.stepper.next();
 		}

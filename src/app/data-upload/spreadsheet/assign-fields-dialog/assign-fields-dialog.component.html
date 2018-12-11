@@ -6,7 +6,7 @@
   <ng-template matStepperIcon="done">
     <i class="fas fa-check"></i>
   </ng-template>
-  <mat-step editable="false">
+  <!-- <mat-step editable="false">
     <ng-template matStepLabel>Match Type</ng-template>
     <div class="dialog-wrapper">
       <form [formGroup]="form">
@@ -24,46 +24,52 @@
         <button (click)="goForward()" mat-flat-button color="warn">Proceed</button>
       </div>
     </div>
-  </mat-step>
+  </mat-step> -->
   <mat-step editable="false">
     <ng-template matStepLabel>Reference Fields</ng-template>
     <div class="dialog-wrapper">
       <form [formGroup]="form">
-        <mat-form-field *ngIf="form.value.matchType === 'location'">
-          <mat-select matInput formControlName="name" [required]="form.value.matchType === 'location'">
+        <mat-form-field>
+          <mat-select matInput formControlName="name" required>
+            <mat-option value=""></mat-option>
             <mat-option placeholder="Name Field" [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
           </mat-select>
           <mat-hint>Name Field</mat-hint>
         </mat-form-field><br>
-        <mat-form-field *ngIf="form.value.matchType === 'location'">
-          <mat-select matInput formControlName="lat" [required]="form.value.matchType === 'location'">
+        <mat-form-field>
+          <mat-select matInput formControlName="lat">
+            <mat-option value=""></mat-option>
             <mat-option placeholder="Lat Field" [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
           </mat-select>
           <mat-hint>Latitude Field</mat-hint>
         </mat-form-field><br>
-        <mat-form-field *ngIf="form.value.matchType === 'location'">
-          <mat-select matInput formControlName="lng" [required]="form.value.matchType === 'location'">
+        <mat-form-field>
+          <mat-select matInput formControlName="lng">
+            <mat-option value=""></mat-option>
             <mat-option [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
           </mat-select>
           <mat-hint>Longitude Field</mat-hint>
         </mat-form-field><br>
-        <mat-form-field *ngIf="form.value.matchType === 'storeNumber'">
-          <mat-select (selectionChange)="getBannersFromCompany($event.value.id)" matInput formControlName="company" [required]="form.value.matchType === 'storeNumber'">
+        <mat-form-field>
+          <mat-select (selectionChange)="getBannersFromCompany($event.value.id)" matInput formControlName="company">
+            <mat-option value=""></mat-option>
             <mat-option [value]="company" *ngFor="let company of companies">{{company.companyName}}</mat-option>
           </mat-select>
           <mat-hint>Company</mat-hint>
         </mat-form-field><br>
-        <mat-form-field *ngIf="form.value.matchType === 'storeNumber' && banners.length && banners.length === bannerFetches">
-             <mat-select matInput formControlName="banner" [required]="form.value.matchType === 'storeNumber'">
+        <mat-form-field *ngIf="banners.length && banners.length === bannerFetches">
+             <mat-select matInput formControlName="banner">
+              <mat-option value=""></mat-option>
             <mat-option [value]="banner" *ngFor="let banner of banners">{{banner.bannerName}}</mat-option>
           </mat-select>
           <mat-hint>Banner</mat-hint>
         </mat-form-field>
-        <mat-spinner *ngIf="form.value.matchType === 'storeNumber' && form.value.company && banners.length !== bannerFetches" mode="indeterminate"></mat-spinner>
-         <br>
         
-        <mat-form-field *ngIf="form.value.matchType === 'storeNumber'">
-          <mat-select matInput formControlName="storeNumber" [required]="form.value.matchType === 'storeNumber'">
+        <mat-progress-bar style="margin-top: 10px" *ngIf="form.value.company && banners.length !== bannerFetches" mode="indeterminate"></mat-progress-bar>
+         <br *ngIf="form.value.company && banners.length !== bannerFetches">
+        <mat-form-field>
+          <mat-select matInput formControlName="storeNumber">
+            <mat-option value=""></mat-option>
             <mat-option [value]="field" *ngFor="let field of fields">{{field}}</mat-option>
           </mat-select>
           <mat-hint>Store Number Field</mat-hint>
@@ -71,7 +77,7 @@
       </form>
       <div class="nav-buttons">
         <button color="primary" mat-flat-button (click)="goBackward()">Back</button>
-        <button color="warn" mat-flat-button (click)="goForward()">Proceed</button>
+        <button [disabled]="!formIsValid(1)" color="warn" mat-flat-button (click)="goForward()">Proceed</button>
       </div>
     </div>
   </mat-step>
@@ -83,6 +89,7 @@
         <mat-form-field>
           <mat-select [id]="item.id + '_fileField'" matInput (selectionChange)="updateSelectedFileField(item.id, $event.value, 'update')"
             [(value)]="item.selectedFileField">
+            <mat-option value=""></mat-option>
             <mat-option [value]="fileField" *ngFor="let fileField of item.fileFields">{{fileField}}</mat-option>
           </mat-select>
           <mat-hint>File Field</mat-hint>
@@ -91,6 +98,7 @@
         <mat-form-field>
           <mat-select [id]="item.id + '_storeField'" matInput (selectionChange)="updateSelectedStoreField(item.id, $event.value, 'update')"
             [(value)]="item.selectedStoreField">
+            <mat-option value=""></mat-option>
             <mat-option [value]="storeField" *ngFor="let storeField of item.storeFields">{{storeField}}</mat-option>
           </mat-select>
           <mat-hint>Store Field</mat-hint>
@@ -99,6 +107,7 @@
         <mat-form-field *ngIf="showVolumeFields(item)">
           <mat-select matInput (selectionChange)="updateVolumeType($event.value)"
             [(value)]="volumeType">
+            <mat-option value=""></mat-option>
             <mat-option [value]="type" *ngFor="let type of volumeTypes">{{type}}</mat-option>
           </mat-select>
           <mat-hint>Volume Type</mat-hint>
@@ -110,7 +119,7 @@
       </div>
       <div class="nav-buttons">
         <button color="primary" mat-flat-button (click)="goBackward()">Back</button>
-        <button [disabled]="!formIsValid(3)" color="warn" mat-flat-button (click)="goForward();">Proceed</button>
+        <button [disabled]="!formIsValid(2)" color="warn" mat-flat-button (click)="goForward();">Proceed</button>
       </div>
     </div>
   </mat-step>
