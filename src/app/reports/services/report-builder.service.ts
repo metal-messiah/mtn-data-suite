@@ -31,13 +31,13 @@ export class ReportBuilderService {
   }
 
   startReportBuilding(reportData: any, reportName: string) {
-    const url = this.rest.getHost() + this.endpoint + `/zip`;
+    const url = 'https://mtn-rest-service.herokuapp.com' + this.endpoint + `/zip`;
     const params = new HttpParams().set('report-name', reportName);
     return this.http.post(url, reportData, {headers: this.rest.getHeaders(), params: params});
   }
 
   getReportZip(reportName: string) {
-    const url = this.rest.getHost() + this.endpoint + `/zip`;
+    const url = 'https://mtn-rest-service.herokuapp.com' + this.endpoint + `/zip`;
     const params = new HttpParams().set('report-name', reportName);
     return this.http.get(url, {headers: this.rest.getHeaders(), params: params, observe: 'response', responseType: 'blob'});
   }
