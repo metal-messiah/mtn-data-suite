@@ -48,8 +48,12 @@ export class ReportTablesComponent implements OnInit {
     const REPORT_NAME = this.rbs.reportMetaData.modelName;
     this.rbs.complingReport = true;
     this.data.mapUrl = this.util.getMapUrl(this.googleMapsBasemap, this.zoom);
-    this.rbs.startReportBuilding(this.data, REPORT_NAME).subscribe(() => this.pollForZip(REPORT_NAME),
-      err => this.errorService.handleServerError('Failed to create zip file', err, () => console.log(err)));
+    this.rbs.startReportBuilding(this.data, REPORT_NAME)
+      .subscribe(() => this.pollForZip(REPORT_NAME),
+      err => {
+        this.rbs.complingReport = false;
+        this.errorService.handleServerError('Failed to create zip file', err, () => console.log(err));
+      });
   }
 
   pollForZip(REPORT_NAME: string) {

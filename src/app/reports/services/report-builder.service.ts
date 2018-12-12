@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ReportData } from '../../models/report-data';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { RestService } from '../../core/services/rest.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Injectable()
 export class ReportBuilderService {
@@ -15,7 +16,7 @@ export class ReportBuilderService {
 
   complingReport = false;
 
-  constructor(protected http: HttpClient, protected rest: RestService) {
+  constructor(protected http: HttpClient, protected rest: RestService, private authService: AuthService) {
   }
 
   setReportTableData(reportData: ReportData) {
@@ -31,15 +32,17 @@ export class ReportBuilderService {
   }
 
   startReportBuilding(reportData: any, reportName: string) {
-    const url = 'https://mtn-rest-service.herokuapp.com' + this.endpoint + `/zip`;
-    const params = new HttpParams().set('report-name', reportName);
-    return this.http.post(url, reportData, {headers: this.rest.getHeaders(), params: params});
+    const url = 'https://mtn-report-service.herokuapp.com' + this.endpoint + `/zip`;
+    let params = new HttpParams().set('report-name', reportName);
+    params = params.set('user-id', this.authService.sessionUser.id.toString());
+    return this.http.post(url, reportData, {params: params});
   }
 
   getReportZip(reportName: string) {
-    const url = 'https://mtn-rest-service.herokuapp.com' + this.endpoint + `/zip`;
-    const params = new HttpParams().set('report-name', reportName);
-    return this.http.get(url, {headers: this.rest.getHeaders(), params: params, observe: 'response', responseType: 'blob'});
+    const url = 'https://mtn-report-service.herokuapp.com' + this.endpoint + `/zip`;
+    let params = new HttpParams().set('report-name', reportName);
+    params = params.set('user-id', this.authService.sessionUser.id.toString());
+    return this.http.get(url, {params: params, observe: 'response', responseType: 'blob'});
   }
 
 }
