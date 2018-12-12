@@ -1,68 +1,41 @@
 import { Injectable } from '@angular/core';
-import Cookies from 'js-cookie';
-import { Observable, of } from 'rxjs';
 import { saveAs } from 'file-saver';
+
+import * as localforage from 'localforage';
 
 @Injectable()
 export class StorageService {
-	constructor() {}
+	storage: any;
 
-	/////////// Cookies /////////////////////////////////////////
-
-	setCookie(cookieName: string, data: any, days?: number, path?: string): Observable<any> {
-		const options: any = {};
-		if (days) {
-			options.expires = days;
-		}
-		if (path !== null && typeof path !== 'undefined') {
-			options.path = path;
-		}
-		console.log(`Setting Cookie For ${cookieName}`);
-		Cookies.set(cookieName, data, options);
-		return of(true);
+	constructor() {
+		this.storage = localforage;
+		// tries IndexedDB, if that fails tries WebSQL, if that fails fallsback to localStorage
+		this.storage.setDriver([ localforage.INDEXEDDB, localforage.WEBSQL, localforage.LOCALSTORAGE ]);
 	}
 
-	getCookieAsJson(cookieName: string): Observable<object> {
-		return of(Cookies.getJSON(cookieName));
+	set(key, value): Promise<any> {
+		return this.storage.setItem(key, value);
 	}
 
-	getCookie(cookieName: string): Observable<string> {
-		return of(Cookies.get(cookieName));
+	getOne(key): Promise<any> {
+		return this.storage.getItem(key);
 	}
 
-	getAllCookies(): Observable<object> {
-		return of(Cookies.get());
+	getAll(): Promise<any> {
+		return this.storage.iterate();
 	}
 
-	removeCookie(cookieName: string): Observable<any> {
-		Cookies.remove(cookieName);
-		return of(true);
+	removeOne(key): Promise<any> {
+		return this.storage.removeItem(key);
 	}
 
-	//////////////////////////////////////////////////////////////
-	/////////////// Local Storage ////////////////////////////////
-
-	getLocalStorage(key: string, isJson: boolean): Observable<any> {
-		return of(isJson ? JSON.parse(localStorage.getItem(key)) : localStorage.getItem(key));
+	removeAll(): Promise<any> {
+		return this.storage.clear();
 	}
 
-	setLocalStorage(key: string, data: any, isJson: boolean): Observable<any> {
-		if (isJson) {
-			localStorage.setItem(key, JSON.stringify(data));
-		} else {
-			localStorage.setItem(key, data);
-		}
-		return of(true);
-	}
-
-	removeLocalStorage(key: string): Observable<any> {
-		localStorage.removeItem(key);
-		return of(true);
-	}
-
-	exportLocalStorage(key: string, isJson: boolean, child?: string): Promise<any> {
+	export(key: string, isJson: boolean, child?: string): Promise<any> {
 		return new Promise((resolve, reject) => {
-			this.getLocalStorage(key, isJson).subscribe(
+			this.getOne(key).then(
 				(item) => {
 					try {
 						let obj = child ? item[child] : item;
@@ -81,13 +54,13 @@ export class StorageService {
 		});
 	}
 
-	importLocalStorage(key: string, data: any, isJson: boolean, child?: string): Promise<any> {
+	import(key: string, data: any, isJson: boolean, child?: string): Promise<any> {
 		return new Promise((resolve, reject) => {
 			try {
 				if (child && isJson) {
-					this.getLocalStorage(key, isJson).subscribe((item) => {
+					this.getOne(key).then((item) => {
 						item[child] = data;
-						this.setLocalStorage(key, item, isJson).subscribe(
+						this.set(key, item).then(
 							(success) => {
 								return resolve(success);
 							},
@@ -95,7 +68,7 @@ export class StorageService {
 						);
 					});
 				} else {
-					this.setLocalStorage(key, data, isJson).subscribe(
+					this.set(key, data).then(
 						(success) => {
 							return resolve(success);
 						},

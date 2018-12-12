@@ -46,14 +46,18 @@ export class LoadComponent implements OnInit {
 		const type = file.file.type;
 		if (type === 'application/json') {
 			const storageItem = JSON.parse(file.fileOutput);
+
 			this.storageService
-				.importLocalStorage(this.localStorageKey, storageItem, true, this.getNewProjectId())
+				.import(this.localStorageKey, storageItem, true, this.getNewProjectId())
 				.then((success) => {
 					// we imported it to local memory, now we need to update the list of stored projects with it
-					this.storageService.getLocalStorage(this.localStorageKey, true).subscribe((item) => {
+					this.storageService.getOne(this.localStorageKey).then((item) => {
 						this.storedProjects = item ? item : {};
 						this.showProjects();
 					});
+				})
+				.catch((err) => {
+					this.snackBar.open('Could not load any stored projects! :(', null, { duration: 5000 });
 				});
 		} else {
 			const fields = this.spreadsheetService.getFields(file.fileOutput);
@@ -74,7 +78,9 @@ export class LoadComponent implements OnInit {
 		);
 		if (answer) {
 			delete this.storedProjects[id];
-			this.storageService.setLocalStorage(this.localStorageKey, this.storedProjects, true);
+			this.storageService.set(this.localStorageKey, this.storedProjects).then((r) => {
+				this.snackBar.open('Deleted Stored Item', null, { duration: 2000 });
+			});
 		}
 	}
 
@@ -86,7 +92,7 @@ export class LoadComponent implements OnInit {
 	}
 
 	shareStoredProject(id) {
-		this.storageService.exportLocalStorage(this.localStorageKey, true, id);
+		this.storageService.export(this.localStorageKey, true, id);
 	}
 
 	loadStoredProject(id) {

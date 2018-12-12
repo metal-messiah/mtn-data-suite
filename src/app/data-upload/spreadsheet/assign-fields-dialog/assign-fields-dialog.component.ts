@@ -11,6 +11,8 @@ import { Banner } from 'app/models/full/banner';
 import { Company } from 'app/models/full/company';
 import { StoreService } from 'app/core/services/store.service';
 import { Store } from '../../../models/full/store';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 
 @Component({
 	selector: 'mds-assign-fields-dialog',
@@ -34,7 +36,8 @@ export class AssignFieldsDialogComponent implements OnInit {
 	updateItems: FieldMappingItem[];
 	insertItems: FieldMappingItem[];
 
-	companies: SimplifiedCompany[];
+	companies: SimplifiedCompany[] = [];
+	filteredCompanies: SimplifiedCompany[] = [];
 	banners: SimplifiedBanner[];
 
 	bannerFetches = 0;
@@ -95,35 +98,55 @@ export class AssignFieldsDialogComponent implements OnInit {
 			this.companyService.getAllByQuery().subscribe(
 				(resp) => {
 					this.companies = resp.content.sort((a, b) => a.companyName.localeCompare(b.companyName));
+					this.filteredCompanies = this.companies;
 				},
 				() => this.getCompanies(attempts + 1)
 			);
 		}
 	}
 
-	getBannersFromCompany(companyId, attempts?: number) {
-		console.log('get banners');
-		attempts = attempts || 0;
-		this.banners = [];
-		this.bannerFetches = 0;
-		if (attempts < 3) {
-			this.companyService.getOneById(companyId).subscribe(
-				(company: Company) => {
-					const { banners } = company;
-					attempts = 0;
+	filterCompanies(value) {
+		value = value || '';
+		this.filteredCompanies = this.companies.length
+			? this.companies.filter((comp) => {
+					return comp.companyName.toLowerCase().includes(value.toLowerCase());
+				})
+			: [];
+	}
 
-					this.bannerFetches = banners.length;
-					banners.forEach((banner) => {
-						this.bannerService.getOneById(banner.id).subscribe(
-							(b: Banner) => {
-								this.banners.push(b);
-							},
-							() => this.getBannersFromCompany(companyId, attempts + 1) // just a failsafe
-						);
-					});
-				},
-				() => this.getBannersFromCompany(companyId, attempts + 1) // just a failsafe
-			);
+	getBannersFromCompany(attempts?: number) {
+		const companyName = this.form.value.company;
+		const matches = this.companies.filter((comp) => comp.companyName === companyName);
+		let companyId;
+
+		if (matches.length) {
+			companyId = matches[0].id;
+		}
+
+		if (companyId) {
+			console.log('get banners', companyId);
+			attempts = attempts || 0;
+			this.banners = [];
+			this.bannerFetches = 0;
+			if (attempts < 3) {
+				this.companyService.getOneById(companyId).subscribe(
+					(company: Company) => {
+						const { banners } = company;
+						attempts = 0;
+
+						this.bannerFetches = banners.length;
+						banners.forEach((banner) => {
+							this.bannerService.getOneById(banner.id).subscribe(
+								(b: Banner) => {
+									this.banners.push(b);
+								},
+								() => this.getBannersFromCompany(attempts + 1) // just a failsafe
+							);
+						});
+					},
+					() => this.getBannersFromCompany(attempts + 1) // just a failsafe
+				);
+			}
 		}
 	}
 
@@ -135,7 +158,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 					this.form.value.banner = b;
 					console.log(this.form.value);
 				},
-				() => this.getBannersFromCompany(bannerId, attempts + 1) // failsafe
+				() => this.getBannersFromCompany(attempts + 1) // failsafe
 			);
 		}
 	}
@@ -236,19 +259,20 @@ export class AssignFieldsDialogComponent implements OnInit {
 		}
 	}
 
-	formIsValid(step) {
+	formIsValid() {
+		const step = this.stepper.selectedIndex;
 		const { controls, value } = this.form;
-		if (step === 1) {
+		if (step === 0) {
 			return controls.name.valid && ((value.lat && value.lng) || (value.company && value.storeNumber));
 		}
-		if (step === 2) {
+		if (step === 1) {
 			return this.updateItems.length > 0 && this.updateItemsAreValid() && this.insertItemsAreValid();
 		}
 	}
 
 	goForward() {
 		if (this.stepper.selectedIndex === 1) {
-			if (this.formIsValid(2)) {
+			if (this.formIsValid()) {
 				this.assignFields();
 			}
 		} else {

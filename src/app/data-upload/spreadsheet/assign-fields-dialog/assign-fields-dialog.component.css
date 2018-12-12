@@ -31,12 +31,8 @@ form {
 	margin: 10px 0;
 }
 
-.nav-buttons {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
-	margin: 15px 0 0 0;
+button {
+	margin: 0 15px 0;
 }
 
 .radio-button {

@@ -29,6 +29,7 @@ import { StorageService } from '../../core/services/storage.service';
 import { LoadComponent } from './load/load.component';
 import { AssignFieldsDialogComponent } from './assign-fields-dialog/assign-fields-dialog.component';
 import { StoredProject } from './storedProject';
+import { AutomatchDialogComponent } from './automatch-dialog/automatch-dialog.component';
 
 @Component({
 	selector: 'mds-spreadsheet',
@@ -108,7 +109,11 @@ export class SpreadsheetComponent implements OnInit {
 				if (this.spreadsheetService.matchType === 'location') {
 					this.buildList('file');
 				} else {
-					console.log('AUTO MATCH INITIATE!');
+					const dialogRef = this.dialog.open(AutomatchDialogComponent, {
+						data: {
+							// storedProjects: this.storedProjects
+						}
+					});
 				}
 			} else {
 				this.openLoadDialog();
@@ -142,7 +147,7 @@ export class SpreadsheetComponent implements OnInit {
 
 			this.spreadsheetService.parseSpreadsheet(fileOutput, fields).subscribe((records: SpreadsheetRecord[]) => {
 				this.allRecords = records.filter((r) => r);
-				this.updateList(false);
+				this.updateList(true);
 
 				this.createNewProject();
 			});
@@ -526,14 +531,15 @@ export class SpreadsheetComponent implements OnInit {
 
 	getAllStoredProjects() {
 		return new Promise((resolve, reject) => {
-			this.storageService.getLocalStorage(this.storageKey, true).subscribe(
-				(data) => {
-					this.storedProjects = data ? data : {};
+			this.storageService
+				.getOne(this.storageKey)
+				.then((r) => {
+					console.log(r);
+					this.storedProjects = r ? r : {};
 					console.log('stored projects', this.storedProjects);
 					return resolve();
-				},
-				(err) => reject(err)
-			);
+				})
+				.catch((err) => reject(err));
 		});
 	}
 
@@ -586,8 +592,15 @@ export class SpreadsheetComponent implements OnInit {
 
 	saveStoredProjects() {
 		console.log('save projects to memory');
-		this.storageService.setLocalStorage(this.storageKey, this.storedProjects, true).subscribe(() => {
-			this.snackBar.open('Saved Progress', null, { duration: 1000 });
-		});
+		console.log(this.storedProjects);
+
+		this.storageService
+			.set(this.storageKey, this.storedProjects)
+			.then((r) => {
+				this.snackBar.open('Saved Progress', null, { duration: 1000 });
+			})
+			.catch((err) => {
+				this.snackBar.open('Failed to Save Progress!!', null, { duration: 5000 });
+			});
 	}
 }

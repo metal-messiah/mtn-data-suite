@@ -38,6 +38,8 @@ export class SpreadsheetService {
 
 	loadType: string = null;
 
+	prevalidatedIds: number[] = [];
+
 	public fieldsAreAssigned$: Subject<boolean> = new Subject();
 	public loadTypeAssigned$: Subject<boolean> = new Subject();
 
@@ -60,6 +62,9 @@ export class SpreadsheetService {
 		this.matchType = type;
 	}
 
+	setPrevalidatedIds(ids: number[]) {
+		this.prevalidatedIds = ids;
+	}
 	assignLoadType(type: string) {
 		console.log('assign load type', type);
 		this.loadType = type;
@@ -74,51 +79,29 @@ export class SpreadsheetService {
 		attempts = attempts || 0;
 
 		const csvArray = csvAsText.split('\n').map((row) => row.split(','));
-		if (this.matchType === 'location') {
-			return of(
-				csvArray.map((row, i) => {
-					// skip the header row
-					if (i) {
-						const attributes = {};
-						this.fields.forEach((field, idx) => {
-							attributes[field] = row[idx];
-						});
-						return new SpreadsheetRecord(
-							i,
-							Number(row[this.findFieldIndex(this.assignments.lat)]),
-							Number(row[this.findFieldIndex(this.assignments.lng)]),
-							row[this.findFieldIndex(this.assignments.name)],
-							attributes,
-							this.assignments
-						);
-					}
-				})
-			);
-		} else {
-			// storeNumbers!
-			return of(
-				csvArray.map((row, i) => {
-					// skip the header row
-					if (i) {
-						const { lat, lng, store } = this.getStoreFromBanner(
-							row[this.findFieldIndex(this.assignments.storeNumber)]
-						);
-						const attributes = {};
-						this.fields.forEach((field, idx) => {
-							attributes[field] = row[idx];
-						});
-						return new SpreadsheetRecord(
-							i,
-							lat,
-							lng,
-							row[this.findFieldIndex(this.assignments.name)],
-							store,
-							this.assignments
-						);
-					}
-				})
-			);
-		}
+
+		return of(
+			csvArray.map((row, i) => {
+				// skip the header row
+				if (i) {
+					const attributes = {};
+					this.fields.forEach((field, idx) => {
+						attributes[field] = row[idx];
+					});
+
+					const isValidated = this.prevalidatedIds.includes(i);
+					return new SpreadsheetRecord(
+						i,
+						Number(row[this.findFieldIndex(this.assignments.lat)]),
+						Number(row[this.findFieldIndex(this.assignments.lng)]),
+						row[this.findFieldIndex(this.assignments.name)],
+						attributes,
+						this.assignments,
+						isValidated
+					);
+				}
+			})
+		);
 	}
 
 	getStoreFromBanner(storeNumber) {
@@ -180,14 +163,18 @@ export class SpreadsheetService {
 
 		console.log(this.volumeRules);
 
+		this.sendFieldAssignmentStatus();
+	}
+
+	findFieldIndex(fieldName) {
+		return this.fields.findIndex((field) => field === fieldName);
+	}
+
+	sendFieldAssignmentStatus() {
 		if (this.assignmentsAreValid()) {
 			this.fieldsAreAssigned$.next(true);
 		} else {
 			this.fieldsAreAssigned$.next(false);
 		}
-	}
-
-	findFieldIndex(fieldName) {
-		return this.fields.findIndex((field) => field === fieldName);
 	}
 }

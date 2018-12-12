@@ -26,7 +26,7 @@ import { AutomatchDialogComponent } from './spreadsheet/automatch-dialog/automat
 		LoadComponent,
 		AutomatchDialogComponent
 	],
-	entryComponents: [ AssignFieldsDialogComponent, LoadComponent ],
-	providers: [ AssignFieldsDialogComponent, LoadComponent, SpreadsheetService ]
+	entryComponents: [ AssignFieldsDialogComponent, LoadComponent, AutomatchDialogComponent ],
+	providers: [ SpreadsheetService ]
 })
 export class DataUploadModule {}

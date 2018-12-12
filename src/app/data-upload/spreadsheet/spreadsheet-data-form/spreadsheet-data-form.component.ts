@@ -22,11 +22,15 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	@Input() dbRecord: Store;
 	@Input() currentRecord: SpreadsheetRecord;
 	@Input() logic: any;
+	@Input() forceSubmit: boolean;
 
+	@Output() savingEvent = new EventEmitter<boolean>();
 	@Output() cancelEvent = new EventEmitter<void>();
 	@Output() completedEvent = new EventEmitter<void>();
 
 	saving = false;
+
+	forcedSubmit = false;
 
 	storeFields = [
 		'storeName',
@@ -86,28 +90,35 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	) {}
 
 	ngOnInit() {
-		console.log('FORM INIT');
+		// console.log('FORM INIT');
 	}
 
 	ngOnChanges() {
-		console.log('form changes');
-		console.log('(form)', this.logic);
+		// console.log('form changes');
+		// console.log('(form)', this.logic);
 		if (!this.form) {
 			this.createForm();
 		}
 
 		if (this.logic) {
 			if (this.logicHistory !== JSON.stringify(this.logic)) {
-				console.log('new logic detected');
+				// console.log('new logic detected');
 				this.logicHistory = JSON.stringify(this.logic);
 				this.updateFields = this.logic.updates.map((rule) => rule.storeField);
 				this.setFormFromLogic();
 			}
 		}
+
+		if (this.forceSubmit) {
+			if (!this.forcedSubmit) {
+				this.forcedSubmit = true;
+				this.submit();
+			}
+		}
 	}
 
 	private createForm() {
-		console.log('create form');
+		// console.log('create form');
 
 		this.form = this.fb.group({
 			shoppingCenterId: null,
@@ -187,7 +198,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	private setFormFromLogic() {
-		console.log('set form from logic');
+		// console.log('set form from logic');
 		this.updateFields.forEach((storeField) => {
 			const formVal = this.form.get(storeField).value;
 			if (!formVal) {
@@ -224,7 +235,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	private prepareSubmission() {
-		console.log('prepare submission');
+		// console.log('prepare submission');
 		return new Promise((resolve, reject) => {
 			let async = false;
 			this.storeFields.forEach((field) => {
@@ -246,11 +257,11 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 								break;
 							case 'storeVolumes':
 								if (this.updateFields.includes('storeVolumes')) {
-									console.log('STORE VOLUME!');
+									// console.log('STORE VOLUME!');
 									async = true;
 
 									const volumeValue = this.form.get('volume').value;
-									console.log('volumeValue: ', volumeValue);
+									// console.log('volumeValue: ', volumeValue);
 									const volumeDate = new Date(this.logic.volumeRules.volumeDate);
 									const storeVolume = new StoreVolume({
 										volumeTotal: volumeValue,
@@ -286,9 +297,13 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 
 	submit() {
 		this.saving = true;
+
+		this.savingEvent.emit(true);
+
 		this.prepareSubmission().then((store: Store) => {
 			this.storeService.update(store).pipe(finalize(() => (this.saving = false))).subscribe(
 				(result) => {
+					console.log('saved store ', store.id);
 					this.snackBar
 						.open(`Successfully updated record`, 'View', { duration: 4000 })
 						.onAction()
@@ -297,6 +312,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 						});
 
 					this.completedEvent.emit();
+					this.savingEvent.emit(false);
 					this.resetForm();
 				},
 				(err) =>
@@ -320,7 +336,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 		const dialogRef = this.dialog.open(QuadDialogComponent);
 
 		dialogRef.afterClosed().subscribe((quad) => {
-			// console.log(quad);
+			// // console.log(quad);
 			if (typeof quad === 'string' && quad !== '') {
 				const ctrl = this.form.get('quad');
 				ctrl.setValue(quad);
