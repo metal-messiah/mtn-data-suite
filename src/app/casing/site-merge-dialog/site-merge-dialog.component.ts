@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, Input, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SiteService } from '../../core/services/site.service';
 import { Site } from '../../models/full/site';
@@ -75,7 +75,7 @@ export class SiteMergeDialogComponent implements OnInit {
         centerType: this.getShoppingCenterValue('centerType')
       }
     };
-    // TODO If both are null/same = hide from view, default to non-null values
+
     if (this.mergedSite.shoppingCenter.name === null) {
       this.mergedSite.shoppingCenter.name = this.site2.shoppingCenter.name;
     }
@@ -87,6 +87,7 @@ export class SiteMergeDialogComponent implements OnInit {
     }
   }
 
+  // Auto selects any Site attribute that isn't null in the radio buttons
   getSiteValue(attr: string) {
     if (this.site1[attr] === this.site2[attr]) {
       return null;
@@ -99,6 +100,7 @@ export class SiteMergeDialogComponent implements OnInit {
     }
   }
 
+  // Auto selects any Shopping Center attribute that isn't null in the radio buttons
   getShoppingCenterValue(attr: string) {
     if (this.site1.shoppingCenter[attr] === this.site2.shoppingCenter[attr]) {
       return null;

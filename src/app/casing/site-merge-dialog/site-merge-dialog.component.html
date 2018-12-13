@@ -2,141 +2,44 @@
 <div mat-dialog-content *ngIf="mergedSite">
 
   <!--Material Radio Buttons-->
-
-  <div>
-    <div *ngFor="let siteAttrName of siteAttrNames"
-          [store]="siteAttrName">
-      <mat-radio-group class="radio-group">
-        <mat-radio-button>{{site1}}</mat-radio-button>
-      </mat-radio-group>
-    </div>
+  <div *ngFor="let scAttrName of scAttrNames">
+    <mat-radio-group *ngIf="mergedSite.shoppingCenter[scAttrName] !=null"
+                     class="radio-group" [(ngModel)]="mergedSite.shoppingCenter[scAttrName]">
+      <div *ngIf="site1.shoppingCenter[scAttrName] != null">
+        <mat-radio-button ngclass="radio-button" [value]="site1.shoppingCenter[scAttrName]">
+          {{site1.shoppingCenter[scAttrName]}}
+        </mat-radio-button>
+      </div>
+      <div *ngIf="site2.shoppingCenter[scAttrName] != null">
+        <mat-radio-button class="radio-button" [value]="site2.shoppingCenter[scAttrName]">
+          {{site2.shoppingCenter[scAttrName]}}
+        </mat-radio-button>
+      </div>
+      <mat-divider *ngIf="!last"></mat-divider>
+    </mat-radio-group>
   </div>
 
-  <div>
-    <div *ngFor="let scAttrName of scAttrNames"
-         [store]="scAttrName">
-      <mat-radio-group class="radio-group">
-        <mat-radio-button>{{site1}}</mat-radio-button>
-      </mat-radio-group>
-    </div>
+  <div *ngFor="let siteAttrName of siteAttrNames">
+    <mat-radio-group *ngIf="mergedSite[siteAttrName] != null"
+                     class="radio-group" [(ngModel)]="mergedSite[siteAttrName]">
+      <div *ngIf="site1[siteAttrName] != null">
+        <mat-radio-button class="radio-button" [value]="site1[siteAttrName]">
+          {{site1[siteAttrName]}}
+        </mat-radio-button>
+      </div>
+      <div *ngIf="site2[siteAttrName] != null">
+        <mat-radio-button class="radio-button" [value]="site2[siteAttrName]">
+          {{site2[siteAttrName]}}
+        </mat-radio-button>
+      </div>
+      <mat-divider *ngIf="!last"></mat-divider>
+    </mat-radio-group>
   </div>
-  
-
-  <!--<div>-->
-    <!--<div>-->
-      <!--<mat-radio-group class="radio-group" [(ngModel)]="mergedSite.shoppingCenter.name">-->
-        <!--<mat-radio-button class="radio-button" [value]="site1.shoppingCenter.name">{{site1.shoppingCenter.name}}-->
-        <!--</mat-radio-button>-->
-        <!--<mat-radio-button class="radio-button" [value]="site2.shoppingCenter.name">{{site2.shoppingCenter.name}}-->
-        <!--</mat-radio-button>-->
-      <!--</mat-radio-group>-->
-    <!--</div>-->
-
-    <!--<mat-divider></mat-divider>-->
-
-    <!--<div>-->
-      <!--<mat-radio-group class="radio-group" [(ngModel)]="mergedSite.shoppingCenter.owner">-->
-        <!--<mat-radio-button class="radio-button" [value]="site1.shoppingCenter.owner">{{site1.shoppingCenter.owner}}-->
-        <!--</mat-radio-button>-->
-        <!--<mat-radio-button class="radio-button" [value]="site2.shoppingCenter.owner">{{site2.shoppingCenter.owner}}-->
-        <!--</mat-radio-button>-->
-      <!--</mat-radio-group>-->
-    <!--</div>-->
-
-    <!--<mat-divider></mat-divider>-->
-
-    <!--<div>-->
-    <!--<mat-radio-group class="radio-group">-->
-    <!--<mat-radio-button class="radio-button" value="1">sc.type</mat-radio-button>-->
-    <!--<mat-radio-button class="radio-button" value="2">sc.type</mat-radio-button>-->
-    <!--</mat-radio-group>-->
-    <!--</div>-->
-
-    <!--<mat-divider></mat-divider>-->
-
-    <!--<div>-->
-    <!--<mat-radio-group class="radio-group">-->
-    <!--<mat-radio-button class="radio-button" value="1">site.address</mat-radio-button>-->
-    <!--<mat-radio-button class="radio-button" value="2">site.address</mat-radio-button>-->
-    <!--</mat-radio-group>-->
-    <!--</div>-->
-
-    <!--<mat-divider></mat-divider>-->
-
-    <!--<div>-->
-    <!--<mat-radio-group class="radio-group">-->
-    <!--<mat-radio-button class="radio-button" value="1">site.city</mat-radio-button>-->
-    <!--<mat-radio-button class="radio-button" value="2">site.city</mat-radio-button>-->
-    <!--</mat-radio-group>-->
-    <!--</div>-->
-
-    <!--<mat-divider></mat-divider>-->
-
-    <!--<div>-->
-    <!--<mat-radio-group class="radio-group">-->
-    <!--<mat-radio-button class="radio-button" value="1">site.county</mat-radio-button>-->
-    <!--<mat-radio-button class="radio-button" value="2">site.county</mat-radio-button>-->
-    <!--</mat-radio-group>-->
-    <!--</div>-->
-
-    <!--<mat-divider></mat-divider>-->
-
-    <!--<div>-->
-    <!--<mat-radio-group class="radio-group">-->
-    <!--<mat-radio-button class="radio-button" value="1">site.state</mat-radio-button>-->
-    <!--<mat-radio-button class="radio-button" value="2">site.state</mat-radio-button>-->
-    <!--</mat-radio-group>-->
-    <!--</div>-->
-
-    <!--<mat-divider></mat-divider>-->
-
-    <!--<div>-->
-    <!--<mat-radio-group class="radio-group">-->
-    <!--<mat-radio-button class="radio-button" value="1">site.postalCode</mat-radio-button>-->
-    <!--<mat-radio-button class="radio-button" value="2">site.postalCode</mat-radio-button>-->
-    <!--</mat-radio-group>-->
-    <!--</div>-->
-
-    <!--<mat-divider></mat-divider>-->
-
-    <!--<div>-->
-    <!--<mat-radio-group class="radio-group">-->
-    <!--<mat-radio-button class="radio-button" value="1">site.quad</mat-radio-button>-->
-    <!--<mat-radio-button class="radio-button" value="2">site.quad</mat-radio-button>-->
-    <!--</mat-radio-group>-->
-    <!--</div>-->
-
-    <!--<mat-divider></mat-divider>-->
-
-    <!--<div>-->
-    <!--<mat-radio-group class="radio-group">-->
-    <!--<mat-radio-button class="radio-button" value="1">site.intersectionType</mat-radio-button>-->
-    <!--<mat-radio-button class="radio-button" value="2">site.intersectionType</mat-radio-button>-->
-    <!--</mat-radio-group>-->
-    <!--</div>-->
-
-    <!--<mat-divider></mat-divider>-->
-
-    <!--<div>-->
-    <!--<mat-radio-group class="radio-group">-->
-    <!--<mat-radio-button class="radio-button" value="1">site.intersectionStreetPrimary</mat-radio-button>-->
-    <!--<mat-radio-button class="radio-button" value="2">site.intersectionStreetPrimary</mat-radio-button>-->
-    <!--</mat-radio-group>-->
-    <!--</div>-->
-
-    <!--<mat-divider></mat-divider>-->
-
-    <!--<div>-->
-    <!--<mat-radio-group class="radio-group">-->
-    <!--<mat-radio-button class="radio-button" value="1">site.intersectionStreetSecondary</mat-radio-button>-->
-    <!--<mat-radio-button class="radio-button" value="2">site.intersectionStreetSecondary</mat-radio-button>-->
-    <!--</mat-radio-group>-->
-    <!--</div>-->
-  <!--</div>-->
 </div>
+
 
 <!--Material Footer-->
 <div mat-dialog-actions class="flex-space-between">
   <button mat-raised-button [mat-dialog-close]="null">Close</button>
-  <button mat-raised-button color="accent" (click)="mergeSites()">Merge</button>
+  <button mat-raised-button color="accent" (click)="mergeSite(site1, site2, mergedSite)">Merge</button>
 </div>
