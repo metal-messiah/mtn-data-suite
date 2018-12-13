@@ -1,7 +1,10 @@
-import { Component, Inject, Input, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SiteService } from '../../core/services/site.service';
 import { Site } from '../../models/full/site';
+import { finalize } from 'rxjs/operators';
+import { MatSnackBar } from '@angular/material';
+import { ErrorService } from '../../core/services/error.service';
 
 @Component({
   selector: 'mds-site-merge-dialog',
@@ -12,9 +15,6 @@ export class SiteMergeDialogComponent implements OnInit {
 
   siteId: number;
   duplicateSiteId: number;
-
-  private selectedSite: Site;
-
   site1: Site;
   site2: Site;
   mergedSite;
@@ -36,11 +36,14 @@ export class SiteMergeDialogComponent implements OnInit {
     'owner',
     'centerType'
   ];
+  merging = false;
 
   constructor(public dialogRef: MatDialogRef<SiteMergeDialogComponent>,
               @Inject(MAT_DIALOG_DATA)
               public data: any,
-              private siteService: SiteService
+              private siteService: SiteService,
+              private snackBar: MatSnackBar,
+              private errorService: ErrorService
   ) {
     this.siteId = data.selectedSiteId;
     this.duplicateSiteId = data.duplicateSiteId;
@@ -76,21 +79,12 @@ export class SiteMergeDialogComponent implements OnInit {
       }
     };
 
-    if (this.mergedSite.shoppingCenter.name === null) {
-      this.mergedSite.shoppingCenter.name = this.site2.shoppingCenter.name;
-    }
-    if (this.mergedSite.shoppingCenter.owner === null) {
-      this.mergedSite.shoppingCenter.owner = this.site2.shoppingCenter.owner;
-    }
-    if (this.mergedSite.shoppingCenter.centerType === null) {
-      this.mergedSite.shoppingCenter.centerType = this.site2.shoppingCenter.centerType;
-    }
   }
 
   // Auto selects any Site attribute that isn't null in the radio buttons
   getSiteValue(attr: string) {
     if (this.site1[attr] === this.site2[attr]) {
-      return null;
+      return this.site1[attr];
     } else {
       if (this.site1[attr] != null) {
         return this.site1[attr];
@@ -103,7 +97,7 @@ export class SiteMergeDialogComponent implements OnInit {
   // Auto selects any Shopping Center attribute that isn't null in the radio buttons
   getShoppingCenterValue(attr: string) {
     if (this.site1.shoppingCenter[attr] === this.site2.shoppingCenter[attr]) {
-      return null;
+      return this.site1.shoppingCenter[attr];
     } else {
       if (this.site1.shoppingCenter[attr] != null) {
         return this.site1.shoppingCenter[attr];
@@ -113,8 +107,15 @@ export class SiteMergeDialogComponent implements OnInit {
     }
   }
 
-  mergeSites() {
-    return this.selectedSite;
+  mergeSites(): void {
+    this.merging = true;
+    this.siteService.mergeSite(this.site1, this.site2, this.mergedSite)
+      .pipe(finalize(() => this.merging = false))
+      .subscribe(() => {
+        const message = `Successfully merged`;
+        this.snackBar.open(message, null, {duration: 2000});
+      }, err => this.errorService.handleServerError('Failed to merge!', err,
+        () => console.log(err)));
   }
 
 }

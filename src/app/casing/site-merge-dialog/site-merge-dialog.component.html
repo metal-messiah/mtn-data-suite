@@ -3,14 +3,15 @@
 
   <!--Material Radio Buttons-->
   <div *ngFor="let scAttrName of scAttrNames">
-    <mat-radio-group *ngIf="mergedSite.shoppingCenter[scAttrName] !=null"
-                     class="radio-group" [(ngModel)]="mergedSite.shoppingCenter[scAttrName]">
-      <div *ngIf="site1.shoppingCenter[scAttrName] != null">
+    <mat-radio-group
+      *ngIf="site1.shoppingCenter[scAttrName] != null && site2.shoppingCenter[scAttrName] != null && site1.shoppingCenter[scAttrName] != site2.shoppingCenter[scAttrName]"
+      class="radio-group" [(ngModel)]="mergedSite.shoppingCenter[scAttrName]">
+      <div>
         <mat-radio-button ngclass="radio-button" [value]="site1.shoppingCenter[scAttrName]">
           {{site1.shoppingCenter[scAttrName]}}
         </mat-radio-button>
       </div>
-      <div *ngIf="site2.shoppingCenter[scAttrName] != null">
+      <div>
         <mat-radio-button class="radio-button" [value]="site2.shoppingCenter[scAttrName]">
           {{site2.shoppingCenter[scAttrName]}}
         </mat-radio-button>
@@ -20,14 +21,15 @@
   </div>
 
   <div *ngFor="let siteAttrName of siteAttrNames">
-    <mat-radio-group *ngIf="mergedSite[siteAttrName] != null"
-                     class="radio-group" [(ngModel)]="mergedSite[siteAttrName]">
-      <div *ngIf="site1[siteAttrName] != null">
+    <mat-radio-group
+      *ngIf="site1[siteAttrName] != null && site2[siteAttrName] != null && site1[siteAttrName] != site2[siteAttrName]"
+      class="radio-group" [(ngModel)]="mergedSite[siteAttrName]">
+      <div>
         <mat-radio-button class="radio-button" [value]="site1[siteAttrName]">
           {{site1[siteAttrName]}}
         </mat-radio-button>
       </div>
-      <div *ngIf="site2[siteAttrName] != null">
+      <div>
         <mat-radio-button class="radio-button" [value]="site2[siteAttrName]">
           {{site2[siteAttrName]}}
         </mat-radio-button>
@@ -41,5 +43,7 @@
 <!--Material Footer-->
 <div mat-dialog-actions class="flex-space-between">
   <button mat-raised-button [mat-dialog-close]="null">Close</button>
-  <button mat-raised-button color="accent" (click)="mergeSite(site1, site2, mergedSite)">Merge</button>
+  <button *ngIf="!merging" mat-raised-button color="accent" (click)="mergeSites()">Merge</button>
+  <button *ngIf="merging" mat-raised-button color="accent" disabled>Merge
+    <i class="fas fa-spinner fa-pulse"></i></button>
 </div>
