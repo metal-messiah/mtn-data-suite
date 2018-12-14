@@ -13,6 +13,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 import { StoreService } from '../../core/services/store.service';
 import { finalize } from 'rxjs/internal/operators';
 import { AuthService } from '../../core/services/auth.service';
+import { StoreMergeDialogComponent } from '../store-merge-dialog/store-merge-dialog.component';
 
 @Component({
   selector: 'mds-site-overview',
@@ -28,6 +29,8 @@ export class SiteOverviewComponent implements OnInit {
   warningHasMultipleActiveStores = false;
   saving = false;
   loading = false;
+  selectedStoreId: number;
+  duplicateStoreId: number;
 
   constructor(private _location: Location,
               private router: Router,
@@ -188,4 +191,12 @@ export class SiteOverviewComponent implements OnInit {
         () => console.log('Cancelled'), () => this.saveNewStore(newStore)));
   }
 
+  openStoreMergeDialog(): void {
+    const storeMergeDialog = this.dialog.open(StoreMergeDialogComponent, {
+      data: {duplicateStoreId: this.duplicateStoreId, selectedStoreId: this.selectedStoreId}
+    });
+    storeMergeDialog.afterClosed().subscribe( result => {
+      console.log(result);
+    })
+  }
 }

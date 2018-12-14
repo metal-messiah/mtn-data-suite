@@ -18,6 +18,7 @@ export class SiteMergeDialogComponent implements OnInit {
   site1: Site;
   site2: Site;
   mergedSite;
+  merging = false;
   siteAttrNames: string[] = [
     'footprintSqft',
     'positionInCenter',
@@ -30,13 +31,12 @@ export class SiteMergeDialogComponent implements OnInit {
     'quad',
     'intersectionStreetPrimary',
     'intersectionStreetSecondary'
-    ];
+  ];
   scAttrNames: string[] = [
     'name',
     'owner',
     'centerType'
   ];
-  merging = false;
 
   constructor(public dialogRef: MatDialogRef<SiteMergeDialogComponent>,
               @Inject(MAT_DIALOG_DATA)
@@ -52,10 +52,10 @@ export class SiteMergeDialogComponent implements OnInit {
   ngOnInit() {
     this.siteService.getOneById(this.siteId).subscribe((site1: Site) => {
       this.site1 = site1;
-        this.siteService.getOneById(this.duplicateSiteId).subscribe((site2: Site) => {
-          this.site2 = site2;
-          this.initializedMergedSite()
-        });
+      this.siteService.getOneById(this.duplicateSiteId).subscribe((site2: Site) => {
+        this.site2 = site2;
+        this.initializedMergedSite()
+      });
     });
   }
 
@@ -117,5 +117,4 @@ export class SiteMergeDialogComponent implements OnInit {
       }, err => this.errorService.handleServerError('Failed to merge!', err,
         () => console.log(err)));
   }
-
 }
