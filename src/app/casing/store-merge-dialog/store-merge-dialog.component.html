@@ -1,3 +1,52 @@
-<p>
-  store-merge-dialog works!
-</p>
+<h3 mat-dialog-title class="Title">Store List</h3>
+<div mat-dialog-content>
+
+  <!--Stepper - First Step-->
+  <mat-horizontal-stepper [linear]="false" #stepper>
+    <mat-step>
+      <ng-template matStepLabel="All Stores"></ng-template>
+      <!--List with check mark boxes-->
+      <mat-selection-list #stores>
+        <mat-list-option *ngFor="let store of site.stores">
+          {{store.storeName}} {{store.storeNumber}}
+        </mat-list-option>
+      </mat-selection-list>
+
+      <!--Button-->
+      <div mat-dialog-actions class="flex-space-between">
+        <button mat-button matStepperNext>Next</button>
+      </div>
+    </mat-step>
+
+    <!--&lt;!&ndash;Stepper - Second Step&ndash;&gt;-->
+    <!--<mat-step [stepControl]="secondGroup">-->
+      <!--<ng-template matStepLabel="MergeList">Merge List</ng-template>-->
+
+      <!--<div *ngFor="let store of selectedStores">-->
+        <!--&lt;!&ndash;Material Radio Buttons&ndash;&gt;-->
+        <!--<div *ngFor="let storeAttrName of storeAttrNames">-->
+          <!--<mat-radio-group-->
+            <!--*ngIf="store1[storeAttrName] != null && store2[storeAttrName] != null && store1[storeAttrName] != store2[storeAttrName]"-->
+            <!--class="radio-group" [(ngModel)]="mergedStore[storeAttrName]">-->
+            <!--<div>-->
+              <!--<mat-radio-button *ngFor="let storeAttrName of storeAttrNames" ngclass="radio-button"-->
+                                <!--[value]="selectedStores[storeAttrName]">-->
+                <!--{{[storeAttrName]}}-->
+              <!--</mat-radio-button>-->
+            <!--</div>-->
+            <!--<mat-divider *ngIf="!last"></mat-divider>-->
+          <!--</mat-radio-group>-->
+        <!--</div>-->
+      <!--</div>-->
+
+      <!--&lt;!&ndash;Buttons&ndash;&gt;-->
+      <!--<div mat-dialog-actions class="flex-space-between">-->
+        <!--<button mat-button matStepperPrevious>Previous</button>-->
+        <!--<button *ngIf="!merging" mat-raised-button color="accent" (click)="mergeStores()">Merge</button>-->
+        <!--<button *ngIf="merging" mat-raised-button color="accent" disabled>Merge-->
+          <!--<i class="fas fa-spinner fa-pulse"></i></button>-->
+      <!--</div>-->
+    <!--</mat-step>-->
+
+  </mat-horizontal-stepper>
+</div>

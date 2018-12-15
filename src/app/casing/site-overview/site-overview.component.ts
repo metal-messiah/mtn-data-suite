@@ -29,8 +29,6 @@ export class SiteOverviewComponent implements OnInit {
   warningHasMultipleActiveStores = false;
   saving = false;
   loading = false;
-  selectedStoreId: number;
-  duplicateStoreId: number;
 
   constructor(private _location: Location,
               private router: Router,
@@ -192,11 +190,8 @@ export class SiteOverviewComponent implements OnInit {
   }
 
   openStoreMergeDialog(): void {
-    const storeMergeDialog = this.dialog.open(StoreMergeDialogComponent, {
-      data: {duplicateStoreId: this.duplicateStoreId, selectedStoreId: this.selectedStoreId}
+    this.dialog.open(StoreMergeDialogComponent, {
+      data: {site: this.site}
     });
-    storeMergeDialog.afterClosed().subscribe( result => {
-      console.log(result);
-    })
   }
 }
