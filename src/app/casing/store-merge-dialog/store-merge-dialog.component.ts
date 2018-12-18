@@ -7,13 +7,14 @@ import { Site } from '../../models/full/site';
   templateUrl: './store-merge-dialog.component.html',
   styleUrls: ['./store-merge-dialog.component.css']
 })
+
 export class StoreMergeDialogComponent {
 
   site: Site;
 
   constructor(public dialogRef: MatDialogRef<StoreMergeDialogComponent>,
               @Inject(MAT_DIALOG_DATA)
-              public data: any,
+              public data: any
   ) {
     this.site = data.site;
 

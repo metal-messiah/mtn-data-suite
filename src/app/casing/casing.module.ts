@@ -31,11 +31,13 @@ import { NewStoreVolumeComponent } from './new-store-volume/new-store-volume.com
 import { DownloadDialogComponent } from './download-dialog/download-dialog.component';
 import { SiteMergeDialogComponent } from './site-merge-dialog/site-merge-dialog.component';
 import { StoreMergeDialogComponent } from './store-merge-dialog/store-merge-dialog.component';
+import { MatStepperModule } from '@angular/material';
 
 @NgModule({
   imports: [
     SharedModule,
-    CasingRoutingModule
+    CasingRoutingModule,
+    MatStepperModule
   ],
   declarations: [
     AccessListDialogComponent,
