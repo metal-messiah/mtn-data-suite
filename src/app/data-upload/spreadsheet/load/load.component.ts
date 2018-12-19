@@ -1,5 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatSnackBar } from '@angular/material';
+
+// services
 import { SpreadsheetService } from '../spreadsheet.service';
 import { StorageService } from 'app/core/services/storage.service';
 
@@ -42,8 +44,10 @@ export class LoadComponent implements OnInit {
 	}
 
 	handleFile(file): void {
+		// triggers on read event of fileInput component
 		const type = file.file.type;
 		if (type === 'application/json') {
+			// allows user to drop in json obj to share saved states between computers
 			const storageItem = JSON.parse(file.fileOutput);
 
 			this.storageService
@@ -59,6 +63,7 @@ export class LoadComponent implements OnInit {
 					this.snackBar.open('Could not load any stored projects! :(', null, { duration: 5000 });
 				});
 		} else {
+			// read as spreadsheet
 			const fields = this.spreadsheetService.getFields(file.fileOutput);
 			if (this.fields) {
 				this.spreadsheetService.setFile(file.file, file.fileOutput, fields);
@@ -84,23 +89,26 @@ export class LoadComponent implements OnInit {
 	}
 
 	getNewProjectId(): number {
-		// looks at all the storedProject keys and creates a new one, ex --> if max is 12, new will be 13
+		// looks at all the storedProject keys and creates a new one, ex --> if max key is 12, new will be 13
 		return Object.keys(this.storedProjects).length
 			? Math.max.apply(null, Object.keys(this.storedProjects).map((key) => Number(key))) + 1
 			: 0;
 	}
 
 	shareStoredProject(id): void {
+		// exports a storageItem as a json file
 		this.storageService.export(this.localStorageKey, true, id);
 	}
 
 	loadStoredProject(id): void {
+		// populates app from a storageItem
 		this.spreadsheetService.setStoredProjectId(id);
 		this.spreadsheetService.assignLoadType('savedProject');
 		this.close();
 	}
 
 	getStoredProjectsAsArray(): object[] {
+		// gets list of storageItems for HTML list
 		return Object.keys(this.storedProjects)
 			.map((id) => {
 				const data = this.storedProjects[id];
@@ -114,6 +122,7 @@ export class LoadComponent implements OnInit {
 	}
 
 	getProjectStatus(id): string {
+		// storageItem metadata for HTML
 		const allRecords = this.storedProjects[id].records.length.toLocaleString();
 		const finished = this.storedProjects[id].records.filter((r) => r.validated).length.toLocaleString();
 		return `${finished} / ${allRecords} Finished`;
