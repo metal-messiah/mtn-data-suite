@@ -266,7 +266,11 @@ export class AssignFieldsDialogComponent implements OnInit {
 	}
 
 	goBackward(): void {
-		this.stepper.reset();
+		if (this.stepper.selectedIndex === 0) {
+			window.location.reload();
+		} else {
+			this.stepper.reset();
+		}
 	}
 
 	assignFields(): void {

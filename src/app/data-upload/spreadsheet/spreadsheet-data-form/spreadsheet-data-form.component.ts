@@ -191,10 +191,40 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 		// used to populate the appropriate form inputs
 		const output = this.logic.updates.filter((rule) => rule.storeField === storeField);
 		if (output.length) {
-			if (typeof output[0].storeValue === 'string') {
-				return output[0].fileValue;
+			const { fileValue, storeValue } = output[0];
+			if (storeValue) {
+				if (typeof storeValue === 'string') {
+					// string type
+					return fileValue;
+				} else if (typeof storeValue === 'object') {
+					// obj
+					try {
+						return JSON.parse(fileValue);
+					} catch (err) {
+						return fileValue;
+					}
+				} else if (typeof storeValue === 'boolean') {
+					// boolean
+					return Boolean(fileValue);
+				} else {
+					// number
+					return Number(fileValue);
+				}
 			} else {
-				return Number(output[0].fileValue);
+				// storeValue is null!  Use the file value!
+
+				// check if number
+				if (!isNaN(Number(fileValue))) {
+					return Number(fileValue);
+				}
+				// check if json string
+				try {
+					JSON.parse(fileValue);
+				} catch (err) {
+					// do nothing
+				}
+				// must be a string (or boolean string)
+				return fileValue;
 			}
 		} else {
 			return null;
@@ -223,15 +253,45 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 		return null;
 	}
 
+	stringToBoolean(string: string): boolean {
+		string = string.toLowerCase().trim();
+		if (string === 'f' || string === '0' || string === 'false') {
+			return false;
+		}
+		return Boolean(string);
+	}
+
 	private setFormFromLogic() {
 		// iterate the mapped update fields and get the matched file values for inputs
 		this.updateFields.forEach((storeField) => {
 			const formVal = this.form.get(storeField).value;
 			if (!formVal) {
-				this.form.get(storeField).setValue(this.getValueFromLogicStoreField(storeField));
+				const input = this.form.get(storeField);
+				switch (storeField) {
+					case 'storeVolumes':
+						input.setValue(this.getValueFromLogicStoreField(storeField));
+						break;
+					case 'dateOpened':
+						const date = new Date(this.getValueFromLogicStoreField(storeField));
+						input.setValue(date);
+						break;
+					case 'areaIsEstimate':
+					case 'floating':
+					case 'naturalFoodsAreIntegrated':
+					case 'storeIsOpen24':
+						try {
+							const fileValue = this.getValueFromLogicStoreField(storeField) || '';
+							const boolean = this.stringToBoolean(fileValue);
+							input.setValue(boolean);
+						} catch (err) {
+							console.log(err);
+						} finally {
+							break;
+						}
 
-				if (storeField === 'storeVolumes') {
-					this.form.get('volume').setValue(this.getValueFromLogicStoreField(storeField));
+					default:
+						this.form.get(storeField).setValue(this.getValueFromLogicStoreField(storeField));
+						break;
 				}
 			}
 		});
