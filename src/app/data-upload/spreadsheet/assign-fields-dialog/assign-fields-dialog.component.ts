@@ -1,16 +1,18 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatStepper } from '@angular/material';
-import { SpreadsheetService } from '../spreadsheet.service';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { FieldMappingItem } from './field-mapping-item';
-import { CompanyService } from 'app/core/services/company.service';
+
 import { SimplifiedCompany } from 'app/models/simplified/simplified-company';
-import { BannerService } from 'app/core/services/banner.service';
 import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
 import { Banner } from 'app/models/full/banner';
 import { Company } from 'app/models/full/company';
-import { StoreService } from 'app/core/services/store.service';
+import { FieldMappingItem } from './field-mapping-item';
 import { Store } from '../../../models/full/store';
+
+import { SpreadsheetService } from '../spreadsheet.service';
+import { CompanyService } from 'app/core/services/company.service';
+import { BannerService } from 'app/core/services/banner.service';
+import { StoreService } from 'app/core/services/store.service';
 
 @Component({
 	selector: 'mds-assign-fields-dialog',
@@ -90,6 +92,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 	}
 
 	getCompanies(attempts?: number): void {
+		// list of companies for input
 		attempts = attempts || 0;
 		if (attempts < 3) {
 			this.companyService.getAllByQuery().subscribe(
@@ -103,6 +106,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 	}
 
 	filterCompanies(value): void {
+		// filtering for auto populate input
 		value = value || '';
 		this.filteredCompanies = this.companies.length
 			? this.companies.filter((comp) => {
@@ -112,6 +116,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 	}
 
 	getBannersFromCompany(attempts?: number): void {
+		// list of banners based on company selection
 		const companyName = this.form.value.company;
 		const matches = this.companies.filter((comp) => comp.companyName === companyName);
 		let companyId;
@@ -147,6 +152,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 	}
 
 	getBanner(bannerId, attempts?: number): void {
+		// get full banner obj for the mapping later on
 		attempts = attempts || 0;
 		if (attempts < 3) {
 			this.bannerService.getOneById(bannerId).subscribe(
@@ -160,25 +166,12 @@ export class AssignFieldsDialogComponent implements OnInit {
 	}
 
 	showVolumeFields(item): boolean {
+		// some inputs show when storeVolumes is selected
 		return item.selectedStoreField === 'storeVolumes';
 	}
 
-	assignFields(): void {
-		this.sendingData = true;
-		const volumeRules = {
-			volumeDate: this.volumeDate,
-			volumeType: this.volumeType
-		};
-
-		const matchType = this.form.value.company ? 'storeNumber' : 'location';
-
-		this.spreadsheetService.setMatchType(matchType);
-
-		this.spreadsheetService.assignFields(this.fields, this.form.value, volumeRules);
-		this.dialogRef.close();
-	}
-
 	updateItemsAreValid(): boolean {
+		// update item has full mapping
 		let isValid = true;
 		this.updateItems.forEach((i) => {
 			if (!i.selectedFileField || !i.selectedStoreField) {
@@ -205,6 +198,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 	}
 
 	mapUpdateItemsToForm() {
+		// place update items in form
 		this.form.value.updateFields = this.updateItems.map((i) => {
 			return { file: i.selectedFileField, store: i.selectedStoreField };
 		});
@@ -242,9 +236,6 @@ export class AssignFieldsDialogComponent implements OnInit {
 
 	addFieldMappingItem(type: string): void {
 		// 'update' or 'insert'
-		this.storeService.getOneById(1).subscribe((store: Store) => {
-			console.log(store);
-		});
 		if (type === 'update') {
 			this.updateItems.push(new FieldMappingItem(this.fields));
 		} else {
@@ -276,5 +267,21 @@ export class AssignFieldsDialogComponent implements OnInit {
 
 	goBackward(): void {
 		this.stepper.reset();
+	}
+
+	assignFields(): void {
+		// the end of the flow
+		this.sendingData = true;
+		const volumeRules = {
+			volumeDate: this.volumeDate,
+			volumeType: this.volumeType
+		};
+
+		const matchType = this.form.value.company ? 'storeNumber' : 'location';
+
+		this.spreadsheetService.setMatchType(matchType);
+
+		this.spreadsheetService.assignFields(this.fields, this.form.value, volumeRules);
+		this.dialogRef.close();
 	}
 }

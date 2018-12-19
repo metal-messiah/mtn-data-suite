@@ -1,5 +1,3 @@
-import { Store } from '../../../models/full/store';
-
 export class FieldMappingItem {
 	id: number;
 	storeFields: string[];
