@@ -1,11 +1,15 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatSnackBar } from '@angular/material';
-import { SpreadsheetService } from '../spreadsheet.service';
+
+// models
 import { SpreadsheetRecord } from 'app/models/spreadsheet-record';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
-import { StoreService } from 'app/core/services/store.service';
 import { AutomatchItem } from './automatchItem';
 import { Store } from 'app/models/full/store';
+
+// services
+import { SpreadsheetService } from '../spreadsheet.service';
+import { StoreService } from 'app/core/services/store.service';
 
 @Component({
 	selector: 'mds-automatch-dialog',
@@ -67,20 +71,15 @@ export class AutomatchDialogComponent implements OnInit {
 		});
 	}
 
-	close(): void {
-		this.dialogRef.close();
-	}
-
-	getMatched(): number {
-		return this.records.filter((r) => r.validated).length;
-	}
-
 	getAutomatchPromise(currentRecord: SpreadsheetRecord): Promise<any> {
 		const bannerStores: SimplifiedStore[] = currentRecord.assignments.banner['stores'].filter((s) => s.storeNumber);
 		let matchingStore: SimplifiedStore;
+		// storeNumber field in spreadsheet
 		const storeNumberField = currentRecord.assignments.storeNumber;
+		// storeNumber value in row
 		const storeNumberValue = currentRecord.getAttribute(storeNumberField);
 		const matches = bannerStores.filter((s) => {
+			// looking for the DB record whose storeNumber === the row storeNumber
 			try {
 				return s.storeNumber ? s.storeNumber.trim() === storeNumberValue.trim() : false;
 			} catch (e) {
@@ -89,12 +88,23 @@ export class AutomatchDialogComponent implements OnInit {
 		});
 
 		if (matches.length) {
+			// should only be 1
 			matchingStore = matches[0];
 		}
 
 		if (matchingStore) {
+			// get full store
 			return this.storeService.getOneById(matchingStore.id).toPromise();
 		}
+	}
+
+	close(): void {
+		this.dialogRef.close();
+	}
+
+	getMatched(): number {
+		// validated records have been updated
+		return this.records.filter((r) => r.validated).length;
 	}
 
 	buildLogic(currentRecord: SpreadsheetRecord, dbRecord: Store) {
@@ -148,6 +158,7 @@ export class AutomatchDialogComponent implements OnInit {
 	}
 
 	determineAction(): string {
+		// when autoMatch is done, display a message to guide user based on results
 		if (this.getMatched() === this.records.length) {
 			return 'All Records Have Been Matched';
 		}
@@ -155,7 +166,7 @@ export class AutomatchDialogComponent implements OnInit {
 		const { lat, lng } = this.spreadsheetService.assignments;
 
 		if (lat && lng) {
-			return 'Some Records Could Not Be Matched.  Click \'Proceed\' To Match By Location';
+			return `Some Records Could Not Be Matched.  Click 'Proceed' To Match By Location`;
 		}
 		return 'Some Records Could Not Be Matched. File Must Have Location Data (lat/lng) To Match By Location.';
 	}
