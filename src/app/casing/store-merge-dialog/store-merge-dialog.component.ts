@@ -15,26 +15,43 @@ export class StoreMergeDialogComponent {
   site: Site;
   merging = false;
   page1;
-  page2;
   showing = true;
-  storeId: number;
-  duplicates: Store[];
+  selectedStores: number;
+  duplicateStores: Store[];
+  storeAttrNames: string[] = [
+    'storeName',
+    'storeNumber',
+    'storeType',
+    'dateOpened',
+    'dateClosed',
+    'format',
+    'areaSales',
+    'areaSalesPercentOfTotal',
+    'areaTotal',
+    'areaIsEstimate',
+    'storeIsOpen24',
+    'naturalFoodsAreIntegrated',
+    'floating',
+    'banner',
+    'currentStoreStatus',
+    'currentStoreSurvey',
+    'storeCasings',
+    'models',
+    'storeVolumes',
+    'storeStatuses'
+  ];
 
   constructor(public dialogRef: MatDialogRef<StoreMergeDialogComponent>,
               @Inject(MAT_DIALOG_DATA)
               public data: any
   ) {
     this.site = data.site;
-    this.storeId = data.selectedStoreId;
-
+    this.selectedStores = data.selectedStores;
+    this.duplicateStores = data.duplicateStores;
   }
 
   ngOnInit() {
     this.page1 = true;
-  }
-
-  goToPage2() {
-    this.page2 = true;
   }
 
   toggleShow() {
