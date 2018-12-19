@@ -1,37 +1,35 @@
 import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
-import { MapService } from '../../core/services/map.service';
-import { StoreMappable } from '../../models/store-mappable';
-import { StoreService } from '../../core/services/store.service';
-import { SiteService } from '../../core/services/site.service';
-import { ErrorService } from '../../core/services/error.service';
-import { Coordinates } from '../../models/coordinates';
-import { AuthService } from '../../core/services/auth.service';
-import { SimplifiedStore } from '../../models/simplified/simplified-store';
-import { SimplifiedSite } from '../../models/simplified/simplified-site';
-
-import { WordSimilarity } from '../../utils/word-similarity';
-
 import { MatSnackBar, MatDialog, MatStepper } from '@angular/material';
-
-import { EntityMapLayer } from '../../models/entity-map-layer';
-
 import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
+import * as _ from 'lodash';
+
+import { StoreMappable } from '../../models/store-mappable';
+import { Coordinates } from '../../models/coordinates';
+import { SimplifiedSite } from '../../models/simplified/simplified-site';
+import { EntityMapLayer } from '../../models/entity-map-layer';
 import { MapDataLayer } from '../../models/map-data-layer';
 import { SpreadsheetLayer } from '../../models/spreadsheet-layer';
 import { SpreadsheetRecord } from '../../models/spreadsheet-record';
-import { SpreadsheetService } from './spreadsheet.service';
-
-import * as _ from 'lodash';
 import { StoreMapLayer } from '../../models/store-map-layer';
-import { EntitySelectionService } from '../../core/services/entity-selection.service';
 import { Store } from 'app/models/full/store';
-import { StorageService } from '../../core/services/storage.service';
-import { LoadComponent } from './load/load.component';
-import { AssignFieldsDialogComponent } from './assign-fields-dialog/assign-fields-dialog.component';
 import { StoredProject } from './storedProject';
-import { AutomatchDialogComponent } from './automatch-dialog/automatch-dialog.component';
 import { Site } from 'app/models/full/site';
 import { SpreadsheetMappable } from 'app/models/spreadsheet-mappable';
+
+import { MapService } from '../../core/services/map.service';
+import { StoreService } from '../../core/services/store.service';
+import { SiteService } from '../../core/services/site.service';
+import { ErrorService } from '../../core/services/error.service';
+import { AuthService } from '../../core/services/auth.service';
+import { SpreadsheetService } from './spreadsheet.service';
+import { EntitySelectionService } from '../../core/services/entity-selection.service';
+import { StorageService } from '../../core/services/storage.service';
+
+import { WordSimilarity } from '../../utils/word-similarity';
+
+import { LoadComponent } from './load/load.component';
+import { AssignFieldsDialogComponent } from './assign-fields-dialog/assign-fields-dialog.component';
+import { AutomatchDialogComponent } from './automatch-dialog/automatch-dialog.component';
 
 @Component({
 	selector: 'mds-spreadsheet',
@@ -149,7 +147,6 @@ export class SpreadsheetComponent implements OnInit {
 			const { fileOutput, fields } = this.spreadsheetService;
 
 			this.volumeRules = this.spreadsheetService.volumeRules;
-			console.log(this.volumeRules);
 
 			this.spreadsheetService.parseSpreadsheet(fileOutput, fields).subscribe((records: SpreadsheetRecord[]) => {
 				this.allRecords = records.filter((r) => r);
@@ -183,6 +180,7 @@ export class SpreadsheetComponent implements OnInit {
 	}
 
 	updateList(setToNext): Promise<any> {
+		// update the left bar list
 		return new Promise((resolve, reject) => {
 			try {
 				this.records = this.allRecords.filter((r) => r);
@@ -200,6 +198,7 @@ export class SpreadsheetComponent implements OnInit {
 	}
 
 	updateFieldsSummary() {
+		// shows under current record on right
 		return this.currentRecord
 			.getUpdateFields()
 			.map((rule: { file: string; store: string }) => {
@@ -219,6 +218,7 @@ export class SpreadsheetComponent implements OnInit {
 	}
 
 	openLoadDialog(): void {
+		// load file or storedItem
 		this.dialog.open(LoadComponent, {
 			data: {
 				storedProjects: this.storedProjects
@@ -227,6 +227,7 @@ export class SpreadsheetComponent implements OnInit {
 	}
 
 	openFieldDialog(): void {
+		// map file fields to db fields
 		this.dialog.open(AssignFieldsDialogComponent, {
 			data: {
 				fields: this.spreadsheetService.fields,
@@ -236,6 +237,7 @@ export class SpreadsheetComponent implements OnInit {
 	}
 
 	siteHover(store, type): void {
+		// site hover event
 		if (type === 'enter' && this.records.length) {
 			this.storeMapLayer.selectEntity(store);
 		} else {
@@ -272,7 +274,6 @@ export class SpreadsheetComponent implements OnInit {
 			this.updatedGeom = { lng: coords.lng, lat: coords.lat };
 		});
 
-		// console.log(`Map is ready`);
 		this.storeMapLayer = new StoreMapLayer(
 			this.mapService,
 			this.authService,
@@ -297,8 +298,8 @@ export class SpreadsheetComponent implements OnInit {
 		if (this.mapService.getZoom() > 10) {
 			this.mapDataLayer.clearDataPoints();
 			this.gettingEntities = true;
-			this.getStoresInBounds(bounds).pipe(finalize(() => (this.gettingEntities = false))).subscribe(() =>
-				// console.log('Retrieved Entities'),
+			this.getStoresInBounds(bounds).pipe(finalize(() => (this.gettingEntities = false))).subscribe(
+				() => {},
 				(err) => {
 					this.ngZone.run(() => {
 						this.errorService.handleServerError(`Failed to retrieve entities!`, err, () =>
@@ -325,7 +326,6 @@ export class SpreadsheetComponent implements OnInit {
 
 	private getPointsInBounds(bounds): void {
 		this.siteService.getSitePointsInBounds(bounds).subscribe((sitePoints: Coordinates[]) => {
-			// // console.log(sitePoints)
 			if (sitePoints.length <= 1000) {
 				this.mapDataLayer.setDataPoints(sitePoints);
 				this.ngZone.run(() => {
@@ -394,14 +394,6 @@ export class SpreadsheetComponent implements OnInit {
 		);
 	}
 
-	cancelStep2(): void {
-		this.logic = null;
-		this.openForm = false;
-		this.stepper.reset();
-		this.stepper.previous();
-		this.setSpreadsheetFeature(false);
-	}
-
 	findAttributeInStore(attr): any {
 		if (this.dbRecord[attr]) {
 			return this.dbRecord[attr];
@@ -421,6 +413,67 @@ export class SpreadsheetComponent implements OnInit {
 			return this.dbRecord.site[attr];
 		}
 		return null;
+	}
+
+	////////////// INTERACTING FROM SITES TO FORM STEP 2 ////////////////////
+
+	cancelStep2(): void {
+		this.logic = null;
+		this.openForm = false;
+		this.stepper.reset();
+		this.stepper.previous();
+		this.setSpreadsheetFeature(false);
+	}
+
+	addSite(): void {
+		// adding new site and store
+		const { lat, lng } = this.currentRecord.assignments;
+		if (lat && lng) {
+			this.setSpreadsheetFeature(true);
+
+			const emptySite: Site = new Site({
+				latitude: Number(this.currentRecord.getAttribute(lat)),
+				longitude: Number(this.currentRecord.getAttribute(lng)),
+				type: 'DEFAULT'
+			});
+
+			const emptyStore = new Store({ site: emptySite, storeVolumes: [], storeType: 'ACTIVE' });
+
+			this.advance(emptyStore);
+		} else {
+			console.log('no lat lng found for current record');
+		}
+	}
+
+	matchSite(siteId: number): void {
+		// adding store to existing site
+		this.isFetching = true;
+		this.siteService.getOneById(siteId).pipe(finalize(() => (this.isFetching = false))).subscribe((site) => {
+			const emptyStore = new Store({ site, storeVolumes: [], storeType: 'ACTIVE' });
+
+			this.advance(emptyStore);
+		});
+	}
+
+	matchStore(storeId: number): void {
+		// updating existing site/store
+		this.isFetching = true;
+		this.storeService.getOneById(storeId).pipe(finalize(() => (this.isFetching = false))).subscribe((store) => {
+			this.advance(store);
+		});
+	}
+
+	nextRecord(): void {
+		this.setSpreadsheetFeature(false);
+		this.currentRecord.setValidated(true);
+		this.stepper.reset();
+		this.updateList(true).then(() => {
+			this.getCurrentProject().then((currentProject: any) => {
+				currentProject.records = this.allRecords;
+				currentProject.lastEdited = new Date();
+				this.updateCurrentProject(currentProject);
+			});
+		});
 	}
 
 	private advance(store: Store): void {
@@ -455,60 +508,12 @@ export class SpreadsheetComponent implements OnInit {
 		this.stepper.next();
 	}
 
-	addSite(): void {
-		const { lat, lng } = this.currentRecord.assignments;
-		if (lat && lng) {
-			this.setSpreadsheetFeature(true);
-
-			const emptySite: Site = new Site({
-				latitude: Number(this.currentRecord.getAttribute(lat)),
-				longitude: Number(this.currentRecord.getAttribute(lng)),
-				type: 'DEFAULT'
-			});
-
-			const emptyStore = new Store({ site: emptySite, storeVolumes: [], storeType: 'ACTIVE' });
-
-			this.advance(emptyStore);
-		} else {
-			console.log('no lat lng found for current record');
-		}
-	}
-
-	matchSite(siteId: number): void {
-		this.isFetching = true;
-		this.siteService.getOneById(siteId).pipe(finalize(() => (this.isFetching = false))).subscribe((site) => {
-			const emptyStore = new Store({ site, storeVolumes: [], storeType: 'ACTIVE' });
-
-			this.advance(emptyStore);
-		});
-	}
-
-	matchStore(storeId: number): void {
-		this.isFetching = true;
-		this.storeService.getOneById(storeId).pipe(finalize(() => (this.isFetching = false))).subscribe((store) => {
-			this.advance(store);
-		});
-	}
-
-	addStore() {}
-
-	nextRecord(): void {
-		this.setSpreadsheetFeature(false);
-		this.currentRecord.setValidated(true);
-		this.stepper.reset();
-		this.updateList(true).then(() => {
-			this.getCurrentProject().then((currentProject: any) => {
-				currentProject.records = this.allRecords;
-				currentProject.lastEdited = new Date();
-				this.updateCurrentProject(currentProject);
-			});
-		});
-	}
-
 	setSpreadsheetFeature(draggable: boolean): void {
 		console.log('set draggable', draggable);
 		this.spreadsheetLayer.setRecord(this.currentRecord, draggable);
 	}
+
+	////////////////// Stored Items //////////////////
 
 	getAllStoredProjects(): Promise<any> {
 		return new Promise((resolve, reject) => {

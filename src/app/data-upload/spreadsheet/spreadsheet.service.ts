@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, Subject, BehaviorSubject } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
+
 import { SpreadsheetRecord } from '../../models/spreadsheet-record';
 import { FieldMappingItem } from './assign-fields-dialog/field-mapping-item';
 import { SimplifiedCompany } from 'app/models/simplified/simplified-company';
 import { Banner } from 'app/models/full/banner';
 import { Store } from 'app/models/full/store';
-// import * as records from './DFW.json';
 
 @Injectable({
 	providedIn: 'root'
@@ -52,7 +52,6 @@ export class SpreadsheetService {
 	}
 
 	setFile(file, fileOutput, fields) {
-		console.log('set file');
 		this.file = file;
 		this.fileOutput = fileOutput;
 		this.fields = fields;
@@ -66,7 +65,7 @@ export class SpreadsheetService {
 		this.prevalidatedIds = ids;
 	}
 	assignLoadType(type: string) {
-		console.log('assign load type', type);
+		// triggers action in main component ( storedproject vs file )
 		this.loadType = type;
 		this.loadTypeAssigned$.next(true);
 	}
@@ -105,12 +104,9 @@ export class SpreadsheetService {
 	}
 
 	getStoreFromBanner(storeNumber) {
-		console.log(storeNumber);
 		const stores = this.assignments.banner['stores'];
 		const matches = stores.filter((s: Store) => s.storeNumber === storeNumber.toString());
 		const store = matches.length ? matches[0] : null;
-
-		console.log(store);
 
 		return { lat: store ? store.site.lat : 0, lng: store ? store.site.lng : 0, store: store };
 	}
@@ -157,11 +153,7 @@ export class SpreadsheetService {
 	) {
 		this.assignments = assignments;
 
-		console.log(this.assignments);
-
 		this.volumeRules = volumeRules;
-
-		console.log(this.volumeRules);
 
 		this.sendFieldAssignmentStatus();
 	}
