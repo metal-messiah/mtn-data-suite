@@ -3,19 +3,23 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import * as _ from 'lodash';
 
-import { SpreadsheetService } from '../spreadsheet.service';
-import { ErrorService } from '../../../core/services/error.service';
-import { MatDialog, MatSnackBar } from '@angular/material';
-import { QuadDialogComponent } from '../../../casing/quad-dialog/quad-dialog.component';
+// models
 import { SpreadsheetRecord } from 'app/models/spreadsheet-record';
-import { Store } from 'app/models/full/store';
-import { StoreService } from 'app/core/services/store.service';
 import { StoreVolume } from 'app/models/full/store-volume';
-import { SimplifiedStoreVolume } from 'app/models/simplified/simplified-store-volume';
-import { MapService } from 'app/core/services/map.service';
-import { SiteService } from 'app/core/services/site.service';
 import { Site } from 'app/models/full/site';
 import { SimplifiedSite } from 'app/models/simplified/simplified-site';
+import { Store } from 'app/models/full/store';
+import { SimplifiedStoreVolume } from 'app/models/simplified/simplified-store-volume';
+
+// services
+import { ErrorService } from '../../../core/services/error.service';
+import { SiteService } from 'app/core/services/site.service';
+import { StoreService } from 'app/core/services/store.service';
+import { MapService } from 'app/core/services/map.service';
+
+// components
+import { MatDialog, MatSnackBar } from '@angular/material';
+import { QuadDialogComponent } from '../../../casing/quad-dialog/quad-dialog.component';
 import { NewStoreStatusComponent } from 'app/casing/new-store-status/new-store-status.component';
 
 @Component({
@@ -24,11 +28,11 @@ import { NewStoreStatusComponent } from 'app/casing/new-store-status/new-store-s
 	styleUrls: [ './spreadsheet-data-form.component.css' ]
 })
 export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
-	@Input() dbRecord: Store;
-	@Input() currentRecord: SpreadsheetRecord;
-	@Input() logic: any;
-	@Input() forceSubmit: boolean;
-	@Input() updatedGeom: { lat: number; lng: number };
+	@Input() dbRecord: Store; // the store that was matched from the map
+	@Input() currentRecord: SpreadsheetRecord; // the row from the spreadsheet in object form
+	@Input() logic: any; // the mappings of the field/db fields and their corresponding values
+	@Input() forceSubmit: boolean; // allows app to force submit with current values from file/db
+	@Input() updatedGeom: { lat: number; lng: number }; // updates inputs from markerdrag events
 
 	@Output() savingEvent = new EventEmitter<boolean>();
 	@Output() cancelEvent = new EventEmitter<void>();
@@ -86,7 +90,6 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	form: FormGroup;
 
 	constructor(
-		private spreadsheetService: SpreadsheetService,
 		private siteService: SiteService,
 		private storeService: StoreService,
 		private errorService: ErrorService,
@@ -101,12 +104,11 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	ngOnChanges() {
-		// console.log('form changes');
-		// console.log('(form)', this.logic);
 		if (!this.form) {
 			this.createForm();
 		}
 
+		// checks to see if the the logic has changed, meaning it will change the form from the logic
 		if (this.logic) {
 			if (this.logicHistory !== JSON.stringify(this.logic)) {
 				// console.log('new logic detected');
@@ -116,6 +118,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 			}
 		}
 
+		// used with autoMatching to force update the record
 		if (this.forceSubmit) {
 			if (!this.forcedSubmit) {
 				this.forcedSubmit = true;
@@ -123,6 +126,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 			}
 		}
 
+		// updates the lat/lng inputs on MarkerDrag event
 		if (this.updatedGeom) {
 			const { lat, lng } = this.updatedGeom;
 			const latForm = this.form.get('lat');
@@ -137,8 +141,6 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	private createForm() {
-		// console.log('create form');
-
 		this.form = this.fb.group({
 			// store stuff
 			shoppingCenterId: null,
@@ -182,14 +184,15 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	toggleShowAll() {
+		// shows/hides all fields in form html
 		this.showAll = !this.showAll;
 	}
 
 	getValueFromLogicStoreField(storeField) {
-		let output = this.logic.updates.filter((rule) => rule.storeField === storeField);
-		if (!output.length) {
-			output = this.logic.inserts.filter((rule) => rule.storeField === storeField);
-		}
+		// logic object contains mappings for the file field <--> db field, and values
+		// this function uses the mapping to return the fileValue for the appropriate store field
+		// used to populate the appropriate form inputs
+		const output = this.logic.updates.filter((rule) => rule.storeField === storeField);
 		if (output.length) {
 			if (typeof output[0].storeValue === 'string') {
 				return output[0].fileValue;
@@ -202,6 +205,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	getDbRecordValue(attr) {
+		// traverses the dbRecord (store) to return the appropriate attribute
 		if (this.dbRecord[attr]) {
 			return this.dbRecord[attr];
 		}
@@ -223,7 +227,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	private setFormFromLogic() {
-		// console.log('set form from logic');
+		// iterate the mapped update fields and get the matched file values for inputs
 		this.updateFields.forEach((storeField) => {
 			const formVal = this.form.get(storeField).value;
 			if (!formVal) {
@@ -235,6 +239,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 			}
 		});
 
+		// iterate the store fields (that aren't mapped) and populate the rest of the form
 		this.storeFields.forEach((field) => {
 			let isValid = true;
 			const formItem = this.form.get(field);
@@ -245,11 +250,12 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 			}
 		});
 
+		// make sure the geom inputs are updated from the records/map
 		this.updateGeometry();
 	}
 
 	updateGeometry() {
-		console.log('update geometry');
+		// set the INITIAL geom inputs to match the store/map geometries
 		const latForm = this.form.get('lat');
 		const lngForm = this.form.get('lng');
 		if (!latForm.value) {
@@ -289,6 +295,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	getStoreVolumes() {
+		// list of past volumes for the hint text of the storeVolume input HTML
 		return this.dbRecord.storeVolumes
 			.map((v: SimplifiedStoreVolume) => {
 				return `$${v.volumeTotal}`;
@@ -302,9 +309,8 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	private prepareSubmission() {
-		// console.log('prepare submission');
+		// update the dbRecord attributes to reflect the form inputs
 		return new Promise((resolve, reject) => {
-			let async = false;
 			this.storeFields.forEach((field) => {
 				const formItem = this.form.get(field);
 				if (formItem) {
@@ -323,11 +329,9 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 								this.dbRecord.site[field] = formVal;
 								break;
 							case 'storeVolumes':
+								// inserting storeVolumes is a separate process from updating the store and the app has to make sure the store exists first
+								// set up a listener for the completion event, THEN add the volume
 								if (this.updateFields.includes('storeVolumes')) {
-									// console.log('STORE VOLUME!');
-
-									async = true;
-
 									this.completedEvent.subscribe((storeId) => {
 										console.log('completed event', storeId);
 										this.addVolume(storeId);
@@ -341,6 +345,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 				}
 			});
 
+			// make sure the dbRecord's lat/lng reflects any form changes
 			const latForm = this.form.get('lat');
 			const lngForm = this.form.get('lng');
 
@@ -356,18 +361,22 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	shouldShow(field) {
+		// determines whether to show or hide fields (mapped fields, toggle button state, new site, new store, etc all play a role)
 		return (
 			this.updateFields.includes(field) || this.showAll === true || !this.dbRecord.id || !this.dbRecord.site.id
 		);
 	}
 
 	submit() {
+		// spinner in form
 		this.saving = true;
-
+		// loading events outside of form
 		this.savingEvent.emit(true);
 
+		// prepare the dbRecord for submission (make sure it matches any form changes)
 		this.prepareSubmission().then((store: Store) => {
 			if (store.id) {
+				// UPDATING EXISTING STORE!
 				this.storeService.update(store).pipe(finalize(() => (this.saving = false))).subscribe(
 					(result) => {
 						console.log('saved store ', store.id);
@@ -387,19 +396,16 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 				);
 			} else {
 				if (store.site.id) {
-					// site exists, store doesnt
+					// site exists, store doesnt, CREATE NEW STORE!
 					const site = store.site;
 					const matches = site['stores'].filter((s) => s.storeType === 'ACTIVE');
 					const activeStore = matches.length ? matches[0] : null;
 					if (activeStore && this.dbRecord.storeType === 'ACTIVE') {
-						console.log('new store is ACTIVE and there is already one --> ', activeStore);
 						// new store is ACTIVE and there already is one in the db
+						// must set old store to HISTORICAL, THEN add a new store with ACTIVE
 						activeStore.storeType = 'HISTORICAL';
 						this.storeService.update(activeStore).subscribe((updatedStore) => {
-							console.log('changed currently active store to historical');
-							console.log(updatedStore);
 							this.siteService.addNewStore(this.dbRecord.site.id, store).subscribe((result) => {
-								console.log('saved store ', result.id);
 								this.snackBar
 									.open(`Successfully created new record`, 'View', { duration: 4000 })
 									.onAction()
@@ -411,9 +417,8 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 							});
 						});
 					} else {
-						// db doesnt already have an active store, just add it
+						// db doesnt already have an active store, just add a new store
 						this.siteService.addNewStore(this.dbRecord.site.id, store).subscribe((result) => {
-							console.log('saved store ', result.id);
 							this.snackBar
 								.open(`Successfully created new record`, 'View', { duration: 4000 })
 								.onAction()
@@ -421,6 +426,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 									window.open(location.origin + '/casing?store-id=' + result.id, '_blank');
 								});
 
+							// new stores need a status, open the dialog
 							this.addStatus(result.id);
 
 							this.finish(result.id);
@@ -428,6 +434,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 					}
 				} else {
 					// site AND store don't exist on server
+					// create a new site, THEN create a new store
 					const newSite = new Site(store.site);
 					this.siteService.create(newSite).subscribe((site: Site) => {
 						console.log('created new site', site);
@@ -442,6 +449,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 									window.open(location.origin + '/casing?store-id=' + result.id, '_blank');
 								});
 
+							// new stores need a status, open the dialog
 							this.addStatus(result.id);
 
 							this.finish(result.id);
@@ -453,9 +461,10 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	addVolume(storeId) {
+		// this gets triggered after the store has been updated/added
+		// inserts volume from form and logic mappings to store record
 		if (storeId) {
 			const volumeValue = this.form.get('volume').value;
-			// console.log('volumeValue: ', volumeValue);
 			const volumeDate = new Date(this.logic.volumeRules.volumeDate);
 			const storeVolume = new StoreVolume({
 				volumeTotal: volumeValue,
@@ -465,11 +474,9 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 
 			this.storeService.createNewVolume(storeId, storeVolume).subscribe(
 				(store) => {
-					// return resolve(store);
 					console.log('updated volume of ', store.id);
 				},
 				(err) => {
-					// return reject();
 					console.log(err);
 				}
 			);
@@ -477,18 +484,8 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	addStatus(storeId) {
+		// new stores need a status
 		this.dialog.open(NewStoreStatusComponent, { data: { storeId } });
-	}
-
-	getCurrentRecordOpenDate(): string {
-		if (this.currentRecord) {
-			if (this.currentRecord.attributes.OPENDATE) {
-				return new Date(this.currentRecord.attributes.OPENDATE).toDateString();
-			} else if (this.currentRecord.attributes.OPENDATEAPPROX) {
-				return this.currentRecord.attributes.OPENDATEAPPROX;
-			}
-		}
-		return '';
 	}
 
 	showQuadDialog() {
@@ -505,10 +502,12 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 	}
 
 	skip() {
+		// allows user to skip the record AND mark it off in the list
 		this.finish(null);
 	}
 
 	finish(id) {
+		// closes the form and lets other components know
 		this.completedEvent.emit(id);
 		this.savingEvent.emit(false);
 		this.resetForm();
