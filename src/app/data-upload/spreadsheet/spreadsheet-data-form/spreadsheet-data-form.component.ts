@@ -99,9 +99,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 		private mapService: MapService
 	) {}
 
-	ngOnInit() {
-		// console.log('FORM INIT');
-	}
+	ngOnInit() {}
 
 	ngOnChanges() {
 		if (!this.form) {
@@ -111,7 +109,6 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 		// checks to see if the the logic has changed, meaning it will change the form from the logic
 		if (this.logic) {
 			if (this.logicHistory !== JSON.stringify(this.logic)) {
-				// console.log('new logic detected');
 				this.logicHistory = JSON.stringify(this.logic);
 				this.updateFields = this.logic.updates.map((rule) => rule.storeField);
 				this.setFormFromLogic();
@@ -260,15 +257,12 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 		const lngForm = this.form.get('lng');
 		if (!latForm.value) {
 			if (this.dbRecord.site.latitude) {
-				console.log('site lat');
 				latForm.setValue(this.dbRecord.site.latitude);
 			} else {
 				if (this.currentRecord.assignments.lat) {
-					console.log('curr record lat');
 					const latValue = this.getValueFromLogicStoreField(this.currentRecord.assignments.lat);
 					latForm.setValue(latValue);
 				} else {
-					console.log('map center lat');
 					const latValue = this.mapService.getCenter()['lat'];
 					latForm.setValue(latValue);
 				}
@@ -276,21 +270,18 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 		}
 		if (!lngForm.value) {
 			if (this.dbRecord.site.longitude) {
-				console.log('site lng');
 				lngForm.setValue(this.dbRecord.site.longitude);
 			} else {
 				if (this.currentRecord.assignments.lng) {
-					console.log('curr record lng');
 					const lngValue = this.getValueFromLogicStoreField(this.currentRecord.assignments.lng);
 					latForm.setValue(lngValue);
 				} else {
-					console.log('map center lng');
 					const lngValue = this.mapService.getCenter()['lng'];
 					latForm.setValue(lngValue);
 				}
 			}
 		} else {
-			console.log('initial geom already set');
+			// initial geom already set
 		}
 	}
 
@@ -333,7 +324,6 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 								// set up a listener for the completion event, THEN add the volume
 								if (this.updateFields.includes('storeVolumes')) {
 									this.completedEvent.subscribe((storeId) => {
-										console.log('completed event', storeId);
 										this.addVolume(storeId);
 									});
 								}
@@ -379,7 +369,6 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 				// UPDATING EXISTING STORE!
 				this.storeService.update(store).pipe(finalize(() => (this.saving = false))).subscribe(
 					(result) => {
-						console.log('saved store ', store.id);
 						this.snackBar
 							.open(`Successfully updated record`, 'View', { duration: 4000 })
 							.onAction()
@@ -390,7 +379,7 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 						this.finish(store.id);
 					},
 					(err) =>
-						this.errorService.handleServerError(`Failed to update from PG record!`, err, () =>
+						this.errorService.handleServerError(`Failed to update from record!`, err, () =>
 							console.log(err)
 						)
 				);
@@ -437,11 +426,9 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 					// create a new site, THEN create a new store
 					const newSite = new Site(store.site);
 					this.siteService.create(newSite).subscribe((site: Site) => {
-						console.log('created new site', site);
 						store.site = new SimplifiedSite(site);
 
 						this.siteService.addNewStore(site.id, store).subscribe((result) => {
-							console.log('saved store ', result.id);
 							this.snackBar
 								.open(`Successfully created new record`, 'View', { duration: 4000 })
 								.onAction()
@@ -492,7 +479,6 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 		const dialogRef = this.dialog.open(QuadDialogComponent);
 
 		dialogRef.afterClosed().subscribe((quad) => {
-			// // console.log(quad);
 			if (typeof quad === 'string' && quad !== '') {
 				const ctrl = this.form.get('quad');
 				ctrl.setValue(quad);
