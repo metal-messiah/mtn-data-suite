@@ -1,57 +1,40 @@
 <h3 mat-dialog-title class="Title">Merge</h3>
 <div mat-dialog-content>
 
-  <!--Use the stylesheet below or '[complete]='false' to prevent "create" from showing-->
-  <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
+  <div class="page1" *ngIf="showing">
+    <mat-label>All Stores</mat-label>
+    <!--List with check mark boxes-->
+    <div>
+    <mat-selection-list>
+      <mat-list-option *ngFor="let store of site.stores">
+        {{store.storeName}} {{store.storeNumber}}
+      </mat-list-option>
+    </mat-selection-list>
+    </div>
 
+    <div mat-dialog-actions class="flex-space-between">
+      <button mat-raised-button color="accent" matDialogClose>Close</button>
+      <button mat-raised-button color="accent" (click)="toggleShow()">Next</button>
+    </div>
 
-  <!--Stepper - First Step-->
-  <mat-horizontal-stepper [linear]="true">
-    <mat-step contenteditable="false" onclose="false">
-      <ng-template matStepLabel="AllStores" matStepperIcon="done">All Stores</ng-template>
-      <!--List with check mark boxes-->
-      <mat-selection-list #stores>
-        <mat-list-option *ngFor="let store of site.stores">
-          {{store.storeName}} {{store.storeNumber}}
-        </mat-list-option>
-      </mat-selection-list>
+  </div>
 
-      <!--Button-->
-      <div mat-dialog-actions class="flex-space-between">
-        <button mat-button matStepperNext>Next</button>
-      </div>
-    </mat-step>
+  <div class="page2" *ngIf="!showing">
+    <mat-label >Store Attributes</mat-label>
+    <!--List with check mark boxes-->
+    <mat-selection-list>
+      <mat-list-option *ngFor="let store of site.stores">
+        {{store.storeName}} {{store.storeNumber}}
+      </mat-list-option>
+    </mat-selection-list>
 
-    <!--Stepper - Second Step-->
-    <mat-step contenteditable="false" onclose="false">
-      <ng-template matStepLabel="MergeList">Merge List</ng-template>
-      <!--List of Store Attributes-->
-      <div *ngFor="let store of selectedStores">
-        <!--Material Radio Buttons-->
-        <div *ngFor="let storeAttrName of storeAttrNames">
-          <mat-radio-group>
-            *ngIf="store1[storeAttrName] != null && store2[storeAttrName] != null && store1[storeAttrName] !=
-            store2[storeAttrName]"
-            class="radio-group" [(ngModel)]="mergedStore[storeAttrName]">
-            <div>
-              <mat-radio-button *ngFor="let storeAttrName of storeAttrNames" ngclass="radio-button"
-                                [value]="selectedStores[storeAttrName]">
-                {{[storeAttrName]}}
-              </mat-radio-button>
-            </div>
-            <mat-divider *ngIf="!last"></mat-divider>
-          </mat-radio-group>
-        </div>
-      </div>
+    <div mat-dialog-actions class="flex-space-between">
+      <button mat-raised-button color="accent"(click)="toggleShow()">Back</button>
+      <button *ngIf="!merging" mat-raised-button color="accent" (click)="mergeStores()">Merge</button>
+      <button *ngIf="merging" mat-raised-button color="accent" disabled>Merge
+        <i class="fas fa-spinner fa-pulse"></i></button>
+    </div>
 
-      <!--Buttons-->
-      <div mat-dialog-actions class="flex-space-between">
-        <button mat-button matStepperPrevious>Previous</button>
-        <button *ngIf="!merging" mat-raised-button color="accent" (click)="mergeStores()">Merge</button>
-        <button *ngIf="merging" mat-raised-button color="accent" disabled>Merge
-          <i class="fas fa-spinner fa-pulse"></i></button>
-      </div>
-    </mat-step>
+  </div>
 
-  </mat-horizontal-stepper>
 </div>

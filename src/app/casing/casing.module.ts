@@ -32,6 +32,7 @@ import { DownloadDialogComponent } from './download-dialog/download-dialog.compo
 import { SiteMergeDialogComponent } from './site-merge-dialog/site-merge-dialog.component';
 import { StoreMergeDialogComponent } from './store-merge-dialog/store-merge-dialog.component';
 import { MatStepperModule } from '@angular/material';
+import { StoreMergeDialog2Component } from './store-merge-dialog/store-merge-dialog2/store-merge-dialog2.component';
 
 @NgModule({
   imports: [
@@ -68,7 +69,8 @@ import { MatStepperModule } from '@angular/material';
     NewStoreVolumeComponent,
     DownloadDialogComponent,
     SiteMergeDialogComponent,
-    StoreMergeDialogComponent
+    StoreMergeDialogComponent,
+    StoreMergeDialog2Component
   ],
   entryComponents: [
     AccessListDialogComponent,

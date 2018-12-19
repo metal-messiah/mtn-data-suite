@@ -11,7 +11,7 @@ import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-p
 import { ErrorService } from '../../core/services/error.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { StoreService } from '../../core/services/store.service';
-import { finalize } from 'rxjs/internal/operators';
+import { finalize, subscribeOn } from 'rxjs/internal/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { StoreMergeDialogComponent } from '../store-merge-dialog/store-merge-dialog.component';
 
@@ -190,8 +190,12 @@ export class SiteOverviewComponent implements OnInit {
   }
 
   openStoreMergeDialog(): void {
-    this.dialog.open(StoreMergeDialogComponent, {
+    let dialogRef = this.dialog.open(StoreMergeDialogComponent, {
       data: {site: this.site}
+    });
+
+    dialogRef.afterOpened().subscribe(result => {
+      console.log('Opened Store Merge Dialog');
     });
   }
 }
