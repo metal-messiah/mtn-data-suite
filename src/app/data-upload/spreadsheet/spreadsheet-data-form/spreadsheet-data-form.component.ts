@@ -393,7 +393,9 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 						// new store is ACTIVE and there already is one in the db
 						// must set old store to HISTORICAL, THEN add a new store with ACTIVE
 						activeStore.storeType = 'HISTORICAL';
+						console.log(activeStore);
 						this.storeService.update(activeStore).subscribe((updatedStore) => {
+							console.log(updatedStore);
 							this.siteService.addNewStore(this.dbRecord.site.id, store).subscribe((result) => {
 								this.snackBar
 									.open(`Successfully created new record`, 'View', { duration: 4000 })
@@ -401,7 +403,8 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 									.subscribe(() => {
 										window.open(location.origin + '/casing?store-id=' + result.id, '_blank');
 									});
-
+								// new stores need a status, open the dialog
+								this.addStatus(result.id);
 								this.finish(result.id);
 							});
 						});
