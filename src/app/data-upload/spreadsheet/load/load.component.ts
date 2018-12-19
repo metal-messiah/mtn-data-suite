@@ -37,12 +37,11 @@ export class LoadComponent implements OnInit {
 
 	ngOnInit() {}
 
-	close() {
+	close(): void {
 		this.dialogRef.close();
 	}
 
-	handleFile(file) {
-		console.log('handle file');
+	handleFile(file): void {
 		const type = file.file.type;
 		if (type === 'application/json') {
 			const storageItem = JSON.parse(file.fileOutput);
@@ -72,7 +71,7 @@ export class LoadComponent implements OnInit {
 		}
 	}
 
-	removeStoredProject(id) {
+	removeStoredProject(id): void {
 		const answer = confirm(
 			`Are You Sure You Want To Delete '${this.storedProjects[id].name}'? This Can't Be Undone.`
 		);
@@ -84,24 +83,24 @@ export class LoadComponent implements OnInit {
 		}
 	}
 
-	getNewProjectId() {
-		console.log('get new project id');
+	getNewProjectId(): number {
+		// looks at all the storedProject keys and creates a new one, ex --> if max is 12, new will be 13
 		return Object.keys(this.storedProjects).length
 			? Math.max.apply(null, Object.keys(this.storedProjects).map((key) => Number(key))) + 1
 			: 0;
 	}
 
-	shareStoredProject(id) {
+	shareStoredProject(id): void {
 		this.storageService.export(this.localStorageKey, true, id);
 	}
 
-	loadStoredProject(id) {
+	loadStoredProject(id): void {
 		this.spreadsheetService.setStoredProjectId(id);
 		this.spreadsheetService.assignLoadType('savedProject');
 		this.close();
 	}
 
-	getStoredProjectsAsArray() {
+	getStoredProjectsAsArray(): object[] {
 		return Object.keys(this.storedProjects)
 			.map((id) => {
 				const data = this.storedProjects[id];
@@ -114,14 +113,13 @@ export class LoadComponent implements OnInit {
 			});
 	}
 
-	getProjectStatus(id) {
-		// console.log(id);
+	getProjectStatus(id): string {
 		const allRecords = this.storedProjects[id].records.length.toLocaleString();
 		const finished = this.storedProjects[id].records.filter((r) => r.validated).length.toLocaleString();
 		return `${finished} / ${allRecords} Finished`;
 	}
 
-	showProjects() {
+	showProjects(): void {
 		this.continueFromProgress = true;
 	}
 }

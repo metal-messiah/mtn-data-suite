@@ -7,25 +7,6 @@
   <ng-template matStepperIcon="done">
     <i class="fas fa-check"></i>
   </ng-template>
-  <!-- <mat-step editable="false">
-    <ng-template matStepLabel>Match Type</ng-template>
-    <div class="dialog-wrapper">
-      <form [formGroup]="form">
-        <div style="margin-top:25px;" class="flex-container">
-          <button disabled class="radio-button" [color]="form.value.matchType === 'storeNumber' ? 'warn' : 'primary'"
-            mat-flat-button (click)="storeNumberRadio.click()">Store Number</button>
-          <input hidden #storeNumberRadio type="radio" formControlName="matchType" value="storeNumber" checked>
-          <button class="radio-button" [color]="form.value.matchType === 'location' ? 'warn' : 'primary'"
-            mat-flat-button (click)="locationRadio.click()">Location</button>
-          <input hidden #locationRadio type="radio" formControlName="matchType" value="location">
-        </div>
-      </form>
-      <div class="nav-buttons">
-        <button disabled color="primary" mat-flat-button (click)="goBackward()">Back</button>
-        <button (click)="goForward()" mat-flat-button color="warn">Proceed</button>
-      </div>
-    </div>
-  </mat-step> -->
   <mat-step editable="false">
     <ng-template matStepLabel>Reference Fields</ng-template>
     <div class="dialog-wrapper">

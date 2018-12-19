@@ -30,6 +30,8 @@ import { LoadComponent } from './load/load.component';
 import { AssignFieldsDialogComponent } from './assign-fields-dialog/assign-fields-dialog.component';
 import { StoredProject } from './storedProject';
 import { AutomatchDialogComponent } from './automatch-dialog/automatch-dialog.component';
+import { Site } from 'app/models/full/site';
+import { SpreadsheetMappable } from 'app/models/spreadsheet-mappable';
 
 @Component({
 	selector: 'mds-spreadsheet',
@@ -81,6 +83,11 @@ export class SpreadsheetComponent implements OnInit {
 		volumeType: string;
 	};
 
+	updatedGeom: {
+		lat: number;
+		lng: number;
+	} = null;
+
 	@ViewChild('stepper') stepper: MatStepper;
 
 	constructor(
@@ -103,16 +110,28 @@ export class SpreadsheetComponent implements OnInit {
 		// populate our object of stored projects to reference
 		this.getAllStoredProjects();
 
+		this.spreadsheetService.loadTypeAssigned$.subscribe((success: boolean) => {
+			// load type must be assigned before we can proceed --> file or storedProject
+			if (success) {
+				// load type has been assigned
+
+				const type = this.spreadsheetService.loadType;
+				if (type === 'file') {
+					this.openFieldDialog(); // this will trigger "fieldsAreAssigned" when done
+				} else {
+					this.buildList('storedProject');
+				}
+			}
+		});
+
 		this.spreadsheetService.fieldsAreAssigned$.subscribe((success: boolean) => {
 			// done mapping fields in the dialogs... now build the list
 			if (success) {
 				if (this.spreadsheetService.matchType === 'location') {
 					this.buildList('file');
 				} else {
-					const dialogRef = this.dialog.open(AutomatchDialogComponent, {
-						data: {
-							// storedProjects: this.storedProjects
-						}
+					this.dialog.open(AutomatchDialogComponent, {
+						data: {}
 					});
 				}
 			} else {
@@ -120,24 +139,11 @@ export class SpreadsheetComponent implements OnInit {
 			}
 		});
 
-		this.spreadsheetService.loadTypeAssigned$.subscribe((success: boolean) => {
-			// load type must be assigned before we can proceed --> file or storedProject
-			if (success) {
-				console.log('load type assigned');
-				const type = this.spreadsheetService.loadType;
-
-				if (type === 'file') {
-					this.openFieldDialog();
-				} else {
-					this.buildList('storedProject');
-				}
-			}
-		});
-
+		// fails for some reason if i don't delay here, look into this later
 		setTimeout(() => this.openLoadDialog(), 1000);
 	}
 
-	buildList(type) {
+	buildList(type): void {
 		if (type === 'file') {
 			// build the list from the file upload
 			const { fileOutput, fields } = this.spreadsheetService;
@@ -176,16 +182,20 @@ export class SpreadsheetComponent implements OnInit {
 		}
 	}
 
-	updateList(setToNext) {
+	updateList(setToNext): Promise<any> {
 		return new Promise((resolve, reject) => {
-			this.records = this.allRecords.filter((r) => r);
+			try {
+				this.records = this.allRecords.filter((r) => r);
 
-			if (setToNext) {
-				this.currentRecordIndex = this.records.findIndex((record) => record.validated === false);
-				this.setCurrentSpreadsheetRecord();
+				if (setToNext) {
+					this.currentRecordIndex = this.records.findIndex((record) => record.validated === false);
+					this.setCurrentSpreadsheetRecord();
+				}
+
+				return resolve();
+			} catch (err) {
+				return reject(err);
 			}
-
-			return resolve();
 		});
 	}
 
@@ -208,16 +218,15 @@ export class SpreadsheetComponent implements OnInit {
 			.join('<br/>');
 	}
 
-	openLoadDialog() {
-		const dialogRef = this.dialog.open(LoadComponent, {
+	openLoadDialog(): void {
+		this.dialog.open(LoadComponent, {
 			data: {
 				storedProjects: this.storedProjects
 			}
 		});
 	}
 
-	openFieldDialog() {
-		console.log('open field dialog');
+	openFieldDialog(): void {
 		this.dialog.open(AssignFieldsDialogComponent, {
 			data: {
 				fields: this.spreadsheetService.fields,
@@ -226,7 +235,7 @@ export class SpreadsheetComponent implements OnInit {
 		});
 	}
 
-	siteHover(store, type) {
+	siteHover(store, type): void {
 		if (type === 'enter' && this.records.length) {
 			this.storeMapLayer.selectEntity(store);
 		} else {
@@ -234,12 +243,10 @@ export class SpreadsheetComponent implements OnInit {
 		}
 	}
 
-	setCurrentSpreadsheetRecord(i?: number) {
-		console.log('set current spreadsheet record');
+	setCurrentSpreadsheetRecord(i?: number): void {
 		if (i !== null && typeof i !== 'undefined') {
 			this.currentRecordIndex = i;
 		}
-		console.log('SET CURRENT RECORD', i);
 
 		if (this.openForm) {
 			this.cancelStep2();
@@ -250,9 +257,6 @@ export class SpreadsheetComponent implements OnInit {
 			this.currentRecord = this.records[this.currentRecordIndex];
 			this.currentDBSiteResults = [];
 			this.spreadsheetLayer.setRecord(this.currentRecord);
-		} else {
-			// this.isAutoMatching = false;
-			// console.warn('End of Records');
 		}
 
 		const elem = document.getElementById(`${this.currentRecordIndex}`);
@@ -261,8 +265,13 @@ export class SpreadsheetComponent implements OnInit {
 		}
 	}
 
-	onMapReady() {
+	onMapReady(): void {
 		this.spreadsheetLayer = new SpreadsheetLayer(this.mapService);
+		this.spreadsheetLayer.markerDragEnd$.subscribe((draggedMarker: SpreadsheetMappable) => {
+			const coords = this.spreadsheetLayer.getCoordinatesOfMappableMarker(draggedMarker);
+			this.updatedGeom = { lng: coords.lng, lat: coords.lat };
+		});
+
 		// console.log(`Map is ready`);
 		this.storeMapLayer = new StoreMapLayer(
 			this.mapService,
@@ -314,7 +323,7 @@ export class SpreadsheetComponent implements OnInit {
 		}
 	}
 
-	private getPointsInBounds(bounds) {
+	private getPointsInBounds(bounds): void {
 		this.siteService.getSitePointsInBounds(bounds).subscribe((sitePoints: Coordinates[]) => {
 			// // console.log(sitePoints)
 			if (sitePoints.length <= 1000) {
@@ -341,8 +350,6 @@ export class SpreadsheetComponent implements OnInit {
 	private getStoresInBounds(bounds) {
 		return this.storeService.getStoresOfTypeInBounds(bounds, this.storeTypes, false).pipe(
 			tap((list) => {
-				// // console.log(page);
-
 				const allMatchingSites = list.map((store) => {
 					store.site['stores'] = []; // Used to group stores by site
 					return store.site;
@@ -361,74 +368,33 @@ export class SpreadsheetComponent implements OnInit {
 					this.currentDBSiteResults.forEach((site: SimplifiedSite) => {
 						const crGeom = this.currentRecord.coordinates;
 						const dbGeom = { lng: site.longitude, lat: site.latitude };
-						// console.log(crGeom, dbGeom);
 						const dist = MapService.getDistanceBetween(crGeom, dbGeom);
 						site['distanceFrom'] = dist * 0.000621371;
 
 						const heading = MapService.getHeading(crGeom, dbGeom);
 						site['heading'] = `rotate(${heading}deg)`; // 0 is up, 90 is right, 180 is down, -90 is left
+					});
 
-						site['stores'].forEach((store) => {
-							const dbName = store['storeName'];
-							// console.log(`SIMILARITY SCORE: ${recordName} & ${dbName}`);
-							const score = WordSimilarity.levenshtein(recordName, dbName);
+					this.currentDBSiteResults.sort((a, b) => {
+						return a['distanceFrom'] - b['distanceFrom'];
+					});
 
-							if (this.bestMatch) {
-								if (
-									this.bestMatch.score >= score &&
-									this.bestMatch['distanceFrom'] >= site['distanceFrom']
-								) {
-									this.bestMatch = {
-										store: store,
-										score: score,
-										distanceFrom: site['distanceFrom']
-									};
-								}
-							} else {
-								this.bestMatch = {
-									store: store,
-									score: score,
-									distanceFrom: site['distanceFrom']
-								};
-							}
+					this.currentDBSiteResults.forEach((site) => {
+						site['stores'].sort((a, b) => {
+							return a['storeType'] < b['storeType'] ? -1 : a['storeType'] > b['storeType'] ? 1 : 0;
 						});
 					});
 
-					if (this.bestMatch && this.bestMatch.score <= 4 && this.bestMatch.distanceFrom < 0.1) {
-						this.currentRecord.matchedStore = this.bestMatch.store as SimplifiedStore;
-						// console.log('MATCHED');
-					} else {
-						// console.log('NO MATCH: ', this.bestMatch);
-
-						this.currentDBSiteResults.sort((a, b) => {
-							return a['distanceFrom'] - b['distanceFrom'];
-						});
-
-						this.currentDBSiteResults.forEach((site) => {
-							site['stores'].sort((a, b) => {
-								return a['storeType'] < b['storeType'] ? -1 : a['storeType'] > b['storeType'] ? 1 : 0;
-							});
-						});
-
-						this.ngZone.run(() => {
-							this.storeMapLayer.setEntities(list);
-						});
-
-						// console.log('currentdb', this.currentDBSiteResults);
-					}
-
-					if (this.isAutoMatching) {
-						this.ngZone.run(() => {
-							this.currentRecordIndex++;
-							this.setCurrentSpreadsheetRecord();
-						});
-					}
+					this.ngZone.run(() => {
+						this.storeMapLayer.setEntities(list);
+					});
+					// }
 				}
 			})
 		);
 	}
 
-	cancelStep2() {
+	cancelStep2(): void {
 		this.logic = null;
 		this.openForm = false;
 		this.stepper.reset();
@@ -436,7 +402,7 @@ export class SpreadsheetComponent implements OnInit {
 		this.setSpreadsheetFeature(false);
 	}
 
-	findAttributeInStore(attr) {
+	findAttributeInStore(attr): any {
 		if (this.dbRecord[attr]) {
 			return this.dbRecord[attr];
 		}
@@ -457,8 +423,7 @@ export class SpreadsheetComponent implements OnInit {
 		return null;
 	}
 
-	private advance(store: Store) {
-		// console.log('advance');
+	private advance(store: Store): void {
 		this.dbRecord = store;
 
 		// get the list of fields matched in the opening dialogs
@@ -490,20 +455,35 @@ export class SpreadsheetComponent implements OnInit {
 		this.stepper.next();
 	}
 
-	noMatch() {
-		this.setSpreadsheetFeature(true);
-		this.advance(new Store({}));
+	addSite(): void {
+		const { lat, lng } = this.currentRecord.assignments;
+		if (lat && lng) {
+			this.setSpreadsheetFeature(true);
+
+			const emptySite: Site = new Site({
+				latitude: Number(this.currentRecord.getAttribute(lat)),
+				longitude: Number(this.currentRecord.getAttribute(lng)),
+				type: 'DEFAULT'
+			});
+
+			const emptyStore = new Store({ site: emptySite, storeVolumes: [], storeType: 'ACTIVE' });
+
+			this.advance(emptyStore);
+		} else {
+			console.log('no lat lng found for current record');
+		}
 	}
 
-	matchSite(siteId: number) {
+	matchSite(siteId: number): void {
 		this.isFetching = true;
 		this.siteService.getOneById(siteId).pipe(finalize(() => (this.isFetching = false))).subscribe((site) => {
-			// we need to add a new store to this site eventually...
-			// this.siteService.addNewStore(new Store())
+			const emptyStore = new Store({ site, storeVolumes: [], storeType: 'ACTIVE' });
+
+			this.advance(emptyStore);
 		});
 	}
 
-	matchStore(storeId: number) {
+	matchStore(storeId: number): void {
 		this.isFetching = true;
 		this.storeService.getOneById(storeId).pipe(finalize(() => (this.isFetching = false))).subscribe((store) => {
 			this.advance(store);
@@ -512,7 +492,7 @@ export class SpreadsheetComponent implements OnInit {
 
 	addStore() {}
 
-	nextRecord() {
+	nextRecord(): void {
 		this.setSpreadsheetFeature(false);
 		this.currentRecord.setValidated(true);
 		this.stepper.reset();
@@ -525,53 +505,47 @@ export class SpreadsheetComponent implements OnInit {
 		});
 	}
 
-	setSpreadsheetFeature(draggable: boolean) {
+	setSpreadsheetFeature(draggable: boolean): void {
+		console.log('set draggable', draggable);
 		this.spreadsheetLayer.setRecord(this.currentRecord, draggable);
 	}
 
-	getAllStoredProjects() {
+	getAllStoredProjects(): Promise<any> {
 		return new Promise((resolve, reject) => {
 			this.storageService
 				.getOne(this.storageKey)
 				.then((r) => {
-					console.log(r);
 					this.storedProjects = r ? r : {};
-					console.log('stored projects', this.storedProjects);
 					return resolve();
 				})
 				.catch((err) => reject(err));
 		});
 	}
 
-	getNewProjectId() {
-		console.log('get new project id');
+	getNewProjectId(): number {
 		return Object.keys(this.storedProjects).length
 			? Math.max.apply(null, Object.keys(this.storedProjects).map((key) => Number(key))) + 1
 			: 0;
 	}
 
-	createNewProject() {
-		console.log('create new project, id --> ', this.currentProjectId);
+	createNewProject(): void {
 		const { file } = this.spreadsheetService;
-		console.log('file --> ', file);
 		const projectId = this.getNewProjectId();
 		this.selectProject(projectId);
 		this.updateCurrentProject(new StoredProject(file.name, this.allRecords, this.volumeRules));
 	}
 
-	selectProject(id) {
-		console.log('select project, id --> ', id);
+	selectProject(id): void {
 		this.currentProjectId = id;
 	}
 
-	getCurrentProject() {
+	getCurrentProject(): Promise<any> {
 		return new Promise((resolve, reject) => {
 			if (this.storedProjects[this.currentProjectId]) {
 				return resolve(this.storedProjects[this.currentProjectId]);
 			} else {
-				console.log(
-					'couldnt find stored project... maybe it was "imported" and our list is now dirty... lets reload the list and check again'
-				);
+				// couldnt find stored project... maybe it was "imported" and our list is now dirty... lets reload the list and check again
+
 				this.getAllStoredProjects().then(() => {
 					if (this.storedProjects[this.currentProjectId]) {
 						return resolve(this.storedProjects[this.currentProjectId]);
@@ -583,17 +557,13 @@ export class SpreadsheetComponent implements OnInit {
 		});
 	}
 
-	updateCurrentProject(data) {
-		console.log('update project, id --> ', this.currentProjectId);
+	updateCurrentProject(data): void {
 		this.storedProjects[this.currentProjectId] = data;
 
 		this.saveStoredProjects();
 	}
 
-	saveStoredProjects() {
-		console.log('save projects to memory');
-		console.log(this.storedProjects);
-
+	saveStoredProjects(): void {
 		this.storageService
 			.set(this.storageKey, this.storedProjects)
 			.then((r) => {

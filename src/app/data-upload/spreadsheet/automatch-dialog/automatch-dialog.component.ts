@@ -5,6 +5,7 @@ import { SpreadsheetRecord } from 'app/models/spreadsheet-record';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
 import { StoreService } from 'app/core/services/store.service';
 import { AutomatchItem } from './automatchItem';
+import { Store } from 'app/models/full/store';
 
 @Component({
 	selector: 'mds-automatch-dialog',
@@ -29,7 +30,7 @@ export class AutomatchDialogComponent implements OnInit {
 		public spreadsheetService: SpreadsheetService,
 		private storeService: StoreService,
 		public dialog: MatDialog,
-		public snackBar: MatSnackBar
+		public snackBar: MatSnackBar,
 		@Inject(MAT_DIALOG_DATA) public data: any
 	) {
 		dialogRef.disableClose = true;
@@ -48,6 +49,7 @@ export class AutomatchDialogComponent implements OnInit {
 				}
 			});
 
+			// Wait for all the store records to return
 			Promise.all(this.promises).then((responses) => {
 				responses.forEach((s, i) => {
 					const dbRecord = s;
@@ -65,22 +67,19 @@ export class AutomatchDialogComponent implements OnInit {
 		});
 	}
 
-	close() {
+	close(): void {
 		this.dialogRef.close();
 	}
 
-	getMatched() {
+	getMatched(): number {
 		return this.records.filter((r) => r.validated).length;
 	}
 
-	getAutomatchPromise(currentRecord: SpreadsheetRecord) {
+	getAutomatchPromise(currentRecord: SpreadsheetRecord): Promise<any> {
 		const bannerStores: SimplifiedStore[] = currentRecord.assignments.banner['stores'].filter((s) => s.storeNumber);
 		let matchingStore: SimplifiedStore;
 		const storeNumberField = currentRecord.assignments.storeNumber;
 		const storeNumberValue = currentRecord.getAttribute(storeNumberField);
-
-		// console.log(typeof storeNumberValue, storeNumberValue);
-
 		const matches = bannerStores.filter((s) => {
 			try {
 				return s.storeNumber ? s.storeNumber.trim() === storeNumberValue.trim() : false;
@@ -89,23 +88,16 @@ export class AutomatchDialogComponent implements OnInit {
 			}
 		});
 
-		// console.log(matches);
-
 		if (matches.length) {
 			matchingStore = matches[0];
 		}
 
-		// console.log(matchingStore);
-
 		if (matchingStore) {
 			return this.storeService.getOneById(matchingStore.id).toPromise();
-			// this.storeService.getOneById(matchingStore.id).subscribe((s) => {
-
-			// });
 		}
 	}
 
-	buildLogic(currentRecord, dbRecord) {
+	buildLogic(currentRecord: SpreadsheetRecord, dbRecord: Store) {
 		// get the list of fields matched in the opening dialogs
 		const updateFields = currentRecord.getUpdateFields(); // [{file: <field name>, store: <field name>}]
 		const insertFields = currentRecord.getInsertFields();
@@ -134,7 +126,7 @@ export class AutomatchDialogComponent implements OnInit {
 		return logic;
 	}
 
-	findAttributeInStore(dbRecord, attr) {
+	findAttributeInStore(dbRecord: Store, attr: string) {
 		if (dbRecord[attr]) {
 			return dbRecord[attr];
 		}
@@ -155,7 +147,7 @@ export class AutomatchDialogComponent implements OnInit {
 		return null;
 	}
 
-	determineAction() {
+	determineAction(): string {
 		if (this.getMatched() === this.records.length) {
 			return 'All Records Have Been Matched';
 		}
@@ -168,7 +160,7 @@ export class AutomatchDialogComponent implements OnInit {
 		return 'Some Records Could Not Be Matched. File Must Have Location Data (lat/lng) To Match By Location.';
 	}
 
-	isSaving(val) {
+	isSaving(val): void {
 		this.saving = val;
 	}
 
@@ -176,8 +168,7 @@ export class AutomatchDialogComponent implements OnInit {
 		// console.log('cancel');
 	}
 
-	complete(index) {
-		// console.log('complete', index);
+	complete(index): void {
 		this.automatchQueue[index].record.setValidated(true);
 
 		this.validatedIds.push(this.automatchQueue[index].record.uniqueId);
@@ -188,7 +179,7 @@ export class AutomatchDialogComponent implements OnInit {
 		}
 	}
 
-	saveAll() {
+	saveAll(): void {
 		this.saving = true;
 		const needsValidation = this.automatchQueue.filter((r) => !r.record.validated);
 
@@ -197,7 +188,7 @@ export class AutomatchDialogComponent implements OnInit {
 		});
 	}
 
-	proceed() {
+	proceed(): void {
 		this.spreadsheetService.setPrevalidatedIds(this.validatedIds);
 
 		this.spreadsheetService.setMatchType('location');

@@ -11,8 +11,6 @@ import { Banner } from 'app/models/full/banner';
 import { Company } from 'app/models/full/company';
 import { StoreService } from 'app/core/services/store.service';
 import { Store } from '../../../models/full/store';
-import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
 
 @Component({
 	selector: 'mds-assign-fields-dialog',
@@ -77,7 +75,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 		this.getCompanies();
 	}
 
-	private createForm() {
+	private createForm(): void {
 		this.form = this.fb.group({
 			name: '',
 			lat: '',
@@ -91,8 +89,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 		});
 	}
 
-	getCompanies(attempts?: number) {
-		console.log('get companies');
+	getCompanies(attempts?: number): void {
 		attempts = attempts || 0;
 		if (attempts < 3) {
 			this.companyService.getAllByQuery().subscribe(
@@ -105,7 +102,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 		}
 	}
 
-	filterCompanies(value) {
+	filterCompanies(value): void {
 		value = value || '';
 		this.filteredCompanies = this.companies.length
 			? this.companies.filter((comp) => {
@@ -114,7 +111,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 			: [];
 	}
 
-	getBannersFromCompany(attempts?: number) {
+	getBannersFromCompany(attempts?: number): void {
 		const companyName = this.form.value.company;
 		const matches = this.companies.filter((comp) => comp.companyName === companyName);
 		let companyId;
@@ -124,7 +121,6 @@ export class AssignFieldsDialogComponent implements OnInit {
 		}
 
 		if (companyId) {
-			console.log('get banners', companyId);
 			attempts = attempts || 0;
 			this.banners = [];
 			this.bannerFetches = 0;
@@ -150,7 +146,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 		}
 	}
 
-	getBanner(bannerId, attempts?: number) {
+	getBanner(bannerId, attempts?: number): void {
 		attempts = attempts || 0;
 		if (attempts < 3) {
 			this.bannerService.getOneById(bannerId).subscribe(
@@ -163,13 +159,11 @@ export class AssignFieldsDialogComponent implements OnInit {
 		}
 	}
 
-	showVolumeFields(item) {
+	showVolumeFields(item): boolean {
 		return item.selectedStoreField === 'storeVolumes';
 	}
 
-	assignFields() {
-		console.log('Assign Fields!');
-
+	assignFields(): void {
 		this.sendingData = true;
 		const volumeRules = {
 			volumeDate: this.volumeDate,
@@ -184,7 +178,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 		this.dialogRef.close();
 	}
 
-	updateItemsAreValid() {
+	updateItemsAreValid(): boolean {
 		let isValid = true;
 		this.updateItems.forEach((i) => {
 			if (!i.selectedFileField || !i.selectedStoreField) {
@@ -197,7 +191,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 		return isValid;
 	}
 
-	insertItemsAreValid() {
+	insertItemsAreValid(): boolean {
 		let isValid = true;
 		this.insertItems.forEach((i) => {
 			if (!i.selectedFileField || !i.selectedStoreField) {
@@ -217,7 +211,6 @@ export class AssignFieldsDialogComponent implements OnInit {
 	}
 
 	mapInsertItemsToForm() {
-		// console.log('map insert items to form');
 		this.form.value.insertFields = this.insertItems.map((i) => {
 			return { file: i.selectedFileField, store: i.selectedStoreField };
 		});
@@ -229,7 +222,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 		this[prop][idx].selectedFileField = val;
 	}
 
-	updateSelectedStoreField(id, val, type) {
+	updateSelectedStoreField(id, val: string, type: string) {
 		const prop = type === 'update' ? 'updateItems' : 'insertItems';
 		const idx = this[prop].findIndex((item) => item.id === id);
 		this[prop][idx].selectedStoreField = val;
@@ -243,11 +236,11 @@ export class AssignFieldsDialogComponent implements OnInit {
 		}
 	}
 
-	updateVolumeType(type) {
+	updateVolumeType(type: string): void {
 		this.volumeType = type;
 	}
 
-	addFieldMappingItem(type) {
+	addFieldMappingItem(type: string): void {
 		// 'update' or 'insert'
 		this.storeService.getOneById(1).subscribe((store: Store) => {
 			console.log(store);
@@ -259,7 +252,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 		}
 	}
 
-	formIsValid() {
+	formIsValid(): boolean {
 		const step = this.stepper.selectedIndex;
 		const { controls, value } = this.form;
 		if (step === 0) {
@@ -268,9 +261,10 @@ export class AssignFieldsDialogComponent implements OnInit {
 		if (step === 1) {
 			return this.updateItems.length > 0 && this.updateItemsAreValid() && this.insertItemsAreValid();
 		}
+		return false;
 	}
 
-	goForward() {
+	goForward(): void {
 		if (this.stepper.selectedIndex === 1) {
 			if (this.formIsValid()) {
 				this.assignFields();
@@ -280,7 +274,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 		}
 	}
 
-	goBackward() {
+	goBackward(): void {
 		this.stepper.reset();
 	}
 }

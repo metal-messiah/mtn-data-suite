@@ -54,7 +54,7 @@ export class StorageService {
 		});
 	}
 
-	import(key: string, data: any, isJson: boolean, child?: string): Promise<any> {
+	import(key: string, data: any, isJson: boolean, child?: any): Promise<any> {
 		return new Promise((resolve, reject) => {
 			try {
 				if (child && isJson) {
