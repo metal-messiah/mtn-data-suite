@@ -30,7 +30,7 @@ export class SiteMergeDialogComponent implements OnInit {
     'quad',
     'intersectionStreetPrimary',
     'intersectionStreetSecondary'
-    ];
+  ];
   scAttrNames: string[] = [
     'name',
     'owner',
@@ -52,33 +52,20 @@ export class SiteMergeDialogComponent implements OnInit {
   ngOnInit() {
     this.siteService.getOneById(this.siteId).subscribe((site1: Site) => {
       this.site1 = site1;
-        this.siteService.getOneById(this.duplicateSiteId).subscribe((site2: Site) => {
-          this.site2 = site2;
-          this.initializedMergedSite()
-        });
+      this.siteService.getOneById(this.duplicateSiteId).subscribe((site2: Site) => {
+        this.site2 = site2;
+        this.initializedMergedSite()
+      });
     });
   }
 
   initializedMergedSite() {
-    this.mergedSite = {
-      footprintSqft: this.getSiteValue('footprintSqft'),
-      positionInCenter: this.getSiteValue('positionInCenter'),
-      address1: this.getSiteValue('address1'),
-      city: this.getSiteValue('city'),
-      state: this.getSiteValue('state'),
-      postalCode: this.getSiteValue('postalCode'),
-      country: this.getSiteValue('country'),
-      intersectionType: this.getSiteValue('intersectionType'),
-      quad: this.getSiteValue('quad'),
-      intersectionStreetPrimary: this.getSiteValue('intersectionStreetPrimary'),
-      intersectionStreetSecondary: this.getSiteValue('intersectionStreetSecondary'),
-      shoppingCenter: {
-        name: this.getShoppingCenterValue('name'),
-        owner: this.getShoppingCenterValue('owner'),
-        centerType: this.getShoppingCenterValue('centerType')
-      }
-    };
+    // First make a copy of site 1 for your default values
+    this.mergedSite = new Site(this.site1);
 
+    // Then update the selected values according to the rules (distinct and not null)
+    this.siteAttrNames.forEach(attr => this.mergedSite[attr] = this.getSiteValue(attr));
+    this.scAttrNames.forEach(attr => this.mergedSite.shoppingCenter[attr] = this.getShoppingCenterValue(attr));
   }
 
   // Auto selects any Site attribute that isn't null in the radio buttons
@@ -99,7 +86,7 @@ export class SiteMergeDialogComponent implements OnInit {
     if (this.site1.shoppingCenter[attr] === this.site2.shoppingCenter[attr]) {
       return this.site1.shoppingCenter[attr];
     } else {
-      if (this.site1.shoppingCenter[attr] != null) {
+      if (this.site1.shoppingCenter[attr]) {
         return this.site1.shoppingCenter[attr];
       } else {
         return this.site2.shoppingCenter[attr];

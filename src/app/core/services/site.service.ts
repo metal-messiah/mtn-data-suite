@@ -112,6 +112,9 @@ export class SiteService extends CrudService<Site> {
   }
 
   mergeSite(site1, site2, mergedSite) {
-    return of(1).pipe(delay(2000));
+    const url = this.rest.getHost() + this.endpoint + '/merge';
+    let params = new HttpParams().set('site-a-id', site1.id);
+    params = params.set('site-b-id', site2.id);
+    return this.http.post<SimplifiedSite>(url, mergedSite, {headers: this.rest.getHeaders(), params: params})
   }
 }
