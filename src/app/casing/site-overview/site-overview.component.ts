@@ -190,12 +190,9 @@ export class SiteOverviewComponent implements OnInit {
   }
 
   openStoreMergeDialog(): void {
-    let dialogRef = this.dialog.open(StoreMergeDialogComponent, {
+    this.dialog.open(StoreMergeDialogComponent, {
       data: {site: this.site}
     });
-
-    dialogRef.afterOpened().subscribe(result => {
-      console.log('Opened Store Merge Dialog');
-    });
+    console.log('Opened Store Merge Dialog');
   }
 }
