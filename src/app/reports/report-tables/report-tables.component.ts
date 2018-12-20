@@ -17,7 +17,7 @@ import { ErrorService } from '../../core/services/error.service';
 export class ReportTablesComponent implements OnInit {
 
   util;
-  data;
+  reportData;
 
   googleMapsBasemap = 'hybrid';
   zoom = 15;
@@ -38,7 +38,7 @@ export class ReportTablesComponent implements OnInit {
       }, 10)
     } else {
       this.util = new JsonToTablesUtil(this.rbs);
-      this.data = this.util.getReportData();
+      this.reportData = this.util.getReportData();
       this.util.getMapUrl();
       document.getElementById('reports-content-wrapper').scrollTop = 0;
     }
@@ -47,8 +47,8 @@ export class ReportTablesComponent implements OnInit {
   startBuildingReport() {
     const REPORT_NAME = this.rbs.reportMetaData.modelName;
     this.rbs.complingReport = true;
-    this.data.mapUrl = this.util.getMapUrl(this.googleMapsBasemap, this.zoom);
-    this.rbs.startReportBuilding(this.data, REPORT_NAME)
+    this.reportData.mapUrl = this.util.getMapUrl(this.googleMapsBasemap, this.zoom);
+    this.rbs.startReportBuilding(this.reportData, REPORT_NAME)
       .subscribe(() => this.pollForZip(REPORT_NAME),
       err => {
         this.rbs.complingReport = false;
@@ -76,9 +76,9 @@ export class ReportTablesComponent implements OnInit {
   }
 
   getOverflowMessage() {
-    return '(Showing ' + this.data.sovData.showingCount + '/' + this.data.sovData.totalCount +
+    return '(Showing ' + this.reportData.sovData.showingCount + '/' + this.reportData.sovData.totalCount +
       ' stores. A total contribution to site of $' +
-      Math.round(this.data.sovData.totalContributionExcluded).toLocaleString() +
+      Math.round(this.reportData.sovData.totalContributionExcluded).toLocaleString() +
       ' was excluded from the report.)'
   }
 
