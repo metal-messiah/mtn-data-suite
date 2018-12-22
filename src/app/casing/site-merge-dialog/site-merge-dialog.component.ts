@@ -5,6 +5,8 @@ import { Site } from '../../models/full/site';
 import { finalize } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material';
 import { ErrorService } from '../../core/services/error.service';
+import { CasingDashboardMode } from '../casing-dashboard/casing-dashboard.component';
+import { MapService } from '../../core/services/map.service';
 
 @Component({
   selector: 'mds-site-merge-dialog',
@@ -37,13 +39,15 @@ export class SiteMergeDialogComponent implements OnInit {
     'centerType'
   ];
   merging = false;
+  selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
 
   constructor(public dialogRef: MatDialogRef<SiteMergeDialogComponent>,
               @Inject(MAT_DIALOG_DATA)
               public data: any,
               private siteService: SiteService,
               private snackBar: MatSnackBar,
-              private errorService: ErrorService
+              private errorService: ErrorService,
+              private mapService: MapService
   ) {
     this.siteId = data.selectedSiteId;
     this.duplicateSiteId = data.duplicateSiteId;
@@ -101,8 +105,14 @@ export class SiteMergeDialogComponent implements OnInit {
       .subscribe(() => {
         const message = `Successfully merged`;
         this.snackBar.open(message, null, {duration: 2000});
+        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        this.mergedSite.getEntities(this.mapService.getBounds());
+        this.dialogRef.close();
       }, err => this.errorService.handleServerError('Failed to merge!', err,
         () => console.log(err)));
   }
 
+  closeDialog() {
+    this.dialogRef.close();
+  }
 }
