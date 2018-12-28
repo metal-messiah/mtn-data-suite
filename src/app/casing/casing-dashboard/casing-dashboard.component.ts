@@ -159,6 +159,9 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
           this.selectedSite = site;
           this.selectedCardState = CardState.SELECTED_SITE;
         } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
+          this.storeMapLayer.clearSelection();
+          this.selectedSite = site;
+          this.selectedCardState = CardState.HIDDEN;
           this.openSiteMergeDialog(site.id);
         }
       });
@@ -738,6 +741,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     });
     siteMergeDialog.afterClosed().subscribe( result => {
       console.log(result);
+      this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+      this.getEntities(this.mapService.getBounds());
     })
   }
 }
