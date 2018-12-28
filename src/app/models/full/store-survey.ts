@@ -28,7 +28,6 @@ export class StoreSurvey extends AuditingEntity {
   departmentExtensivePreparedFoods: boolean;
   departmentFloral: boolean;
   departmentFuel: boolean;
-  departmentHotBar: boolean;
   departmentInStoreRestaurant: boolean;
   departmentLiquor: boolean;
   departmentMeat: boolean;
