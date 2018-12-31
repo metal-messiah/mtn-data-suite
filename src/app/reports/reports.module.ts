@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from '../shared/shared.module';
 import { ReportsRoutingModule } from './reports-routing.module';
 import { ReportsComponent } from './reports.component';
-import { EditTotalSizeDialogComponent } from './edit-total-size-dialog/edit-total-size-dialog.component';
 import { ReportModelDataComponent } from './report-model-data/report-model-data.component';
 import { ReportBuilderService } from './services/report-builder.service';
 import { HtmlDimensionsService } from '../core/services/html-dimensions.service';
@@ -19,16 +18,12 @@ import { ReportDownloadComponent } from './download/report-download.component';
   ],
   declarations: [
     ReportsComponent,
-    EditTotalSizeDialogComponent,
     ReportModelDataComponent,
     ReportTablesComponent,
     SiteEvaluationComponent,
     StoreCategorizationComponent,
     StoreDataVerificationComponent,
     ReportDownloadComponent
-  ],
-  entryComponents: [
-    EditTotalSizeDialogComponent
   ],
   providers: [
     ReportBuilderService,
