@@ -16,4 +16,5 @@ export class StoreListItem {
   parentCompanyId: number;
   category: string;
   useTradeAreaChange = false;
+  inclusion = 'AUTO'
 }

@@ -1,25 +1,41 @@
 <form *ngIf="form" [formGroup]="form" class="wrapper">
-  <table>
+  <table matSort (matSortChange)="sortData($event)" style="border-collapse: collapse;">
     <tr>
-      <th>Map Key</th>
-      <th>Store ID</th>
-      <th>Store Name</th>
-      <th>Location</th>
-      <th>Sales Area</th>
-      <th>Total Area</th>
-      <th>Total Change</th>
-      <th>Total %</th>
-      <th>TA Change</th>
-      <th>TA %</th>
-      <th>Use TA Change</th>
+      <th colspan="12"></th>
+      <th colspan="3">Inclusion in Report</th>
     </tr>
-    <tr formArrayName="stores" *ngFor="let store of getStoreControls(); let i = index;">
+    <tr>
+      <th mat-sort-header="mapKey">Map<br>Key</th>
+      <th mat-sort-header="uniqueId">Store<br>ID</th>
+      <th mat-sort-header="storeName">Store Name</th>
+      <th mat-sort-header="category">SOV<br>Category</th>
+      <th mat-sort-header="location">Location</th>
+      <th mat-sort-header="salesArea">Sales Area</th>
+      <th mat-sort-header="totalArea">TotalArea</th>
+      <th mat-sort-header="totalChange">Total<br>Change</th>
+      <th mat-sort-header="totalChangePerc">Total<br>%</th>
+      <th mat-sort-header="tradeAreaChange">TA<br>Change</th>
+      <th mat-sort-header="tradeAreaChangePerc">TA<br>%</th>
+      <th>Use TA<br>Change</th>
+      <th style="padding-left: 5px;">Auto</th>
+      <th style="padding-left: 5px;">Include</th>
+      <th style="padding-left: 5px;">Exclude</th>
+    </tr>
+    <tr formArrayName="stores" *ngFor="let store of storeControls; let i = index;"
+        [ngClass]="getRowColor(store.value)">
       <td>{{store.get('mapKey').value}}</td>
       <td>
         <a [href]="origin + '/casing?store-id=' + store.get('uniqueId').value" target="_blank">{{store.get('uniqueId').value}}</a>
       </td>
       <td>{{store.get('storeName').value}}</td>
-      <td>{{store.get('location').value}}</td>
+      <td [formGroupName]="i" style="width: 183px;">
+        <select placeholder="SOV Category" formControlName="category">
+          <option *ngFor="let category of categories" [value]="category">
+            {{category}}
+          </option>
+        </select>
+      </td>
+      <td style="width: 230px;">{{store.get('location').value}}</td>
       <td class="right-align">{{store.get('salesArea').value}}</td>
       <td [formGroupName]="i" class="right-align">
         <input type="number" formControlName="totalArea" min="0">
@@ -31,12 +47,22 @@
       <td [formGroupName]="i" style="text-align: center;">
         <input type="checkbox" formControlName="useTradeAreaChange">
       </td>
+      <td [formGroupName]="i" colspan="3">
+        <mat-radio-group  formControlName="inclusion" style="width: 100%; display: flex; justify-content: space-around;">
+          <mat-radio-button value="AUTO"></mat-radio-button>
+          <mat-radio-button value="INCLUDE"></mat-radio-button>
+          <mat-radio-button value="EXCLUDE"></mat-radio-button>
+        </mat-radio-group>
+      </td>
     </tr>
   </table>
   <div class='submit'>
     <h3 *ngIf="form.invalid" style="color: #ff4c3e;">All Total Areas are Required</h3>
-    <button [color]="'primary'" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back</button>
-    <button [color]="'warn'" mat-raised-button (click)="next()" [disabled]="form.invalid" style="margin-top:20px;" >Next</button>
+    <button [color]="'primary'" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back
+    </button>
+    <button [color]="'warn'" mat-raised-button (click)="next()" [disabled]="form.invalid" style="margin-top:20px;">
+      Next
+    </button>
   </div>
 </form>
 

@@ -22,3 +22,28 @@ td.right-align input {
 td {
   padding: 5px 10px;
 }
+
+input.ng-invalid {
+  border-color: red;
+}
+
+.mat-select-value {
+  max-width: unset;
+}
+
+.blue {
+  background: #c6f1ff !important;
+}
+
+.yellow {
+  background: #fffdaf !important;
+}
+
+.pink {
+  background: #ffc0b4 !important;
+}
+
+.grey {
+  background: black;
+  color: gray;
+}

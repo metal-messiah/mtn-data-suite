@@ -60,7 +60,8 @@ export class XlsToModelParserService {
         parentCompanyId: null,
         category: null,
         totalArea: null,
-        useTradeAreaChange: false
+        useTradeAreaChange: false,
+        inclusion: 'AUTO'
       })
     } while (!ws['A' + ++row].v.includes('Totals'));
 
