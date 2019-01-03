@@ -9,13 +9,20 @@
   </div>
   <div *ngIf="getMatched() !== automatchQueue.length" class="dialog-body">
     <div *ngFor="let item of automatchQueue; let i = index" class="form-container">
-      <div class="item-title">{{item.record.displayName}} - {{item.record.assignments.banner.bannerName}} #{{item.dbRecord.storeNumber}}</div>
+        <div class="item-title">
+          {{item.record.displayName}} - {{item.record.assignments.banner.bannerName}} #{{item.dbRecord.storeNumber}}
+          
+          <a class="item-title-link" *ngIf="getGoogleMapsUrl(item)" [href]="getGoogleMapsUrl(item)" target="_blank">
+            <i class="fab fa-google"></i>
+          </a>
+        </div>
+      
       <mds-spreadsheet-data-form *ngIf="item.logic && !item.record.validated" [logic]="item.logic" [dbRecord]="item.dbRecord"
                               [currentRecord]="item.record" [forceSubmit]="item.forcedSubmit"
                               (savingEvent)="isSaving($event)"
                               (cancelEvent)="cancel()"
                               (completedEvent)="complete(i)">
-            </mds-spreadsheet-data-form>
+      </mds-spreadsheet-data-form>
     </div>
   </div>
   <div *ngIf="getMatched() === automatchQueue.length && initialized">

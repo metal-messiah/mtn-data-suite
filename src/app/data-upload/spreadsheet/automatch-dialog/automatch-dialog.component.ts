@@ -157,6 +157,18 @@ export class AutomatchDialogComponent implements OnInit {
 		return null;
 	}
 
+	getGoogleMapsUrl(item: AutomatchItem) {
+		const latField = item.record.assignments.lat;
+		const lngField = item.record.assignments.lng;
+		const lat = item.record.getAttribute(latField);
+		const lng = item.record.getAttribute(lngField);
+		if (lat && lng) {
+			return `https://maps.google.com/?q=${lat},${lng}`;
+		} else {
+			return false;
+		}
+	}
+
 	determineAction(): string {
 		// when autoMatch is done, display a message to guide user based on results
 		if (this.getMatched() === this.records.length) {
