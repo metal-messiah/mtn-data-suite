@@ -58,6 +58,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 		private storeService: StoreService,
 		@Inject(MAT_DIALOG_DATA) public data: any
 	) {
+		dialogRef.disableClose = true;
 		this.fields = data.fields;
 		this.spreadsheetService = data.spreadsheetService;
 

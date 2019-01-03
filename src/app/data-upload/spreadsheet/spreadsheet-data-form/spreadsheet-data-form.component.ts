@@ -18,7 +18,7 @@ import { StoreService } from 'app/core/services/store.service';
 import { MapService } from 'app/core/services/map.service';
 
 // components
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog, MatSnackBar, MatDialogRef } from '@angular/material';
 import { QuadDialogComponent } from '../../../casing/quad-dialog/quad-dialog.component';
 import { NewStoreStatusComponent } from 'app/casing/new-store-status/new-store-status.component';
 
@@ -96,8 +96,11 @@ export class SpreadsheetDataFormComponent implements OnChanges, OnInit {
 		private fb: FormBuilder,
 		private dialog: MatDialog,
 		private snackBar: MatSnackBar,
-		private mapService: MapService
-	) {}
+		private mapService: MapService,
+		dialogRef: MatDialogRef<SpreadsheetDataFormComponent>
+	) {
+		dialogRef.disableClose = true;
+	}
 
 	ngOnInit() {}
 
