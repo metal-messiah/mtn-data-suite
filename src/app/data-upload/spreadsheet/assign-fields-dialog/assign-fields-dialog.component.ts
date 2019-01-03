@@ -42,7 +42,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 
 	bannerFetches = 0;
 
-	volumeTypes = [ 'ACTUAL', 'ESTIMATE', 'PROJECTION', 'THIRD_PARTY', 'PLACEHOLDER' ];
+	volumeTypes: string[] = [ 'ACTUAL', 'ESTIMATE', 'PROJECTION', 'THIRD_PARTY', 'PLACEHOLDER' ];
 
 	volumeDate = null;
 	volumeType: string = null;
@@ -59,6 +59,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 		@Inject(MAT_DIALOG_DATA) public data: any
 	) {
 		dialogRef.disableClose = true;
+
 		this.fields = data.fields;
 		this.spreadsheetService = data.spreadsheetService;
 
