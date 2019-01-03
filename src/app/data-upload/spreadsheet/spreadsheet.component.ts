@@ -228,10 +228,16 @@ export class SpreadsheetComponent implements OnInit {
 
 	openFieldDialog(): void {
 		// map file fields to db fields
-		this.dialog.open(AssignFieldsDialogComponent, {
+		const dialogRef = this.dialog.open(AssignFieldsDialogComponent, {
 			data: {
 				fields: this.spreadsheetService.fields,
 				spreadsheetService: this.spreadsheetService
+			}
+		});
+
+		dialogRef.afterClosed().subscribe((message) => {
+			if (message === 'cancel') {
+				this.openLoadDialog();
 			}
 		});
 	}
