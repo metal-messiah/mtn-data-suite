@@ -19,60 +19,53 @@ import { NewProjectNameComponent } from './new-project-name/new-project-name.com
 import { StoreInfoCardComponent } from './store-info-card/store-info-card.component';
 import { SiteInfoCardComponent } from './site-info-card/site-info-card.component';
 import { FileInputComponent } from './file-input/file-input.component';
+import { TabSelectDialogComponent } from './file-input/tab-select-dialog/tab-select-dialog.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    CustomMaterialModule,
-    RouterModule,
-    ReactiveFormsModule
-  ],
-  declarations: [
-    ErrorDialogComponent,
-    ConfirmDialogComponent,
-    CallbackComponent,
-    PathNotFoundComponent,
-    MapComponent,
-    LogoMenuComponent,
-    DataFieldComponent,
-    UserProfileSelectComponent,
-    DataFieldInfoDialogComponent,
-    AppInfoDialogComponent,
-    NewProjectNameComponent,
-    StoreInfoCardComponent,
-    SiteInfoCardComponent,
-    FileInputComponent
-  ],
-  providers: [
-    BreakpointObserver,
-    DatePipe,
-    MediaMatcher
-  ],
-  entryComponents: [
-    ErrorDialogComponent,
-    ConfirmDialogComponent,
-    UserProfileSelectComponent,
-    DataFieldInfoDialogComponent,
-    AppInfoDialogComponent,
-    NewProjectNameComponent
-  ],
-  exports: [
-    CallbackComponent,
-    CommonModule,
-    CustomMaterialModule,
-    DatePipe,
-    FormsModule,
-    HttpClientModule,
-    LogoMenuComponent,
-    MapComponent,
-    PathNotFoundComponent,
-    ReactiveFormsModule,
-    DataFieldComponent,
-    DataFieldInfoDialogComponent,
-    StoreInfoCardComponent,
-    SiteInfoCardComponent,
-    FileInputComponent
-  ]
+	imports: [ CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule ],
+	declarations: [
+		ErrorDialogComponent,
+		ConfirmDialogComponent,
+		CallbackComponent,
+		PathNotFoundComponent,
+		MapComponent,
+		LogoMenuComponent,
+		DataFieldComponent,
+		UserProfileSelectComponent,
+		DataFieldInfoDialogComponent,
+		AppInfoDialogComponent,
+		NewProjectNameComponent,
+		StoreInfoCardComponent,
+		SiteInfoCardComponent,
+		FileInputComponent,
+		TabSelectDialogComponent
+	],
+	providers: [ BreakpointObserver, DatePipe, MediaMatcher ],
+	entryComponents: [
+		ErrorDialogComponent,
+		ConfirmDialogComponent,
+		UserProfileSelectComponent,
+		DataFieldInfoDialogComponent,
+		AppInfoDialogComponent,
+		NewProjectNameComponent,
+		TabSelectDialogComponent
+	],
+	exports: [
+		CallbackComponent,
+		CommonModule,
+		CustomMaterialModule,
+		DatePipe,
+		FormsModule,
+		HttpClientModule,
+		LogoMenuComponent,
+		MapComponent,
+		PathNotFoundComponent,
+		ReactiveFormsModule,
+		DataFieldComponent,
+		DataFieldInfoDialogComponent,
+		StoreInfoCardComponent,
+		SiteInfoCardComponent,
+		FileInputComponent
+	]
 })
-export class SharedModule {
-}
+export class SharedModule {}
