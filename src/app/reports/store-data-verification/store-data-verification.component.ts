@@ -71,10 +71,7 @@ export class StoreDataVerificationComponent implements OnInit {
       if (useTradeAreaChangeControl.dirty) {
         storeListItem.useTradeAreaChange = useTradeAreaChangeControl.value;
       }
-      const inclusionControl = siControl.get('inclusion');
-      if (inclusionControl.dirty) {
-        storeListItem.inclusion = inclusionControl.value;
-      }
+      storeListItem.forceInclusion = siControl.get('forceInclusion').value;
     });
   }
 

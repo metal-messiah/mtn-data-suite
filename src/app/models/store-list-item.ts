@@ -1,5 +1,6 @@
 export class StoreListItem {
   storeName: string;
+  bannerName: string;
   mapKey: number;
   uniqueId: number;
   latitude: number;
@@ -15,6 +16,7 @@ export class StoreListItem {
   location: string;
   parentCompanyId: number;
   category: string;
-  useTradeAreaChange = false;
-  inclusion = 'AUTO'
+  useTradeAreaChange: boolean;
+  forceInclusion: boolean;
+  scenario: string;
 }

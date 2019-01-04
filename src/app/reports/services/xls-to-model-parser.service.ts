@@ -62,7 +62,7 @@ export class XlsToModelParserService {
         category: null,
         totalArea: null,
         useTradeAreaChange: false,
-        inclusion: 'AUTO',
+        forceInclusion: false,
         scenario: 'Existing'
       })
     } while (!ws['A' + ++row].v.includes('Totals'));

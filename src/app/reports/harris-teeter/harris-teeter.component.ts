@@ -3,9 +3,11 @@ import { ReportBuilderService } from '../services/report-builder.service';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { JsonToTablesUtil } from '../report-tables/json-to-tables.util';
 import { AuthService } from '../../core/services/auth.service';
+import { ErrorService } from '../../core/services/error.service';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'mds-harris-teeter',
@@ -19,6 +21,8 @@ export class HarrisTeeterComponent implements OnInit {
 
   scenarioOptions = ['Opening', 'Closed'];
 
+  reportData;
+
   ratings = [
     {value: 1, display: 'Poor'},
     {value: 2, display: 'Fair'},
@@ -31,6 +35,7 @@ export class HarrisTeeterComponent implements OnInit {
               public _location: Location,
               public router: Router,
               private fb: FormBuilder,
+              private errorService: ErrorService,
               private authService: AuthService,
               private snackBar: MatSnackBar) {
   }
@@ -41,6 +46,8 @@ export class HarrisTeeterComponent implements OnInit {
       this.router.navigate(['reports']);
     } else {
       document.getElementById('reports-content-wrapper').scrollTop = 0;
+      const util = new JsonToTablesUtil(this.rbs);
+      this.reportData = util.getReportData();
       this.createForm();
     }
   }
@@ -48,9 +55,10 @@ export class HarrisTeeterComponent implements OnInit {
   createForm() {
     this.form = this.fb.group({
       compChanges: this.fb.array(this.rbs.reportTableData.storeList
-        .filter(s => s.scenario === 'Opening' || s.scenario === 'Closed')
-        .map(s => {
-          const fg = this.fb.group(s);
+        .filter(store => store.scenario === 'Opening' || store.scenario === 'Closed')
+        .map(store => {
+          const fg = this.fb.group(store);
+          fg.addControl('includeInReport', this.fb.control(this.isIncludedInSOV(store.mapKey)));
           fg.addControl('additionalText', this.fb.control(''));
           return fg;
         })),
@@ -58,24 +66,28 @@ export class HarrisTeeterComponent implements OnInit {
       ingressRating: this.fb.control('3'),
       egressRating: this.fb.control('3'),
       state: this.fb.control(''),
-      reportTitle: this.fb.control(''),
-      reportType: this.fb.control('Metro Market Study')
     });
     this.compChangeControls = (this.form.get('compChanges') as FormArray).controls;
   }
 
+  isIncludedInSOV(mapKey) {
+    return this.reportData.sovData.proposedCompetition.find(store => store.mapKey === mapKey);
+  }
+
   private getAssumptions() {
-    return (this.form.get('compChanges') as FormArray).controls.map(siControl => {
-      const storeName = siControl.get('storeName').value;
-      const location = siControl.get('location').value;
-      const scenario = siControl.get('scenario').value;
-      let additionalText = siControl.get('additionalText').value;
-      if (additionalText) {
-        additionalText = ' ' + additionalText;
-      }
-      const totalArea: number = siControl.get('totalArea').value;
-      return `${storeName} at ${location.replace('/', 'in')}, ${scenario}${additionalText}, ${totalArea.toLocaleString()} TSQFT.`
-    });
+    return (this.form.get('compChanges') as FormArray).controls
+      .filter(storeControl => storeControl.get('includeInReport').value)
+      .map(siControl => {
+        const storeName = siControl.get('storeName').value;
+        const location = siControl.get('location').value;
+        const scenario = siControl.get('scenario').value;
+        let additionalText = siControl.get('additionalText').value;
+        if (additionalText) {
+          additionalText = ' ' + additionalText;
+        }
+        const totalArea: number = siControl.get('totalArea').value;
+        return `${storeName} at ${location.replace('/', 'in')}, ${scenario}${additionalText}, ${totalArea.toLocaleString()} TSQFT.`
+      });
   }
 
   private getSite() {
@@ -95,11 +107,9 @@ export class HarrisTeeterComponent implements OnInit {
     }
   }
 
-  private getImpactedSisterStores() {
-    return this.rbs.reportTableData.storeList
-      .filter(store => {
-        return store.category === 'Company Store' && store.scenario !== 'Site' && store.scenario !== 'Exclude'
-      })
+  private getImpactedSisterStores(reportData) {
+    return reportData.sovData.companyStores
+      .filter(store => !store.isSite)
       .sort((a, b) => {
         if (a.storeName === b.storeName) {
           return a.mapKey - b.mapKey;
@@ -110,32 +120,37 @@ export class HarrisTeeterComponent implements OnInit {
       .map(store => {
         return {
           mapKey: store.mapKey,
-          scenario: store.scenario,
           name: store.storeName,
-          scenarioImpacts: {}
+          scenarioImpacts: {
+            'S1 A': store.contributionDollars
+          }
         }
       });
   }
 
   getHTReport() {
-    const util = new JsonToTablesUtil(this.rbs);
-    const reportData = util.getReportData();
-    reportData['assumptions'] = this.getAssumptions();
-    reportData['site'] = this.getSite();
-    reportData['analyst'] = this.authService.sessionUser;
-    reportData['reportTitle'] = this.form.get('reportTitle').value;
-    reportData['reportType'] = this.form.get('reportType').value;
-    reportData['impactedSisterStores'] = this.getImpactedSisterStores();
-    reportData['scenarios'] = [{
-      scenario: 'SCENARIO NAME',
-      projectedFitImage: 'POWER',
-      size: 'SIZE',
-      year1Ending: 0,
-      year2Ending: 0,
-      year3Ending: 0
+    this.reportData['assumptions'] = this.getAssumptions();
+    this.reportData['site'] = this.getSite();
+    this.reportData['analyst'] = this.authService.sessionUser;
+    this.reportData['reportTitle'] = this.rbs.reportMetaData.modelName;
+    this.reportData['reportType'] = this.rbs.reportMetaData.type;
+    this.reportData['impactedSisterStores'] = this.getImpactedSisterStores(this.reportData);
+    this.reportData['scenarios'] = [{
+      scenario: 'S1 A',
+      projectedFitImage: this.reportData.projections.power,
+      size: this.reportData.projections.totalArea,
+      year1Ending: this.reportData.projections.firstYearEndingSales,
+      year2Ending: this.reportData.projections.secondYearEndingSales,
+      year3Ending: this.reportData.projections.thirdYearEndingSales
     }];
 
-    console.log(reportData);
+    console.log(this.reportData);
+    this.rbs.getHTReport(this.reportData)
+      .subscribe(res => saveAs(res.body, `${this.rbs.reportMetaData.modelName}.pdf`),
+        err => {
+          this.rbs.compilingReport = false;
+          this.errorService.handleServerError('Failed get pdf', err, () => console.log(err))
+        });
   }
 
 }

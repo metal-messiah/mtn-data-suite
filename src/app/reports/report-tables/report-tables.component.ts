@@ -45,12 +45,12 @@ export class ReportTablesComponent implements OnInit {
 
   startBuildingReport() {
     const REPORT_NAME = this.rbs.reportMetaData.modelName;
-    this.rbs.complingReport = true;
+    this.rbs.compilingReport = true;
     this.reportData.mapUrl = this.util.getMapUrl(this.googleMapsBasemap, this.zoom);
     this.rbs.startReportBuilding(this.reportData, REPORT_NAME)
       .subscribe(() => this.pollForZip(REPORT_NAME),
       err => {
-        this.rbs.complingReport = false;
+        this.rbs.compilingReport = false;
         this.errorService.handleServerError('Failed to create zip file', err, () => console.log(err));
       });
   }
@@ -63,13 +63,13 @@ export class ReportTablesComponent implements OnInit {
             console.log('Keep polling');
             this.pollForZip(REPORT_NAME);
           } else {
-            this.rbs.complingReport = false;
+            this.rbs.compilingReport = false;
             saveAs(res.body, `${REPORT_NAME}.zip`);
             this.router.navigate(['reports/download']);
           }
         },
         err => {
-          this.rbs.complingReport = false;
+          this.rbs.compilingReport = false;
           this.errorService.handleServerError('Failed to retrieve zip file', err, () => console.log(err))
         });
   }

@@ -1,10 +1,6 @@
 <form *ngIf="form" [formGroup]="form" class="wrapper">
   <table matSort (matSortChange)="sortData($event)" style="border-collapse: collapse;">
     <tr>
-      <th colspan="13"></th>
-      <th colspan="3">Inclusion in Report</th>
-    </tr>
-    <tr>
       <th mat-sort-header="mapKey">Map<br>Key</th>
       <th mat-sort-header="uniqueId">Store<br>ID</th>
       <th mat-sort-header="storeName">Store Name</th>
@@ -18,9 +14,7 @@
       <th mat-sort-header="tradeAreaChange">TA<br>Change</th>
       <th mat-sort-header="tradeAreaChangePerc">TA<br>%</th>
       <th>Use TA<br>Change</th>
-      <th style="padding-left: 5px;">Auto</th>
-      <th style="padding-left: 5px;">Include</th>
-      <th style="padding-left: 5px;">Exclude</th>
+      <th style="width: 70px;">Force<br>Include</th>
     </tr>
     <tr formArrayName="stores" *ngFor="let store of storeControls; let i = index;"
         [ngClass]="getRowColor(store.value)">
@@ -49,12 +43,8 @@
       <td [formGroupName]="i" style="text-align: center;">
         <input type="checkbox" formControlName="useTradeAreaChange">
       </td>
-      <td [formGroupName]="i" colspan="3">
-        <mat-radio-group  formControlName="inclusion" style="width: 100%; display: flex; justify-content: space-around;">
-          <mat-radio-button value="AUTO"></mat-radio-button>
-          <mat-radio-button value="INCLUDE"></mat-radio-button>
-          <mat-radio-button value="EXCLUDE"></mat-radio-button>
-        </mat-radio-group>
+      <td [formGroupName]="i" style="text-align: center;">
+        <input type="checkbox" formControlName="forceInclusion">
       </td>
     </tr>
   </table>
@@ -62,11 +52,11 @@
     <h3 *ngIf="form.invalid" style="color: #ff4c3e;">All Total Areas are Required</h3>
     <button color="primary" mat-raised-button (click)="_location.back()" style="margin-top:20px;">Go Back
     </button>
+    <button color="accent" mat-raised-button (click)="harrisTeeter()" [disabled]="form.invalid" style="margin:20px 0 0 20px;">
+      Harris Teeter
+    </button>
     <button color="warn" mat-raised-button (click)="next()" [disabled]="form.invalid" style="margin:20px 0 0 20px;">
       Next
-    </button>
-    <button color="accent" mat-raised-button (click)="harrisTeeter()" style="margin:20px 0 0 20px;">
-      Harris Teeter
     </button>
   </div>
 </form>

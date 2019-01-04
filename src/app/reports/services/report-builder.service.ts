@@ -14,7 +14,7 @@ export class ReportBuilderService {
   siteEvaluationNarrative;
   siteEvaluationRatings;
 
-  complingReport = false;
+  compilingReport = false;
 
   constructor(protected http: HttpClient, protected rest: RestService, private authService: AuthService) {
   }
@@ -32,25 +32,25 @@ export class ReportBuilderService {
   }
 
   startReportBuilding(reportData: any, reportName: string) {
-    const url = 'https://mtn-report-service.herokuapp.com' + this.endpoint + `/zip`;
+    const url = this.rest.getReportHost() + this.endpoint + `/zip`;
     let params = new HttpParams().set('report-name', reportName);
     params = params.set('user-id', this.authService.sessionUser.id.toString());
     return this.http.post(url, reportData, {params: params});
   }
 
   getReportZip(reportName: string) {
-    const url = 'https://mtn-report-service.herokuapp.com' + this.endpoint + `/zip`;
+    const url = this.rest.getReportHost() + this.endpoint + `/zip`;
     let params = new HttpParams().set('report-name', reportName);
     params = params.set('user-id', this.authService.sessionUser.id.toString());
     return this.http.get(url, {params: params, observe: 'response', responseType: 'blob'});
   }
 
-  getHTReport(reportData: ReportData, reportName: string) {
-    const url = 'http://localhost:3000/ht/report';
+  getHTReport(reportData) {
+    const url = this.rest.getNodeReportHost() + '/ht/report';
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
-    return this.http.post(url, reportData, {headers: headers});
+    return this.http.post(url, reportData, {headers: headers, observe: 'response', responseType: 'blob'});
   }
 
 }
