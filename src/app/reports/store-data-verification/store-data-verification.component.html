@@ -1,13 +1,14 @@
 <form *ngIf="form" [formGroup]="form" class="wrapper">
   <table matSort (matSortChange)="sortData($event)" style="border-collapse: collapse;">
     <tr>
-      <th colspan="12"></th>
+      <th colspan="13"></th>
       <th colspan="3">Inclusion in Report</th>
     </tr>
     <tr>
       <th mat-sort-header="mapKey">Map<br>Key</th>
       <th mat-sort-header="uniqueId">Store<br>ID</th>
       <th mat-sort-header="storeName">Store Name</th>
+      <th mat-sort-header="scenario">Scenario</th>
       <th mat-sort-header="category">SOV<br>Category</th>
       <th mat-sort-header="location">Location</th>
       <th mat-sort-header="salesArea">Sales Area</th>
@@ -28,6 +29,7 @@
         <a [href]="origin + '/casing?store-id=' + store.get('uniqueId').value" target="_blank">{{store.get('uniqueId').value}}</a>
       </td>
       <td>{{store.get('storeName').value}}</td>
+      <td>{{store.get('scenario').value}}</td>
       <td [formGroupName]="i" style="width: 183px;">
         <select placeholder="SOV Category" formControlName="category">
           <option *ngFor="let category of categories" [value]="category">
@@ -58,10 +60,13 @@
   </table>
   <div class='submit'>
     <h3 *ngIf="form.invalid" style="color: #ff4c3e;">All Total Areas are Required</h3>
-    <button [color]="'primary'" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back
+    <button color="primary" mat-raised-button (click)="_location.back()" style="margin-top:20px;">Go Back
     </button>
-    <button [color]="'warn'" mat-raised-button (click)="next()" [disabled]="form.invalid" style="margin-top:20px;">
+    <button color="warn" mat-raised-button (click)="next()" [disabled]="form.invalid" style="margin:20px 0 0 20px;">
       Next
+    </button>
+    <button color="accent" mat-raised-button (click)="harrisTeeter()" style="margin:20px 0 0 20px;">
+      Harris Teeter
     </button>
   </div>
 </form>

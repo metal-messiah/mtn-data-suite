@@ -35,12 +35,24 @@ input.ng-invalid {
   background: #c6f1ff !important;
 }
 
+.blue:hover {
+  border: 1px solid black;
+}
+
 .yellow {
   background: #fffdaf !important;
 }
 
+.yellow:hover {
+  border: 1px solid black;
+}
+
 .pink {
   background: #ffc0b4 !important;
+}
+
+.pink:hover {
+  border: 1px solid black;
 }
 
 .grey {

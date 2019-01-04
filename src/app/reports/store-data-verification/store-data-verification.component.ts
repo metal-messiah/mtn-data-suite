@@ -36,12 +36,12 @@ export class StoreDataVerificationComponent implements OnInit {
   }
 
   ngOnInit() {
-    window.scrollTo(0, 0);
     if (!this.rbs.reportTableData) {
       this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
       this.router.navigate(['reports']);
     } else {
       this.origin = location.origin;
+      document.getElementById('reports-content-wrapper').scrollTop = 0;
       this.createForm();
     }
   }
@@ -59,7 +59,7 @@ export class StoreDataVerificationComponent implements OnInit {
     this.storeControls = (this.form.get('stores') as FormArray).controls;
   }
 
-  next() {
+  private updateSiteListItems() {
     (this.form.get('stores') as FormArray).controls.forEach(siControl => {
       const mapKey = siControl.get('mapKey').value;
       const storeListItem: StoreListItem = this.rbs.reportTableData.storeList.find(s => s.mapKey === mapKey);
@@ -76,9 +76,18 @@ export class StoreDataVerificationComponent implements OnInit {
         storeListItem.inclusion = inclusionControl.value;
       }
     });
+  }
 
+  next() {
+    this.updateSiteListItems();
     this.router.navigate(['reports/site-evaluation'])
   }
+
+  harrisTeeter() {
+    this.updateSiteListItems();
+    this.router.navigate(['reports/harris-teeter'])
+  }
+
 
   private compare(a: number | string, b: number | string, isAsc: boolean) {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
@@ -95,6 +104,7 @@ export class StoreDataVerificationComponent implements OnInit {
           case 'mapKey': return this.compare(a.get('mapKey').value, b.get('mapKey').value, isAsc);
           case 'uniqueId': return this.compare(a.get('uniqueId').value, b.get('uniqueId').value, isAsc);
           case 'storeName': return this.compare(a.get('storeName').value, b.get('storeName').value, isAsc);
+          case 'scenario': return this.compare(a.get('scenario').value, b.get('scenario').value, isAsc);
           case 'category': return this.compare(a.get('category').value, b.get('category').value, isAsc);
           case 'location': return this.compare(a.get('location').value, b.get('location').value, isAsc);
           case 'salesArea': return this.compare(a.get('salesArea').value, b.get('salesArea').value, isAsc);

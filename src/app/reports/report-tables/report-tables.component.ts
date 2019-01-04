@@ -39,7 +39,6 @@ export class ReportTablesComponent implements OnInit {
     } else {
       this.util = new JsonToTablesUtil(this.rbs);
       this.reportData = this.util.getReportData();
-      this.util.getMapUrl();
       document.getElementById('reports-content-wrapper').scrollTop = 0;
     }
   }

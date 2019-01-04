@@ -10,6 +10,7 @@ import { StoreDataVerificationComponent } from './store-data-verification/store-
 import { SiteEvaluationComponent } from './site-evaluation/site-evaluation.component';
 import { ReportTablesComponent } from './report-tables/report-tables.component';
 import { ReportDownloadComponent } from './download/report-download.component';
+import { HarrisTeeterComponent } from './harris-teeter/harris-teeter.component';
 
 const routes: Routes = [
   {
@@ -22,7 +23,8 @@ const routes: Routes = [
       {path: 'data-verification', component: StoreDataVerificationComponent},
       {path: 'site-evaluation', component: SiteEvaluationComponent},
       {path: 'table-preview', component: ReportTablesComponent},
-      {path: 'download', component: ReportDownloadComponent}
+      {path: 'download', component: ReportDownloadComponent},
+      {path: 'harris-teeter', component: HarrisTeeterComponent}
     ]
   }
 ];

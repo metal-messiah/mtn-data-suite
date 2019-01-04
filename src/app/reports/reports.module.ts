@@ -10,6 +10,7 @@ import { SiteEvaluationComponent } from './site-evaluation/site-evaluation.compo
 import { StoreCategorizationComponent } from './store-categorization/store-categorization.component';
 import { StoreDataVerificationComponent } from './store-data-verification/store-data-verification.component';
 import { ReportDownloadComponent } from './download/report-download.component';
+import { HarrisTeeterComponent } from './harris-teeter/harris-teeter.component';
 
 @NgModule({
   imports: [
@@ -23,7 +24,8 @@ import { ReportDownloadComponent } from './download/report-download.component';
     SiteEvaluationComponent,
     StoreCategorizationComponent,
     StoreDataVerificationComponent,
-    ReportDownloadComponent
+    ReportDownloadComponent,
+    HarrisTeeterComponent
   ],
   providers: [
     ReportBuilderService,

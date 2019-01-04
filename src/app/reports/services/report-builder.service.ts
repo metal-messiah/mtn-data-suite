@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ReportData } from '../../models/report-data';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { RestService } from '../../core/services/rest.service';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -43,6 +43,14 @@ export class ReportBuilderService {
     let params = new HttpParams().set('report-name', reportName);
     params = params.set('user-id', this.authService.sessionUser.id.toString());
     return this.http.get(url, {params: params, observe: 'response', responseType: 'blob'});
+  }
+
+  getHTReport(reportData: ReportData, reportName: string) {
+    const url = 'http://localhost:3000/ht/report';
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    return this.http.post(url, reportData, {headers: headers});
   }
 
 }

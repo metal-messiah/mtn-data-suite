@@ -117,7 +117,7 @@ export class JsonToTablesUtil {
     this.data = this.getReportData();
   }
 
-  private getReportData() {
+  getReportData() {
     return {
       projections: this.getProjectionsTableData(),
       currentSummary: this.getCurrentSummaryTableData(),
@@ -314,9 +314,11 @@ export class JsonToTablesUtil {
     txt += `Store Name:\r\n${this.targetStore.storeName}\r\n\r\n`;
     txt += `Map Key:\r\n${this.targetStore.mapKey}\r\n\r\n`;
 
-    Object.keys(this.siteEvaluationNarrative).forEach(key => {
-      txt += `${key}:\r\n${this.siteEvaluationNarrative[key]}\r\n\r\n`
-    });
+    if (this.siteEvaluationNarrative) {
+      Object.keys(this.siteEvaluationNarrative).forEach(key => {
+        txt += `${key}:\r\n${this.siteEvaluationNarrative[key]}\r\n\r\n`
+      });
+    }
     return txt;
   }
 
