@@ -96,6 +96,21 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     {name: 'departmentWine', title: 'Wine', info: '???'}
   ];
 
+  months = [
+    {placeholder: 'January', formControlName: 'seasonalityJan'},
+    {placeholder: 'February', formControlName: 'seasonalityFeb'},
+    {placeholder: 'March', formControlName: 'seasonalityMar'},
+    {placeholder: 'April', formControlName: 'seasonalityApr'},
+    {placeholder: 'May', formControlName: 'seasonalityMay'},
+    {placeholder: 'June', formControlName: 'seasonalityJun'},
+    {placeholder: 'July', formControlName: 'seasonalityJul'},
+    {placeholder: 'August', formControlName: 'seasonalityAug'},
+    {placeholder: 'September', formControlName: 'seasonalitySep'},
+    {placeholder: 'October', formControlName: 'seasonalityOct'},
+    {placeholder: 'November', formControlName: 'seasonalityNov'},
+    {placeholder: 'December', formControlName: 'seasonalityDec'}
+  ];
+
   constructor(private storeCasingService: StoreCasingService,
               private storeSurveyService: StoreSurveyService,
               private storeService: StoreService,
@@ -710,6 +725,30 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       }
     }
     return true;
+  }
+
+  getVolume() {
+    const totalVolumeControl = this.storeVolumeForm.get('volumeTotal');
+    if (totalVolumeControl && totalVolumeControl.value) {
+      return '$' + totalVolumeControl.value.toLocaleString();
+    } else {
+      return 'Not yet entered'
+    }
+  }
+
+  getCalculatedSeasonality(month) {
+    const totalVolumeControl = this.storeVolumeForm.get('volumeTotal');
+    if (totalVolumeControl) {
+      const totalVolume = totalVolumeControl.value;
+      if (totalVolume) {
+        const seasonality = this.storeSurveyForm.get(month.formControlName).value;
+        if (seasonality) {
+          const seasonalVolume = (seasonality / 100 * totalVolume) + totalVolume;
+          return '$' + seasonalVolume.toLocaleString();
+        }
+      }
+    }
+    return null;
   }
 
 }

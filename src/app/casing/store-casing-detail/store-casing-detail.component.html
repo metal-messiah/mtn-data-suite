@@ -619,69 +619,14 @@
               <mat-form-field>
                 <textarea formControlName="seasonalityNotes" matInput placeholder="Seasonality Notes"></textarea>
               </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="January" formControlName="seasonalityJan">
+              <h3 style="text-align: center;">Adjustments from <b>Slack</b> Volume</h3>
+              <h4 style="text-align: center">Volume: {{getVolume()}}</h4>
+              <mat-form-field *ngFor="let month of months">
+                <input matInput type="number" autocomplete="off" [placeholder]="month.placeholder"
+                       [formControlName]="month.formControlName">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="February"
-                       formControlName="seasonalityFeb">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="March" formControlName="seasonalityMar">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="April" formControlName="seasonalityApr">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="May" formControlName="seasonalityMay">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="June" formControlName="seasonalityJun">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="July" formControlName="seasonalityJul">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="August" formControlName="seasonalityAug">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="September"
-                       formControlName="seasonalitySep">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="October" formControlName="seasonalityOct">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="November"
-                       formControlName="seasonalityNov">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="December"
-                       formControlName="seasonalityDec">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
+                <mat-hint align="end">{{getCalculatedSeasonality(month)}}</mat-hint>
               </mat-form-field>
             </div>
           </mat-expansion-panel>
