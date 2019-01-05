@@ -165,7 +165,6 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       registerCountExpress: ['', [Validators.min(1)]],
       registerCountSelfCheckout: ['', [Validators.min(1)]],
       fuelDispenserCount: ['', [Validators.min(1)]],
-      fuelIsOpen24: '',
       pharmacyIsOpen24: '',
       pharmacyHasDriveThrough: '',
       pharmacyScriptsWeekly: ['', [Validators.min(0)]],
