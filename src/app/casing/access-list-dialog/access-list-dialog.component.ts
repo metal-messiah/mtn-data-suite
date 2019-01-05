@@ -7,6 +7,7 @@ import { ShoppingCenterSurveyService } from '../../core/services/shopping-center
 import { ShoppingCenterAccessService } from '../../core/services/shopping-center-access.service';
 import { ErrorService } from '../../core/services/error.service';
 import { finalize } from 'rxjs/internal/operators';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'mds-access-list-dialog',
@@ -111,16 +112,22 @@ export class AccessListDialogComponent implements OnInit {
         () => this.deleteAccess(access, index)));
   }
 
+  saveAllAndClose() {
+    const dirtyAccessControls = (this.form.get('accesses') as FormArray).controls.filter(control => control.dirty);
+    if (dirtyAccessControls.length > 0) {
+      this.saving = true;
+      forkJoin(dirtyAccessControls.map(dac => this.updateAccess(dac)))
+        .pipe(finalize(() => this.saving = false))
+        .subscribe(results => {
+          this.snackBar.open(`Successfully Updated ${results.length} Accesses`, null, {duration: 1000});
+          this.dialogRef.close();
+        }, err => this.errorService.handleServerError('Failed to update access!', err,
+          () => console.log(err),
+          () => this.saveAllAndClose()));
+    }
+  }
+
   updateAccess(accessFormControl: AbstractControl) {
-    this.saving = true;
-    this.shoppingCenterAccessService.update(new ShoppingCenterAccess(accessFormControl.value))
-      .pipe(finalize(() => this.saving = false))
-      .subscribe((access: ShoppingCenterAccess) => {
-        accessFormControl.reset(access);
-        this.snackBar.open('Successfully Updated Access', null, {duration: 1000});
-      }, err => this.errorService.handleServerError('Failed to update access!', err,
-        () => {
-        },
-        () => this.updateAccess(accessFormControl)));
+    return this.shoppingCenterAccessService.update(new ShoppingCenterAccess(accessFormControl.value));
   }
 }
