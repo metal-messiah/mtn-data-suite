@@ -571,6 +571,7 @@
                   <input matInput type="number" autocomplete="off" placeholder="Total Weekly Grocery Volume"
                          formControlName="volumeTotal" required>
                   <span matPrefix>$&nbsp;</span>
+                  <mat-hint>ALWAYS Slack</mat-hint>
                   <mat-error *ngIf="storeVolumeForm.get('volumeTotal').invalid">Min: $10k, Max: $10M
                   </mat-error>
                 </mat-form-field>
