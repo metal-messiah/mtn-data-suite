@@ -7,3 +7,11 @@
   margin-left: 16px;
   margin-right: 16px;
 }
+
+.list-wrapper mat-form-field {
+  width: 100%;
+}
+
+#bannerInput {
+  width: 400px;
+}

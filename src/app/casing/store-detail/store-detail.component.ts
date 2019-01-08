@@ -11,6 +11,8 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 import { RoutingStateService } from '../../core/services/routing-state.service';
 import { finalize, tap } from 'rxjs/internal/operators';
 import { Observable } from 'rxjs';
+import { SelectBannerComponent } from '../select-banner/select-banner.component';
+import { BannerService } from '../../core/services/banner.service';
 
 @Component({
   selector: 'mds-store-detail',
@@ -20,6 +22,8 @@ import { Observable } from 'rxjs';
 export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
 
   loading = false;
+  saving = false;
+
   store: Store;
 
   form: FormGroup;
@@ -33,6 +37,7 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
     'Trader Joe\'s', 'Warehouse'];
 
   constructor(private storeService: StoreService,
+              private bannerService: BannerService,
               private router: Router,
               private route: ActivatedRoute,
               private routingState: RoutingStateService,
@@ -101,7 +106,9 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
   }
 
   saveForm() {
+    this.saving = true;
     this.storeService.update(this.prepareSaveStore())
+      .pipe(finalize(() => this.saving = false))
       .subscribe((store: Store) => {
         this.store = store;
         this.rebuildForm();
@@ -127,5 +134,47 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
     }));
   }
 
+  selectBanner() {
+    const dialog = this.dialog.open(SelectBannerComponent, {maxWidth: '90%'});
+    dialog.afterClosed().subscribe(result => {
+      if (result && result.bannerName) {
+        this.updateBanner(result.id);
+      } else if (result === 'remove') {
+        this.removeBanner();
+      } else {
+        console.log(result);
+      }
+    })
+  }
+
+  updateBanner(bannerId: number) {
+    this.saving = true;
+    this.storeService.updateBanner(this.store.id, bannerId)
+      .pipe(finalize(() => this.saving = false))
+      .subscribe(store => {
+          this.store = store;
+          this.snackBar.open('Successfully Updated Banner', null, {duration: 1000});
+        }, error => this.errorService.handleServerError('Failed to update banner!', error,
+        () => console.log(error),
+        () => this.updateBanner(bannerId))
+      );
+  }
+
+  removeBanner() {
+    this.saving = true;
+    this.storeService.removeBanner(this.store.id)
+      .pipe(finalize(() => this.saving = false))
+      .subscribe(store => {
+          this.store = store;
+          this.snackBar.open('Successfully Removed Banner', null, {duration: 1000});
+        }, error => this.errorService.handleServerError('Failed to remove banner!', error,
+        () => console.log(error),
+        () => this.removeBanner())
+      );
+  }
+
+  getBannerImageSrc(banner) {
+    return this.bannerService.getBannerImageSrc(banner);
+  }
 
 }
