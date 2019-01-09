@@ -17,7 +17,7 @@ import { ErrorService } from '../../core/services/error.service';
 export class ReportTablesComponent implements OnInit {
 
   util;
-  data;
+  reportData;
 
   googleMapsBasemap = 'hybrid';
   zoom = 15;
@@ -38,20 +38,19 @@ export class ReportTablesComponent implements OnInit {
       }, 10)
     } else {
       this.util = new JsonToTablesUtil(this.rbs);
-      this.data = this.util.getReportData();
-      this.util.getMapUrl();
+      this.reportData = this.util.getReportData();
       document.getElementById('reports-content-wrapper').scrollTop = 0;
     }
   }
 
   startBuildingReport() {
     const REPORT_NAME = this.rbs.reportMetaData.modelName;
-    this.rbs.complingReport = true;
-    this.data.mapUrl = this.util.getMapUrl(this.googleMapsBasemap, this.zoom);
-    this.rbs.startReportBuilding(this.data, REPORT_NAME)
+    this.rbs.compilingReport = true;
+    this.reportData.mapUrl = this.util.getMapUrl(this.googleMapsBasemap, this.zoom);
+    this.rbs.startReportBuilding(this.reportData, REPORT_NAME)
       .subscribe(() => this.pollForZip(REPORT_NAME),
       err => {
-        this.rbs.complingReport = false;
+        this.rbs.compilingReport = false;
         this.errorService.handleServerError('Failed to create zip file', err, () => console.log(err));
       });
   }
@@ -64,21 +63,21 @@ export class ReportTablesComponent implements OnInit {
             console.log('Keep polling');
             this.pollForZip(REPORT_NAME);
           } else {
-            this.rbs.complingReport = false;
+            this.rbs.compilingReport = false;
             saveAs(res.body, `${REPORT_NAME}.zip`);
             this.router.navigate(['reports/download']);
           }
         },
         err => {
-          this.rbs.complingReport = false;
+          this.rbs.compilingReport = false;
           this.errorService.handleServerError('Failed to retrieve zip file', err, () => console.log(err))
         });
   }
 
   getOverflowMessage() {
-    return '(Showing ' + this.data.sovData.showingCount + '/' + this.data.sovData.totalCount +
+    return '(Showing ' + this.reportData.sovData.showingCount + '/' + this.reportData.sovData.totalCount +
       ' stores. A total contribution to site of $' +
-      Math.round(this.data.sovData.totalContributionExcluded).toLocaleString() +
+      Math.round(this.reportData.sovData.totalContributionExcluded).toLocaleString() +
       ' was excluded from the report.)'
   }
 

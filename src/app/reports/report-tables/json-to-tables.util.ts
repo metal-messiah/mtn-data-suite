@@ -49,21 +49,35 @@ export class JsonToTablesUtil {
         return store;
       });
 
+    // To be added back in after
+    const forcedInclusions = tableStores.filter(store => store.forceInclusion);
+
+    const sortByContribution = (a, b) => {
+      if (a.mapKey === this.tableData.selectedMapKey) {
+        return -1;
+      }
+      if (b.mapKey === this.tableData.selectedMapKey) {
+        return 1;
+      }
+      return Math.abs(b['contributionToSite']) - Math.abs(a['contributionToSite']);
+    };
+
+    // Top contributors to the site
     this.sovStores = tableStores
     // sort by target, then by contribution to site
-      .sort((a, b) => {
-        if (a.mapKey === this.tableData.selectedMapKey) {
-          return -1;
-        }
-        if (b.mapKey === this.tableData.selectedMapKey) {
-          return 1;
-        }
-        return Math.abs(b['contributionToSite']) - Math.abs(a['contributionToSite']);
-      })
+      .sort(sortByContribution)
       // only return the max at most
-      .slice(0, this.maxSovCount)
-      // create an array with calculated properties added
-      .map(store => {
+      .slice(0, this.maxSovCount);
+
+    // Add any forced inclusions back in if they were filtered out
+    forcedInclusions.forEach(store => {
+      if (!this.sovStores.includes(store)) {
+        this.sovStores.push(store);
+      }
+    });
+
+    // create an array with calculated properties added
+    this.sovStores.forEach(store => {
         const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store);
 
         store['closing'] = !storeAfterSiteOpen.futureSales;
@@ -80,11 +94,11 @@ export class JsonToTablesUtil {
               lng: this.targetStore.longitude
             }
           ) * 0.000621371;
-
-        return store;
       });
+    this.sovStores.sort(sortByContribution);
 
-    this.sovOverflowStores = tableStores.slice(this.maxSovCount, tableStores.length);
+    // If it isn't included in SOV, then it belongs in the overflow.
+    this.sovOverflowStores = tableStores.filter(store => !this.sovStores.includes(store));
 
     // Current Summary
     const cStores = tableStores.filter(store => store.actualSales).sort((a, b) => a.mapKey - b.mapKey);
@@ -113,11 +127,10 @@ export class JsonToTablesUtil {
     this.projectedWeeklyStores = partitionedProjected[0];
     this.projectedWeeklyStoresOverflow = partitionedProjected[1];
 
-
     this.data = this.getReportData();
   }
 
-  private getReportData() {
+  getReportData() {
     return {
       projections: this.getProjectionsTableData(),
       currentSummary: this.getCurrentSummaryTableData(),
@@ -314,15 +327,17 @@ export class JsonToTablesUtil {
     txt += `Store Name:\r\n${this.targetStore.storeName}\r\n\r\n`;
     txt += `Map Key:\r\n${this.targetStore.mapKey}\r\n\r\n`;
 
-    Object.keys(this.siteEvaluationNarrative).forEach(key => {
-      txt += `${key}:\r\n${this.siteEvaluationNarrative[key]}\r\n\r\n`
-    });
+    if (this.siteEvaluationNarrative) {
+      Object.keys(this.siteEvaluationNarrative).forEach(key => {
+        txt += `${key}:\r\n${this.siteEvaluationNarrative[key]}\r\n\r\n`
+      });
+    }
     return txt;
   }
 
   getSovStoresOfCategory(category) {
     // categories => Company Store, Proposed Competition, Existing Competition
-    return this.sovStores.slice(0, this.maxSovCount).filter(store => store.category === category);
+    return this.sovStores.filter(store => store.category === category);
   }
 
   getSummaryAverage(data, field) {

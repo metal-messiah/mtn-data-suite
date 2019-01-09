@@ -4,10 +4,13 @@
   <mat-form-field>
     <input matInput type="number" autocomplete="off" required placeholder="Total Weekly Grocery Volume"
            formControlName="volumeTotal">
+    <span matPrefix>$&nbsp;</span>
+    <mat-hint>ALWAYS Slack</mat-hint>
   </mat-form-field>
   <mat-form-field>
     <input matInput type="number" autocomplete="off" placeholder="Total Weekly Box Volume"
            formControlName="volumeBoxTotal">
+    <span matPrefix>$&nbsp;</span>
   </mat-form-field>
   <mat-form-field>
     <mat-select placeholder="Volume Type" formControlName="volumeType">

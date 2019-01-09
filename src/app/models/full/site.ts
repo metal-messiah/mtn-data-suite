@@ -8,7 +8,6 @@ export class Site extends AuditingEntity {
   latitude: number;
   longitude: number;
   type: string;
-  footprintSqft: number;
   positionInCenter: string;
   address1: string;
   address2: string;

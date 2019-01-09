@@ -12,6 +12,14 @@ export class RestService {
     return environment.WEB_SERVICE_HOST;
   }
 
+  public getReportHost(): string {
+    return environment.REPORT_HOST;
+  }
+
+  public getNodeReportHost(): string {
+    return environment.NODE_REPORT_HOST;
+  }
+
   public getHeaders(): HttpHeaders {
     return new HttpHeaders({
       'Content-Type': 'application/json',

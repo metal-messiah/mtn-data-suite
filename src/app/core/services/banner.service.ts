@@ -31,4 +31,8 @@ export class BannerService extends CrudService<Banner> {
     return new Banner(entityObj);
   }
 
+  getBannerImageSrc(banner: Banner) {
+    return `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_40,w_100/${banner.logoFileName}`;
+  }
+
 }

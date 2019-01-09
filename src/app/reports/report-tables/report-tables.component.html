@@ -1,7 +1,7 @@
-<div *ngIf="!data">
+<div *ngIf="!reportData">
   <i class="fas fa-spinner fa-pulse"></i>
 </div>
-<div *ngIf="data" id="tables-body">
+<div *ngIf="reportData" id="tables-body">
   <div class="flex-container">
     <table cellspacing="0" id="projectionsTable">
       <tr>
@@ -35,21 +35,21 @@
         <th>Comment</th>
       </tr>
       <tr>
-        <td>{{data.projections.mapKey}}</td>
-        <td>{{data.projections.storeName}}</td>
-        <td>{{data.projections.effectivePower | number:'1.0-0'}}</td>
-        <td>{{data.projections.salesArea | number}}</td>
-        <td>{{data.projections.totalArea | number}}</td>
-        <td>{{data.projections.firstYearEndingSales | thousandsCurrency}}</td>
-        <td>{{data.projections.firstYearEndingSalesPSF | currency}}</td>
-        <td>{{data.projections.secondYearEndingSales | thousandsCurrency}}</td>
-        <td>{{data.projections.secondYearEndingSalesPSF | currency}}</td>
-        <td>{{data.projections.thirdYearEndingSales | thousandsCurrency}}</td>
-        <td>{{data.projections.thirdYearEndingSalesPSF | currency}}</td>
-        <td>{{data.projections.firstYearEndingSales * 52 | thousandsCurrency}}</td>
-        <td>{{data.projections.firstYearEndingSales * 52 / data.projections.salesArea | currency}}</td>
-        <td>{{data.projections.firstYearEndingSales * 52 / data.projections.totalArea | currency}}</td>
-        <td>{{data.projections.comment}}</td>
+        <td>{{reportData.projections.mapKey}}</td>
+        <td>{{reportData.projections.storeName}}</td>
+        <td>{{reportData.projections.power | number:'1.0-0'}}</td>
+        <td>{{reportData.projections.salesArea | number}}</td>
+        <td>{{reportData.projections.totalArea | number}}</td>
+        <td>{{reportData.projections.firstYearEndingSales | thousandsCurrency}}</td>
+        <td>{{reportData.projections.firstYearEndingSalesPSF | currency}}</td>
+        <td>{{reportData.projections.secondYearEndingSales | thousandsCurrency}}</td>
+        <td>{{reportData.projections.secondYearEndingSalesPSF | currency}}</td>
+        <td>{{reportData.projections.thirdYearEndingSales | thousandsCurrency}}</td>
+        <td>{{reportData.projections.thirdYearEndingSalesPSF | currency}}</td>
+        <td>{{reportData.projections.firstYearEndingSales * 52 | thousandsCurrency}}</td>
+        <td>{{reportData.projections.firstYearEndingSales * 52 / reportData.projections.salesArea | currency}}</td>
+        <td>{{reportData.projections.firstYearEndingSales * 52 / reportData.projections.totalArea | currency}}</td>
+        <td>{{reportData.projections.comment}}</td>
       </tr>
     </table>
   </div>
@@ -58,7 +58,7 @@
     <table class="force10" cellspacing="0" id="currentStoresWeeklySummaryTable">
       <tr>
         <th colspan="8">
-          <h2>Current Stores Weekly Summary - {{data.currentSummary.date | date:'MMM yyyy'}}</h2>
+          <h2>Current Stores Weekly Summary - {{reportData.currentSummary.date | date:'MMM yyyy'}}</h2>
         </th>
       </tr>
       <tr>
@@ -71,7 +71,7 @@
         <th>PWTA</th>
         <th>FIT Power</th>
       </tr>
-      <tr *ngFor="let store of data.currentSummary.stores">
+      <tr *ngFor="let store of reportData.currentSummary.stores">
         <td>{{store.mapKey}}</td>
         <td>{{store.storeName}}</td>
         <td>{{store.location}}</td>
@@ -85,15 +85,15 @@
         <td>Average</td>
         <td></td>
         <td></td>
-        <td class="right-align">${{data.currentSummary.summary.volume | number:'1.0-0'}}</td>
-        <td class="right-align">${{data.currentSummary.summary.psf | number:'1.2-2'}}</td>
-        <td class="right-align">{{data.currentSummary.summary.salesArea | number:'1.0-0'}}</td>
+        <td class="right-align">${{reportData.currentSummary.summary.volume | number:'1.0-0'}}</td>
+        <td class="right-align">${{reportData.currentSummary.summary.psf | number:'1.2-2'}}</td>
+        <td class="right-align">{{reportData.currentSummary.summary.salesArea | number:'1.0-0'}}</td>
         <td></td>
-        <td class="right-align">{{data.currentSummary.summary.power | number:'1.0-0'}}</td>
+        <td class="right-align">{{reportData.currentSummary.summary.power | number:'1.0-0'}}</td>
       </tr>
-      <tr *ngIf="data.currentSummary.overflowCount > 0">
+      <tr *ngIf="reportData.currentSummary.overflowCount > 0">
         <td colspan="8" class="footnote">
-          Excluding {{data.currentSummary.overflowCount}} stores with minimal contribution
+          Excluding {{reportData.currentSummary.overflowCount}} stores with minimal contribution
         </td>
       </tr>
     </table>
@@ -103,7 +103,7 @@
     <table class="force10" cellspacing="0" id="projectedStoresWeeklySummaryTable">
       <tr>
         <th colspan="8">
-          <h2>Projected Stores Weekly Summary - {{data.projectedSummary.date | date:'MMM yyyy'}}</h2>
+          <h2>Projected Stores Weekly Summary - {{reportData.projectedSummary.date | date:'MMM yyyy'}}</h2>
         </th>
       </tr>
       <tr>
@@ -116,7 +116,7 @@
         <th>PWTA</th>
         <th>FIT Power</th>
       </tr>
-      <tr *ngFor="let store of data.projectedSummary.stores"
+      <tr *ngFor="let store of reportData.projectedSummary.stores"
           [ngClass]="store.isSite ? 'red-highlight' : store.category === 'Proposed Competition' ? 'bold' : ''">
         <td>{{store.mapKey}}</td>
         <td>{{store.storeName}}</td>
@@ -131,15 +131,15 @@
         <td>Average</td>
         <td></td>
         <td></td>
-        <td class="right-align">${{data.projectedSummary.summary.volume | number:'1.0-0'}}</td>
-        <td class="right-align">${{data.projectedSummary.summary.psf | number:'1.2-2'}}</td>
-        <td class="right-align">{{data.projectedSummary.summary.salesArea | number:'1.0-0'}}</td>
+        <td class="right-align">${{reportData.projectedSummary.summary.volume | number:'1.0-0'}}</td>
+        <td class="right-align">${{reportData.projectedSummary.summary.psf | number:'1.2-2'}}</td>
+        <td class="right-align">{{reportData.projectedSummary.summary.salesArea | number:'1.0-0'}}</td>
         <td></td>
-        <td class="right-align">{{data.projectedSummary.summary.power | number:'1.0-0'}}</td>
+        <td class="right-align">{{reportData.projectedSummary.summary.power | number:'1.0-0'}}</td>
       </tr>
-      <tr *ngIf="data.projectedSummary.overflowCount > 0">
+      <tr *ngIf="reportData.projectedSummary.overflowCount > 0">
         <td colspan="8" class="footnote">
-          Excluding {{data.projectedSummary.overflowCount}} stores with minimal contribution
+          Excluding {{reportData.projectedSummary.overflowCount}} stores with minimal contribution
         </td>
       </tr>
     </table>
@@ -163,7 +163,7 @@
         <th>Straight</th>
         <th colspan="2">Size (sqft)*</th>
         <th>Sales</th>
-        <th colspan="4">{{data.sovData.firstYearEndDate | date: 'MMM yyyy'}} Volume</th>
+        <th colspan="4">{{reportData.sovData.firstYearEndDate | date: 'MMM yyyy'}} Volume</th>
       </tr>
       <tr>
         <th>Primary Sources of</th>
@@ -186,7 +186,7 @@
         <th>From Site</th>
         <th>Area</th>
         <th>Area</th>
-        <th>{{data.sovData.fieldResDate | date:'MMM yyyy'}}</th>
+        <th>{{reportData.sovData.fieldResDate | date:'MMM yyyy'}}</th>
         <th>& Comp. Chngs.</th>
         <th colspan="2">to Site</th>
         <th>Volume</th>
@@ -197,7 +197,7 @@
         </td>
         <td colspan="11"></td>
       </tr>
-      <tr *ngFor="let store of data.sovData.companyStores" [class]="store.isSite ? 'bold blue': 'blue'">
+      <tr *ngFor="let store of reportData.sovData.companyStores" [class]="store.isSite ? 'bold blue': 'blue'">
         <td>{{store.storeName}}</td>
         <td nowrap>{{store.address}}</td>
         <td class="right-align">{{store.mapKey}}</td>
@@ -216,23 +216,23 @@
         <td class="right-align" *ngIf="store.closing">-</td>
         <td class="right-align" *ngIf="!store.closing">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
       </tr>
-      <tr *ngIf="data.sovData.companyStores.length > 1" class="blue">
+      <tr *ngIf="reportData.sovData.companyStores.length > 1" class="blue">
         <td></td>
         <td colspan="2" class="right-align"><b>Average Power</b></td>
         <td class="right-align" style="border-top:1px solid black;">
-          <b>{{data.sovData.companyStoresSummary.fitAverage | number:'1.0-0'}}</b>
+          <b>{{reportData.sovData.companyStoresSummary.fitAverage | number:'1.0-0'}}</b>
         </td>
         <td colspan="5" class="right-align"><b>Subtotal</b></td>
         <td class="right-align" style="border-top:1px solid black;">
-          <b>${{data.sovData.companyStoresSummary.contributionSum / 1000 | number:'1.0-0'}}</b>
+          <b>${{reportData.sovData.companyStoresSummary.contributionSum / 1000 | number:'1.0-0'}}</b>
         </td>
         <td colspan="2"></td>
       </tr>
-      <tr *ngIf="data.sovData.existingCompetition.length > 0" class="yellow">
+      <tr *ngIf="reportData.sovData.existingCompetition.length > 0" class="yellow">
         <td class="table-section-header">Existing Competition</td>
         <td colspan="11"></td>
       </tr>
-      <tr *ngFor="let store of data.sovData.existingCompetition" class="yellow">
+      <tr *ngFor="let store of reportData.sovData.existingCompetition" class="yellow">
         <td>{{store.storeName}}</td>
         <td nowrap>{{store.address}}</td>
         <td class="right-align">{{store.mapKey}}</td>
@@ -247,23 +247,23 @@
         <td class="right-align" *ngIf="!store.closing">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
         <td class="right-align" *ngIf="store.closing">-</td>
       </tr>
-      <tr *ngIf="data.sovData.existingCompetition.length > 1" class="yellow">
+      <tr *ngIf="reportData.sovData.existingCompetition.length > 1" class="yellow">
         <td></td>
         <td colspan="2" class="right-align"><b>Average Power</b></td>
         <td class="right-align" style="border-top:1px solid black;">
-          <b>{{data.sovData.existingCompetitionSummary.fitAverage | number:'1.0-0'}}</b>
+          <b>{{reportData.sovData.existingCompetitionSummary.fitAverage | number:'1.0-0'}}</b>
         </td>
         <td colspan="5" class="right-align"><b>Subtotal</b></td>
         <td class="right-align" style="border-top:1px solid black;">
-          <b>${{data.sovData.existingCompetitionSummary.contributionSum / 1000 | number:'1.0-0'}}</b>
+          <b>${{reportData.sovData.existingCompetitionSummary.contributionSum / 1000 | number:'1.0-0'}}</b>
         </td>
         <td colspan="2"></td>
       </tr>
-      <tr *ngIf="data.sovData.proposedCompetition.length > 0" class="pink">
+      <tr *ngIf="reportData.sovData.proposedCompetition.length > 0" class="pink">
         <td class="table-section-header">Proposed Competition</td>
         <td colspan="11"></td>
       </tr>
-      <tr *ngFor="let store of data.sovData.proposedCompetition" class="pink">
+      <tr *ngFor="let store of reportData.sovData.proposedCompetition" class="pink">
         <td>{{store.storeName}}</td>
         <td nowrap>{{store.address}}</td>
         <td class="right-align">{{store.mapKey}}</td>
@@ -278,46 +278,46 @@
         <td class="right-align" *ngIf="!store.closing">{{store.resultingVolume / 1000 | number:'1.0-0'}}</td>
         <td class="right-align" *ngIf="store.closing">-</td>
       </tr>
-      <tr *ngIf="data.sovData.proposedCompetition.length > 1" class="pink">
+      <tr *ngIf="reportData.sovData.proposedCompetition.length > 1" class="pink">
         <td></td>
         <td colspan="2" class="right-align"><b>Average Power</b></td>
         <td class="right-align" style="border-top:1px solid black;">
-          <b>{{data.sovData.proposedCompetitionSummary.fitAverage | number:'1.0-0'}}</b>
+          <b>{{reportData.sovData.proposedCompetitionSummary.fitAverage | number:'1.0-0'}}</b>
         </td>
         <td colspan="5" class="right-align"><b>Subtotal</b></td>
         <td class="right-align" style="border-top:1px solid black;">
-          <b>${{data.sovData.proposedCompetitionSummary.contributionSum / 1000 | number:'1.0-0'}}</b>
+          <b>${{reportData.sovData.proposedCompetitionSummary.contributionSum / 1000 | number:'1.0-0'}}</b>
         </td>
         <td colspan="2"></td>
       </tr>
       <tr>
-        <td colspan="5"><b>Sales Potential (Assume Store Opens {{data.sovData.openingDate | date: 'MMM yyyy'}})</b></td>
+        <td colspan="5"><b>Sales Potential (Assume Store Opens {{reportData.sovData.openingDate | date: 'MMM yyyy'}})</b></td>
         <td colspan="4"><b>Sales Transfers from Company Stores</b></td>
-        <td class="right-align">${{data.sovData.salesTransferFromCompanyStores / 1000 | number:'1.0-0'}}</td>
+        <td class="right-align">${{reportData.sovData.salesTransferFromCompanyStores / 1000 | number:'1.0-0'}}</td>
         <td colspan="2"></td>
       </tr>
       <tr>
-        <td><b>{{data.sovData.firstYearEndDate | date: 'MMM yyyy'}} - After Open 1 Year</b></td>
+        <td><b>{{reportData.sovData.firstYearEndDate | date: 'MMM yyyy'}} - After Open 1 Year</b></td>
         <td><b>${{util.targetStore['resultingVolume'] / 1000 | number:'1.0-0'}}</b></td>
         <td colspan="3"></td>
         <td colspan="4"><b>Sales Transfers from Competition</b></td>
-        <td class="right-align">${{data.sovData.salesTransferFromCompetition / 1000 | number:'1.0-0'}}</td>
+        <td class="right-align">${{reportData.sovData.salesTransferFromCompetition / 1000 | number:'1.0-0'}}</td>
         <td colspan="2"></td>
       </tr>
       <tr>
         <td class="footnote">*Area devoted to food group</td>
         <td class="footnote" colspan="4">Note: Sales effects based on gravity model analysis.</td>
         <td colspan="4"><b>Total Sales Transfer</b></td>
-        <td class="right-align">${{data.sovData.totalSalesTransfer / 1000 | number:'1.0-0'}}</td>
+        <td class="right-align">${{reportData.sovData.totalSalesTransfer / 1000 | number:'1.0-0'}}</td>
         <td colspan="2"></td>
       </tr>
       <tr>
-        <td *ngIf="data.sovData.showingCount < data.sovData.totalCount" class="footnote" colspan="5">
+        <td *ngIf="reportData.sovData.showingCount < reportData.sovData.totalCount" class="footnote" colspan="5">
           {{getOverflowMessage()}}
         </td>
-        <td *ngIf="data.sovData.showingCount >= data.sovData.totalCount" colspan="5"></td>
+        <td *ngIf="reportData.sovData.showingCount >= reportData.sovData.totalCount" colspan="5"></td>
         <td colspan="4"><b>Percent of Sales Explained After One Year</b></td>
-        <td class="right-align">{{data.sovData.percentOfSalesExplainedAfterOneYear | number:'1.1-1'}}%</td>
+        <td class="right-align">{{reportData.sovData.percentOfSalesExplainedAfterOneYear | number:'1.1-1'}}%</td>
         <td colspan="2"></td>
       </tr>
     </table>
@@ -335,61 +335,61 @@
       </tr>
       <tr>
         <td>North</td>
-        <td>{{data.ratings.accessNorth}}</td>
+        <td>{{reportData.ratings.accessNorth}}</td>
       </tr>
       <tr>
         <td>South</td>
-        <td>{{data.ratings.accessSouth}}</td>
+        <td>{{reportData.ratings.accessSouth}}</td>
       </tr>
       <tr>
         <td>East</td>
-        <td>{{data.ratings.accessEast}}</td>
+        <td>{{reportData.ratings.accessEast}}</td>
       </tr>
       <tr>
         <td>West</td>
-        <td>{{data.ratings.accessWest}}</td>
+        <td>{{reportData.ratings.accessWest}}</td>
       </tr>
       <tr>
         <td class="bold" style="text-align:left;">Ingress/Egress</td>
-        <td>{{data.ratings.ingressEgress}}</td>
+        <td>{{reportData.ratings.ingressEgress}}</td>
       </tr>
       <tr>
         <td class="bold" colspan="2" style="text-align:left;">Visibility</td>
       </tr>
       <tr>
         <td>North</td>
-        <td>{{data.ratings.visibilityNorth}}</td>
+        <td>{{reportData.ratings.visibilityNorth}}</td>
       </tr>
       <tr>
         <td>South</td>
-        <td>{{data.ratings.visibilitySouth}}</td>
+        <td>{{reportData.ratings.visibilitySouth}}</td>
       </tr>
       <tr>
         <td>East</td>
-        <td>{{data.ratings.visibilityEast}}</td>
+        <td>{{reportData.ratings.visibilityEast}}</td>
       </tr>
       <tr>
         <td>West</td>
-        <td>{{data.ratings.visibilityWest}}</td>
+        <td>{{reportData.ratings.visibilityWest}}</td>
       </tr>
       <tr>
         <td class="bold" colspan="2" style="text-align:left;">Population Density</td>
       </tr>
       <tr>
         <td>North</td>
-        <td>{{data.ratings.populationDensityNorth}}</td>
+        <td>{{reportData.ratings.populationDensityNorth}}</td>
       </tr>
       <tr>
         <td>South</td>
-        <td>{{data.ratings.populationDensitySouth}}</td>
+        <td>{{reportData.ratings.populationDensitySouth}}</td>
       </tr>
       <tr>
         <td>East</td>
-        <td>{{data.ratings.populationDensityEast}}</td>
+        <td>{{reportData.ratings.populationDensityEast}}</td>
       </tr>
       <tr>
         <td>West</td>
-        <td>{{data.ratings.populationDensityWest}}</td>
+        <td>{{reportData.ratings.populationDensityWest}}</td>
       </tr>
     </table>
   </div>
@@ -418,11 +418,11 @@
   <hr>
   <div>
     <button color="primary" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back</button>
-    <button [disabled]="rbs.complingReport" color="warn" mat-raised-button (click)="startBuildingReport()"
+    <button [disabled]="rbs.compilingReport" color="warn" mat-raised-button (click)="startBuildingReport()"
             style="margin-top:20px;">
       Export
     </button>
-    <span class="file-tip" *ngIf="rbs.complingReport">
+    <span class="file-tip" *ngIf="rbs.compilingReport">
         <i class="fas fa-spinner fa-pulse" style="margin-right:5px;"></i>
         <b>Compiling Report. This may take a couple minutes...</b>
     </span>

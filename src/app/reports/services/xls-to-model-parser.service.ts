@@ -45,6 +45,7 @@ export class XlsToModelParserService {
       const actualSalesPSF = actualSales / salesArea;
       storeListItems.push({
         storeName: ws['A' + row].v,
+        bannerName: ws['A' + row].v,
         mapKey: this.getNumberFromCell(ws, 'B' + row),
         uniqueId: this.getNumberFromCell(ws, 'C' + row),
         latitude: this.getNumberFromCell(ws, 'D' + row),
@@ -60,7 +61,9 @@ export class XlsToModelParserService {
         parentCompanyId: null,
         category: null,
         totalArea: null,
-        useTradeAreaChange: false
+        useTradeAreaChange: false,
+        forceInclusion: false,
+        scenario: 'Existing'
       })
     } while (!ws['A' + ++row].v.includes('Totals'));
 

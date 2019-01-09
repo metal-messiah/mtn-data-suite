@@ -166,4 +166,17 @@ export class StoreService extends CrudService<Store> {
     return this.http.get<Store[]>(url, {headers: this.rest.getHeaders(), params: params})
       .pipe(map(stores => stores.map(store => new SimplifiedStore(store))));
   }
+
+  updateBanner(storeId: number, bannerId: number) {
+    if (!bannerId) {
+      return this.removeBanner(storeId);
+    }
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/banner/${bannerId}`;
+    return this.http.put<Store>(url, null, {headers: this.rest.getHeaders()});
+  }
+
+  removeBanner(storeId: number) {
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/banner`;
+    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()});
+  }
 }

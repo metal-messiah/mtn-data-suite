@@ -108,6 +108,7 @@ export class ReportModelDataComponent implements OnInit {
   }
 
   private postProcessReportData(reportData: ReportData): Observable<any> {
+    this.extractCompetitiveChanges(reportData);
     this.setStoreListItemCategories(reportData);
     this.calculateContributions(reportData);
     return this.updateStoreTotalAreas(reportData);
@@ -134,16 +135,48 @@ export class ReportModelDataComponent implements OnInit {
     return {storeBeforeSiteOpen: beforeMatch, storeAfterSiteOpen: afterMatch};
   }
 
+  private extractCompetitiveChanges(reportData: ReportData) {
+    const exclusions = reportData.projectedVolumesAfter
+      .filter(volumeItem => volumeItem.salesArea === null && volumeItem.currentSales === 0 && volumeItem.futureSales === null)
+      .map(volumeItem => volumeItem.mapKey);
+
+    const closures = reportData.projectedVolumesAfter
+      .filter(volumeItem => volumeItem.currentSales !== 0 && volumeItem.futureSales === null &&
+        volumeItem.mapKey !== reportData.selectedMapKey && !exclusions.includes(volumeItem.mapKey))
+      .map(volumeItem => volumeItem.mapKey);
+
+    const openings = reportData.projectedVolumesAfter
+      .filter(volumeItem => volumeItem.currentSales === 0 && volumeItem.futureSales !== null &&
+        volumeItem.mapKey !== reportData.selectedMapKey && !exclusions.includes(volumeItem.mapKey))
+      .map(volumeItem => volumeItem.mapKey);
+
+    reportData.storeList.forEach(storeListItem => {
+      if (storeListItem.mapKey === reportData.selectedMapKey) {
+        storeListItem.scenario = 'Site';
+      } else if (exclusions.includes(storeListItem.mapKey)) {
+        storeListItem.scenario = 'Exclude';
+      } else if (closures.includes(storeListItem.mapKey)) {
+        storeListItem.scenario = 'Closed';
+      } else if (openings.includes(storeListItem.mapKey)) {
+        storeListItem.scenario = 'Opening';
+      } else {
+        storeListItem.scenario = 'Existing';
+      }
+    })
+  }
+
   private setStoreListItemCategories(reportData: ReportData) {
     const target = reportData.storeList.filter(s => s.mapKey === reportData.selectedMapKey)[0];
 
     reportData.storeList.forEach(storeListItem => {
-      if (storeListItem.mapKey === target.mapKey || (storeListItem.storeName === target.storeName && storeListItem.mapKey % 1 === 0) ) {
-        storeListItem.category = 'Company Store';
-      } else if (storeListItem.uniqueId) {
-        storeListItem.category = 'Existing Competition';
-      } else {
+      if (storeListItem.scenario === 'Exclude') {
         storeListItem.category = 'Do Not Include';
+      } else if (storeListItem.scenario === 'Existing' || storeListItem.scenario === 'Closed') {
+        storeListItem.category = 'Existing Competition';
+      } else if (storeListItem.scenario === 'Opening') {
+        storeListItem.category = 'Proposed Competition';
+      } else if (storeListItem.bannerName === target.bannerName) {
+        storeListItem.category = 'Company Store';
       }
     });
   }
@@ -159,6 +192,9 @@ export class ReportModelDataComponent implements OnInit {
             const idx = reportData.storeList.findIndex(s => s.uniqueId === store.id);
             if (idx !== -1) {
               reportData.storeList[idx].totalArea = Math.round(store.areaTotal / 100) * 100;
+              if (store.banner) {
+                reportData.storeList[idx].bannerName = store.banner.bannerName;
+              }
             }
           });
         },
