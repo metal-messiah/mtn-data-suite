@@ -1,5 +1,6 @@
-.list-wrapper {
-  max-width: 1200px;
+.wrapper {
+  margin: 40px auto;
+  width: fit-content;
 }
 
 mat-form-field {
@@ -8,4 +9,53 @@ mat-form-field {
 
 td input {
   max-width: 100px;
+}
+
+td.right-align {
+  text-align: right;
+}
+
+td.right-align input {
+  text-align: right;
+}
+
+td {
+  padding: 5px 10px;
+}
+
+input.ng-invalid {
+  border-color: red;
+}
+
+.mat-select-value {
+  max-width: unset;
+}
+
+.blue {
+  background: #c6f1ff !important;
+}
+
+.blue:hover {
+  border: 1px solid black;
+}
+
+.yellow {
+  background: #fffdaf !important;
+}
+
+.yellow:hover {
+  border: 1px solid black;
+}
+
+.pink {
+  background: #ffc0b4 !important;
+}
+
+.pink:hover {
+  border: 1px solid black;
+}
+
+.grey {
+  background: black;
+  color: gray;
 }

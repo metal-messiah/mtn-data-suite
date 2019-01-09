@@ -7,7 +7,7 @@ export const environment = {
   AUTH_CONFIG: {
     clientID: 'UTgiibU2z7Honoinje5bVRbhUwyneFN4',
     domain: 'mtnra.auth0.com',
-    callbackURL: 'https://app.mtnra.com/callback'
+    callbackURL: 'https://mtn-test-d8f61.firebaseapp.com/callback'
   },
   VERSION: require('../../package.json').version
 };

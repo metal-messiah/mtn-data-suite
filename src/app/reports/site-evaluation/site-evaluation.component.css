@@ -1,3 +1,10 @@
+.narrative-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  margin: 40px auto;
+  max-width: 500px;
+}
 
 .select-group {
   display: flex;

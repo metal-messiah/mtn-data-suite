@@ -1,5 +1,6 @@
+/// <reference types="@types/googlemaps" />
+
 import { Injectable } from '@angular/core';
-import {} from '@types/googlemaps';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
 import { Observable, Observer, of, Subject } from 'rxjs';
@@ -359,11 +360,11 @@ export class MapService {
           'name',
           'place_id'
         ];
-       
-          // this.placesService.findPlaceFromQuery(
-          //   { fields: fields, query: queryString },
-          //   callback
-          // );
+
+        this.placesService.findPlaceFromQuery(
+          {fields: fields, query: queryString},
+          callback
+        );
       } else {
         const request = {
           bounds: bounds,

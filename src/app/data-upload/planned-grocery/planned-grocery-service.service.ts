@@ -66,4 +66,9 @@ export class PlannedGroceryService {
       .pipe(map(record => new SimplifiedStore(record)));
   }
 
+  pingRefresh() {
+    const url = this.rest.getHost() + this.endpoint;
+    return this.http.post(url, null, { headers: this.rest.getHeaders() })
+  }
+
 }

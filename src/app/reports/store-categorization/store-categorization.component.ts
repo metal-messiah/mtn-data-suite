@@ -21,55 +21,49 @@ export class StoreCategorizationComponent implements OnInit {
   constructor(public rbs: ReportBuilderService,
               private snackBar: MatSnackBar,
               public _location: Location,
-              private router: Router) { }
-
-  ngOnInit() {
-    window.scrollTo(0, 0);
-    if (!this.rbs.reportTableData) {
-      this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
-      this.router.navigate(['reports']);
-    }
+              private router: Router) {
   }
 
-  changeCategory(event, mapKey) {
-    const idx: number = this.rbs.reportTableData.storeList.findIndex(
-      s => s.mapKey === mapKey
-    );
-    if (idx !== -1) {
-      this.rbs.reportTableData.storeList[idx].category = event.target.value;
-      console.log(this.rbs.reportTableData.storeList[idx]);
+  ngOnInit() {
+    if (!this.rbs.reportTableData) {
+      setTimeout(() => {
+        this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
+        this.router.navigate(['reports']);
+      }, 10)
     }
+    document.getElementById('reports-content-wrapper').scrollTop = 0;
+  }
+
+  changeCategory(event, store) {
+    store.category = event.target.value;
   }
 
   changeCombinedCategory(event, combo) {
     console.log(combo, ' change to ', event.target.value);
     this.rbs.reportTableData.storeList.forEach((s, i) => {
-      if (s.storeName === combo.storeName && s.uniqueId) {
+      if (s.bannerName === combo.bannerName && s.scenario === 'Existing') {
         this.rbs.reportTableData.storeList[i].category = event.target.value;
       }
     });
   }
 
-  getExistingStoresCount(storeName) {
-    return this.rbs.reportTableData.storeList.filter(
-      s => s.storeName === storeName && s.uniqueId
-    ).length;
+  getExistingStoresCount(bannerName) {
+    return this.rbs.reportTableData.storeList.filter(s => s.bannerName === bannerName && s.uniqueId).length;
   }
 
   getExistingStoresCombined() {
     return this.rbs.reportTableData.storeList
-      .filter(s => s.uniqueId !== null)
+    // If store has unique ID, then it exists in DB. If a store has a decimal or the store is the site then it should be treated separately.
+      .filter(s => s.scenario === 'Existing')
       .map(s => {
-        return {storeName: s.storeName, category: s.category};
+        return {bannerName: s.bannerName, category: s.category};
       })
-      .filter((elem, idx, arr) => {
-        return arr.findIndex(e => e.storeName === elem.storeName) === idx;
-      })
-      .sort((a, b) => a.storeName.localeCompare(b.storeName));
+      .filter((elem, idx, arr) => arr.findIndex(e => e.bannerName === elem.bannerName) === idx)
+      .sort((a, b) => a.bannerName.localeCompare(b.bannerName));
   }
 
   getProposedStores() {
-    return this.rbs.reportTableData.storeList.filter(s => s.uniqueId === null);
+    return this.rbs.reportTableData.storeList.filter(s => s.scenario !== 'Existing');
   }
 
   next() {

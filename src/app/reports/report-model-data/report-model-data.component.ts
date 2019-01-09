@@ -2,19 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { ReportBuilderService } from '../services/report-builder.service';
 import { ReportData } from '../../models/report-data';
 import { MatSnackBar } from '@angular/material';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { StoreService } from '../../core/services/store.service';
 import { finalize, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { XlsToModelParserService } from '../../core/services/xls-to-model-parser.service';
+import { XlsToModelParserService } from '../services/xls-to-model-parser.service';
 import { Router } from '@angular/router';
+import { StoreListItem } from '../../models/store-list-item';
 
 @Component({
   selector: 'mds-report-model-data',
   templateUrl: './report-model-data.component.html',
-  styleUrls: ['./report-model-data.component.css']
+  styleUrls: ['./report-model-data.component.css'],
+  providers: [XlsToModelParserService]
 })
 export class ReportModelDataComponent implements OnInit {
 
@@ -24,7 +26,6 @@ export class ReportModelDataComponent implements OnInit {
   modelMetaDataForm: FormGroup;
 
   file: File;
-  reportData: ReportData;
 
   fileReader: FileReader;
 
@@ -45,8 +46,9 @@ export class ReportModelDataComponent implements OnInit {
   private createForm() {
     this.modelMetaDataForm = this.fb.group({
       analyst: `${this.auth.sessionUser.firstName} ${this.auth.sessionUser.lastName}`,
-      type: '',
-      modelName: '',
+      clientName: ['', [Validators.required]],
+      type: ['', [Validators.required]],
+      modelName: ['', [Validators.required]],
       fieldResDate: new Date()
     })
   }
@@ -74,7 +76,6 @@ export class ReportModelDataComponent implements OnInit {
   resetFile() {
     console.log('RESET FILE');
     this.file = null;
-    this.reportData = null;
   }
 
   submitModelData() {
@@ -107,22 +108,77 @@ export class ReportModelDataComponent implements OnInit {
   }
 
   private postProcessReportData(reportData: ReportData): Observable<any> {
+    this.extractCompetitiveChanges(reportData);
     this.setStoreListItemCategories(reportData);
+    this.calculateContributions(reportData);
     return this.updateStoreTotalAreas(reportData);
+  }
+
+  private calculateContributions(reportData: ReportData) {
+    reportData.storeList.forEach((store: StoreListItem) => {
+      const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store, reportData);
+      store['tradeAreaChange'] = storeBeforeSiteOpen.taChange - storeAfterSiteOpen.taChange;
+      store['totalChange'] = storeBeforeSiteOpen.futureSales - storeAfterSiteOpen.futureSales;
+      if (storeBeforeSiteOpen.futureSales && storeBeforeSiteOpen.futureSales !== 0) {
+        store['tradeAreaChangePerc'] = store['tradeAreaChange'] / storeBeforeSiteOpen.futureSales;
+        store['totalChangePerc'] = store['totalChange'] / storeBeforeSiteOpen.futureSales;
+      } else {
+        store['tradeAreaChangePerc'] = null;
+        store['totalChangePerc'] = null;
+      }
+    });
+  }
+
+  private getSovBeforeAndAfterStores(store: StoreListItem, reportData: ReportData) {
+    const beforeMatch = reportData.projectedVolumesBefore.find(j => j.mapKey === store.mapKey);
+    const afterMatch = reportData.projectedVolumesAfter.find(j => j.mapKey === store.mapKey);
+    return {storeBeforeSiteOpen: beforeMatch, storeAfterSiteOpen: afterMatch};
+  }
+
+  private extractCompetitiveChanges(reportData: ReportData) {
+    const exclusions = reportData.projectedVolumesAfter
+      .filter(volumeItem => volumeItem.salesArea === null && volumeItem.currentSales === 0 && volumeItem.futureSales === null)
+      .map(volumeItem => volumeItem.mapKey);
+
+    const closures = reportData.projectedVolumesAfter
+      .filter(volumeItem => volumeItem.currentSales !== 0 && volumeItem.futureSales === null &&
+        volumeItem.mapKey !== reportData.selectedMapKey && !exclusions.includes(volumeItem.mapKey))
+      .map(volumeItem => volumeItem.mapKey);
+
+    const openings = reportData.projectedVolumesAfter
+      .filter(volumeItem => volumeItem.currentSales === 0 && volumeItem.futureSales !== null &&
+        volumeItem.mapKey !== reportData.selectedMapKey && !exclusions.includes(volumeItem.mapKey))
+      .map(volumeItem => volumeItem.mapKey);
+
+    reportData.storeList.forEach(storeListItem => {
+      if (storeListItem.mapKey === reportData.selectedMapKey) {
+        storeListItem.scenario = 'Site';
+      } else if (exclusions.includes(storeListItem.mapKey)) {
+        storeListItem.scenario = 'Exclude';
+      } else if (closures.includes(storeListItem.mapKey)) {
+        storeListItem.scenario = 'Closed';
+      } else if (openings.includes(storeListItem.mapKey)) {
+        storeListItem.scenario = 'Opening';
+      } else {
+        storeListItem.scenario = 'Existing';
+      }
+    })
   }
 
   private setStoreListItemCategories(reportData: ReportData) {
     const target = reportData.storeList.filter(s => s.mapKey === reportData.selectedMapKey)[0];
 
     reportData.storeList.forEach(storeListItem => {
-      if (storeListItem.mapKey === target.mapKey || storeListItem.storeName === target.storeName) {
-        storeListItem.category = 'Company Store';
-      } else if (storeListItem.uniqueId) {
-        storeListItem.category = 'Existing Competition';
-      } else {
+      if (storeListItem.scenario === 'Exclude') {
         storeListItem.category = 'Do Not Include';
+      } else if (storeListItem.scenario === 'Existing' || storeListItem.scenario === 'Closed') {
+        storeListItem.category = 'Existing Competition';
+      } else if (storeListItem.scenario === 'Opening') {
+        storeListItem.category = 'Proposed Competition';
+      } else if (storeListItem.bannerName === target.bannerName) {
+        storeListItem.category = 'Company Store';
       }
-    })
+    });
   }
 
   private updateStoreTotalAreas(reportData: ReportData) {
@@ -135,7 +191,10 @@ export class ReportModelDataComponent implements OnInit {
           stores.forEach((store: SimplifiedStore) => {
             const idx = reportData.storeList.findIndex(s => s.uniqueId === store.id);
             if (idx !== -1) {
-              reportData.storeList[idx].totalArea = store.areaTotal;
+              reportData.storeList[idx].totalArea = Math.round(store.areaTotal / 100) * 100;
+              if (store.banner) {
+                reportData.storeList[idx].bannerName = store.banner.bannerName;
+              }
             }
           });
         },

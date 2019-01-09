@@ -41,7 +41,6 @@ export class ProjectBoundaryService {
           this.projectBoundary.setEditable(false);
         } else {
           this.projectBoundary = new ProjectBoundary(this.mapService.getMap(), JSON.parse(boundary.geojson));
-          this.projectBoundary.zoomToBounds();
         }
       }));
   }
@@ -113,6 +112,10 @@ export class ProjectBoundaryService {
 
   isShowingBoundary() {
     return this.projectBoundary != null;
+  }
+
+  zoomToProjectBoundary() {
+    this.projectBoundary.zoomToBounds();
   }
 
   private setUpProjectEditing() {

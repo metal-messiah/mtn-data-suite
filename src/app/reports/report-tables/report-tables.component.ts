@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
 
-import htmlToImage from 'html-to-image';
-import jsZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { ReportBuilderService } from '../services/report-builder.service';
 import { JsonToTablesUtil } from './json-to-tables.util';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
+import { delay } from 'rxjs/operators';
+import { ErrorService } from '../../core/services/error.service';
 
 @Component({
   selector: 'mds-report-tables',
@@ -16,139 +16,73 @@ import { Router } from '@angular/router';
 })
 export class ReportTablesComponent implements OnInit {
 
-  mapImage: string;
-  googleMapsKey = 'AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ';
+  util;
+  reportData;
+
   googleMapsBasemap = 'hybrid';
-  googleMapsZoom = 15;
-
-  jsonToTablesUtil: JsonToTablesUtil;
-
-  tableDomIds: string[] = [
-    'projectionsTable',
-    'currentStoresWeeklySummaryTable',
-    'projectedStoresWeeklySummaryTable',
-    'sourceOfVolumeTable',
-    'mapImage',
-    'descriptionsRatings'
-  ];
+  zoom = 15;
 
   constructor(public snackBar: MatSnackBar,
               public rbs: ReportBuilderService,
               public _location: Location,
               private router: Router,
+              private errorService: ErrorService,
               public dialog: MatDialog) {
   }
 
   ngOnInit() {
-    window.scrollTo(0, 0);
     if (!this.rbs.reportTableData) {
-      this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
-      this.router.navigate(['reports']);
+      setTimeout(() => {
+        this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
+        this.router.navigate(['reports']);
+      }, 10)
     } else {
-      this.jsonToTablesUtil = new JsonToTablesUtil(this.rbs);
-      this.getMapImage();
+      this.util = new JsonToTablesUtil(this.rbs);
+      this.reportData = this.util.getReportData();
+      document.getElementById('reports-content-wrapper').scrollTop = 0;
     }
   }
 
-  getFirstYearAsNumber() {
-    return (
-      2000 +
-      Number(this.jsonToTablesUtil.reportTableData.firstYearEndingMonthYear.trim().split(' ')[1])
-    );
-  }
-
-  export() {
-    this.rbs.compilingImages = true;
-
-    const exportPromises: Promise<any>[] = [];
-
-    // convert tables to images
-    this.tableDomIds.forEach(id => {
-      const node = document.getElementById(id);
-      exportPromises.push(htmlToImage.toBlob(node));
-    });
-
-    Promise.all(exportPromises)
-      .then(data => {
-        this.rbs.compilingImages = false;
-        console.log(data);
-        this.router.navigate(['reports/download']);
-
-        const zip = new jsZip();
-        // table images
-        data.forEach((fileData, i) => {
-          zip.file(`${this.tableDomIds[i]}.png`, fileData);
-        });
-
-        const sisterStoreAffects = this.jsonToTablesUtil
-          .getStoresForExport('Company Store')
-          .sort((a, b) => {
-            if (a.storeName === b.storeName) {
-              return Number(a.mapKey) - Number(b.mapKey);
-            } else {
-              return a.storeName < b.storeName ? -1 : 1;
-            }
-          })
-          .map(store => `${store.storeName} ${store.mapKey}`)
-          .join('\r\n');
-
-        const txt = `Street Conditions\r\n${
-          this.jsonToTablesUtil.siteEvaluationData.streetConditions
-          }\r\n\r\nComments\r\n${
-          this.jsonToTablesUtil.siteEvaluationData.comments
-          }\r\n\r\nTraffic Controls\r\n${
-          this.jsonToTablesUtil.siteEvaluationData.streetConditions
-          }\r\n\r\nCo-tenants\r\n${
-          this.jsonToTablesUtil.siteEvaluationData.cotenants
-          }\r\n\r\nSister Store Affects\r\n${sisterStoreAffects}`;
-
-        zip.file(`descriptions.txt`, new Blob([txt]));
-
-        const modelName = this.jsonToTablesUtil.reportMetaData.modelName;
-        zip.generateAsync({type: 'blob'}).then(blob => {
-          saveAs(blob, `${modelName ? modelName : 'MTNRA_Reports_Export'}.zip`);
-        });
-      })
-      .catch(error => {
-        this.rbs.compilingImages = false;
-        this.snackBar.open(error, null, {duration: 2000});
+  startBuildingReport() {
+    const REPORT_NAME = this.rbs.reportMetaData.modelName;
+    this.rbs.compilingReport = true;
+    this.reportData.mapUrl = this.util.getMapUrl(this.googleMapsBasemap, this.zoom);
+    this.rbs.startReportBuilding(this.reportData, REPORT_NAME)
+      .subscribe(() => this.pollForZip(REPORT_NAME),
+      err => {
+        this.rbs.compilingReport = false;
+        this.errorService.handleServerError('Failed to create zip file', err, () => console.log(err));
       });
   }
 
-  getMapImage(basemap?: string, zoom?: number) {
-    if (basemap) {
-      this.googleMapsBasemap = basemap;
-    }
-    if (zoom) {
-      this.googleMapsZoom = this.googleMapsZoom - zoom;
-    }
-    // map image
-    const target = this.jsonToTablesUtil.getTargetStore();
-    const stores = this.jsonToTablesUtil.getProjectedStoresWeeklySummary();
+  pollForZip(REPORT_NAME: string) {
+    this.rbs.getReportZip(REPORT_NAME)
+      .pipe(delay(5000))
+      .subscribe(res => {
+          if (res.status === 202) {
+            console.log('Keep polling');
+            this.pollForZip(REPORT_NAME);
+          } else {
+            this.rbs.compilingReport = false;
+            saveAs(res.body, `${REPORT_NAME}.zip`);
+            this.router.navigate(['reports/download']);
+          }
+        },
+        err => {
+          this.rbs.compilingReport = false;
+          this.errorService.handleServerError('Failed to retrieve zip file', err, () => console.log(err))
+        });
+  }
 
-    const storePins = stores
-      .map(s => {
-        if (s.latitude && s.longitude) {
-          const isTarget = s.mapKey === target.mapKey;
-          const color = isTarget
-            ? 'red'
-            : s.category === 'Company Store'
-              ? 'blue'
-              : 'yellow';
-          return `&markers=color:${color}%7Clabel:${
-            isTarget ? s.storeName[0] : ''
-            }%7C${s.latitude},${s.longitude}`;
-        }
-      })
-      .join('');
+  getOverflowMessage() {
+    return '(Showing ' + this.reportData.sovData.showingCount + '/' + this.reportData.sovData.totalCount +
+      ' stores. A total contribution to site of $' +
+      Math.round(this.reportData.sovData.totalContributionExcluded).toLocaleString() +
+      ' was excluded from the report.)'
+  }
 
-    const {latitude, longitude} = target;
-
-    this.mapImage = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=${
-      this.googleMapsZoom
-      }&size=470x350&maptype=${this.googleMapsBasemap}&${storePins}&key=${
-      this.googleMapsKey
-      }`;
+  adjustZoom(amount) {
+    this.zoom += amount;
   }
 
 }

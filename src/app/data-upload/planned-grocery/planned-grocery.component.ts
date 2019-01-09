@@ -59,6 +59,7 @@ export class PlannedGroceryComponent implements OnInit {
 	// Flags
 	gettingEntities = false;
 	isFetching = false;
+	isRefreshing = false;
 
 	// Reference Values
 	storeTypes: string[] = [ 'ACTIVE', 'FUTURE', 'HISTORICAL' ];
@@ -167,28 +168,31 @@ export class PlannedGroceryComponent implements OnInit {
 	setCurrentRecord(index: number) {
 		this.bestMatch = null;
 		this.currentRecordIndex = index;
-		this.currentStoreSource = this.records[index];
 
-		this.isFetching = true;
-		this.currentDBResults = [];
+		if (this.records.length > 0) {
+			this.currentStoreSource = this.records[index];
 
-		this.pgService
-			.getFeatureByObjectId(this.currentStoreSource.sourceNativeId)
-			.pipe(finalize(() => (this.isFetching = false)))
-			.subscribe((record) => {
-				if (!record || !record['features'] || record['features'].length < 1) {
-					this.ngZone.run(() =>
-						this.snackBar.open(`Feature not found with id: ${this.currentStoreSource.sourceNativeId}`)
-					);
-				} else {
-					this.pgRecord = record['features'][0];
-					this.mapService.setCenter({ lat: this.pgRecord.geometry.y, lng: this.pgRecord.geometry.x });
-					this.mapService.setZoom(15);
+			this.isFetching = true;
+			this.currentDBResults = [];
 
-					this.setPgFeature(false);
-					this.cancelStep2();
-				}
-			});
+			this.pgService
+				.getFeatureByObjectId(this.currentStoreSource.sourceNativeId)
+				.pipe(finalize(() => (this.isFetching = false)))
+				.subscribe((record) => {
+					if (!record || !record['features'] || record['features'].length < 1) {
+						this.ngZone.run(() =>
+							this.snackBar.open(`Feature not found with id: ${this.currentStoreSource.sourceNativeId}`)
+						);
+					} else {
+						this.pgRecord = record['features'][0];
+						this.mapService.setCenter({ lat: this.pgRecord.geometry.y, lng: this.pgRecord.geometry.x });
+						this.mapService.setZoom(15);
+
+						this.setPgFeature(false);
+						this.cancelStep2();
+					}
+				});
+		}
 	}
 
 	onMapReady(event) {
@@ -211,7 +215,6 @@ export class PlannedGroceryComponent implements OnInit {
 		);
 
 		this.mapService.boundsChanged$.pipe(debounceTime(1000)).subscribe((bounds: { east; north; south; west }) => {
-			console.log(bounds);
 			this.currentDBResults = [];
 			this.getEntities(bounds);
 		});
@@ -347,5 +350,28 @@ export class PlannedGroceryComponent implements OnInit {
 				this.ngZone.run(() => {});
 			})
 		);
+	}
+
+	refresh() {
+		this.isRefreshing = true;
+		this.pgService.pingRefresh().pipe(finalize(() => (this.isRefreshing = false))).subscribe(
+			() => {
+				this.getPGSources();
+			},
+			(err) => {
+				this.errorService.handleServerError(
+					'Failed to refresh PG records',
+					err,
+					() => {},
+					() => this.refresh()
+				);
+			}
+		);
+	}
+
+	getPgRecordStatus(pgRecord) {
+		if (pgRecord && pgRecord.attributes.STATUS) {
+			return ' | Status: ' + this.statuses[pgRecord.attributes.STATUS]['pg'];
+		}
 	}
 }

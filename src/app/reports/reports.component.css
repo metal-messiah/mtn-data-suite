@@ -1,12 +1,12 @@
-.dashboard-content {
-  height: calc(100% - 94px);
-  margin: 30px 20px 0 20px;
+.reports-wrapper{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-@media (max-width: 600px) {
-  .dashboard-content {
-    height: calc(100% - 86px);
-  }
+#reports-content-wrapper {
+  height: 100%;
+  overflow: auto;
 }
 
 .title-bar {

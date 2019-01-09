@@ -1,44 +1,46 @@
-<div class="list-wrapper">
-  <form [formGroup]="modelMetaDataForm">
-    <mat-form-field>
-      <input required matInput placeholder="Analyst Full Name" type="text" formControlName="analyst">
-    </mat-form-field>
-    <mat-form-field>
-      <input required matInput placeholder="Type" type="text" formControlName="type">
-    </mat-form-field>
-    <mat-form-field>
-      <input required matInput placeholder="Model Name" type="text" formControlName="modelName">
-    </mat-form-field>
-    <mat-form-field>
-      <input matInput [matDatepicker]="fieldResDatePicker" placeholder="Field Research Date"
-             formControlName="fieldResDate">
-      <mat-datepicker-toggle matSuffix [for]="fieldResDatePicker"></mat-datepicker-toggle>
-      <mat-datepicker #fieldResDatePicker></mat-datepicker>
-    </mat-form-field>
+<form [formGroup]="modelMetaDataForm" class="wrapper">
+  <mat-form-field>
+    <input required matInput placeholder="Analyst Full Name" type="text" formControlName="analyst">
+  </mat-form-field>
+  <mat-form-field>
+    <input required matInput placeholder="Client Name" type="text" formControlName="clientName">
+  </mat-form-field>
+  <mat-form-field>
+    <input required matInput placeholder="Type" type="text" formControlName="type">
+  </mat-form-field>
+  <mat-form-field>
+    <input required matInput placeholder="Model Name" type="text" formControlName="modelName">
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput [matDatepicker]="fieldResDatePicker" placeholder="Field Research Date"
+           formControlName="fieldResDate">
+    <mat-datepicker-toggle matSuffix [for]="fieldResDatePicker"></mat-datepicker-toggle>
+    <mat-datepicker #fieldResDatePicker></mat-datepicker>
+  </mat-form-field>
 
-    <div>
-      <button type="button" mat-raised-button
-              [color]="file ? 'primary' : 'warn'"
-              (click)="fileInput.click()"
-              [disabled]="parsingFile">
-        <i class="fas fa-spinner fa-spin" *ngIf="parsingFile"></i>
-        {{parsingFile ? ' Fetching Data From Server': 'Upload File'}}
-      </button>
-      <span class="file-tip" *ngIf="file">
+  <div>
+    <button type="button" mat-raised-button
+            [color]="file ? 'primary' : 'warn'"
+            (click)="fileInput.click()"
+            [disabled]="parsingFile">
+      <i class="fas fa-spinner fa-spin" *ngIf="parsingFile"></i>
+      {{parsingFile ? ' Fetching Data From Server': 'Upload File'}}
+    </button>
+    <span class="file-tip" *ngIf="file">
         <i class="fas fa-check-circle" style="color:green;margin-right:5px;"></i>
         <b>{{file ? file.name : ''}}</b>
       </span>
-      <input hidden type="file" accept=".xls, .xlsx" id="fileInput" #fileInput (change)="readFile($event)"/>
-    </div>
-    <div>
-      <button (click)="submitModelData()" [color]="'warn'" [disabled]="modelMetaDataForm.invalid || !file || parsingFile || postProcessing"
-              mat-raised-button style="margin-top:20px;">Next
-      </button>
-      <span class="file-tip" *ngIf="parsingFile || postProcessing">
+    <input hidden type="file" accept=".xls, .xlsx" id="fileInput" #fileInput (change)="readFile($event)"/>
+  </div>
+  <div>
+    <button (click)="submitModelData()" [color]="'warn'"
+            [disabled]="modelMetaDataForm.invalid || !file || parsingFile || postProcessing"
+            mat-raised-button style="margin-top:20px;">Next
+    </button>
+    <span class="file-tip" *ngIf="parsingFile || postProcessing">
         <i class="fas fa-spinner fa-pulse" style="margin-right:5px;"></i>
         <b *ngIf="parsingFile">Parsing File...</b>
         <b *ngIf="postProcessing">Processing Data...</b>
-      </span>
-    </div>
-  </form>
-</div>
+    </span>
+  </div>
+</form>

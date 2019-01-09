@@ -20,6 +20,7 @@ import { StoreInfoCardComponent } from './store-info-card/store-info-card.compon
 import { SiteInfoCardComponent } from './site-info-card/site-info-card.component';
 import { FileInputComponent } from './file-input/file-input.component';
 import { TabSelectDialogComponent } from './file-input/tab-select-dialog/tab-select-dialog.component';
+import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
 
 @NgModule({
 	imports: [ CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule ],
@@ -38,7 +39,8 @@ import { TabSelectDialogComponent } from './file-input/tab-select-dialog/tab-sel
 		StoreInfoCardComponent,
 		SiteInfoCardComponent,
 		FileInputComponent,
-		TabSelectDialogComponent
+		TabSelectDialogComponent,
+		ThousandsCurrencyPipe
 	],
 	providers: [ BreakpointObserver, DatePipe, MediaMatcher ],
 	entryComponents: [
@@ -65,7 +67,8 @@ import { TabSelectDialogComponent } from './file-input/tab-select-dialog/tab-sel
 		DataFieldInfoDialogComponent,
 		StoreInfoCardComponent,
 		SiteInfoCardComponent,
-		FileInputComponent
+		FileInputComponent,
+		ThousandsCurrencyPipe
 	]
 })
 export class SharedModule {}

@@ -1,184 +1,410 @@
 import { ReportData } from '../../models/report-data';
 import { MapService } from '../../core/services/map.service';
 import { StoreListItem } from '../../models/store-list-item';
-import { SalesGrowthProjectionItem } from '../../models/sales-growth-projection-item';
 import { ReportBuilderService } from '../services/report-builder.service';
 
 import * as _ from 'lodash';
 
 export class JsonToTablesUtil {
 
-  readonly reportTableData: ReportData;
+  data;
+
+  mapImageUrl: string;
+
+  readonly tableData: ReportData;
   readonly reportMetaData;
-  readonly siteEvaluationData;
+  readonly siteEvaluationNarrative;
+  readonly siteEvaluationRatings;
 
-  private tableStores: StoreListItem[];
-  private readonly sovOverflowStores: StoreListItem[];
+  readonly sovStores: StoreListItem[];
+  readonly sovOverflowStores: StoreListItem[];
+  readonly currentWeeklyStores: StoreListItem[];
+  readonly currentWeeklyStoresOverflow: StoreListItem[] = [];
+  readonly projectedWeeklyStores: StoreListItem[];
+  readonly projectedWeeklyStoresOverflow: StoreListItem[] = [];
 
-  private readonly matchingStore: StoreListItem;
-  private readonly salesGrowthProjection: SalesGrowthProjectionItem;
+  readonly targetStore: StoreListItem;
 
-  private readonly maxSOV = 20;
+  private readonly googleMapsKey = 'AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ';
 
+  private readonly maxSovCount = 20;
 
   constructor(rbs: ReportBuilderService) {
     this.reportMetaData = rbs.reportMetaData;
-    this.reportTableData = rbs.reportTableData;
-    this.siteEvaluationData = rbs.siteEvaluationData;
+    this.tableData = rbs.reportTableData;
+    this.siteEvaluationNarrative = rbs.siteEvaluationNarrative;
+    this.siteEvaluationRatings = rbs.siteEvaluationRatings;
 
-    const siteNumber = this.reportTableData.selectedMapKey;
-    this.matchingStore = this.reportTableData.storeList.filter(item => item.mapKey === siteNumber)[0];
-    if (this.reportTableData.salesGrowthProjection[1]) {
-      this.salesGrowthProjection = this.reportTableData.salesGrowthProjection[1];
-    } else if (this.reportTableData.salesGrowthProjection[0]) {
-      this.salesGrowthProjection = this.reportTableData.salesGrowthProjection[0];
-    }
+    this.targetStore = this.tableData.storeList.find(item => item.mapKey === this.tableData.selectedMapKey);
 
-    this.tableStores = this.reportTableData.storeList
+    const tableStores = this.tableData.storeList
     // only get the ones matching the category
       .filter(store => store.category !== 'Do Not Include')
       .map(store => {
-        const {beforematch, aftermatch} = this.getSOVMatches(store);
-        const contributionToSite =  Math.abs(Number(beforematch.futureSales) - Number(aftermatch.futureSales));
+        const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store);
+        const contributionToSite = store.useTradeAreaChange ? store['tradeAreaChange'] : store['totalChange'];
         store['contributionToSite'] = !this.isTargetStore(store) ? contributionToSite : null;
+        store['contributionToSitePerc'] = !this.isTargetStore(store) ? (store['contributionToSite'] /
+          storeBeforeSiteOpen.futureSales) * 100 : null;
+        return store;
+      });
+
+    // To be added back in after
+    const forcedInclusions = tableStores.filter(store => store.forceInclusion);
+
+    const sortByContribution = (a, b) => {
+      if (a.mapKey === this.tableData.selectedMapKey) {
+        return -1;
+      }
+      if (b.mapKey === this.tableData.selectedMapKey) {
+        return 1;
+      }
+      return Math.abs(b['contributionToSite']) - Math.abs(a['contributionToSite']);
+    };
+
+    // Top contributors to the site
+    this.sovStores = tableStores
+    // sort by target, then by contribution to site
+      .sort(sortByContribution)
+      // only return the max at most
+      .slice(0, this.maxSovCount);
+
+    // Add any forced inclusions back in if they were filtered out
+    forcedInclusions.forEach(store => {
+      if (!this.sovStores.includes(store)) {
+        this.sovStores.push(store);
+      }
+    });
+
+    // create an array with calculated properties added
+    this.sovStores.forEach(store => {
+        const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store);
+
+        store['closing'] = !storeAfterSiteOpen.futureSales;
+        store['currentSales'] = storeBeforeSiteOpen.currentSales;
+        store['futureSales'] = storeBeforeSiteOpen.futureSales;
+        store['resultingVolume'] = store.mapKey === this.targetStore.mapKey ? storeAfterSiteOpen.futureSales
+          : store['futureSales'] - store['contributionToSite'];
+
+        store['distance'] =
+          MapService.getDistanceBetween(
+            {lat: store.latitude, lng: store.longitude},
+            {
+              lat: this.targetStore.latitude,
+              lng: this.targetStore.longitude
+            }
+          ) * 0.000621371;
+      });
+    this.sovStores.sort(sortByContribution);
+
+    // If it isn't included in SOV, then it belongs in the overflow.
+    this.sovOverflowStores = tableStores.filter(store => !this.sovStores.includes(store));
+
+    // Current Summary
+    const cStores = tableStores.filter(store => store.actualSales).sort((a, b) => a.mapKey - b.mapKey);
+    const partitionedCurrent = _.partition(cStores, store => {
+      return this.sovStores.find(s => Math.round(s.mapKey) === Math.round(store.mapKey)) != null;
+    });
+    this.currentWeeklyStores = partitionedCurrent[0];
+    this.currentWeeklyStoresOverflow = partitionedCurrent[1];
+
+    // Projected Summary
+    const pStores = tableStores
+    // store or replacement is major contributor
+      .map(store => {
+        const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store);
+        const contributionToSite = storeBeforeSiteOpen.futureSales - storeAfterSiteOpen.futureSales;
+        store['projectedSales'] = Math.round((storeBeforeSiteOpen.futureSales - contributionToSite) / 1000) * 1000;
+        store['projectedSalesPSF'] = store['projectedSales'] / store.salesArea;
         return store;
       })
-      // sort by target, then by contribution to site
-      .sort((a, b) => {
-        if (a.mapKey === this.reportTableData.selectedMapKey) {
-          return -1;
+      // Exclude those that don't have projected volumes (closed)
+      .filter(store => store['projectedSales'])
+      .sort((a, b) => a.mapKey - b.mapKey);
+    const partitionedProjected = _.partition(pStores, store => {
+      return this.sovStores.find(s => Math.round(s.mapKey) === Math.round(store.mapKey)) != null;
+    });
+    this.projectedWeeklyStores = partitionedProjected[0];
+    this.projectedWeeklyStoresOverflow = partitionedProjected[1];
+
+    this.data = this.getReportData();
+  }
+
+  getReportData() {
+    return {
+      projections: this.getProjectionsTableData(),
+      currentSummary: this.getCurrentSummaryTableData(),
+      projectedSummary: this.getProjectedSummaryTableData(),
+      sovData: this.getSovReportData(),
+      mapUrl: '',
+      ratings: this.siteEvaluationRatings,
+      narrativeData: this.getNarrativeData(),
+      marketShareDataHeaders: ['sector', 'projectedSales', 'projectedMS', 'effectivePower', 'futurePop1', 'projectedPotential',
+        'projectedPCW', 'leakage', 'distribution', 'futurePop2', 'futurePop3'],
+      marketShareData: this.tableData.marketShareBySector,
+      sovMapDataHeaders: ['mapKey', 'latitude', 'longitude', 'category', 'currentSales', 'firstYearEndingSales', 'contributionToSite',
+        'contributionToSitePerc', 'resultingVolume'],
+      sovMapData: this.getSovMapData()
+    }
+  }
+
+  getMapUrl(basemap: string, zoom: number) {
+    // map image
+    const target = this.targetStore;
+    const targetPin = `&markers=color:red%7C${target.latitude},${target.longitude}`;
+
+    const {latitude, longitude} = target;
+
+    return `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}` +
+      `&zoom=${zoom}&size=470x350&maptype=${basemap}&${targetPin}&key=${this.googleMapsKey}`;
+  }
+
+  private getSovReportData() {
+    return {
+      firstYearEndDate: this.tableData.firstYearEndingDate,
+      fieldResDate: this.reportMetaData.fieldResDate,
+      openingDate: this.tableData.storeOpeningDate,
+      salesTransferFromCompanyStores: this.getSalesTransfersFromCompanyStores(),
+      salesTransferFromCompetition: this.getSalesTransfersFromCompetition(),
+      totalSalesTransfer: this.getTotalSalesTransfers(),
+      percentOfSalesExplainedAfterOneYear: this.getPercentOfSalesExplained(),
+      showingCount: this.sovStores.length,
+      totalCount: this.sovStores.length + this.sovOverflowStores.length,
+      totalContributionExcluded: this.getOverflowSum(),
+      targetStoreMapKey: this.targetStore.mapKey,
+      companyStores: this.getSovStoresForTable('Company Store'),
+      companyStoresSummary: this.getSovCompanyStoresSummary('Company Store'),
+      existingCompetition: this.getSovStoresForTable('Existing Competition'),
+      existingCompetitionSummary: this.getSovCompanyStoresSummary('Existing Competition'),
+      proposedCompetition: this.getSovStoresForTable('Proposed Competition'),
+      proposedCompetitionSummary: this.getSovCompanyStoresSummary('Proposed Competition'),
+    };
+  }
+
+  private getSovCompanyStoresSummary(category: string) {
+    return {
+      fitAverage: this.getSovFitAverageForCategory(category),
+      contributionSum: this.getSovContributionToSiteSubtotal(category)
+    }
+  }
+
+  private getSovStoresForTable(category: string) {
+    return this.getSovStoresOfCategory(category)
+      .map(store => {
+        return {
+          storeName: store.storeName,
+          address: store.location,
+          mapKey: store.mapKey,
+          power: store.effectivePower,
+          distance: store['distance'],
+          salesArea: store.salesArea,
+          totalArea: store.totalArea,
+          currentSales: store.actualSales,
+          futureSales: store['futureSales'],
+          contributionDollars: store['contributionToSite'],
+          contributionPercent: store['contributionToSitePerc'],
+          resultingVolume: store['resultingVolume'],
+          closing: store['closing'],
+          isSite: store.mapKey === this.targetStore.mapKey
         }
-        if (b.mapKey === this.reportTableData.selectedMapKey) {
-          return 1;
-        }
-        return b['contributionToSite'] - a['contributionToSite'];
+      })
+  }
+
+  private getProjectedSummaryTableData() {
+    return {
+      date: this.tableData.firstYearEndingDate,
+      stores: this.getProjectedSummaryStores(),
+      summary: this.getProjectedSummaryAverages(),
+      overflowCount: this.currentWeeklyStoresOverflow.length
+    }
+  }
+
+  private getProjectedSummaryStores() {
+    return this.projectedWeeklyStores.map(store => {
+      return {
+        mapKey: store.mapKey,
+        storeName: store.storeName,
+        location: store.location,
+        volume: store['projectedSales'],
+        psf: store['projectedSalesPSF'],
+        salesArea: store.salesArea,
+        pwta: store.PWTA,
+        fitPower: store.effectivePower,
+        category: store.category,
+        isSite: store.mapKey === this.targetStore.mapKey
+      }
+    })
+  }
+
+  private getProjectedSummaryAverages() {
+    return {
+      volume: this.getSummaryAverage(this.projectedWeeklyStores, 'projectedSales'),
+      psf: this.getSummaryAverage(this.projectedWeeklyStores, 'projectedSalesPSF'),
+      salesArea: this.getSummaryAverage(this.projectedWeeklyStores, 'salesArea'),
+      power: this.getSummaryAverage(this.projectedWeeklyStores, 'effectivePower'),
+    }
+  }
+
+  private getCurrentSummaryTableData() {
+    return {
+      date: this.reportMetaData.fieldResDate,
+      stores: this.getCurrentSummaryStores(),
+      summary: this.getCurrentSummaryAverages(),
+      overflowCount: this.currentWeeklyStoresOverflow.length
+    }
+  }
+
+  private getCurrentSummaryAverages() {
+    return {
+      volume: this.getSummaryAverage(this.currentWeeklyStores, 'actualSales'),
+      psf: this.getSummaryAverage(this.currentWeeklyStores, 'actualSalesPSF'),
+      salesArea: this.getSummaryAverage(this.currentWeeklyStores, 'salesArea'),
+      power: this.getSummaryAverage(this.currentWeeklyStores, 'effectivePower'),
+    }
+  }
+
+  private getCurrentSummaryStores() {
+    return this.currentWeeklyStores.map(store => {
+      return {
+        mapKey: store.mapKey,
+        storeName: store.storeName,
+        location: store.location,
+        volume: store.actualSales,
+        psf: store.actualSalesPSF,
+        salesArea: store.salesArea,
+        pwta: store.PWTA,
+        fitPower: store.effectivePower
+      }
+    })
+  }
+
+  private getProjectionsTableData() {
+    const ts = this.targetStore;
+    const sgps = this.tableData.salesGrowthProjections;
+    return {
+      mapKey: ts.mapKey,
+      storeName: ts.storeName,
+      power: ts.effectivePower,
+      salesArea: ts.salesArea,
+      totalArea: ts.totalArea,
+      firstYearEndingSales: sgps.firstYearEndingSales,
+      firstYearEndingSalesPSF: sgps.firstYearEndingSalesPSF,
+      secondYearEndingSales: sgps.secondYearEndingSales,
+      secondYearEndingSalesPSF: sgps.secondYearEndingSalesPSF,
+      thirdYearEndingSales: sgps.thirdYearEndingSales,
+      thirdYearEndingSalesPSF: sgps.thirdYearEndingSalesPSF,
+      firstYearAnnualizedSales: sgps.firstYearEndingSales * 52,
+      firstYearAnnualizedSalesPSF: sgps.firstYearEndingSales * 52 / ts.salesArea,
+      firstYearAnnualizedSalesPSFTotalArea: sgps.firstYearEndingSales * 52 / ts.totalArea,
+      comment: this.reportMetaData.type
+    }
+  }
+
+  private getSovMapData() {
+
+    return this.sovStores.map(s => {
+      return {
+        mapKey: s.mapKey,
+        latitude: s.latitude,
+        longitude: s.longitude,
+        category: s.category,
+        currentSales: s['actualSales'],
+        firstYearEndingSales: s['futureSales'],
+        contributionToSite: s['contributionToSite'],
+        contributionToSitePerc: s['contributionToSitePerc'],
+        resultingVolume: s['closing'] ? 0 : s['resultingVolume']
+      };
+    });
+  }
+
+  private getNarrativeData() {
+    let txt = '';
+
+    Object.keys(this.reportMetaData).forEach(key => {
+      txt += `${key}:\r\n${this.reportMetaData[key]}\r\n\r\n`
+    });
+
+    txt += `Store Name:\r\n${this.targetStore.storeName}\r\n\r\n`;
+    txt += `Map Key:\r\n${this.targetStore.mapKey}\r\n\r\n`;
+
+    if (this.siteEvaluationNarrative) {
+      Object.keys(this.siteEvaluationNarrative).forEach(key => {
+        txt += `${key}:\r\n${this.siteEvaluationNarrative[key]}\r\n\r\n`
       });
-    // only return the max at most
-    this.sovOverflowStores = this.tableStores.slice(this.maxSOV, this.tableStores.length);
-  }
-
-  getProjectionMapKey() {
-    return this.reportTableData.selectedMapKey || null;
-  }
-
-  getProjectionScenario() {
-    return this.matchingStore.storeName || null;
-  }
-
-  getProjectionProjectedFitImage() {
-    return this.matchingStore.effectivePower || null;
-  }
-
-  getProjectionSalesArea() {
-    return this.matchingStore.salesArea || null;
-  }
-
-  getProjectionTotalArea() {
-    return this.matchingStore.totalArea || null;
-  }
-
-  getProjection(projectionName: string) {
-    if (this.salesGrowthProjection) {
-      return Math.round(this.salesGrowthProjection[projectionName] * 0.001);
-    } else {
-      return null;
     }
+    return txt;
   }
 
-  getProjectionPsf(projectionName: string) {
-    if (this.salesGrowthProjection) {
-      return this.salesGrowthProjection[projectionName] / this.getProjectionSalesArea();
-    } else {
-      return null;
+  getSovStoresOfCategory(category) {
+    // categories => Company Store, Proposed Competition, Existing Competition
+    return this.sovStores.filter(store => store.category === category);
+  }
+
+  getSummaryAverage(data, field) {
+    return data.map(s => s[field]).reduce((prev, next) => prev + next) / data.length;
+  }
+
+  getSovFitAverageForCategory(category: String) {
+    // categories => Company Store, Proposed Competition, Existing Competition
+    const fitStorePowerValues = [];
+    let fitStorePowerAverage = 0;
+    this.getSovStoresOfCategory(category)
+      .filter(store => !this.isTargetStore(store))
+      .forEach(store => fitStorePowerValues.push(store.effectivePower));
+    if (fitStorePowerValues.length > 0) {
+      fitStorePowerAverage = fitStorePowerValues.reduce((a, b) => a + b) / fitStorePowerValues.length;
     }
+
+    return fitStorePowerAverage;
   }
 
-  getProjectionYear1AnnualizedPsfFromTotal() {
-    if (this.salesGrowthProjection) {
-      return this.salesGrowthProjection.firstYearAverageSales * 52 / this.getProjectionTotalArea();
-    } else {
-      return null;
+  getSovContributionToSiteSubtotal(category) {
+    // categories => Company Store, Proposed Competition, Existing Competition
+    const contributionToSiteValues = [];
+    let contributionToSiteAverage = 0;
+    this.sovStores.filter(store => store.category === category && !this.isTargetStore(store))
+      .forEach(store => {
+        contributionToSiteValues.push(store['contributionToSite']);
+      });
+    if (contributionToSiteValues.length > 0) {
+      contributionToSiteAverage = contributionToSiteValues.reduce((a, b) => a + b);
     }
+
+    return contributionToSiteAverage;
   }
 
-  getStoresForExport(category) {
-    return this.reportTableData.storeList.filter(
-      store => store.category === category && !this.isTargetStore(store)
+  getSalesTransfersFromCompanyStores() {
+    return (
+      this.getSovContributionToSiteSubtotal('Company Store')
     );
   }
 
-  getProjectionComment() {
-    return this.reportMetaData.type;
+  getSalesTransfersFromCompetition() {
+    return this.getSovContributionToSiteSubtotal('Proposed Competition') +
+      this.getSovContributionToSiteSubtotal('Existing Competition');
   }
 
-  getCurrentStoresWeeklySummary() {
-    return this.reportTableData.storeList.filter(store => store.uniqueId);
+  getTotalSalesTransfers() {
+    return this.getSovContributionToSiteSubtotal('Proposed Competition') +
+      this.getSovContributionToSiteSubtotal('Existing Competition') +
+      this.getSovContributionToSiteSubtotal('Company Store');
   }
 
-  getProjectedStoresWeeklySummary() {
-    return this.reportTableData.storeList
-      .filter(store => store.category !== 'Do Not Include')
-      .map(store => {
-        const beforeMatch = this.reportTableData.projectedVolumesBefore.filter(
-          j => j.mapKey === store.mapKey
-        )[0];
-
-        const afterMatch = this.reportTableData.projectedVolumesAfter.filter(
-          j => j.mapKey === store.mapKey
-        )[0];
-
-        const futureSales = beforeMatch.futureSales;
-
-        const contributionToSite =
-          Number(beforeMatch.futureSales) - Number(afterMatch.futureSales);
-
-        store['projectedSales'] =
-          Math.round(
-            (Number(futureSales) - Number(contributionToSite)) / 1000
-          ) * 1000;
-
-        store['projectedSalesPSF'] = store['projectedSales'] / store.salesArea;
-
-        return store;
-      });
+  isTargetStore(store) {
+    return store.mapKey === this.tableData.selectedMapKey;
   }
 
-  getSOVStoreCount(category): number {
-    return this.reportTableData.storeList.filter(store => store.category === category).length;
+  getPercentOfSalesExplained() {
+    return (this.getTotalSalesTransfers() / this.targetStore['resultingVolume']) * 100;
   }
 
-  getSOVMatches(store) {
-    const beforematch = this.reportTableData.projectedVolumesBefore.filter(
-      j => j.mapKey === store.mapKey
-    )[0];
-
-    const aftermatch = this.reportTableData.projectedVolumesAfter.filter(
-      j => j.mapKey === store.mapKey
-    )[0];
-    return {beforematch, aftermatch};
+  private getSovBeforeAndAfterStores(store) {
+    const beforeMatch = this.tableData.projectedVolumesBefore.find(j => j.mapKey === store.mapKey);
+    const afterMatch = this.tableData.projectedVolumesAfter.find(j => j.mapKey === store.mapKey);
+    return {storeBeforeSiteOpen: beforeMatch, storeAfterSiteOpen: afterMatch};
   }
 
-  getTruncatedSOVStores() {
-    return this.tableStores.slice(0, this.maxSOV);
-  }
-
-  getTruncatedMessage() {
-    if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
-      const threshold = Math.ceil(_.maxBy(this.sovOverflowStores, 'contributionToSite')['contributionToSite']);
-      return `*Does not show contributions less than $${threshold.toLocaleString()} 
-      (Showing ${this.tableStores.length - this.sovOverflowStores.length}/${this.tableStores.length} Stores).`
-    }
-    return null;
-  }
-
-  getTruncatedSumMessage() {
-    if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
-      return `A total Contribution To Site of $${this.getOverflowSum().toLocaleString()} was excluded from the Report.`
-    }
-    return null;
-  }
-
-  getOverflowSum() {
+  public getOverflowSum() {
     if (this.sovOverflowStores && this.sovOverflowStores.length > 1) {
       const sum = this.sovOverflowStores.map(s => s['contributionToSite'])
         .reduce((prev, next) => prev + next);
@@ -188,118 +414,4 @@ export class JsonToTablesUtil {
     }
   }
 
-  getSOVStores(category) {
-    // categories => Company Store, Proposed Competition, Existing Competition
-    return (
-      this.getTruncatedSOVStores()
-      // only get the ones matching the cat
-        .filter(store => store.category === category)
-        // create an array with new properties added
-        .map(store => {
-          const {beforematch, aftermatch} = this.getSOVMatches(store);
-
-          store['currentSales'] = beforematch.currentSales;
-
-          store['futureSales'] = beforematch.futureSales;
-
-          store['contributionToSite'] = !this.isTargetStore(store)
-            ? Math.abs(
-              Number(beforematch.futureSales) - Number(aftermatch.futureSales)
-            )
-            : null;
-          store['contributionToSitePerc'] = !this.isTargetStore(store)
-            ? (Number(store['contributionToSite']) /
-            Number(store['futureSales'])) *
-            100
-            : null;
-
-          store['resultingVolume'] =
-            store.mapKey === this.matchingStore.mapKey
-              ? aftermatch.futureSales
-              : store['futureSales'] - store['contributionToSite'];
-
-          store['distance'] =
-            MapService.getDistanceBetween(
-              {lat: store.latitude, lng: store.longitude},
-              {
-                lat: this.matchingStore.latitude,
-                lng: this.matchingStore.longitude
-              }
-            ) * 0.000621371;
-
-          return store;
-        })
-    );
-  }
-
-  getSummaryAverage(dataSet, field) {
-    const data = dataSet === 'current' ? this.getCurrentStoresWeeklySummary() : this.getProjectedStoresWeeklySummary();
-    const values = data.map(s => s[field]);
-    const sum = values.reduce((prev, next) => prev + next);
-    return sum / values.length;
-  }
-
-  getSOVAverages(category) {
-    // categories => Company Store, Proposed Competition, Existing Competition
-    const fitStorePowerValues = [];
-    let fitStorePowerAverage = 0;
-    const contributionToSiteValues = [];
-    let contributionToSiteAverage = 0;
-    this.reportTableData.storeList.filter(store => store.category === category && !this.isTargetStore(store))
-      .forEach(store => {
-        fitStorePowerValues.push(store.effectivePower);
-        contributionToSiteValues.push(store['contributionToSite']);
-      });
-    if (fitStorePowerValues.length) {
-      fitStorePowerAverage =
-        fitStorePowerValues.reduce((a, b) => a + b) /
-        fitStorePowerValues.length;
-    }
-    if (contributionToSiteValues.length) {
-      contributionToSiteAverage = contributionToSiteValues.reduce(
-        (a, b) => a + b
-      );
-    }
-
-    return {fitStorePowerAverage, contributionToSiteAverage};
-  }
-
-  getSalesTransfersFromCompanyStores() {
-    return (
-      this.getSOVAverages('Company Store').contributionToSiteAverage / 1000
-    );
-  }
-
-  getSalesTransfersFromCompetition() {
-    return (
-      (this.getSOVAverages('Proposed Competition').contributionToSiteAverage +
-        this.getSOVAverages('Existing Competition').contributionToSiteAverage) /
-      1000
-    );
-  }
-
-  getTotalSalesTransfers() {
-    return (
-      (this.getSOVAverages('Proposed Competition').contributionToSiteAverage +
-        this.getSOVAverages('Existing Competition').contributionToSiteAverage +
-        this.getSOVAverages('Company Store').contributionToSiteAverage) /
-      1000
-    );
-  }
-
-  isTargetStore(store) {
-    return store.mapKey === this.reportTableData.selectedMapKey;
-  }
-
-  getTargetStore() {
-    return this.matchingStore;
-  }
-
-  getAfterOpen1Year() {
-    return this.matchingStore['resultingVolume'] / 1000;
-  }
-
-  getPercentOfSalesExplained() {
-    return (this.getTotalSalesTransfers() / this.getAfterOpen1Year()) * 100;
-  }
 }

@@ -6,9 +6,12 @@
       <button type="button" mat-icon-button color="warn" *ngIf="form.invalid">
         <i class="fas fa-exclamation-triangle fa-2x"></i>
       </button>
-      <button type="submit" mat-mini-fab color="accent" (click)="saveForm()"
+      <button type="submit" mat-mini-fab color="accent" (click)="saveForm()" *ngIf="!saving"
               [disabled]="form.pristine || form.invalid">
         <i class="fas fa-save"></i>
+      </button>
+      <button type="submit" mat-mini-fab color="primary" disabled *ngIf="saving">
+        <i class="fas fa-spinner fa-pulse"></i>
       </button>
     </div>
   </mat-toolbar>
@@ -19,15 +22,15 @@
       <mat-form-field>
         <input matInput type="text" placeholder="Store Name" formControlName="storeName">
       </mat-form-field>
-      <!--<mat-form-field class="example-full-width" formGroupName="banner">-->
-      <!--<input matInput placeholder="Banner" aria-label="Banner" [matAutocomplete]="auto" formControlName="bannerName">-->
-      <!--<mat-autocomplete #auto="matAutocomplete">-->
-      <!--<mat-option *ngFor="let bannerOption of bannerOptions | async" [value]="bannerOption.bannerName">-->
-      <!--<img style="vertical-align:middle;" aria-hidden src="https://cdn.corporate.walmart.com/dims4/WMT/6db4b02/2147483647/resize/1200x%3E/quality/90/?url=https%3A%2F%2Fcdn.corporate.walmart.com%2F6a%2F98%2Ff5799ae9449c96601ea85585c8eb%2Fwalmart-spark.png" height="25" />&nbsp;&nbsp;-->
-      <!--<span>{{ bannerOption.bannerName }}</span>-->
-      <!--</mat-option>-->
-      <!--</mat-autocomplete>-->
-      <!--</mat-form-field>-->
+      <div *ngIf="!store.banner" class="flex-align-center" style="height: 65.5px;">
+        <button mat-raised-button color="primary" (click)="selectBanner()">Select Banner</button>
+      </div>
+      <div *ngIf="store.banner" class="flex-space-between">
+        <mat-form-field id="bannerInput" (click)="selectBanner()">
+          <input matInput readonly type="text" placeholder="Banner" [value]="store.banner.bannerName">
+        </mat-form-field>
+        <img *ngIf="store.banner.logoFileName" [src]="getBannerImageSrc(store.banner)" [alt]="store.banner.bannerName">
+      </div>
       <mat-form-field>
         <input matInput type="text" placeholder="Store Number" formControlName="storeNumber">
       </mat-form-field>
@@ -39,6 +42,42 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
+      <mat-form-field>
+        <mat-select placeholder="Fit" formControlName="fit">
+          <mat-option>Clear Selection</mat-option>
+          <mat-option *ngFor="let fitOption of fitOptions" [value]="fitOption">{{fitOption}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-select placeholder="Format" formControlName="format">
+          <mat-option>Clear Selection</mat-option>
+          <mat-option *ngFor="let formatOption of formatOptions" [value]="formatOption">{{formatOption}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="number" autocomplete="off" placeholder="Sales Area" formControlName="areaSales">
+        <span matSuffix>sqft</span>
+        <mat-error>Leave blank if 0</mat-error>
+      </mat-form-field>
+      <mat-form-field id="area-percent-input">
+        <input matInput type="number" autocomplete="off" placeholder="Percent of Total Area"
+               formControlName="areaSalesPercentOfTotal">
+        <span matSuffix>%</span>
+        <mat-hint>Between 0.01% and 100%</mat-hint>
+        <mat-error *ngIf="form.get('areaSalesPercentOfTotal').invalid">Between 0.01% and 100%
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="number" autocomplete="off" placeholder="Total Area" formControlName="areaTotal">
+        <span matSuffix>sqft</span>
+        <mat-error>Leave blank if 0</mat-error>
+      </mat-form-field>
+      <div class="checklist">
+        <mat-checkbox formControlName="areaIsEstimate">Area Is Estimate</mat-checkbox>
+        <mat-checkbox formControlName="naturalFoodsAreIntegrated">Natural Foods are Integrated</mat-checkbox>
+        <mat-checkbox formControlName="storeIsOpen24">Open 24hrs</mat-checkbox>
+      </div>
       <mat-form-field>
         <input matInput [matDatepicker]="dateOpened" placeholder="Store Opening Date"
                formControlName="dateOpened">

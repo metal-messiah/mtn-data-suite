@@ -14,16 +14,13 @@ export class ResourceQuotaService extends CrudService<ResourceQuota> {
   constructor(protected http: HttpClient, protected rest: RestService) {
     super(http, rest);
   }
-  public getNewest(name: string, pageNumber?: number): Observable<Pageable<ResourceQuota>> {
+  public getNewest(name: string): Observable<ResourceQuota> {
     const url = this.rest.getHost() + this.endpoint + '/newest';
     let params = new HttpParams();
     if (name != null && name.length > 0) {
       params = params.set('name', name);
     }
-    if (pageNumber != null) {
-      params = params.set('page', pageNumber.toLocaleString());
-    }
-    return this.http.get<Pageable<ResourceQuota>>(url, {headers: this.rest.getHeaders(), params: params});
+    return this.http.get<ResourceQuota>(url, {headers: this.rest.getHeaders(), params: params});
   }
 
   createNewResourceQuota(name) {
@@ -37,7 +34,7 @@ export class ResourceQuotaService extends CrudService<ResourceQuota> {
       quotaLimit: 20000
     });
     return this.create(rq)
-    
+
   }
 
   protected createEntityFromObj(entityObj): ResourceQuota {
