@@ -18,24 +18,47 @@ export class SiteMergeDialogComponent implements OnInit {
   site1: Site;
   site2: Site;
   mergedSite;
-  siteAttrNames: string[] = [
-    'footprintSqft',
-    'positionInCenter',
-    'address1',
-    'city',
-    'state',
-    'postalCode',
-    'country',
-    'intersectionType',
-    'quad',
-    'intersectionStreetPrimary',
-    'intersectionStreetSecondary'
-  ];
-  scAttrNames: string[] = [
-    'name',
-    'owner',
-    'centerType'
-  ];
+  siteAttributes = [{
+    attrName: 'footprintSqft',
+    displayName: 'Footprint SqFt'
+  }, {
+    attrName: 'positionInCenter',
+    displayName: 'Position in Center'
+  }, {
+    attrName: 'address1',
+    displayName: 'Address'
+  }, {
+    attrName: 'city',
+    displayName: 'City'
+  }, {
+    attrName: 'state',
+    displayName: 'State'
+  }, {
+    attrName: 'postalCode',
+    displayName: "Zip Code"
+  }, {
+    attrName: 'intersectionType',
+    displayName: "Intersection Type"
+  }, {
+    attrName: 'quad',
+    displayName: 'Quad'
+  }, {
+    attrName: 'intersectionStreetPrimary',
+    displayName: "Primary Intersection"
+  }, {
+    attrName: 'intersectionStreetSecondary',
+    displayName: 'Secondary Intersection'
+  }];
+  scAttributes = [{
+    attrName: 'name',
+    displayName: 'Shopping Center Name'
+  }, {
+    attrName: 'owner',
+    displayName: 'Shopping Center Owner'
+  }, {
+    attrName: 'centerType',
+    displayName: 'Shopping Center Type'
+  }];
   merging = false;
 
   constructor(public dialogRef: MatDialogRef<SiteMergeDialogComponent>,
@@ -64,8 +87,8 @@ export class SiteMergeDialogComponent implements OnInit {
     this.mergedSite = new Site(this.site1);
 
     // Then update the selected values according to the rules (distinct and not null)
-    this.siteAttrNames.forEach(attr => this.mergedSite[attr] = this.getSiteValue(attr));
-    this.scAttrNames.forEach(attr => this.mergedSite.shoppingCenter[attr] = this.getShoppingCenterValue(attr));
+    this.siteAttributes.forEach(attr => this.mergedSite[attr.attrName] = this.getSiteValue(attr.attrName));
+    this.scAttributes.forEach(attr => this.mergedSite.shoppingCenter[attr.attrName] = this.getShoppingCenterValue(attr.attrName));
   }
 
   // Auto selects any Site attribute that isn't null in the radio buttons

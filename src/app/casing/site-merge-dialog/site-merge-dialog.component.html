@@ -2,36 +2,42 @@
 <div mat-dialog-content *ngIf="mergedSite">
 
   <!--Material Radio Buttons-->
-  <div *ngFor="let scAttrName of scAttrNames">
+  <div *ngFor="let scAttribute of scAttributes">
     <mat-radio-group
-      *ngIf="site1.shoppingCenter[scAttrName] != null && site2.shoppingCenter[scAttrName] != null && site1.shoppingCenter[scAttrName] != site2.shoppingCenter[scAttrName]"
-      class="radio-group" [(ngModel)]="mergedSite.shoppingCenter[scAttrName]">
+      *ngIf="site1.shoppingCenter[scAttribute.attrName] != null && site2.shoppingCenter[scAttribute.attrName] != null && site1.shoppingCenter[scAttribute.attrName] != site2.shoppingCenter[scAttribute.attrName]"
+      class="radio-group" [(ngModel)]="mergedSite.shoppingCenter[scAttribute.attrName]">
+      <div class="attr-title">
+        {{scAttribute.displayName}}
+      </div>
       <div>
-        <mat-radio-button ngclass="radio-button" [value]="site1.shoppingCenter[scAttrName]">
-          {{site1.shoppingCenter[scAttrName]}}
+        <mat-radio-button ngclass="radio-button" [value]="site1.shoppingCenter[scAttribute.attrName]">
+          {{site1.shoppingCenter[scAttribute.attrName]}}
         </mat-radio-button>
       </div>
       <div>
-        <mat-radio-button class="radio-button" [value]="site2.shoppingCenter[scAttrName]">
-          {{site2.shoppingCenter[scAttrName]}}
+        <mat-radio-button class="radio-button" [value]="site2.shoppingCenter[scAttribute.attrName]">
+          {{site2.shoppingCenter[scAttribute.attrName]}}
         </mat-radio-button>
       </div>
       <mat-divider *ngIf="!last"></mat-divider>
     </mat-radio-group>
   </div>
 
-  <div *ngFor="let siteAttrName of siteAttrNames">
+  <div *ngFor="let siteAttribute of siteAttributes">
     <mat-radio-group
-      *ngIf="site1[siteAttrName] != null && site2[siteAttrName] != null && site1[siteAttrName] != site2[siteAttrName]"
-      class="radio-group" [(ngModel)]="mergedSite[siteAttrName]">
+      *ngIf="site1[siteAttribute.attrName] != null && site2[siteAttribute.attrName] != null && site1[siteAttribute.attrName] != site2[siteAttribute.attrName]"
+      class="radio-group" [(ngModel)]="mergedSite[siteAttribute.attrName]">
       <div>
-        <mat-radio-button class="radio-button" [value]="site1[siteAttrName]">
-          {{site1[siteAttrName]}}
+        <div class="attr-title">
+          {{siteAttribute.displayName}}
+        </div>
+        <mat-radio-button class="radio-button" [value]="site1[siteAttribute.attrName]">
+          {{site1[siteAttribute.attrName]}}
         </mat-radio-button>
       </div>
       <div>
-        <mat-radio-button class="radio-button" [value]="site2[siteAttrName]">
-          {{site2[siteAttrName]}}
+        <mat-radio-button class="radio-button" [value]="site2[siteAttribute.attrName]">
+          {{site2[siteAttribute.attrName]}}
         </mat-radio-button>
       </div>
       <mat-divider *ngIf="!last"></mat-divider>

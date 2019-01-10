@@ -20,3 +20,9 @@
   min-width: 125px;
   max-width: 400px;
 }
+
+.attr-title {
+  font-weight: bold;
+  font-family: sans-serif;
+  padding-top: 8px;
+}

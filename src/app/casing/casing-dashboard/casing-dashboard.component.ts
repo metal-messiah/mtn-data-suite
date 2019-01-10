@@ -284,7 +284,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   cancelDuplicateSelection(): void {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-
   }
 
   cancelSiteCreation(): void {
@@ -732,6 +731,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   initiateDuplicateSelection(siteId: number) {
     this.selectedDashboardMode = CasingDashboardMode.DUPLICATE_SELECTION;
     this.selectedSiteId = siteId;
+    // const message = `Select another site to merge into this site`;
+    // this.snackBar.open(message, null);
   }
 
   openSiteMergeDialog(duplicateSiteId: number) {
