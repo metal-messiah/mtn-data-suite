@@ -54,7 +54,6 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate {
       postalCode: '',
       county: '',
       country: '',
-      footprintSqft: '',
       intersectionStreetPrimary: '',
       intersectionStreetSecondary: '',
       quad: '',

@@ -175,7 +175,8 @@
               <mat-checkbox formControlName="parkingHasTSpaces">Has T Spaces</mat-checkbox>
             </div>
             <mat-form-field>
-              <input matInput type="number" autocomplete="off" placeholder="# Parking Spaces" formControlName="parkingSpaceCount">
+              <input matInput type="number" autocomplete="off" placeholder="# Parking Spaces"
+                     formControlName="parkingSpaceCount">
             </mat-form-field>
             <mat-form-field>
               <mat-select placeholder="Parking Rating" formControlName="parkingRating">
@@ -201,15 +202,24 @@
                 </button>
               </div>
               <mat-form-field [formGroup]="shoppingCenterSurveyForm">
-                <input matInput type="number" autocomplete="off" placeholder="# Occupied" formControlName="tenantOccupiedCount">
+                <input matInput type="number" autocomplete="off" placeholder="# Occupied"
+                       formControlName="tenantOccupiedCount">
               </mat-form-field>
               <mat-form-field [formGroup]="shoppingCenterSurveyForm">
-                <input matInput type="number" autocomplete="off" placeholder="# Vacant" formControlName="tenantVacantCount">
+                <input matInput type="number" autocomplete="off" placeholder="# Vacant"
+                       formControlName="tenantVacantCount">
               </mat-form-field>
               <mat-form-field [formGroup]="shoppingCenterSurveyForm">
-                <input matInput type="number" autocomplete="off" placeholder="% Sqft Occupied" formControlName="sqFtPercentOccupied">
+                <input matInput type="number" autocomplete="off" placeholder="% Sqft Occupied"
+                       formControlName="sqFtPercentOccupied">
                 <span matSuffix>%</span>
                 <mat-error>Must be between 0 and 100%</mat-error>
+              </mat-form-field>
+              <mat-form-field [formGroup]="shoppingCenterCasingForm">
+                <mat-select placeholder="Tenant Buildings Rating" formControlName="ratingTenantBuildings">
+                  <mat-option>Clear Selection</mat-option>
+                  <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+                </mat-select>
               </mat-form-field>
               <mat-form-field [formGroup]="shoppingCenterCasingForm">
                 <mat-select placeholder="Synergy Rating" formControlName="ratingSynergy">
@@ -232,12 +242,10 @@
             </div>
             <div [formGroup]="storeSurveyForm">
               <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="Number of Dispensers" formControlName="fuelDispenserCount">
+                <input matInput type="number" autocomplete="off" placeholder="Number of Dispensers"
+                       formControlName="fuelDispenserCount">
                 <mat-hint>Maximum number of cars that can fuel simultaneously</mat-hint>
               </mat-form-field>
-              <div style="margin-top: 8px;">
-                <mat-checkbox formControlName="fuelIsOpen24">Fuel is Open 24hrs</mat-checkbox>
-              </div>
             </div>
           </mat-expansion-panel>
           <!-- Store Status -->
@@ -382,15 +390,18 @@
             </mat-expansion-panel-header>
             <div>
               <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="Normal" formControlName="registerCountNormal">
+                <input matInput type="number" autocomplete="off" placeholder="Normal"
+                       formControlName="registerCountNormal">
                 <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="Express" formControlName="registerCountExpress">
+                <input matInput type="number" autocomplete="off" placeholder="Express"
+                       formControlName="registerCountExpress">
                 <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="Self Checkout" formControlName="registerCountSelfCheckout">
+                <input matInput type="number" autocomplete="off" placeholder="Self Checkout"
+                       formControlName="registerCountSelfCheckout">
                 <mat-error>Leave blank if 0</mat-error>
               </mat-form-field>
             </div>
@@ -476,13 +487,15 @@
                   <tr>
                     <td>
                       <mat-form-field>
-                        <input matInput type="number" autocomplete="off" placeholder="Meat Volume" formControlName="volumeMeat">
+                        <input matInput type="number" autocomplete="off" placeholder="Meat Volume"
+                               formControlName="volumeMeat">
                         <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
-                        <input matInput type="number" autocomplete="off" placeholder="% of Total" formControlName="volumePercentMeat">
+                        <input matInput type="number" autocomplete="off" placeholder="% of Total"
+                               formControlName="volumePercentMeat">
                         <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
@@ -490,13 +503,15 @@
                   <tr>
                     <td>
                       <mat-form-field>
-                        <input matInput type="number" autocomplete="off" placeholder="Produce Volume" formControlName="volumeProduce">
+                        <input matInput type="number" autocomplete="off" placeholder="Produce Volume"
+                               formControlName="volumeProduce">
                         <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
-                        <input matInput type="number" autocomplete="off" placeholder="% of Total" formControlName="volumePercentProduce">
+                        <input matInput type="number" autocomplete="off" placeholder="% of Total"
+                               formControlName="volumePercentProduce">
                         <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
@@ -504,13 +519,15 @@
                   <tr>
                     <td>
                       <mat-form-field>
-                        <input matInput type="number" autocomplete="off" placeholder="Grocery Volume" formControlName="volumeGrocery">
+                        <input matInput type="number" autocomplete="off" placeholder="Grocery Volume"
+                               formControlName="volumeGrocery">
                         <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
-                        <input matInput type="number" autocomplete="off" placeholder="% of Total" formControlName="volumePercentGrocery">
+                        <input matInput type="number" autocomplete="off" placeholder="% of Total"
+                               formControlName="volumePercentGrocery">
                         <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
@@ -518,13 +535,15 @@
                   <tr>
                     <td>
                       <mat-form-field>
-                        <input matInput type="number" autocomplete="off" placeholder="Non-Food Volume" formControlName="volumeNonFood">
+                        <input matInput type="number" autocomplete="off" placeholder="Non-Food Volume"
+                               formControlName="volumeNonFood">
                         <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
-                        <input matInput type="number" autocomplete="off" placeholder="% of Total" formControlName="volumePercentNonFood">
+                        <input matInput type="number" autocomplete="off" placeholder="% of Total"
+                               formControlName="volumePercentNonFood">
                         <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
@@ -532,13 +551,15 @@
                   <tr>
                     <td>
                       <mat-form-field>
-                        <input matInput type="number" autocomplete="off" placeholder="Other Volume" formControlName="volumeOther">
+                        <input matInput type="number" autocomplete="off" placeholder="Other Volume"
+                               formControlName="volumeOther">
                         <span matPrefix>$&nbsp;</span>
                       </mat-form-field>
                     </td>
                     <td>
                       <mat-form-field>
-                        <input matInput type="number" autocomplete="off" placeholder="% of Total" formControlName="volumePercentOther">
+                        <input matInput type="number" autocomplete="off" placeholder="% of Total"
+                               formControlName="volumePercentOther">
                         <span matSuffix>%</span>
                       </mat-form-field>
                     </td>
@@ -547,9 +568,10 @@
               </div>
               <div class="flex flex-space-between">
                 <mat-form-field class="example-full-width">
-                  <input matInput type="number" autocomplete="off" placeholder="Total Weekly Volume" formControlName="volumeTotal"
-                         required>
+                  <input matInput type="number" autocomplete="off" placeholder="Total Weekly Grocery Volume"
+                         formControlName="volumeTotal" required>
                   <span matPrefix>$&nbsp;</span>
+                  <mat-hint>ALWAYS Slack</mat-hint>
                   <mat-error *ngIf="storeVolumeForm.get('volumeTotal').invalid">Min: $10k, Max: $10M
                   </mat-error>
                 </mat-form-field>
@@ -572,6 +594,12 @@
                 <mat-error *ngIf="storeVolumeForm.get('volumeDate').invalid">Required</mat-error>
               </mat-form-field>
               <mat-form-field>
+                <input matInput type="number" autocomplete="off" placeholder="Total Weekly Box Volume"
+                       formControlName="volumeBoxTotal">
+                <span matPrefix>$&nbsp;</span>
+                <mat-error *ngIf="storeVolumeForm.get('volumeBoxTotal').invalid">Min: $10k, Max: $10M</mat-error>
+              </mat-form-field>
+              <mat-form-field>
                 <textarea placeholder="Volume Notes" formControlName="volumeNote" matInput></textarea>
               </mat-form-field>
             </div>
@@ -591,65 +619,14 @@
               <mat-form-field>
                 <textarea formControlName="seasonalityNotes" matInput placeholder="Seasonality Notes"></textarea>
               </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="January" formControlName="seasonalityJan">
+              <h3 style="text-align: center;">Adjustments from <b>Slack</b> Volume</h3>
+              <h4 style="text-align: center">Volume: {{getVolume()}}</h4>
+              <mat-form-field *ngFor="let month of months">
+                <input matInput type="number" autocomplete="off" [placeholder]="month.placeholder"
+                       [formControlName]="month.formControlName">
                 <span matSuffix>%</span>
                 <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="February" formControlName="seasonalityFeb">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="March" formControlName="seasonalityMar">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="April" formControlName="seasonalityApr">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="May" formControlName="seasonalityMay">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="June" formControlName="seasonalityJun">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="July" formControlName="seasonalityJul">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="August" formControlName="seasonalityAug">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="September" formControlName="seasonalitySep">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="October" formControlName="seasonalityOct">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="November" formControlName="seasonalityNov">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <input matInput type="number" autocomplete="off" placeholder="December" formControlName="seasonalityDec">
-                <span matSuffix>%</span>
-                <mat-error>Between -100% and 200%</mat-error>
+                <mat-hint align="end">{{getCalculatedSeasonality(month)}}</mat-hint>
               </mat-form-field>
             </div>
           </mat-expansion-panel>
@@ -660,7 +637,7 @@
             </mat-expansion-panel-header>
             <div [formGroup]="storeCasingForm">
               <mat-form-field>
-                <textarea matInput placeholder="Store Notes" formControlName="note" ></textarea>
+                <textarea matInput placeholder="Store Notes" formControlName="note"></textarea>
               </mat-form-field>
             </div>
             <div [formGroup]="shoppingCenterCasingForm">

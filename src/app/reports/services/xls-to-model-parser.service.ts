@@ -8,9 +8,7 @@ import { SectorListItem } from '../../models/sector-list-item';
 import { MarketShareBySectorItem } from '../../models/market-share-by-sector-item';
 import { VolumeItem } from '../../models/volume-item';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class XlsToModelParserService {
 
   parseXls(fileString): Observable<ReportData> {
@@ -25,8 +23,11 @@ export class XlsToModelParserService {
       reportData.salesGrowthProjections = this.getSalesGrowthProjectionAverages(wb.Sheets[wb.SheetNames[3]]);
       reportData.marketShareBySector = this.getMarketShareBySector(wb.Sheets[wb.SheetNames[4]]);
       reportData.sectorList = this.getSectorList(wb.Sheets[wb.SheetNames[5]]);
+      reportData.currentVolumes = this.getCurrentVolumes(wb.Sheets[wb.SheetNames[6]]); // Contains Assumed Power of site
 
-      reportData.firstYearEndingMonthYear = this.getFirstYearEndingMonthYear(wb);
+      reportData.firstYearEndingDate = this.getFirstYearEndingDate(wb);
+      reportData.storeOpeningDate = new Date(reportData.firstYearEndingDate);
+      reportData.storeOpeningDate.setMonth(reportData.storeOpeningDate.getMonth() - 11);
       reportData.selectedMapKey = this.getSelectedMapKey(wb);
 
       observer.next(reportData);
@@ -44,6 +45,7 @@ export class XlsToModelParserService {
       const actualSalesPSF = actualSales / salesArea;
       storeListItems.push({
         storeName: ws['A' + row].v,
+        bannerName: ws['A' + row].v,
         mapKey: this.getNumberFromCell(ws, 'B' + row),
         uniqueId: this.getNumberFromCell(ws, 'C' + row),
         latitude: this.getNumberFromCell(ws, 'D' + row),
@@ -58,7 +60,10 @@ export class XlsToModelParserService {
         location: ws['M' + row].v,
         parentCompanyId: null,
         category: null,
-        totalArea: null
+        totalArea: null,
+        useTradeAreaChange: false,
+        forceInclusion: false,
+        scenario: 'Existing'
       })
     } while (!ws['A' + ++row].v.includes('Totals'));
 
@@ -145,10 +150,31 @@ export class XlsToModelParserService {
     return items;
   }
 
-  private getFirstYearEndingMonthYear(wb: WorkBook): string {
-    const sheetName = wb.SheetNames[1];
+  private getCurrentVolumes(ws: WorkSheet): {mapKey: number, assumedPower: number}[] {
+    try {
+      const items = [];
+
+      let row = 4;
+      do {
+        items.push({
+          mapKey: this.getNumberFromCell(ws, 'B' + row),
+          assumedPower: this.getNumberFromCell(ws, 'H' + row)
+        })
+      } while (ws['A' + ++row].v !== 'Totals');
+
+      return items;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
+  private getFirstYearEndingDate(wb: WorkBook): Date {
+    const sheetName = wb.SheetNames[4];
     const sheet = wb.Sheets[sheetName];
-    return sheet['E2'].v;
+    const dateString: string = sheet['E4'].v;
+    const firstYearEndingDate = new Date(dateString);
+    return firstYearEndingDate;
   }
 
   private getSelectedMapKey(wb: WorkBook): number {

@@ -10,6 +10,7 @@ export class ShoppingCenterCasing extends AuditingEntity {
   ratingBuildings: string;
   ratingLighting: string;
   ratingSynergy: string;
+  ratingTenantBuildings: string;
   legacyCasingId: number;
 
   projects: SimplifiedProject[];

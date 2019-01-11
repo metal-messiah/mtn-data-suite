@@ -4,10 +4,10 @@
     text file with your site evaluation comments.
   </div>
   <hr>
-  <div *ngIf="rbs.compilingImages">
+  <div *ngIf="rbs.compilingReport">
     <i class="fas fa-spinner fa-pulse"></i>
   </div>
-  <div *ngIf="!rbs.compilingImages">
+  <div *ngIf="!rbs.compilingReport">
     <button [color]="'primary'" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back
     </button>
     <button [color]="'warn'" mat-raised-button (click)="startOver()" style="margin-top:20px;">Start Over

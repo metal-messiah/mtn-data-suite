@@ -62,7 +62,7 @@
     <mat-hint align="end">{{getPgFeatureOpenDate()}}</mat-hint>
   </mat-form-field>
 
-  <div>
+  <div *ngIf="pgStatus">
     <p>Will <strong *ngIf="!doAddStatus">NOT</strong> update status from <strong>{{currentStatus.displayName}}</strong> to <strong>{{pgStatus.displayName}}</strong></p>
   </div>
 

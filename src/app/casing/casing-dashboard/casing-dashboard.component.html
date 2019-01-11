@@ -156,7 +156,6 @@
 
 <mat-menu #multiSelectActionMenu="matMenu" [overlapTrigger]="false">
   <button mat-menu-item *ngIf="storeMapLayer.getSelectionCount() > 0" disabled>{{storeMapLayer.getSelectionCount()}}&nbsp;Stores</button>
-  <!--<button mat-menu-item disabled><i class="fas fa-thumbtack"></i>&nbsp;&nbsp;Pin</button>-->
   <button mat-menu-item (click)="openDownloadDialog()" *ngIf="!userIsGuest()">
     <i class="fas fa-download"></i>&nbsp;&nbsp;Download Latest Data
   </button>

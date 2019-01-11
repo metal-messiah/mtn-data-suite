@@ -1,7 +1,7 @@
 <div class='pg-wrapper'>
   <div class='left-panel' *ngIf="records != null">
     <div class="flex" style="justify-content: space-around; margin-top: 8px;">
-      <h2>{{currentRecordIndex + 1 }}/{{totalStoreSourceRecords}}</h2>
+      <h2 *ngIf="records.length > 0">{{currentRecordIndex + 1 }}/{{totalStoreSourceRecords}}</h2>
       <button mat-mini-fab color="accent" (click)="refresh()" [disabled]="isRefreshing">
         <i *ngIf="!isRefreshing" class="fas fa-sync"></i>
         <i *ngIf="isRefreshing" class="fas fa-sync fa-spin"></i>
@@ -56,10 +56,7 @@
             <div class='small-text'>
               {{pgRecord ? pgRecord.attributes ? pgRecord.attributes.SIZESF ?
               pgRecord.attributes.SIZESF.toLocaleString()
-              + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{pgRecord ? " | Status: "+
-              statuses[pgRecord.attributes.STATUS]['pg']
-              : ''}}
-
+              + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{getPgRecordStatus(pgRecord)}}
             </div>
           </div>
           <button (click)="noMatch()" mat-button class=''>Add Site

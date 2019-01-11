@@ -30,6 +30,7 @@ import { NewStoreStatusComponent } from './new-store-status/new-store-status.com
 import { NewStoreVolumeComponent } from './new-store-volume/new-store-volume.component';
 import { DownloadDialogComponent } from './download-dialog/download-dialog.component';
 import { SiteMergeDialogComponent } from './site-merge-dialog/site-merge-dialog.component';
+import { SelectBannerComponent } from './select-banner/select-banner.component';
 
 @NgModule({
   imports: [
@@ -64,7 +65,8 @@ import { SiteMergeDialogComponent } from './site-merge-dialog/site-merge-dialog.
     TenantListDialogComponent,
     NewStoreVolumeComponent,
     DownloadDialogComponent,
-    SiteMergeDialogComponent
+    SiteMergeDialogComponent,
+    SelectBannerComponent
   ],
   entryComponents: [
     AccessListDialogComponent,
@@ -81,7 +83,8 @@ import { SiteMergeDialogComponent } from './site-merge-dialog/site-merge-dialog.
     NewStoreStatusComponent,
     NewStoreVolumeComponent,
     DownloadDialogComponent,
-    SiteMergeDialogComponent
+    SiteMergeDialogComponent,
+    SelectBannerComponent
   ],
   providers: [CasingDashboardService]
 })

@@ -14,10 +14,6 @@
       <button mat-button [disabled]="disableActions" [mat-menu-trigger-for]="markerMoreMenu">
         <i class="fas fa-ellipsis-v"></i>&nbsp;More
       </button>
-      <!-- TODO Enable Pinning-->
-      <button mat-button [disabled]="true || disableActions" (click)="pinLocation()">
-        <i class="fas fa-thumbtack"></i>&nbsp;Pin
-      </button>
       <button mat-button [disabled]="disableActions" (click)="goToSiteOverview()">
         <i class="fas fa-pencil-alt"></i>&nbsp;Edit
       </button>
@@ -30,7 +26,6 @@
   <button mat-menu-item (click)="moveSite()">
     <i class="fas fa-arrows-alt"></i>&nbsp;Move
   </button>
-  <button mat-menu-item [disabled]="true"><i class="far fa-clock"></i>&nbsp;History</button>
   <button mat-menu-item (click)="selectDuplicateSite()">
     <i class="fas fa-clone"></i>&nbsp;Merge Duplicate
   </button>

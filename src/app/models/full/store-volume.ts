@@ -4,6 +4,7 @@ import { DateUtil } from '../../utils/date-util';
 export class StoreVolume extends AuditingEntity {
 
   volumeTotal: number;
+  volumeBoxTotal: number;
   volumeDate: Date;
   volumeType: string;
   source: string;
@@ -25,6 +26,7 @@ export class StoreVolume extends AuditingEntity {
     super(obj);
 
     this.volumeTotal = obj.volumeTotal;
+    this.volumeBoxTotal = obj.volumeBoxTotal;
 
     if (obj.volumeDate != null) {
       this.volumeDate = DateUtil.getDate(obj.volumeDate);

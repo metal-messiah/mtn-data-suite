@@ -41,18 +41,15 @@
                   (click)="deleteAccess(access.value, i)">
             <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
           </button>
-          <button type="button" mat-raised-button color="accent"
-                  [disabled]="access.pristine || access.invalid || saving"
-                  (click)="updateAccess(access)">
-            <span *ngIf="!saving"><i class="fas fa-save"></i>&nbsp;&nbsp;Save</span>
-            <span *ngIf="saving"><i class="fas fa-spinner fa-pulse"></i></span>
-          </button>
         </mat-action-row>
       </mat-expansion-panel>
     </mat-accordion>
   </div>
 </div>
 <div mat-dialog-actions class="flex-justify-center">
-  <button type="button" *ngIf="!form.dirty" color="primary" mat-dialog-close mat-raised-button>Close</button>
-  <button type="button" *ngIf="form.dirty" disabled mat-raised-button>Save Access Edits First</button>
+  <button type="button" *ngIf="!form.dirty" [disabled]="saving" color="primary" mat-dialog-close mat-raised-button>Close</button>
+  <button type="button" *ngIf="form.dirty && !saving" [disabled]="saving" color="accent" (click)="saveAllAndClose()" mat-raised-button>
+    <span *ngIf="!saving">Save All and Close</span>
+    <i *ngIf="saving" class="fas fa-spinner fa-pulse"></i>
+  </button>
 </div>

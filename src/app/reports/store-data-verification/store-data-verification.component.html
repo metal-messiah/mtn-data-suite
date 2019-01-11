@@ -1,30 +1,63 @@
 <form *ngIf="form" [formGroup]="form" class="wrapper">
-  <table>
+  <table matSort (matSortChange)="sortData($event)" style="border-collapse: collapse;">
     <tr>
-      <th>Map Key</th>
-      <th>Store ID</th>
-      <th>Store Name</th>
-      <th>Location</th>
-      <th>Sales Area</th>
-      <th>Total Area</th>
+      <th mat-sort-header="mapKey">Map<br>Key</th>
+      <th mat-sort-header="uniqueId">Store<br>ID</th>
+      <th mat-sort-header="storeName">Store Name</th>
+      <th mat-sort-header="scenario">Scenario</th>
+      <th mat-sort-header="category">SOV<br>Category</th>
+      <th mat-sort-header="location">Location</th>
+      <th mat-sort-header="salesArea">Sales Area</th>
+      <th mat-sort-header="totalArea">TotalArea</th>
+      <th mat-sort-header="totalChange">Total<br>Change</th>
+      <th mat-sort-header="totalChangePerc">Total<br>%</th>
+      <th mat-sort-header="tradeAreaChange">TA<br>Change</th>
+      <th mat-sort-header="tradeAreaChangePerc">TA<br>%</th>
+      <th>Use TA<br>Change</th>
+      <th style="width: 70px;">Force<br>Include</th>
     </tr>
-    <tr formArrayName="stores" *ngFor="let store of getStoreControls(); let i = index;">
+    <tr formArrayName="stores" *ngFor="let store of storeControls; let i = index;"
+        [ngClass]="getRowColor(store.value)">
       <td>{{store.get('mapKey').value}}</td>
       <td>
         <a [href]="origin + '/casing?store-id=' + store.get('uniqueId').value" target="_blank">{{store.get('uniqueId').value}}</a>
       </td>
       <td>{{store.get('storeName').value}}</td>
-      <td>{{store.get('location').value}}</td>
-      <td>{{store.get('salesArea').value}}</td>
-      <td [formGroupName]="i">
+      <td>{{store.get('scenario').value}}</td>
+      <td [formGroupName]="i" style="width: 183px;">
+        <select placeholder="SOV Category" formControlName="category">
+          <option *ngFor="let category of categories" [value]="category">
+            {{category}}
+          </option>
+        </select>
+      </td>
+      <td style="width: 230px;">{{store.get('location').value}}</td>
+      <td class="right-align">{{store.get('salesArea').value}}</td>
+      <td [formGroupName]="i" class="right-align">
         <input type="number" formControlName="totalArea" min="0">
+      </td>
+      <td class="right-align">{{store.get('totalChange').value | thousandsCurrency}}</td>
+      <td class="right-align">{{store.get('totalChangePerc').value | percent:'1.0-1'}}</td>
+      <td class="right-align">{{store.get('tradeAreaChange').value | thousandsCurrency}}</td>
+      <td class="right-align">{{store.get('tradeAreaChangePerc').value | percent:'1.0-1'}}</td>
+      <td [formGroupName]="i" style="text-align: center;">
+        <input type="checkbox" formControlName="useTradeAreaChange">
+      </td>
+      <td [formGroupName]="i" style="text-align: center;">
+        <input type="checkbox" formControlName="forceInclusion">
       </td>
     </tr>
   </table>
   <div class='submit'>
     <h3 *ngIf="form.invalid" style="color: #ff4c3e;">All Total Areas are Required</h3>
-    <button [color]="'primary'" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back</button>
-    <button [color]="'warn'" mat-raised-button (click)="next()" [disabled]="form.invalid" style="margin-top:20px;" >Next</button>
+    <button color="primary" mat-raised-button (click)="_location.back()" style="margin-top:20px;">Go Back
+    </button>
+    <button color="accent" mat-raised-button (click)="harrisTeeter()" [disabled]="form.invalid" style="margin:20px 0 0 20px;">
+      Harris Teeter
+    </button>
+    <button color="warn" mat-raised-button (click)="next()" [disabled]="form.invalid" style="margin:20px 0 0 20px;">
+      Next
+    </button>
   </div>
 </form>
 

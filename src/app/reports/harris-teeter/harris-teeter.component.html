@@ -1,0 +1,50 @@
+<form *ngIf="form" [formGroup]="form" class="wrapper">
+  <h3>Scenario Assumptions</h3>
+  <div formArrayName="compChanges" *ngFor="let compChange of compChangeControls; let i=index">
+    <span [formGroupName]="i"><input type="checkbox" formControlName="includeInReport"></span>
+    <span>{{compChange.get('storeName').value}} at {{compChange.get('location').value.replace('/', 'in')}},&nbsp;</span>
+    <span [formGroupName]="i">
+    <select placeholder="Scenario" formControlName="scenario">
+      <option *ngFor="let scenarioOption of scenarioOptions" [value]="scenarioOption">{{scenarioOption}}</option>
+    </select>
+    &nbsp;<input type="text" placeholder="Additional Text" formControlName="additionalText">
+    </span>
+    <span>, {{compChange.get('totalArea').value.toLocaleString()}} TSQFT.</span>
+    <span *ngIf="isIncludedInSOV(compChange.get('mapKey').value)"> (Included in SOV)</span>
+  </div>
+  <div>
+    <mat-form-field>
+      <mat-select placeholder="Visibility Rating" formControlName="visibilityRating">
+        <mat-option *ngFor="let rating of ratings" [value]="rating.value">
+          {{rating.display}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-form-field>
+      <mat-select placeholder="Ingress Rating" formControlName="ingressRating">
+        <mat-option *ngFor="let rating of ratings" [value]="rating.value">
+          {{rating.display}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-form-field>
+      <mat-select placeholder="Egress Rating" formControlName="egressRating">
+        <mat-option *ngFor="let rating of ratings" [value]="rating.value">
+          {{rating.display}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-form-field>
+      <input matInput type="text" placeholder="State" formControlName="state">
+    </mat-form-field>
+  </div>
+  <div>
+    <button mat-raised-button type="submit" (click)="getHTReport()" color="accent">Submit</button>
+  </div>
+</form>

@@ -5,7 +5,6 @@ import * as _ from 'lodash';
 import { RestService } from './rest.service';
 import { CrudService } from '../../interfaces/crud-service';
 import { Store } from '../../models/full/store';
-import { Pageable } from '../../models/pageable';
 import { SimplifiedStoreStatus } from '../../models/simplified/simplified-store-status';
 import { SimplifiedStoreVolume } from '../../models/simplified/simplified-store-volume';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
@@ -166,5 +165,18 @@ export class StoreService extends CrudService<Store> {
     const params = new HttpParams().set('ids', ids.toString());
     return this.http.get<Store[]>(url, {headers: this.rest.getHeaders(), params: params})
       .pipe(map(stores => stores.map(store => new SimplifiedStore(store))));
+  }
+
+  updateBanner(storeId: number, bannerId: number) {
+    if (!bannerId) {
+      return this.removeBanner(storeId);
+    }
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/banner/${bannerId}`;
+    return this.http.put<Store>(url, null, {headers: this.rest.getHeaders()});
+  }
+
+  removeBanner(storeId: number) {
+    const url = this.rest.getHost() + this.endpoint + `/${storeId}/banner`;
+    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()});
   }
 }
