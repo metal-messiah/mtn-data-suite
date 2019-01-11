@@ -148,7 +148,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
           this.selectedStore = store;
           this.selectedCardState = CardState.SELECTED_STORE;
         } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
-          this.openSiteMergeDialog(store.site.id);
+          this.onDuplicateSelected(store.site.id);
         }
       });
     }));
@@ -162,7 +162,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
           this.storeMapLayer.clearSelection();
           this.selectedSite = site;
           this.selectedCardState = CardState.HIDDEN;
-          this.openSiteMergeDialog(site.id);
+          this.onDuplicateSelected(site.id);
         }
       });
     }));
@@ -730,20 +730,35 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   initiateDuplicateSelection(siteId: number) {
     this.selectedDashboardMode = CasingDashboardMode.DUPLICATE_SELECTION;
-    this.selectedSiteId = siteId;
-    // const message = `Select another site to merge into this site`;
-    // this.snackBar.open(message, null);
+      this.selectedSiteId = siteId;
+      const message = `Select another site to merge with this one`;
+      const ref = this.snackBar.open(message, 'Cancel');
+      ref.onAction().subscribe( result => {
+        ref.dismiss();
+        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+      });
   }
 
-  openSiteMergeDialog(duplicateSiteId: number) {
-    const siteMergeDialog = this.dialog.open(SiteMergeDialogComponent, {
-      maxWidth: '90%',
-      data: {duplicateSiteId: duplicateSiteId, selectedSiteId: this.selectedSiteId}
-    });
-    siteMergeDialog.afterClosed().subscribe( result => {
-      console.log(result);
+  onDuplicateSelected(duplicateSiteId: number) {
+    if (this.selectedSiteId === duplicateSiteId) {
+      const message = 'Oops, select ANY OTHER site to merge into this site';
+      const ref = this.snackBar.open(message, 'Cancel');
+      ref.onAction().subscribe( result => {
+        ref.dismiss();
+        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+      });
+    } else {
       this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-      this.getEntities(this.mapService.getBounds());
-    })
+      this.snackBar.dismiss();
+      const siteMergeDialog = this.dialog.open(SiteMergeDialogComponent, {
+        maxWidth: '90%',
+        data: {duplicateSiteId: duplicateSiteId, selectedSiteId: this.selectedSiteId}
+      });
+      siteMergeDialog.afterClosed().subscribe(result => {
+        console.log(result);
+        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        this.getEntities(this.mapService.getBounds());
+      })
+    }
   }
 }
