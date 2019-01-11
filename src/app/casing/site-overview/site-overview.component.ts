@@ -11,9 +11,9 @@ import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-p
 import { ErrorService } from '../../core/services/error.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { StoreService } from '../../core/services/store.service';
-import { finalize, subscribeOn } from 'rxjs/internal/operators';
+import { finalize } from 'rxjs/internal/operators';
 import { AuthService } from '../../core/services/auth.service';
-import { StoreMergeDialogComponent } from '../store-merge-dialog/store-merge-dialog.component';
+import { StoreSelectionDialogComponent } from '../store-merge/store-selection-dialog/store-selection-dialog.component';
 
 @Component({
   selector: 'mds-site-overview',
@@ -190,7 +190,7 @@ export class SiteOverviewComponent implements OnInit {
   }
 
   openStoreMergeDialog(): void {
-    this.dialog.open(StoreMergeDialogComponent, {
+    this.dialog.open(StoreSelectionDialogComponent, {
       data: {site: this.site}
     });
     console.log('Opened Store Merge Dialog');
