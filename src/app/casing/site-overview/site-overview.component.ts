@@ -13,7 +13,6 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 import { StoreService } from '../../core/services/store.service';
 import { finalize } from 'rxjs/internal/operators';
 import { AuthService } from '../../core/services/auth.service';
-import { StoreSelectionDialogComponent } from '../store-merge/store-selection-dialog/store-selection-dialog.component';
 
 @Component({
   selector: 'mds-site-overview',
@@ -187,12 +186,5 @@ export class SiteOverviewComponent implements OnInit {
         this.router.navigate(['/casing/store', store.id], {relativeTo: this.route});
       }, err => this.errorService.handleServerError('Failed to create new store!', err,
         () => console.log('Cancelled'), () => this.saveNewStore(newStore)));
-  }
-
-  openStoreMergeDialog(): void {
-    this.dialog.open(StoreSelectionDialogComponent, {
-      data: {site: this.site}
-    });
-    console.log('Opened Store Merge Dialog');
   }
 }

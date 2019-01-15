@@ -111,6 +111,7 @@ export class SiteService extends CrudService<Site> {
     return {lat: site.latitude, lng: site.longitude};
   }
 
+  // TODO Did we not end up using mergeSite here? -AT 1-14-19
   mergeSite(site1, site2, mergedSite) {
     return of(1).pipe(delay(2000));
   }

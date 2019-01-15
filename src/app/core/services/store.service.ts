@@ -12,7 +12,7 @@ import { SimplifiedStoreCasing } from '../../models/simplified/simplified-store-
 import { StoreVolume } from '../../models/full/store-volume';
 import { StoreCasing } from '../../models/full/store-casing';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/internal/operators';
+import { delay, map } from 'rxjs/internal/operators';
 import { StoreFilter } from '../../models/store-filter';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 
@@ -135,6 +135,7 @@ export class StoreService extends CrudService<Store> {
 
   getLabel(store: Store | SimplifiedStore) {
     let label = null;
+    // TODO Cleanup unused code -AT 1-14-19
     // if (store.banner != null) {
     //   label = store.banner.bannerName;
     // } else {
@@ -165,5 +166,9 @@ export class StoreService extends CrudService<Store> {
     const params = new HttpParams().set('ids', ids.toString());
     return this.http.get<Store[]>(url, {headers: this.rest.getHeaders(), params: params})
       .pipe(map(stores => stores.map(store => new SimplifiedStore(store))));
+  }
+
+  mergeStore([stores], mergedStore) {
+    return of(1).pipe(delay(2000));
   }
 }

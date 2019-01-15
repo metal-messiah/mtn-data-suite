@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Store } from '../../models/full/store';
 import { StoreService } from '../../core/services/store.service';
-import { MatDialog, MatSnackBar, MatSnackBarConfig } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { ErrorService } from '../../core/services/error.service';
 import { StoreStatusesDialogComponent } from '../store-statuses-dialog/store-statuses-dialog.component';
 import { StoreVolumeDialogComponent } from '../store-volume-dialog/store-volume-dialog.component';
+import { StoreSelectionDialogComponent } from '../store-merge/store-selection-dialog/store-selection-dialog.component';
 
 @Component({
   selector: 'mds-store-summary-card',
@@ -71,6 +72,17 @@ export class StoreSummaryCardComponent implements OnInit {
         () => {},
         () => this.setFloating(floating));
     });
+  }
+
+  openStoreMergeDialog() {
+    const config = [data: {store: this.store}, maxWidth: '300px'];
+    const storeMergeDialog = this.dialog.open(StoreSelectionDialogComponent, config);
+    storeMergeDialog.afterClosed().subscribe( (store: Store) => {
+      if (store != null) {
+        this.store = store;
+      }
+    });
+    console.log('Opened Store Merge Dialog');
   }
 
 }
