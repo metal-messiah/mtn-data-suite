@@ -167,8 +167,4 @@ export class StoreService extends CrudService<Store> {
     return this.http.get<Store[]>(url, {headers: this.rest.getHeaders(), params: params})
       .pipe(map(stores => stores.map(store => new SimplifiedStore(store))));
   }
-
-  mergeStore([stores], mergedStore) {
-    return of(1).pipe(delay(2000));
-  }
 }

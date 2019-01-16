@@ -87,7 +87,9 @@ import { StoreAttrSelectionDialogComponent } from './store-merge/store-attr-sele
     NewStoreStatusComponent,
     NewStoreVolumeComponent,
     DownloadDialogComponent,
-    SiteMergeDialogComponent
+    SiteMergeDialogComponent,
+    StoreSelectionDialogComponent,
+    StoreAttrSelectionDialogComponent
   ],
   providers: [CasingDashboardService]
 })

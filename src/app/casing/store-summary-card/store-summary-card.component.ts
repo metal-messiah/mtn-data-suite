@@ -21,7 +21,8 @@ export class StoreSummaryCardComponent implements OnInit {
               private snackBar: MatSnackBar,
               private errorService: ErrorService,
               private dialog: MatDialog
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
   }
@@ -35,7 +36,8 @@ export class StoreSummaryCardComponent implements OnInit {
     }, err => {
       this.store.storeType = prevStoreType;
       this.errorService.handleServerError('Failed to update store type', err,
-        () => {},
+        () => {
+        },
         () => this.updateStoreType(storeType));
     });
   }
@@ -69,19 +71,14 @@ export class StoreSummaryCardComponent implements OnInit {
     }, err => {
       this.store.floating = prevFloating;
       this.errorService.handleServerError('Failed to update store', err,
-        () => {},
+        () => {
+        },
         () => this.setFloating(floating));
     });
   }
 
   openStoreMergeDialog() {
-    const config = [data: {store: this.store}, maxWidth: '300px'];
-    const storeMergeDialog = this.dialog.open(StoreSelectionDialogComponent, config);
-    storeMergeDialog.afterClosed().subscribe( (store: Store) => {
-      if (store != null) {
-        this.store = store;
-      }
-    });
+    this.dialog.open(StoreSelectionDialogComponent);
     console.log('Opened Store Merge Dialog');
   }
 

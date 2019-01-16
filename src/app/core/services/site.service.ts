@@ -115,4 +115,5 @@ export class SiteService extends CrudService<Site> {
   mergeSite(site1, site2, mergedSite) {
     return of(1).pipe(delay(2000));
   }
+
 }

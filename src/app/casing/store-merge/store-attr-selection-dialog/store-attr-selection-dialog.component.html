@@ -1,3 +1,9 @@
-<p>
-  store-attr-selection-dialog works!
-</p>
+<h3 mat-dialog-title class="Title">Select Store Attributes</h3>
+<div mat-dialog-content *ngIf="mergedStore"></div>
+<!--Material Footer-->
+<div mat-dialog-actions class="flex-space-between">
+  <button mat-raised-button (click)="closeDialog()">Close</button>
+  <button *ngIf="!merging" mat-raised-button color="accent" (click)="mergeStore()">Merge</button>
+  <button *ngIf="merging" mat-raised-button color="accent" disabled>Merge
+    <i class="fas fa-spinner fa-pulse"></i></button>
+</div>

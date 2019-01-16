@@ -1,12 +1,8 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { Store } from '../../../models/full/store';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../shared/error-dialog/error-dialog.component';
-import { ErrorService } from '../../../core/services/error.service';
-import { SiteService } from '../../../core/services/site.service';
-import { Site } from '../../../models/full/site';
-import { finalize } from 'rxjs/operators';
-import { StoreService } from '../../../core/services/store.service';
+import { StoreAttrSelectionDialogComponent } from '../store-attr-selection-dialog/store-attr-selection-dialog.component';
 
 @Component({
   selector: 'mds-store-selection-dialog',
@@ -15,36 +11,57 @@ import { StoreService } from '../../../core/services/store.service';
 })
 export class StoreSelectionDialogComponent implements OnInit {
 
-  store: Store;
-  site: Site;
-  loading = false;
+  //  duplicateStoreId: number[];
+  store = Store;
+  stores: Store[];
+  selectedStore: Store;
+  mergedStore;
+  selectedStoreAttrNames: string[] = [
+    'storeName',
+    'storeNumber'
+  ];
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
               @Inject (MAT_DIALOG_DATA) public data: { store: Store },
-              private siteService: SiteService,
-              private storeService: StoreService,
-              private errorService: ErrorService) {
+              private dialog: MatDialog
+  ) {
+    dialogRef.disableClose = true;
   }
 
   ngOnInit() {
-    this.store = this.data.store;
-    this.loadStores(this.data.store.id);
   }
 
-  loadStores(siteId: number) {
-    this.loading = true;
-    this.storeService.getAllByIds(siteId)
+  initializedMergedStore() {
+    this.mergedStore = {
+      storeName: this.getStoreValue( 'storeName'),
+      storeNumber: this.getStoreValue( 'storeNumber')
+    };
   }
 
-  mergeStores(): void {
-    this.merging = true;
-    this.storeService.mergeStore([store], this.mergedStore)
-      .pipe(finalize(() => this.merging = false))
-      .subscribe(() => {
-        const message = `Successfully merged`;
-        this.snackBar.open(message, null, {duration: 2000});
-      }, err => this.errorService.handleServerError('Failed to merge!', err,
-        () => console.log(err)));
+  // Auto selects any Store attribute that isn't null in the radio buttons
+  getStoreValue(attr: string) {
+    if (this.selectedStore[attr] === this.selectedStore[attr]) {
+      return this.selectedStore[0][attr];
+    } else {
+      if (this.selectedStore[][attr] != null) {
+        return this.selectedStore[][attr];
+      } else {
+        return this.selectedStore[][attr];
+      }
+    }
   }
+
+
+  openStoreAttrMergeDialog() {
+    this.dialog.open(StoreAttrSelectionDialogComponent, {
+      maxWidth: '90%'
+    });
+  }
+
+  closeDialog(): void {
+    this.dialogRef.close();
+  }
+
+
 
 }
