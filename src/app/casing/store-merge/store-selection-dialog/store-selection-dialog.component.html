@@ -2,15 +2,14 @@
 <div mat-dialog-content></div>
 
 <!-- Material Radio Groups-->
-<div *ngFor="let selectedStoreAttrName of selectedStoreAttrNames">
-  <mat-radio-group *ngIf="selectedStoreAttrNames[selectedStoreAttrName] != selectedStoreAttrNames[selectedStoreAttrName] && selectedStoreAttrNames[selectedStoreAttrName]!=null" class="radio-group"> <!--[(ngModel)]="mergedStore[selectedStoreAttrName]"-->
+<div *ngFor="let storeAttrName of storeAttrNames">
+  <mat-radio-group class="radio-group" [(ngModel)]="mergedStore[storeAttrName]">
     <div>
-      <mat-radio-button>
+      <mat-radio-button [value]="storeA[storeAttrName]">
         <div>
-          {{selectedStoreAttrNames[0]}}
+          {{storeA[storeAttrName]}}
         </div>
         <div>
-          {{selectedStoreAttrNames[storeNumber]}}
         </div>
       </mat-radio-button>
     </div>

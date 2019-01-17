@@ -3,6 +3,8 @@ import { Store } from '../../../models/full/store';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../shared/error-dialog/error-dialog.component';
 import { StoreAttrSelectionDialogComponent } from '../store-attr-selection-dialog/store-attr-selection-dialog.component';
+import { StoreService } from '../../../core/services/store.service';
+import { Site } from '../../../models/full/site';
 
 @Component({
   selector: 'mds-store-selection-dialog',
@@ -12,23 +14,33 @@ import { StoreAttrSelectionDialogComponent } from '../store-attr-selection-dialo
 export class StoreSelectionDialogComponent implements OnInit {
 
   //  duplicateStoreId: number[];
-  store = Store;
+  siteId: Site;
+  storeA: number;
+  storeB: number;
+  store: Store;
   stores: Store[];
-  selectedStore: Store;
   mergedStore;
-  selectedStoreAttrNames: string[] = [
+  storeAttrNames: string[] = [
     'storeName',
     'storeNumber'
   ];
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
               @Inject (MAT_DIALOG_DATA) public data: { store: Store },
-              private dialog: MatDialog
+              private dialog: MatDialog,
+              private storeService: StoreService
   ) {
     dialogRef.disableClose = true;
   }
 
   ngOnInit() {
+    this.storeService.getAllByIds(ids).subscribe( (stores: Store[]) => {
+      this.stores = stores;
+      this.storeService.getAllByIds(this.storeB).subscribe( (storeB: Store) => {
+        this.store = storeB;
+        this.initializedMergedStore();
+      });
+    });
   }
 
   initializedMergedStore() {
@@ -40,17 +52,16 @@ export class StoreSelectionDialogComponent implements OnInit {
 
   // Auto selects any Store attribute that isn't null in the radio buttons
   getStoreValue(attr: string) {
-    if (this.selectedStore[attr] === this.selectedStore[attr]) {
-      return this.selectedStore[0][attr];
+    if (this.storeA[attr] === this.storeB[attr]) {
+      return this.storeA[attr];
     } else {
-      if (this.selectedStore[][attr] != null) {
-        return this.selectedStore[][attr];
+      if (this.storeB[attr] != null) {
+        return this.storeA[attr];
       } else {
-        return this.selectedStore[][attr];
+        return this.storeA[attr];
       }
     }
   }
-
 
   openStoreAttrMergeDialog() {
     this.dialog.open(StoreAttrSelectionDialogComponent, {
@@ -61,7 +72,4 @@ export class StoreSelectionDialogComponent implements OnInit {
   closeDialog(): void {
     this.dialogRef.close();
   }
-
-
-
 }
