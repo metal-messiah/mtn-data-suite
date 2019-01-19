@@ -13,6 +13,8 @@ import { delay } from 'rxjs/operators';
 export class StoreAttrSelectionDialogComponent implements OnInit {
 
   merging = false;
+  selectedStores: Store[]; // After check mark boxes
+  mergedStore; // After all check mark boxes merged
   storeAttrNames: string[] = [
     'storeName',
     'storeNumber',
@@ -42,9 +44,7 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
               @Inject (MAT_DIALOG_DATA) public data: { store: Store },
-              private dialog: MatDialog
-  ) {
-    dialogRef.disableClose = true;
+              private dialog: MatDialog) {
   }
 
   ngOnInit() {

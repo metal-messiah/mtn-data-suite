@@ -4,10 +4,10 @@
 <!-- Material Radio Groups-->
 <div *ngFor="let storeAttrName of storeAttrNames">
   <mat-radio-group class="radio-group" [(ngModel)]="mergedStore[storeAttrName]">
-    <div>
-      <mat-radio-button [value]="storeA[storeAttrName]">
+    <div *ngIf="store.storeName != null && store.storeName.length > 0">
+      <mat-radio-button [value]="stores[storeAttrName]">
         <div>
-          {{storeA[storeAttrName]}}
+          {{stores[storeAttrName]}}
         </div>
         <div>
         </div>

@@ -13,8 +13,6 @@ import { ErrorService } from '../../core/services/error.service';
 })
 export class SiteMergeDialogComponent implements OnInit {
 
-  siteId: number;
-  duplicateSiteId: number;
   site1: Site;
   site2: Site;
   mergedSite;
@@ -45,14 +43,12 @@ export class SiteMergeDialogComponent implements OnInit {
               private snackBar: MatSnackBar,
               private errorService: ErrorService
   ) {
-    this.siteId = data.selectedSiteId;
-    this.duplicateSiteId = data.duplicateSiteId;
   }
 
   ngOnInit() {
-    this.siteService.getOneById(this.siteId).subscribe((site1: Site) => {
+    this.siteService.getOneById(this.data.selectedSitedId).subscribe((site1: Site) => {
       this.site1 = site1;
-      this.siteService.getOneById(this.duplicateSiteId).subscribe((site2: Site) => {
+      this.siteService.getOneById(this.data.dulicateSiteId).subscribe((site2: Site) => {
         this.site2 = site2;
         this.initializedMergedSite()
       });
