@@ -3,8 +3,6 @@ import { Store } from '../../../models/full/store';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../shared/error-dialog/error-dialog.component';
 import { StoreAttrSelectionDialogComponent } from '../store-attr-selection-dialog/store-attr-selection-dialog.component';
-import { ErrorService } from '../../../core/services/error.service';
-import { Location } from '@angular/common';
 
 @Component({
   selector: 'mds-store-selection-dialog',
@@ -14,45 +12,55 @@ import { Location } from '@angular/common';
 export class StoreSelectionDialogComponent implements OnInit {
 
   error: string;
-  storeAttrNames: Store;
+  mergedStore;
+  store1: Store;
+  store2: Store;
+  storeAttrNames: string[] = [
+    'storeName',
+    'storeNumber'
+  ];
+  selectedStores: Store[];
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
               @Inject (MAT_DIALOG_DATA) public data: {stores: Store[] },
-              private dialog: MatDialog,
-              private errorService: ErrorService,
-              private _location: Location) {
+              private dialog: MatDialog) {
   }
 
   ngOnInit() {
+    this.selectedStores = this.data.stores;
+    this.initializedMergedStore();
   }
 
-  // Auto selects any Store attribute that isn't null in the radio buttons
+  initializedMergedStore() {
+    this.mergedStore = {
+      storeName: this.checkStoreValues( 'storeName'),
+      storeNumber: this.checkStoreValues('storeNumber')
+    }
+  }
 
-  // getStoreValue(attr: string) {
-  //   if (this.data.stores[attr] === this.data.stores[attr]) {
-  //     return this.data.stores[attr];
-  //   } else {
-  //     if (this.data.stores[attr] != null) {
-  //       return this.data.stores[attr];
-  //     } else {
-  //       return this.data.stores[attr];
-  //     }
-  //   }
-  // }
+  checkStoreValues(attr: string) {
+    const items = [this.data.stores];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      for (let j = 0; j <items.length; j++) {
+        const checkedStores = items[j];
+      }
+    }
+  }
 
   goBack() {
     this.dialog.closeAll();
   };
 
-  openStoreAttrMergeDialog() {
+  openStoreAttrMergeDialog(selectedStores: Store[]) {
+    this.dialogRef.close();
     this.dialog.open(StoreAttrSelectionDialogComponent, {
-      maxWidth: '90%'
+      maxWidth: '90%',
+      data: {selectedStores: selectedStores}
     });
   }
 
   closeDialog(): void {
     this.dialogRef.close();
   }
-
-
 }

@@ -1,4 +1,22 @@
+.radio-group {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.radio-button {
+  margin: 6px;
+}
+
 .mat-dialog-content {
   margin: 5px;
   padding: 5px;
+}
+
+.mat-dialog-title {
+  text-align: center;
+}
+
+.mat-divider {
+  min-width: 125px;
+  max-width: 400px;
 }

@@ -738,6 +738,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     });
     siteMergeDialog.afterClosed().subscribe( result => {
       console.log(result);
-    })
+    });
   }
 }

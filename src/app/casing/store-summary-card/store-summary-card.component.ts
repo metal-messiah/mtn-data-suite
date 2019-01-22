@@ -79,9 +79,6 @@ export class StoreSummaryCardComponent implements OnInit {
 
   openStoreMergeDialog() {
     const config = {data: {store: this.store}, maxWidth: '90%'};
-    const storeMergeDialog = this.dialog.open(StoreSelectionDialogComponent, config);
-    storeMergeDialog.afterClosed().subscribe( (store: Store) => {
-      this.store = store;
-    });
+    this.dialog.open(StoreSelectionDialogComponent, config);
   }
 }
