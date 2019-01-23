@@ -76,9 +76,4 @@ export class StoreSummaryCardComponent implements OnInit {
         () => this.setFloating(floating));
     });
   }
-
-  openStoreMergeDialog() {
-    const config = {data: {store: this.store}, maxWidth: '90%'};
-    this.dialog.open(StoreSelectionDialogComponent, config);
-  }
 }

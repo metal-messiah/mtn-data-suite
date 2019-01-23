@@ -15,7 +15,6 @@ import { Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/internal/operators';
 import { StoreFilter } from '../../models/store-filter';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
-import { store } from '@angular/core/src/render3';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {

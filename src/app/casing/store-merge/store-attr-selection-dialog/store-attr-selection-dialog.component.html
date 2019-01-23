@@ -1,5 +1,14 @@
 <h3 mat-dialog-title class="Title">Select Store Attributes</h3>
 <div mat-dialog-content *ngIf="mergedStore"></div>
+
+<div *ngFor="let storeAttrName of storeAttrNames">
+  <mat-radio-group class="radio-group" [(ngModel)]="mergedStore[storeAttrName]">
+    <mat-radio-button class="radio-button" *ngFor="let store of data.stores" [value]="store[storeAttrName]">
+      {{store[storeAttrName]}}
+    </mat-radio-button>
+  </mat-radio-group>
+</div>
+
 <!--Material Footer-->
 <div mat-dialog-actions class="flex-space-between">
   <button mat-raised-button (click)="closeDialog()">Close</button>

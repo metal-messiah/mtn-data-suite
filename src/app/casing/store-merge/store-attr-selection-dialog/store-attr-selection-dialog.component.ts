@@ -1,9 +1,9 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
-import { ErrorDialogComponent } from '../../../shared/error-dialog/error-dialog.component';
-import { Store } from '../../../models/full/store';
-import { of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import {Component, Inject, OnInit} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
+import {ErrorDialogComponent} from '../../../shared/error-dialog/error-dialog.component';
+import {Store} from '../../../models/full/store';
+import {of} from 'rxjs';
+import {delay} from 'rxjs/operators';
 
 @Component({
   selector: 'mds-store-attr-selection-dialog',
@@ -13,8 +13,7 @@ import { delay } from 'rxjs/operators';
 export class StoreAttrSelectionDialogComponent implements OnInit {
 
   merging = false;
-  selectedStores: Store[]; // After check mark boxes
-  mergedStore; // After all check mark boxes merged
+  mergedStore;
   storeAttrNames: string[] = [
     'storeName',
     'storeNumber',
@@ -43,11 +42,33 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
   ];
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
-              @Inject (MAT_DIALOG_DATA) public data: { store: Store },
+              @Inject(MAT_DIALOG_DATA) public data: { selectedStores: Store[] },
               private dialog: MatDialog) {
   }
 
   ngOnInit() {
+    this.initializedMergedStore();
+  }
+
+  initializedMergedStore() {
+    this.mergedStore = {
+      storeName: this.storesHaveDifference('storeName'),
+      storeNumber: this.storesHaveDifference('storeNumber')
+    }
+  }
+
+  storesHaveDifference(attr: string) {
+    const items = [this.data.selectedStores];
+    for (let i = 0; i < items.length; i++) {
+      const storei = items[i];
+      for (let j = 0; j < items.length; j++) {
+        const storej = items[j];
+        if (storei !== storej && storei[attr] !== storej[attr]) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   closeDialog(): void {

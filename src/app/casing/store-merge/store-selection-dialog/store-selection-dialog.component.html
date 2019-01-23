@@ -2,23 +2,9 @@
 <div mat-dialog-content *ngIf="mergedStore"></div>
 
 <!-- Material Radio Groups-->
-<div *ngFor="let storeAttrName of storeAttrNames">
-  <mat-radio-group class="radio-group" [(ngModel)]="mergedStore[storeAttrName]">
-    <div>
-      <div>
-        <mat-radio-button class="radio-button" [value]="store1[storeAttrName]">
-          {{store1.storeName[storeAttrName]}}
-        </mat-radio-button>
-      </div>
-      <div>
-        <mat-radio-button class="radio-button" [value]="store2[storeAttrName]">
-          {{store2.storeNumber[storeAttrName]}}
-        </mat-radio-button>
-        <mat-divider></mat-divider>
-      </div>
-
-    </div>
-  </mat-radio-group>
+<!--TODO Add Check mark boxes-->
+<div *ngFor="let store of data.stores">
+  {{store.storeName}} {{store.storeNumber}}
 </div>
 
 <!--Material Footer-->
