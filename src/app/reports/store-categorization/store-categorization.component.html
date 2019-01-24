@@ -4,7 +4,7 @@
     <div class="categories-box" *ngFor="let store of getExistingStoresCombined(); let i=index;"
          [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
       <div>
-        <span style="margin-right: 20px;">{{store.storeName}} ({{getExistingStoresCount(store.storeName)}})</span>
+        <span style="margin-right: 20px;">{{store.bannerName}} ({{getExistingStoresCount(store.bannerName)}})</span>
       </div>
       <select [value]="store.category" (change)="changeCombinedCategory($event, store)">
         <option *ngFor="let cat of categories">{{cat}}</option>
@@ -19,8 +19,9 @@
         <div>
           <span style="margin-right: 20px;">{{store.mapKey}}</span>
           <span style="margin-right: 20px;">{{store.storeName}}</span>
+          <span style="margin-right: 20px;">{{store.scenario}}</span>
         </div>
-        <select [value]="store.category" (change)="changeCategory($event, store.mapKey)">
+        <select [value]="store.category" (change)="changeCategory($event, store)">
           <option *ngFor="let cat of categories">{{cat}}</option>
         </select>
       </div>

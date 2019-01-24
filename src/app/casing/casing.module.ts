@@ -33,6 +33,7 @@ import { SiteMergeDialogComponent } from './site-merge-dialog/site-merge-dialog.
 import { MatStepperModule } from '@angular/material';
 import { StoreSelectionDialogComponent } from './store-merge/store-selection-dialog/store-selection-dialog.component';
 import { StoreAttrSelectionDialogComponent } from './store-merge/store-attr-selection-dialog/store-attr-selection-dialog.component';
+import { SelectBannerComponent } from './select-banner/select-banner.component';
 
 @NgModule({
   imports: [
@@ -70,7 +71,8 @@ import { StoreAttrSelectionDialogComponent } from './store-merge/store-attr-sele
     DownloadDialogComponent,
     SiteMergeDialogComponent,
     StoreSelectionDialogComponent,
-    StoreAttrSelectionDialogComponent
+    StoreAttrSelectionDialogComponent,
+    SelectBannerComponent
   ],
   entryComponents: [
     AccessListDialogComponent,
@@ -89,7 +91,8 @@ import { StoreAttrSelectionDialogComponent } from './store-merge/store-attr-sele
     DownloadDialogComponent,
     SiteMergeDialogComponent,
     StoreSelectionDialogComponent,
-    StoreAttrSelectionDialogComponent
+    StoreAttrSelectionDialogComponent,
+    SelectBannerComponent
   ],
   providers: [CasingDashboardService]
 })

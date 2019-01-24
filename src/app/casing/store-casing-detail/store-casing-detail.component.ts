@@ -81,7 +81,6 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     {name: 'departmentExtensivePreparedFoods', title: 'Extensive Prepared Foods', info: '???'},
     {name: 'departmentFloral', title: 'Floral', info: '???'},
     {name: 'departmentFuel', title: 'Fuel', info: '???'},
-    {name: 'departmentHotBar', title: 'HotBar', info: '???'},
     {name: 'departmentInStoreRestaurant', title: 'In Store Restaurant', info: '???'},
     {name: 'departmentLiquor', title: 'Liquor', info: '???'},
     {name: 'departmentMeat', title: 'Meat', info: '???'},
@@ -95,6 +94,21 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     {name: 'departmentSeating', title: 'Seating', info: '???'},
     {name: 'departmentSushi', title: 'Sushi', info: '???'},
     {name: 'departmentWine', title: 'Wine', info: '???'}
+  ];
+
+  months = [
+    {placeholder: 'January', formControlName: 'seasonalityJan'},
+    {placeholder: 'February', formControlName: 'seasonalityFeb'},
+    {placeholder: 'March', formControlName: 'seasonalityMar'},
+    {placeholder: 'April', formControlName: 'seasonalityApr'},
+    {placeholder: 'May', formControlName: 'seasonalityMay'},
+    {placeholder: 'June', formControlName: 'seasonalityJun'},
+    {placeholder: 'July', formControlName: 'seasonalityJul'},
+    {placeholder: 'August', formControlName: 'seasonalityAug'},
+    {placeholder: 'September', formControlName: 'seasonalitySep'},
+    {placeholder: 'October', formControlName: 'seasonalityOct'},
+    {placeholder: 'November', formControlName: 'seasonalityNov'},
+    {placeholder: 'December', formControlName: 'seasonalityDec'}
   ];
 
   constructor(private storeCasingService: StoreCasingService,
@@ -141,7 +155,8 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     });
 
     this.storeVolumeForm = this.fb.group({
-      volumeTotal: ['', [Validators.required, Validators.min(1000), Validators.max(10000000)]],
+      volumeTotal: ['', [Validators.required, Validators.min(10000), Validators.max(10000000)]],
+      volumeBoxTotal: ['', [Validators.min(10000), Validators.max(10000000)]],
       volumeDate: new Date(),
       volumeType: ['', [Validators.required]],
       source: ['MTN Casing App', [Validators.required]],
@@ -165,7 +180,6 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       registerCountExpress: ['', [Validators.min(1)]],
       registerCountSelfCheckout: ['', [Validators.min(1)]],
       fuelDispenserCount: ['', [Validators.min(1)]],
-      fuelIsOpen24: '',
       pharmacyIsOpen24: '',
       pharmacyHasDriveThrough: '',
       pharmacyScriptsWeekly: ['', [Validators.min(0)]],
@@ -183,7 +197,6 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       departmentExtensivePreparedFoods: '',
       departmentFloral: '',
       departmentFuel: '',
-      departmentHotBar: '',
       departmentInStoreRestaurant: '',
       departmentLiquor: '',
       departmentMeat: '',
@@ -237,7 +250,8 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       note: '',
       ratingBuildings: '',
       ratingLighting: '',
-      ratingSynergy: ''
+      ratingSynergy: '',
+      ratingTenantBuildings: ''
     });
 
     this.shoppingCenterSurveyForm = this.fb.group({
@@ -379,6 +393,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
     this.savingVolume = true;
     const newVolume = new StoreVolume({
       volumeTotal: volume.volumeTotal,
+      volumeBoxTotal: volume.volumeBoxTotal,
       volumeDate: new Date(),
       volumeType: volume.volumeType,
       source: 'MTN Casing App',
@@ -710,6 +725,30 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
       }
     }
     return true;
+  }
+
+  getVolume() {
+    const totalVolumeControl = this.storeVolumeForm.get('volumeTotal');
+    if (totalVolumeControl && totalVolumeControl.value) {
+      return '$' + totalVolumeControl.value.toLocaleString();
+    } else {
+      return 'Not yet entered'
+    }
+  }
+
+  getCalculatedSeasonality(month) {
+    const totalVolumeControl = this.storeVolumeForm.get('volumeTotal');
+    if (totalVolumeControl) {
+      const totalVolume = totalVolumeControl.value;
+      if (totalVolume) {
+        const seasonality = this.storeSurveyForm.get(month.formControlName).value;
+        if (seasonality) {
+          const seasonalVolume = (seasonality / 100 * totalVolume) + totalVolume;
+          return '$' + seasonalVolume.toLocaleString();
+        }
+      }
+    }
+    return null;
   }
 
 }

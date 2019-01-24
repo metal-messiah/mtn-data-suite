@@ -87,13 +87,18 @@
             </table>
           </div>
           <mat-form-field>
-            <input matInput type="number" readonly placeholder="Total Weekly Volume" [value]="volume.volumeTotal">
+            <input matInput type="number" readonly placeholder="Total Weekly Grocery Volume" [value]="volume.volumeTotal">
+            <span matPrefix>$&nbsp;</span>
+            <mat-hint>ALWAYS Slack</mat-hint>
+          </mat-form-field>
+          <mat-form-field *ngIf="volume.volumeBoxTotal">
+            <input matInput type="number" readonly placeholder="Total Weekly Box Volume" [value]="volume.volumeBoxTotal">
             <span matPrefix>$&nbsp;</span>
           </mat-form-field>
-          <mat-form-field *ngIf="volume.volumeConfidence != null">
+          <mat-form-field *ngIf="volume.volumeConfidence">
             <input matInput type="text" placeholder="Volume Confidence" [value]="volume.volumeConfidence" readonly>
           </mat-form-field>
-          <mat-form-field *ngIf="volume.volumeNote != null">
+          <mat-form-field *ngIf="volume.volumeNote">
             <textarea matInput placeholder="Volume Notes" [value]="volume.volumeNote" readonly></textarea>
           </mat-form-field>
         </div>

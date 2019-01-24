@@ -1,0 +1,36 @@
+<div mat-dialog-title class="title">
+  Select A Banner
+</div>
+<div mat-dialog-content>
+  <div class="box">
+    <div class="row header">
+      <div class="search-section">
+        <mat-form-field floatLabel="never" id="searchField">
+          <i matPrefix class="fas fa-search"></i>
+          <input matInput autofocus type="search" #bannerSearchBox placeholder="Banner Name" [disabled]="loading"
+                 [(ngModel)]="bannerQuery" name="bannerQuery"/>
+        </mat-form-field>
+      </div>
+      <mat-progress-bar id="loadingProgressBar" mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="row content">
+      <mat-list>
+        <div *ngFor="let banner of banners" >
+          <mat-list-item (click)="selectBanner(banner)">
+            <img *ngIf="banner.logoFileName" [src]="getBannerImageSrc(banner)" [alt]="banner.bannerName">
+            <h3 matLine>{{banner.bannerName}}</h3>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+        </div>
+        <mat-list-item *ngIf="pageNumber < (totalPages - 1)" id="more" class="flex flex-justify-center">
+          <button mat-raised-button color="accent" (click)="loadMore()">Load More</button>
+        </mat-list-item>
+      </mat-list>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions class="flex-space-around">
+  <button mat-raised-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button mat-dialog-close="remove" color="primary">Remove Banner</button>
+</div>

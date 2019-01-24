@@ -1,8 +1,0 @@
-<h5>{{title}}</h5>
-<form #editTotalSizeForm="ngForm">
-  <mat-form-field>
-    <input matInput type="number" autocomplete="off" placeholder="Total Size" (change)="changeValue($event.target.value)" [(value)]="value">
-    <mat-hint>Total Area of {{store.storeName}} ({{store.mapKey}})</mat-hint>
-  </mat-form-field>
-  <button type="submit" color="primary" mat-flat-button (click)="updateAll(editTotalSizeForm)">Save Changes to Database</button>
-</form>

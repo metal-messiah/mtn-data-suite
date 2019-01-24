@@ -1,43 +1,43 @@
-import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { MatDialog, MatSnackBar } from '@angular/material';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import {Component, NgZone, OnDestroy, OnInit} from '@angular/core';
+import {MatDialog, MatSnackBar} from '@angular/material';
+import {ActivatedRoute, Params, Router} from '@angular/router';
 
-import { MapService } from '../../core/services/map.service';
-import { SiteService } from '../../core/services/site.service';
-import { Site } from '../../models/full/site';
-import { CasingDashboardService } from './casing-dashboard.service';
-import { MarkerType } from '../../core/functionalEnums/MarkerType';
-import { GeocoderService } from '../../core/services/geocoder.service';
-import { NavigatorService } from '../../core/services/navigator.service';
-import { FindMeLayer } from '../../models/find-me-layer';
-import { FollowMeLayer } from '../../models/follow-me-layer';
-import { LatLngSearchComponent } from '../lat-lng-search/lat-lng-search.component';
-import { Coordinates } from '../../models/coordinates';
-import { GoogleSearchComponent } from '../google-search/google-search.component';
-import { GooglePlace } from '../../models/google-place';
-import { StoreService } from '../../core/services/store.service';
-import { DatabaseSearchComponent } from '../database-search/database-search.component';
-import { AuthService } from '../../core/services/auth.service';
-import { ErrorService } from '../../core/services/error.service';
-import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
-import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-profile';
-import { SimplifiedStore } from '../../models/simplified/simplified-store';
-import { Store } from '../../models/full/store';
-import { NewSiteLayer } from '../../models/new-site-layer';
-import { GooglePlaceLayer } from '../../models/google-place-layer';
-import { MapSelectionMode } from '../enums/map-selection-mode';
-import { SimplifiedSite } from '../../models/simplified/simplified-site';
-import { Observable, of, Subscription } from 'rxjs';
-import { debounce, debounceTime, delay, finalize, mergeMap, tap } from 'rxjs/internal/operators';
-import { ProjectService } from '../../core/services/project.service';
-import { MapDataLayer } from '../../models/map-data-layer';
-import { ProjectBoundaryService } from '../services/project-boundary.service';
-import { StoreMapLayer } from '../../models/store-map-layer';
-import { SiteMapLayer } from '../../models/site-map-layer';
-import { GeometryUtil } from '../../utils/geometry-util';
-import { EntitySelectionService } from '../../core/services/entity-selection.service';
-import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
-import { SiteMergeDialogComponent } from '../site-merge-dialog/site-merge-dialog.component';
+import {MapService} from '../../core/services/map.service';
+import {SiteService} from '../../core/services/site.service';
+import {Site} from '../../models/full/site';
+import {CasingDashboardService} from './casing-dashboard.service';
+import {MarkerType} from '../../core/functionalEnums/MarkerType';
+import {GeocoderService} from '../../core/services/geocoder.service';
+import {NavigatorService} from '../../core/services/navigator.service';
+import {FindMeLayer} from '../../models/find-me-layer';
+import {FollowMeLayer} from '../../models/follow-me-layer';
+import {LatLngSearchComponent} from '../lat-lng-search/lat-lng-search.component';
+import {Coordinates} from '../../models/coordinates';
+import {GoogleSearchComponent} from '../google-search/google-search.component';
+import {GooglePlace} from '../../models/google-place';
+import {StoreService} from '../../core/services/store.service';
+import {DatabaseSearchComponent} from '../database-search/database-search.component';
+import {AuthService} from '../../core/services/auth.service';
+import {ErrorService} from '../../core/services/error.service';
+import {UserProfileSelectComponent} from '../../shared/user-profile-select/user-profile-select.component';
+import {SimplifiedUserProfile} from '../../models/simplified/simplified-user-profile';
+import {SimplifiedStore} from '../../models/simplified/simplified-store';
+import {Store} from '../../models/full/store';
+import {NewSiteLayer} from '../../models/new-site-layer';
+import {GooglePlaceLayer} from '../../models/google-place-layer';
+import {MapSelectionMode} from '../enums/map-selection-mode';
+import {SimplifiedSite} from '../../models/simplified/simplified-site';
+import {Observable, of, Subscription} from 'rxjs';
+import {debounce, debounceTime, delay, finalize, mergeMap, tap} from 'rxjs/internal/operators';
+import {ProjectService} from '../../core/services/project.service';
+import {MapDataLayer} from '../../models/map-data-layer';
+import {ProjectBoundaryService} from '../services/project-boundary.service';
+import {StoreMapLayer} from '../../models/store-map-layer';
+import {SiteMapLayer} from '../../models/site-map-layer';
+import {GeometryUtil} from '../../utils/geometry-util';
+import {EntitySelectionService} from '../../core/services/entity-selection.service';
+import {DownloadDialogComponent} from '../download-dialog/download-dialog.component';
+import {SiteMergeDialogComponent} from '../site-merge-dialog/site-merge-dialog.component';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -148,7 +148,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
           this.selectedStore = store;
           this.selectedCardState = CardState.SELECTED_STORE;
         } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
-          this.openSiteMergeDialog(store.site.id);
+          this.onDuplicateSelected(store.site.id);
         }
       });
     }));
@@ -159,7 +159,10 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
           this.selectedSite = site;
           this.selectedCardState = CardState.SELECTED_SITE;
         } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
-          this.openSiteMergeDialog(site.id);
+          this.storeMapLayer.clearSelection();
+          this.selectedSite = site;
+          this.selectedCardState = CardState.HIDDEN;
+          this.onDuplicateSelected(site.id);
         }
       });
     }));
@@ -184,7 +187,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       this.projectBoundaryService.showProjectBoundaries().subscribe();
     }
   }
-
 
 
   private getDebounce() {
@@ -277,11 +279,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
     // Create new Layer for new Location
     this.newSiteLayer = new NewSiteLayer(this.mapService, this.mapService.getCenter());
-  }
-
-  cancelDuplicateSelection(): void {
-    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-
   }
 
   cancelSiteCreation(): void {
@@ -676,8 +673,9 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   showBoundary() {
-    this.projectBoundaryService.showProjectBoundaries().subscribe();
-    this.projectBoundaryService.zoomToProjectBoundary();
+    this.projectBoundaryService.showProjectBoundaries().subscribe(() => {
+      this.projectBoundaryService.zoomToProjectBoundary();
+    });
   }
 
   selectAllInBoundary() {
@@ -729,15 +727,34 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   initiateDuplicateSelection(siteId: number) {
     this.selectedDashboardMode = CasingDashboardMode.DUPLICATE_SELECTION;
     this.selectedSiteId = siteId;
+    const message = `Select another site to merge with this one`;
+    const ref = this.snackBar.open(message, 'Cancel');
+    ref.onAction().subscribe(result => {
+      ref.dismiss();
+      this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+    });
   }
 
-  openSiteMergeDialog(duplicateSiteId: number) {
-    const siteMergeDialog = this.dialog.open(SiteMergeDialogComponent, {
-      maxWidth: '90%',
-      data: {duplicateSiteId: duplicateSiteId, selectedSiteId: this.selectedSiteId}
-    });
-    siteMergeDialog.afterClosed().subscribe( result => {
-      console.log(result);
-    });
+  onDuplicateSelected(duplicateSiteId: number) {
+    if (this.selectedSiteId === duplicateSiteId) {
+      const message = 'Oops, select ANY OTHER site to merge into this site';
+      const ref = this.snackBar.open(message, 'Cancel');
+      ref.onAction().subscribe(result => {
+        ref.dismiss();
+        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+      });
+    } else {
+      this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+      this.snackBar.dismiss();
+      const siteMergeDialog = this.dialog.open(SiteMergeDialogComponent, {
+        maxWidth: '90%',
+        data: {duplicateSiteId: duplicateSiteId, selectedSiteId: this.selectedSiteId}
+      });
+      siteMergeDialog.afterClosed().subscribe(result => {
+        console.log(result);
+        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        this.getEntities(this.mapService.getBounds());
+      })
+    }
   }
 }

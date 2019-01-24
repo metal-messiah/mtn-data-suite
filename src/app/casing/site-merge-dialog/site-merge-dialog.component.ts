@@ -17,24 +17,47 @@ export class SiteMergeDialogComponent implements OnInit {
   site2: Site;
   mergedSite;
   merging = false;
-  siteAttrNames: string[] = [
-    'footprintSqft',
-    'positionInCenter',
-    'address1',
-    'city',
-    'state',
-    'postalCode',
-    'country',
-    'intersectionType',
-    'quad',
-    'intersectionStreetPrimary',
-    'intersectionStreetSecondary'
-  ];
-  scAttrNames: string[] = [
-    'name',
-    'owner',
-    'centerType'
-  ];
+  siteAttributes = [{
+    attrName: 'footprintSqft',
+    displayName: 'Footprint SqFt'
+  }, {
+    attrName: 'positionInCenter',
+    displayName: 'Position in Center'
+  }, {
+    attrName: 'address1',
+    displayName: 'Address'
+  }, {
+    attrName: 'city',
+    displayName: 'City'
+  }, {
+    attrName: 'state',
+    displayName: 'State'
+  }, {
+    attrName: 'postalCode',
+    displayName: 'Zip Code'
+  }, {
+    attrName: 'intersectionType',
+    displayName: 'Intersection Type'
+  }, {
+    attrName: 'quad',
+    displayName: 'Quad'
+  }, {
+    attrName: 'intersectionStreetPrimary',
+    displayName: 'Primary Intersection'
+  }, {
+    attrName: 'intersectionStreetSecondary',
+    displayName: 'Secondary Intersection'
+  }];
+  scAttributes = [{
+    attrName: 'name',
+    displayName: 'Shopping Center Name'
+  }, {
+    attrName: 'owner',
+    displayName: 'Shopping Center Owner'
+  }, {
+    attrName: 'centerType',
+    displayName: 'Shopping Center Type'
+  }];
 
   constructor(public dialogRef: MatDialogRef<SiteMergeDialogComponent>,
               @Inject(MAT_DIALOG_DATA)
@@ -46,9 +69,9 @@ export class SiteMergeDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.siteService.getOneById(this.data.selectedSitedId).subscribe((site1: Site) => {
+    this.siteService.getOneById(this.data.selectedSiteId).subscribe((site1: Site) => {
       this.site1 = site1;
-      this.siteService.getOneById(this.data.dulicateSiteId).subscribe((site2: Site) => {
+      this.siteService.getOneById(this.data.duplicateSiteId).subscribe((site2: Site) => {
         this.site2 = site2;
         this.initializedMergedSite()
       });
@@ -56,25 +79,12 @@ export class SiteMergeDialogComponent implements OnInit {
   }
 
   initializedMergedSite() {
-    this.mergedSite = {
-      footprintSqft: this.getSiteValue('footprintSqft'),
-      positionInCenter: this.getSiteValue('positionInCenter'),
-      address1: this.getSiteValue('address1'),
-      city: this.getSiteValue('city'),
-      state: this.getSiteValue('state'),
-      postalCode: this.getSiteValue('postalCode'),
-      country: this.getSiteValue('country'),
-      intersectionType: this.getSiteValue('intersectionType'),
-      quad: this.getSiteValue('quad'),
-      intersectionStreetPrimary: this.getSiteValue('intersectionStreetPrimary'),
-      intersectionStreetSecondary: this.getSiteValue('intersectionStreetSecondary'),
-      shoppingCenter: {
-        name: this.getShoppingCenterValue('name'),
-        owner: this.getShoppingCenterValue('owner'),
-        centerType: this.getShoppingCenterValue('centerType')
-      }
-    };
+    // First make a copy of site 1 for your default values
+    this.mergedSite = new Site(this.site1);
 
+    // Then update the selected values according to the rules (distinct and not null)
+    this.siteAttributes.forEach(attr => this.mergedSite[attr.attrName] = this.getSiteValue(attr.attrName));
+    this.scAttributes.forEach(attr => this.mergedSite.shoppingCenter[attr.attrName] = this.getShoppingCenterValue(attr.attrName));
   }
 
   // Auto selects any Site attribute that isn't null in the radio buttons
@@ -95,7 +105,7 @@ export class SiteMergeDialogComponent implements OnInit {
     if (this.site1.shoppingCenter[attr] === this.site2.shoppingCenter[attr]) {
       return this.site1.shoppingCenter[attr];
     } else {
-      if (this.site1.shoppingCenter[attr] != null) {
+      if (this.site1.shoppingCenter[attr]) {
         return this.site1.shoppingCenter[attr];
       } else {
         return this.site2.shoppingCenter[attr];
@@ -110,7 +120,12 @@ export class SiteMergeDialogComponent implements OnInit {
       .subscribe(() => {
         const message = `Successfully merged`;
         this.snackBar.open(message, null, {duration: 2000});
+        this.dialogRef.close();
       }, err => this.errorService.handleServerError('Failed to merge!', err,
         () => console.log(err)));
+  }
+
+  closeDialog() {
+    this.dialogRef.close();
   }
 }

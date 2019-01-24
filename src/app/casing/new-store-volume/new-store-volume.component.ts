@@ -35,6 +35,7 @@ export class NewStoreVolumeComponent implements OnInit {
   ngOnInit() {
     this.form = this.fb.group({
       volumeTotal: ['', [Validators.required, Validators.min(10000), Validators.max(10000000)]],
+      volumeBoxTotal: ['', [Validators.min(10000), Validators.max(10000000)]],
       volumeDate: [new Date(), Validators.required],
       volumeType: 'ESTIMATE'
     });
@@ -45,6 +46,7 @@ export class NewStoreVolumeComponent implements OnInit {
     const volumeDate = new Date(volumeValue.getTime() - new Date().getTimezoneOffset() * 60 * 1000);
     const storeVolume = new StoreVolume({
       volumeTotal: this.form.get('volumeTotal').value,
+      volumeBoxTotal: this.form.get('volumeBoxTotal').value,
       volumeDate: volumeDate,
       volumeType: this.form.get('volumeType').value
     });
