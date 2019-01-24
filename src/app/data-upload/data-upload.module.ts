@@ -7,14 +7,15 @@ import { PlannedGroceryComponent } from './planned-grocery/planned-grocery.compo
 import { SpreadsheetComponent } from './spreadsheet/spreadsheet.component';
 import { PgDataFormComponent } from './planned-grocery/pg-data-form/pg-data-form.component';
 import { AssignFieldsDialogComponent } from './spreadsheet/assign-fields-dialog/assign-fields-dialog.component';
-import { MatDialogModule } from '@angular/material';
 import { SpreadsheetDataFormComponent } from './spreadsheet/spreadsheet-data-form/spreadsheet-data-form.component';
 import { LoadComponent } from './spreadsheet/load/load.component';
 import { SpreadsheetService } from './spreadsheet/spreadsheet.service';
 import { AutomatchDialogComponent } from './spreadsheet/automatch-dialog/automatch-dialog.component';
+import { ChainXyComponent } from './chain-xy/chain-xy.component';
+import { ChainXyTableComponent } from './chain-xy/chain-xy-table/chain-xy-table.component';
 
 @NgModule({
-	imports: [ SharedModule, DataUploadRoutingModule, MatDialogModule ],
+	imports: [ SharedModule, DataUploadRoutingModule ],
 	declarations: [
 		DataUploadComponent,
 		OptionsMenuComponent,
@@ -24,7 +25,9 @@ import { AutomatchDialogComponent } from './spreadsheet/automatch-dialog/automat
 		SpreadsheetDataFormComponent,
 		AssignFieldsDialogComponent,
 		LoadComponent,
-		AutomatchDialogComponent
+		AutomatchDialogComponent,
+		ChainXyComponent,
+		ChainXyTableComponent
 	],
 	entryComponents: [ AssignFieldsDialogComponent, LoadComponent, AutomatchDialogComponent ],
 	providers: [ SpreadsheetService ]

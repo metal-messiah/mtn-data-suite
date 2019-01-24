@@ -1,0 +1,42 @@
+<mat-sidenav-container>
+    <mat-sidenav class="side-nav" #sidenav position="end">
+      <div *ngIf="selectedChain">
+        <div class="metadata">
+          <table>
+            <tr *ngFor="let key of getKeys(selectedChain)">
+              <td class="key">
+                  {{key}}
+                </td>
+              <td class="val">{{selectedChain[key]}}</td>
+            </tr>
+          </table>
+          <button color="primary" mat-raised-button (click)="updateStores()">Update Stores</button>
+        </div>
+      </div>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <div class="table-wrapper">
+            <table cellspacing="0" class="chain-select-table" matSort (matSortChange)="sortData($event)">
+              <tr>
+                <th mat-sort-header="chain">Chain</th>
+                <th mat-sort-header="status">Status</th>
+                <th mat-sort-header="validated">Validated</th>
+                <th mat-sort-header="updated">Updated</th>
+                <th mat-sort-header="banner">Banner</th>
+              </tr>
+            
+              <tr *ngFor="let data of sortedData" (click)="toggleSidenav(data)">
+                <td>{{data.sourceName}}</td>
+                <td>
+                  &nbsp;
+                  <i [ngStyle]="{'color': getStatusColor(data.status)}" [ngClass]="{'fas': true, 'fa-check-circle': data.status === 0, 'fa-exclamation-triangle': data.status === 1, 'fa-exclamation-circle': data.status === 2}"></i>
+                  <!-- {{data.status}} -->
+                </td>
+                <td>{{data.validatedDate | date}}</td>
+                <td>{{data.updatedDate | date}}</td>
+                <td>{{data.banner}}</td>
+              </tr>
+            </table>
+            </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
