@@ -192,7 +192,7 @@ export class SiteOverviewComponent implements OnInit {
 
   openStoreMergeDialog() {
     this.dialog.open(StoreSelectionDialogComponent, {
-      data: {store: this.site.stores},
+      data: {stores: this.site.stores},
       maxWidth: '90%'
     });
   }
