@@ -1,9 +1,9 @@
-.radio-group {
+.checkbox-group {
   display: inline-flex;
   flex-direction: column;
 }
 
-.radio-button {
+.mat-checkbox {
   margin: 6px;
 }
 

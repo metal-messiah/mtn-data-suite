@@ -1,14 +1,24 @@
 <h3 mat-dialog-title class="Title">Select Stores</h3>
-<div mat-dialog-content *ngIf="mergedStore"></div>
+<div mat-dialog-content>
 
-<!-- Material Radio Groups-->
-<!--TODO Add Check mark boxes-->
-<div *ngFor="let store of data.stores">
-  {{store.storeName}} {{store.storeNumber}}
+  <!-- Material Checkbox Group-->
+  <div *ngFor="let store of data.stores">
+    <div class="checkbox-group" [(ngModel)]="selectedStores[store]">
+      <div>
+      <mat-checkbox>
+        {{store.storeName}}
+      </mat-checkbox>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!--Material Footer-->
 <div mat-dialog-actions class="flex-space-between">
   <button mat-raised-button (click)="closeDialog()">Close</button>
-  <button mat-raised-button color="accent" (click)="openStoreAttrMergeDialog()">Next</button>
+  <button mat-raised-button color="accent"
+          (click)="openStoreAttrMergeDialog(selectedStores)"
+          *ngIf="selectedStores.length < 2">Next
+  </button>
 </div>

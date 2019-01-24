@@ -190,11 +190,10 @@ export class SiteOverviewComponent implements OnInit {
         () => console.log('Cancelled'), () => this.saveNewStore(newStore)));
   }
 
-  openStoreMergeDialog(store: Store[]) {
+  openStoreMergeDialog() {
     this.dialog.open(StoreSelectionDialogComponent, {
       data: {store: this.site.stores},
       maxWidth: '90%'
     });
-    this.site.stores = store;
   }
 }
