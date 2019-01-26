@@ -13,8 +13,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 import { StoreService } from '../../core/services/store.service';
 import { finalize } from 'rxjs/internal/operators';
 import { AuthService } from '../../core/services/auth.service';
-import {StoreSelectionDialogComponent} from '../store-merge/store-selection-dialog/store-selection-dialog.component';
-import {config} from 'rxjs';
+import { StoreSelectionDialogComponent } from '../store-merge/store-selection-dialog/store-selection-dialog.component';
 
 @Component({
   selector: 'mds-site-overview',

@@ -1,18 +1,27 @@
 <h3 mat-dialog-title class="Title">Select Store Attributes</h3>
-<div mat-dialog-content *ngIf="mergedStore"></div>
+<div mat-dialog-content>
 
-<div *ngFor="let storeAttrName of storeAttrNames">
-  <mat-radio-group class="radio-group" [(ngModel)]="mergedStore[storeAttrName]">
-    <mat-radio-button class="radio-button" *ngFor="let store of data.stores" [value]="store[storeAttrName]">
-      {{store[storeAttrName]}}
-    </mat-radio-button>
-  </mat-radio-group>
+  <div *ngFor="let storeAttrName of storeAttrNames">
+    <mat-radio-group
+      class="radio-group" [(ngModel)]="mergedStore[storeAttrName.attrName]">
+      <div class="attr-title">
+        {{storeAttrName.displayName}}
+      </div>
+      <mat-radio-button class="radio-button" *ngFor="let selectedStore of data.selectedStores" [value]="selectedStore[storeAttrName.attrName]">
+        {{selectedStore[storeAttrName.attrName]}}
+      </mat-radio-button>
+      <mat-divider></mat-divider>
+    </mat-radio-group>
+  </div>
 </div>
 
 <!--Material Footer-->
 <div mat-dialog-actions class="flex-space-between">
   <button mat-raised-button (click)="closeDialog()">Close</button>
-  <button *ngIf="!merging" mat-raised-button color="accent" (click)="mergeStore()">Merge</button>
+  <button *ngIf="!merging"
+          mat-raised-button color="accent"
+          (click)="mergeStore()">Merge
+  </button>
   <button *ngIf="merging" mat-raised-button color="accent" disabled>Merge
     <i class="fas fa-spinner fa-pulse"></i></button>
 </div>

@@ -2,21 +2,18 @@
 <div mat-dialog-content>
 
   <!-- Material Checkbox Group-->
-  <div>
-    <mat-selection-list #storeList>
-      <mat-list-option *ngFor="let store of data.stores">
-        {{store.storeName}}
+    <mat-selection-list [(ngModel)]="selectedStores">
+      <mat-list-option *ngFor="let store of data.stores" [value]="store">
+        {{store.storeName}} {{store.storeNumber}}
       </mat-list-option>
     </mat-selection-list>
-  </div>
-
 </div>
 
 <!--Material Footer-->
 <div mat-dialog-actions class="flex-space-between">
   <button mat-raised-button (click)="closeDialog()">Close</button>
   <button mat-raised-button color="accent"
-          (click)="openStoreAttrMergeDialog(selectedStores)"
-          [disabled]="storeList.selectedOptions.selected.length < 2">Next
+          (click)="openStoreAttrMergeDialog()"
+          [disabled]="selectedStores.length < 2">Next
   </button>
 </div>

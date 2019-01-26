@@ -1,6 +1,6 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Store } from '../../../models/full/store';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatSelectionList } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../shared/error-dialog/error-dialog.component';
 import { StoreAttrSelectionDialogComponent } from '../store-attr-selection-dialog/store-attr-selection-dialog.component';
 
@@ -11,8 +11,7 @@ import { StoreAttrSelectionDialogComponent } from '../store-attr-selection-dialo
 })
 export class StoreSelectionDialogComponent implements OnInit {
 
-  selectedStores: Store[];
-  @ViewChild('storeList') storeList: MatSelectionList;
+  selectedStores: Store[] = [];
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
               @Inject (MAT_DIALOG_DATA) public data: { stores: Store[] },
@@ -20,15 +19,13 @@ export class StoreSelectionDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.selectedStores = [];
-    console.log(this.data);
   }
 
-  openStoreAttrMergeDialog(selectedStores: Store[]) {
+  openStoreAttrMergeDialog() {
     this.dialogRef.close();
     this.dialog.open(StoreAttrSelectionDialogComponent, {
       maxWidth: '90%',
-      data: {selectedStores: selectedStores}
+      data: {selectedStores: this.selectedStores}
     });
   }
 
