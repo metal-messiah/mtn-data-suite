@@ -4,6 +4,7 @@ import { ErrorDialogComponent } from '../../../shared/error-dialog/error-dialog.
 import { Store } from '../../../models/full/store';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import set = Reflect.set;
 
 @Component({
   selector: 'mds-store-attr-selection-dialog',
@@ -16,68 +17,60 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
   mergedStore;
   storeAttrNames = [{
     attrName: 'storeName',
-    displayName: 'Store Name'
+    displayName: 'Store Name',
+    show: false
   }, {
     attrName: 'storeNumber',
-    displayName: 'Store Number'
+    displayName: 'Store Number',
+    show: false
   }, {
     attrName: 'storeType',
-    displayName: 'Store Type'
+    displayName: 'Store Type',
+    show: false
   }, {
     attrName: 'dateOpened',
-    displayName: 'Date Opened'
+    displayName: 'Date Opened',
+    show: false
   }, {
     attrName: 'dateClosed',
-    displayName: 'Date Closed'
+    displayName: 'Date Closed',
+    show: false
   }, {
     attrName: 'fit',
-    displayName: 'Fit'
+    displayName: 'Fit',
+    show: false
   }, {
     attrName: 'format',
-    displayName: 'Format'
+    displayName: 'Format',
+    show: false
   }, {
     attrName: 'areaSales',
-    displayName: 'Sales Area'
+    displayName: 'Sales Area',
+    show: false
   }, {
     attrName: 'areaSalesPercentOfTotal',
-    displayName: '% of Total Sales Area'
+    displayName: '% of Total Sales Area',
+    show: false
   }, {
     attrName: 'areaTotal',
-    displayName: 'Total Area'
+    displayName: 'Total Area',
+    show: false
   }, {
     attrName: 'areaIsEstimate',
-    displayName: 'Area Is Estimate'
+    displayName: 'Area Is Estimate',
+    show: false
   }, {
     attrName: 'storeIsOpen24',
-    displayName: 'Open 24 Hours'
+    displayName: 'Open 24 Hours',
+    show: false
   }, {
     attrName: 'naturalFoodsAreIntegrated',
-    displayName: 'Natural Foods Integrated'
+    displayName: 'Natural Foods Integrated',
+    show: false
   }, {
     attrName: 'floating',
-    displayName: 'Floating'
-  }];
-  storeAttrStatuses = [{
-    attrName: 'banner',
-    displayName: 'Banner'
-  }, {
-    attrName: 'currentStoreStatus',
-    displayName: 'Current Store Status'
-  }, {
-    attrName: 'currentStoreSurvey',
-    displayName: 'Current Store Survey'
-  }, {
-    attrName: 'storeCasings',
-    displayName: 'Store Casings'
-  }, {
-    attrName: 'storeVolumes',
-    displayName: 'Store Volumes'
-  }, {
-    attrName: 'storeStatuses',
-    displayName: 'Store Statuses'
-  }, {
-    attrName: 'models',
-    displayName: 'Models'
+    displayName: 'Floating',
+    show: false
   }];
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
@@ -86,18 +79,25 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.mergedStore = new Store(this.data.selectedStores);
-    this.storeAttrNames.forEach(attr => this.mergedStore[attr.attrName] = this.storesHaveDifference(attr.attrName));
-    this.storeAttrStatuses.forEach( attr => this.mergedStore[attr.attrName] = this.storesHaveDifference(attr.attrName));
+    this.mergedStore = new Store(this.data.selectedStores[0]);
+    console.log(this.mergedStore);
+    if (this.storeAttrNames != null) {
+      this.storeAttrNames.forEach(attr => {
+        if (this.storesHaveDifference(attr.attrName)) {
+          attr.show = true;
+        }
+      });
+      console.log(this.data.selectedStores);
+    }
   }
 
   storesHaveDifference(attr: string) {
-    const items = [this.data.selectedStores];
-    for (let i = 0; i < items.length; i++) {
-      const storei = items[i];
-      for (let j = 0; j < items.length; j++) {
-        const storej = items[j];
-        if (storei !== storej && storei[attr] !== storej[attr]) {
+    for (let i = 0; i < this.data.selectedStores.length; i++) {
+      const storei = this.data.selectedStores[i];
+      for (let j = 0; j < this.data.selectedStores.length; j++) {
+        const storej = this.data.selectedStores[j];
+        const attrNotEqual = storei[attr] !== storej[attr];
+        if (storei !== storej && attrNotEqual) {
           return true;
         }
       }

@@ -2,17 +2,19 @@
 <div mat-dialog-content>
 
   <div *ngFor="let storeAttrName of storeAttrNames">
-    <mat-radio-group
-      class="radio-group" [(ngModel)]="mergedStore[storeAttrName.attrName]">
+    <mat-radio-group *ngIf="storeAttrName.show" class="radio-group" [(ngModel)]="mergedStore[storeAttrName.attrName]">
       <div class="attr-title">
         {{storeAttrName.displayName}}
       </div>
-      <mat-radio-button class="radio-button" *ngFor="let selectedStore of data.selectedStores" [value]="selectedStore[storeAttrName.attrName]">
+      <mat-radio-button
+        *ngFor="let selectedStore of data.selectedStores"
+        class="radio-button" [value]="selectedStore[storeAttrName.attrName]">
         {{selectedStore[storeAttrName.attrName]}}
       </mat-radio-button>
       <mat-divider></mat-divider>
     </mat-radio-group>
   </div>
+
 </div>
 
 <!--Material Footer-->

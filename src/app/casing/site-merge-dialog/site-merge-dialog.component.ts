@@ -15,7 +15,7 @@ export class SiteMergeDialogComponent implements OnInit {
 
   site1: Site;
   site2: Site;
-  mergedSite;
+  mergedSite: Site;
   merging = false;
   siteAttributes = [{
     attrName: 'footprintSqft',

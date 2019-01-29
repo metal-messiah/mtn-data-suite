@@ -150,7 +150,7 @@
 
 
 <mat-menu #siteActionMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="openStoreMergeDialog()" [disabled]="site.stores.length < 2">
+  <button mat-menu-item (click)="openStoreMergeDialog()" [disabled]="site && site.stores.length < 2">
     <i class="fas fa-copy"></i>&nbsp;&nbsp;Merge with another Store
   </button>
   <button mat-menu-item (click)="assignToSelf()">
