@@ -26,3 +26,10 @@
   font-family: sans-serif;
   padding-top: 8px;
 }
+
+.Title2 {
+  font: 500 20px/32px Roboto, "Helvetica Neue", sans-serif;
+  text-align: center;
+  margin: 10px 20px;
+  display: block;
+}

@@ -1,20 +1,47 @@
 <h3 mat-dialog-title class="Title">Select Store Attributes</h3>
 <div mat-dialog-content>
 
+  <!--Main List for User to Select correct Store Attributes-->
   <div *ngFor="let storeAttrName of storeAttrNames">
-    <mat-radio-group *ngIf="storeAttrName.show" class="radio-group" [(ngModel)]="mergedStore[storeAttrName.attrName]">
+    <div *ngIf="storeAttrName.show; then readOnly; else noShow">
+      <mat-radio-group
+        class="radio-group" [(ngModel)]="mergedStore[storeAttrName.attrName]">
+        <div class="attr-title">
+          {{storeAttrName.displayName}}
+        </div>
+        <mat-radio-button
+          *ngFor="let selectedStore of data.selectedStores"
+          [disabled]="storeAttrName.allSame == false"
+          class="radio-button" [value]="selectedStore[storeAttrName.attrName]">
+          {{selectedStore[storeAttrName.attrName]}}
+        </mat-radio-button>
+        <ng-template #readOnly>
+          Read Only Section
+        </ng-template>
+        <ng-template #noShow>
+          I should not be here
+        </ng-template>
+        <mat-divider></mat-divider>
+      </mat-radio-group>
+    </div>
+  </div>
+
+  <div *ngFor="let storeAttrName of storeAttrNames">
+    <mat-radio-group
+      *ngIf="!storeAttrName.show"
+      class="radio-group" [(ngModel)]="mergedStore[storeAttrName.attrName]">
       <div class="attr-title">
         {{storeAttrName.displayName}}
       </div>
       <mat-radio-button
         *ngFor="let selectedStore of data.selectedStores"
+        [disabled]="storeAttrName.allSame == false"
         class="radio-button" [value]="selectedStore[storeAttrName.attrName]">
         {{selectedStore[storeAttrName.attrName]}}
       </mat-radio-button>
       <mat-divider></mat-divider>
     </mat-radio-group>
   </div>
-
 </div>
 
 <!--Material Footer-->
@@ -22,7 +49,7 @@
   <button mat-raised-button (click)="closeDialog()">Close</button>
   <button *ngIf="!merging"
           mat-raised-button color="accent"
-          (click)="mergeStore()">Merge
+          (click)="mergeStores()">Merge
   </button>
   <button *ngIf="merging" mat-raised-button color="accent" disabled>Merge
     <i class="fas fa-spinner fa-pulse"></i></button>

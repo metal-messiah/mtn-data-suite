@@ -2,9 +2,8 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../shared/error-dialog/error-dialog.component';
 import { Store } from '../../../models/full/store';
-import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
-import set = Reflect.set;
+import { of } from 'rxjs';
 
 @Component({
   selector: 'mds-store-attr-selection-dialog',
@@ -18,59 +17,73 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
   storeAttrNames = [{
     attrName: 'storeName',
     displayName: 'Store Name',
-    show: false
+    show: false,
+    allSame: false
   }, {
     attrName: 'storeNumber',
     displayName: 'Store Number',
-    show: false
+    show: false,
+    allSame: false
   }, {
     attrName: 'storeType',
     displayName: 'Store Type',
-    show: false
+    show: false,
+    allSame: false
   }, {
     attrName: 'dateOpened',
     displayName: 'Date Opened',
-    show: false
+    show: false,
+    allSame: false
   }, {
     attrName: 'dateClosed',
     displayName: 'Date Closed',
-    show: false
+    show: false,
+    allSame: false
   }, {
     attrName: 'fit',
     displayName: 'Fit',
-    show: false
+    show: false,
+    allSame: false
   }, {
     attrName: 'format',
     displayName: 'Format',
-    show: false
+    show: false,
+    allSame: false
   }, {
     attrName: 'areaSales',
     displayName: 'Sales Area',
-    show: false
+    show: false,
+    allSame: false
   }, {
     attrName: 'areaSalesPercentOfTotal',
     displayName: '% of Total Sales Area',
-    show: false
+    show: false,
+    allSame: false
   }, {
     attrName: 'areaTotal',
     displayName: 'Total Area',
-    show: false
+    show: false,
+    allSame: false
   }, {
     attrName: 'areaIsEstimate',
     displayName: 'Area Is Estimate',
-    show: false
+    show: false,
+    allSame: false
   }, {
     attrName: 'storeIsOpen24',
     displayName: 'Open 24 Hours',
-    show: false
+    show: false,
+    allSame: false
   }, {
     attrName: 'naturalFoodsAreIntegrated',
     displayName: 'Natural Foods Integrated',
-    show: false
+    show: false,
+    allSame: false
   }, {
     attrName: 'floating',
     displayName: 'Floating',
-    show: false
+    show: false,
+    allSame: false
   }];
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
@@ -80,11 +93,13 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
 
   ngOnInit() {
     this.mergedStore = new Store(this.data.selectedStores[0]);
-    console.log(this.mergedStore);
     if (this.storeAttrNames != null) {
       this.storeAttrNames.forEach(attr => {
         if (this.storesHaveDifference(attr.attrName)) {
           attr.show = true;
+        }
+        if (this.storeAttrHaveNoDifference(attr.attrName)) {
+          attr.allSame = true;
         }
       });
       console.log(this.data.selectedStores);
@@ -105,18 +120,32 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
     return false;
   }
 
+  storeAttrHaveNoDifference(attr: string) {
+    for (let i = 0; i < this.data.selectedStores.length; i++) {
+      const storei = this.data.selectedStores[i];
+      for (let j = 0; j < this.data.selectedStores.length; j++) {
+        const storej = this.data.selectedStores[j];
+        const attrEqual = storei[attr] === storej[attr];
+        if (storei === storej && attrEqual) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   closeDialog(): void {
     this.dialog.closeAll();
   }
 
-  mergeStore() {
+  mergeStores() {
     this.merging = true;
     return of(1).pipe(delay(2000))
   }
 
   // mergeStores(): void {
   //   this.merging = true;
-  //   this.storeService.mergeStore([store], this.mergedStore)
+  //   this.storeService.mergedStore(this.selectedStores, this.mergedStore)
   //     .pipe(finalize(() => this.merging = false))
   //     .subscribe(() => {
   //       const message = `Successfully merged`;
@@ -124,5 +153,4 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
   //     }, err => this.errorService.handleServerError('Failed to merge!', err,
   //       () => console.log(err)));
   // }
-
 }

@@ -11,10 +11,11 @@ import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { SimplifiedStoreCasing } from '../../models/simplified/simplified-store-casing';
 import { StoreVolume } from '../../models/full/store-volume';
 import { StoreCasing } from '../../models/full/store-casing';
-import { Observable, of } from 'rxjs';
-import { delay, map } from 'rxjs/internal/operators';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/internal/operators';
 import { StoreFilter } from '../../models/store-filter';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
+import { store } from '@angular/core/src/render3';
 
 @Injectable()
 export class StoreService extends CrudService<Store> {
@@ -179,5 +180,12 @@ export class StoreService extends CrudService<Store> {
   removeBanner(storeId: number) {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/banner`;
     return this.http.delete<Store>(url, {headers: this.rest.getHeaders()});
+  }
+
+  mergeStore(selectedStores, mergedStore) {
+    const url = this.rest.getHost() + this.endpoint + '/merge';
+    let params = new HttpParams().set('selectedStores', selectedStores);
+    params = params.set('mergedStores', mergedStore);
+    return this.http.post<SimplifiedSite>(url, mergedStore, {headers: this.rest.getHeaders(), params: params})
   }
 }
