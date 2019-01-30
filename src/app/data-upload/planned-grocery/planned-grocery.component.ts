@@ -35,6 +35,8 @@ import { EntitySelectionService } from '../../core/services/entity-selection.ser
 })
 export class PlannedGroceryComponent implements OnInit {
 
+  PLANNED_GROCERY_SOURCE_NAME = 'Planned Grocery';
+
   // Mapping
   pgMapLayer: PlannedGroceryLayer;
   storeMapLayer: EntityMapLayer<StoreMappable>;
@@ -95,7 +97,7 @@ export class PlannedGroceryComponent implements OnInit {
 
   getPGSources() {
     let retrievingSources = true;
-    this.sourceService.getSourcesNotValidated()
+    this.sourceService.getSourcesNotValidated(this.PLANNED_GROCERY_SOURCE_NAME)
       .pipe(finalize(() => (retrievingSources = false)))
       .subscribe((page: Pageable<StoreSource>) => {
         this.totalStoreSourceRecords = page.totalElements;
