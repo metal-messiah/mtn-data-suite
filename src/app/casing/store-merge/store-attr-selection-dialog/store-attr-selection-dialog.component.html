@@ -3,7 +3,8 @@
 
   <!--Main List for User to Select correct Store Attributes-->
   <div *ngFor="let storeAttrName of storeAttrNames">
-    <div *ngIf="storeAttrName.show; then readOnly; else noShow">
+    <div *ngIf="storeAttrName.show === true">
+
       <mat-radio-group
         class="radio-group" [(ngModel)]="mergedStore[storeAttrName.attrName]">
         <div class="attr-title">
@@ -11,36 +12,25 @@
         </div>
         <mat-radio-button
           *ngFor="let selectedStore of data.selectedStores"
-          [disabled]="storeAttrName.allSame == false"
           class="radio-button" [value]="selectedStore[storeAttrName.attrName]">
           {{selectedStore[storeAttrName.attrName]}}
         </mat-radio-button>
-        <ng-template #readOnly>
-          Read Only Section
-        </ng-template>
-        <ng-template #noShow>
-          I should not be here
-        </ng-template>
         <mat-divider></mat-divider>
       </mat-radio-group>
     </div>
-  </div>
 
-  <div *ngFor="let storeAttrName of storeAttrNames">
-    <mat-radio-group
-      *ngIf="!storeAttrName.show"
-      class="radio-group" [(ngModel)]="mergedStore[storeAttrName.attrName]">
-      <div class="attr-title">
-        {{storeAttrName.displayName}}
+    <div *ngIf="storeAttrName.show === false && mergedStore[storeAttrName.attrName] !== null">
+      <div class="list">
+        <div class="attr-title">
+          {{storeAttrName.displayName}}
+        </div>
+        <div class="input-readonly">
+          <input readonly [value]="mergedStore[storeAttrName.attrName]"/>
+        </div>
+        <mat-divider></mat-divider>
       </div>
-      <mat-radio-button
-        *ngFor="let selectedStore of data.selectedStores"
-        [disabled]="storeAttrName.allSame == false"
-        class="radio-button" [value]="selectedStore[storeAttrName.attrName]">
-        {{selectedStore[storeAttrName.attrName]}}
-      </mat-radio-button>
-      <mat-divider></mat-divider>
-    </mat-radio-group>
+    </div>
+
   </div>
 </div>
 

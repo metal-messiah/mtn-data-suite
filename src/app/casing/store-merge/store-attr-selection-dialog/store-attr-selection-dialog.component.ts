@@ -17,73 +17,64 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
   storeAttrNames = [{
     attrName: 'storeName',
     displayName: 'Store Name',
-    show: false,
-    allSame: false
+    show: false
   }, {
     attrName: 'storeNumber',
     displayName: 'Store Number',
-    show: false,
-    allSame: false
+    show: false
   }, {
     attrName: 'storeType',
     displayName: 'Store Type',
-    show: false,
-    allSame: false
+    show: false
   }, {
     attrName: 'dateOpened',
     displayName: 'Date Opened',
-    show: false,
-    allSame: false
+    show: false
   }, {
     attrName: 'dateClosed',
     displayName: 'Date Closed',
-    show: false,
-    allSame: false
+    show: false
   }, {
     attrName: 'fit',
     displayName: 'Fit',
-    show: false,
-    allSame: false
+    show: false
   }, {
     attrName: 'format',
     displayName: 'Format',
-    show: false,
-    allSame: false
+    show: false
   }, {
     attrName: 'areaSales',
     displayName: 'Sales Area',
-    show: false,
-    allSame: false
+    show: false
   }, {
     attrName: 'areaSalesPercentOfTotal',
     displayName: '% of Total Sales Area',
-    show: false,
-    allSame: false
+    show: false
   }, {
     attrName: 'areaTotal',
     displayName: 'Total Area',
-    show: false,
-    allSame: false
+    show: false
   }, {
     attrName: 'areaIsEstimate',
     displayName: 'Area Is Estimate',
-    show: false,
-    allSame: false
+    show: false
   }, {
     attrName: 'storeIsOpen24',
     displayName: 'Open 24 Hours',
-    show: false,
-    allSame: false
+    show: false
   }, {
     attrName: 'naturalFoodsAreIntegrated',
     displayName: 'Natural Foods Integrated',
-    show: false,
-    allSame: false
+    show: false
   }, {
     attrName: 'floating',
     displayName: 'Floating',
-    show: false,
-    allSame: false
+    show: false
+  }];
+  selectedStoreBanner = [{
+    attrName: 'banner',
+    displayName: 'Banner',
+    show: false
   }];
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
@@ -92,14 +83,33 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
   }
 
   ngOnInit() {
+    // TODO I'm not sure why I'm even waiting to get banner, I don't remember the conditions of waiting, and it's crucial to know so I can program it accordingly.
+    // this.mergedStore.getBanners.subscribe( () => {
+    //   console.log('Banner\'s retrieved');
+    // })
+    this.initializedMergedStore()
+  }
+
+  initializedMergedStore() {
     this.mergedStore = new Store(this.data.selectedStores[0]);
     if (this.storeAttrNames != null) {
       this.storeAttrNames.forEach(attr => {
         if (this.storesHaveDifference(attr.attrName)) {
           attr.show = true;
         }
-        if (this.storeAttrHaveNoDifference(attr.attrName)) {
-          attr.allSame = true;
+      });
+      console.log(this.data.selectedStores);
+    }
+  }
+
+  // TODO Delete this if I find a better way to incorporate it into the initializedMergedStore function
+  getBanners() {
+    this.mergedStore = new Store(this.data.selectedStores[0]);
+    this.data.selectedStores;
+    if (this.selectedStoreBanner != null) {
+      this.selectedStoreBanner.forEach( attr => {
+        if (this.storesHaveDifference(attr.attrName)) {
+          attr.show = true;
         }
       });
       console.log(this.data.selectedStores);
@@ -113,20 +123,6 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
         const storej = this.data.selectedStores[j];
         const attrNotEqual = storei[attr] !== storej[attr];
         if (storei !== storej && attrNotEqual) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  storeAttrHaveNoDifference(attr: string) {
-    for (let i = 0; i < this.data.selectedStores.length; i++) {
-      const storei = this.data.selectedStores[i];
-      for (let j = 0; j < this.data.selectedStores.length; j++) {
-        const storej = this.data.selectedStores[j];
-        const attrEqual = storei[attr] === storej[attr];
-        if (storei === storej && attrEqual) {
           return true;
         }
       }

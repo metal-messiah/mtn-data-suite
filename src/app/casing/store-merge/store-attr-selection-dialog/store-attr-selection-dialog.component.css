@@ -27,3 +27,16 @@
   font-family: sans-serif;
   padding-top: 8px;
 }
+
+.list {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.input-readonly {
+  /* TODO font isn't being enforced*/
+  font: 500 20px/32px Roboto, "Helvetica Neue", sans-serif;
+  padding: 4px;
+  margin: 4px 4px 8px 4px;
+  font-size: inherit;
+}
