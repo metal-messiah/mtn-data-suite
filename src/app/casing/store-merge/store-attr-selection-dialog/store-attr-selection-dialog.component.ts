@@ -71,11 +71,13 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
     displayName: 'Floating',
     show: false
   }];
-  selectedStoreBanner = [{
-    attrName: 'banner',
-    displayName: 'Banner',
-    show: false
-  }];
+  bannerAttrNames = {
+    banner: {
+      attrName: 'bannerName',
+      displayName: 'Banner',
+      show: false
+    }
+  };
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: { selectedStores: Store[] },
@@ -83,32 +85,13 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    // TODO I'm not sure why I'm even waiting to get banner, I don't remember the conditions of waiting, and it's crucial to know so I can program it accordingly.
-    // this.mergedStore.getBanners.subscribe( () => {
-    //   console.log('Banner\'s retrieved');
-    // })
-    this.initializedMergedStore()
-  }
-
-  initializedMergedStore() {
     this.mergedStore = new Store(this.data.selectedStores[0]);
     if (this.storeAttrNames != null) {
       this.storeAttrNames.forEach(attr => {
         if (this.storesHaveDifference(attr.attrName)) {
           attr.show = true;
         }
-      });
-      console.log(this.data.selectedStores);
-    }
-  }
-
-  // TODO Delete this if I find a better way to incorporate it into the initializedMergedStore function
-  getBanners() {
-    this.mergedStore = new Store(this.data.selectedStores[0]);
-    this.data.selectedStores;
-    if (this.selectedStoreBanner != null) {
-      this.selectedStoreBanner.forEach( attr => {
-        if (this.storesHaveDifference(attr.attrName)) {
+        if (this.storeBannersHaveDifference(attr.attrName)) {
           attr.show = true;
         }
       });
@@ -123,6 +106,20 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
         const storej = this.data.selectedStores[j];
         const attrNotEqual = storei[attr] !== storej[attr];
         if (storei !== storej && attrNotEqual) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  storeBannersHaveDifference(attr: string) {
+    for (let i = 0; i < this.data.selectedStores.length; i++) {
+      const banneri = this.data.selectedStores[i];
+      for (let j = 0; j < this.data.selectedStores.length; j++) {
+        const bannerj = this.data.selectedStores[j];
+        const attrNotEqual = banneri[attr] !== bannerj[attr];
+        if (banneri !== bannerj && attrNotEqual) {
           return true;
         }
       }

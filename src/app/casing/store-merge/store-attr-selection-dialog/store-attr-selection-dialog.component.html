@@ -17,6 +17,7 @@
         </mat-radio-button>
         <mat-divider></mat-divider>
       </mat-radio-group>
+
     </div>
 
     <div *ngIf="storeAttrName.show === false && mergedStore[storeAttrName.attrName] !== null">
@@ -30,8 +31,26 @@
         <mat-divider></mat-divider>
       </div>
     </div>
-
   </div>
+
+  <div *ngIf="data.selectedStores[bannerAttrNames.banner.attrName]">
+    <div *ngIf="data.selectedStores[bannerAttrNames.banner.attrName].show === true">
+
+      <mat-radio-group  class="radio-group" [(ngModel)]="mergedStore[bannerAttrNames.banner.attrName]">
+        <div class="attr-title">
+          {{bannerAttrNames.banner.displayName}}
+        </div>
+        <mat-radio-button
+          *ngFor="let selectedStore of data.selectedStores"
+          class="radio-button" [value]="selectedStore[bannerAttrNames.banner.attrName]">
+          {{selectedStore[bannerAttrNames.banner.attrName]}}
+        </mat-radio-button>
+        <mat-divider></mat-divider>
+      </mat-radio-group>
+    </div>
+  </div>
+
+
 </div>
 
 <!--Material Footer-->
