@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../shared/error-dialog/error-dialog.component';
 import { Store } from '../../../models/full/store';
 import { delay } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { PipeTransform, Pipe } from '@angular/core';
 
 @Component({
@@ -106,14 +106,6 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
       }
     }
     return false;
-  }
-
-  transform(value, args:string[]): any {
-    let values = [];
-    for (let key in value) {
-      values.push(value[key]);
-    }
-    return values;
   }
 
   closeDialog(): void {

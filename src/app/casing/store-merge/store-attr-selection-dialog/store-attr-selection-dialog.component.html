@@ -2,7 +2,7 @@
 <div mat-dialog-content>
 
   <!--Main List for User to Select correct Store Attributes-->
-  <div *ngFor="let banner of storeAttrNames | value">
+  <div *ngFor="let banner of storeAttrNames">
     <div *ngIf="banner.attrName === 'banner'">
       <mat-radio-group class="radio-group" [(ngModel)]="mergedStore[banner.attrName]">
         <div class="attr-title">
