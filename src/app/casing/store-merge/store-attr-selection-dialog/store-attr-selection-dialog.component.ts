@@ -4,6 +4,7 @@ import { ErrorDialogComponent } from '../../../shared/error-dialog/error-dialog.
 import { Store } from '../../../models/full/store';
 import { delay } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { PipeTransform, Pipe } from '@angular/core';
 
 @Component({
   selector: 'mds-store-attr-selection-dialog',
@@ -70,14 +71,11 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
     attrName: 'floating',
     displayName: 'Floating',
     show: false
+  }, {
+    attrName: 'banner.bannerName',
+    displayName: 'Banner',
+    show: false
   }];
-  bannerAttrNames = {
-    banner: {
-      attrName: 'bannerName',
-      displayName: 'Banner',
-      show: false
-    }
-  };
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: { selectedStores: Store[] },
@@ -89,9 +87,6 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
     if (this.storeAttrNames != null) {
       this.storeAttrNames.forEach(attr => {
         if (this.storesHaveDifference(attr.attrName)) {
-          attr.show = true;
-        }
-        if (this.storeBannersHaveDifference(attr.attrName)) {
           attr.show = true;
         }
       });
@@ -113,18 +108,12 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
     return false;
   }
 
-  storeBannersHaveDifference(attr: string) {
-    for (let i = 0; i < this.data.selectedStores.length; i++) {
-      const banneri = this.data.selectedStores[i];
-      for (let j = 0; j < this.data.selectedStores.length; j++) {
-        const bannerj = this.data.selectedStores[j];
-        const attrNotEqual = banneri[attr] !== bannerj[attr];
-        if (banneri !== bannerj && attrNotEqual) {
-          return true;
-        }
-      }
+  transform(value, args:string[]): any {
+    let values = [];
+    for (let key in value) {
+      values.push(value[key]);
     }
-    return false;
+    return values;
   }
 
   closeDialog(): void {
