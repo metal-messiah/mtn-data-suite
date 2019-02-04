@@ -1,0 +1,129 @@
+<div class='pg-wrapper'>
+  <div class='left-panel' *ngIf="records != null">
+    <div class="flex" style="justify-content: space-around; margin-top: 8px;">
+      <h2 *ngIf="records.length > 0">{{currentRecordIndex + 1 }}/{{totalStoreSourceRecords}}</h2>
+      <button mat-mini-fab color="accent" (click)="refresh()" [disabled]="isRefreshing">
+        <i *ngIf="!isRefreshing" class="fas fa-sync"></i>
+        <i *ngIf="isRefreshing" class="fas fa-sync fa-spin"></i>
+      </button>
+    </div>
+    <mat-list>
+      <mat-list-item *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex}"
+                     (click)="setCurrentRecord(i)">
+        <div>
+          <span class='list-item-header'>{{record.sourceStoreName}}</span>
+          <br>
+          <span class="list-item-desc">{{record.sourceName}}</span>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <div class="center-panel hidden-sm">
+    <mds-map #pgMap class="row content" (ready)="onMapReady($event)"></mds-map>
+  </div>
+  <div class="right-panel">
+    <div class='loader' *ngIf="isFetching">
+      <div>
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        <br>
+        <div class='large-text'>
+          Fetching Data
+        </div>
+      </div>
+    </div>
+    <mat-horizontal-stepper [linear]='true' #stepper style="padding-bottom: 50px;">
+      <ng-template matStepperIcon="edit">
+        <i class="fas fa-pencil-alt"></i>
+      </ng-template>
+      <ng-template matStepperIcon="done">
+        <i class="fas fa-check"></i>
+      </ng-template>
+      <mat-step editable="false">
+        <ng-template matStepLabel>Match Site</ng-template>
+        <!-- CONTENT FOR FIRST SECTION! -->
+        <div class='flex-container' *ngIf="pgRecord">
+          <div>
+            <div class='large-text'>
+              <a *ngIf="pgRecord.attributes" href="{{pgRecord.attributes.SOURCE}}"
+                 target='_blank'>
+                {{pgRecord ? pgRecord.attributes.NAME : ''}}
+              </a>
+            </div>
+            <div class='med-text'> {{pgRecord ? pgRecord.attributes.DESCLOCATION + ", "
+              +pgRecord.attributes.CITY + ","+
+              pgRecord.attributes.STATE : ''}}
+            </div>
+            <div class='small-text'>
+              {{pgRecord ? pgRecord.attributes ? pgRecord.attributes.SIZESF ?
+              pgRecord.attributes.SIZESF.toLocaleString()
+              + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{getPgRecordStatus(pgRecord)}}
+            </div>
+          </div>
+          <button (click)="noMatch()" mat-button class=''>Add Site
+          </button>
+        </div>
+        <div class='accent-bar large-text'>Match to Existing</div>
+        <div class='results-table'>
+
+          <div class='loader' *ngIf="gettingEntities">
+            <div>
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              <br>
+              <div class='large-text'>
+                Fetching Stores From MTNRA Database
+              </div>
+            </div>
+          </div>
+          <div [ngClass]="i % 2 != 0 ? 'results-item secondary-row':'results-item'"
+               *ngFor="let site of currentDBResults; let i=index;">
+            <div class="results-header large-text flex-container">
+
+
+              <i mat-icon-button [mat-menu-trigger-for]="siteMenu" class="site-menu fas fa-ellipsis-v"></i>
+
+              <mat-menu #siteMenu="matMenu">
+                <button (click)="matchShoppingCenter(site.shoppingCenterId);"
+                        mat-menu-item>Add Sister Shopping Center Site
+                </button>
+              </mat-menu>
+
+              <div *ngIf="site.distanceFrom" [style.color]="site.distanceFrom < 0.5 ? 'green': '#ff9802'"
+                   class='site-distance'>
+                <i class="fas fa-arrow-circle-up" [style.transform]="site.heading"></i> {{site.distanceFrom.toFixed(2)}}
+                Miles
+              </div>
+              <div class='site-title'>{{site.address1 + ", " + site.city + ", " + site.state }}</div>
+              <button (click)="matchSite(site.id)" mat-button
+                      class=' add-store'>Add Store
+              </button>
+            </div>
+            <mat-divider></mat-divider>
+            <div (mouseenter)="siteHover(store, 'enter')" (mouseleave)="siteHover(store, 'leave')" class="results-each"
+                 *ngFor="let store of site.stores">
+              <div class="flex-container">
+                <div class='store-attribute'>{{store.storeName}}</div>
+                <div class='hidden-xs store-attribute'>{{store.storeType}}</div>
+                <div class='hidden-xs store-attribute'>{{store.currentStoreStatus}}</div>
+                <button (click)="matchStore(store.id)" mat-button matStepperNext
+                        [ngClass]="{'highlighted': bestMatch && bestMatch.store.id == store.id && bestMatch.score <=4}">
+                  Match
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- </form> -->
+      </mat-step>
+      <mat-step>
+        <ng-template matStepLabel>Match/Edit Data</ng-template>
+        <mds-chain-xy-data-form *ngIf="pgUpdatable" [pgUpdatable]="pgUpdatable"
+                          [pgFeature]="pgRecord"
+                          [storeSource]="currentStoreSource"
+                          (cancelEvent)="cancelStep2()"
+                          (completedEvent)="nextRecord()">
+        </mds-chain-xy-data-form>
+      </mat-step>
+    </mat-horizontal-stepper>
+  </div>
+</div>

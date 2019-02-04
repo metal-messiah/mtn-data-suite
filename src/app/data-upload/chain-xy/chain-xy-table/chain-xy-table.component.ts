@@ -1,8 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Sort, MatSidenav } from '@angular/material';
+import { Sort, MatSidenav, MatDialog } from '@angular/material';
 
 import { StoreSource } from 'app/models/full/store-source';
 import { Router } from '@angular/router';
+import { ChainXyService } from '../chain-xy-service.service';
+import { SelectBannerComponent } from 'app/casing/select-banner/select-banner.component';
+import { BannerSource } from 'app/models/full/banner-source';
+import { BannerService } from 'app/core/services/banner.service';
+import { Banner } from 'app/models/full/banner';
 
 export enum statuses {
 	COMPLETE,
@@ -11,14 +16,15 @@ export enum statuses {
 }
 
 class DummyData {
-	data: StoreSource[] = [];
+	data: BannerSource[] = [];
 	constructor() {
 		for (let i = 0; i < 25; i++) {
 			const options = {
-				sourceName: `Chain Name ${i}`,
+				id: i,
+				sourceName: `ChainXY`,
 				sourceNativeId: `${i}`,
 				sourceUrl: '',
-				sourceStoreName: `store${i}`,
+				sourceBannerName: `chain${i}`,
 				sourceCreatedDate: new Date(),
 				sourceEditedDate: new Date(),
 				store: null,
@@ -30,7 +36,7 @@ class DummyData {
 
 				updatedDate: this.getRandomDate(false)
 			};
-			this.data.push(new StoreSource(options));
+			this.data.push(new BannerSource(options));
 		}
 	}
 
@@ -50,22 +56,74 @@ class DummyData {
 	styleUrls: [ './chain-xy-table.component.css' ]
 })
 export class ChainXyTableComponent implements OnInit {
-	dummyData: StoreSource[];
+	dummyData: BannerSource[];
 	sortedData;
 
 	selectedChain: StoreSource;
 
 	statuses;
 
+	saving = false;
+
+	selectingBanner: number = null;
+
 	@ViewChild('sidenav') sidenav: MatSidenav;
 
-	constructor(private router: Router) {
+	constructor(
+		private router: Router,
+		private chainXyService: ChainXyService,
+		private dialog: MatDialog,
+		private bannerService: BannerService
+	) {
 		this.dummyData = new DummyData().data;
 
 		this.assignStatuses();
 	}
 
 	ngOnInit() {}
+
+	bannerSourceIsSelectingBanner(bannerSource) {
+		return bannerSource.id === this.selectingBanner;
+	}
+
+	hasBanner(bs: BannerSource) {
+		return bs.banner !== null;
+	}
+
+	selectBanner(bannerSource) {
+		this.selectingBanner = bannerSource.id;
+		const dialog = this.dialog.open(SelectBannerComponent, { maxWidth: '90%' });
+		dialog.afterClosed().subscribe((result) => {
+			if (result && result.bannerName) {
+				this.updateBanner(result.id, bannerSource);
+			} else if (result === 'remove') {
+				this.removeBanner();
+			} else {
+				console.log(result);
+			}
+		});
+	}
+
+	updateBanner(bannerId: number, bannerSource: BannerSource) {
+		this.saving = true;
+		this.bannerService.getOneById(bannerId).subscribe((banner: Banner) => {
+			// update the banner on the bannerSourceService
+			// temporarily just updating the bannerSource obj
+			this.selectingBanner = null;
+
+			console.log(bannerId, bannerSource);
+			bannerSource.banner = banner;
+		});
+	}
+
+	removeBanner() {
+		this.saving = true;
+		// remove the banner on the bannerSourceService
+	}
+
+	getBannerImageSrc(banner) {
+		return this.bannerService.getBannerImageSrc(banner);
+	}
 
 	assignStatuses() {
 		this.sortedData = this.dummyData.map((d) => {
@@ -84,9 +142,30 @@ export class ChainXyTableComponent implements OnInit {
 		});
 	}
 
+	getSelectedChainVal(key) {
+		const val = this.selectedChain[key];
+		let output;
+		switch (key) {
+			case 'banner':
+				output = `${val.bannerName} (${val.stores.length.toLocaleString()} Stores)`;
+				break;
+			case 'updatedDate':
+			case 'sourceCreatedDate':
+			case 'sourceEditedDate':
+			case 'validatedDate':
+				output = new Date(val).toLocaleString();
+				break;
+			default:
+				output = val;
+		}
+		return output;
+	}
+
 	toggleSidenav(item: StoreSource) {
-		this.sidenav.toggle();
-		this.selectedChain = item;
+		if (this.selectingBanner === null) {
+			this.sidenav.toggle();
+			this.selectedChain = item;
+		}
 	}
 
 	getKeys(obj) {
@@ -132,8 +211,9 @@ export class ChainXyTableComponent implements OnInit {
 	}
 
 	updateStores() {
-		// send some data to the service
-		this.router.navigate([ 'chain-xy/update' ]);
+		// send some data to the service here
+		this.chainXyService.setSelectedChain(this.selectedChain);
+		this.router.navigate([ 'data-upload/chain-xy/update' ]);
 	}
 }
 

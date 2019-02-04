@@ -64,3 +64,33 @@ td {
 .red {
 	color: red;
 }
+
+.bs-row {
+	height: 50px;
+}
+
+.banner-meta-data {
+	text-align: center;
+}
+
+.banner-logo {
+	/* width: 400px;
+	height: 400px;
+	 */
+	/* max-height: 25px; */
+	height: auto;
+	max-width: 100%;
+	max-height: 50px;
+}
+
+.loading-icon {
+	margin: 0 10px 0;
+}
+
+.select-banner-btn {
+	width: 100%;
+}
+
+th > div > button {
+	margin: 0 auto;
+}

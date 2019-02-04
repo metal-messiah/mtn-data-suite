@@ -9,6 +9,7 @@ import { PlannedGroceryComponent } from './planned-grocery/planned-grocery.compo
 import { SpreadsheetComponent } from './spreadsheet/spreadsheet.component';
 import { ChainXyComponent } from './chain-xy/chain-xy.component';
 import { ChainXyTableComponent } from './chain-xy/chain-xy-table/chain-xy-table.component';
+import { ChainXyMapComponent } from './chain-xy/chain-xy-map/chain-xy-map.component';
 
 const routes: Routes = [
 	{
@@ -22,7 +23,11 @@ const routes: Routes = [
 			{
 				path: 'chain-xy',
 				component: ChainXyComponent,
-				children: [ { path: '', component: ChainXyTableComponent } ]
+				children: [
+					{ path: '', redirectTo: 'chains', pathMatch: 'full' },
+					{ path: 'chains', component: ChainXyTableComponent },
+					{ path: 'update', component: ChainXyMapComponent }
+				]
 			}
 		]
 	}

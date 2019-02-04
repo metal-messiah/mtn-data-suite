@@ -7,7 +7,7 @@
               <td class="key">
                   {{key}}
                 </td>
-              <td class="val">{{selectedChain[key]}}</td>
+              <td class="val">{{getSelectedChainVal(key)}}</td>
             </tr>
           </table>
           <button color="primary" mat-raised-button (click)="updateStores()">Update Stores</button>
@@ -25,16 +25,28 @@
                 <th mat-sort-header="banner">Banner</th>
               </tr>
             
-              <tr *ngFor="let data of sortedData" (click)="toggleSidenav(data)">
-                <td>{{data.sourceName}}</td>
+              <tr class="bs-row" *ngFor="let data of sortedData" (click)="toggleSidenav(data)">
+                <td>{{data.sourceBannerName}}</td>
                 <td>
                   &nbsp;
-                  <i [ngStyle]="{'color': getStatusColor(data.status)}" [ngClass]="{'fas': true, 'fa-check-circle': data.status === 0, 'fa-exclamation-triangle': data.status === 1, 'fa-exclamation-circle': data.status === 2}"></i>
+                  <i
+                  [ngStyle]="{'color': getStatusColor(data.status)}"
+                  [ngClass]="{'fas': true, 'fa-check-circle': data.status === 0, 'fa-exclamation-triangle': data.status === 1, 'fa-exclamation-circle': data.status === 2}"
+                  >
+                </i>
                   <!-- {{data.status}} -->
                 </td>
                 <td>{{data.validatedDate | date}}</td>
                 <td>{{data.updatedDate | date}}</td>
-                <td>{{data.banner}}</td>
+                <td class="banner-meta-data" *ngIf="hasBanner(data)">
+                  <img class="banner-logo" [title]="data.banner.bannerName" [src]="getBannerImageSrc(data.banner)" />
+                </td>
+                <td *ngIf="!hasBanner(data)">
+                  <button class="select-banner-btn" mat-raised-button color="primary" (click)="selectBanner(data)">
+                    <i class="loading-icon" *ngIf="bannerSourceIsSelectingBanner(data)" class="fas fa-spinner fa-spin"></i>
+                    <span *ngIf="!bannerSourceIsSelectingBanner(data)">Select Banner</span>
+                  </button>
+                </td>
               </tr>
             </table>
             </div>

@@ -13,6 +13,9 @@ import { SpreadsheetService } from './spreadsheet/spreadsheet.service';
 import { AutomatchDialogComponent } from './spreadsheet/automatch-dialog/automatch-dialog.component';
 import { ChainXyComponent } from './chain-xy/chain-xy.component';
 import { ChainXyTableComponent } from './chain-xy/chain-xy-table/chain-xy-table.component';
+import { ChainXyMapComponent } from './chain-xy/chain-xy-map/chain-xy-map.component';
+import { ChainXyDataFormComponent } from './chain-xy/chain-xy-map/chain-xy-data-form/chain-xy-data-form.component';
+import { ChainXyService } from './chain-xy/chain-xy-service.service';
 
 @NgModule({
 	imports: [ SharedModule, DataUploadRoutingModule ],
@@ -27,9 +30,11 @@ import { ChainXyTableComponent } from './chain-xy/chain-xy-table/chain-xy-table.
 		LoadComponent,
 		AutomatchDialogComponent,
 		ChainXyComponent,
-		ChainXyTableComponent
+		ChainXyTableComponent,
+		ChainXyMapComponent,
+		ChainXyDataFormComponent
 	],
 	entryComponents: [ AssignFieldsDialogComponent, LoadComponent, AutomatchDialogComponent ],
-	providers: [ SpreadsheetService ]
+	providers: [ SpreadsheetService, ChainXyService ]
 })
 export class DataUploadModule {}
