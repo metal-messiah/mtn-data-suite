@@ -13,3 +13,7 @@ mat-radio-button {
   padding-top: 12px;
   padding-bottom: 8px;
 }
+
+.subtitle {
+  font-size: small;
+}

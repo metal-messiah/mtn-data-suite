@@ -1,4 +1,8 @@
-<h3 mat-dialog-title class="Title">Select values to keep</h3>
+<div mat-dialog-title>
+  <span>Select values to keep</span>
+  <br>
+  <span class="subtitle">Single option if unanimous</span>
+</div>
 <div mat-dialog-content *ngIf="mergedSite">
 
   <div *ngFor="let attr of scAttributes">

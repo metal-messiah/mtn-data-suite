@@ -1,4 +1,4 @@
-<div mat-dialog-title class="Title">
+<div mat-dialog-title>
   <span>Select values to keep</span>
   <br>
   <span class="subtitle">Single option if unanimous</span>
@@ -18,7 +18,7 @@
 
   <div class="attr-title">Banner</div>
   <mat-radio-group [(ngModel)]="mergedStore.banner">
-    <mat-radio-button *ngFor="let store of data.selectedStores; index as i" [value]="store.banner">
+    <mat-radio-button *ngFor="let store of data.selectedStores" [value]="store.banner">
       {{store.banner ? store.banner.bannerName : '[ No Banner ]'}}
     </mat-radio-button>
   </mat-radio-group>
