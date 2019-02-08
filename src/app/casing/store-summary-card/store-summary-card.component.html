@@ -46,9 +46,6 @@
 </div>
 
 <mat-menu #storeCenterActionMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item disabled>
-    <i class="fas fa-copy"></i>&nbsp;&nbsp;Merge with another Store
-  </button>
   <button mat-menu-item *ngIf="store.storeType != 'ACTIVE'" (click)="updateStoreType('ACTIVE')">
     <i class="fas fa-play"></i>&nbsp;&nbsp;Change to Active
   </button>

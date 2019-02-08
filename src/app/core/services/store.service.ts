@@ -134,12 +134,7 @@ export class StoreService extends CrudService<Store> {
   }
 
   getLabel(store: Store | SimplifiedStore) {
-    let label = null;
-    // if (store.banner != null) {
-    //   label = store.banner.bannerName;
-    // } else {
-      label = store.storeName;
-    // }
+    let label = store.storeName;
     if (store.storeNumber != null) {
       label = `${label} (${store.storeNumber})`;
     }
@@ -178,5 +173,14 @@ export class StoreService extends CrudService<Store> {
   removeBanner(storeId: number) {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/banner`;
     return this.http.delete<Store>(url, {headers: this.rest.getHeaders()});
+  }
+
+  mergeStores(mergedStore: Store, storeIds: number[]) {
+    const url = this.rest.getHost() + this.endpoint + '/merge';
+    const body = {
+      mergedStore: mergedStore,
+      storeIds: storeIds
+    };
+    return this.http.post<SimplifiedSite>(url, body, {headers: this.rest.getHeaders()})
   }
 }

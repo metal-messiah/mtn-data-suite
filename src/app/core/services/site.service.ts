@@ -111,4 +111,13 @@ export class SiteService extends CrudService<Site> {
     return {lat: site.latitude, lng: site.longitude};
   }
 
+  mergeSites(mergedSite: Site, siteIds: number[]) {
+    const url = this.rest.getHost() + this.endpoint + '/merge';
+    const body = {
+      mergedSite: mergedSite,
+      siteIds: siteIds
+    };
+    return this.http.post<SimplifiedSite>(url, body, {headers: this.rest.getHeaders()})
+  }
+
 }

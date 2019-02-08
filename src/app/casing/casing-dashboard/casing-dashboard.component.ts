@@ -36,12 +36,11 @@ import { StoreMapLayer } from '../../models/store-map-layer';
 import { SiteMapLayer } from '../../models/site-map-layer';
 import { GeometryUtil } from '../../utils/geometry-util';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
-import { NewProjectNameComponent } from '../../shared/new-project-name/new-project-name.component';
 import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
-import { ProjectBoundary } from '../../models/project-boundary';
+import { SiteMergeDialogComponent } from '../site-merge-dialog/site-merge-dialog.component';
 
 export enum CasingDashboardMode {
-  DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY
+  DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
 }
 
 export enum CardState {
@@ -95,6 +94,9 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   subscriptions: Subscription[] = [];
 
+  // Duplicate Selection
+  selectedSiteId: number;
+
   constructor(public mapService: MapService,
               public geocoderService: GeocoderService,
               public casingDashboardService: CasingDashboardService,
@@ -145,6 +147,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
           this.siteMapLayer.clearSelection();
           this.selectedStore = store;
           this.selectedCardState = CardState.SELECTED_STORE;
+        } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
+          this.onDuplicateSiteSelected(store.site.id);
         }
       });
     }));
@@ -154,6 +158,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
           this.storeMapLayer.clearSelection();
           this.selectedSite = site;
           this.selectedCardState = CardState.SELECTED_SITE;
+        } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
+          this.onDuplicateSiteSelected(site.id);
         }
       });
     }));
@@ -714,4 +720,54 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     return (role && role.displayName === 'Guest Analyst');
   }
 
+  initiateDuplicateSiteSelection(siteId: number) {
+    // Change the mode (should disables all other user interactions that might conflict)
+    this.selectedDashboardMode = CasingDashboardMode.DUPLICATE_SELECTION;
+
+    // Save the first site's ID so you can use it later
+    this.selectedSiteId = siteId;
+
+    // Display instructions to user
+    const message = `Select another site to merge with this one`;
+    const ref = this.snackBar.open(message, 'Cancel');
+
+    // If user clicks cancel, close snackbar and return to default mode
+    ref.onAction().subscribe(() => this.selectedDashboardMode = CasingDashboardMode.DEFAULT);
+  }
+
+  onDuplicateSiteSelected(duplicateSiteId: number) {
+    // If the user selects the same site (can't merge with self)
+    if (this.selectedSiteId === duplicateSiteId) {
+      // Display clarifying instructions to user
+      const message = 'Oops, select ANY OTHER site to merge into this site';
+      const ref = this.snackBar.open(message, 'Cancel');
+
+      // If user clicks cancel, close snackbar and return to default mode
+      ref.onAction().subscribe(() => this.selectedDashboardMode = CasingDashboardMode.DEFAULT);
+    } else {
+      // If the user successfully selects a different site
+
+      // Change the mode back to default (for when they are done)
+      this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+
+      // Dismiss the instructions
+      this.snackBar.dismiss();
+
+      // Open the dialog to allow the user to merge the two sites
+      const siteMergeDialog = this.dialog.open(SiteMergeDialogComponent, {
+        maxWidth: '90%',
+        minWidth: '300px',
+        disableClose: true,
+        data: {duplicateSiteId: duplicateSiteId, selectedSiteId: this.selectedSiteId}
+      });
+
+      // When the user completes or cancels merging the sites, refresh the locations on the screen
+      siteMergeDialog.afterClosed().subscribe(() => {
+        this.selectedCardState = CardState.HIDDEN;
+        this.storeMapLayer.clearSelection();
+        this.siteMapLayer.clearSelection();
+        this.getEntities(this.mapService.getBounds())
+      });
+    }
+  }
 }

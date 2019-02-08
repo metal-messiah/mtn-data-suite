@@ -44,13 +44,6 @@
           </mat-list-item>
           <mat-divider></mat-divider>
         </div>
-        <div *ngIf="userIsSupport()">
-          <mat-list-item routerLink="/database-support">
-            <div mat-list-icon><i class="fas fa-database"></i></div>
-            <h3 mat-line>Database Support</h3>
-          </mat-list-item>
-          <mat-divider></mat-divider>
-        </div>
         <div *ngIf="userCanReport()">
           <mat-list-item routerLink="/reports">
             <div mat-list-icon><i class="fas fa-newspaper"></i></div>

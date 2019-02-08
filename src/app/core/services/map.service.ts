@@ -78,10 +78,10 @@ export class MapService {
   initialize(element: HTMLElement) {
     // Create map
     this.map = new google.maps.Map(element, {
-      center: { lat: 39.8283, lng: -98.5795 },
+      center: {lat: 39.8283, lng: -98.5795},
       zoom: 8
     });
-    this.map.getStreetView().setOptions({ imageDateControl: true });
+    this.map.getStreetView().setOptions({imageDateControl: true});
     this.placesService = new google.maps.places.PlacesService(this.map);
     this.boundsChanged$ = new Subject<{ east; north; south; west }>();
     this.mapClick$ = new Subject<Coordinates>();
@@ -173,7 +173,7 @@ export class MapService {
     }
     return {
       zoom: 10,
-      center: { lat: 39.8283, lng: -98.5795 },
+      center: {lat: 39.8283, lng: -98.5795},
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
   }

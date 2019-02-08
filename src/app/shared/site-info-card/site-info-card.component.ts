@@ -23,6 +23,7 @@ export class SiteInfoCardComponent implements OnInit {
 
   @Output() onUpdate = new EventEmitter<Entity>();
   @Output() initiateMove = new EventEmitter<Entity>();
+  @Output() initiateDuplicateSiteSelection = new EventEmitter<Entity>();
 
   constructor(public siteService: SiteService,
               public storeService: StoreService,
@@ -58,10 +59,6 @@ export class SiteInfoCardComponent implements OnInit {
       ));
   }
 
-  pinLocation(): void {
-    // TODO create the location data to the device
-  }
-
   assignToSelf() {
     this.assign(this.authService.sessionUser.id);
   }
@@ -92,6 +89,10 @@ export class SiteInfoCardComponent implements OnInit {
 
   emitChanges() {
     this.onUpdate.emit(this.site);
+  }
+
+  initiateDuplicateSelection() {
+    this.initiateDuplicateSiteSelection.emit(this.site);
   }
 
 }

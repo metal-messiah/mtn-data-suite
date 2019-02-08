@@ -1,0 +1,16 @@
+<h3 mat-dialog-title class="Title">Select Stores</h3>
+<div mat-dialog-content>
+  <mat-selection-list [(ngModel)]="selectedStores">
+    <mat-list-option *ngFor="let store of data.stores" [value]="store">
+      {{store.storeName + (store.storeNumber ? ' (' + store.storeNumber + ')' : '')}}
+    </mat-list-option>
+  </mat-selection-list>
+</div>
+
+<div mat-dialog-actions class="flex-space-between">
+  <button mat-raised-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="accent"
+          (click)="openStoreAttrMergeDialog()"
+          [disabled]="selectedStores.length < 2">Next
+  </button>
+</div>

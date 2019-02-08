@@ -1,0 +1,19 @@
+mat-radio-group {
+  display: flex;
+  flex-direction: column;
+}
+
+mat-radio-button {
+  padding: 5px 0 5px 8px;
+}
+
+.attr-title {
+  font-weight: bold;
+  font-family: sans-serif;
+  padding-top: 12px;
+  padding-bottom: 8px;
+}
+
+.subtitle {
+  font-size: small;
+}

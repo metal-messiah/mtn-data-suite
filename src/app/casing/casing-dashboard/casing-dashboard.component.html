@@ -37,11 +37,13 @@
                              [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
                              (onUpdate)="onStoreUpdated($event)"
                              (initiateMove)="moveStore($event)"
+                             (initiateDuplicateSiteSelection)="initiateDuplicateSiteSelection($event.id)"
                              *ngIf="selectedCardState === cardState.SELECTED_STORE && selectedStore != null"></mds-store-info-card>
         <mds-site-info-card class="infoCard" [site]="selectedSite"
                             [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
                             (onUpdate)="onSiteUpdated($event)"
                             (initiateMove)="moveSite($event)"
+                            (initiateDuplicateSiteSelection)="initiateDuplicateSiteSelection($event.id)"
                             *ngIf="selectedCardState === cardState.SELECTED_SITE && selectedSite != null"></mds-site-info-card>
       </div>
       <div class="row footer">
@@ -65,7 +67,6 @@
             <button mat-raised-button color="accent" (click)="saveMove()">Save</button>
           </div>
         </mat-toolbar>
-
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MULTI_SELECT" color="primary"
                      class="flex-space-between">
           <div>
@@ -127,6 +128,12 @@
           <span>Drag Pin</span>
           <button mat-raised-button color="accent" (click)="editNewLocation()">Create</button>
         </mat-toolbar>
+
+        <!--Duplicate Selection-->
+        <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DUPLICATE_SELECTION" color="primary"
+                     class="flex-space-between">
+        </mat-toolbar>
+
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" color="primary"
                      class="flex-space-between">
           <button mat-mini-fab color="primary" [mat-menu-trigger-for]="moreMenu">
