@@ -1,42 +1,19 @@
-.radio-group {
-  display: inline-flex;
+mat-radio-group {
+  display: flex;
   flex-direction: column;
 }
 
-.radio-button {
-  margin: 6px;
-  flex-direction: column;
-}
-
-.mat-dialog-content {
-  margin: 5px;
-  padding: 5px;
-}
-
-.mat-dialog-title {
-  text-align: center;
-}
-
-.mat-divider {
-  min-width: 125px;
-  max-width: 400px;
+mat-radio-button {
+  padding: 5px 0 5px 8px;
 }
 
 .attr-title {
   font-weight: bold;
   font-family: sans-serif;
-  padding-top: 8px;
+  padding-top: 12px;
+  padding-bottom: 8px;
 }
 
-.list {
-  display: inline-flex;
-  flex-direction: column;
-}
-
-.input-readonly {
-  /* TODO font isn't being enforced*/
-  font: 500 20px/32px Roboto, "Helvetica Neue", sans-serif;
-  padding: 4px;
-  margin: 4px 4px 8px 4px;
-  font-size: inherit;
+.subtitle {
+  font-size: small;
 }

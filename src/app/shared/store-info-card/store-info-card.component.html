@@ -34,7 +34,7 @@
   <button mat-menu-item (click)="moveStore()">
     <i class="fas fa-arrows-alt"></i>&nbsp;Move
   </button>
-  <button mat-menu-item (click)="selectDuplicateSite()">
+  <button mat-menu-item (click)="initiateDuplicateSelection()">
     <i class="fas fa-clone"></i>&nbsp;Merge Duplicate
   </button>
   <button mat-menu-item (click)="setDuplicateFlag(true)" *ngIf="!store.site.duplicate">

@@ -22,14 +22,14 @@ export class StoreSelectionDialogComponent implements OnInit {
   }
 
   openStoreAttrMergeDialog() {
+    // Close the selection dialog
     this.dialogRef.close();
-    this.dialog.open(StoreAttrSelectionDialogComponent, {
-      maxWidth: '90%',
-      data: {selectedStores: this.selectedStores}
-    });
-  }
 
-  closeDialog(): void {
-    this.dialogRef.close();
+    // Open the attribute selection dialog
+    this.dialog.open(StoreAttrSelectionDialogComponent, {
+      data: {selectedStores: this.selectedStores},
+      maxWidth: '90%',
+      minWidth: '300px'
+    });
   }
 }

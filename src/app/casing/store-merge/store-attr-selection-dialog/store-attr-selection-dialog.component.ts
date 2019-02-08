@@ -1,10 +1,10 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef, MatSnackBar } from '@angular/material';
 import { ErrorDialogComponent } from '../../../shared/error-dialog/error-dialog.component';
 import { Store } from '../../../models/full/store';
-import { delay } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
-import { PipeTransform, Pipe } from '@angular/core';
+import { finalize } from 'rxjs/operators';
+import { StoreService } from '../../../core/services/store.service';
+import { ErrorService } from '../../../core/services/error.service';
 
 @Component({
   selector: 'mds-store-attr-selection-dialog',
@@ -15,116 +15,93 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
 
   merging = false;
   mergedStore;
-  storeAttrNames = [{
-    attrName: 'storeName',
-    displayName: 'Store Name',
-    show: false
-  }, {
-    attrName: 'storeNumber',
-    displayName: 'Store Number',
-    show: false
-  }, {
-    attrName: 'storeType',
-    displayName: 'Store Type',
-    show: false
-  }, {
-    attrName: 'dateOpened',
-    displayName: 'Date Opened',
-    show: false
-  }, {
-    attrName: 'dateClosed',
-    displayName: 'Date Closed',
-    show: false
-  }, {
-    attrName: 'fit',
-    displayName: 'Fit',
-    show: false
-  }, {
-    attrName: 'format',
-    displayName: 'Format',
-    show: false
-  }, {
-    attrName: 'areaSales',
-    displayName: 'Sales Area',
-    show: false
-  }, {
-    attrName: 'areaSalesPercentOfTotal',
-    displayName: '% of Total Sales Area',
-    show: false
-  }, {
-    attrName: 'areaTotal',
-    displayName: 'Total Area',
-    show: false
-  }, {
-    attrName: 'areaIsEstimate',
-    displayName: 'Area Is Estimate',
-    show: false
-  }, {
-    attrName: 'storeIsOpen24',
-    displayName: 'Open 24 Hours',
-    show: false
-  }, {
-    attrName: 'naturalFoodsAreIntegrated',
-    displayName: 'Natural Foods Integrated',
-    show: false
-  }, {
-    attrName: 'floating',
-    displayName: 'Floating',
-    show: false
-  }, {
-    attrName: 'banner.bannerName',
-    displayName: 'Banner',
-    show: false
-  }];
+  storeAttributes = [
+    {
+      attrName: 'storeName',
+      displayName: 'Store Name'
+    },
+    {
+      attrName: 'storeNumber',
+      displayName: 'Store Number'
+    },
+    {
+      attrName: 'storeType',
+      displayName: 'Store Type'
+    },
+    {
+      attrName: 'dateOpened',
+      displayName: 'Date Opened'
+    },
+    {
+      attrName: 'dateClosed',
+      displayName: 'Date Closed'
+    },
+    {
+      attrName: 'fit',
+      displayName: 'Fit'
+    },
+    {
+      attrName: 'format',
+      displayName: 'Format'
+    },
+    {
+      attrName: 'areaSales',
+      displayName: 'Sales Area'
+    },
+    {
+      attrName: 'areaSalesPercentOfTotal',
+      displayName: '% of Total Sales Area'
+    },
+    {
+      attrName: 'areaTotal',
+      displayName: 'Total Area'
+    },
+    {
+      attrName: 'areaIsEstimate',
+      displayName: 'Area Is Estimate'
+    },
+    {
+      attrName: 'storeIsOpen24',
+      displayName: 'Open 24 Hours'
+    },
+    {
+      attrName: 'naturalFoodsAreIntegrated',
+      displayName: 'Natural Foods Integrated'
+    },
+    {
+      attrName: 'floating',
+      displayName: 'Floating'
+    }
+  ];
 
   constructor(public dialogRef: MatDialogRef<ErrorDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: { selectedStores: Store[] },
-              private dialog: MatDialog) {
+              private storeService: StoreService,
+              private snackBar: MatSnackBar,
+              private errorService: ErrorService) {
   }
 
   ngOnInit() {
+    // Create a copy of the first store for default values
     this.mergedStore = new Store(this.data.selectedStores[0]);
-    if (this.storeAttrNames != null) {
-      this.storeAttrNames.forEach(attr => {
-        if (this.storesHaveDifference(attr.attrName)) {
-          attr.show = true;
-        }
-      });
-      console.log(this.data.selectedStores);
-    }
+    this.mergedStore.banner = this.data.selectedStores[0].banner;
+
+    // Then determine which attributes are unanimous
+    this.storeAttributes.forEach(attr => {
+      // Stores are unanimous if a unique Set of the values ends up with only 1 value
+      attr['unanimous'] = new Set(this.data.selectedStores.map(s => s[attr.attrName])).size === 1;
+    });
   }
 
-  storesHaveDifference(attr: string) {
-    for (let i = 0; i < this.data.selectedStores.length; i++) {
-      const storei = this.data.selectedStores[i];
-      for (let j = 0; j < this.data.selectedStores.length; j++) {
-        const storej = this.data.selectedStores[j];
-        const attrNotEqual = storei[attr] !== storej[attr];
-        if (storei !== storej && attrNotEqual) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  closeDialog(): void {
-    this.dialog.closeAll();
-  }
-
-  mergeStores() {
+  mergeStores(): void {
     this.merging = true;
-    return of(1).pipe(delay(2000))
+    this.storeService.mergeStores(this.mergedStore, this.data.selectedStores.map(st => st.id))
+      .pipe(finalize(() => this.merging = false))
+      .subscribe(() => {
+          this.snackBar.open('Successfully merged', null, {duration: 2000});
+          this.dialogRef.close();
+        },
+        err => this.errorService.handleServerError('Failed to merge!', err, () => console.log(err))
+      );
   }
-
-  // mergeStores(): void {
-  //   this.merging = true;
-  //   this.storeService.mergedStore(this.selectedStores, this.mergedStore)
-  //     .pipe(finalize(() => this.merging = false))
-  //     .subscribe(() => {
-  //       const message = `Successfully merged`;
-  //       this.snackBar.open(message, null, {duration: 2000});
-  //     }, err => this.errorService.handleServerError('Failed to merge!', err,
-  //       () => console.log(err)));
-  // }
 }

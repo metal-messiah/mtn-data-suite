@@ -134,13 +134,7 @@ export class StoreService extends CrudService<Store> {
   }
 
   getLabel(store: Store | SimplifiedStore) {
-    let label = null;
-    // TODO Cleanup unused code -AT 1-14-19
-    // if (store.banner != null) {
-    //   label = store.banner.bannerName;
-    // } else {
-      label = store.storeName;
-    // }
+    let label = store.storeName;
     if (store.storeNumber != null) {
       label = `${label} (${store.storeNumber})`;
     }
@@ -181,10 +175,12 @@ export class StoreService extends CrudService<Store> {
     return this.http.delete<Store>(url, {headers: this.rest.getHeaders()});
   }
 
-  mergeStore(selectedStores, mergedStore) {
+  mergeStores(mergedStore: Store, storeIds: number[]) {
     const url = this.rest.getHost() + this.endpoint + '/merge';
-    let params = new HttpParams().set('selectedStores', selectedStores);
-    params = params.set('mergedStores', mergedStore);
-    return this.http.post<SimplifiedSite>(url, mergedStore, {headers: this.rest.getHeaders(), params: params})
+    const body = {
+      mergedStore: mergedStore,
+      storeIds: storeIds
+    };
+    return this.http.post<SimplifiedSite>(url, body, {headers: this.rest.getHeaders()})
   }
 }

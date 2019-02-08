@@ -8,8 +8,8 @@ import { Site } from '../../models/full/site';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { Coordinates } from '../../models/coordinates';
 import { Store } from '../../models/full/store';
-import { Observable, of } from 'rxjs';
-import { map, delay } from 'rxjs/internal/operators';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/internal/operators';
 
 @Injectable()
 export class SiteService extends CrudService<Site> {
@@ -111,11 +111,13 @@ export class SiteService extends CrudService<Site> {
     return {lat: site.latitude, lng: site.longitude};
   }
 
-  mergeSite(site1, site2, mergedSite) {
+  mergeSites(mergedSite: Site, siteIds: number[]) {
     const url = this.rest.getHost() + this.endpoint + '/merge';
-    let params = new HttpParams().set('site-a-id', site1.id);
-    params = params.set('site-b-id', site2.id);
-    return this.http.post<SimplifiedSite>(url, mergedSite, {headers: this.rest.getHeaders(), params: params})
+    const body = {
+      mergedSite: mergedSite,
+      siteIds: siteIds
+    };
+    return this.http.post<SimplifiedSite>(url, body, {headers: this.rest.getHeaders()})
   }
 
 }

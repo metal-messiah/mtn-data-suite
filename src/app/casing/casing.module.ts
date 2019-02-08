@@ -30,7 +30,6 @@ import { NewStoreStatusComponent } from './new-store-status/new-store-status.com
 import { NewStoreVolumeComponent } from './new-store-volume/new-store-volume.component';
 import { DownloadDialogComponent } from './download-dialog/download-dialog.component';
 import { SiteMergeDialogComponent } from './site-merge-dialog/site-merge-dialog.component';
-import { MatStepperModule } from '@angular/material';
 import { StoreSelectionDialogComponent } from './store-merge/store-selection-dialog/store-selection-dialog.component';
 import { StoreAttrSelectionDialogComponent } from './store-merge/store-attr-selection-dialog/store-attr-selection-dialog.component';
 import { SelectBannerComponent } from './select-banner/select-banner.component';
@@ -38,8 +37,7 @@ import { SelectBannerComponent } from './select-banner/select-banner.component';
 @NgModule({
   imports: [
     SharedModule,
-    CasingRoutingModule,
-    MatStepperModule
+    CasingRoutingModule
   ],
   declarations: [
     AccessListDialogComponent,

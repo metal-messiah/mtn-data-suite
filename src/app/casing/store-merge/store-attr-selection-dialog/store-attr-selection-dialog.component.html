@@ -1,61 +1,34 @@
-<h3 mat-dialog-title class="Title">Select Store Attributes</h3>
+<div mat-dialog-title class="Title">
+  <span>Select values to keep</span>
+  <br>
+  <span class="subtitle">Single option if unanimous</span>
+</div>
 <div mat-dialog-content>
 
-  <!--Main List for User to Select correct Store Attributes-->
-  <div *ngFor="let banner of storeAttrNames">
-    <div *ngIf="banner.attrName === 'banner'">
-      <mat-radio-group class="radio-group" [(ngModel)]="mergedStore[banner.attrName]">
-        <div class="attr-title">
-          {{banner.displayName}}
-        </div>
-        <mat-radio-button
-          *ngFor="let selectedStore of data.selectedStores"
-          class="radio-button" [value]="selectedStore[banner.attrName]">
-          {{selectedStore[banner.displayName].bannerName}}
+  <div *ngFor="let attr of storeAttributes">
+    <div class="attr-title">{{attr.displayName}}</div>
+    <mat-radio-group [(ngModel)]="mergedStore[attr.attrName]">
+      <ng-container *ngFor="let store of data.selectedStores; index as i">
+        <mat-radio-button *ngIf="i === 0 || (i > 0 && !attr.unanimous)" [value]="store[attr.attrName]">
+          {{store[attr.attrName] ? store[attr.attrName] : '[ Empty ]'}}
         </mat-radio-button>
-        <mat-divider></mat-divider>
-      </mat-radio-group>
-    </div>
+      </ng-container>
+    </mat-radio-group>
   </div>
 
-  <div *ngFor="let storeAttrName of storeAttrNames">
-    <div *ngIf="storeAttrName.show === true">
+  <div class="attr-title">Banner</div>
+  <mat-radio-group [(ngModel)]="mergedStore.banner">
+    <mat-radio-button *ngFor="let store of data.selectedStores; index as i" [value]="store.banner">
+      {{store.banner ? store.banner.bannerName : '[ No Banner ]'}}
+    </mat-radio-button>
+  </mat-radio-group>
 
-      <mat-radio-group
-        class="radio-group" [(ngModel)]="mergedStore[storeAttrName.attrName]">
-        <div class="attr-title">
-          {{storeAttrName.displayName}}
-        </div>
-        <mat-radio-button
-          *ngFor="let selectedStore of data.selectedStores"
-          class="radio-button" [value]="selectedStore[storeAttrName.attrName]">
-          {{selectedStore[storeAttrName.attrName]}}
-        </mat-radio-button>
-        <mat-divider></mat-divider>
-      </mat-radio-group>
-    </div>
-
-    <div *ngIf="storeAttrName.show === false && mergedStore[storeAttrName.attrName] !== null">
-      <div class="list">
-        <div class="attr-title">
-          {{storeAttrName.displayName}}
-        </div>
-        <div class="input-readonly">
-          <input readonly [value]="mergedStore[storeAttrName.attrName]"/>
-        </div>
-        <mat-divider></mat-divider>
-      </div>
-    </div>
-  </div>
 </div>
 
-<!--Material Footer-->
 <div mat-dialog-actions class="flex-space-between">
-  <button mat-raised-button (click)="closeDialog()">Close</button>
-  <button *ngIf="!merging"
-          mat-raised-button color="accent"
-          (click)="mergeStores()">Merge
+  <button mat-raised-button mat-dialog-close>Close</button>
+  <button mat-raised-button color="accent" [disabled]="merging" (click)="mergeStores()">
+    <span *ngIf="!merging">Merge</span>
+    <i *ngIf="merging" class="fas fa-spinner fa-pulse"></i>
   </button>
-  <button *ngIf="merging" mat-raised-button color="accent" disabled>Merge
-    <i class="fas fa-spinner fa-pulse"></i></button>
 </div>
