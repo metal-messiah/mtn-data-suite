@@ -20,12 +20,13 @@ import { Coordinates } from '../../models/coordinates';
 import { PlannedGroceryLayer } from '../../models/planned-grocery-layer';
 import { EntityMapLayer } from '../../models/entity-map-layer';
 import { MapDataLayer } from '../../models/map-data-layer';
-import { PlannedGroceryUpdatable } from '../../models/planned-grocery-updatable';
+import { SourceUpdatable } from '../../models/source-updatable';
 import { StoreSource } from '../../models/full/store-source';
 
 import { PlannedGroceryService } from './planned-grocery-service.service';
 import { StoreMapLayer } from '../../models/store-map-layer';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
+import { SourceUpdatableService } from '../../core/services/source-updatable.service';
 
 @Component({
   selector: 'mds-planned-grocery',
@@ -55,7 +56,7 @@ export class PlannedGroceryComponent implements OnInit {
   currentDBResults: object[];
 
   // Working record (used for data editing)
-  pgUpdatable: PlannedGroceryUpdatable;
+  sourceUpdatable: SourceUpdatable;
 
   bestMatch: { store: object; score: number; distanceFrom: number };
 
@@ -87,7 +88,8 @@ export class PlannedGroceryComponent implements OnInit {
     private errorService: ErrorService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    private entitySelectionService: EntitySelectionService
+    private entitySelectionService: EntitySelectionService,
+    private sourceUpdatableService: SourceUpdatableService
   ) {
   }
 
@@ -107,44 +109,44 @@ export class PlannedGroceryComponent implements OnInit {
   }
 
   cancelStep2() {
-    this.pgUpdatable = null;
+    this.sourceUpdatable = null;
     this.stepper.reset();
     this.stepper.previous();
     this.setPgFeature(false);
   }
 
-  private advance(pgUpdatable: PlannedGroceryUpdatable) {
-    this.pgUpdatable = pgUpdatable;
+  private advance(sourceUpdatable: SourceUpdatable) {
+    this.sourceUpdatable = sourceUpdatable;
     this.stepper.next();
   }
 
   noMatch() {
     this.setPgFeature(true);
-    this.advance(new PlannedGroceryUpdatable());
+    this.advance(new SourceUpdatable());
   }
 
   matchShoppingCenter(scId: number) {
     this.isFetching = true;
-    this.pgService.getUpdatableByShoppingCenterId(scId)
+    this.sourceUpdatableService.getUpdatableByShoppingCenterId(scId)
       .pipe(finalize(() => this.isFetching = false))
-      .subscribe(pgUpdatable => {
+      .subscribe(sourceUpdatable => {
         this.setPgFeature(true);
-        this.advance(pgUpdatable);
+        this.advance(sourceUpdatable);
       });
   }
 
   matchSite(siteId: number) {
     this.isFetching = true;
-    this.pgService.getUpdatableBySiteId(siteId)
+    this.sourceUpdatableService.getUpdatableBySiteId(siteId)
       .pipe(finalize(() => this.isFetching = false))
-      .subscribe(pgUpdatable => this.advance(pgUpdatable));
+      .subscribe(sourceUpdatable => this.advance(sourceUpdatable));
   }
 
   matchStore(storeId: number) {
     this.isFetching = true;
-    this.pgService.getUpdatableByStoreId(storeId)
+    this.sourceUpdatableService.getUpdatableByStoreId(storeId)
       .pipe(finalize(() => this.isFetching = false))
-      .subscribe(pgUpdatable => this.advance(pgUpdatable));
+      .subscribe(sourceUpdatable => this.advance(sourceUpdatable));
   }
 
   nextRecord() {
@@ -198,8 +200,8 @@ export class PlannedGroceryComponent implements OnInit {
     this.pgMapLayer = new PlannedGroceryLayer(this.mapService);
     this.pgMapLayer.markerDragEnd$.subscribe((draggedMarker: PgMappable) => {
       const coords = this.pgMapLayer.getCoordinatesOfMappableMarker(draggedMarker);
-      this.pgUpdatable.longitude = coords.lng;
-      this.pgUpdatable.latitude = coords.lat;
+      this.sourceUpdatable.longitude = coords.lng;
+      this.sourceUpdatable.latitude = coords.lat;
     });
     this.storeMapLayer = new StoreMapLayer(this.mapService, this.authService, this.entitySelectionService.storeIds, () => null);
     this.mapDataLayer = new MapDataLayer(

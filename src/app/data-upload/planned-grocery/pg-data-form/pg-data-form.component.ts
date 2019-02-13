@@ -3,13 +3,14 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import * as _ from 'lodash';
 
-import { PlannedGroceryUpdatable } from '../../../models/planned-grocery-updatable';
+import { SourceUpdatable } from '../../../models/source-updatable';
 import { StoreSource } from '../../../models/full/store-source';
 import { PlannedGroceryService } from '../planned-grocery-service.service';
 import { ErrorService } from '../../../core/services/error.service';
 import { SimplifiedStoreStatus } from '../../../models/simplified/simplified-store-status';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { QuadDialogComponent } from '../../../casing/quad-dialog/quad-dialog.component';
+import { SourceUpdatableService } from '../../../core/services/source-updatable.service';
 
 @Component({
   selector: 'mds-pg-data-form',
@@ -18,7 +19,7 @@ import { QuadDialogComponent } from '../../../casing/quad-dialog/quad-dialog.com
 })
 export class PgDataFormComponent implements OnChanges {
 
-  @Input() pgUpdatable: PlannedGroceryUpdatable;
+  @Input() sourceUpdatable: SourceUpdatable;
   @Input() pgFeature: { attributes, geometry: { x: number, y: number } };
   @Input() storeSource: StoreSource;
 
@@ -49,18 +50,19 @@ export class PgDataFormComponent implements OnChanges {
               private errorService: ErrorService,
               private fb: FormBuilder,
               private dialog: MatDialog,
+              private sourceUpdatableService: SourceUpdatableService,
               private snackBar: MatSnackBar) {
     this.createForm();
   }
 
   ngOnChanges() {
-    if (!(this.pgFeature && this.pgUpdatable && this.storeSource)) {
+    if (!(this.pgFeature && this.sourceUpdatable && this.storeSource)) {
       this.cancelEvent.emit();
     } else {
       console.log(this.pgFeature);
-      if (!this.pgUpdatable.siteId) {
-        this.pgUpdatable.latitude = this.pgFeature.geometry.y;
-        this.pgUpdatable.longitude = this.pgFeature.geometry.x;
+      if (!this.sourceUpdatable.siteId) {
+        this.sourceUpdatable.latitude = this.pgFeature.geometry.y;
+        this.sourceUpdatable.longitude = this.pgFeature.geometry.x;
       }
 
       this.currentStatus = this.getCurrentStatus();
@@ -96,18 +98,18 @@ export class PgDataFormComponent implements OnChanges {
   }
 
   private resetForm() {
-    this.form.reset(this.pgUpdatable);
-    if (!this.pgUpdatable.shoppingCenterId) {
+    this.form.reset(this.sourceUpdatable);
+    if (!this.sourceUpdatable.shoppingCenterId) {
       this.form.get('shoppingCenterName').setValue(this.pgFeature.attributes.NAMECENTER);
     }
-    if (!this.pgUpdatable.siteId) {
+    if (!this.sourceUpdatable.siteId) {
       this.form.get('address').setValue(this.pgFeature.attributes.DESCLOCATION);
       this.form.get('city').setValue(this.pgFeature.attributes.CITY);
       this.form.get('county').setValue(this.pgFeature.attributes.county);
       this.form.get('state').setValue(this.pgFeature.attributes.STATE);
       this.form.get('postalCode').setValue(this.pgFeature.attributes.ZIP);
     }
-    if (!this.pgUpdatable.storeId) {
+    if (!this.sourceUpdatable.storeId) {
       this.form.get('storeName').setValue(this.pgFeature.attributes.NAME);
       if (this.pgFeature.attributes.OPENDATE) {
         this.form.get('dateOpened').setValue(new Date(this.pgFeature.attributes.OPENDATE));
@@ -117,11 +119,11 @@ export class PgDataFormComponent implements OnChanges {
   }
 
   private getCurrentStatus(): { displayName: string, pgStatusId: number, rank: number } {
-    if (!this.pgUpdatable.storeStatuses || this.pgUpdatable.storeStatuses.length < 1) {
+    if (!this.sourceUpdatable.storeStatuses || this.sourceUpdatable.storeStatuses.length < 1) {
       return {displayName: 'NONE', pgStatusId: -1, rank: -1};
     }
     const pgEditedDateMs = this.pgFeature.attributes.EditDate;
-    const relevantStatuses = this.pgUpdatable.storeStatuses.filter(status => status.statusStartDate.getTime() <= pgEditedDateMs);
+    const relevantStatuses = this.sourceUpdatable.storeStatuses.filter(status => status.statusStartDate.getTime() <= pgEditedDateMs);
     const currentStatus = _.maxBy(relevantStatuses, 'statusStartDate');
     if (currentStatus) {
       return _.find(this.dbStatuses, {displayName: currentStatus.status});
@@ -134,13 +136,13 @@ export class PgDataFormComponent implements OnChanges {
     return this.dbStatuses.find(status => status.pgStatusId === this.pgFeature.attributes.STATUS);
   }
 
-  private prepareSubmission(): PlannedGroceryUpdatable {
-    const submission = new PlannedGroceryUpdatable(this.form.value);
+  private prepareSubmission(): SourceUpdatable {
+    const submission = new SourceUpdatable(this.form.value);
     if (submission.state != null) {
       submission.state = submission.state.toUpperCase();
     }
-    submission.latitude = this.pgUpdatable.latitude;
-    submission.longitude = this.pgUpdatable.longitude;
+    submission.latitude = this.sourceUpdatable.latitude;
+    submission.longitude = this.sourceUpdatable.longitude;
     if (this.doAddStatus) {
       if (!submission.storeStatuses) {
         submission.storeStatuses = [];
@@ -160,7 +162,7 @@ export class PgDataFormComponent implements OnChanges {
     const submission = this.prepareSubmission();
 
     this.saving = true;
-    this.pgService.submitUpdate(submission)
+    this.sourceUpdatableService.submitUpdate(submission)
       .pipe(finalize(() => this.saving = false))
       .subscribe(
         result => {
