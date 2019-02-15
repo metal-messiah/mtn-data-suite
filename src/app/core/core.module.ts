@@ -30,6 +30,7 @@ import { StoreSourceService } from './services/store-source.service';
 import { EntitySelectionService } from './services/entity-selection.service';
 import { CompanyService } from './services/company.service';
 import { ExtractionService } from './services/extraction.service';
+import { DbEntityMarkerService } from './services/db-entity-marker.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -64,7 +65,8 @@ import { ExtractionService } from './services/extraction.service';
     StoreSurveyService,
     StoreVolumeService,
     UserProfileService,
-    EntitySelectionService
+    EntitySelectionService,
+    DbEntityMarkerService
   ]
 })
 export class CoreModule {

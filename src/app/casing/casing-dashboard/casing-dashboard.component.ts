@@ -28,7 +28,7 @@ import { GooglePlaceLayer } from '../../models/google-place-layer';
 import { MapSelectionMode } from '../enums/map-selection-mode';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { Observable, of, Subscription } from 'rxjs';
-import { debounce, debounceTime, delay, finalize, mergeMap, tap } from 'rxjs/internal/operators';
+import { debounce, debounceTime, delay, finalize, mergeMap } from 'rxjs/internal/operators';
 import { ProjectService } from '../../core/services/project.service';
 import { MapDataLayer } from '../../models/map-data-layer';
 import { ProjectBoundaryService } from '../services/project-boundary.service';
@@ -38,6 +38,7 @@ import { GeometryUtil } from '../../utils/geometry-util';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
 import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
 import { SiteMergeDialogComponent } from '../site-merge-dialog/site-merge-dialog.component';
+import { DbEntityMarkerService } from '../../core/services/db-entity-marker.service';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -98,6 +99,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   selectedSiteId: number;
 
   constructor(public mapService: MapService,
+              public dbEntityMarkerService: DbEntityMarkerService,
               public geocoderService: GeocoderService,
               public casingDashboardService: CasingDashboardService,
               private siteService: SiteService,
@@ -134,9 +136,10 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce())
       .subscribe((bounds: { east, north, south, west }) => {
-        if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
-          this.getEntities(bounds);
-        }
+        this.getEntities(bounds);
+        // if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
+        //   this.getEntities(bounds);
+        // }
       }));
     this.subscriptions.push(this.mapService.mapClick$.subscribe(() => {
       this.ngZone.run(() => this.selectedCardState = CardState.HIDDEN);
@@ -190,85 +193,45 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       .pipe(delay(this.followMeLayer != null ? 10000 : 1000)));
   }
 
-  private getFilteredStoreTypes(): string[] {
-    const types = [];
-    if (this.casingDashboardService.filter.active) {
-      types.push('ACTIVE');
-    }
-    if (this.casingDashboardService.filter.future) {
-      types.push('FUTURE');
-    }
-    if (this.casingDashboardService.filter.historical) {
-      types.push('HISTORICAL');
-    }
-    return types;
-  }
-
   getEntities(bounds: { east, north, south, west }): void {
-    if (this.mapService.getZoom() > this.DATA_POINT_ZOOM) {
-      this.mapDataLayer.clearDataPoints();
-      const storeTypes = this.getFilteredStoreTypes();
-      this.gettingEntities = true;
-      this.getSitesInBounds(bounds)
-        .pipe(finalize(() => this.gettingEntities = false))
-        .pipe(mergeMap(() => {
-          if (storeTypes.length > 0) {
-            return this.getStoresInBounds(bounds);
-          } else {
-            this.storeMapLayer.setEntities([]);
-            return of(null);
-          }
-        }))
-        .subscribe(() => console.log('Retrieved Entities')
-          , err => {
-            this.ngZone.run(() => {
-              this.errorService.handleServerError(`Failed to retrieve entities!`, err,
-                () => console.log(err),
-                () => this.getEntities(bounds));
-            });
-          });
-    } else if (this.mapService.getZoom() > this.MAX_DATA_ZOOM) {
-      this.getPointsInBounds(bounds);
-      this.storeMapLayer.setEntities([]);
-      this.siteMapLayer.setEntities([]);
-    } else {
-      this.ngZone.run(() => this.snackBar.open('Zoom in for location data', null, {
-        duration: 1000,
-        verticalPosition: 'top'
-      }));
-      this.mapDataLayer.clearDataPoints();
-      this.storeMapLayer.setEntities([]);
-      this.siteMapLayer.setEntities([]);
-    }
-  }
-
-  private getPointsInBounds(bounds) {
-    this.siteService.getSitePointsInBounds(bounds).subscribe((sitePoints: Coordinates[]) => {
-      if (sitePoints.length <= 1000) {
-        this.mapDataLayer.setDataPoints(sitePoints);
-        this.ngZone.run(() => {
-          const message = `Showing ${sitePoints.length} items`;
-          this.snackBar.open(message, null, {duration: 2000, verticalPosition: 'top'});
-        });
-      } else {
-        this.ngZone.run(() => {
-          this.mapDataLayer.clearDataPoints();
-          const message = `Too many locations, zoom in to see data`;
-          this.snackBar.open(message, null, {duration: 2000, verticalPosition: 'top'});
-        });
-      }
-    })
-  }
-
-  private getSitesInBounds(bounds) {
-    // Get Sites without stores
-    return this.siteService.getSitesWithoutStoresInBounds(bounds).pipe(tap(list => this.siteMapLayer.setEntities(list)));
-  }
-
-  private getStoresInBounds(bounds) {
-    const includeProjectIds = this.storeMapLayer.markerType === MarkerType.PROJECT_COMPLETION;
-    return this.storeService.getStoresOfTypeInBounds(bounds, this.getFilteredStoreTypes(), includeProjectIds)
-      .pipe(tap(list => this.storeMapLayer.setEntities(list)));
+    this.dbEntityMarkerService.getMarkersInBounds(bounds, this.mapService.getMap()).subscribe(() => {},
+      error1 => this.errorService.handleServerError('Failed to get DB Entities', error1, null));
+    //
+    // if (this.mapService.getZoom() > this.DATA_POINT_ZOOM) {
+    //   this.mapDataLayer.clearDataPoints();
+    //   const storeTypes = this.getFilteredStoreTypes();
+    //   this.gettingEntities = true;
+    //   this.getSitesInBounds(bounds)
+    //     .pipe(finalize(() => this.gettingEntities = false))
+    //     .pipe(mergeMap(() => {
+    //       if (storeTypes.length > 0) {
+    //         return this.getStoresInBounds(bounds);
+    //       } else {
+    //         this.storeMapLayer.setEntities([]);
+    //         return of(null);
+    //       }
+    //     }))
+    //     .subscribe(() => console.log('Retrieved Entities')
+    //       , err => {
+    //         this.ngZone.run(() => {
+    //           this.errorService.handleServerError(`Failed to retrieve entities!`, err,
+    //             () => console.log(err),
+    //             () => this.getEntities(bounds));
+    //         });
+    //       });
+    // } else if (this.mapService.getZoom() > this.MAX_DATA_ZOOM) {
+    //   this.getPointsInBounds(bounds);
+    //   this.storeMapLayer.setEntities([]);
+    //   this.siteMapLayer.setEntities([]);
+    // } else {
+    //   this.ngZone.run(() => this.snackBar.open('Zoom in for location data', null, {
+    //     duration: 1000,
+    //     verticalPosition: 'top'
+    //   }));
+    //   this.mapDataLayer.clearDataPoints();
+    //   this.storeMapLayer.setEntities([]);
+    //   this.siteMapLayer.setEntities([]);
+    // }
   }
 
   initSiteCreation(): void {

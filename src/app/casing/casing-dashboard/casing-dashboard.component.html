@@ -2,11 +2,18 @@
   <mat-sidenav mode="over" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end"
                (closedStart)="filterClosed()">
     <mat-list role="list" id="filter-side-nav">
-      <h3 mat-subheader>Store Type</h3>
+      <h3 mat-subheader>Filters</h3>
       <div class="checklist">
-        <mat-checkbox [(ngModel)]="casingDashboardService.filter.active">Active</mat-checkbox>
-        <mat-checkbox [(ngModel)]="casingDashboardService.filter.future">Future</mat-checkbox>
-        <mat-checkbox [(ngModel)]="casingDashboardService.filter.historical">Historical</mat-checkbox>
+        <mat-checkbox [(ngModel)]="dbEntityMarkerService.filter.showActive">Active</mat-checkbox>
+        <mat-checkbox [(ngModel)]="dbEntityMarkerService.filter.showFuture">Future</mat-checkbox>
+        <mat-checkbox [(ngModel)]="dbEntityMarkerService.filter.showHistorical">Historical</mat-checkbox>
+        <mat-checkbox [(ngModel)]="dbEntityMarkerService.filter.showEmptySites">Empty Sites</mat-checkbox>
+        <mat-checkbox [(ngModel)]="dbEntityMarkerService.filter.showFloat">Float Stores</mat-checkbox>
+      </div>
+      <mat-divider></mat-divider>
+      <h3 mat-subheader>Controls</h3>
+      <div class="checklist">
+        <mat-checkbox [(ngModel)]="dbEntityMarkerService.filter.cluster">Cluster Stores</mat-checkbox>
       </div>
     </mat-list>
   </mat-sidenav>
