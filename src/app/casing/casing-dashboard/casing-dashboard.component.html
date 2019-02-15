@@ -4,17 +4,23 @@
     <mat-list role="list" id="filter-side-nav">
       <h3 mat-subheader>Filters</h3>
       <div class="checklist">
-        <mat-checkbox [(ngModel)]="dbEntityMarkerService.filter.showActive">Active</mat-checkbox>
-        <mat-checkbox [(ngModel)]="dbEntityMarkerService.filter.showFuture">Future</mat-checkbox>
-        <mat-checkbox [(ngModel)]="dbEntityMarkerService.filter.showHistorical">Historical</mat-checkbox>
-        <mat-checkbox [(ngModel)]="dbEntityMarkerService.filter.showEmptySites">Empty Sites</mat-checkbox>
-        <mat-checkbox [(ngModel)]="dbEntityMarkerService.filter.showFloat">Float Stores</mat-checkbox>
+        <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.showActive">Active</mat-checkbox>
+        <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.showFuture">Future</mat-checkbox>
+        <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.showHistorical">Historical</mat-checkbox>
+        <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.showEmptySites">Empty Sites</mat-checkbox>
+        <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.showFloat">Float Stores</mat-checkbox>
       </div>
       <mat-divider></mat-divider>
       <h3 mat-subheader>Controls</h3>
       <div class="checklist">
-        <mat-checkbox [(ngModel)]="dbEntityMarkerService.filter.cluster">Cluster Stores</mat-checkbox>
+        <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.cluster">Cluster Stores</mat-checkbox>
       </div>
+      <div *ngIf="dbEntityMarkerService.controls.cluster">
+        <h3 mat-subheader>At Zoom Level:</h3>
+        <mat-slider [max]="21" [min]="0" [thumbLabel]="true"
+                    [(ngModel)]="dbEntityMarkerService.controls.clusterZoomLevel"></mat-slider>
+      </div>
+      <mat-divider></mat-divider>
     </mat-list>
   </mat-sidenav>
   <mat-sidenav-content>
@@ -182,7 +188,9 @@
   <!--<button mat-menu-item (click)="setMarkerType(markerType.LABEL)">{{markerType.LABEL.valueOf()}}</button>-->
   <button mat-menu-item (click)="setMarkerType(markerType.LOGO)">{{markerType.LOGO.valueOf()}}</button>
   <button mat-menu-item (click)="setMarkerType(markerType.VALIDATION)">{{markerType.VALIDATION.valueOf()}}</button>
-  <button mat-menu-item (click)="setMarkerType(markerType.PROJECT_COMPLETION)">{{markerType.PROJECT_COMPLETION.valueOf()}}</button>
+  <button mat-menu-item (click)="setMarkerType(markerType.PROJECT_COMPLETION)">
+    {{markerType.PROJECT_COMPLETION.valueOf()}}
+  </button>
 </mat-menu>
 
 <mat-menu #drawingToolsMenu="matMenu" [overlapTrigger]="false">

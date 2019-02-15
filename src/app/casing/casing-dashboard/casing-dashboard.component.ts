@@ -39,6 +39,7 @@ import { EntitySelectionService } from '../../core/services/entity-selection.ser
 import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
 import { SiteMergeDialogComponent } from '../site-merge-dialog/site-merge-dialog.component';
 import { DbEntityMarkerService } from '../../core/services/db-entity-marker.service';
+import { Pageable } from '../../models/pageable';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -60,6 +61,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   private readonly MAX_DATA_ZOOM = 6;
   private readonly DATA_POINT_ZOOM = 9;
+
+  selection: {storeId: number, siteId: number};
 
   selectedStore: Store | SimplifiedStore;
   selectedSite: Site | SimplifiedSite;
@@ -136,36 +139,47 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce())
       .subscribe((bounds: { east, north, south, west }) => {
+        console.log('Zoom Level: ' + this.mapService.getZoom());
         this.getEntities(bounds);
         // if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
         //   this.getEntities(bounds);
         // }
       }));
+    this.subscriptions.push(this.dbEntityMarkerService.clickListener$.subscribe(selection => {
+      console.log(selection);
+      // if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
+      //   this.selection = selection;
+      //   this.selectedCardState = CardState.SELECTED_STORE;
+      // } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
+      //   this.onDuplicateSiteSelected(selection.siteId);
+      // }
+    }));
+
     this.subscriptions.push(this.mapService.mapClick$.subscribe(() => {
       this.ngZone.run(() => this.selectedCardState = CardState.HIDDEN);
     }));
-    this.subscriptions.push(this.storeMapLayer.selection$.subscribe((store: Store | SimplifiedStore) => {
-      this.ngZone.run(() => {
-        if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
-          this.siteMapLayer.clearSelection();
-          this.selectedStore = store;
-          this.selectedCardState = CardState.SELECTED_STORE;
-        } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
-          this.onDuplicateSiteSelected(store.site.id);
-        }
-      });
-    }));
-    this.subscriptions.push(this.siteMapLayer.selection$.subscribe((site: Site | SimplifiedSite) => {
-      this.ngZone.run(() => {
-        if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
-          this.storeMapLayer.clearSelection();
-          this.selectedSite = site;
-          this.selectedCardState = CardState.SELECTED_SITE;
-        } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
-          this.onDuplicateSiteSelected(site.id);
-        }
-      });
-    }));
+    // this.subscriptions.push(this.storeMapLayer.selection$.subscribe((store: Store | SimplifiedStore) => {
+    //   this.ngZone.run(() => {
+    //     if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
+    //       this.siteMapLayer.clearSelection();
+    //       this.selectedStore = store;
+    //       this.selectedCardState = CardState.SELECTED_STORE;
+    //     } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
+    //       this.onDuplicateSiteSelected(store.site.id);
+    //     }
+    //   });
+    // }));
+    // this.subscriptions.push(this.siteMapLayer.selection$.subscribe((site: Site | SimplifiedSite) => {
+    //   this.ngZone.run(() => {
+    //     if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
+    //       this.storeMapLayer.clearSelection();
+    //       this.selectedSite = site;
+    //       this.selectedCardState = CardState.SELECTED_SITE;
+    //     } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
+    //       this.onDuplicateSiteSelected(site.id);
+    //     }
+    //   });
+    // }));
     this.subscriptions.push(this.casingDashboardService.projectChanged$.subscribe(() => {
       this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
       this.projectBoundaryService.hideProjectBoundaries();
@@ -194,9 +208,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   getEntities(bounds: { east, north, south, west }): void {
-    this.dbEntityMarkerService.getMarkersInBounds(bounds, this.mapService.getMap()).subscribe(() => {},
-      error1 => this.errorService.handleServerError('Failed to get DB Entities', error1, null));
-    //
+    this.dbEntityMarkerService.getMarkersInBounds(bounds, this.mapService.getMap())
+      .subscribe(() => console.log('Finished getting sites'),
+        error1 => this.errorService.handleServerError('Failed to get DB Entities', error1, null));
+
+
     // if (this.mapService.getZoom() > this.DATA_POINT_ZOOM) {
     //   this.mapDataLayer.clearDataPoints();
     //   const storeTypes = this.getFilteredStoreTypes();
@@ -607,7 +623,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   filterClosed() {
     this.casingDashboardService.saveFilters().subscribe(() => console.log('Saved Filters'));
-    this.getEntities(this.mapService.getBounds());
+    this.dbEntityMarkerService.refreshMarkers(this.mapService.getMap());
+    // this.getEntities(this.mapService.getBounds());
   }
 
   saveProjectBoundary() {

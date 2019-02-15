@@ -8,7 +8,7 @@ export class SiteMarker implements Entity {
   longitude: number;
   assigneeId: number;
   isDuplicate: boolean;
-  isBackfilledNonGrocery: boolean;
+  backfilledNonGrocery: boolean;
   stores: StoreMarker[];
 
   constructor(obj) {

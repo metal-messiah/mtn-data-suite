@@ -4,7 +4,7 @@ export class StoreMarker implements Entity {
 
   id: number;
   storeName: string;
-  float: boolean;
+  floating: boolean;
   storeType: string;
   validatedDate: Date;
   logoFileName: string;
