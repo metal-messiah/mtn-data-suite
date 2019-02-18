@@ -39,7 +39,6 @@ import { EntitySelectionService } from '../../core/services/entity-selection.ser
 import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
 import { SiteMergeDialogComponent } from '../site-merge-dialog/site-merge-dialog.component';
 import { DbEntityMarkerService } from '../../core/services/db-entity-marker.service';
-import { Pageable } from '../../models/pageable';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -47,8 +46,7 @@ export enum CasingDashboardMode {
 
 export enum CardState {
   HIDDEN,
-  SELECTED_STORE,
-  SELECTED_SITE,
+  SELECTION,
   GOOGLE
 }
 
@@ -64,8 +62,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   selection: {storeId: number, siteId: number};
 
-  selectedStore: Store | SimplifiedStore;
-  selectedSite: Site | SimplifiedSite;
   selectedGooglePlace: GooglePlace;
 
   // Layers
@@ -139,20 +135,18 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce())
       .subscribe((bounds: { east, north, south, west }) => {
-        console.log('Zoom Level: ' + this.mapService.getZoom());
         this.getEntities(bounds);
         // if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
         //   this.getEntities(bounds);
         // }
       }));
     this.subscriptions.push(this.dbEntityMarkerService.clickListener$.subscribe(selection => {
-      console.log(selection);
-      // if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
-      //   this.selection = selection;
-      //   this.selectedCardState = CardState.SELECTED_STORE;
-      // } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
-      //   this.onDuplicateSiteSelected(selection.siteId);
-      // }
+      if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
+        this.selection = selection;
+        this.selectedCardState = CardState.SELECTION;
+      } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
+        this.onDuplicateSiteSelected(selection.siteId);
+      }
     }));
 
     this.subscriptions.push(this.mapService.mapClick$.subscribe(() => {

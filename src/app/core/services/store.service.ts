@@ -114,23 +114,16 @@ export class StoreService extends CrudService<Store> {
     return this.http.delete<Store>(url, {headers: this.rest.getHeaders()}).pipe(this.convertStore);
   }
 
-  updateFloating(storeId: number, isFloat: boolean) {
-    const url = this.rest.getHost() + this.endpoint + '/' + storeId;
-    const params = new HttpParams().set('is-float', String(isFloat));
-    return this.http.put<SimplifiedStore>(url, null, {headers: this.rest.getHeaders(), params})
-      .pipe(map(simpleStore => new SimplifiedStore(simpleStore)));
-  }
-
-  validateStore(storeId: number): Observable<SimplifiedStore> {
+  validateStore(storeId: number): Observable<Store> {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/validate`;
-    return this.http.put<SimplifiedStore>(url, null, {headers: this.rest.getHeaders()})
-      .pipe(map(store => new SimplifiedStore(store)));
+    return this.http.put<Store>(url, null, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new Store(store)));
   }
 
-  invalidateStore(storeId: number): Observable<SimplifiedStore> {
+  invalidateStore(storeId: number): Observable<Store> {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/invalidate`;
-    return this.http.put<SimplifiedStore>(url, null, {headers: this.rest.getHeaders()})
-      .pipe(map(store => new SimplifiedStore(store)));
+    return this.http.put<Store>(url, null, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new Store(store)));
   }
 
   getLabel(store: Store | SimplifiedStore) {

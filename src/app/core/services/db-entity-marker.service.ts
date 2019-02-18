@@ -35,7 +35,6 @@ export class DbEntityMarkerService {
   latestCallTime: Date;
 
   sites: SiteMarker[] = [];
-  selectedMarkers = new Set<google.maps.Marker>();
   selectedSiteIds = new Set<number>();
   selectedStoreIds = new Set<number>();
 
@@ -92,7 +91,7 @@ export class DbEntityMarkerService {
     this.mapMarkers = this.mapMarkers.concat(markers);
 
     // Add the markers to the map or to the clusterer
-    if (gmap.getZoom() >= this.controls.clusterZoomLevel || !this.controls.cluster) {
+    if (gmap.getZoom() > this.controls.clusterZoomLevel || !this.controls.cluster) {
       markers.forEach(marker => marker.setMap(gmap));
     } else {
       this.clusterer.addMarkers(markers);
@@ -163,7 +162,7 @@ export class DbEntityMarkerService {
       // HISTORICAL
       if (this.controls.showHistorical) {
         if (historical.length > 1) {
-          markers.push(this.getHistoricalCountMarker(historical.length, site, gmap))
+          markers.push(this.getHistoricalCountMarker(historical.length, site))
         } else if (historical.length === 1) {
           if (this.controls.showFloat || !historical[0].floating) {
             markers.push(this.getStoreMarker(historical[0], site, gmap))
@@ -316,7 +315,7 @@ export class DbEntityMarkerService {
     }
   }
 
-  private getHistoricalCountMarker(count: number, site: SiteMarker, gmap: google.maps.Map) {
+  private getHistoricalCountMarker(count: number, site: SiteMarker) {
     const marker = new google.maps.Marker({
       position: {lat: site.latitude, lng: site.longitude},
       label: {

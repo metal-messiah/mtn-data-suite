@@ -16,9 +16,10 @@
         <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.cluster">Cluster Stores</mat-checkbox>
       </div>
       <div *ngIf="dbEntityMarkerService.controls.cluster">
-        <h3 mat-subheader>At Zoom Level:</h3>
+        <h3 mat-subheader>At Zoom Level: {{dbEntityMarkerService.controls.clusterZoomLevel}}</h3>
         <mat-slider [max]="21" [min]="0" [thumbLabel]="true"
                     [(ngModel)]="dbEntityMarkerService.controls.clusterZoomLevel"></mat-slider>
+        <h3 mat-subheader>(Current Zoom: {{mapService.getZoom()}})</h3>
       </div>
       <mat-divider></mat-divider>
     </mat-list>
@@ -46,18 +47,14 @@
             </mat-card-actions>
           </mat-card>
         </div>
-        <mds-store-info-card class="infoCard" [store]="selectedStore"
-                             [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
-                             (onUpdate)="onStoreUpdated($event)"
-                             (initiateMove)="moveStore($event)"
-                             (initiateDuplicateSiteSelection)="initiateDuplicateSiteSelection($event.id)"
-                             *ngIf="selectedCardState === cardState.SELECTED_STORE && selectedStore != null"></mds-store-info-card>
-        <mds-site-info-card class="infoCard" [site]="selectedSite"
-                            [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
-                            (onUpdate)="onSiteUpdated($event)"
-                            (initiateMove)="moveSite($event)"
-                            (initiateDuplicateSiteSelection)="initiateDuplicateSiteSelection($event.id)"
-                            *ngIf="selectedCardState === cardState.SELECTED_SITE && selectedSite != null"></mds-site-info-card>
+        <mds-db-location-info-card class="infoCard"
+                                   *ngIf="selection && selectedCardState === cardState.SELECTION"
+                                   [selection]="selection"
+                                   [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
+                                   (onSiteUpdated$)="onSiteUpdated($event)"
+                                   (onStoreUpdated$)="onStoreUpdated($event)"
+                                   (initiateDuplicateSiteSelection)="initiateDuplicateSiteSelection($event.id)"
+                                   (initiateMove)="moveStore($event)"></mds-db-location-info-card>
       </div>
       <div class="row footer">
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" color="primary"
