@@ -29,6 +29,9 @@ import { QuadDialogComponent } from './quad-dialog/quad-dialog.component';
 import { NewStoreStatusComponent } from './new-store-status/new-store-status.component';
 import { NewStoreVolumeComponent } from './new-store-volume/new-store-volume.component';
 import { DownloadDialogComponent } from './download-dialog/download-dialog.component';
+import { SiteMergeDialogComponent } from './site-merge-dialog/site-merge-dialog.component';
+import { StoreSelectionDialogComponent } from './store-merge/store-selection-dialog/store-selection-dialog.component';
+import { StoreAttrSelectionDialogComponent } from './store-merge/store-attr-selection-dialog/store-attr-selection-dialog.component';
 import { SelectBannerComponent } from './select-banner/select-banner.component';
 
 @NgModule({
@@ -64,6 +67,9 @@ import { SelectBannerComponent } from './select-banner/select-banner.component';
     TenantListDialogComponent,
     NewStoreVolumeComponent,
     DownloadDialogComponent,
+    SiteMergeDialogComponent,
+    StoreSelectionDialogComponent,
+    StoreAttrSelectionDialogComponent,
     SelectBannerComponent
   ],
   entryComponents: [
@@ -81,6 +87,9 @@ import { SelectBannerComponent } from './select-banner/select-banner.component';
     NewStoreStatusComponent,
     NewStoreVolumeComponent,
     DownloadDialogComponent,
+    SiteMergeDialogComponent,
+    StoreSelectionDialogComponent,
+    StoreAttrSelectionDialogComponent,
     SelectBannerComponent
   ],
   providers: [CasingDashboardService]

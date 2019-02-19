@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Store } from '../../models/full/store';
 import { StoreService } from '../../core/services/store.service';
-import { MatDialog, MatSnackBar, MatSnackBarConfig } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { ErrorService } from '../../core/services/error.service';
 import { StoreStatusesDialogComponent } from '../store-statuses-dialog/store-statuses-dialog.component';
 import { StoreVolumeDialogComponent } from '../store-volume-dialog/store-volume-dialog.component';
@@ -20,7 +20,8 @@ export class StoreSummaryCardComponent implements OnInit {
               private snackBar: MatSnackBar,
               private errorService: ErrorService,
               private dialog: MatDialog
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
   }
@@ -34,7 +35,8 @@ export class StoreSummaryCardComponent implements OnInit {
     }, err => {
       this.store.storeType = prevStoreType;
       this.errorService.handleServerError('Failed to update store type', err,
-        () => {},
+        () => {
+        },
         () => this.updateStoreType(storeType));
     });
   }
@@ -68,9 +70,9 @@ export class StoreSummaryCardComponent implements OnInit {
     }, err => {
       this.store.floating = prevFloating;
       this.errorService.handleServerError('Failed to update store', err,
-        () => {},
+        () => {
+        },
         () => this.setFloating(floating));
     });
   }
-
 }

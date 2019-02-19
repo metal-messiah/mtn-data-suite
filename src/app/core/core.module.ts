@@ -30,6 +30,7 @@ import { StoreSourceService } from './services/store-source.service';
 import { EntitySelectionService } from './services/entity-selection.service';
 import { CompanyService } from './services/company.service';
 import { ExtractionService } from './services/extraction.service';
+<<<<<<< HEAD
 import { StorageService } from './services/storage.service';
 
 @NgModule({
@@ -68,6 +69,46 @@ import { StorageService } from './services/storage.service';
 		EntitySelectionService,
 		StorageService
 	]
+=======
+import { SourceUpdatableService } from './services/source-updatable.service';
+
+@NgModule({
+  imports: [CommonModule],
+  declarations: [],
+  providers: [
+    AuthService,
+    AuthGuard,
+    BannerService,
+    CompanyService,
+    DetailFormService,
+    EntityListService,
+    ErrorService,
+    ExtractionService,
+    GeocoderService,
+    GroupService,
+    MapService,
+    NavigatorService,
+    PermissionService,
+    ProjectService,
+    RestService,
+    RoleService,
+    RoutingStateService,
+    ShoppingCenterAccessService,
+    ShoppingCenterCasingService,
+    ShoppingCenterService,
+    ShoppingCenterSurveyService,
+    ShoppingCenterTenantService,
+    SiteService,
+    StoreSourceService,
+    StoreCasingService,
+    StoreService,
+    StoreSurveyService,
+    StoreVolumeService,
+    UserProfileService,
+    EntitySelectionService,
+    SourceUpdatableService
+  ]
+>>>>>>> master
 })
 export class CoreModule {
 	constructor(

@@ -10,6 +10,8 @@ export class StoreSource extends AuditingEntity {
   sourceStoreName: string;
   sourceCreatedDate: Date;
   sourceEditedDate: Date;
+  sourceDeletedDate: Date;
+
   store: SimplifiedStore;
 
   // Will be updated by web service if param validated = true

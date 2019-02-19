@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DbSupportOutliersComponent } from './db-support-outliers.component';
+import { SiteMergeDialogComponent } from './site-merge-dialog.component';
 
-describe('DbSupportOutliersComponent', () => {
-  let component: DbSupportOutliersComponent;
-  let fixture: ComponentFixture<DbSupportOutliersComponent>;
+describe('SiteMergeDialogComponent', () => {
+  let component: SiteMergeDialogComponent;
+  let fixture: ComponentFixture<SiteMergeDialogComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DbSupportOutliersComponent ]
+      declarations: [ SiteMergeDialogComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DbSupportOutliersComponent);
+    fixture = TestBed.createComponent(SiteMergeDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

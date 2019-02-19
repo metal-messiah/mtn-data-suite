@@ -76,4 +76,6 @@ export class StoreInfoCardComponent extends SiteInfoCardComponent implements OnI
         () => console.log('cancelled'),
         () => this.validateStore()))
   }
+
+
 }

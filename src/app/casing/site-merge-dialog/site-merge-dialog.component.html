@@ -1,0 +1,41 @@
+<div mat-dialog-title>
+  <span>Select values to keep</span>
+  <br>
+  <span class="subtitle">Single option if unanimous</span>
+</div>
+<div mat-dialog-content *ngIf="mergedSite">
+
+  <div *ngFor="let attr of scAttributes">
+    <div class="attr-title">{{attr.displayName}}</div>
+    <mat-radio-group [(ngModel)]="mergedSite.shoppingCenter[attr.attrName]">
+      <mat-radio-button [value]="site1.shoppingCenter[attr.attrName]">
+        {{site1.shoppingCenter[attr.attrName] ? site1.shoppingCenter[attr.attrName] : '[ Empty ]'}}
+      </mat-radio-button>
+      <!-- Only show second option if not unanimous -->
+      <mat-radio-button [value]="site2.shoppingCenter[attr.attrName]" *ngIf="!attr.unanimous">
+        {{site2.shoppingCenter[attr.attrName] ? site2.shoppingCenter[attr.attrName] : '[ Empty ]'}}
+      </mat-radio-button>
+    </mat-radio-group>
+  </div>
+
+  <div *ngFor="let attr of siteAttributes">
+    <div class="attr-title">{{attr.displayName}}</div>
+    <mat-radio-group [(ngModel)]="mergedSite[attr.attrName]">
+      <mat-radio-button [value]="site1[attr.attrName]">
+        {{site1[attr.attrName] ? site1[attr.attrName] : '[ Empty ]'}}
+      </mat-radio-button>
+      <!-- Only show second option if not unanimous -->
+      <mat-radio-button [value]="site2[attr.attrName]" *ngIf="!attr.unanimous">
+        {{site2[attr.attrName] ? site2[attr.attrName] : '[ Empty ]'}}
+      </mat-radio-button>
+    </mat-radio-group>
+  </div>
+
+</div>
+<div mat-dialog-actions class="flex-space-between">
+  <button mat-raised-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="accent" [disabled]="merging" (click)="mergeSites()">
+    <span *ngIf="!merging">Merge</span>
+    <i *ngIf="merging" class="fas fa-spinner fa-pulse"></i>
+  </button>
+</div>

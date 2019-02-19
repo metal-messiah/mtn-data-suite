@@ -1,0 +1,34 @@
+<div mat-dialog-title>
+  <span>Select values to keep</span>
+  <br>
+  <span class="subtitle">Single option if unanimous</span>
+</div>
+<div mat-dialog-content>
+
+  <div *ngFor="let attr of storeAttributes">
+    <div class="attr-title">{{attr.displayName}}</div>
+    <mat-radio-group [(ngModel)]="mergedStore[attr.attrName]">
+      <ng-container *ngFor="let store of data.selectedStores; index as i">
+        <mat-radio-button *ngIf="i === 0 || (i > 0 && !attr.unanimous)" [value]="store[attr.attrName]">
+          {{store[attr.attrName] ? store[attr.attrName] : '[ Empty ]'}}
+        </mat-radio-button>
+      </ng-container>
+    </mat-radio-group>
+  </div>
+
+  <div class="attr-title">Banner</div>
+  <mat-radio-group [(ngModel)]="mergedStore.banner">
+    <mat-radio-button *ngFor="let store of data.selectedStores" [value]="store.banner">
+      {{store.banner ? store.banner.bannerName : '[ No Banner ]'}}
+    </mat-radio-button>
+  </mat-radio-group>
+
+</div>
+
+<div mat-dialog-actions class="flex-space-between">
+  <button mat-raised-button mat-dialog-close>Close</button>
+  <button mat-raised-button color="accent" [disabled]="merging" (click)="mergeStores()">
+    <span *ngIf="!merging">Merge</span>
+    <i *ngIf="merging" class="fas fa-spinner fa-pulse"></i>
+  </button>
+</div>
