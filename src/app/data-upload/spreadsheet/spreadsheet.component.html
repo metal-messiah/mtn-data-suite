@@ -101,18 +101,12 @@
 
       <mat-step>
         <ng-template matStepLabel>Match/Edit Data</ng-template>
-<<<<<<< HEAD
         <mds-spreadsheet-data-form *ngIf="logic && openForm" [logic]="logic" [dbRecord]="dbRecord"
                           [currentRecord]="currentRecord"
                           [updatedGeom]="updatedGeom"
                           (cancelEvent)="cancelStep2()"
                           (completedEvent)="nextRecord()">
         </mds-spreadsheet-data-form>
-=======
-        <mds-pg-data-form *ngIf="sourceUpdatable" [sourceUpdatable]="sourceUpdatable" [pgFeature]="pgRecord" [storeSource]="currentStoreSource"
-                          (cancelEvent)="cancelStep2()" (completedEvent)="nextRecord()">
-        </mds-pg-data-form>
->>>>>>> master
       </mat-step>
     </mat-horizontal-stepper>
   </div>

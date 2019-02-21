@@ -21,6 +21,7 @@ import { SiteInfoCardComponent } from './site-info-card/site-info-card.component
 import { FileInputComponent } from './file-input/file-input.component';
 import { TabSelectDialogComponent } from './file-input/tab-select-dialog/tab-select-dialog.component';
 import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
+import { FuzzySearchComponent } from './fuzzy-search/fuzzy-search.component';
 
 @NgModule({
 	imports: [ CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule ],
@@ -40,7 +41,8 @@ import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
 		SiteInfoCardComponent,
 		FileInputComponent,
 		TabSelectDialogComponent,
-		ThousandsCurrencyPipe
+		ThousandsCurrencyPipe,
+		FuzzySearchComponent
 	],
 	providers: [ BreakpointObserver, DatePipe, MediaMatcher ],
 	entryComponents: [
@@ -68,7 +70,8 @@ import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
 		StoreInfoCardComponent,
 		SiteInfoCardComponent,
 		FileInputComponent,
-		ThousandsCurrencyPipe
+		ThousandsCurrencyPipe,
+		FuzzySearchComponent
 	]
 })
 export class SharedModule {}

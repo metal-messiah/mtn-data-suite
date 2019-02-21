@@ -2,32 +2,30 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { RestService } from '../../core/services/rest.service';
-import { PlannedGroceryUpdatable } from '../../models/planned-grocery-updatable';
+import { SourceUpdatable } from '../../models/source-updatable';
 import { map, tap } from 'rxjs/operators';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 
 @Injectable()
 export class ChainXyService {
-	private endpoint = '/api/planned-grocery';
+	private endpoint = '/api/chainxy';
+	private;
 
-	selectedChain = null;
+	selectedBannerSource = null;
 
 	constructor(private http: HttpClient, private rest: RestService) {}
 
-	setSelectedChain(chain) {
-		this.selectedChain = chain;
-		console.log(this.selectedChain);
+	setSelectedBannerSource(chain) {
+		this.selectedBannerSource = chain;
+		console.log(this.selectedBannerSource);
 	}
 
-	getSelectedChain() {
-		console.log(this.selectedChain);
-		return this.selectedChain;
+	getSelectedBannerSource() {
+		console.log(this.selectedBannerSource);
+		return this.selectedBannerSource;
 	}
 
-	updatePGUpdatableFromPGRecord(
-		updatable: PlannedGroceryUpdatable,
-		pgFeature: { attributes; geometry }
-	): PlannedGroceryUpdatable {
+	updatePGUpdatableFromPGRecord(updatable: SourceUpdatable, pgFeature: { attributes; geometry }): SourceUpdatable {
 		const attr = pgFeature.attributes;
 		updatable.address = attr.DESCLOCATION;
 		updatable.city = attr.CITY;
@@ -42,8 +40,8 @@ export class ChainXyService {
 		return updatable;
 	}
 
-	getFeatureByObjectId(objectId: string): Observable<any> {
-		const url = this.rest.getHost() + this.endpoint + '/' + objectId;
+	getFeatureByObjectId(objectId: number): Observable<any> {
+		const url = this.rest.getHost() + this.endpoint + '/store-source-record/' + objectId;
 		return this.http.get<any>(url, { headers: this.rest.getHeaders() });
 	}
 
@@ -52,8 +50,8 @@ export class ChainXyService {
 		const url = this.rest.getHost() + this.endpoint + '/updatable';
 		const params = new HttpParams().set('store-id', String(storeId));
 		return this.http
-			.get<PlannedGroceryUpdatable>(url, { headers: this.rest.getHeaders(), params })
-			.pipe(map((record) => new PlannedGroceryUpdatable(record)));
+			.get<SourceUpdatable>(url, { headers: this.rest.getHeaders(), params })
+			.pipe(map((record) => new SourceUpdatable(record)));
 	}
 
 	// If Creating a new store for an existing site
@@ -61,8 +59,8 @@ export class ChainXyService {
 		const url = this.rest.getHost() + this.endpoint + '/updatable';
 		const params = new HttpParams().set('site-id', String(siteId));
 		return this.http
-			.get<PlannedGroceryUpdatable>(url, { headers: this.rest.getHeaders(), params })
-			.pipe(map((record) => new PlannedGroceryUpdatable(record)));
+			.get<SourceUpdatable>(url, { headers: this.rest.getHeaders(), params })
+			.pipe(map((record) => new SourceUpdatable(record)));
 	}
 
 	// If Creating a new site + store in an existing shopping center
@@ -70,11 +68,11 @@ export class ChainXyService {
 		const url = this.rest.getHost() + this.endpoint + '/updatable';
 		const params = new HttpParams().set('shopping-center-id', String(shoppingCenterId));
 		return this.http
-			.get<PlannedGroceryUpdatable>(url, { headers: this.rest.getHeaders(), params })
-			.pipe(map((record) => new PlannedGroceryUpdatable(record)));
+			.get<SourceUpdatable>(url, { headers: this.rest.getHeaders(), params })
+			.pipe(map((record) => new SourceUpdatable(record)));
 	}
 
-	submitUpdate(update: PlannedGroceryUpdatable) {
+	submitUpdate(update: SourceUpdatable) {
 		const url = this.rest.getHost() + this.endpoint + '/updatable';
 		return this.http
 			.post<SimplifiedStore>(url, update, { headers: this.rest.getHeaders() })

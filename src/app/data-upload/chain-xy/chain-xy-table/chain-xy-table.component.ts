@@ -8,46 +8,14 @@ import { SelectBannerComponent } from 'app/casing/select-banner/select-banner.co
 import { BannerSource } from 'app/models/full/banner-source';
 import { BannerService } from 'app/core/services/banner.service';
 import { Banner } from 'app/models/full/banner';
+import { BannerSourceService } from 'app/core/services/banner-source.service';
+import { Pageable } from 'app/models/pageable';
+import { SimplifiedBannerSource } from 'app/models/simplified/simplified-banner-source';
 
 export enum statuses {
 	COMPLETE,
 	ALTERED,
 	INCOMPLETE
-}
-
-class DummyData {
-	data: BannerSource[] = [];
-	constructor() {
-		for (let i = 0; i < 25; i++) {
-			const options = {
-				id: i,
-				sourceName: `ChainXY`,
-				sourceNativeId: `${i}`,
-				sourceUrl: '',
-				sourceBannerName: `chain${i}`,
-				sourceCreatedDate: new Date(),
-				sourceEditedDate: new Date(),
-				store: null,
-
-				banner: null,
-
-				validatedBy: null,
-				validatedDate: this.getRandomDate(true),
-
-				updatedDate: this.getRandomDate(false)
-			};
-			this.data.push(new BannerSource(options));
-		}
-	}
-
-	getRandomDate(canBeNull) {
-		if (canBeNull) {
-			if (Math.random() > 0.5) {
-				return null;
-			}
-		}
-		return new Date(Number(new Date()) - Math.floor(Math.random() * 10000000000) - 10000000000);
-	}
 }
 
 @Component({
@@ -56,10 +24,10 @@ class DummyData {
 	styleUrls: [ './chain-xy-table.component.css' ]
 })
 export class ChainXyTableComponent implements OnInit {
-	dummyData: BannerSource[];
+	bannerSources: SimplifiedBannerSource[];
 	sortedData;
 
-	selectedChain: StoreSource;
+	selectedBannerSource: any;
 
 	statuses;
 
@@ -67,20 +35,40 @@ export class ChainXyTableComponent implements OnInit {
 
 	selectingBanner: number = null;
 
+	fuzzyKeys = [ 'sourceBannerName' ];
+
+	bannerImages = {};
+
 	@ViewChild('sidenav') sidenav: MatSidenav;
 
 	constructor(
 		private router: Router,
 		private chainXyService: ChainXyService,
 		private dialog: MatDialog,
-		private bannerService: BannerService
+		private bannerService: BannerService,
+		private bannerSourceService: BannerSourceService
 	) {
-		this.dummyData = new DummyData().data;
-
-		this.assignStatuses();
+		this.bannerSourceService
+			.getAllByQuery(`source_name = 'ChainXY`, null, 1000)
+			.subscribe((resp: Pageable<any>) => {
+				this.bannerSources = resp.content;
+				this.setDefaultSortedData();
+			});
 	}
 
 	ngOnInit() {}
+
+	setDefaultSortedData() {
+		this.sortedData = Object.assign([], this.bannerSources);
+	}
+
+	handleFuzzySearch(results) {
+		if (results.length) {
+			this.sortedData = Object.assign([], results);
+		} else {
+			this.setDefaultSortedData();
+		}
+	}
 
 	bannerSourceIsSelectingBanner(bannerSource) {
 		return bannerSource.id === this.selectingBanner;
@@ -90,10 +78,11 @@ export class ChainXyTableComponent implements OnInit {
 		return bs.banner !== null;
 	}
 
-	selectBanner(bannerSource) {
+	selectBanner(bannerSource: SimplifiedBannerSource) {
 		this.selectingBanner = bannerSource.id;
 		const dialog = this.dialog.open(SelectBannerComponent, { maxWidth: '90%' });
 		dialog.afterClosed().subscribe((result) => {
+			this.selectingBanner = null;
 			if (result && result.bannerName) {
 				this.updateBanner(result.id, bannerSource);
 			} else if (result === 'remove') {
@@ -104,15 +93,29 @@ export class ChainXyTableComponent implements OnInit {
 		});
 	}
 
-	updateBanner(bannerId: number, bannerSource: BannerSource) {
+	updateBanner(bannerId: number, bannerSource: SimplifiedBannerSource) {
 		this.saving = true;
 		this.bannerService.getOneById(bannerId).subscribe((banner: Banner) => {
 			// update the banner on the bannerSourceService
 			// temporarily just updating the bannerSource obj
-			this.selectingBanner = null;
 
-			console.log(bannerId, bannerSource);
-			bannerSource.banner = banner;
+			// console.log(banner);
+			const { bannerName, id, logoFileName } = banner;
+
+			this.bannerSourceService.getOneById(bannerSource.id).subscribe((fullBannerSource: BannerSource) => {
+				bannerSource.banner = {
+					bannerName,
+					id,
+					logoFileName
+				};
+				fullBannerSource.banner = bannerSource.banner;
+				this.bannerSourceService.update(fullBannerSource).subscribe(
+					(resp) => {
+						console.log('updated ', resp);
+					},
+					(err) => console.error(err)
+				);
+			});
 		});
 	}
 
@@ -121,33 +124,52 @@ export class ChainXyTableComponent implements OnInit {
 		// remove the banner on the bannerSourceService
 	}
 
+	fileExists(urlToFile, id, strictCheck) {
+		// we only want to strict check (call to the remote resource) as few times as possible,
+		// so store the responses statefully so that re - renders wont retrigger
+		if (strictCheck) {
+			const splitFile = urlToFile.split('.');
+			if (splitFile[splitFile.length - 2].endsWith('null')) {
+				return false;
+			}
+			const xhr = new XMLHttpRequest();
+			xhr.open('HEAD', urlToFile, false);
+			xhr.send();
+
+			if (xhr.status === 404) {
+				this.bannerImages[id].valid = false;
+
+				return false;
+			} else {
+				this.bannerImages[id].valid = true;
+				return true;
+			}
+		} else {
+			if (this.bannerImages[id]) {
+				if (typeof this.bannerImages[id].valid !== 'undefined') {
+					return this.bannerImages[id].valid;
+				}
+			}
+
+			return this.fileExists(urlToFile, id, true);
+		}
+	}
+
 	getBannerImageSrc(banner) {
-		return this.bannerService.getBannerImageSrc(banner);
+		const imgSource = this.bannerService.getBannerImageSrc(banner);
+		if (!this.bannerImages[banner.id]) {
+			this.bannerImages[banner.id] = {};
+		}
+		this.bannerImages[banner.id].url = imgSource;
+		return imgSource;
 	}
 
-	assignStatuses() {
-		this.sortedData = this.dummyData.map((d) => {
-			const output: any = Object.assign({}, d);
-			output.status = statuses.INCOMPLETE;
-			if (d.validatedDate > d.updatedDate) {
-				output.status = statuses.COMPLETE;
-			}
-			if (d.updatedDate > d.validatedDate) {
-				output.status = statuses.ALTERED;
-			}
-			if (!d.validatedDate) {
-				output.status = statuses.INCOMPLETE;
-			}
-			return output;
-		});
-	}
-
-	getSelectedChainVal(key) {
-		const val = this.selectedChain[key];
+	getSelectedBannerSourceVal(key) {
+		const val = this.selectedBannerSource[key];
 		let output;
 		switch (key) {
 			case 'banner':
-				output = `${val.bannerName} (${val.stores.length.toLocaleString()} Stores)`;
+				output = `${val.bannerName} (${this.selectedBannerSource.storeSourceCount} Stores)`;
 				break;
 			case 'updatedDate':
 			case 'sourceCreatedDate':
@@ -155,16 +177,23 @@ export class ChainXyTableComponent implements OnInit {
 			case 'validatedDate':
 				output = new Date(val).toLocaleString();
 				break;
+
+			case 'createdBy':
+			case 'updatedBy':
+			// do nothing for now
+			// output = `${val.}`
 			default:
 				output = val;
 		}
 		return output;
 	}
 
-	toggleSidenav(item: StoreSource) {
+	toggleSidenav(sbs: SimplifiedBannerSource) {
 		if (this.selectingBanner === null) {
 			this.sidenav.toggle();
-			this.selectedChain = item;
+			this.bannerSourceService.getOneById(sbs.id).subscribe((fbs: BannerSource) => {
+				this.selectedBannerSource = Object.assign({}, sbs, fbs);
+			});
 		}
 	}
 
@@ -172,16 +201,36 @@ export class ChainXyTableComponent implements OnInit {
 		return Object.keys(obj);
 	}
 
-	getStatusColor(status: statuses) {
-		if (status === 0) {
-			return 'lightgreen';
+	getStatusColor(status: string) {
+		let c = '';
+		switch (status) {
+			case statuses[0]:
+				c = 'lightgreen';
+				break;
+			case statuses[1]:
+				c = 'orange';
+				break;
+			case statuses[2]:
+				c = 'red';
+				break;
 		}
-		if (status === 1) {
-			return 'orange';
+		return c;
+	}
+
+	getStatusClass(status: string) {
+		let c = 'fas ';
+		switch (status) {
+			case statuses[0]:
+				c += 'fa-check-circle';
+				break;
+			case statuses[1]:
+				c += 'fa-exclamation-triangle';
+				break;
+			case statuses[2]:
+				c += 'fa-exclamation-circle';
+				break;
 		}
-		if (status === 2) {
-			return 'red';
-		}
+		return c;
 	}
 
 	sortData(sort: Sort) {
@@ -210,9 +259,13 @@ export class ChainXyTableComponent implements OnInit {
 		});
 	}
 
+	skipAll() {
+		this.router.navigate([ 'data-upload/chain-xy/update' ]);
+	}
+
 	updateStores() {
 		// send some data to the service here
-		this.chainXyService.setSelectedChain(this.selectedChain);
+		this.chainXyService.setSelectedBannerSource(this.selectedBannerSource);
 		this.router.navigate([ 'data-upload/chain-xy/update' ]);
 	}
 }

@@ -2,6 +2,12 @@
 	box-sizing: border-box;
 }
 
+mat-sidenav-container {
+	height: calc(100vh - 64px);
+	overflow: hidden;
+	min-height: calc(100vh - 64px);
+}
+
 .side-nav {
 	height: calc(100vh - 64px);
 	width: 500px;
@@ -23,12 +29,14 @@
 	align-items: start;
 	justify-content: center;
 	overflow-y: auto;
-	height: calc(100vh - 64px);
+	/* height: calc(100vh - 64px); */
 }
 
 .chain-select-table {
 	margin: 10px 0;
-	padding: 25px 0;
+	padding: 5%;
+	width: 100%;
+	max-width: 1000px;
 }
 
 .mat-sort-header-container {
@@ -92,5 +100,26 @@ td {
 }
 
 th > div > button {
+	margin: 0 auto;
+}
+
+.muted {
+	color: grey;
+}
+
+.muted:hover {
+	background: inherit !important;
+	cursor: default !important;
+}
+
+.skip {
+	position: absolute;
+	right: 25px;
+	top: 10px;
+}
+
+.search-bar-wrapper {
+	padding: 75px 50px 0;
+	max-width: 600px;
 	margin: 0 auto;
 }

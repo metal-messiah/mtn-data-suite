@@ -41,22 +41,19 @@
       <mat-step editable="false">
         <ng-template matStepLabel>Match Site</ng-template>
         <!-- CONTENT FOR FIRST SECTION! -->
-        <div class='flex-container' *ngIf="pgRecord">
+        <div class='flex-container' *ngIf="chainXyRecord">
           <div>
             <div class='large-text'>
-              <a *ngIf="pgRecord.attributes" href="{{pgRecord.attributes.SOURCE}}"
-                 target='_blank'>
-                {{pgRecord ? pgRecord.attributes.NAME : ''}}
-              </a>
+              
+                {{chainXyRecord.StoreName}}
+              
             </div>
-            <div class='med-text'> {{pgRecord ? pgRecord.attributes.DESCLOCATION + ", "
-              +pgRecord.attributes.CITY + ","+
-              pgRecord.attributes.STATE : ''}}
+            <div class='med-text'> {{chainXyRecord.Address + ", "
+              + chainXyRecord.City + ","+
+              chainXyRecord.State}}
             </div>
             <div class='small-text'>
-              {{pgRecord ? pgRecord.attributes ? pgRecord.attributes.SIZESF ?
-              pgRecord.attributes.SIZESF.toLocaleString()
-              + " SF" : 'N/A SF':'N/A SF':'N/A SF'}}{{getPgRecordStatus(pgRecord)}}
+              Closed: {{chainXyRecord.Closed}}
             </div>
           </div>
           <button (click)="noMatch()" mat-button class=''>Add Site
@@ -117,8 +114,8 @@
       </mat-step>
       <mat-step>
         <ng-template matStepLabel>Match/Edit Data</ng-template>
-        <mds-chain-xy-data-form *ngIf="pgUpdatable" [pgUpdatable]="pgUpdatable"
-                          [pgFeature]="pgRecord"
+        <mds-chain-xy-data-form *ngIf="sourceUpdatable" [pgUpdatable]="sourceUpdatable"
+                          [pgFeature]="chainXyRecord"
                           [storeSource]="currentStoreSource"
                           (cancelEvent)="cancelStep2()"
                           (completedEvent)="nextRecord()">

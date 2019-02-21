@@ -6,6 +6,7 @@ import Icon = google.maps.Icon;
 import Symbol = google.maps.Symbol;
 import MarkerLabel = google.maps.MarkerLabel;
 import { Mappable } from '../interfaces/mappable';
+import { ChainXy } from './chain-xy';
 
 export class ChainXyMappable implements Mappable {
 	public id: string;
@@ -25,10 +26,10 @@ export class ChainXyMappable implements Mappable {
 	};
 	private icon: object;
 
-	constructor(feature: { attributes: { OBJECTID }; geometry: { y: number; x: number } }) {
+	constructor(feature: ChainXy) {
 		this.feature = feature;
-		this.id = feature.attributes.OBJECTID;
-		this.coordinates = { lat: feature.geometry.y, lng: feature.geometry.x };
+		this.id = feature.Id;
+		this.coordinates = { lat: feature.Latitude, lng: feature.Longitude };
 		this.draggable = false;
 		this.icon = Object.assign({}, this.defaultIcon);
 	}

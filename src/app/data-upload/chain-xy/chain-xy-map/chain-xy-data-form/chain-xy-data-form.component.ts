@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import * as _ from 'lodash';
 
-import { PlannedGroceryUpdatable } from '../../../../models/planned-grocery-updatable';
+import { SourceUpdatable } from '../../../../models/source-updatable';
 import { StoreSource } from '../../../../models/full/store-source';
 import { ChainXyService } from '../../chain-xy-service.service';
 import { ErrorService } from '../../../../core/services/error.service';
@@ -18,7 +18,7 @@ import { ChainXyUpdatable } from '../../../../models/chain-xy-updatable';
 	styleUrls: [ './chain-xy-data-form.component.css' ]
 })
 export class ChainXyDataFormComponent implements OnChanges {
-	@Input() pgUpdatable: PlannedGroceryUpdatable;
+	@Input() pgUpdatable: SourceUpdatable;
 	// @Input() xyUpdatable: ChainXyUpdatable;
 	@Input() pgFeature: { attributes; geometry: { x: number; y: number } };
 	@Input() storeSource: StoreSource;
@@ -141,8 +141,8 @@ export class ChainXyDataFormComponent implements OnChanges {
 		return this.dbStatuses.find((status) => status.pgStatusId === this.pgFeature.attributes.STATUS);
 	}
 
-	private prepareSubmission(): PlannedGroceryUpdatable {
-		const submission = new PlannedGroceryUpdatable(this.form.value);
+	private prepareSubmission(): SourceUpdatable {
+		const submission = new SourceUpdatable(this.form.value);
 		if (submission.state != null) {
 			submission.state = submission.state.toUpperCase();
 		}

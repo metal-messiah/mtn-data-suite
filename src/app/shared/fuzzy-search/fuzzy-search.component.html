@@ -1,0 +1,4 @@
+<mat-form-field class="full-width">
+    <i matPrefix class="fas fa-search" [ngClass]="color" style="margin-right: 10px;"> {{count | number}} Records</i>
+  <input #search matInput [placeholder]="placeholder" (input)="searchForTerm($event.target.value)" />
+</mat-form-field>

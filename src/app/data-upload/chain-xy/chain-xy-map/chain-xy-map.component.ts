@@ -20,16 +20,18 @@ import { Coordinates } from '../../../models/coordinates';
 import { PlannedGroceryLayer } from '../../../models/planned-grocery-layer';
 import { EntityMapLayer } from '../../../models/entity-map-layer';
 import { MapDataLayer } from '../../../models/map-data-layer';
-import { PlannedGroceryUpdatable } from '../../../models/planned-grocery-updatable';
+import { SourceUpdatable } from '../../../models/source-updatable';
 import { StoreSource } from '../../../models/full/store-source';
 
 import { ChainXyService } from '../chain-xy-service.service';
 import { StoreMapLayer } from '../../../models/store-map-layer';
 import { EntitySelectionService } from '../../../core/services/entity-selection.service';
 import { ChainXyLayer } from 'app/models/chain-xy-layer.';
-import { ChainXyUpdatable } from 'app/models/chain-xy-updatable';
 import { ChainXyMappable } from 'app/models/chain-xy-mappable';
 import { Router } from '@angular/router';
+import { BannerSource } from 'app/models/full/banner-source';
+import { ChainXy } from 'app/models/chain-xy';
+import { SourceUpdatableService } from 'app/core/services/source-updatable.service';
 
 @Component({
 	selector: 'mds-chain-xy-map',
@@ -50,13 +52,13 @@ export class ChainXyMapComponent implements OnInit {
 	totalStoreSourceRecords: number;
 
 	// Planned Grocery Data
-	chainXyRecord: { attributes; geometry };
+	chainXyRecord: ChainXy;
 
 	// Database Data (Potential Matches)
 	currentDBResults: object[];
 
 	// Working record (used for data editing)
-	pgUpdatable: ChainXyUpdatable;
+	sourceUpdatable: SourceUpdatable;
 
 	bestMatch: { store: object; score: number; distanceFrom: number };
 
@@ -64,6 +66,10 @@ export class ChainXyMapComponent implements OnInit {
 	gettingEntities = false;
 	isFetching = false;
 	isRefreshing = false;
+
+	selectedBannerSource: BannerSource;
+
+	loadType: string;
 
 	// Reference Values
 	storeTypes: string[] = [ 'ACTIVE', 'FUTURE', 'HISTORICAL' ];
@@ -89,45 +95,68 @@ export class ChainXyMapComponent implements OnInit {
 		private authService: AuthService,
 		private snackBar: MatSnackBar,
 		private entitySelectionService: EntitySelectionService,
-		private router: Router
+		private router: Router,
+		private sourceUpdatableService: SourceUpdatableService
 	) {}
 
 	ngOnInit() {
-		if (this.chainXyService.getSelectedChain()) {
-			this.getPGSources();
+		this.selectedBannerSource = this.chainXyService.getSelectedBannerSource();
+		if (this.selectedBannerSource) {
+			console.log(this.selectedBannerSource);
+			this.loadType = 'BANNERSOURCE';
+			this.getPGSources(this.loadType);
 		} else {
 			console.log('no chain found!');
-			this.router.navigate([ 'data-upload/chain-xy/chains' ]);
+			const answer = confirm('No chain was found, would you like to load all unvalidated ChainXY stores?');
+			if (answer) {
+				this.loadType = 'GEOGRAPHY';
+				this.getPGSources(this.loadType);
+			} else {
+				this.router.navigate([ 'data-upload/chain-xy/chains' ]);
+			}
 		}
 	}
 
-	getPGSources() {
+	getPGSources(type) {
 		let retrievingSources = true;
-		this.sourceService
-			.getSourcesNotValidated()
-			.pipe(finalize(() => (retrievingSources = false)))
-			.subscribe((page: Pageable<StoreSource>) => {
-				this.totalStoreSourceRecords = page.totalElements;
-				this.records = page.content;
-				this.setCurrentRecord(0);
-			});
+
+		if (type === 'BANNERSOURCE') {
+			this.sourceService
+				.getSourcesByBannerSourceId(this.selectedBannerSource.id)
+				.pipe(finalize(() => (retrievingSources = false)))
+				.subscribe((page: Pageable<StoreSource>) => {
+					this.totalStoreSourceRecords = page.totalElements;
+					this.records = page.content;
+					console.log(this.records);
+					this.setCurrentRecord(0);
+				});
+		} else if (type === 'GEOGRAPHY') {
+			this.sourceService
+				.getSourcesNotValidated('ChainXY')
+				.pipe(finalize(() => (retrievingSources = false)))
+				.subscribe((page: Pageable<StoreSource>) => {
+					this.totalStoreSourceRecords = page.totalElements;
+					this.records = page.content;
+					this.setCurrentRecord(0);
+				});
+		}
 	}
 
 	cancelStep2() {
-		this.pgUpdatable = null;
+		this.sourceUpdatable = null;
 		this.stepper.reset();
 		this.stepper.previous();
-		this.setPgFeature(false);
+		this.setChainXyFeature(false);
 	}
 
-	private advance(pgUpdatable: PlannedGroceryUpdatable) {
-		this.pgUpdatable = pgUpdatable;
+	private advance(sourceUpdatable: SourceUpdatable) {
+		this.sourceUpdatable = sourceUpdatable;
 		this.stepper.next();
 	}
 
 	noMatch() {
-		this.setPgFeature(true);
-		this.advance(new PlannedGroceryUpdatable());
+		this.setChainXyFeature(true);
+		this.advance(new SourceUpdatable());
 	}
 
 	matchShoppingCenter(scId: number) {
@@ -135,9 +164,9 @@ export class ChainXyMapComponent implements OnInit {
 		this.chainXyService
 			.getUpdatableByShoppingCenterId(scId)
 			.pipe(finalize(() => (this.isFetching = false)))
-			.subscribe((pgUpdatable) => {
-				this.setPgFeature(true);
-				this.advance(pgUpdatable);
+			.subscribe((sourceUpdatable) => {
+				this.setChainXyFeature(true);
+				this.advance(sourceUpdatable);
 			});
 	}
 
@@ -146,24 +175,24 @@ export class ChainXyMapComponent implements OnInit {
 		this.chainXyService
 			.getUpdatableBySiteId(siteId)
 			.pipe(finalize(() => (this.isFetching = false)))
-			.subscribe((pgUpdatable) => this.advance(pgUpdatable));
+			.subscribe((sourceUpdatable) => this.advance(sourceUpdatable));
 	}
 
 	matchStore(storeId: number) {
 		this.isFetching = true;
-		this.chainXyService
+		this.sourceUpdatableService
 			.getUpdatableByStoreId(storeId)
 			.pipe(finalize(() => (this.isFetching = false)))
-			.subscribe((pgUpdatable) => this.advance(pgUpdatable));
+			.subscribe((sourceUpdatable) => this.advance(sourceUpdatable));
 	}
 
 	nextRecord() {
-		this.setPgFeature(false);
+		this.setChainXyFeature(false);
 		this.stepper.reset();
-		this.getPGSources();
+		this.getPGSources(this.loadType);
 	}
 
-	setPgFeature(draggable: boolean) {
+	setChainXyFeature(draggable: boolean) {
 		this.chainXyMapLayer.setChainXyFeature(this.chainXyRecord, draggable);
 	}
 
@@ -185,26 +214,31 @@ export class ChainXyMapComponent implements OnInit {
 			this.isFetching = true;
 			this.currentDBResults = [];
 
+			// this.sourceService.getOneById(this.currentStoreSource.id).subscribe((ss) => {
+			// console.log(ss);
+			console.log(this.currentStoreSource);
 			this.chainXyService
-				.getFeatureByObjectId(this.currentStoreSource.sourceNativeId)
+				.getFeatureByObjectId(this.currentStoreSource.id)
 				.pipe(finalize(() => (this.isFetching = false)))
 				.subscribe((record) => {
-					if (!record || !record['features'] || record['features'].length < 1) {
+					console.log(record);
+					if (!record) {
 						this.ngZone.run(() =>
-							this.snackBar.open(`Feature not found with id: ${this.currentStoreSource.sourceNativeId}`)
+							this.snackBar.open(`Feature not found with id: ${this.currentStoreSource.id}`)
 						);
 					} else {
-						this.chainXyRecord = record['features'][0];
+						this.chainXyRecord = record;
 						this.mapService.setCenter({
-							lat: this.chainXyRecord.geometry.y,
-							lng: this.chainXyRecord.geometry.x
+							lat: this.chainXyRecord.Latitude,
+							lng: this.chainXyRecord.Longitude
 						});
 						this.mapService.setZoom(15);
 
-						this.setPgFeature(false);
+						this.setChainXyFeature(false);
 						this.cancelStep2();
 					}
 				});
+			// });
 		}
 	}
 
@@ -212,8 +246,8 @@ export class ChainXyMapComponent implements OnInit {
 		this.chainXyMapLayer = new ChainXyLayer(this.mapService);
 		this.chainXyMapLayer.markerDragEnd$.subscribe((draggedMarker: ChainXyMappable) => {
 			const coords = this.chainXyMapLayer.getCoordinatesOfMappableMarker(draggedMarker);
-			this.pgUpdatable.longitude = coords.lng;
-			this.pgUpdatable.latitude = coords.lat;
+			this.sourceUpdatable.longitude = coords.lng;
+			this.sourceUpdatable.latitude = coords.lat;
 		});
 		this.storeMapLayer = new StoreMapLayer(
 			this.mapService,
@@ -237,6 +271,7 @@ export class ChainXyMapComponent implements OnInit {
 		if (this.mapService.getZoom() > 10) {
 			this.mapDataLayer.clearDataPoints();
 			this.gettingEntities = true;
+			console.log('get entities');
 			this.getStoresInBounds()
 				.pipe(finalize(() => (this.gettingEntities = false)))
 				.subscribe(
@@ -308,12 +343,12 @@ export class ChainXyMapComponent implements OnInit {
 				this.currentDBResults = allMatchingSites;
 
 				if (this.chainXyRecord && this.currentDBResults) {
-					const pgName = this.chainXyRecord['attributes']['NAME'];
+					const chainXyName = this.chainXyRecord.StoreName;
 
 					this.currentDBResults.forEach((site) => {
 						const crGeom = {
-							lng: this.chainXyRecord['geometry']['x'],
-							lat: this.chainXyRecord['geometry']['y']
+							lng: this.chainXyRecord.Longitude,
+							lat: this.chainXyRecord.Latitude
 						};
 
 						const dbGeom = { lng: site['longitude'], lat: site['latitude'] };
@@ -325,7 +360,7 @@ export class ChainXyMapComponent implements OnInit {
 
 						site['stores'].forEach((store) => {
 							const dbName = store['storeName'];
-							const score = WordSimilarity.levenshtein(pgName, dbName);
+							const score = WordSimilarity.levenshtein(chainXyName, dbName);
 
 							if (this.bestMatch) {
 								if (
@@ -369,7 +404,7 @@ export class ChainXyMapComponent implements OnInit {
 		this.isRefreshing = true;
 		this.chainXyService.pingRefresh().pipe(finalize(() => (this.isRefreshing = false))).subscribe(
 			() => {
-				this.getPGSources();
+				this.getPGSources(this.loadType);
 			},
 			(err) => {
 				this.errorService.handleServerError(
@@ -382,9 +417,9 @@ export class ChainXyMapComponent implements OnInit {
 		);
 	}
 
-	getPgRecordStatus(pgRecord) {
-		if (pgRecord && pgRecord.attributes.STATUS) {
-			return ' | Status: ' + this.statuses[pgRecord.attributes.STATUS]['pg'];
-		}
-	}
+	// getChainXyRecordStatus(pgRecord) {
+	// 	if (chainXyRecord && chainXyRecord.attributes.STATUS) {
+	// 		return ' | Status: ' + this.statuses[pgRecord.attributes.STATUS]['pg'];
+	// 	}
+	// }
 }

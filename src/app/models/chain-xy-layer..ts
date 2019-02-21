@@ -1,6 +1,7 @@
 import { MapPointLayer } from './map-point-layer';
 import { ChainXyMappable } from './chain-xy-mappable';
 import { MapService } from '../core/services/map.service';
+import { ChainXy } from './chain-xy';
 
 export class ChainXyLayer extends MapPointLayer<ChainXyMappable> {
 	chainXyMappable: ChainXyMappable;
@@ -9,7 +10,7 @@ export class ChainXyLayer extends MapPointLayer<ChainXyMappable> {
 		super(mapService);
 	}
 
-	setChainXyFeature(chainXyFeature: { attributes: { OBJECTID }; geometry: { y: number; x: number } }, draggable) {
+	setChainXyFeature(chainXyFeature: ChainXy, draggable) {
 		this.clearMarkers();
 		this.chainXyMappable = new ChainXyMappable(chainXyFeature);
 		this.chainXyMappable.setDraggable(draggable);
