@@ -4,10 +4,11 @@ export class StoreMarker implements Entity {
 
   id: number;
   storeName: string;
-  floating: boolean;
+  float: boolean;
   storeType: string;
   validatedDate: Date;
   logoFileName: string;
+  bannerId: number;
 
   constructor(obj) {
     Object.assign(this, obj);

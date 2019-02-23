@@ -25,10 +25,10 @@
       <div>{{siteService.getFormattedPrincipality(site)}}</div>
     </mat-card-content>
     <mat-card-actions>
-      <button mat-button [disabled]="disableActions" [mat-menu-trigger-for]="markerMoreMenu">
+      <button mat-button [disabled]="disabled" [mat-menu-trigger-for]="markerMoreMenu">
         <i class="fas fa-ellipsis-v"></i>&nbsp;More
       </button>
-      <button mat-button [disabled]="disableActions" (click)="goToSiteOverview()">
+      <button mat-button [disabled]="disabled" (click)="goToSiteOverview()">
         <i class="fas fa-pencil-alt"></i>&nbsp;Edit
       </button>
     </mat-card-actions>

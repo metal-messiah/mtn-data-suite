@@ -39,6 +39,9 @@ import { EntitySelectionService } from '../../core/services/entity-selection.ser
 import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
 import { SiteMergeDialogComponent } from '../site-merge-dialog/site-merge-dialog.component';
 import { DbEntityMarkerService } from '../../core/services/db-entity-marker.service';
+import { InfoCardInterface } from '../info-card-interface';
+import { InfoCardItem } from '../info-card-item';
+import { DbLocationInfoCardComponent } from '../../shared/db-location-info-card/db-location-info-card.component';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -53,7 +56,8 @@ export enum CardState {
 @Component({
   selector: 'mds-casing-dashboard',
   templateUrl: './casing-dashboard.component.html',
-  styleUrls: ['./casing-dashboard.component.css']
+  styleUrls: ['./casing-dashboard.component.css'],
+  providers: [DbEntityMarkerService]
 })
 export class CasingDashboardComponent implements OnInit, OnDestroy {
 
@@ -97,6 +101,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   // Duplicate Selection
   selectedSiteId: number;
 
+  infoCard: InfoCardItem;
+
   constructor(public mapService: MapService,
               public dbEntityMarkerService: DbEntityMarkerService,
               public geocoderService: GeocoderService,
@@ -134,46 +140,24 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.mapDataLayer = new MapDataLayer(this.mapService.getMap(), this.authService.sessionUser.id, this.entitySelectionService.siteIds);
 
     this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce())
-      .subscribe((bounds: { east, north, south, west }) => {
-        this.getEntities(bounds);
-        // if (this.selectedDashboardMode !== CasingDashboardMode.MOVING_MAPPABLE) {
-        //   this.getEntities(bounds);
-        // }
-      }));
+      .subscribe((bounds: { east, north, south, west }) => this.getEntities(bounds)));
     this.subscriptions.push(this.dbEntityMarkerService.clickListener$.subscribe(selection => {
       if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
-        this.selection = selection;
-        this.selectedCardState = CardState.SELECTION;
+        const outputs = {
+          refresh: () => this.getEntities(this.mapService.getBounds()),
+          initiateDuplicateSiteSelection: this.initiateDuplicateSiteSelection,
+          initiateMove: this.moveSite
+        };
+        this.infoCard = new InfoCardItem(DbLocationInfoCardComponent, {selection: selection}, outputs);
+        // this.selection = selection;
+        // this.selectedCardState = CardState.SELECTION;
       } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
         this.onDuplicateSiteSelected(selection.siteId);
       }
     }));
 
-    this.subscriptions.push(this.mapService.mapClick$.subscribe(() => {
-      this.ngZone.run(() => this.selectedCardState = CardState.HIDDEN);
-    }));
-    // this.subscriptions.push(this.storeMapLayer.selection$.subscribe((store: Store | SimplifiedStore) => {
-    //   this.ngZone.run(() => {
-    //     if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
-    //       this.siteMapLayer.clearSelection();
-    //       this.selectedStore = store;
-    //       this.selectedCardState = CardState.SELECTED_STORE;
-    //     } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
-    //       this.onDuplicateSiteSelected(store.site.id);
-    //     }
-    //   });
-    // }));
-    // this.subscriptions.push(this.siteMapLayer.selection$.subscribe((site: Site | SimplifiedSite) => {
-    //   this.ngZone.run(() => {
-    //     if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
-    //       this.storeMapLayer.clearSelection();
-    //       this.selectedSite = site;
-    //       this.selectedCardState = CardState.SELECTED_SITE;
-    //     } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
-    //       this.onDuplicateSiteSelected(site.id);
-    //     }
-    //   });
-    // }));
+    this.subscriptions.push(this.mapService.mapClick$.subscribe(() => this.infoCard = null));
+
     this.subscriptions.push(this.casingDashboardService.projectChanged$.subscribe(() => {
       this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
       this.projectBoundaryService.hideProjectBoundaries();
@@ -202,10 +186,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   getEntities(bounds: { east, north, south, west }): void {
-    this.dbEntityMarkerService.getMarkersInBounds(bounds, this.mapService.getMap())
-      .subscribe(() => console.log('Finished getting sites'),
-        error1 => this.errorService.handleServerError('Failed to get DB Entities', error1, null));
-
+    if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.minPullZoomLevel) {
+      this.dbEntityMarkerService.getMarkersInMapView(this.mapService.getMap())
+    } else {
+      this.snackBar.open('Zoom in or change Min Zoom level', null, {duration: 2000})
+    }
 
     // if (this.mapService.getZoom() > this.DATA_POINT_ZOOM) {
     //   this.mapDataLayer.clearDataPoints();
@@ -356,7 +341,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.storeMapLayer.startMovingEntity(store);
   }
 
-  moveSite(site: SimplifiedSite) {
+  moveSite(site: Site) {
     this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
     this.siteMapLayer.startMovingEntity(site);
   }
@@ -573,11 +558,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  onStoreUpdated(store: SimplifiedStore) {
+  onStoreUpdated(store: Store) {
     this.ngZone.run(() => this.storeMapLayer.updateEntity(store));
   }
 
-  onSiteUpdated(site: SimplifiedSite) {
+  onSiteUpdated(site: Site) {
     this.ngZone.run(() => this.siteMapLayer.updateEntity(site));
   }
 

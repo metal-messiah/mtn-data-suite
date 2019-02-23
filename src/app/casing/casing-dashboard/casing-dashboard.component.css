@@ -8,10 +8,9 @@ mds-map {
 
 .infoCardContainer {
   position: absolute;
-  pointer-events: none;
-  width: 95%;
-  display: flex;
-  justify-content: center;
+  pointer-events: all;
+  max-width: 300px;
+  left: 5px;
   bottom: 60px;
 }
 
@@ -24,34 +23,38 @@ mds-map {
   }
 }
 
-.infoCard {
-  max-width: 360px;
-  pointer-events: all;
+mat-slider {
+  width: 90%;
 }
 
-.infoCard mat-card {
-  padding: 10px;
-}
+/*.infoCard {*/
+  /*max-width: 360px;*/
+  /*pointer-events: all;*/
+/*}*/
 
-.infoCard .mat-card-subtitle {
-  margin-bottom: 5px;
-}
+/*.infoCard mat-card {*/
+  /*padding: 10px;*/
+/*}*/
 
-.infoCard .mat-card-content {
-  margin-bottom: 0px;
-  padding: 0 8px;
-  font-size: small;
-}
+/*.infoCard .mat-card-subtitle {*/
+  /*margin-bottom: 5px;*/
+/*}*/
 
-.infoCard .mat-card-actions {
-  padding-top: 5px;
-  display: flex;
-  justify-content: space-around;
-}
+/*.infoCard .mat-card-content {*/
+  /*margin-bottom: 0px;*/
+  /*padding: 0 8px;*/
+  /*font-size: small;*/
+/*}*/
 
-.infoCard .mat-card > .mat-card-actions:last-child {
-  margin-bottom: -8px;
-}
+/*.infoCard .mat-card-actions {*/
+  /*padding-top: 5px;*/
+  /*display: flex;*/
+  /*justify-content: space-around;*/
+/*}*/
+
+/*.infoCard .mat-card > .mat-card-actions:last-child {*/
+  /*margin-bottom: -8px;*/
+/*}*/
 
 #casing-dash-container {
   height: 100%;

@@ -7,21 +7,19 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import * as _ from 'lodash';
 import { RestService } from './rest.service';
 import * as MarkerClusterer from '@google/markerclusterer';
+import * as MarkerWithLabel from '@google/markerwithlabel';
 import { StoreMarker } from '../../models/store-marker';
-import { Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { Pageable } from '../../models/pageable';
+import { ErrorService } from './error.service';
+import { finalize } from 'rxjs/operators';
 
 @Injectable()
 export class DbEntityMarkerService {
 
-  private readonly endpoint = '/api/map-marker';
-
-  private mapMarkers: google.maps.Marker[] = [];
-  private clusterer: MarkerClusterer;
-
-  public clickListener$ = new Subject<{ storeId: number, siteId: number }>();
-
-  controls = {
+  public clickListener$ = new Subject<{ storeId: number, siteId: number, marker: google.maps.Marker, gmap: google.maps.Map }>();
+  public gettingLocations = false;
+  public controls = {
     showActive: true,
     showHistorical: true,
     showFuture: true,
@@ -29,293 +27,293 @@ export class DbEntityMarkerService {
     showFloat: true,
     cluster: true,
     clusterZoomLevel: 13,
-    multiSelect: false
+    multiSelect: false,
+    minPullZoomLevel: 10,
+    fullLabelMinZoomLevel: 16
   };
 
-  latestCallTime: Date;
+  private siteMarkerCache: { siteMarker: SiteMarker, markers: google.maps.Marker[] }[] = [];
 
-  sites: SiteMarker[] = [];
-  selectedSiteIds = new Set<number>();
-  selectedStoreIds = new Set<number>();
+  private readonly endpoint = '/api/map-marker';
+
+  private clusterer: MarkerClusterer;
+
+  private latestCallTime: Date;
+
+  private selectedSiteIds = new Set<number>();
+  private selectedStoreIds = new Set<number>();
+
+  private visibleMarkers = [];
+  private markersInBounds = [];
+  private selectedMarkers = [];
 
   constructor(private authService: AuthService,
               private http: HttpClient,
+              private errorService: ErrorService,
               private rest: RestService) {
-  }
-
-  public getMarkersInBounds(bounds: { east, north, south, west }, gmap: google.maps.Map) {
-
-    const callTime = new Date();
-    this.latestCallTime = callTime;
-
-    this.sites = [];
-
-    // Remove previous from map, allow them to be garbage collected
-    this.mapMarkers.forEach(marker => marker.setMap(null));
-    this.mapMarkers = [];
-    if (this.clusterer) {
-      this.clusterer.clearMarkers();
-    }
-
-    this.clusterer = new MarkerClusterer(gmap, [],
-      {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
-
-    const finished = new Subject();
-
-    // Run request(s)
-    const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams();
-    params = params.set('size', '100');
-    params = params.set('sort', 'longitude');
-    _.forEach(bounds, (value, key) => params = params.set(key, value));
-    this.runPage(url, params, 0, gmap, finished, callTime);
-
-    return finished;
-  }
-
-  public refreshMarkers(gmap: google.maps.Map) {
-    // Remove previous from map, allow them to be garbage collected
-    this.mapMarkers.forEach(marker => marker.setMap(null));
-    this.mapMarkers = [];
-    if (this.clusterer) {
-      this.clusterer.clearMarkers();
-    }
-    this.createMarkers(this.sites, gmap);
-  }
-
-  private createMarkers(sites: SiteMarker[], gmap: google.maps.Map) {
-    // Create new markers for each result and reduce into one list
-    const markers = sites.reduce((prev, curr) => prev.concat(this.createMarkerForSite(curr, gmap)), []);
-
-    // Add Markers to complete list
-    this.mapMarkers = this.mapMarkers.concat(markers);
-
-    // Add the markers to the map or to the clusterer
-    if (gmap.getZoom() > this.controls.clusterZoomLevel || !this.controls.cluster) {
-      markers.forEach(marker => marker.setMap(gmap));
-    } else {
-      this.clusterer.addMarkers(markers);
-    }
-  }
-
-  private runPage(url: string, params: HttpParams, pageNumber: number, gmap: google.maps.Map, finished: Subject<any>, callTime: Date) {
-    params = params.set('page', pageNumber.toString());
-
-    this.http.get<Pageable<SiteMarker>>(url, {headers: this.rest.getHeaders(), params: params})
-      .subscribe((page: Pageable<SiteMarker>) => {
-
-        this.sites = this.sites.concat(page.content);
-
-        this.createMarkers(page.content, gmap);
-
-        // If last page, or another request has started notify caller. Otherwise, continue retrieving pages.
-        if (page.last || callTime !== this.latestCallTime) {
-          finished.complete();
-        } else {
-          this.runPage(url, params, pageNumber + 1, gmap, finished, callTime);
-        }
-      });
-  }
-
-  private clearSelection() {
-    // Get selected markers
-    const selectedMarkers = this.mapMarkers.filter(marker => {
-      const selection = marker['selection'];
-      if (selection.storeId) {
-        return this.selectedStoreIds.has(selection.storeId);
-      } else {
-        return this.selectedSiteIds.has(selection.siteId);
-      }
-    });
-
-    // Clear selection ids
-    this.selectedStoreIds.clear();
-    this.selectedSiteIds.clear();
-
-    // Refresh previously selected markers;
-    selectedMarkers.forEach(marker => marker['refresh']());
-  }
-
-  private createMarkerForSite(site: SiteMarker, gmap: google.maps.Map): google.maps.Marker[] {
-    const markers: google.maps.Marker[] = [];
-
-    if (site.stores && site.stores.length > 0) {
-      // Classify the types of stores
-      const historical = site.stores.filter(store => store.storeType === 'HISTORICAL');
-      const active = site.stores.filter(store => store.storeType === 'ACTIVE');
-      const future = site.stores.filter(store => store.storeType === 'FUTURE');
-
-      // ACTIVE - If there isn't an active store, and the user wants to see empty sites
-      if (active.length === 0 && this.controls.showEmptySites) {
-        // Only show the empty site marker if the site has not been back-filled with non-grocery
-        if (!site.backfilledNonGrocery) {
-          markers.push(this.getEmptySiteMarker(site, gmap));
-        }
-      } else if (this.controls.showActive) {
-        active.forEach(store => {
-          if (this.controls.showFloat || !store.floating) {
-            markers.push(this.getStoreMarker(store, site, gmap));
-          }
-        })
-      }
-
-      // HISTORICAL
-      if (this.controls.showHistorical) {
-        if (historical.length > 1) {
-          markers.push(this.getHistoricalCountMarker(historical.length, site))
-        } else if (historical.length === 1) {
-          if (this.controls.showFloat || !historical[0].floating) {
-            markers.push(this.getStoreMarker(historical[0], site, gmap))
-          }
-        }
-      }
-
-      // FUTURE
-      if (this.controls.showFuture) {
-        if (future.length > 1) {
-          // TODO Error state - no site should have multiple future stores - potentially create exclamation marker
-        } else if (future.length === 1) {
-          markers.push(this.getStoreMarker(future[0], site, gmap))
-        }
-      }
-    } else {
-      markers.push(this.getEmptySiteMarker(site, gmap));
-    }
-    return markers;
-  }
-
-  private getMarkerOptionsForSite(selected: boolean, site: SiteMarker, gmap: google.maps.Map) {
-    return {
-      position: {lat: site.latitude, lng: site.longitude},
-      icon: {
-        path: MarkerShape.DEFAULT,
-        fillColor: this.getFillColor(selected, site.assigneeId),
-        fillOpacity: 1,
-        scale: 0.075,
-        strokeColor: this.getStrokeColor(selected, gmap),
-        strokeWeight: 2.5,
-        anchor: new google.maps.Point(255, 510),
-        labelOrigin: new google.maps.Point(255, 230),
-      }
-    }
-  }
-
-  private getActiveStoreMarkerOptions(selected: boolean, store: StoreMarker, site: SiteMarker, gmap: google.maps.Map) {
-    return {
-      position: {lat: site.latitude, lng: site.longitude},
-      label: store.floating ? '' : {
-        text: store.storeName[0],
-        color: Color.WHITE,
-        fontWeight: 'bold'
-      },
-      icon: {
-        path: store.floating ? MarkerShape.LIFE_RING : MarkerShape.FILLED,
-        fillColor: this.getFillColor(selected, site.assigneeId),
-        fillOpacity: 1,
-        scale: 0.075,
-        strokeColor: this.getStrokeColor(selected, gmap),
-        strokeWeight: store.floating ? 1.2 : 2.5,
-        anchor: new google.maps.Point(255, 510),
-        labelOrigin: new google.maps.Point(255, 230)
-      }
-    };
-  }
-
-  private getHistoricalStoreMarkerOptions(selected: boolean, store: StoreMarker, site: SiteMarker, gmap: google.maps.Map) {
-    return {
-      position: {lat: site.latitude, lng: site.longitude},
-      label: store.floating ? '' : {
-        text: store.storeName[0],
-        color: Color.WHITE,
-        fontWeight: 'bold'
-      },
-      icon: {
-        path: store.floating ? MarkerShape.LIFE_RING : MarkerShape.FILLED,
-        fillColor: this.getFillColor(selected, site.assigneeId),
-        fillOpacity: 1,
-        scale: 0.06,
-        strokeColor: this.getStrokeColor(selected, gmap),
-        strokeWeight: store.floating ? 1.2 : 2.5,
-        anchor: new google.maps.Point(255, 510),
-        labelOrigin: new google.maps.Point(255, 200),
-        rotation: -90
-      }
-    };
-  }
-
-  private getFutureStoreMarkerOptions(selected: boolean, store: StoreMarker, site: SiteMarker, gmap: google.maps.Map) {
-    return {
-      position: {lat: site.latitude, lng: site.longitude},
-      label: {
-        text: store.storeName[0],
-        color: Color.WHITE,
-        fontWeight: 'bold'
-      },
-      icon: {
-        path: MarkerShape.FILLED,
-        fillColor: this.getFillColor(selected, site.assigneeId),
-        fillOpacity: 1,
-        scale: 0.06,
-        strokeColor: this.getStrokeColor(selected, gmap),
-        strokeWeight: 2.5,
-        anchor: new google.maps.Point(255, 510),
-        labelOrigin: new google.maps.Point(255, 230),
-        rotation: 90
-      }
-    };
-  }
-
-  private addSelectionListener(marker: google.maps.Marker, selection: { storeId: number, siteId: number }) {
-    marker.addListener('click', () => {
-      // If not multi-selecting
+    this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker, gmap: google.maps.Map }) => {
+      // If not in multi-select mode, deselect previously selected markers
       if (!this.controls.multiSelect) {
-        // Clear any previous selection
-        this.clearSelection();
+        this.selectedSiteIds.clear();
+        this.selectedStoreIds.clear();
+        this.selectedMarkers.forEach(marker => this.refreshMarkerOptions(marker, selection.gmap));
       }
 
-      // Add the storeId to the selection
+      // Add to selected Ids
       if (selection.storeId) {
         this.selectedStoreIds.add(selection.storeId);
       } else {
         this.selectedSiteIds.add(selection.siteId);
       }
 
-      // Refresh the options for the marker
-      marker['refresh']();
+      // Refresh marker's options
+      this.refreshMarkerOptions(selection.marker, selection.marker.getMap());
 
-      this.clickListener$.next(selection);
+      // Add it to selectedMarkers
+      this.selectedMarkers.push(selection.marker);
     });
   }
 
-  private getEmptySiteMarker(site: SiteMarker, gmap: google.maps.Map) {
-    const marker = new google.maps.Marker(this.getMarkerOptionsForSite(this.selectedSiteIds.has(site.id), site, gmap));
-    marker['refresh'] = () => marker.setOptions(this.getMarkerOptionsForSite(this.selectedSiteIds.has(site.id), site, gmap));
-    marker['selection'] = {storeId: null, siteId: site.id};
-    this.addSelectionListener(marker, marker['selection']);
-    return marker;
+  /**************************************
+   * Public methods
+   *************************************/
+
+  /**
+   * Retrieves Marker data from web service and handles the showing and hiding markers according to controls
+   * @param gmap - The map to which the markers are added
+   */
+  public getMarkersInMapView(gmap: google.maps.Map) {
+    const bounds = {
+      north: gmap.getBounds().getNorthEast().lat(),
+      east: gmap.getBounds().getNorthEast().lng(),
+      south: gmap.getBounds().getSouthWest().lat(),
+      west: gmap.getBounds().getSouthWest().lng()
+    };
+    const finished$ = new Subject();
+
+    this.latestCallTime = new Date();
+
+    if (!this.clusterer || this.clusterer.getMap() !== gmap) {
+      this.clusterer = new MarkerClusterer(gmap, [],
+        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+    }
+
+    // Set up request(s)
+    const url = this.rest.getHost() + this.endpoint;
+    let params = new HttpParams();
+    params = params.set('size', '300');
+    params = params.set('sort', 'longitude');
+    _.forEach(bounds, (value, key) => params = params.set(key, String(value)));
+
+    // Run Requests
+    this.gettingLocations = true;
+    this.runPage(url, params, 0, gmap, finished$, this.latestCallTime, []);
+    finished$.pipe(finalize(() => this.gettingLocations = false))
+      .subscribe((markersInBounds: google.maps.Marker[]) => {
+          this.markersInBounds = markersInBounds;
+          this.showHideMarkersInBounds(markersInBounds, gmap);
+        },
+        () => console.log('Cancelled'));
   }
 
-
-  private getStoreMarker(store: StoreMarker, site: SiteMarker, gmap: google.maps.Map) {
-    const marker = new google.maps.Marker(this.getMarkerOptionsForStore(this.selectedStoreIds.has(store.id), store, site, gmap));
-    marker['refresh'] = () => marker.setOptions(this.getMarkerOptionsForStore(this.selectedStoreIds.has(store.id), store, site, gmap));
-    marker['selection'] = {storeId: store.id, siteId: site.id};
-    this.addSelectionListener(marker, {storeId: store.id, siteId: site.id});
-    return marker;
-  }
-
-  private getMarkerOptionsForStore(selected: boolean, store: StoreMarker, site: SiteMarker, gmap: google.maps.Map) {
-    switch (store.storeType) {
-      case 'ACTIVE':
-        return this.getActiveStoreMarkerOptions(selected, store, site, gmap);
-      case 'HISTORICAL':
-        return this.getHistoricalStoreMarkerOptions(selected, store, site, gmap);
-      default:
-        return this.getFutureStoreMarkerOptions(selected, store, site, gmap);
+  /**
+   * Updates the marker symbology without getting new data from web service. Most useful for updating based on controls
+   * @param gmap
+   */
+  public refreshMarkers(gmap: google.maps.Map) {
+    if (this.latestCallTime) {
+      this.gettingLocations = true;
+      of(this.showHideMarkersInBounds(this.markersInBounds, gmap))
+        .pipe(finalize(() => this.gettingLocations = false))
+        .subscribe();
+    } else {
+      this.getMarkersInMapView(gmap);
     }
   }
 
-  private getHistoricalCountMarker(count: number, site: SiteMarker) {
+  /**************************************
+   * Private methods
+   *************************************/
+
+  private refreshMarkerOptions(marker: google.maps.Marker, gmap) {
+    const store = marker['store'];
+    const site = marker['site'];
+    if (store) {
+      marker.setOptions(this.getMarkerOptionsForStore(store, site, gmap));
+    } else if (site) {
+      marker.setOptions(this.getMarkerOptionsForSite(site, gmap));
+    }
+    // Do nothing for non-store non-site markers (like historical count marker)
+  }
+
+  private showHideMarkersInBounds(markersInBounds: google.maps.Marker[], gmap: google.maps.Map) {
+    const currentlyVisibleMarkers = markersInBounds.filter(marker => {
+      if (!this.controls.showHistorical && marker['historicalCountMarker']) {
+        return false;
+      }
+
+      const store = marker['store'];
+      if (store) {
+        if (!this.controls.showActive && (store && store.storeType === 'ACTIVE')) {
+          return false;
+        }
+        if (!this.controls.showHistorical && (store && store.storeType === 'HISTORICAL')) {
+          return false;
+        }
+        if (!this.controls.showFuture && (store && store.storeType === 'FUTURE')) {
+          return false;
+        }
+        if (!this.controls.showFloat && marker['float']) {
+          return false;
+        }
+        return true;
+      }
+
+      const site = marker['site'];
+      if (site) {
+        const siteIsEmpty = site.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
+        if (!this.controls.showEmptySites && siteIsEmpty) {
+          return false;
+        }
+        return true;
+      }
+
+      return true;
+    });
+    currentlyVisibleMarkers.forEach(marker => this.refreshMarkerOptions(marker, gmap));
+
+    // If visible marker is not in currentVisibleMarker, remove from map.
+    this.visibleMarkers.filter(marker => !currentlyVisibleMarkers.includes(marker))
+      .forEach(marker => {
+        marker.setMap(null);
+        this.clusterer.removeMarker(marker);
+      });
+
+    // Show the now visible markers
+    if (this.controls.cluster && gmap.getZoom() <= this.controls.clusterZoomLevel) {
+      this.clusterer.addMarkers(currentlyVisibleMarkers);
+    } else {
+      this.clusterer.clearMarkers();
+      currentlyVisibleMarkers.forEach(marker => marker.setMap(gmap));
+    }
+
+    // Reset visible markers
+    this.visibleMarkers = currentlyVisibleMarkers;
+  }
+
+  private getMarkersForPage(sites: SiteMarker[], gmap: google.maps.Map): google.maps.Marker[] {
+    // Create new markers for each result and reduce into one list
+    return sites.reduce((prev, curr) => prev.concat(this.getMarkersForSite(curr, gmap)), []);
+  }
+
+  private runPage(url: string, params: HttpParams, pageNumber: number, gmap: google.maps.Map,
+                  finished$: Subject<any>, callTime: Date, markersInBounds: google.maps.Marker[]) {
+    // Set param to get next page
+    params = params.set('page', pageNumber.toString());
+
+    // Get the data for the next page
+    this.http.get<Pageable<SiteMarker>>(url, {headers: this.rest.getHeaders(), params: params})
+      .subscribe((page: Pageable<SiteMarker>) => {
+        // Add markers for page to markers in Bounds
+        markersInBounds = markersInBounds.concat(this.getMarkersForPage(page.content, gmap));
+        // If last page, or another request has started, finish and notify caller.
+        if (page.last || callTime !== this.latestCallTime) {
+          finished$.next(markersInBounds);
+          finished$.complete();
+        } else {
+          // Otherwise, continue retrieving pages.
+          this.runPage(url, params, pageNumber + 1, gmap, finished$, callTime, markersInBounds);
+        }
+      }, err => {
+        this.errorService.handleServerError('Failed to get db locations!', err,
+          () => finished$.error(err),
+          () => this.runPage(url, params, pageNumber, gmap, finished$, callTime, markersInBounds)
+        )
+      });
+  }
+
+  private getMarkersForSite(site: SiteMarker, gmap: google.maps.Map): google.maps.Marker[] {
+    // Check if cached markers exist
+    const cached = this.siteMarkerCache.find(obj => obj.siteMarker.id === site.id);
+    if (cached) {
+      // If cached markers exist, check if they need to be updated
+      if (site.updatedDate > cached.siteMarker.updatedDate) {
+        // If updated required, ensure markers are removed from map
+        cached.markers.forEach(marker => {
+          marker.setMap(null);
+          this.clusterer.removeMarker(marker);
+        });
+        // and replace cached markers with new ones
+        cached.siteMarker = site;
+        cached.markers = this.createMarkersForSite(site, gmap);
+      }
+      return cached.markers;
+    }
+    const markers = this.createMarkersForSite(site, gmap);
+    this.siteMarkerCache.push({markers: markers, siteMarker: site});
+    return markers;
+  }
+
+  private createMarkersForSite(site: SiteMarker, gmap: google.maps.Map): google.maps.Marker[] {
+    const markers: google.maps.Marker[] = [];
+
+    if (site.duplicate) {
+      markers.push(this.createSiteMarker(site, gmap));
+    } else if (site.stores && site.stores.length > 0) {
+      // Classify the types of stores
+      const historical = site.stores.filter(store => store.storeType === 'HISTORICAL');
+      const active = site.stores.filter(store => store.storeType === 'ACTIVE');
+      const future = site.stores.filter(store => store.storeType === 'FUTURE');
+
+      // ACTIVE - If there isn't an active store, and the user wants to see empty sites
+      if (active.length === 0 && !site.backfilledNonGrocery) {
+        // Only show the empty site marker if the site has not been back-filled with non-grocery
+        markers.push(this.createSiteMarker(site, gmap));
+      } else {
+        active.forEach(store => markers.push(this.createStoreMarker(store, site, gmap)))
+      }
+
+      // HISTORICAL
+      if (historical.length > 1) {
+        markers.push(this.createHistoricalCountMarker(historical.length, site))
+      } else if (historical.length === 1) {
+        markers.push(this.createStoreMarker(historical[0], site, gmap))
+      }
+
+      // FUTURE
+      if (future.length > 1) {
+        // TODO Error state - no site should have multiple future stores - potentially create exclamation marker
+      } else if (future.length === 1) {
+        markers.push(this.createStoreMarker(future[0], site, gmap))
+      }
+    } else {
+      markers.push(this.createSiteMarker(site, gmap));
+    }
+
+    return markers;
+  }
+
+  /*****************************************
+   * Create Markers
+   *****************************************/
+
+  private createSiteMarker(site: SiteMarker, gmap: google.maps.Map) {
+    const marker = new google.maps.Marker();
+    marker['site'] = site;
+    marker.addListener('click', () => this.clickListener$.next({storeId: null, siteId: site.id, marker: marker, gmap: gmap}));
+    return marker;
+  }
+
+  private createStoreMarker(store: StoreMarker, site: SiteMarker, gmap: google.maps.Map) {
+    // Must make marker with coordinates for MarkerWithLabel to work
+    const marker = new MarkerWithLabel({position: {lat: site.latitude, lng: site.longitude}});
+    marker['store'] = store;
+    marker['site'] = site;
+    marker.addListener('click', () => this.clickListener$.next({storeId: store.id, siteId: site.id, marker: marker, gmap: gmap}));
+    return marker;
+  }
+
+  private createHistoricalCountMarker(count: number, site: SiteMarker) {
     const marker = new google.maps.Marker({
       position: {lat: site.latitude, lng: site.longitude},
       label: {
@@ -335,18 +333,115 @@ export class DbEntityMarkerService {
         rotation: -90
       }
     });
-    marker['refresh'] = () => {};
-    marker['selection'] = {storeId: null, siteId: site.id};
-
+    marker['historicalCountMarker'] = true;
     return marker;
   }
 
-  private getStrokeColor(selected: boolean, gmap: google.maps.Map) {
-    if (gmap.getMapTypeId() === google.maps.MapTypeId.HYBRID) {
-      return selected ? Color.YELLOW : Color.WHITE;
-    } else {
-      return selected ? Color.YELLOW : Color.WHITE
+  /*****************************************
+   * Get Marker Options
+   *****************************************/
+
+  private getMarkerOptionsForSite(site: SiteMarker, gmap: google.maps.Map) {
+    const selected = this.selectedSiteIds.has(site.id);
+    return {
+      position: {lat: site.latitude, lng: site.longitude},
+      icon: {
+        path: site.duplicate ? MarkerShape.FLAGGED : MarkerShape.DEFAULT,
+        fillColor: this.getFillColor(selected, site.assigneeId),
+        fillOpacity: 1,
+        scale: 0.075,
+        strokeColor: this.getStrokeColor(selected, gmap),
+        strokeWeight: 2.5,
+        anchor: site.duplicate ? new google.maps.Point(80, 510) : new google.maps.Point(255, 510),
+        labelOrigin: site.duplicate ? new google.maps.Point(255, 220) : new google.maps.Point(255, 230),
+      }
     }
+  }
+
+  private getMarkerOptionsForStore(store: StoreMarker, site: SiteMarker, gmap: google.maps.Map) {
+    const selected = this.selectedStoreIds.has(store.id);
+
+    const icon = this.getStoreIcon(store, site, selected, gmap);
+    return {
+      position: {lat: site.latitude, lng: site.longitude},
+      icon: icon,
+      labelContent: this.getStoreLabelContent(store, gmap),
+      labelAnchor: this.getStoreLabelAnchor(store, gmap),
+      labelClass: this.getStoreLabelClass(store, gmap),
+      labelInBackground: false
+    };
+  }
+
+  /*****************************************
+   * Utility Functions
+   *****************************************/
+
+  private getStoreIcon(store: StoreMarker, site: SiteMarker, selected: boolean, gmap: google.maps.Map) {
+    return {
+      path: store.float ? MarkerShape.LIFE_RING : MarkerShape.FILLED,
+      fillColor: this.getFillColor(selected, site.assigneeId),
+      fillOpacity: 1,
+      scale: store.float ? 0.06 : 0.075,
+      strokeColor: this.getStrokeColor(selected, gmap),
+      strokeWeight: store.float ? 1.2 : 2.5,
+      anchor: this.getStoreIconAnchorPoint(store),
+      rotation: this.getStoreIconRotation(store)
+    }
+  }
+
+  private getStoreLabelClass(store: StoreMarker, gmap: google.maps.Map) {
+    const fullLabel = gmap.getZoom() >= this.controls.fullLabelMinZoomLevel;
+    switch (store.storeType) {
+      case 'HISTORICAL':
+        return fullLabel ? 'db-marker-full-label-historical' :  'db-marker-short-label';
+      case 'FUTURE':
+        return fullLabel ?  'db-marker-full-label-future' : 'db-marker-short-label';
+      default:
+        return fullLabel ?  'db-marker-full-label-active' : 'db-marker-short-label';
+    }
+  }
+
+  private getStoreLabelContent(store: StoreMarker, gmap: google.maps.Map) {
+    let labelText = '';
+    if (store.storeName) {
+      if (gmap.getZoom() >= this.controls.fullLabelMinZoomLevel) {
+        labelText = store.storeName
+      } else {
+        labelText = store.storeName[0];
+      }
+    }
+    return labelText;
+  }
+
+  private getStoreLabelAnchor(store: StoreMarker, gmap: google.maps.Map) {
+    const fullLabel = gmap.getZoom() >= this.controls.fullLabelMinZoomLevel;
+    switch (store.storeType) {
+      case 'HISTORICAL':
+        return fullLabel ? new google.maps.Point(40, 10) :  new google.maps.Point(23, 8);
+      case 'FUTURE':
+        return fullLabel ?  new google.maps.Point(-40, 10) : new google.maps.Point(-25, 8);
+      default:
+        return fullLabel ?  new google.maps.Point(0, 60) : new google.maps.Point(0, 32);
+    }
+  }
+
+  private getStoreIconAnchorPoint(store: StoreMarker) {
+    return store.float ? new google.maps.Point(255, 580) : new google.maps.Point(255, 510);
+  }
+
+  private getStoreIconRotation(store) {
+    switch (store.storeType) {
+      case 'FUTURE':
+        return 90;
+      case 'HISTORICAL':
+        return -90;
+      default:
+        return 0;
+    }
+  }
+
+  private getStrokeColor(selected: boolean, gmap: google.maps.Map) {
+    return selected ? Color.YELLOW : Color.WHITE;
   }
 
   private getFillColor(selected: boolean, assigneeId: number): string {

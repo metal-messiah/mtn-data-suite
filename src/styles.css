@@ -106,3 +106,30 @@ fieldset {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.db-marker-full-label-active,
+.db-marker-full-label-historical,
+.db-marker-full-label-future {
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #ffffffb0;
+  font-weight: bold;
+  font-size: 14px;
+  color: #000000;
+}
+
+.db-marker-full-label-active {
+  -webkit-transform: translateX(-50%);
+}
+
+.db-marker-full-label-historical {
+  -webkit-transform: translateX(-100%);
+}
+
+.db-marker-short-label {
+  -webkit-transform: translateX(-50%);
+  font-weight: bold;
+  font-size: 14px;
+  color: #ffffff;
+}
+
