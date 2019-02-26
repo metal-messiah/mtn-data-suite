@@ -21,6 +21,7 @@ export class Site extends AuditingEntity {
   intersectionStreetPrimary: string;
   intersectionStreetSecondary: string;
   duplicate: boolean;
+  backfilledNonGrocery: boolean;
 
   shoppingCenter: ShoppingCenter;
   stores: Store[];

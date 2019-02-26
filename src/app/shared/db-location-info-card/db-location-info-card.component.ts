@@ -9,18 +9,17 @@ import { UserProfile } from '../../models/full/user-profile';
 import { UserProfileSelectComponent } from '../user-profile-select/user-profile-select.component';
 import { Store } from '../../models/full/store';
 import { Site } from '../../models/full/site';
-import { InfoCardInterface } from '../../casing/info-card-interface';
+import { DbEntityInfoCardItem } from '../../casing/db-entity-info-card-item';
 
 @Component({
   selector: 'mds-db-location-info-card',
   templateUrl: './db-location-info-card.component.html',
   styleUrls: ['./db-location-info-card.component.css']
 })
-export class DbLocationInfoCardComponent implements OnInit, OnChanges, InfoCardInterface {
+export class DbLocationInfoCardComponent implements OnInit, OnChanges {
 
-  @Input() data: {selection: { storeId: number, siteId: number }};
+  @Input() infoCardItem: DbEntityInfoCardItem;
   @Input() disabled: boolean;
-  @Input() callbacks: any;
 
   site: Site;
   store: Store;
@@ -35,23 +34,23 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges, InfoCardI
   }
 
   ngOnInit() {
-    this.fetchSite();
+    this.getSite();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     this.site = null;
     this.store = null;
-    this.fetchSite();
+    this.getSite();
   }
 
-  private fetchSite() {
-    this.siteService.getOneById(this.data.selection.siteId).subscribe((site: Site) => this.initSite(site));
+  private getSite() {
+    this.siteService.getOneById(this.infoCardItem.selection.siteId).subscribe((site: Site) => this.initSite(site));
   }
 
   private initSite(site: Site) {
     this.site = site;
-    if (this.data.selection.storeId) {
-      this.initStore(site.stores.find(store => store.id === this.data.selection.storeId));
+    if (this.infoCardItem.selection.storeId) {
+      this.initStore(site.stores.find(store => store.id === this.infoCardItem.selection.storeId));
     }
   }
 
@@ -60,9 +59,7 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges, InfoCardI
     this.store = store;
     if (this.store.storeVolumes && this.store.storeVolumes.length > 0) {
       // Get the store's latest volume
-      this.store['latestStoreVolume'] = this.store.storeVolumes.sort((a, b) => {
-        return b.volumeDate.getMilliseconds() - a.volumeDate.getMilliseconds();
-      })[0];
+      this.store['latestStoreVolume'] = this.store.storeVolumes.sort((a, b) => b.volumeDate.getTime() - a.volumeDate.getTime())[0];
     }
   }
 
@@ -71,7 +68,11 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges, InfoCardI
   }
 
   moveSite() {
-    this.callbacks.initiateMove(this.site);
+    this.infoCardItem.initiateSiteMove$.next(this.site);
+  }
+
+  initiateDuplicateSelection() {
+    this.infoCardItem.initiateDuplicateSelection$.next(this.site.id);
   }
 
   assignToSelf() {
@@ -84,10 +85,10 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges, InfoCardI
 
   private assign(userId: number) {
     return this.siteService.assignSiteToUser(this.site, userId)
-      .subscribe((sites: Site) => {
-        this.initSite(sites);
+      .subscribe((site: Site) => {
+        this.initSite(site);
         this.snackBar.open('Successfully assigned Site', null, {duration: 1000});
-        this.callbacks.onSiteUpdated(this.site);
+        this.infoCardItem.refreshSite$.next(site.id);
       }, err => this.errorService.handleServerError('Failed to update site', err,
         () => console.log('Cancelled'),
         () => this.assign(userId)));
@@ -100,10 +101,6 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges, InfoCardI
         this.assignToUser(selectedUser);
       }
     });
-  }
-
-  initiateDuplicateSelection() {
-    this.callbacks.initiateDuplicateSiteSelection(this.site.id);
   }
 
   copyToClipboard(val) {
@@ -129,7 +126,7 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges, InfoCardI
       .subscribe((site: Site) => {
         this.initSite(site);
         this.snackBar.open('Successfully updated Site', null, {duration: 1000});
-        this.callbacks.refresh();
+        this.infoCardItem.refreshSite$.next(this.site.id);
       }, err => this.errorService.handleServerError('Failed to update Site!', err,
         () => this.site.duplicate = !isDuplicate,
         () => this.setDuplicateFlag(isDuplicate)
@@ -141,7 +138,7 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges, InfoCardI
     this.storeService.update(this.store)
       .subscribe((store: Store) => {
         this.initStore(store);
-        this.callbacks.refresh();
+        this.infoCardItem.refreshSite$.next(this.site.id);
         this.snackBar.open(`Updated Store`, null, {duration: 2000});
       }, err => this.errorService.handleServerError('Failed to update store', err,
         () => this.store.floating = !floating,
@@ -153,7 +150,7 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges, InfoCardI
       .subscribe((store: Store) => {
           this.initStore(store);
           this.snackBar.open(`Validated Store`, null, {duration: 2000});
-          this.callbacks.refresh();
+          this.infoCardItem.refreshSite$.next(this.site.id);
         },
         err => this.errorService.handleServerError('Failed to validate store', err,
           () => console.log('cancelled'),
@@ -165,7 +162,7 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges, InfoCardI
       .subscribe((store: Store) => {
           this.initStore(store);
           this.snackBar.open(`Invalidated Store`, null, {duration: 2000});
-          this.callbacks.refresh();
+          this.infoCardItem.refreshSite$.next(this.site.id);
         },
         err => this.errorService.handleServerError('Failed to invalidate store', err,
           () => console.log('cancelled'),

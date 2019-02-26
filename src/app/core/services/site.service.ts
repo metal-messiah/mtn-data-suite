@@ -56,6 +56,7 @@ export class SiteService extends CrudService<Site> {
       params = params.set('user-id', String(userId));
     }
     return this.http.post<Site>(url, null, {headers: this.rest.getHeaders(), params: params})
+      .pipe(map(s => new Site(s)));
   }
 
   getFormattedIntersection(site: Site | SimplifiedSite): string {

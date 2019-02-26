@@ -1,4 +1,5 @@
 import { Entity } from './entity';
+import { DateUtil } from '../utils/date-util';
 
 export class StoreMarker implements Entity {
 
@@ -7,10 +8,18 @@ export class StoreMarker implements Entity {
   float: boolean;
   storeType: string;
   validatedDate: Date;
+  createdDate: Date;
   logoFileName: string;
   bannerId: number;
 
   constructor(obj) {
     Object.assign(this, obj);
+
+    if (obj.validatedDate) {
+      this.validatedDate = DateUtil.getDate(obj.validatedDate);
+    }
+    if (obj.createdDate) {
+      this.createdDate = DateUtil.getDate(obj.createdDate);
+    }
   }
 }

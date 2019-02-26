@@ -18,5 +18,10 @@ export class SiteMarker implements Entity {
     if (obj.updatedDate) {
       this.updatedDate = DateUtil.getDate(obj.updatedDate);
     }
+
+    if (obj.stores) {
+      this.stores = obj.stores.map(st => new StoreMarker(st));
+    }
   }
+
 }

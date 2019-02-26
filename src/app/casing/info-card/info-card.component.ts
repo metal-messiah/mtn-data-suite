@@ -42,8 +42,7 @@ export class InfoCardComponent implements OnInit, OnChanges, OnDestroy {
     this.componentRef = this.infoCardHost.viewContainerRef.createComponent(componentFactory);
 
     // Set component attributes
-    this.componentRef.instance.data = this.infoCard.data;
-    this.componentRef.instance.callbacks = this.infoCard.callbacks;
+    this.componentRef.instance.infoCardItem = this.infoCard;
     this.componentRef.instance.disabled = this.disabled;
   }
 
