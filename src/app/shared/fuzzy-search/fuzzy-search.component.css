@@ -5,3 +5,8 @@
 .black {
 	color: black;
 }
+
+.clear:hover {
+	color: orange;
+	cursor: pointer;
+}

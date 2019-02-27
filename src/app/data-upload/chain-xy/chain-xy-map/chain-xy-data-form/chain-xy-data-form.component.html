@@ -2,37 +2,37 @@
   <h4>Shopping Center</h4>
   <mat-form-field>
     <input matInput type="text" placeholder="Name" formControlName="shoppingCenterName">
-    <mat-hint align="end">{{pgFeature ? pgFeature.attributes.NAMECENTER : null}}</mat-hint>
+    <mat-hint align="end"></mat-hint>
   </mat-form-field>
 
   <h4>Site</h4>
-  <mat-form-field *ngIf="pgUpdatable.siteId == null" hintLabel="Drag Marker on Map">
+  <mat-form-field *ngIf="chainXyUpdatable.siteId == null" hintLabel="Drag Marker on Map">
     <input matInput type="number" autocomplete="off" placeholder="Latitude" id="latitude"
-           [value]="pgUpdatable ? pgUpdatable.latitude : null"
+           [value]="chainXyUpdatable ? chainXyUpdatable.latitude : null"
            required disabled>
     <input matInput type="number" autocomplete="off" placeholder="Longitude" id="longitude"
-           [value]="pgUpdatable ? pgUpdatable.longitude : null"
+           [value]="chainXyUpdatable ? chainXyUpdatable.longitude : null"
            required disabled>
   </mat-form-field>
   <mat-form-field>
     <input matInput type="text" placeholder="Address" formControlName="address">
-    <mat-hint align="end">{{pgFeature ? pgFeature.attributes.DESCLOCATION : null}}</mat-hint>
+    <mat-hint align="end">{{chainXyFeature.Address}}</mat-hint>
   </mat-form-field>
   <mat-form-field>
     <input matInput type="text" placeholder="City" formControlName="city">
-    <mat-hint align="end">{{pgFeature ? pgFeature.attributes.CITY : null}}</mat-hint>
+    <mat-hint align="end">{{chainXyFeature.City}}</mat-hint>
   </mat-form-field>
   <mat-form-field>
     <input matInput type="text" placeholder="County" formControlName="county">
-    <mat-hint align="end">{{pgFeature ? pgFeature.attributes.county : null}}</mat-hint>
+    <mat-hint align="end"></mat-hint>
   </mat-form-field>
   <mat-form-field>
     <input matInput type="text" placeholder="State" formControlName="state">
-    <mat-hint align="end">{{pgFeature ? pgFeature.attributes.STATE : null}}</mat-hint>
+    <mat-hint align="end">{{chainXyFeature.State}}</mat-hint>
   </mat-form-field>
   <mat-form-field>
     <input matInput type="text" placeholder="Postal Code" formControlName="postalCode">
-    <mat-hint align="end">{{pgFeature ? pgFeature.attributes.ZIP : null}}</mat-hint>
+    <mat-hint align="end">{{chainXyFeature.PostalCode}}</mat-hint>
   </mat-form-field>
   <div class="flex flex-justify-center" id="quad-button-wrapper">
     <button type="button" mat-raised-button color="primary" (click)="showQuadDialog()">
@@ -49,22 +49,18 @@
   <h4>Store</h4>
   <mat-form-field>
     <input matInput type="text" placeholder="Name" formControlName="storeName" required>
-    <mat-hint align="end">{{pgFeature ? pgFeature.attributes.NAME : null}}</mat-hint>
+    <mat-hint align="end">{{chainXyFeature.StoreName}}</mat-hint>
   </mat-form-field>
   <mat-form-field>
     <input matInput type="number" autocomplete="off" placeholder="Total Area" formControlName="areaTotal">
-    <mat-hint align="end">{{pgFeature ? pgFeature.attributes.SIZESF : null}}</mat-hint>
+    <mat-hint align="end"></mat-hint>
   </mat-form-field>
   <mat-form-field>
     <input matInput [matDatepicker]="dateOpenedPicker" placeholder="Date Opened" formControlName="dateOpened">
     <mat-datepicker-toggle matSuffix [for]="dateOpenedPicker"></mat-datepicker-toggle>
     <mat-datepicker #dateOpenedPicker></mat-datepicker>
-    <mat-hint align="end">{{getPgFeatureOpenDate()}}</mat-hint>
+    <mat-hint align="end"></mat-hint>
   </mat-form-field>
-
-  <div *ngIf="pgStatus">
-    <p>Will <strong *ngIf="!doAddStatus">NOT</strong> update status from <strong>{{currentStatus.displayName}}</strong> to <strong>{{pgStatus.displayName}}</strong></p>
-  </div>
 
   <div style="margin-top: 15px;">
     <button mat-button type="button" (click)="cancelEvent.emit()" [disabled]="saving">Cancel</button>

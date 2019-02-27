@@ -5,12 +5,12 @@ import * as _ from 'lodash';
 
 import { SourceUpdatable } from '../../../../models/source-updatable';
 import { StoreSource } from '../../../../models/full/store-source';
-import { ChainXyService } from '../../chain-xy-service.service';
 import { ErrorService } from '../../../../core/services/error.service';
 import { SimplifiedStoreStatus } from '../../../../models/simplified/simplified-store-status';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { QuadDialogComponent } from '../../../../casing/quad-dialog/quad-dialog.component';
-import { ChainXyUpdatable } from '../../../../models/chain-xy-updatable';
+import { ChainXy } from 'app/models/chain-xy';
+import { SourceUpdatableService } from 'app/core/services/source-updatable.service';
 
 @Component({
 	selector: 'mds-chain-xy-data-form',
@@ -18,9 +18,8 @@ import { ChainXyUpdatable } from '../../../../models/chain-xy-updatable';
 	styleUrls: [ './chain-xy-data-form.component.css' ]
 })
 export class ChainXyDataFormComponent implements OnChanges {
-	@Input() pgUpdatable: SourceUpdatable;
-	// @Input() xyUpdatable: ChainXyUpdatable;
-	@Input() pgFeature: { attributes; geometry: { x: number; y: number } };
+	@Input() chainXyUpdatable: SourceUpdatable;
+	@Input() chainXyFeature: ChainXy;
 	@Input() storeSource: StoreSource;
 
 	@Output() cancelEvent = new EventEmitter<void>();
@@ -28,26 +27,10 @@ export class ChainXyDataFormComponent implements OnChanges {
 
 	saving = false;
 
-	dbStatuses = [
-		{ displayName: 'Rumored', pgStatusId: -1, rank: 0 },
-		{ displayName: 'Strong Rumor', pgStatusId: -1, rank: 0 },
-		{ displayName: 'Dead Deal', pgStatusId: 99, rank: 1 },
-		{ displayName: 'Proposed', pgStatusId: 2, rank: 1 },
-		{ displayName: 'Planned', pgStatusId: 3, rank: 1 },
-		{ displayName: 'New Under Construction', pgStatusId: 1, rank: 1 },
-		{ displayName: 'Open', pgStatusId: 0, rank: 2 },
-		{ displayName: 'Remodel', pgStatusId: -1, rank: 2 },
-		{ displayName: 'Temporarily Closed', pgStatusId: -1, rank: 2 },
-		{ displayName: 'Closed', pgStatusId: -1, rank: 3 }
-	];
-	currentStatus: { displayName: string; pgStatusId: number; rank: number };
-	pgStatus: { displayName: string; pgStatusId: number; rank: number };
-	doAddStatus = false;
-
 	form: FormGroup;
 
 	constructor(
-		private pgService: ChainXyService,
+		private sourceUpdatableService: SourceUpdatableService,
 		private errorService: ErrorService,
 		private fb: FormBuilder,
 		private dialog: MatDialog,
@@ -57,22 +40,13 @@ export class ChainXyDataFormComponent implements OnChanges {
 	}
 
 	ngOnChanges() {
-		if (!(this.pgFeature && this.pgUpdatable && this.storeSource)) {
+		if (!(this.chainXyFeature && this.chainXyUpdatable && this.storeSource)) {
 			this.cancelEvent.emit();
 		} else {
-			console.log(this.pgFeature);
-			if (!this.pgUpdatable.siteId) {
-				this.pgUpdatable.latitude = this.pgFeature.geometry.y;
-				this.pgUpdatable.longitude = this.pgFeature.geometry.x;
+			if (!this.chainXyUpdatable.siteId) {
+				this.chainXyUpdatable.latitude = this.chainXyFeature.Latitude;
+				this.chainXyUpdatable.longitude = this.chainXyFeature.Longitude;
 			}
-
-			this.currentStatus = this.getCurrentStatus();
-			this.pgStatus = this.getPgStatus();
-			this.doAddStatus =
-				this.pgStatus &&
-				this.currentStatus &&
-				this.pgStatus !== this.currentStatus &&
-				this.pgStatus.rank >= this.currentStatus.rank;
 
 			this.resetForm();
 		}
@@ -95,50 +69,25 @@ export class ChainXyDataFormComponent implements OnChanges {
 			storeName: '',
 			dateOpened: '',
 			storeSurveyId: null,
-			areaTotal: '',
-			storeStatuses: []
+			areaTotal: ''
+			// storeStatuses: []
 		});
 	}
 
 	private resetForm() {
-		this.form.reset(this.pgUpdatable);
-		if (!this.pgUpdatable.shoppingCenterId) {
-			this.form.get('shoppingCenterName').setValue(this.pgFeature.attributes.NAMECENTER);
+		this.form.reset(this.chainXyUpdatable);
+		if (!this.chainXyUpdatable.siteId) {
+			this.form.get('address').setValue(this.chainXyFeature.Address);
+			this.form.get('city').setValue(this.chainXyFeature.City);
+			this.form.get('state').setValue(this.chainXyFeature.State);
+			this.form.get('postalCode').setValue(this.chainXyFeature.PostalCode);
 		}
-		if (!this.pgUpdatable.siteId) {
-			this.form.get('address').setValue(this.pgFeature.attributes.DESCLOCATION);
-			this.form.get('city').setValue(this.pgFeature.attributes.CITY);
-			this.form.get('county').setValue(this.pgFeature.attributes.county);
-			this.form.get('state').setValue(this.pgFeature.attributes.STATE);
-			this.form.get('postalCode').setValue(this.pgFeature.attributes.ZIP);
-		}
-		if (!this.pgUpdatable.storeId) {
-			this.form.get('storeName').setValue(this.pgFeature.attributes.NAME);
-			if (this.pgFeature.attributes.OPENDATE) {
-				this.form.get('dateOpened').setValue(new Date(this.pgFeature.attributes.OPENDATE));
+		if (!this.chainXyUpdatable.storeId) {
+			this.form.get('storeName').setValue(this.chainXyFeature.StoreName);
+			if (this.chainXyFeature.FirstAppeared) {
+				this.form.get('dateOpened').setValue(new Date(this.chainXyFeature.FirstAppeared));
 			}
-			this.form.get('areaTotal').setValue(this.pgFeature.attributes.SIZESF);
 		}
-	}
-
-	private getCurrentStatus(): { displayName: string; pgStatusId: number; rank: number } {
-		if (!this.pgUpdatable.storeStatuses || this.pgUpdatable.storeStatuses.length < 1) {
-			return { displayName: 'NONE', pgStatusId: -1, rank: -1 };
-		}
-		const pgEditedDateMs = this.pgFeature.attributes.EditDate;
-		const relevantStatuses = this.pgUpdatable.storeStatuses.filter(
-			(status) => status.statusStartDate.getTime() <= pgEditedDateMs
-		);
-		const currentStatus = _.maxBy(relevantStatuses, 'statusStartDate');
-		if (currentStatus) {
-			return _.find(this.dbStatuses, { displayName: currentStatus.status });
-		} else {
-			return { displayName: 'NONE', pgStatusId: -1, rank: -1 };
-		}
-	}
-
-	private getPgStatus(): { displayName: string; pgStatusId: number; rank: number } {
-		return this.dbStatuses.find((status) => status.pgStatusId === this.pgFeature.attributes.STATUS);
 	}
 
 	private prepareSubmission(): SourceUpdatable {
@@ -146,19 +95,9 @@ export class ChainXyDataFormComponent implements OnChanges {
 		if (submission.state != null) {
 			submission.state = submission.state.toUpperCase();
 		}
-		submission.latitude = this.pgUpdatable.latitude;
-		submission.longitude = this.pgUpdatable.longitude;
-		if (this.doAddStatus) {
-			if (!submission.storeStatuses) {
-				submission.storeStatuses = [];
-			}
-			const storeStatusDate = new Date(this.pgFeature.attributes.EditDate);
-			const newStatus = new SimplifiedStoreStatus({
-				status: this.getPgStatus().displayName,
-				statusStartDate: storeStatusDate
-			});
-			submission.storeStatuses.push(newStatus);
-		}
+		submission.latitude = this.chainXyUpdatable.latitude;
+		submission.longitude = this.chainXyUpdatable.longitude;
+
 		submission.storeSource = this.storeSource;
 		return submission;
 	}
@@ -167,7 +106,7 @@ export class ChainXyDataFormComponent implements OnChanges {
 		const submission = this.prepareSubmission();
 
 		this.saving = true;
-		this.pgService.submitUpdate(submission).pipe(finalize(() => (this.saving = false))).subscribe(
+		this.sourceUpdatableService.submitUpdate(submission).pipe(finalize(() => (this.saving = false))).subscribe(
 			(result) => {
 				this.snackBar
 					.open(`Successfully updated record`, 'View', { duration: 4000 })
@@ -179,26 +118,16 @@ export class ChainXyDataFormComponent implements OnChanges {
 				this.completedEvent.emit();
 			},
 			(err) =>
-				this.errorService.handleServerError(`Failed to update from PG record!`, err, () => console.log(err))
+				this.errorService.handleServerError(`Failed to update from ChainXY record!`, err, () =>
+					console.log(err)
+				)
 		);
-	}
-
-	getPgFeatureOpenDate(): string {
-		if (this.pgFeature) {
-			if (this.pgFeature.attributes.OPENDATE) {
-				return new Date(this.pgFeature.attributes.OPENDATE).toDateString();
-			} else if (this.pgFeature.attributes.OPENDATEAPPROX) {
-				return this.pgFeature.attributes.OPENDATEAPPROX;
-			}
-		}
-		return '';
 	}
 
 	showQuadDialog() {
 		const dialogRef = this.dialog.open(QuadDialogComponent);
 
 		dialogRef.afterClosed().subscribe((quad) => {
-			console.log(quad);
 			if (typeof quad === 'string' && quad !== '') {
 				const ctrl = this.form.get('quad');
 				ctrl.setValue(quad);

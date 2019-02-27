@@ -63,6 +63,10 @@
 	box-shadow: 0px 0px 10px 2px inset orange;
 }
 
+.muted {
+	background: gray !important;
+}
+
 .list-item-header {
 	font-weight: bold;
 	font-size: small;
@@ -196,6 +200,24 @@ button {
 
 mat-form-field {
 	width: 100%;
+}
+
+.flex-between {
+	display: flex;
+	align-items: center;
+	justify-content: space-evenly;
+}
+
+.flex-between > button {
+	padding: 10px 20px;
+	margin-bottom: 25px;
+	border: none;
+	border-radius: 10px;
+}
+
+.flex-between > button:hover {
+	background: orange;
+	cursor: pointer;
 }
 
 @media screen and (max-width: 1000px) {

@@ -1,7 +1,18 @@
 export class ChainXy {
 	Address: string;
 	Address2: string;
-	Chain: Object;
+	Chain: {
+		DisplayValue: string;
+		ExtractChildChains: any[];
+		ExtractParent: any;
+		Id: number;
+		Name: string;
+		Status: number;
+		StoreBaseName: string;
+		Threshold: number;
+		UseOriginalGeography: boolean;
+		UseStoreName: boolean;
+	};
 	City: string;
 	Closed: boolean;
 	Country: string;

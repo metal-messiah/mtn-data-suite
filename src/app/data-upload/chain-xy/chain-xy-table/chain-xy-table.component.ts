@@ -88,7 +88,7 @@ export class ChainXyTableComponent implements OnInit {
 			} else if (result === 'remove') {
 				this.removeBanner();
 			} else {
-				console.log(result);
+				// do nothing for now
 			}
 		});
 	}
@@ -96,10 +96,6 @@ export class ChainXyTableComponent implements OnInit {
 	updateBanner(bannerId: number, bannerSource: SimplifiedBannerSource) {
 		this.saving = true;
 		this.bannerService.getOneById(bannerId).subscribe((banner: Banner) => {
-			// update the banner on the bannerSourceService
-			// temporarily just updating the bannerSource obj
-
-			// console.log(banner);
 			const { bannerName, id, logoFileName } = banner;
 
 			this.bannerSourceService.getOneById(bannerSource.id).subscribe((fullBannerSource: BannerSource) => {

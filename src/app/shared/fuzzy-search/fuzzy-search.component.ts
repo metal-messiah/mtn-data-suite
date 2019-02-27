@@ -78,7 +78,9 @@ export class FuzzySearchComponent implements OnChanges {
 		}
 	}
 
-	setOptions(options?: FuzzySearchOptions) {}
+	setOptions(options?: FuzzySearchOptions) {
+		this.searchOptions = new FuzzySearchOptions(options, this.data);
+	}
 
 	searchForTerm(term) {
 		if (this.debounceTimer) {
@@ -101,5 +103,11 @@ export class FuzzySearchComponent implements OnChanges {
 		} else {
 			this.placeholder = 'Filter Results';
 		}
+	}
+
+	clear(elem) {
+		this.updateCount(this.data.length);
+		this.results.emit([]);
+		elem.value = '';
 	}
 }

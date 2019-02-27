@@ -41,7 +41,7 @@
       </div>
     </mat-sidenav>
     <mat-sidenav-content>
-        <button class="skip" mat-raised-button color="accent" (click)="skipAll()">
+        <button  *ngIf="sortedData" class="skip" mat-raised-button color="accent" (click)="skipAll()">
             Skip
           </button>
 
