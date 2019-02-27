@@ -9,37 +9,39 @@ import { RestService } from './rest.service';
 import * as MarkerClusterer from '@google/markerclusterer';
 import * as MarkerWithLabel from '@google/markerwithlabel';
 import { StoreMarker } from '../../models/store-marker';
-import { of, Subject } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { Pageable } from '../../models/pageable';
 import { ErrorService } from './error.service';
-import { finalize } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 import { DateUtil } from '../../utils/date-util';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { ProjectService } from './project.service';
+import { CasingDashboardService } from '../../casing/casing-dashboard/casing-dashboard.service';
 
 @Injectable()
 export class DbEntityMarkerService {
 
-  // For Validation
-  private readonly gradient = [
-    '#ffc511', '#ffb30f', '#ffa313', '#fb921a', '#f68221', '#ef7228',
-    '#e6622f', '#dc5435', '#d1463c', '#c53742', '#b72948', '#aa1c4f',
-    '#990b56', '#87005d', '#710066', '#59006f', '#3c0078', '#000080'
-  ];
+  public readonly markerTypeOptions = ['Pin', 'Logo', 'Validation', 'Cased for Project'];
 
   public clickListener$ = new Subject<{ storeId: number, siteId: number, marker: google.maps.Marker, gmap: google.maps.Map }>();
   public gettingLocations = false;
   public controls: FormGroup;
 
-  public readonly markerTypeOptions = ['Pin', 'Logo', 'Validation', 'Project Completion'];
-
-  private siteMarkerCache: { siteMarker: SiteMarker, markers: google.maps.Marker[] }[] = [];
-
+// For Validation
+  private readonly gradient = [
+    '#ffc511', '#ffb30f', '#ffa313', '#fb921a', '#f68221', '#ef7228',
+    '#e6622f', '#dc5435', '#d1463c', '#c53742', '#b72948', '#aa1c4f',
+    '#990b56', '#87005d', '#710066', '#59006f', '#3c0078', '#000080'
+  ];
   private readonly endpoint = '/api/map-marker';
 
   private clusterer: MarkerClusterer;
 
   private latestCallTime: Date;
 
+  private siteMarkerCache: { siteMarker: SiteMarker, markers: google.maps.Marker[] }[] = [];
+
+  private storeIdsCasedForProject = new Set<number>();
   private selectedSiteIds = new Set<number>();
   private selectedStoreIds = new Set<number>();
 
@@ -51,29 +53,10 @@ export class DbEntityMarkerService {
               private http: HttpClient,
               private errorService: ErrorService,
               private fb: FormBuilder,
+              private projectService: ProjectService,
+              private casingDashboardService: CasingDashboardService,
               private rest: RestService) {
-    const storedControls = localStorage.getItem('dbEntityMarkerServiceControls');
-    if (storedControls) {
-      this.controls = this.fb.group(JSON.parse(storedControls));
-    } else {
-      this.controls = this.fb.group({
-        showActive: true,
-        showHistorical: true,
-        showFuture: true,
-        showEmptySites: true,
-        showSitesBackfilledByNonGrocery: false,
-        showFloat: false,
-        cluster: false,
-        clusterZoomLevel: 13,
-        multiSelect: false,
-        multiDeselect: false,
-        minPullZoomLevel: 10,
-        fullLabelMinZoomLevel: 16,
-        markerType: 'Pin'
-      });
-    }
-
-    this.controls.valueChanges.subscribe(val => localStorage.setItem('dbEntityMarkerServiceControls', JSON.stringify(val)));
+    this.initControls();
 
     this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker, gmap: google.maps.Map }) => {
       // If not in multi-select mode, deselect previously selected markers
@@ -98,6 +81,7 @@ export class DbEntityMarkerService {
       this.selectedMarkers.push(selection.marker);
     });
   }
+
 
   /**************************************
    * Public methods
@@ -131,12 +115,26 @@ export class DbEntityMarkerService {
     _.forEach(bounds, (value, key) => params = params.set(key, String(value)));
 
     // Run Requests
-    this.gettingLocations = true;
     this.runPage(url, params, 0, gmap, finished$, this.latestCallTime, []);
-    finished$.pipe(finalize(() => this.gettingLocations = false))
-      .subscribe((markersInBounds: google.maps.Marker[]) => {
-          this.markersInBounds = markersInBounds;
-          this.showHideMarkersInBounds(markersInBounds, gmap);
+
+    const requests = [finished$.asObservable()];
+
+    if (this.controls.get('markerType').value === 'Cased for Project') {
+      const selectedProject = this.casingDashboardService.getSelectedProject();
+      if (selectedProject) {
+        requests.push(this.projectService.getAllCasedStoreIds(selectedProject.id)
+          .pipe(tap((storeIds: number[]) => {
+            this.storeIdsCasedForProject.clear();
+            storeIds.forEach(storeId => this.storeIdsCasedForProject.add(storeId));
+          })));
+      }
+    }
+
+    this.gettingLocations = true;
+    forkJoin(requests).pipe(finalize(() => this.gettingLocations = false))
+      .subscribe(results => {
+          this.markersInBounds = results[0] as google.maps.Marker[];
+          this.showHideMarkersInBounds(this.markersInBounds, gmap);
         },
         () => console.log('Cancelled'));
   }
@@ -147,10 +145,22 @@ export class DbEntityMarkerService {
    */
   public refreshMarkers(gmap: google.maps.Map) {
     if (this.latestCallTime) {
-      this.gettingLocations = true;
-      of(this.showHideMarkersInBounds(this.markersInBounds, gmap))
-        .pipe(finalize(() => this.gettingLocations = false))
-        .subscribe();
+
+      if (this.controls.get('markerType').value === 'Cased for Project') {
+        const selectedProject = this.casingDashboardService.getSelectedProject();
+        if (selectedProject) {
+          this.gettingLocations = true;
+          this.projectService.getAllCasedStoreIds(selectedProject.id)
+            .pipe(finalize(() => this.gettingLocations = false))
+            .subscribe((storeIds: number[]) => {
+              this.storeIdsCasedForProject.clear();
+              storeIds.forEach(storeId => this.storeIdsCasedForProject.add(storeId));
+              this.showHideMarkersInBounds(this.markersInBounds, gmap)
+            });
+        }
+      } else {
+        this.showHideMarkersInBounds(this.markersInBounds, gmap);
+      }
     } else {
       this.getMarkersInMapView(gmap);
     }
@@ -182,6 +192,31 @@ export class DbEntityMarkerService {
   /**************************************
    * Private methods
    *************************************/
+
+  private initControls() {
+    const storedControls = localStorage.getItem('dbEntityMarkerServiceControls');
+    if (storedControls) {
+      this.controls = this.fb.group(JSON.parse(storedControls));
+    } else {
+      this.controls = this.fb.group({
+        showActive: true,
+        showHistorical: true,
+        showFuture: true,
+        showEmptySites: true,
+        showSitesBackfilledByNonGrocery: false,
+        showFloat: false,
+        cluster: false,
+        clusterZoomLevel: 13,
+        multiSelect: false,
+        multiDeselect: false,
+        minPullZoomLevel: 10,
+        fullLabelMinZoomLevel: 16,
+        markerType: 'Pin'
+      });
+    }
+
+    this.controls.valueChanges.subscribe(val => localStorage.setItem('dbEntityMarkerServiceControls', JSON.stringify(val)));
+  }
 
   private refreshMarkerOptions(marker: google.maps.Marker, gmap) {
     const store = marker['store'];
@@ -385,7 +420,7 @@ export class DbEntityMarkerService {
         fillColor: this.getFillColor(selected, site.assigneeId),
         fillOpacity: 1,
         scale: 0.075,
-        strokeColor: this.getStrokeColor(site, selected, gmap),
+        strokeColor: selected ? Color.YELLOW : Color.WHITE,
         strokeWeight: 2.5,
         anchor: site.duplicate ? new google.maps.Point(80, 510) : new google.maps.Point(255, 510),
         labelOrigin: site.duplicate ? new google.maps.Point(255, 220) : new google.maps.Point(255, 230),
@@ -395,14 +430,16 @@ export class DbEntityMarkerService {
 
   private getMarkerOptionsForStore(store: StoreMarker, site: SiteMarker, gmap: google.maps.Map) {
     const selected = this.selectedStoreIds.has(store.id);
-    const showingLogo = this.controls.get('markerType').value === 'Logo' && store.logoFileName != null;
+    const showLogo = this.controls.get('markerType').value === 'Logo' && store.logoFileName != null;
+    const showCased = this.controls.get('markerType').value === 'Cased for Project' && this.storeIdsCasedForProject.has(store.id);
+
 
     return {
       position: {lat: site.latitude, lng: site.longitude},
-      icon: this.getStoreIcon(store, site, selected, gmap, showingLogo),
-      labelContent: this.getStoreLabelContent(store, gmap, showingLogo),
-      labelAnchor: this.getStoreLabelAnchor(store, gmap, showingLogo),
-      labelClass: this.getStoreLabelClass(store, gmap, selected),
+      icon: this.getStoreIcon(store, site, selected, gmap, showLogo, showCased),
+      labelContent: this.getStoreLabelContent(store, gmap, showLogo),
+      labelAnchor: this.getStoreLabelAnchor(store, gmap, showLogo, showCased),
+      labelClass: this.getStoreLabelClass(store, gmap, selected, showLogo, showCased),
       labelInBackground: false
     };
   }
@@ -411,46 +448,47 @@ export class DbEntityMarkerService {
    * Utility Functions
    *****************************************/
 
-  private getStoreIcon(store: StoreMarker, site: SiteMarker, selected: boolean, gmap: google.maps.Map, showingLogo: boolean) {
+  private getStoreIcon(store: StoreMarker, site: SiteMarker, selected: boolean, gmap: google.maps.Map,
+                       showLogo: boolean, showCased: boolean) {
 
     return {
-      path: this.getStoreIconMarkerShape(store, showingLogo),
+      path: this.getStoreIconMarkerShape(store, showLogo, showCased),
       fillColor: this.getStoreIconFillColor(store, selected, site.assigneeId),
       fillOpacity: 1,
-      scale: this.getStoreIconScale(store, showingLogo),
-      strokeColor: this.getStrokeColor(site, selected, gmap),
-      strokeWeight: this.getStoreIconStrokeWeight(store, showingLogo),
-      anchor: this.getStoreIconAnchorPoint(store, showingLogo),
-      rotation: this.getStoreIconRotation(store, showingLogo)
+      scale: this.getStoreIconScale(store, showLogo, showCased),
+      strokeColor: selected ? Color.YELLOW : Color.WHITE,
+      strokeWeight: this.getStoreIconStrokeWeight(store, showLogo, showCased),
+      anchor: this.getStoreIconAnchorPoint(store, showLogo, showCased),
+      rotation: this.getStoreIconRotation(store, showLogo, showCased)
     }
   }
 
-  private getStoreIconStrokeWeight(store: StoreMarker, showingLogo: boolean) {
-    if (showingLogo) {
+  private getStoreIconStrokeWeight(store: StoreMarker, showLogo: boolean, showCased: boolean) {
+    if (showCased || showLogo) {
       return 2.0;
     }
     return store.float ? 1.2 : 2.5;
   }
 
-  private getStoreIconScale(store: StoreMarker, showingLogo: boolean) {
-    if (showingLogo) {
+  private getStoreIconScale(store: StoreMarker, showLogo: boolean, showCased: boolean) {
+    if (showCased || showLogo) {
       return 0.1;
     }
     return store.float ? 0.06 : 0.075;
   }
 
-  private getStoreIconMarkerShape(store: StoreMarker, showingLogo: boolean) {
+  private getStoreIconMarkerShape(store: StoreMarker, showLogo: boolean, showCased: boolean) {
     if (this.controls.get('markerType').value === 'Validation' && store.validatedDate) {
       return MarkerShape.CERTIFICATE
     }
-    if (showingLogo) {
+    if (showCased || showLogo) {
       return MarkerShape.CIRCLE;
     }
     return store.float ? MarkerShape.LIFE_RING : MarkerShape.FILLED;
   }
 
-  private getStoreIconAnchorPoint(store: StoreMarker, showingLogo: boolean) {
-    if (showingLogo) {
+  private getStoreIconAnchorPoint(store: StoreMarker, showLogo: boolean, showCased: boolean) {
+    if (showCased || showLogo) {
       switch (store.storeType) {
         case 'FUTURE':
           return new google.maps.Point(-10, 0);
@@ -463,8 +501,8 @@ export class DbEntityMarkerService {
     return store.float ? new google.maps.Point(255, 580) : new google.maps.Point(255, 510);
   }
 
-  private getStoreIconRotation(store: StoreMarker, showingLogo: boolean) {
-    if (showingLogo) {
+  private getStoreIconRotation(store: StoreMarker, showLogo: boolean, showCased: boolean) {
+    if (showCased || showLogo) {
       return 0;
     }
     switch (store.storeType) {
@@ -489,31 +527,41 @@ export class DbEntityMarkerService {
     return this.getFillColor(selected, assigneeId);
   }
 
-  private getStoreLabelClass(store: StoreMarker, gmap: google.maps.Map, selected: boolean) {
+  /**
+   * Returns the appropriate css class for the store's label.
+   * Limitation - can only associate one class
+   * @param store
+   * @param gmap
+   * @param selected
+   */
+  private getStoreLabelClass(store: StoreMarker, gmap: google.maps.Map, selected: boolean, showLogo: boolean, showCased: boolean) {
+    // Logos
+    if (showCased || showLogo) {
+      switch (store.storeType) {
+        case 'HISTORICAL':
+          return selected ? 'db-marker-image-label-historical-selected' : 'db-marker-image-label-historical';
+        case 'FUTURE':
+          return selected ? 'db-marker-image-label-future-selected' : 'db-marker-image-label-future';
+        default:
+          return selected ? 'db-marker-image-label-active-selected' : 'db-marker-image-label-active';
+      }
+    }
+
+    // Normal
     const fullLabel = gmap.getZoom() >= this.controls.get('fullLabelMinZoomLevel').value;
-    const showingLogo = this.controls.get('markerType').value === 'Logo' && store.logoFileName;
     switch (store.storeType) {
       case 'HISTORICAL':
-        if (showingLogo) {
-          return selected ? 'db-marker-image-label-historical-selected' : 'db-marker-image-label-historical';
-        }
         return fullLabel ? 'db-marker-full-label-historical' : 'db-marker-short-label';
       case 'FUTURE':
-        if (showingLogo) {
-          return selected ? 'db-marker-image-label-future-selected' : 'db-marker-image-label-future';
-        }
         return fullLabel ? 'db-marker-full-label-future' : 'db-marker-short-label';
       default:
-        if (showingLogo) {
-          return selected ? 'db-marker-image-label-active-selected' : 'db-marker-image-label-active';
-        }
         return fullLabel ? 'db-marker-full-label-active' : 'db-marker-short-label';
     }
   }
 
-  private getStoreLabelContent(store: StoreMarker, gmap: google.maps.Map, showingLogo: boolean) {
+  private getStoreLabelContent(store: StoreMarker, gmap: google.maps.Map, showLogo: boolean) {
     let labelText = '';
-    if (showingLogo) {
+    if (showLogo) {
       const pictureLabel = document.createElement('img');
       pictureLabel.src = `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${store.logoFileName}`;
       return pictureLabel
@@ -528,29 +576,28 @@ export class DbEntityMarkerService {
     return labelText;
   }
 
-  private getStoreLabelAnchor(store: StoreMarker, gmap: google.maps.Map, showingLogo: boolean) {
+  private getStoreLabelAnchor(store: StoreMarker, gmap: google.maps.Map, showLogo: boolean, showCased: boolean) {
     const fullLabel = gmap.getZoom() >= this.controls.get('fullLabelMinZoomLevel').value;
+
+    if (showCased || showLogo) {
+      switch (store.storeType) {
+        case 'HISTORICAL':
+          return new google.maps.Point(10, -10);
+        case 'FUTURE':
+          return new google.maps.Point(-10, -10);
+        default:
+          return new google.maps.Point(-5, showCased ? 20 : 30);
+      }
+    }
+
     switch (store.storeType) {
       case 'HISTORICAL':
-        if (showingLogo) {
-          return new google.maps.Point(40, -10);
-        }
         return fullLabel ? new google.maps.Point(40, 10) : new google.maps.Point(23, 8);
       case 'FUTURE':
-        if (showingLogo) {
-          return new google.maps.Point(-40, -10);
-        }
         return fullLabel ? new google.maps.Point(-40, 10) : new google.maps.Point(-25, 8);
       default:
-        if (showingLogo) {
-          return new google.maps.Point(-5, 30);
-        }
         return fullLabel ? new google.maps.Point(0, 60) : new google.maps.Point(0, 32);
     }
-  }
-
-  private getStrokeColor(site: SiteMarker, selected: boolean, gmap: google.maps.Map) {
-    return selected ? Color.YELLOW : Color.WHITE;
   }
 
   private getFillColor(selected: boolean, assigneeId: number): string {

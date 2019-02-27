@@ -13,7 +13,6 @@ import { StoreVolume } from '../../models/full/store-volume';
 import { StoreCasing } from '../../models/full/store-casing';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
-import { StoreFilter } from '../../models/store-filter';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 
 @Injectable()
@@ -45,26 +44,20 @@ export class StoreService extends CrudService<Store> {
       .pipe(map(newCasing => new StoreCasing(newCasing)));
   }
 
-  getIdsInShape(shape: string, filter: StoreFilter): Observable<{siteIds: number[], storeIds: number[]}> {
+  getIdsInShape(shape: string): Observable<{siteIds: number[], storeIds: number[]}> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams();
     params = params.set('geojson', shape);
-    params = params.set('active', String(filter.active));
-    params = params.set('future', String(filter.future));
-    params = params.set('historical', String(filter.historical));
     return this.http.get<{siteIds: number[], storeIds: number[]}>(url, {headers: this.rest.getHeaders(), params: params});
   }
 
-  getIdsInRadius(latitude: number, longitude: number, radiusMeters: number, filter: StoreFilter)
+  getIdsInRadius(latitude: number, longitude: number, radiusMeters: number)
     : Observable<{siteIds: number[], storeIds: number[]}> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams();
     params = params.set('latitude', String(latitude));
     params = params.set('longitude', String(longitude));
     params = params.set('radiusMeters', String(radiusMeters));
-    params = params.set('active', String(filter.active));
-    params = params.set('future', String(filter.future));
-    params = params.set('historical', String(filter.historical));
     return this.http.get<{siteIds: number[], storeIds: number[]}>(url, {headers: this.rest.getHeaders(), params: params});
   }
 

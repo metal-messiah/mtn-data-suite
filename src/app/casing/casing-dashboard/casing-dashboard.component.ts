@@ -180,7 +180,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.get('minPullZoomLevel').value) {
       this.dbEntityMarkerService.getMarkersInMapView(this.mapService.getMap())
     } else {
-      this.snackBar.open('Zoom in or change Min Zoom level', null, {duration: 2000})
+      this.snackBar.open('Zoom in or change Pull zoom limit', null, {duration: 3000})
     }
   }
 
@@ -341,10 +341,10 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         const latitude = geoJson.geometry.coordinates[1];
         const radiusMeters = geoJson.properties.radius;
         // TODO - MDS-468
-        observable = this.storeService.getIdsInRadius(latitude, longitude, radiusMeters, null);
+        observable = this.storeService.getIdsInRadius(latitude, longitude, radiusMeters);
       } else {
         // TODO - MDS-468
-        observable = this.storeService.getIdsInShape(JSON.stringify(geoJson), null);
+        observable = this.storeService.getIdsInShape(JSON.stringify(geoJson));
       }
 
       this.selecting = true;
@@ -518,7 +518,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   private selectAllInShape(geoJsonString: string) {
     this.selecting = true;
     // TODO MDS-465
-    this.storeService.getIdsInShape(geoJsonString, null)
+    this.storeService.getIdsInShape(geoJsonString)
       .pipe(finalize(() => this.selecting = false))
       .subscribe((ids: { siteIds: number[], storeIds: number[] }) => {
         this.dbEntityMarkerService.clearSelection(this.mapService.getMap());

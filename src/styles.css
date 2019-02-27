@@ -113,8 +113,9 @@ fieldset {
   padding: 2px 5px;
   border-radius: 5px;
   background: #ffffffb0;
+  box-shadow: 0 0 3px 2px #00000080;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 12px;
   color: #000000;
 }
 
@@ -143,11 +144,12 @@ fieldset {
 .db-marker-image-label-active-selected,
 .db-marker-image-label-historical-selected,
 .db-marker-image-label-future-selected {
-  -webkit-transform: translateX(-50%);
   border-radius: 5px;
   padding: 2px;
   background: #ffffffc9;
-  box-shadow: 0 0 3px 2px #aba7a7;
+  box-shadow: 0 0 3px 2px #00000080;
+  font-weight: bold;
+  font-size: 12px;
 }
 
 .db-marker-image-label-active-selected,
@@ -155,4 +157,3 @@ fieldset {
 .db-marker-image-label-future-selected {
   box-shadow: 0 0 0 3px #ffe448;
 }
-

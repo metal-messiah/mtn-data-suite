@@ -65,6 +65,11 @@ export class ProjectService extends CrudService<Project> {
       .pipe(map((response) => new SimplifiedProject(response)));
   }
 
+  getAllCasedStoreIds(projectId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/cased-store-ids';
+    return this.http.get<number[]>(url, {headers: this.rest.getHeaders()});
+  }
+
   protected createEntityFromObj(entityObj): Project {
     return new Project(entityObj);
   }
