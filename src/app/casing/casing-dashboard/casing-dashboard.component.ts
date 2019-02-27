@@ -132,7 +132,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       this.movingSite = site;
       this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
       // Create new site layer
-      this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, this.mapService.getCenter());
+      this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, {lat: site.latitude, lng: site.longitude});
     }));
     this.subscriptions.push(this.siteUpdated$.subscribe(() => this.dbEntityMarkerService.getMarkersInMapView(this.mapService.getMap())));
 
