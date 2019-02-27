@@ -70,6 +70,7 @@ export class DbEntityMarkerService {
         this.selectedSiteIds.clear();
         this.selectedStoreIds.clear();
         this.selectedMarkers.forEach(marker => this.refreshMarkerOptions(marker, selection.gmap));
+        this.selectedMarkers.length = 0;
       }
 
       // Add to selected Ids
@@ -340,6 +341,10 @@ export class DbEntityMarkerService {
     const marker = new google.maps.Marker();
     marker['site'] = site;
     marker.addListener('click', () => this.clickListener$.next({storeId: null, siteId: site.id, marker: marker, gmap: gmap}));
+
+    if (this.selectedSiteIds.has(site.id)) {
+      this.selectedMarkers.push(marker);
+    }
     return marker;
   }
 
@@ -349,30 +354,10 @@ export class DbEntityMarkerService {
     marker['store'] = store;
     marker['site'] = site;
     marker.addListener('click', () => this.clickListener$.next({storeId: store.id, siteId: site.id, marker: marker, gmap: gmap}));
-    return marker;
-  }
 
-  private createHistoricalCountMarker(count: number, site: SiteMarker) {
-    const marker = new google.maps.Marker({
-      position: {lat: site.latitude, lng: site.longitude},
-      label: {
-        text: count.toString(),
-        color: Color.WHITE,
-        fontWeight: 'bold'
-      },
-      icon: {
-        path: MarkerShape.FILLED,
-        fillColor: this.getFillColor(false, site.assigneeId),
-        fillOpacity: 1,
-        scale: 0.06,
-        strokeColor: Color.BLUE_DARK,
-        strokeWeight: 2.5,
-        anchor: new google.maps.Point(255, 510),
-        labelOrigin: new google.maps.Point(255, 200),
-        rotation: -90
-      }
-    });
-    marker['historicalCountMarker'] = true;
+    if (this.selectedStoreIds.has(store.id)) {
+      this.selectedMarkers.push(marker);
+    }
     return marker;
   }
 
@@ -554,9 +539,6 @@ export class DbEntityMarkerService {
   }
 
   private getStrokeColor(site: SiteMarker, selected: boolean, gmap: google.maps.Map) {
-    if (site.duplicate) {
-      return selected ? Color.PINK : Color.RED;
-    }
     return selected ? Color.YELLOW : Color.WHITE;
   }
 
