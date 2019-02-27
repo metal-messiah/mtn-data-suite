@@ -14,6 +14,7 @@ import { Pageable } from '../../models/pageable';
 import { ErrorService } from './error.service';
 import { finalize } from 'rxjs/operators';
 import { DateUtil } from '../../utils/date-util';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Injectable()
 export class DbEntityMarkerService {
@@ -27,21 +28,7 @@ export class DbEntityMarkerService {
 
   public clickListener$ = new Subject<{ storeId: number, siteId: number, marker: google.maps.Marker, gmap: google.maps.Map }>();
   public gettingLocations = false;
-  public controls = {
-    showActive: true,
-    showHistorical: true,
-    showFuture: true,
-    showEmptySites: true,
-    showSitesBackfilledByNonGrocery: false,
-    showFloat: false,
-    cluster: false,
-    clusterZoomLevel: 13,
-    multiSelect: false,
-    multiDeselect: false,
-    minPullZoomLevel: 10,
-    fullLabelMinZoomLevel: 16,
-    markerType: 'Pin'
-  };
+  public controls: FormGroup;
 
   public readonly markerTypeOptions = ['Pin', 'Logo', 'Validation', 'Project Completion'];
 
@@ -63,10 +50,34 @@ export class DbEntityMarkerService {
   constructor(private authService: AuthService,
               private http: HttpClient,
               private errorService: ErrorService,
+              private fb: FormBuilder,
               private rest: RestService) {
+    const storedControls = localStorage.getItem('dbEntityMarkerServiceControls');
+    if (storedControls) {
+      this.controls = this.fb.group(JSON.parse(storedControls));
+    } else {
+      this.controls = this.fb.group({
+        showActive: true,
+        showHistorical: true,
+        showFuture: true,
+        showEmptySites: true,
+        showSitesBackfilledByNonGrocery: false,
+        showFloat: false,
+        cluster: false,
+        clusterZoomLevel: 13,
+        multiSelect: false,
+        multiDeselect: false,
+        minPullZoomLevel: 10,
+        fullLabelMinZoomLevel: 16,
+        markerType: 'Pin'
+      });
+    }
+
+    this.controls.valueChanges.subscribe(val => localStorage.setItem('dbEntityMarkerServiceControls', JSON.stringify(val)));
+
     this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker, gmap: google.maps.Map }) => {
       // If not in multi-select mode, deselect previously selected markers
-      if (!this.controls.multiSelect) {
+      if (!this.controls.get('multiSelect').value) {
         this.selectedSiteIds.clear();
         this.selectedStoreIds.clear();
         this.selectedMarkers.forEach(marker => this.refreshMarkerOptions(marker, selection.gmap));
@@ -156,7 +167,7 @@ export class DbEntityMarkerService {
   }
 
   public multiSelect(ids: { siteIds: number[], storeIds: number[] }, gmap: google.maps.Map) {
-    if (this.controls.multiDeselect) {
+    if (this.controls.get('multiDeselect').value) {
       ids.siteIds.forEach(id => this.selectedSiteIds.delete(id));
       ids.storeIds.forEach(id => this.selectedStoreIds.delete(id));
     } else {
@@ -185,22 +196,22 @@ export class DbEntityMarkerService {
 
   private showHideMarkersInBounds(markersInBounds: google.maps.Marker[], gmap: google.maps.Map) {
     const currentlyVisibleMarkers = markersInBounds.filter(marker => {
-      if (!this.controls.showHistorical && marker['historicalCountMarker']) {
+      if (!this.controls.get('showHistorical').value && marker['historicalCountMarker']) {
         return false;
       }
 
       const store: StoreMarker = marker['store'];
       if (store) {
-        if (!this.controls.showActive && (store && store.storeType === 'ACTIVE')) {
+        if (!this.controls.get('showActive').value && (store && store.storeType === 'ACTIVE')) {
           return false;
         }
-        if (!this.controls.showHistorical && (store && store.storeType === 'HISTORICAL')) {
+        if (!this.controls.get('showHistorical').value && (store && store.storeType === 'HISTORICAL')) {
           return false;
         }
-        if (!this.controls.showFuture && (store && store.storeType === 'FUTURE')) {
+        if (!this.controls.get('showFuture').value && (store && store.storeType === 'FUTURE')) {
           return false;
         }
-        if (!this.controls.showFloat && store.float) {
+        if (!this.controls.get('showFloat').value && store.float) {
           return false;
         }
         return true;
@@ -209,10 +220,10 @@ export class DbEntityMarkerService {
       const site: SiteMarker = marker['site'];
       if (site) {
         if (site.backfilledNonGrocery) {
-          return this.controls.showSitesBackfilledByNonGrocery;
+          return this.controls.get('showSitesBackfilledByNonGrocery').value;
         }
         const siteIsEmpty = site.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
-        return !(!this.controls.showEmptySites && siteIsEmpty);
+        return !(!this.controls.get('showEmptySites').value && siteIsEmpty);
       }
 
       return true;
@@ -227,7 +238,7 @@ export class DbEntityMarkerService {
       });
 
     // Show the now visible markers
-    if (this.controls.cluster && gmap.getZoom() <= this.controls.clusterZoomLevel) {
+    if (this.controls.get('cluster').value && gmap.getZoom() <= this.controls.get('clusterZoomLevel').value) {
       this.clusterer.addMarkers(currentlyVisibleMarkers);
     } else {
       this.clusterer.clearMarkers();
@@ -384,7 +395,7 @@ export class DbEntityMarkerService {
 
   private getMarkerOptionsForStore(store: StoreMarker, site: SiteMarker, gmap: google.maps.Map) {
     const selected = this.selectedStoreIds.has(store.id);
-    const showingLogo = this.controls.markerType === 'Logo' && store.logoFileName != null;
+    const showingLogo = this.controls.get('markerType').value === 'Logo' && store.logoFileName != null;
 
     return {
       position: {lat: site.latitude, lng: site.longitude},
@@ -429,7 +440,7 @@ export class DbEntityMarkerService {
   }
 
   private getStoreIconMarkerShape(store: StoreMarker, showingLogo: boolean) {
-    if (this.controls.markerType === 'Validation' && store.validatedDate) {
+    if (this.controls.get('markerType').value === 'Validation' && store.validatedDate) {
       return MarkerShape.CERTIFICATE
     }
     if (showingLogo) {
@@ -467,7 +478,7 @@ export class DbEntityMarkerService {
   }
 
   private getStoreIconFillColor(store: StoreMarker, selected: boolean, assigneeId: number) {
-    if (this.controls.markerType === 'Validation' && store.validatedDate) {
+    if (this.controls.get('markerType').value === 'Validation' && store.validatedDate) {
       let age = DateUtil.monthsBetween(new Date(), store.validatedDate);
       if (age > this.gradient.length - 1) {
         age = this.gradient.length - 1;
@@ -479,24 +490,24 @@ export class DbEntityMarkerService {
   }
 
   private getStoreLabelClass(store: StoreMarker, gmap: google.maps.Map, selected: boolean) {
-    const fullLabel = gmap.getZoom() >= this.controls.fullLabelMinZoomLevel;
-    const showingLogo = this.controls.markerType === 'Logo' && store.logoFileName;
+    const fullLabel = gmap.getZoom() >= this.controls.get('fullLabelMinZoomLevel').value;
+    const showingLogo = this.controls.get('markerType').value === 'Logo' && store.logoFileName;
     switch (store.storeType) {
       case 'HISTORICAL':
         if (showingLogo) {
           return selected ? 'db-marker-image-label-historical-selected' : 'db-marker-image-label-historical';
         }
-        return fullLabel ? 'db-marker-full-label-historical' :  'db-marker-short-label';
+        return fullLabel ? 'db-marker-full-label-historical' : 'db-marker-short-label';
       case 'FUTURE':
         if (showingLogo) {
           return selected ? 'db-marker-image-label-future-selected' : 'db-marker-image-label-future';
         }
-        return fullLabel ?  'db-marker-full-label-future' : 'db-marker-short-label';
+        return fullLabel ? 'db-marker-full-label-future' : 'db-marker-short-label';
       default:
         if (showingLogo) {
           return selected ? 'db-marker-image-label-active-selected' : 'db-marker-image-label-active';
         }
-        return fullLabel ?  'db-marker-full-label-active' : 'db-marker-short-label';
+        return fullLabel ? 'db-marker-full-label-active' : 'db-marker-short-label';
     }
   }
 
@@ -508,7 +519,7 @@ export class DbEntityMarkerService {
       return pictureLabel
     }
     if (store.storeName && !store.float) {
-      if (gmap.getZoom() >= this.controls.fullLabelMinZoomLevel) {
+      if (gmap.getZoom() >= this.controls.get('fullLabelMinZoomLevel').value) {
         labelText = store.storeName
       } else {
         labelText = store.storeName[0];
@@ -518,23 +529,23 @@ export class DbEntityMarkerService {
   }
 
   private getStoreLabelAnchor(store: StoreMarker, gmap: google.maps.Map, showingLogo: boolean) {
-    const fullLabel = gmap.getZoom() >= this.controls.fullLabelMinZoomLevel;
+    const fullLabel = gmap.getZoom() >= this.controls.get('fullLabelMinZoomLevel').value;
     switch (store.storeType) {
       case 'HISTORICAL':
         if (showingLogo) {
           return new google.maps.Point(40, -10);
         }
-        return fullLabel ? new google.maps.Point(40, 10) :  new google.maps.Point(23, 8);
+        return fullLabel ? new google.maps.Point(40, 10) : new google.maps.Point(23, 8);
       case 'FUTURE':
         if (showingLogo) {
           return new google.maps.Point(-40, -10);
         }
-        return fullLabel ?  new google.maps.Point(-40, 10) : new google.maps.Point(-25, 8);
+        return fullLabel ? new google.maps.Point(-40, 10) : new google.maps.Point(-25, 8);
       default:
         if (showingLogo) {
           return new google.maps.Point(-5, 30);
         }
-        return fullLabel ?  new google.maps.Point(0, 60) : new google.maps.Point(0, 32);
+        return fullLabel ? new google.maps.Point(0, 60) : new google.maps.Point(0, 32);
     }
   }
 

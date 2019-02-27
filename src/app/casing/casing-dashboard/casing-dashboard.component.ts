@@ -177,7 +177,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   getEntitiesInBounds(): void {
-    if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.minPullZoomLevel) {
+    if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.get('minPullZoomLevel').value) {
       this.dbEntityMarkerService.getMarkersInMapView(this.mapService.getMap())
     } else {
       this.snackBar.open('Zoom in or change Min Zoom level', null, {duration: 2000})
@@ -331,7 +331,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   enableMultiSelect(): void {
     this.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
     this.dbEntityMarkerService.clearSelection(this.mapService.getMap());
-    this.dbEntityMarkerService.controls.multiSelect = true;
+    this.dbEntityMarkerService.controls.get('multiSelect').setValue(true);
     // Activate Map Drawing Tools and listen for completed Shapes
     this.mapService.activateDrawingTools().subscribe(shape => {
       const geoJson = GeometryUtil.getGeoJsonFromShape(shape);
@@ -340,9 +340,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         const longitude = geoJson.geometry.coordinates[0];
         const latitude = geoJson.geometry.coordinates[1];
         const radiusMeters = geoJson.properties.radius;
-        observable = this.storeService.getIdsInRadius(latitude, longitude, radiusMeters, this.casingDashboardService.filter);
+        // TODO - MDS-468
+        observable = this.storeService.getIdsInRadius(latitude, longitude, radiusMeters, null);
       } else {
-        observable = this.storeService.getIdsInShape(JSON.stringify(geoJson), this.casingDashboardService.filter);
+        // TODO - MDS-468
+        observable = this.storeService.getIdsInShape(JSON.stringify(geoJson), null);
       }
 
       this.selecting = true;
@@ -467,7 +469,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   filterClosed() {
-    this.casingDashboardService.saveFilters().subscribe(() => console.log('Saved Filters'));
     this.dbEntityMarkerService.refreshMarkers(this.mapService.getMap());
   }
 
@@ -516,7 +517,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   private selectAllInShape(geoJsonString: string) {
     this.selecting = true;
-    this.storeService.getIdsInShape(geoJsonString, this.casingDashboardService.filter)
+    // TODO MDS-465
+    this.storeService.getIdsInShape(geoJsonString, null)
       .pipe(finalize(() => this.selecting = false))
       .subscribe((ids: { siteIds: number[], storeIds: number[] }) => {
         this.dbEntityMarkerService.clearSelection(this.mapService.getMap());

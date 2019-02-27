@@ -1,21 +1,21 @@
 <mat-sidenav-container id="casing-dash-container">
   <mat-sidenav mode="over" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end"
                (closedStart)="filterClosed()">
-    <mat-list role="list" id="filter-side-nav">
+    <mat-list role="list" id="filter-side-nav" [formGroup]="dbEntityMarkerService.controls">
       <h3 mat-subheader>Filters</h3>
       <div class="checklist">
-        <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.showActive">Active</mat-checkbox>
-        <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.showFuture">Future</mat-checkbox>
-        <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.showHistorical">Historical</mat-checkbox>
-        <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.showEmptySites">Empty Sites</mat-checkbox>
-        <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
-        <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.showFloat">Float Stores</mat-checkbox>
+        <mat-checkbox formControlName="showActive">Active</mat-checkbox>
+        <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
+        <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
+        <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
+        <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
+        <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
       </div>
       <mat-divider></mat-divider>
 
       <h3 mat-subheader>Marker Type</h3>
       <mat-form-field id="marker-type-selector" floatLabel="never">
-        <mat-select [(ngModel)]="dbEntityMarkerService.controls.markerType">
+        <mat-select formControlName="markerType">
           <mat-option *ngFor="let markerType of dbEntityMarkerService.markerTypeOptions" [value]="markerType">
             {{markerType}}
           </mat-option>
@@ -27,24 +27,21 @@
       <h3 mat-subheader>Controls</h3>
       <div>
         <div class="checklist">
-          <mat-checkbox [(ngModel)]="dbEntityMarkerService.controls.cluster">Cluster Stores</mat-checkbox>
+          <mat-checkbox formControlName="cluster">Cluster Stores</mat-checkbox>
         </div>
-        <div *ngIf="dbEntityMarkerService.controls.cluster">
-          <h3 mat-subheader>Cluster when zoom <= {{dbEntityMarkerService.controls.clusterZoomLevel}}</h3>
-          <mat-slider [max]="21" [min]="0" [thumbLabel]="true"
-                      [(ngModel)]="dbEntityMarkerService.controls.clusterZoomLevel"></mat-slider>
-        </div>
-        <mat-divider></mat-divider>
-        <div>
-          <h3 mat-subheader>Refresh when zoom >= {{dbEntityMarkerService.controls.minPullZoomLevel}}</h3>
-          <mat-slider [max]="21" [min]="0" [thumbLabel]="true"
-                      [(ngModel)]="dbEntityMarkerService.controls.minPullZoomLevel"></mat-slider>
+        <div *ngIf="dbEntityMarkerService.controls.get('cluster').value">
+          <h3 mat-subheader>Cluster when zoom <= {{dbEntityMarkerService.controls.get('clusterZoomLevel').value}}</h3>
+          <mat-slider [max]="21" [min]="0" [thumbLabel]="true" formControlName="clusterZoomLevel"></mat-slider>
         </div>
         <mat-divider></mat-divider>
         <div>
-          <h3 mat-subheader>Full Label when zoom >= {{dbEntityMarkerService.controls.fullLabelMinZoomLevel}}</h3>
-          <mat-slider [max]="21" [min]="0" [thumbLabel]="true"
-                      [(ngModel)]="dbEntityMarkerService.controls.fullLabelMinZoomLevel"></mat-slider>
+          <h3 mat-subheader>Refresh when zoom >= {{dbEntityMarkerService.controls.get('minPullZoomLevel').value}}</h3>
+          <mat-slider [max]="21" [min]="0" [thumbLabel]="true" formControlName="minPullZoomLevel"></mat-slider>
+        </div>
+        <mat-divider></mat-divider>
+        <div>
+          <h3 mat-subheader>Full Label when zoom >= {{dbEntityMarkerService.controls.get('fullLabelMinZoomLevel').value}}</h3>
+          <mat-slider [max]="21" [min]="0" [thumbLabel]="true" formControlName="fullLabelMinZoomLevel"></mat-slider>
         </div>
         <mat-divider></mat-divider>
         <h3 mat-subheader>(Current Zoom: {{mapService.getZoom()}})</h3>
@@ -122,8 +119,8 @@
           </div>
           <div>
             <button mat-mini-fab [mat-menu-trigger-for]="multiSelectModeMenu" color="primary">
-              <i *ngIf="!dbEntityMarkerService.controls.multiDeselect" class="fas fa-plus"></i>
-              <i *ngIf="dbEntityMarkerService.controls.multiDeselect" class="fas fa-minus"></i>
+              <i *ngIf="!dbEntityMarkerService.controls.get('multiDeselect').value" class="fas fa-plus"></i>
+              <i *ngIf="dbEntityMarkerService.controls.get('multiDeselect').value" class="fas fa-minus"></i>
             </button>
           </div>
           <div>
