@@ -54,35 +54,6 @@
       <mds-info-card *ngIf="infoCard" class="infoCardContainer"
                      [infoCard]="infoCard" [disabled]="selectedDashboardMode !== casingDashboardMode.DEFAULT">
       </mds-info-card>
-      <!--<div class="infoCardContainer">-->
-      <!--<div class="infoCard" *ngIf="selectedCardState === cardState.GOOGLE && selectedGooglePlace">-->
-      <!--<mat-card>-->
-      <!--<mat-card-header>-->
-      <!--<mat-card-title>-->
-      <!--<strong>{{selectedGooglePlace.name}}</strong>-->
-      <!--</mat-card-title>-->
-      <!--<mat-card-subtitle><em>(Provided by Google)</em></mat-card-subtitle>-->
-      <!--</mat-card-header>-->
-      <!--<mat-card-content>-->
-      <!--{{selectedGooglePlace.vicinity}}-->
-      <!--</mat-card-content>-->
-      <!--<mat-card-actions>-->
-      <!--<button mat-button [disabled]="true || selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"-->
-      <!--(click)="saveGooglePlaceAsStore()">-->
-      <!--<i class="fas fa-save"></i>&nbsp;Save To DB-->
-      <!--</button>-->
-      <!--</mat-card-actions>-->
-      <!--</mat-card>-->
-      <!--</div>-->
-      <!--<mds-db-location-info-card class="infoCard"-->
-      <!--*ngIf="selection && selectedCardState === cardState.SELECTION"-->
-      <!--[selection]="selection"-->
-      <!--[disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"-->
-      <!--(onSiteUpdated$)="onSiteUpdated($event)"-->
-      <!--(onStoreUpdated$)="onStoreUpdated($event)"-->
-      <!--(initiateDuplicateSiteSelection)="initiateDuplicateSiteSelection($event.id)"-->
-      <!--(initiateMove)="moveStore($event)"></mds-db-location-info-card>-->
-      <!--</div>-->
       <div class="row footer">
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" color="primary"
                      class="flex-space-between">

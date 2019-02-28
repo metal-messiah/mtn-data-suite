@@ -19,6 +19,7 @@ import { NewProjectNameComponent } from './new-project-name/new-project-name.com
 import { DbLocationInfoCardComponent } from './db-location-info-card/db-location-info-card.component';
 import { FileInputComponent } from './file-input/file-input.component';
 import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
+import { GoogleInfoCardComponent } from './google-info-card/google-info-card.component';
 
 @NgModule({
   imports: [
@@ -41,7 +42,8 @@ import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
     NewProjectNameComponent,
     DbLocationInfoCardComponent,
     FileInputComponent,
-    ThousandsCurrencyPipe
+    ThousandsCurrencyPipe,
+    GoogleInfoCardComponent
   ],
   providers: [
     BreakpointObserver,

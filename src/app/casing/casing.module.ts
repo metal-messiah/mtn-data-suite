@@ -36,6 +36,7 @@ import { SelectBannerComponent } from './select-banner/select-banner.component';
 import { InfoCardDirective } from './info-card.directive';
 import { InfoCardComponent } from './info-card/info-card.component';
 import { DbLocationInfoCardComponent } from '../shared/db-location-info-card/db-location-info-card.component';
+import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-card.component';
 
 @NgModule({
   imports: [
@@ -96,7 +97,8 @@ import { DbLocationInfoCardComponent } from '../shared/db-location-info-card/db-
     StoreSelectionDialogComponent,
     StoreAttrSelectionDialogComponent,
     SelectBannerComponent,
-    DbLocationInfoCardComponent
+    DbLocationInfoCardComponent,
+    GoogleInfoCardComponent
   ],
   providers: [CasingDashboardService]
 })

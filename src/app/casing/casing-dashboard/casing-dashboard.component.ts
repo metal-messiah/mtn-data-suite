@@ -38,6 +38,8 @@ import { DbEntityMarkerService } from '../../core/services/db-entity-marker.serv
 import { InfoCardItem } from '../info-card-item';
 import { DbLocationInfoCardComponent } from '../../shared/db-location-info-card/db-location-info-card.component';
 import { DbEntityInfoCardItem } from '../db-entity-info-card-item';
+import { GoogleInfoCardItem } from '../google-info-card-item';
+import { GoogleInfoCardComponent } from '../../shared/google-info-card/google-info-card.component';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -50,8 +52,6 @@ export enum CasingDashboardMode {
   providers: [DbEntityMarkerService]
 })
 export class CasingDashboardComponent implements OnInit, OnDestroy {
-
-  selectedGooglePlace: GooglePlace;
 
   // Layers
   draggableSiteLayer: DraggableSiteLayer;
@@ -381,7 +381,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         if (this.googlePlacesLayer == null) {
           this.googlePlacesLayer = new GooglePlaceLayer(this.mapService);
           this.googlePlacesLayer.markerClick$.subscribe((googlePlace: GooglePlace) => {
-            this.selectedGooglePlace = googlePlace;
+            this.infoCard = new GoogleInfoCardItem(GoogleInfoCardComponent, googlePlace);
           });
         }
 

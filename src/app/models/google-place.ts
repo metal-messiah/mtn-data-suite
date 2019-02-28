@@ -42,17 +42,8 @@ export class GooglePlace implements PlaceResult, Mappable {
   };
 
   getIcon(markerType?: MarkerType): (string | google.maps.Icon | google.maps.Symbol) {
-    return {
-      path: MarkerShape.FILLED,
-      fillColor: Color.PINK,
-      fillOpacity: 1,
-      scale: 0.075,
-      strokeColor: Color.WHITE,
-      strokeWeight: 2.5,
-      anchor: new google.maps.Point(80, 510),
-      labelOrigin: new google.maps.Point(255, -80),
-      rotation: 0
-    };
+    // Use default google marker
+    return null;
   };
 
   getLabel(markerType?: MarkerType): string | MarkerLabel {
