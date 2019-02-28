@@ -1,22 +1,31 @@
 <div class='pg-wrapper'>
-  <div class='left-panel' *ngIf="records != null">
-    <div class="flex" *ngIf="!retrievingSources" style="justify-content: space-around; margin-top: 8px;">
-      <h3 *ngIf="records.length > 0">{{(currentRecordIndex + 1) + (page.numberOfElements * page.number) | number }}/{{totalStoreSourceRecords | number}}</h3>
+  <div class='left-panel' *ngIf="records.length > 0">
+    <div class="flex" style="justify-content: space-around; margin-top: 8px;">
+      <h4 style="margin: 10px; text-align:center;" *ngIf="records.length > 0 && !retrievingSources">
+        {{(currentRecordIndex + 1) + (recordsPerPage * page.number) | number }} / {{totalStoreSourceRecords | number}}
+      </h4>
+      <h4 style="margin: 10px; text-align:center;" *ngIf="records.length > 0 && retrievingSources">
+        <i class="fas fa-spinner fa-spin"></i> / {{totalStoreSourceRecords | number}}
+      </h4>
     </div>
-    <div class="flex" *ngIf="retrievingSources" style="justify-content: space-around; margin-top: 8px;">
-      <i class="fas fa-spinner fa-spin"></i>
+    <div *ngIf="records.length > 0" style="padding: 0 15px;">
+      <mat-form-field>
+          <mat-select placeholder="Records Per Page" (selectionChange)="getSources()" [(value)]="recordsPerPage">
+              <mat-option *ngFor="let o of sizeOptions" [value]="o">{{o}}</mat-option>
+            </mat-select>
+      </mat-form-field>
+      
     </div>
-    <div class="flex-between" *ngIf="page.totalPages > 1 && !retrievingSources">
-        <button [disabled]="page.first" (click)="prevPage()"><i class="fas fa-caret-left"></i></button>
-        <button [disabled]="page.last" (click)="nextPage()"><i class="fas fa-caret-right"></i></button>
+    <div class="flex-between" *ngIf="page && page.totalPages > 1">
+        <button title="Previous Page" [disabled]="page.first" (click)="prevPage()"><i class="fas fa-step-backward"></i></button>
+        <button title="Go To Next Unvalidated Record" (click)="getSources()"><i class="far fa-check-circle"></i></button>
+        <button title="Next Page" [disabled]="page.last" (click)="nextPage()"><i class="fas fa-step-forward"></i></button>
     </div>
-    <mat-list *ngIf="!retrievingSources">
+    <mat-list>
       <mat-list-item [id]="i" *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex, muted: record.validatedDate}"
                      (click)="setCurrentRecord(i)">
         <div>
-          <span class='list-item-header' id="gsn" *ngIf="!record.sourceStoreName && !alternativeName">{{getStoreName(record)}}</span>
           <span class='list-item-header' id="ssn" *ngIf="record.sourceStoreName">{{record.sourceStoreName}}</span>
-          <span class='list-item-header' id="an" *ngIf="!record.sourceStoreName && alternativeName">{{alternativeName}}</span>
           <br>
            
             <span class="list-item-desc" *ngIf="record.validatedDate">Validated: {{record.validatedDate | date}}</span>
@@ -25,9 +34,10 @@
         </div>
       </mat-list-item>
     </mat-list>
-    <div class="flex-between" *ngIf="page.totalPages > 1 && !retrievingSources">
-        <button [disabled]="page.first" (click)="prevPage()"><i class="fas fa-caret-left"></i></button>
-        <button [disabled]="page.last" (click)="nextPage()"><i class="fas fa-caret-right"></i></button>
+    <div class="flex-between" *ngIf="page && page.totalPages > 1">
+        <button title="Previous Page" [disabled]="page.first" (click)="prevPage()"><i class="fas fa-step-backward"></i></button>
+        <button title="Go To Next Unvalidated Record" (click)="getSources()"><i class="far fa-check-circle"></i></button>
+        <button title="Next Page" [disabled]="page.last" (click)="nextPage()"><i class="fas fa-step-forward"></i></button>
     </div>
   </div>
   <div class="center-panel hidden-sm">

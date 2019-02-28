@@ -256,6 +256,7 @@ export class ChainXyTableComponent implements OnInit {
 	}
 
 	skipAll() {
+		this.chainXyService.setSelectedBannerSource(null);
 		this.router.navigate([ 'data-upload/chain-xy/update' ]);
 	}
 

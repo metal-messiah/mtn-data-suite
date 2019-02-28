@@ -47,14 +47,27 @@ export class ChainXyMapComponent implements OnInit {
 	mapDataLayer: MapDataLayer;
 
 	// StoreSource to-do list
-	records: StoreSource[];
+	records: StoreSource[] = [];
 	currentStoreSource: StoreSource;
 	currentRecordIndex = 0;
 	totalStoreSourceRecords = 0;
 
 	// for sidebar
-	page: Pageable<StoreSource>;
+	page: Pageable<StoreSource> = {
+		content: [],
+		last: false,
+		totalElements: -1,
+		totalPages: -1,
+		size: -1,
+		number: -1,
+		sort: '',
+		first: true,
+		numberOfElements: -1
+	};
 	retrievingSources = false;
+	validatedPages: any = {};
+	recordsPerPage = 250;
+	sizeOptions = [ 10, 50, 100, 250, 500 ];
 
 	// ChainXY Data
 	chainXyRecord: ChainXy;
@@ -106,102 +119,157 @@ export class ChainXyMapComponent implements OnInit {
 		if (this.selectedBannerSource) {
 			this.loadType = 'BANNERSOURCE';
 			this.alternativeName = this.selectedBannerSource.banner.bannerName;
-			this.getSources(this.loadType);
+			this.getSources();
 		} else {
 			// const answer = confirm('No chain was found, would you like to load all unvalidated ChainXY stores?');
 			console.log('no chain found');
 			this.loadType = 'GEOGRAPHY';
-			this.getSources(this.loadType);
+			this.getSources();
 
 			setTimeout(() => {
-				this.snackBar.open('No chain was assigned... Will load all unvalidated ChainXY stores!', null, {
-					duration: 3000,
-					verticalPosition: 'bottom'
-				});
+				this.snackBar
+					.open(
+						'No chain was assigned in the previous step... Loading all unvalidated ChainXY stores!',
+						'Oops, Take Me Back!',
+						{
+							duration: 10000,
+							verticalPosition: 'bottom'
+						}
+					)
+					.onAction()
+					.subscribe(() => {
+						this.router.navigate([ 'data-upload/chain-xy/chains' ]);
+					});
 			});
 		}
 	}
 
-	getSources(type: string, pageNumber?: string) {
-		pageNumber = pageNumber || '0';
-		this.retrievingSources = true;
+	setRecordsPerPage(val) {
+		this.recordsPerPage = Number(val);
+		this.getSources();
+	}
 
-		if (type === 'BANNERSOURCE') {
-			this.sourceService
-				.getSourcesByBannerSourceId(this.selectedBannerSource.id, pageNumber)
-				.pipe(finalize(() => (this.retrievingSources = false)))
-				.subscribe((page: Pageable<StoreSource>) => {
-					this.page = page;
-					this.totalStoreSourceRecords = page.totalElements;
-					this.records = page.content;
+	decidePage(button?: string): string {
+		if (button === 'NEXT') {
+			return `${this.page.number + 1}`;
+		}
+		if (button === 'PREV') {
+			return `${this.page.number - 1}`;
+		}
 
-					const firstUnvalidatedIdx = this.records.findIndex((r) => !r.validatedDate);
-					if (firstUnvalidatedIdx === -1) {
-						// const goBack = confirm('All records have been validated. Go back to chains?');
-						this.ngZone.run(() => {
-							this.snackBar
-								.open('All records have been validated... ', 'Back To Chains', {
-									duration: 10000,
-									verticalPosition: 'top'
-								})
-								.onAction()
-								.subscribe(() => {
-									this.router.navigate([ 'data-upload/chain-xy/chains' ]);
-								});
-						});
+		if (!this.records.length) {
+			// theres no records!
+			return '0';
+		} else {
+			// theres already records
+			const firstUnvalidatedIdx = this.records.findIndex((r) => !r.validatedDate);
+			if (firstUnvalidatedIdx === -1) {
+				// theres no unvalidated records on the current page of records!
 
-						this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
-					} else {
-						this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
-					}
-				});
-		} else if (type === 'GEOGRAPHY') {
-			this.sourceService
-				.getSourcesNotValidated('ChainXY', pageNumber)
-				.pipe(finalize(() => (this.retrievingSources = false)))
-				.subscribe((page: Pageable<StoreSource>) => {
-					this.page = page;
-					this.totalStoreSourceRecords = page.totalElements;
-					this.records = page.content;
-					const firstUnvalidatedIdx = this.records.findIndex((r) => !r.validatedDate);
-					if (firstUnvalidatedIdx === -1) {
-						this.ngZone.run(() => {
-							this.snackBar
-								.open('All records have been validated... ', 'Back To Chains', {
-									duration: 10000,
-									verticalPosition: 'top'
-								})
-								.onAction()
-								.subscribe(() => {
-									this.router.navigate([ 'data-upload/chain-xy/chains' ]);
-								});
-						});
+				this.validatedPages[this.page.number] = true;
 
-						this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
-					} else {
-						this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
-					}
-				});
+				if (!this.page.last) {
+					return `${this.page.number + 1}`;
+				} else {
+					return '0';
+				}
+			} else {
+				// theres still unvalidated records to look at here
+				return `${this.page.number}`;
+			}
 		}
 	}
 
+	getSources(button?: string) {
+		// TODO Force check for manual page turn or auto
+		const pageNumber = this.decidePage(button);
+		this.retrievingSources = true;
+
+		if (this.loadType === 'BANNERSOURCE') {
+			this.getBannerSources(pageNumber, button);
+		} else if (this.loadType === 'GEOGRAPHY') {
+			this.getAllNonValidatedSources(pageNumber);
+		} else {
+			this.retrievingSources = false;
+		}
+	}
+
+	getBannerSources(pageNumber, button) {
+		this.sourceService
+			.getSourcesByBannerSourceId(this.selectedBannerSource.id, pageNumber, `${this.recordsPerPage}`)
+			.pipe(finalize(() => (this.retrievingSources = false)))
+			.subscribe((page: Pageable<StoreSource>) => {
+				this.page = page;
+				this.totalStoreSourceRecords = page.totalElements;
+				this.records = page.content;
+
+				const firstUnvalidatedIdx = this.records.findIndex((r) => !r.validatedDate);
+
+				if (firstUnvalidatedIdx === -1) {
+					// no unvalidated records are left on this page
+					if (this.page.last && Object.keys(this.validatedPages).length === this.page.totalPages) {
+						// all records are validated
+						this.ngZone.run(() => {
+							this.snackBar
+								.open('All records have been validated... ', 'Back To Chains', {
+									duration: 10000,
+									verticalPosition: 'bottom'
+								})
+								.onAction()
+								.subscribe(() => {
+									this.router.navigate([ 'data-upload/chain-xy/chains' ]);
+								});
+						});
+					} else {
+						if (!button) {
+							// invalidated records exist on a different page
+							this.getSources();
+						} else {
+							this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
+						}
+					}
+				} else {
+					this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
+				}
+			});
+	}
+
+	getAllNonValidatedSources(pageNumber) {
+		this.sourceService
+			.getSourcesNotValidated('ChainXY', pageNumber, `${this.recordsPerPage}`)
+			.pipe(finalize(() => (this.retrievingSources = false)))
+			.subscribe((page: Pageable<StoreSource>) => {
+				this.page = page;
+				this.totalStoreSourceRecords = page.totalElements;
+				this.records = page.content;
+				const firstUnvalidatedIdx = this.records.findIndex((r) => !r.validatedDate);
+				if (firstUnvalidatedIdx === -1) {
+					this.ngZone.run(() => {
+						this.snackBar
+							.open('All records have been validated... ', 'Back To Chains', {
+								duration: 10000,
+								verticalPosition: 'top'
+							})
+							.onAction()
+							.subscribe(() => {
+								this.router.navigate([ 'data-upload/chain-xy/chains' ]);
+							});
+					});
+
+					this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
+				} else {
+					this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
+				}
+			});
+	}
+
 	prevPage() {
-		this.getSources(this.loadType, `${this.page.number - 1}`);
+		this.getSources('PREV');
 	}
 
 	nextPage() {
-		this.getSources(this.loadType, `${this.page.number + 1}`);
-	}
-
-	getStoreName(storeSource) {
-		this.alternativeNames[storeSource.id] = ' '; // prevent the chain from looping infinitely while we wait for the real name
-		// this.chainXyService
-		// 	.getFeatureByObjectId(storeSource.id)
-		// 	.pipe(finalize(() => (this.isFetching = false)))
-		// 	.subscribe((record: ChainXy) => {
-		// 		this.alternativeNames[storeSource.id] = record.Chain.Name;
-		// 	});
-		return '';
+		console.log('!!!!!!!!!!!!!!! NEXT PAGE !!!!!!!!!!!!!!!!!!');
+		this.getSources('NEXT');
 	}
 
 	cancelStep2() {
@@ -251,7 +319,7 @@ export class ChainXyMapComponent implements OnInit {
 	nextRecord() {
 		this.setChainXyFeature(false);
 		this.stepper.reset();
-		this.getSources(this.loadType);
+		this.getSources();
 	}
 
 	setChainXyFeature(draggable: boolean) {
@@ -470,7 +538,7 @@ export class ChainXyMapComponent implements OnInit {
 		this.isRefreshing = true;
 		this.chainXyService.pingRefresh().pipe(finalize(() => (this.isRefreshing = false))).subscribe(
 			() => {
-				this.getSources(this.loadType);
+				this.getSources();
 			},
 			(err) => {
 				this.errorService.handleServerError(

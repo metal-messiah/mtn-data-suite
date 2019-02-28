@@ -14,10 +14,10 @@ export class StoreSourceService extends CrudService<StoreSource> {
 		super(http, rest);
 	}
 
-	getSourcesNotValidated(sourceName?: string, page?: string): Observable<Pageable<StoreSource>> {
+	getSourcesNotValidated(sourceName?: string, page?: string, size?: string): Observable<Pageable<StoreSource>> {
 		const url = this.rest.getHost() + this.endpoint;
 		let params = new HttpParams().set('validated', 'false');
-		params = params.set('size', '250');
+		params = params.set('size', size || '250');
 		params = params.set('page', page || '0');
 		if (sourceName) {
 			params = params.set('source-name', sourceName);
