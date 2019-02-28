@@ -19,26 +19,27 @@ import { BrokerageModule } from './brokerage/brokerage.module';
 import { GeocodingModule } from './geocoding/geocoding.module';
 
 @NgModule({
-	imports: [
-		BrowserModule,
-		BrowserAnimationsModule,
-		ServiceWorkerModule.register('/ngsw-worker.js', {
-			enabled: environment.production
-		}),
-		CoreModule,
-		SharedModule,
-		AdministrationModule,
-		CasingModule,
-		DataUploadModule,
-		ExtractionModule,
-		ReportsModule,
-		BrokerageModule,
-		GeocodingModule,
-		AppRoutingModule // must come last?
-	],
-	declarations: [ AppComponent, HomeComponent ],
-	providers: [],
-	bootstrap: [ AppComponent ],
-	schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    ServiceWorkerModule.register('/ngsw-worker.js', {
+      enabled: environment.production
+    }),
+    CoreModule,
+    SharedModule,
+    AdministrationModule,
+    CasingModule,
+    DataUploadModule,
+    ExtractionModule,
+    ReportsModule,
+    BrokerageModule,
+    GeocodingModule,
+    AppRoutingModule // must come last?
+  ],
+  declarations: [AppComponent, HomeComponent],
+  providers: [],
+  bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class AppModule {}
+export class AppModule {
+}
