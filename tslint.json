@@ -14,6 +14,7 @@
     "forin": true,
     "import-blacklist": [true],
     "import-spacing": true,
+    "indent": [true, "spaces", 4],
     "interface-over-type-literal": true,
     "label-position": true,
     "max-line-length": [
@@ -93,7 +94,6 @@
       "check-separator",
       "check-type"
     ],
-
     "directive-selector": [true, "attribute", "mds", "camelCase"],
     "component-selector": [true, "element", "mds", "kebab-case"],
     "use-input-property-decorator": true,
