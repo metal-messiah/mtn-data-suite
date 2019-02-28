@@ -3,20 +3,17 @@ import { SiteMarker } from '../../models/site-marker';
 import { MarkerShape } from '../functionalEnums/MarkerShape';
 import { Color } from '../functionalEnums/Color';
 import { AuthService } from './auth.service';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import * as _ from 'lodash';
-import { RestService } from './rest.service';
 import * as MarkerClusterer from '@google/markerclusterer';
 import * as MarkerWithLabel from '@google/markerwithlabel';
 import { StoreMarker } from '../../models/store-marker';
 import { forkJoin, Subject } from 'rxjs';
-import { Pageable } from '../../models/pageable';
 import { ErrorService } from './error.service';
-import { finalize, tap } from 'rxjs/operators';
+import { finalize, map, reduce, tap } from 'rxjs/operators';
 import { DateUtil } from '../../utils/date-util';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ProjectService } from './project.service';
 import { CasingDashboardService } from '../../casing/casing-dashboard/casing-dashboard.service';
+import { SiteMarkerService } from '../site-marker.service';
 
 @Injectable()
 export class DbEntityMarkerService {
@@ -27,17 +24,19 @@ export class DbEntityMarkerService {
   public gettingLocations = false;
   public controls: FormGroup;
 
+  public multiSelect = false;
+  public selectionMode = 'select';
+
 // For Validation
   private readonly gradient = [
     '#ffc511', '#ffb30f', '#ffa313', '#fb921a', '#f68221', '#ef7228',
     '#e6622f', '#dc5435', '#d1463c', '#c53742', '#b72948', '#aa1c4f',
     '#990b56', '#87005d', '#710066', '#59006f', '#3c0078', '#000080'
   ];
-  private readonly endpoint = '/api/map-marker';
 
   private clusterer: MarkerClusterer;
 
-  private latestCallTime: Date;
+  private prevHandbrake: { interrupt: boolean };
 
   private siteMarkerCache: { siteMarker: SiteMarker, markers: google.maps.Marker[] }[] = [];
 
@@ -50,17 +49,16 @@ export class DbEntityMarkerService {
   private selectedMarkers = [];
 
   constructor(private authService: AuthService,
-              private http: HttpClient,
               private errorService: ErrorService,
               private fb: FormBuilder,
+              private siteMarkerService: SiteMarkerService,
               private projectService: ProjectService,
-              private casingDashboardService: CasingDashboardService,
-              private rest: RestService) {
+              private casingDashboardService: CasingDashboardService) {
     this.initControls();
 
     this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker, gmap: google.maps.Map }) => {
       // If not in multi-select mode, deselect previously selected markers
-      if (!this.controls.get('multiSelect').value) {
+      if (!this.multiSelect) {
         this.selectedSiteIds.clear();
         this.selectedStoreIds.clear();
         this.selectedMarkers.forEach(marker => this.refreshMarkerOptions(marker, selection.gmap));
@@ -69,16 +67,21 @@ export class DbEntityMarkerService {
 
       // Add to selected Ids
       if (selection.storeId) {
-        this.selectedStoreIds.add(selection.storeId);
+        if (this.selectionMode === 'select') {
+          this.selectedStoreIds.add(selection.storeId);
+        } else {
+          this.selectedStoreIds.delete(selection.storeId);
+        }
       } else {
-        this.selectedSiteIds.add(selection.siteId);
+        if (this.selectionMode === 'select') {
+          this.selectedSiteIds.add(selection.siteId);
+        } else {
+          this.selectedSiteIds.delete(selection.siteId);
+        }
       }
 
       // Refresh marker's options
       this.refreshMarkerOptions(selection.marker, selection.marker.getMap());
-
-      // Add it to selectedMarkers
-      this.selectedMarkers.push(selection.marker);
     });
   }
 
@@ -98,26 +101,25 @@ export class DbEntityMarkerService {
       south: gmap.getBounds().getSouthWest().lat(),
       west: gmap.getBounds().getSouthWest().lng()
     };
-    const finished$ = new Subject();
 
-    this.latestCallTime = new Date();
+    if (this.prevHandbrake) {
+      this.prevHandbrake.interrupt = true;
+    }
 
     if (!this.clusterer || this.clusterer.getMap() !== gmap) {
       this.clusterer = new MarkerClusterer(gmap, [],
         {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
     }
 
-    // Set up request(s)
-    const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams();
-    params = params.set('size', '300');
-    params = params.set('sort', 'longitude');
-    _.forEach(bounds, (value, key) => params = params.set(key, String(value)));
+    const requests = [];
 
-    // Run Requests
-    this.runPage(url, params, 0, gmap, finished$, this.latestCallTime, []);
+    this.prevHandbrake = {
+      interrupt: false
+    };
 
-    const requests = [finished$.asObservable()];
+    requests.push(this.siteMarkerService.getSiteMarkersInBounds(bounds, this.prevHandbrake, 'longitude')
+      .pipe(map((siteMarkers: SiteMarker[]) => this.getMarkersForPage(siteMarkers, gmap)))
+      .pipe(reduce((prev, curr) => prev.concat(curr))));
 
     if (this.controls.get('markerType').value === 'Cased for Project') {
       const selectedProject = this.casingDashboardService.getSelectedProject();
@@ -144,8 +146,8 @@ export class DbEntityMarkerService {
    * @param gmap
    */
   public refreshMarkers(gmap: google.maps.Map) {
-    if (this.latestCallTime) {
-
+    // If no call has been made yet, get rather than refresh
+    if (this.prevHandbrake) {
       if (this.controls.get('markerType').value === 'Cased for Project') {
         const selectedProject = this.casingDashboardService.getSelectedProject();
         if (selectedProject) {
@@ -176,22 +178,64 @@ export class DbEntityMarkerService {
     return Array.from(this.selectedStoreIds);
   }
 
-  public multiSelect(ids: { siteIds: number[], storeIds: number[] }, gmap: google.maps.Map) {
-    if (this.controls.get('multiDeselect').value) {
+  public selectInRadius(latitude: number, longitude: number, radiusMeters: number, gmap: google.maps.Map) {
+    if (this.prevHandbrake) {
+      this.prevHandbrake.interrupt = true;
+    }
+    this.prevHandbrake = {interrupt: false};
+    this.gettingLocations = true;
+    this.siteMarkerService.getSiteMarkersInRadius(latitude, longitude, radiusMeters, this.prevHandbrake)
+      .pipe(finalize(() => this.gettingLocations = false))
+      .pipe(reduce((prev, curr) => prev.concat(curr)))
+      .subscribe((siteMarkers: SiteMarker[]) => this.selectByIds(this.getSelectionIds(siteMarkers), gmap));
+  }
+
+  public selectInGeoJson(geoJson: string, gmap: google.maps.Map) {
+    if (this.prevHandbrake) {
+      this.prevHandbrake.interrupt = true;
+    }
+    this.prevHandbrake = {interrupt: false};
+    this.gettingLocations = true;
+    this.siteMarkerService.getSiteMarkersInGeoJson(geoJson, this.prevHandbrake)
+      .pipe(finalize(() => this.gettingLocations = false))
+      .pipe(reduce((prev, curr) => prev.concat(curr)))
+      .subscribe((siteMarkers: SiteMarker[]) => this.selectByIds(this.getSelectionIds(siteMarkers), gmap));
+  }
+
+  /**************************************
+   * Private methods
+   *************************************/
+
+  private selectByIds(ids: { siteIds: number[], storeIds: number[] }, gmap: google.maps.Map) {
+    if (this.selectionMode === 'deselect') {
       ids.siteIds.forEach(id => this.selectedSiteIds.delete(id));
       ids.storeIds.forEach(id => this.selectedStoreIds.delete(id));
     } else {
-      this.selectedSiteIds.clear();
-      this.selectedStoreIds.clear();
       ids.siteIds.forEach(id => this.selectedSiteIds.add(id));
       ids.storeIds.forEach(id => this.selectedStoreIds.add(id));
     }
     this.refreshMarkers(gmap);
   }
 
-  /**************************************
-   * Private methods
-   *************************************/
+  private getSelectionIds(siteMarkers: SiteMarker[]) {
+    const siteIds = [];
+    const storeIds = [];
+
+    siteMarkers.forEach(siteMarker => {
+      if (siteMarker.stores && siteMarker.stores.length > 0) {
+        siteMarker.stores.forEach(storeMarker => {
+          if (this.includeStore(storeMarker)) {
+            storeIds.push(storeMarker.id);
+          }
+        })
+      }
+      if (this.includeSite(siteMarker)) {
+        siteIds.push(siteMarker.id);
+      }
+    });
+
+    return {siteIds: siteIds, storeIds: storeIds};
+  }
 
   private initControls() {
     const storedControls = localStorage.getItem('dbEntityMarkerServiceControls');
@@ -207,8 +251,6 @@ export class DbEntityMarkerService {
         showFloat: false,
         cluster: false,
         clusterZoomLevel: 13,
-        multiSelect: false,
-        multiDeselect: false,
         minPullZoomLevel: 10,
         fullLabelMinZoomLevel: 16,
         markerType: 'Pin'
@@ -221,44 +263,31 @@ export class DbEntityMarkerService {
   private refreshMarkerOptions(marker: google.maps.Marker, gmap) {
     const store = marker['store'];
     const site = marker['site'];
+    let selected = false;
     if (store) {
-      marker.setOptions(this.getMarkerOptionsForStore(store, site, gmap));
+      selected = this.selectedStoreIds.has(store.id);
+      marker.setOptions(this.getMarkerOptionsForStore(store, site, gmap, selected));
     } else if (site) {
-      marker.setOptions(this.getMarkerOptionsForSite(site, gmap));
+      selected = this.selectedSiteIds.has(site.id);
+      marker.setOptions(this.getMarkerOptionsForSite(site, gmap, selected));
+    }
+    if (selected) {
+      this.selectedMarkers.push(marker);
     }
     // Do nothing for non-store non-site markers (like historical count marker)
   }
 
   private showHideMarkersInBounds(markersInBounds: google.maps.Marker[], gmap: google.maps.Map) {
     const currentlyVisibleMarkers = markersInBounds.filter(marker => {
-      if (!this.controls.get('showHistorical').value && marker['historicalCountMarker']) {
-        return false;
+
+      const storeMarker: StoreMarker = marker['store'];
+      if (storeMarker) {
+        return this.includeStore(storeMarker);
       }
 
-      const store: StoreMarker = marker['store'];
-      if (store) {
-        if (!this.controls.get('showActive').value && (store && store.storeType === 'ACTIVE')) {
-          return false;
-        }
-        if (!this.controls.get('showHistorical').value && (store && store.storeType === 'HISTORICAL')) {
-          return false;
-        }
-        if (!this.controls.get('showFuture').value && (store && store.storeType === 'FUTURE')) {
-          return false;
-        }
-        if (!this.controls.get('showFloat').value && store.float) {
-          return false;
-        }
-        return true;
-      }
-
-      const site: SiteMarker = marker['site'];
-      if (site) {
-        if (site.backfilledNonGrocery) {
-          return this.controls.get('showSitesBackfilledByNonGrocery').value;
-        }
-        const siteIsEmpty = site.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
-        return !(!this.controls.get('showEmptySites').value && siteIsEmpty);
+      const siteMarker: SiteMarker = marker['site'];
+      if (siteMarker) {
+        return this.includeSite(siteMarker);
       }
 
       return true;
@@ -284,36 +313,33 @@ export class DbEntityMarkerService {
     this.visibleMarkers = currentlyVisibleMarkers;
   }
 
+  private includeStore(storeMarker: StoreMarker) {
+    if (!this.controls.get('showActive').value && (storeMarker && storeMarker.storeType === 'ACTIVE')) {
+      return false;
+    }
+    if (!this.controls.get('showHistorical').value && (storeMarker && storeMarker.storeType === 'HISTORICAL')) {
+      return false;
+    }
+    if (!this.controls.get('showFuture').value && (storeMarker && storeMarker.storeType === 'FUTURE')) {
+      return false;
+    }
+    if (!this.controls.get('showFloat').value && storeMarker.float) {
+      return false;
+    }
+    return true;
+  }
+
+  private includeSite(siteMarker: SiteMarker) {
+    if (siteMarker.backfilledNonGrocery) {
+      return this.controls.get('showSitesBackfilledByNonGrocery').value;
+    }
+    const siteIsEmpty = siteMarker.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
+    return !(!this.controls.get('showEmptySites').value && siteIsEmpty);
+  }
+
   private getMarkersForPage(sites: SiteMarker[], gmap: google.maps.Map): google.maps.Marker[] {
     // Create new markers for each result and reduce into one list
     return sites.reduce((prev, curr) => prev.concat(this.getMarkersForSite(curr, gmap)), []);
-  }
-
-  private runPage(url: string, params: HttpParams, pageNumber: number, gmap: google.maps.Map,
-                  finished$: Subject<any>, callTime: Date, markersInBounds: google.maps.Marker[]) {
-    // Set param to get next page
-    params = params.set('page', pageNumber.toString());
-
-    // Get the data for the next page
-    this.http.get<Pageable<SiteMarker>>(url, {headers: this.rest.getHeaders(), params: params})
-      .subscribe((page: Pageable<SiteMarker>) => {
-        const siteMarkers = page.content.map(sm => new SiteMarker(sm));
-        // Add markers for page to markers in Bounds
-        markersInBounds = markersInBounds.concat(this.getMarkersForPage(siteMarkers, gmap));
-        // If last page, or another request has started, finish and notify caller.
-        if (page.last || callTime !== this.latestCallTime) {
-          finished$.next(markersInBounds);
-          finished$.complete();
-        } else {
-          // Otherwise, continue retrieving pages.
-          this.runPage(url, params, pageNumber + 1, gmap, finished$, callTime, markersInBounds);
-        }
-      }, err => {
-        this.errorService.handleServerError('Failed to get db locations!', err,
-          () => finished$.error(err),
-          () => this.runPage(url, params, pageNumber, gmap, finished$, callTime, markersInBounds)
-        )
-      });
   }
 
   private getMarkersForSite(site: SiteMarker, gmap: google.maps.Map): google.maps.Marker[] {
@@ -360,7 +386,6 @@ export class DbEntityMarkerService {
       if (historical.length > 1) {
         // Show only latest historical on map
         const mostRecentHistorical = historical.sort((a, b) => b.createdDate.getTime() - a.createdDate.getTime())[0];
-        // markers.push(this.createHistoricalCountMarker(historical.length, site))
         markers.push(this.createStoreMarker(mostRecentHistorical, site, gmap));
       } else if (historical.length === 1) {
         markers.push(this.createStoreMarker(historical[0], site, gmap))
@@ -411,8 +436,7 @@ export class DbEntityMarkerService {
    * Get Marker Options
    *****************************************/
 
-  private getMarkerOptionsForSite(site: SiteMarker, gmap: google.maps.Map) {
-    const selected = this.selectedSiteIds.has(site.id);
+  private getMarkerOptionsForSite(site: SiteMarker, gmap: google.maps.Map, selected: boolean) {
     return {
       position: {lat: site.latitude, lng: site.longitude},
       icon: {
@@ -428,8 +452,7 @@ export class DbEntityMarkerService {
     }
   }
 
-  private getMarkerOptionsForStore(store: StoreMarker, site: SiteMarker, gmap: google.maps.Map) {
-    const selected = this.selectedStoreIds.has(store.id);
+  private getMarkerOptionsForStore(store: StoreMarker, site: SiteMarker, gmap: google.maps.Map, selected: boolean) {
     const showLogo = this.controls.get('markerType').value === 'Logo' && store.logoFileName != null;
     const showCased = this.controls.get('markerType').value === 'Cased for Project' && this.storeIdsCasedForProject.has(store.id);
 
