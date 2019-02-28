@@ -203,6 +203,12 @@ export class ChainXyMapComponent implements OnInit {
 				this.totalStoreSourceRecords = page.totalElements;
 				this.records = page.content;
 
+				if (!this.records.length) {
+					// the page is probably out of index with the results length! set back to 0 to be safe
+					console.log('page was outside of index dude!');
+					this.getSources();
+				}
+
 				const firstUnvalidatedIdx = this.records.findIndex((r) => !r.validatedDate);
 
 				if (firstUnvalidatedIdx === -1) {
