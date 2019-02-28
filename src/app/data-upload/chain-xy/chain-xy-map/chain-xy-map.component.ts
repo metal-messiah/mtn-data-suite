@@ -76,6 +76,8 @@ export class ChainXyMapComponent implements OnInit {
 
 	alternativeNames = {};
 
+	alternativeName: string;
+
 	loadType: string;
 
 	// Reference Values
@@ -103,15 +105,20 @@ export class ChainXyMapComponent implements OnInit {
 		this.selectedBannerSource = this.chainXyService.getSelectedBannerSource();
 		if (this.selectedBannerSource) {
 			this.loadType = 'BANNERSOURCE';
+			this.alternativeName = this.selectedBannerSource.banner.bannerName;
 			this.getSources(this.loadType);
 		} else {
-			const answer = confirm('No chain was found, would you like to load all unvalidated ChainXY stores?');
-			if (answer) {
-				this.loadType = 'GEOGRAPHY';
-				this.getSources(this.loadType);
-			} else {
-				this.router.navigate([ 'data-upload/chain-xy/chains' ]);
-			}
+			// const answer = confirm('No chain was found, would you like to load all unvalidated ChainXY stores?');
+			console.log('no chain found');
+			this.loadType = 'GEOGRAPHY';
+			this.getSources(this.loadType);
+
+			setTimeout(() => {
+				this.snackBar.open('No chain was assigned... Will load all unvalidated ChainXY stores!', null, {
+					duration: 3000,
+					verticalPosition: 'bottom'
+				});
+			});
 		}
 	}
 
@@ -130,14 +137,20 @@ export class ChainXyMapComponent implements OnInit {
 
 					const firstUnvalidatedIdx = this.records.findIndex((r) => !r.validatedDate);
 					if (firstUnvalidatedIdx === -1) {
-						setTimeout(() => {
-							const goBack = confirm('All records have been validated. Go back to chains?');
-							if (goBack) {
-								this.router.navigate([ 'data-upload/chain-xy/chains' ]);
-							} else {
-								this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
-							}
-						}, 1000);
+						// const goBack = confirm('All records have been validated. Go back to chains?');
+						this.ngZone.run(() => {
+							this.snackBar
+								.open('All records have been validated... ', 'Back To Chains', {
+									duration: 10000,
+									verticalPosition: 'top'
+								})
+								.onAction()
+								.subscribe(() => {
+									this.router.navigate([ 'data-upload/chain-xy/chains' ]);
+								});
+						});
+
+						this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
 					} else {
 						this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
 					}
@@ -152,14 +165,19 @@ export class ChainXyMapComponent implements OnInit {
 					this.records = page.content;
 					const firstUnvalidatedIdx = this.records.findIndex((r) => !r.validatedDate);
 					if (firstUnvalidatedIdx === -1) {
-						setTimeout(() => {
-							const goBack = confirm('All records have been validated. Go back to chains?');
-							if (goBack) {
-								this.router.navigate([ 'data-upload/chain-xy/chains' ]);
-							} else {
-								this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
-							}
-						}, 1000);
+						this.ngZone.run(() => {
+							this.snackBar
+								.open('All records have been validated... ', 'Back To Chains', {
+									duration: 10000,
+									verticalPosition: 'top'
+								})
+								.onAction()
+								.subscribe(() => {
+									this.router.navigate([ 'data-upload/chain-xy/chains' ]);
+								});
+						});
+
+						this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
 					} else {
 						this.setCurrentRecord(firstUnvalidatedIdx >= 0 ? firstUnvalidatedIdx : 0);
 					}
@@ -177,12 +195,12 @@ export class ChainXyMapComponent implements OnInit {
 
 	getStoreName(storeSource) {
 		this.alternativeNames[storeSource.id] = ' '; // prevent the chain from looping infinitely while we wait for the real name
-		this.chainXyService
-			.getFeatureByObjectId(storeSource.id)
-			.pipe(finalize(() => (this.isFetching = false)))
-			.subscribe((record: ChainXy) => {
-				this.alternativeNames[storeSource.id] = record.Chain.Name;
-			});
+		// this.chainXyService
+		// 	.getFeatureByObjectId(storeSource.id)
+		// 	.pipe(finalize(() => (this.isFetching = false)))
+		// 	.subscribe((record: ChainXy) => {
+		// 		this.alternativeNames[storeSource.id] = record.Chain.Name;
+		// 	});
 		return '';
 	}
 

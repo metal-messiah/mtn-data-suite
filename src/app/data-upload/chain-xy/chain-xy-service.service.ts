@@ -9,7 +9,6 @@ import { SimplifiedStore } from '../../models/simplified/simplified-store';
 @Injectable()
 export class ChainXyService {
 	private endpoint = '/api/chainxy';
-	private;
 
 	selectedBannerSource = null;
 

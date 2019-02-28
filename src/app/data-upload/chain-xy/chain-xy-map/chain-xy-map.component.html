@@ -14,9 +14,9 @@
       <mat-list-item [id]="i" *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex, muted: record.validatedDate}"
                      (click)="setCurrentRecord(i)">
         <div>
-          <span class='list-item-header' id="gsn" *ngIf="!record.sourceStoreName && !alternativeNames[record.id]">{{getStoreName(record)}}</span>
+          <span class='list-item-header' id="gsn" *ngIf="!record.sourceStoreName && !alternativeName">{{getStoreName(record)}}</span>
           <span class='list-item-header' id="ssn" *ngIf="record.sourceStoreName">{{record.sourceStoreName}}</span>
-          <span class='list-item-header' id="an" *ngIf="!record.sourceStoreName && alternativeNames[record.id]">{{alternativeNames[record.id]}}</span>
+          <span class='list-item-header' id="an" *ngIf="!record.sourceStoreName && alternativeName">{{alternativeName}}</span>
           <br>
            
             <span class="list-item-desc" *ngIf="record.validatedDate">Validated: {{record.validatedDate | date}}</span>
