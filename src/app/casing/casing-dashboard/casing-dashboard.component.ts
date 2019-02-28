@@ -2,44 +2,50 @@ import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { MapService } from '../../core/services/map.service';
-import { SiteService } from '../../core/services/site.service';
-import { Site } from '../../models/full/site';
+import { of, Subject, Subscription } from 'rxjs';
+import { debounce, debounceTime, delay, finalize } from 'rxjs/internal/operators';
+
+import { AuthService } from '../../core/services/auth.service';
 import { CasingDashboardService } from './casing-dashboard.service';
+import { DbEntityMarkerService } from '../../core/services/db-entity-marker.service';
+import { EntitySelectionService } from '../../core/services/entity-selection.service';
+import { ErrorService } from '../../core/services/error.service';
 import { GeocoderService } from '../../core/services/geocoder.service';
+import { MapService } from '../../core/services/map.service';
 import { NavigatorService } from '../../core/services/navigator.service';
+import { ProjectBoundaryService } from '../services/project-boundary.service';
+import { ProjectService } from '../../core/services/project.service';
+import { SiteService } from '../../core/services/site.service';
+import { StoreService } from '../../core/services/store.service';
+
+import { DatabaseSearchComponent } from '../database-search/database-search.component';
+import { DbLocationInfoCardComponent } from '../../shared/db-location-info-card/db-location-info-card.component';
+import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
+import { GoogleSearchComponent } from '../google-search/google-search.component';
+import { GoogleInfoCardComponent } from '../../shared/google-info-card/google-info-card.component';
+import { LatLngSearchComponent } from '../lat-lng-search/lat-lng-search.component';
+import { SiteMergeDialogComponent } from '../site-merge-dialog/site-merge-dialog.component';
+import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
+
+import { Coordinates } from '../../models/coordinates';
+import { GooglePlace } from '../../models/google-place';
+import { SimplifiedSite } from '../../models/simplified/simplified-site';
+import { SimplifiedStore } from '../../models/simplified/simplified-store';
+import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-profile';
+import { Site } from '../../models/full/site';
+import { Store } from '../../models/full/store';
+
+import { DraggableSiteLayer } from '../../models/draggable-site-layer';
 import { FindMeLayer } from '../../models/find-me-layer';
 import { FollowMeLayer } from '../../models/follow-me-layer';
-import { LatLngSearchComponent } from '../lat-lng-search/lat-lng-search.component';
-import { Coordinates } from '../../models/coordinates';
-import { GoogleSearchComponent } from '../google-search/google-search.component';
-import { GooglePlace } from '../../models/google-place';
-import { StoreService } from '../../core/services/store.service';
-import { DatabaseSearchComponent } from '../database-search/database-search.component';
-import { AuthService } from '../../core/services/auth.service';
-import { ErrorService } from '../../core/services/error.service';
-import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
-import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-profile';
-import { SimplifiedStore } from '../../models/simplified/simplified-store';
-import { Store } from '../../models/full/store';
-import { DraggableSiteLayer } from '../../models/draggable-site-layer';
 import { GooglePlaceLayer } from '../../models/google-place-layer';
-import { MapSelectionMode } from '../enums/map-selection-mode';
-import { SimplifiedSite } from '../../models/simplified/simplified-site';
-import { Observable, of, Subject, Subscription } from 'rxjs';
-import { debounce, debounceTime, delay, finalize } from 'rxjs/internal/operators';
-import { ProjectService } from '../../core/services/project.service';
-import { ProjectBoundaryService } from '../services/project-boundary.service';
+
 import { GeometryUtil } from '../../utils/geometry-util';
-import { EntitySelectionService } from '../../core/services/entity-selection.service';
-import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
-import { SiteMergeDialogComponent } from '../site-merge-dialog/site-merge-dialog.component';
-import { DbEntityMarkerService } from '../../core/services/db-entity-marker.service';
-import { InfoCardItem } from '../info-card-item';
-import { DbLocationInfoCardComponent } from '../../shared/db-location-info-card/db-location-info-card.component';
+import { MapSelectionMode } from '../enums/map-selection-mode';
+
 import { DbEntityInfoCardItem } from '../db-entity-info-card-item';
+import { InfoCardItem } from '../info-card-item';
 import { GoogleInfoCardItem } from '../google-info-card-item';
-import { GoogleInfoCardComponent } from '../../shared/google-info-card/google-info-card.component';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -63,7 +69,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   updating = false;
   markCasedStores = false;
   savingBoundary = false;
-  selecting = false;
 
   // Modes
   selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
@@ -128,12 +133,14 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       // If user clicks cancel, close snackbar and return to default mode
       ref.onAction().subscribe(() => this.selectedDashboardMode = CasingDashboardMode.DEFAULT);
     }));
+
     this.subscriptions.push(this.initiateSiteMove$.subscribe((site: Site) => {
       this.movingSite = site;
       this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
       // Create new site layer
       this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, {lat: site.latitude, lng: site.longitude});
     }));
+
     this.subscriptions.push(this.siteUpdated$.subscribe(() => this.dbEntityMarkerService.getMarkersInMapView(this.mapService.getMap())));
 
     this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe(() => this.getEntitiesInBounds()));
@@ -331,34 +338,25 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   enableMultiSelect(): void {
     this.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
     this.dbEntityMarkerService.clearSelection(this.mapService.getMap());
-    this.dbEntityMarkerService.controls.get('multiSelect').setValue(true);
+    this.dbEntityMarkerService.multiSelect = true;
     // Activate Map Drawing Tools and listen for completed Shapes
     this.mapService.activateDrawingTools().subscribe(shape => {
       const geoJson = GeometryUtil.getGeoJsonFromShape(shape);
-      let observable: Observable<{ siteIds: number[], storeIds: number[] }>;
       if (geoJson.geometry.type === 'Point') {
         const longitude = geoJson.geometry.coordinates[0];
         const latitude = geoJson.geometry.coordinates[1];
         const radiusMeters = geoJson.properties.radius;
-        // TODO - MDS-468
-        observable = this.storeService.getIdsInRadius(latitude, longitude, radiusMeters);
+        this.dbEntityMarkerService.selectInRadius(latitude, longitude, radiusMeters, this.mapService.getMap());
       } else {
-        // TODO - MDS-468
-        observable = this.storeService.getIdsInShape(JSON.stringify(geoJson));
+        this.dbEntityMarkerService.selectInGeoJson(JSON.stringify(geoJson), this.mapService.getMap());
       }
-
-      this.selecting = true;
-      observable.pipe(finalize(() => {
-        this.selecting = false;
-        this.ngZone.run(() => this.mapService.clearDrawings());
-      }))
-        .subscribe((ids: { siteIds: number[], storeIds: number[] }) =>
-          this.dbEntityMarkerService.multiSelect(ids, this.mapService.getMap()));
+      this.mapService.clearDrawings();
     });
   }
 
   cancelMultiSelect(): void {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+    this.dbEntityMarkerService.selectionMode = 'select';
     this.mapService.deactivateDrawingTools();
     this.dbEntityMarkerService.clearSelection(this.mapService.getMap());
   }
@@ -500,30 +498,20 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   selectAllInBoundary() {
+    this.dbEntityMarkerService.clearSelection(this.mapService.getMap());
     if (this.projectBoundaryService.isShowingBoundary()) {
       const geoJsonString = JSON.stringify(this.projectBoundaryService.projectBoundary.geojson);
-      this.selectAllInShape(geoJsonString);
+      this.dbEntityMarkerService.selectInGeoJson(geoJsonString, this.mapService.getMap());
     } else {
       this.projectBoundaryService.showProjectBoundaries().subscribe(boundary => {
         if (boundary != null) {
-          this.selectAllInShape(boundary.geojson);
+          this.dbEntityMarkerService.selectInGeoJson(boundary.geojson, this.mapService.getMap());
+          this.projectBoundaryService.zoomToProjectBoundary();
         } else {
           this.snackBar.open('No Boundary for Project', null, {duration: 2000, verticalPosition: 'top'});
         }
       });
-      this.projectBoundaryService.zoomToProjectBoundary();
     }
-  }
-
-  private selectAllInShape(geoJsonString: string) {
-    this.selecting = true;
-    // TODO MDS-465
-    this.storeService.getIdsInShape(geoJsonString)
-      .pipe(finalize(() => this.selecting = false))
-      .subscribe((ids: { siteIds: number[], storeIds: number[] }) => {
-        this.dbEntityMarkerService.clearSelection(this.mapService.getMap());
-        this.dbEntityMarkerService.multiSelect(ids, this.mapService.getMap())
-      });
   }
 
   openDownloadDialog() {

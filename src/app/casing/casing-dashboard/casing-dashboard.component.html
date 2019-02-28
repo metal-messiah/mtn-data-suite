@@ -40,7 +40,8 @@
         </div>
         <mat-divider></mat-divider>
         <div>
-          <h3 mat-subheader>Full Label when zoom >= {{dbEntityMarkerService.controls.get('fullLabelMinZoomLevel').value}}</h3>
+          <h3 mat-subheader>Full Label when zoom >=
+            {{dbEntityMarkerService.controls.get('fullLabelMinZoomLevel').value}}</h3>
           <mat-slider [max]="21" [min]="0" [thumbLabel]="true" formControlName="fullLabelMinZoomLevel"></mat-slider>
         </div>
         <mat-divider></mat-divider>
@@ -90,8 +91,8 @@
           </div>
           <div>
             <button mat-mini-fab [mat-menu-trigger-for]="multiSelectModeMenu" color="primary">
-              <i *ngIf="!dbEntityMarkerService.controls.get('multiDeselect').value" class="fas fa-plus"></i>
-              <i *ngIf="dbEntityMarkerService.controls.get('multiDeselect').value" class="fas fa-minus"></i>
+              <i *ngIf="dbEntityMarkerService.selectionMode === 'select'" class="fas fa-plus"></i>
+              <i *ngIf="dbEntityMarkerService.selectionMode === 'deselect'" class="fas fa-minus"></i>
             </button>
           </div>
           <div>
@@ -193,10 +194,10 @@
 </mat-menu>
 
 <mat-menu #multiSelectModeMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="storeMapLayer.selectionMode = storeSelectionMode.MULTI_SELECT">
+  <button mat-menu-item (click)="dbEntityMarkerService.selectionMode = 'select'">
     <i class="fas fa-plus-circle"></i>&nbsp;Select
   </button>
-  <button mat-menu-item (click)="storeMapLayer.selectionMode = storeSelectionMode.MULTI_DESELECT">
+  <button mat-menu-item (click)="dbEntityMarkerService.selectionMode = 'deselect'">
     <i class="fas fa-minus-circle"></i>&nbsp;Deselect
   </button>
 </mat-menu>
