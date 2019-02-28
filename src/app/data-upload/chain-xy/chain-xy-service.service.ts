@@ -1,9 +1,14 @@
+// UTILITIES
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+
+// SERVICES
 import { RestService } from '../../core/services/rest.service';
+
+// MODELS
 import { SourceUpdatable } from '../../models/source-updatable';
-import { map, tap } from 'rxjs/operators';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 
 @Injectable()
@@ -16,11 +21,9 @@ export class ChainXyService {
 
 	setSelectedBannerSource(chain) {
 		this.selectedBannerSource = chain;
-		console.log(this.selectedBannerSource);
 	}
 
 	getSelectedBannerSource() {
-		console.log(this.selectedBannerSource);
 		return this.selectedBannerSource;
 	}
 

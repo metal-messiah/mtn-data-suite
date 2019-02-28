@@ -1,14 +1,19 @@
+// UTILITIES
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sort, MatSidenav, MatDialog } from '@angular/material';
-
-import { StoreSource } from 'app/models/full/store-source';
 import { Router } from '@angular/router';
+
+// SERVICES
 import { ChainXyService } from '../chain-xy-service.service';
-import { SelectBannerComponent } from 'app/casing/select-banner/select-banner.component';
-import { BannerSource } from 'app/models/full/banner-source';
 import { BannerService } from 'app/core/services/banner.service';
-import { Banner } from 'app/models/full/banner';
 import { BannerSourceService } from 'app/core/services/banner-source.service';
+
+// COMPONENTS
+import { SelectBannerComponent } from 'app/casing/select-banner/select-banner.component';
+
+// MODELS
+import { BannerSource } from 'app/models/full/banner-source';
+import { Banner } from 'app/models/full/banner';
 import { Pageable } from 'app/models/pageable';
 import { SimplifiedBannerSource } from 'app/models/simplified/simplified-banner-source';
 
@@ -25,7 +30,7 @@ export enum statuses {
 })
 export class ChainXyTableComponent implements OnInit {
 	bannerSources: SimplifiedBannerSource[];
-	sortedData;
+	sortedData: any[];
 
 	selectedBannerSource: any;
 
@@ -35,7 +40,7 @@ export class ChainXyTableComponent implements OnInit {
 
 	selectingBanner: number = null;
 
-	fuzzyKeys = [ 'sourceBannerName' ];
+	fuzzyKeys: string[] = [ 'sourceBannerName' ];
 
 	bannerImages = {};
 
@@ -121,8 +126,8 @@ export class ChainXyTableComponent implements OnInit {
 	}
 
 	fileExists(urlToFile, id, strictCheck) {
-		// we only want to strict check (call to the remote resource) as few times as possible,
-		// so store the responses statefully so that re - renders wont retrigger
+		// we want to strict check (call to the remote resource) as few times as possible,
+		// so store the responses statefully so that re-renders wont retrigger
 		if (strictCheck) {
 			const splitFile = urlToFile.split('.');
 			if (splitFile[splitFile.length - 2].endsWith('null')) {
@@ -177,7 +182,6 @@ export class ChainXyTableComponent implements OnInit {
 			case 'createdBy':
 			case 'updatedBy':
 			// do nothing for now
-			// output = `${val.}`
 			default:
 				output = val;
 		}
@@ -256,6 +260,7 @@ export class ChainXyTableComponent implements OnInit {
 	}
 
 	skipAll() {
+		// clear the service state
 		this.chainXyService.setSelectedBannerSource(null);
 		this.router.navigate([ 'data-upload/chain-xy/update' ]);
 	}
@@ -267,6 +272,6 @@ export class ChainXyTableComponent implements OnInit {
 	}
 }
 
-function compare(a: number | string, b: number | string, isAsc: boolean) {
+const compare = (a: number | string, b: number | string, isAsc: boolean) => {
 	return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
-}
+};

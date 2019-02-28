@@ -1,16 +1,21 @@
+// UTILITIES
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { finalize } from 'rxjs/operators';
 import * as _ from 'lodash';
 
+// SERVICES
+import { SourceUpdatableService } from 'app/core/services/source-updatable.service';
+import { ErrorService } from '../../../../core/services/error.service';
+
+// MODELS
 import { SourceUpdatable } from '../../../../models/source-updatable';
 import { StoreSource } from '../../../../models/full/store-source';
-import { ErrorService } from '../../../../core/services/error.service';
-import { SimplifiedStoreStatus } from '../../../../models/simplified/simplified-store-status';
-import { MatDialog, MatSnackBar } from '@angular/material';
-import { QuadDialogComponent } from '../../../../casing/quad-dialog/quad-dialog.component';
 import { ChainXy } from 'app/models/chain-xy';
-import { SourceUpdatableService } from 'app/core/services/source-updatable.service';
+
+// COMPONENTS
+import { QuadDialogComponent } from '../../../../casing/quad-dialog/quad-dialog.component';
 
 @Component({
 	selector: 'mds-chain-xy-data-form',

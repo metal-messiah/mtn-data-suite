@@ -1,38 +1,45 @@
+// UTILITIES //
 import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatSnackBar, MatStepper } from '@angular/material';
 import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
 import * as _ from 'lodash';
+import { WordSimilarity } from '../../../utils/word-similarity';
 
+// SERVICES //
 import { StoreSourceService } from '../../../core/services/store-source.service';
 import { MapService } from '../../../core/services/map.service';
 import { StoreService } from '../../../core/services/store.service';
 import { SiteService } from '../../../core/services/site.service';
 import { ErrorService } from '../../../core/services/error.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ChainXyService } from '../chain-xy-service.service';
+import { SourceUpdatableService } from 'app/core/services/source-updatable.service';
+import { EntitySelectionService } from '../../../core/services/entity-selection.service';
 
-import { WordSimilarity } from '../../../utils/word-similarity';
-
+// MODELS //
 import { StoreMappable } from '../../../models/store-mappable';
-import { PgMappable } from '../../../models/pg-mappable';
 import { Pageable } from '../../../models/pageable';
 import { Coordinates } from '../../../models/coordinates';
-import { PlannedGroceryLayer } from '../../../models/planned-grocery-layer';
 import { EntityMapLayer } from '../../../models/entity-map-layer';
 import { MapDataLayer } from '../../../models/map-data-layer';
 import { SourceUpdatable } from '../../../models/source-updatable';
 import { StoreSource } from '../../../models/full/store-source';
-
-import { ChainXyService } from '../chain-xy-service.service';
 import { StoreMapLayer } from '../../../models/store-map-layer';
-import { EntitySelectionService } from '../../../core/services/entity-selection.service';
 import { ChainXyLayer } from 'app/models/chain-xy-layer.';
 import { ChainXyMappable } from 'app/models/chain-xy-mappable';
-import { Router } from '@angular/router';
 import { BannerSource } from 'app/models/full/banner-source';
 import { ChainXy } from 'app/models/chain-xy';
-import { SourceUpdatableService } from 'app/core/services/source-updatable.service';
-import { SimplifiedStoreSource } from 'app/models/simplified/simplified-store-source';
+
+export enum PageEvent {
+	PREV,
+	NEXT
+}
+
+export enum LoadType {
+	GEOGRAPHY,
+	BANNERSOURCE
+}
 
 @Component({
 	selector: 'mds-chain-xy-map',
@@ -46,13 +53,16 @@ export class ChainXyMapComponent implements OnInit {
 	storeMapLayer: EntityMapLayer<StoreMappable>;
 	mapDataLayer: MapDataLayer;
 
-	// StoreSource to-do list
+	// StoreSource
 	records: StoreSource[] = [];
 	currentStoreSource: StoreSource;
 	currentRecordIndex = 0;
 	totalStoreSourceRecords = 0;
 
-	// for sidebar
+	// Sidebar GUI stuff
+	retrievingSources = false;
+
+	// Pagination Management Stuff
 	page: Pageable<StoreSource> = {
 		content: [],
 		last: false,
@@ -64,7 +74,6 @@ export class ChainXyMapComponent implements OnInit {
 		first: true,
 		numberOfElements: -1
 	};
-	retrievingSources = false;
 	validatedPages: any = {};
 	recordsPerPage = 250;
 	sizeOptions = [ 10, 50, 100, 250, 500 ];
@@ -78,6 +87,7 @@ export class ChainXyMapComponent implements OnInit {
 	// Working record (used for data editing)
 	sourceUpdatable: SourceUpdatable;
 
+	// Step 1 GUI Stuff
 	bestMatch: { store: object; score: number; distanceFrom: number };
 
 	// Flags
@@ -87,11 +97,7 @@ export class ChainXyMapComponent implements OnInit {
 
 	selectedBannerSource: BannerSource;
 
-	alternativeNames = {};
-
-	alternativeName: string;
-
-	loadType: string;
+	loadType: LoadType;
 
 	// Reference Values
 	storeTypes: string[] = [ 'ACTIVE', 'FUTURE', 'HISTORICAL' ];
@@ -102,7 +108,6 @@ export class ChainXyMapComponent implements OnInit {
 		private sourceService: StoreSourceService,
 		private mapService: MapService,
 		private chainXyService: ChainXyService,
-		private _formBuilder: FormBuilder,
 		private ngZone: NgZone,
 		private siteService: SiteService,
 		private storeService: StoreService,
@@ -117,15 +122,14 @@ export class ChainXyMapComponent implements OnInit {
 	ngOnInit() {
 		this.selectedBannerSource = this.chainXyService.getSelectedBannerSource();
 		if (this.selectedBannerSource) {
-			this.loadType = 'BANNERSOURCE';
-			this.alternativeName = this.selectedBannerSource.banner.bannerName;
+			this.loadType = LoadType.BANNERSOURCE;
 			this.getSources();
 		} else {
 			// const answer = confirm('No chain was found, would you like to load all unvalidated ChainXY stores?');
-			console.log('no chain found');
-			this.loadType = 'GEOGRAPHY';
+			this.loadType = LoadType.GEOGRAPHY;
 			this.getSources();
 
+			// set timeout because it throws an error if i dont...
 			setTimeout(() => {
 				this.snackBar
 					.open(
@@ -149,11 +153,11 @@ export class ChainXyMapComponent implements OnInit {
 		this.getSources();
 	}
 
-	decidePage(button?: string): string {
-		if (button === 'NEXT') {
+	decidePage(button: PageEvent): string {
+		if (button === PageEvent.NEXT) {
 			return `${this.page.number + 1}`;
 		}
-		if (button === 'PREV') {
+		if (button === PageEvent.PREV) {
 			return `${this.page.number - 1}`;
 		}
 
@@ -180,14 +184,13 @@ export class ChainXyMapComponent implements OnInit {
 		}
 	}
 
-	getSources(button?: string) {
-		// TODO Force check for manual page turn or auto
+	getSources(button?: PageEvent) {
 		const pageNumber = this.decidePage(button);
 		this.retrievingSources = true;
 
-		if (this.loadType === 'BANNERSOURCE') {
+		if (this.loadType === LoadType.BANNERSOURCE) {
 			this.getBannerSources(pageNumber, button);
-		} else if (this.loadType === 'GEOGRAPHY') {
+		} else if (this.loadType === LoadType.GEOGRAPHY) {
 			this.getAllNonValidatedSources(pageNumber);
 		} else {
 			this.retrievingSources = false;
@@ -205,7 +208,6 @@ export class ChainXyMapComponent implements OnInit {
 
 				if (!this.records.length) {
 					// the page is probably out of index with the results length! set back to 0 to be safe
-					console.log('page was outside of index dude!');
 					this.getSources();
 				}
 
@@ -270,12 +272,11 @@ export class ChainXyMapComponent implements OnInit {
 	}
 
 	prevPage() {
-		this.getSources('PREV');
+		this.getSources(PageEvent.PREV);
 	}
 
 	nextPage() {
-		console.log('!!!!!!!!!!!!!!! NEXT PAGE !!!!!!!!!!!!!!!!!!');
-		this.getSources('NEXT');
+		this.getSources(PageEvent.NEXT);
 	}
 
 	cancelStep2() {
