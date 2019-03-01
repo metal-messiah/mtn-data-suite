@@ -77,8 +77,7 @@ export class MapPointLayer<T extends Mappable> {
         const cir: google.maps.Circle = shape.overlay;
         if (
           cir.getBounds().contains(marker.getPosition()) &&
-          google.maps.geometry.spherical.computeDistanceBetween(cir.getCenter(), marker.getPosition()) <=
-          cir.getRadius()
+          google.maps.geometry.spherical.computeDistanceBetween(cir.getCenter(), marker.getPosition()) <= cir.getRadius()
         ) {
           mappablesInShape.push(marker.get('mappable'));
         }
