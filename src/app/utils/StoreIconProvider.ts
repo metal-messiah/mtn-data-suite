@@ -5,7 +5,6 @@ import { MapService } from '../core/services/map.service';
 import MarkerLabel = google.maps.MarkerLabel;
 
 export class StoreIconProvider {
-
   protected readonly mapService;
   private readonly HIGH_ZOOM = 13;
 
@@ -13,8 +12,13 @@ export class StoreIconProvider {
     this.mapService = mapService;
   }
 
-  getIcon(store: SimplifiedStore, draggable: boolean, selected: boolean, assigned: boolean, assignedToSelf: boolean)
-    : string | google.maps.Icon | google.maps.Symbol {
+  getIcon(
+    store: SimplifiedStore,
+    draggable: boolean,
+    selected: boolean,
+    assigned: boolean,
+    assignedToSelf: boolean
+  ): string | google.maps.Icon | google.maps.Symbol {
     const fillColor = this.getFillColor(store, draggable, selected, assigned, assignedToSelf);
     const strokeColor = this.getStrokeColor(draggable, selected);
     const shape = this.getShape(store);
@@ -23,7 +27,7 @@ export class StoreIconProvider {
     const strokeWeight = this.getStrokeWeight(store);
     const fillOpacity = 1;
     const rotation = this.getRotation(store);
-    const labelOrigin = this.getLabelOrigin(store);
+    const labelOrigin = this.getLabelOrigin(store, rotation);
 
     return {
       path: shape,
@@ -73,8 +77,13 @@ export class StoreIconProvider {
     };
   }
 
-  protected getFillColor(store: SimplifiedStore, draggable: boolean, selected: boolean,
-                         assigned: boolean, assignedToSelf: boolean): string {
+  protected getFillColor(
+    store: SimplifiedStore,
+    draggable: boolean,
+    selected: boolean,
+    assigned: boolean,
+    assignedToSelf: boolean
+  ): string {
     if (draggable) {
       return Color.PURPLE;
     }
@@ -150,23 +159,34 @@ export class StoreIconProvider {
     return 0;
   }
 
-  private getLabelOrigin(store: SimplifiedStore) {
+  private getLabelOrigin(store: SimplifiedStore, rotation: number) {
+    let x = 255;
+    let y = 230;
+
     if (store.site.duplicate) {
-      return new google.maps.Point(255, 238);
+      y = 238;
     }
     if (store.storeType === 'HISTORICAL' || store.storeType === 'FUTURE') {
-      return new google.maps.Point(255, 190);
+      y = 190;
     }
+
     const zoom = this.mapService.getZoom();
     if (zoom > this.HIGH_ZOOM) {
       if (store.storeType === 'HISTORICAL') {
-        return new google.maps.Point(-120, 0);
+        x = -120;
+        y = 0;
       } else if (store.storeType === 'FUTURE') {
-        return new google.maps.Point(255, -255);
+        y = -255;
+      } else {
+        y = -180;
       }
-      return new google.maps.Point(255, -80);
-    }
-    return new google.maps.Point(255, 230);
-  }
 
+      if (rotation !== 0) {
+        x = rotation === 90 ? -200 : 600;
+        y = 100;
+      }
+    }
+
+    return new google.maps.Point(x, y);
+  }
 }

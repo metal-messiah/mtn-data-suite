@@ -1,6 +1,7 @@
 import { AuditingEntity } from '../auditing-entity';
 import { SimplifiedUserProfile } from '../simplified/simplified-user-profile';
 import { SimplifiedStore } from '../simplified/simplified-store';
+import { SimplifiedBannerSource } from '../simplified/simplified-banner-source';
 
 export class StoreSource extends AuditingEntity {
 
@@ -10,7 +11,10 @@ export class StoreSource extends AuditingEntity {
   sourceStoreName: string;
   sourceCreatedDate: Date;
   sourceEditedDate: Date;
+  sourceDeletedDate: Date;
+
   store: SimplifiedStore;
+  bannerSource: SimplifiedBannerSource;
 
   // Will be updated by web service if param validated = true
   readonly validatedBy: SimplifiedUserProfile;

@@ -1,0 +1,37 @@
+<div>
+  <mds-file-input
+    [fileTypes]="allowedFileTypes"
+    [outputType]="outputType"
+    (fileChanged)="handleFile($event)"
+  ></mds-file-input>
+
+  <div style="margin: 10px">
+  <button mat-raised-button *ngIf="!continueFromProgress" color="primary" (click)="showProjects()">Restore Session</button>
+  </div>
+  <h3 *ngIf="continueFromProgress">Stored Projects</h3>
+  <mat-list *ngIf="continueFromProgress">
+      <div *ngIf="!getStoredProjectsAsArray().length">
+        No Stored Projects Found
+      </div>
+    <mat-list-item
+      *ngFor="let project of getStoredProjectsAsArray()"
+    >
+      <div class="project">
+        <div style="width: 100%"
+        (click)="loadStoredProject(project.id)">
+        <div class="project-name">{{project.data.name}}</div>
+        <div class="project-date">{{project.data.lastEdited | date:'short'}}</div>
+        <div class="project-status">
+          {{getProjectStatus(project.id)}}
+        </div>
+        </div>
+        <div>
+          <i title="Permanantly Delete Session" (click)="removeStoredProject(project.id)" class="fas fa-trash-alt"></i>
+          <br />
+          <i title="Download Session As File For Sharing" (click)="shareStoredProject(project.id)" class="fas fa-download"></i>
+        </div>
+      </div>
+    </mat-list-item>
+  </mat-list>
+  
+</div>

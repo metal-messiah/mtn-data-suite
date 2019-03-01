@@ -1,8 +1,8 @@
 import { SimplifiedStoreStatus } from './simplified/simplified-store-status';
 import { DateUtil } from '../utils/date-util';
-import { StoreSource } from './full/store-source';
+import { SimplifiedStoreSource } from './simplified/simplified-store-source';
 
-export class PlannedGroceryUpdatable {
+export class SourceUpdatable {
 
   // Shopping Center
   readonly shoppingCenterId: number;
@@ -26,22 +26,20 @@ export class PlannedGroceryUpdatable {
   storeName: string;
   dateOpened: Date;
 
-  // Store Status (create a new Simplified store status using the decoded PG Status and PG source edited date)
   // Only a new status (one without an ID) will be regarded when submitted. (Forbids editing of existing status records)
   storeStatuses: SimplifiedStoreStatus[] = [];
 
   // Store Survey
-  readonly storeSurveyId: number;
   areaTotal: number;
 
-  storeSource: StoreSource;
+  storeSource: SimplifiedStoreSource;
 
-  constructor(obj?: PlannedGroceryUpdatable) {
+  constructor(obj?: SourceUpdatable) {
     if (obj) {
       Object.assign(this, obj);
       this.dateOpened = DateUtil.getDate(obj.dateOpened);
       if (obj.storeSource) {
-        this.storeSource = new StoreSource(obj.storeSource);
+        this.storeSource = new SimplifiedStoreSource(obj.storeSource);
       }
       if (obj.storeStatuses) {
         this.storeStatuses = obj.storeStatuses.map(status => new SimplifiedStoreStatus(status));

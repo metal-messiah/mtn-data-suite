@@ -9,7 +9,6 @@ import { MapService } from '../core/services/map.service';
   - Can be added to and removed from map
  */
 export class MapPointLayer<T extends Mappable> {
-
   protected markers: google.maps.Marker[];
   protected mapService: MapService;
 
@@ -23,7 +22,7 @@ export class MapPointLayer<T extends Mappable> {
   }
 
   protected createMarkersFromMappables(mappables: T[]) {
-    mappables.forEach(mappable => this.createMarkerFromMappable(mappable));
+    mappables.forEach((mappable) => this.createMarkerFromMappable(mappable));
   }
 
   protected createMarkerFromMappable(mappable: T) {
@@ -48,17 +47,17 @@ export class MapPointLayer<T extends Mappable> {
   }
 
   refreshOptions(): void {
-    this.markers.forEach(marker => this.setMarkerOptions(marker));
+    this.markers.forEach((marker) => this.setMarkerOptions(marker));
   }
 
   addToMap(map: google.maps.Map) {
-    this.markers.forEach(marker => {
+    this.markers.forEach((marker) => {
       marker.setMap(map);
     });
   }
 
   removeFromMap() {
-    this.markers.forEach(marker => marker.setMap(null));
+    this.markers.forEach((marker) => marker.setMap(null));
   }
 
   clearMarkers(): void {
@@ -74,21 +73,23 @@ export class MapPointLayer<T extends Mappable> {
   getMappablesInShape(shape): T[] {
     const mappablesInShape: T[] = [];
     if (shape.type === google.maps.drawing.OverlayType.CIRCLE) {
-      this.markers.forEach(marker => {
+      this.markers.forEach((marker) => {
         const cir: google.maps.Circle = shape.overlay;
-        if (cir.getBounds().contains(marker.getPosition()) &&
-          google.maps.geometry.spherical.computeDistanceBetween(cir.getCenter(), marker.getPosition()) <= cir.getRadius()) {
+        if (
+          cir.getBounds().contains(marker.getPosition()) &&
+          google.maps.geometry.spherical.computeDistanceBetween(cir.getCenter(), marker.getPosition()) <= cir.getRadius()
+        ) {
           mappablesInShape.push(marker.get('mappable'));
         }
       });
     } else if (shape.type === google.maps.drawing.OverlayType.POLYGON) {
-      this.markers.forEach(marker => {
+      this.markers.forEach((marker) => {
         if (google.maps.geometry.poly.containsLocation(marker.getPosition(), shape.overlay)) {
           mappablesInShape.push(marker.get('mappable'));
         }
       });
     } else if (shape.type === google.maps.drawing.OverlayType.RECTANGLE) {
-      this.markers.forEach(marker => {
+      this.markers.forEach((marker) => {
         if (shape.overlay.getBounds().contains(marker.getPosition())) {
           mappablesInShape.push(marker.get('mappable'));
         }
@@ -105,7 +106,7 @@ export class MapPointLayer<T extends Mappable> {
   }
 
   protected getMarkerForMappable(mappable: T) {
-    return this.markers.find(marker => marker.get('mappable') === mappable);
+    return this.markers.find((marker) => marker.get('mappable') === mappable);
   }
 
   protected setMarkerOptions(marker: google.maps.Marker): void {

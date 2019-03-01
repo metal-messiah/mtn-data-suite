@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import { NgModule } from '@angular/core';
 import {
   MatAutocompleteModule,
   MatButtonModule,
@@ -22,11 +22,11 @@ import {
   MatSliderModule,
   MatSlideToggleModule,
   MatSnackBarModule,
-  MatSortModule,
   MatTableModule,
   MatTabsModule,
   MatToolbarModule,
   MatStepperModule,
+  MatSortModule
 } from '@angular/material';
 
 @NgModule({
@@ -53,14 +53,13 @@ import {
     MatSliderModule,
     MatSlideToggleModule,
     MatSnackBarModule,
-    MatSortModule,
     MatStepperModule,
     MatTableModule,
     MatTabsModule,
     MatToolbarModule,
-    MatStepperModule,
     MatProgressSpinnerModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatSortModule
   ],
   exports: [
     MatAutocompleteModule,
@@ -85,14 +84,13 @@ import {
     MatSliderModule,
     MatSlideToggleModule,
     MatSnackBarModule,
-    MatSortModule,
     MatStepperModule,
     MatTableModule,
     MatTabsModule,
     MatToolbarModule,
-    MatStepperModule,
     MatProgressSpinnerModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatSortModule
   ]
 })
 export class CustomMaterialModule {

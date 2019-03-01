@@ -7,14 +7,14 @@
               [disabled]="roleForm.pristine || roleForm.invalid || isSaving">
         <span *ngIf="roleForm.invalid">Invalid</span>
         <span *ngIf="!isSaving && roleForm.valid">Save</span>
-        <span *ngIf="isSaving"><i class="fas fa-spinner fa-spin"></i></span>
+        <span *ngIf="isSaving"><i class="fas fa-spinner fa-pulse"></i></span>
       </button>
     </div>
   </mat-toolbar>
   <div class="row content" *ngIf="role">
     <div class="list-wrapper">
       <div *ngIf="isLoading" style="text-align: center">
-        <i class="fas fa-spinner fa-3x fa-spin" aria-hidden="true"> </i>
+        <i class="fas fa-spinner fa-3x fa-pulse" aria-hidden="true"> </i>
       </div>
       <mat-list>
         <mat-list-item>

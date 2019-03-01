@@ -17,7 +17,7 @@
     <h3 *ngIf="selectedFiles.length">Selected Images
     </h3>
     <h3 *ngIf="!initialized">
-      <i class="fas fa-spinner fa-spin"></i>
+      <i class="fas fa-spinner fa-pulse"></i>
     </h3>
     <div class='flex-container' *ngFor="let file of selectedFiles">
       <img [src]="file.url">

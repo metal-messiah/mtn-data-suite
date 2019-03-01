@@ -1,0 +1,16 @@
+.selected {
+	background: orange;
+}
+
+.sheet {
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.sheet:hover {
+	background: grey;
+}
+
+mat-list-item {
+	margin: 10x 0;
+}

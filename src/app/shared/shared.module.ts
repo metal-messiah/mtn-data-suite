@@ -18,32 +18,31 @@ import { AppInfoDialogComponent } from './app-info-dialog/app-info-dialog.compon
 import { NewProjectNameComponent } from './new-project-name/new-project-name.component';
 import { DbLocationInfoCardComponent } from './db-location-info-card/db-location-info-card.component';
 import { FileInputComponent } from './file-input/file-input.component';
+import { TabSelectDialogComponent } from './file-input/tab-select-dialog/tab-select-dialog.component';
 import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
 import { GoogleInfoCardComponent } from './google-info-card/google-info-card.component';
+import { FuzzySearchComponent } from './fuzzy-search/fuzzy-search.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    CustomMaterialModule,
-    RouterModule,
-    ReactiveFormsModule
-  ],
+  imports: [CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule],
   declarations: [
-    ErrorDialogComponent,
-    ConfirmDialogComponent,
-    CallbackComponent,
-    PathNotFoundComponent,
-    MapComponent,
-    LogoMenuComponent,
-    DataFieldComponent,
-    UserProfileSelectComponent,
-    DataFieldInfoDialogComponent,
     AppInfoDialogComponent,
-    NewProjectNameComponent,
+    CallbackComponent,
+    ConfirmDialogComponent,
+    DataFieldComponent,
+    DataFieldInfoDialogComponent,
     DbLocationInfoCardComponent,
+    ErrorDialogComponent,
     FileInputComponent,
+    FuzzySearchComponent,
+    GoogleInfoCardComponent,
+    LogoMenuComponent,
+    MapComponent,
+    NewProjectNameComponent,
+    PathNotFoundComponent,
+    TabSelectDialogComponent,
     ThousandsCurrencyPipe,
-    GoogleInfoCardComponent
+    UserProfileSelectComponent
   ],
   providers: [
     BreakpointObserver,
@@ -51,28 +50,30 @@ import { GoogleInfoCardComponent } from './google-info-card/google-info-card.com
     MediaMatcher
   ],
   entryComponents: [
-    ErrorDialogComponent,
-    ConfirmDialogComponent,
-    UserProfileSelectComponent,
-    DataFieldInfoDialogComponent,
     AppInfoDialogComponent,
-    NewProjectNameComponent
+    ConfirmDialogComponent,
+    DataFieldInfoDialogComponent,
+    ErrorDialogComponent,
+    NewProjectNameComponent,
+    TabSelectDialogComponent,
+    UserProfileSelectComponent
   ],
   exports: [
     CallbackComponent,
     CommonModule,
     CustomMaterialModule,
+    DataFieldComponent,
+    DataFieldInfoDialogComponent,
     DatePipe,
+    DbLocationInfoCardComponent,
+    FileInputComponent,
     FormsModule,
+    FuzzySearchComponent,
     HttpClientModule,
     LogoMenuComponent,
     MapComponent,
     PathNotFoundComponent,
     ReactiveFormsModule,
-    DataFieldComponent,
-    DataFieldInfoDialogComponent,
-    DbLocationInfoCardComponent,
-    FileInputComponent,
     ThousandsCurrencyPipe
   ]
 })

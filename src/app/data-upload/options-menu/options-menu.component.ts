@@ -15,7 +15,7 @@ export class OptionsMenuComponent implements OnInit {
         label: 'Upload a Spreadsheet',
         icon: 'fas fa-file-alt',
         link: 'spreadsheet',
-        disabled: false
+        disabled: true
       },
       {
         label: 'Upload from Planned Grocery',
@@ -27,7 +27,7 @@ export class OptionsMenuComponent implements OnInit {
         label: 'Upload from ChainXY',
         icon: 'fas fa-link',
         link: 'chain-xy',
-        disabled: true
+        disabled: false
       },
       {
         label: 'Upload Commissary Data',
@@ -38,5 +38,6 @@ export class OptionsMenuComponent implements OnInit {
     ];
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
 }
