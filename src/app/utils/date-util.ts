@@ -26,7 +26,7 @@ export class DateUtil {
       const dayOfMonth = parseInt(dateMatch[3], 10);
       return new Date(year, month, dayOfMonth);
     }
-	//
+
     // // Else adjust for time zone
     // const timeZoneDifference = new Date().getTimezoneOffset() * 60 * 1000;
     // const newDate = new Date(date);

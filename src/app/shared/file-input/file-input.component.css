@@ -1,11 +1,25 @@
 .file-tip {
-    /* margin-left: 20px; */
-    font-size: small;
-  }
-  
-  .flex-container{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 10px;
-  }
+	/* margin-left: 20px; */
+	font-size: small;
+}
+
+.flex-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 10px;
+}
+
+button {
+	width: 100%;
+}
+
+button:hover {
+	background: orange;
+	color: black;
+}
+
+i {
+	color: inherit;
+	margin-right: 5px;
+}

@@ -9,38 +9,42 @@ import { Mappable } from '../interfaces/mappable';
 import { SpreadsheetRecord } from './spreadsheet-record';
 
 export class SpreadsheetMappable implements Mappable {
+    public id: string;
+    public draggable = false;
+    private readonly coordinates: Coordinates;
 
-  public id: string;
-  private readonly coordinates: Coordinates;
+    constructor(record: SpreadsheetRecord) {
+        this.id = record.uniqueId;
+        this.coordinates = record.coordinates;
+    }
 
-  constructor(record: SpreadsheetRecord) {
-    this.id = record.uniqueId;
-    this.coordinates = record.coordinates;
-  }
+    getCoordinates(): Coordinates {
+        return this.coordinates;
+    }
 
-  getCoordinates(): Coordinates {
-    return this.coordinates;
-  };
+    isDraggable(): boolean {
+        return this.draggable;
+    }
 
-  isDraggable(): boolean {
-    return false;
-  }
+    setDraggable(draggable) {
+        this.draggable = draggable;
+    }
 
-  getLabel(markerType?: MarkerType): string|MarkerLabel {
-    return null;
-  }
+    getLabel(markerType?: MarkerType): string | MarkerLabel {
+        return null;
+    }
 
-  getIcon(markerType?: MarkerType): string | Icon | Symbol {
-    return {
-      path: MarkerShape.CIRCLE,
-      fillColor: Color.PURPLE,
-      fillOpacity: 0.5,
-      scale: 0.5,
-      strokeColor: Color.PURPLE_DARK,
-      strokeWeight: 2.5,
-      anchor: new google.maps.Point(50, 50),
-      labelOrigin: new google.maps.Point(255, 230),
-      rotation: 0
-    };
-  }
+    getIcon(markerType?: MarkerType): string | Icon | Symbol {
+        return {
+            path: MarkerShape.CIRCLE,
+            fillColor: Color.PURPLE,
+            fillOpacity: 0.5,
+            scale: 0.5,
+            strokeColor: Color.PURPLE_DARK,
+            strokeWeight: 2.5,
+            anchor: new google.maps.Point(50, 50),
+            labelOrigin: new google.maps.Point(255, 230),
+            rotation: 0
+        };
+    }
 }

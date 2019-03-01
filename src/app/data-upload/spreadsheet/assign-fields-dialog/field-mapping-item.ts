@@ -14,18 +14,23 @@ export class FieldMappingItem {
       'storeNumber',
       'storeType',
       'dateOpened',
-      'dateClosed',
-      'fit',
-      'format',
       'areaSales',
       'areaSalesPercentOfTotal',
       'areaTotal',
       'areaIsEstimate',
-      'storeIsOpen24',
-      'naturalFoodsAreIntegrated',
+      'storeVolumes',
+      'address',
+      'city',
+      'county',
+      'state',
+      'postalCode',
+      'quad',
+      'intersectionStreetPrimary',
+      'intersectionStreetSecondary',
       'floating',
-      'storeVolumes'
-    ];
+      'naturalFoodsAreIntegrated',
+      'storeIsOpen24'
+    ].sort();
 
     this.fileFields = Object.assign([], fileFields);
 

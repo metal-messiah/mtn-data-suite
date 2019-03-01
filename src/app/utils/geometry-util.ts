@@ -10,7 +10,7 @@ export class GeometryUtil {
       return GeometryUtil.googlePolygonToGeoJsonFeature(shape.overlay);
     } else if (shape.type === google.maps.drawing.OverlayType.CIRCLE) {
       return GeometryUtil.googleCircleToGeoJsonFeature(shape.overlay);
-    } else if (shape.type == google.maps.drawing.OverlayType.RECTANGLE) {
+    } else if (shape.type === google.maps.drawing.OverlayType.RECTANGLE) {
       return GeometryUtil.googleRectangleToGeoJsonFeature(shape.overlay);
     }
   }

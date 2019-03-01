@@ -23,7 +23,7 @@
             [color]="file ? 'primary' : 'warn'"
             (click)="fileInput.click()"
             [disabled]="parsingFile">
-      <i class="fas fa-spinner fa-spin" *ngIf="parsingFile"></i>
+      <i class="fas fa-spinner fa-pulse" *ngIf="parsingFile"></i>
       {{parsingFile ? ' Fetching Data From Server': 'Upload File'}}
     </button>
     <span class="file-tip" *ngIf="file">

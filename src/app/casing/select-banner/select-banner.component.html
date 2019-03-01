@@ -17,7 +17,7 @@
     <div class="row content">
       <mat-list>
         <div *ngFor="let banner of banners" >
-          <mat-list-item (click)="selectBanner(banner)">
+          <mat-list-item (click)="selectBanner(banner)" class="banner-list-item">
             <img *ngIf="banner.logoFileName" [src]="getBannerImageSrc(banner)" [alt]="banner.bannerName">
             <h3 matLine>{{banner.bannerName}}</h3>
           </mat-list-item>

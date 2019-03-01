@@ -15,11 +15,7 @@
     "lib": [
       "es2016",
       "dom"
-    ],
-    "paths": {
-      "jszip": [
-        "../node_modules/jszip/dist/jszip.min.js"
-      ]
-    }
-  }
+    ]
+  },
+  "exclude": ["./node_modules/fuse.js/index.d.ts"]
 }

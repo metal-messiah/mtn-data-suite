@@ -67,13 +67,14 @@ mat-list {
   margin: 0;
 }
 
-.mat-raised-button, .mat-button {
+.mat-raised-button,
+.mat-button {
   min-width: unset;
 }
 
 #more {
   display: flex;
-  padding: 8px
+  padding: 8px;
 }
 
 #loadingProgressBar {
@@ -88,4 +89,9 @@ mat-list {
 
 mat-list-item img {
   max-height: 40px;
+}
+
+.banner-list-item:hover {
+  cursor: pointer;
+  background: #efefef;
 }

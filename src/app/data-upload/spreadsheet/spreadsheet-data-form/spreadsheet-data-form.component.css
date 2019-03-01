@@ -1,0 +1,38 @@
+mat-form-field {
+	width: 100%;
+}
+
+.bottom-buttons {
+	margin-top: 15px;
+	display: flex;
+	align-items: center;
+	justify-content: space-evenly;
+}
+
+.bottom-buttons > button {
+	height: 40px;
+	font-size: small;
+	margin: 0 5px;
+	width: auto;
+}
+
+/* .bottom-button {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 0 5px;
+} */
+
+.group {
+	background: #efefef;
+	padding: 10px;
+	margin: 10px 0;
+	border-radius: 5px;
+}
+
+.group > h4 {
+	background: white;
+	padding: 5px 10px;
+	border-radius: 5px;
+}

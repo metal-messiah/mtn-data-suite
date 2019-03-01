@@ -117,7 +117,7 @@
       </mat-step>
       <mat-step>
         <ng-template matStepLabel>Match/Edit Data</ng-template>
-        <mds-pg-data-form *ngIf="pgUpdatable" [pgUpdatable]="pgUpdatable"
+        <mds-pg-data-form *ngIf="sourceUpdatable" [sourceUpdatable]="sourceUpdatable"
                           [pgFeature]="pgRecord"
                           [storeSource]="currentStoreSource"
                           (cancelEvent)="cancelStep2()"

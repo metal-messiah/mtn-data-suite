@@ -30,6 +30,9 @@ import { StoreSourceService } from './services/store-source.service';
 import { EntitySelectionService } from './services/entity-selection.service';
 import { CompanyService } from './services/company.service';
 import { ExtractionService } from './services/extraction.service';
+import { StorageService } from './services/storage.service';
+import { SourceUpdatableService } from './services/source-updatable.service';
+import { BannerSourceService } from './services/banner-source.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -64,19 +67,20 @@ import { ExtractionService } from './services/extraction.service';
     StoreSurveyService,
     StoreVolumeService,
     UserProfileService,
-    EntitySelectionService
+    EntitySelectionService,
+    StorageService,
+    SourceUpdatableService,
+    BannerSourceService
   ]
 })
 export class CoreModule {
   constructor(
     @Optional()
     @SkipSelf()
-    parentModule: CoreModule
+      parentModule: CoreModule
   ) {
     if (parentModule) {
-      throw new Error(
-        'CoreModule is already loaded. Import it in the AppModule only'
-      );
+      throw new Error('CoreModule is already loaded. Import it in the AppModule only');
     }
   }
 }

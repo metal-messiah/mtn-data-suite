@@ -1,0 +1,84 @@
+<mat-sidenav-container>
+    <mat-sidenav class="side-nav" #sidenav position="end">
+      <div *ngIf="selectedBannerSource">
+        <div class="metadata">
+          <table *ngIf="selectedBannerSource.banner">
+            <tr>
+              <td class="key">
+                Banner
+              </td>
+              <td class="val">
+                {{selectedBannerSource.banner.bannerName}}
+              </td>
+            </tr>
+            <tr>
+              <td class="key">
+                Stores
+              </td>
+              <td class="val">
+                {{selectedBannerSource.storeSourceCount | number}}
+              </td>
+            </tr>
+            <tr>
+              <td class="key">
+                Status
+              </td>
+              <td class="val">
+                {{selectedBannerSource.status}}
+              </td>
+            </tr>
+            <tr>
+                <td class="key">
+                  Source
+                </td>
+                <td class="val">
+                  <a [href]="'http://'+selectedBannerSource.sourceUrl" target="_blank">{{selectedBannerSource.sourceUrl}}</a>
+                </td>
+            </tr>
+          </table>
+          <button color="primary" mat-raised-button (click)="updateStores()">Update Stores</button>
+        </div>
+      </div>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <button  *ngIf="sortedData" class="skip" mat-raised-button color="accent" (click)="skipAll()">
+            Skip
+          </button>
+
+          <div *ngIf="sortedData" class="search-bar-wrapper">
+             <mds-fuzzy-search [data]="bannerSources" [keys]="fuzzyKeys" (results)="handleFuzzySearch($event)"></mds-fuzzy-search>
+          </div>
+        <div class="table-wrapper">
+          <i class="fas fa-spinner fa-pulse fa-4x" *ngIf="!sortedData" style="margin-top: 50px;"></i>
+            <table *ngIf="sortedData" cellspacing="0" class="chain-select-table" matSort (matSortChange)="sortData($event)">
+              <tr>
+                <th mat-sort-header="chain">Chain</th>
+                <th mat-sort-header="status">Status</th>
+                <th mat-sort-header="banner">Banner</th>
+              </tr>
+
+              <tr [ngClass]="{'bs-row': true}" *ngFor="let data of sortedData" (click)="toggleSidenav(data)">
+                <td>{{data.sourceBannerName}}</td>
+                <td [title]="data.status">
+                  &nbsp;
+                  <i
+                  [ngStyle]="{'color': getStatusColor(data.status)}"
+                  [ngClass]="getStatusClass(data.status)"
+                  >
+                  </i>
+                </td>
+                <td class="banner-meta-data" *ngIf="hasBanner(data)">
+                  <img (click)="selectBanner(data)" class="banner-logo" [title]="data.banner.bannerName" [src]="getBannerImageSrc(data.banner)" *ngIf="fileExists(getBannerImageSrc(data.banner), data.banner.id, false)"/>
+                  <span *ngIf="!fileExists(getBannerImageSrc(data.banner), data.banner.id, false)">{{data.banner.bannerName}}</span>
+                </td>
+                <td *ngIf="!hasBanner(data)">
+                  <button class="select-banner-btn" mat-raised-button color="primary" (click)="selectBanner(data)">
+                    <i class="loading-icon fas fa-spinner fa-pulse" *ngIf="bannerSourceIsSelectingBanner(data)"></i>
+                    <span *ngIf="!bannerSourceIsSelectingBanner(data)">Select Banner</span>
+                  </button>
+                </td>
+              </tr>
+            </table>
+            </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
