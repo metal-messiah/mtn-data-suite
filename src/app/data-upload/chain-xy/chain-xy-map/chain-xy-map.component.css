@@ -72,6 +72,11 @@
   font-size: small;
 }
 
+.list-item-subheader {
+  font-weight: bold;
+  font-size: x-small;
+}
+
 .list-item-desc {
   font-size: x-small;
 }

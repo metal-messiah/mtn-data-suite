@@ -4,13 +4,13 @@ import { finalize } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 import { SourceUpdatable } from '../../../models/source-updatable';
-import { StoreSource } from '../../../models/full/store-source';
 import { PlannedGroceryService } from '../planned-grocery-service.service';
 import { ErrorService } from '../../../core/services/error.service';
 import { SimplifiedStoreStatus } from '../../../models/simplified/simplified-store-status';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { QuadDialogComponent } from '../../../casing/quad-dialog/quad-dialog.component';
 import { SourceUpdatableService } from '../../../core/services/source-updatable.service';
+import { SimplifiedStoreSource } from '../../../models/simplified/simplified-store-source';
 
 @Component({
   selector: 'mds-pg-data-form',
@@ -21,7 +21,7 @@ export class PgDataFormComponent implements OnChanges {
 
   @Input() sourceUpdatable: SourceUpdatable;
   @Input() pgFeature: { attributes, geometry: { x: number, y: number } };
-  @Input() storeSource: StoreSource;
+  @Input() storeSource: SimplifiedStoreSource;
 
   @Output() cancelEvent = new EventEmitter<void>();
   @Output() completedEvent = new EventEmitter<void>();

@@ -19,7 +19,7 @@ import { SimplifiedBannerSource } from 'app/models/simplified/simplified-banner-
 
 export enum statuses {
   COMPLETE = 'COMPLETE',
-  ALTERED = 'ALTERED',
+  DELETED = 'DELETED',
   INCOMPLETE = 'INCOMPLETE'
 }
 
@@ -195,7 +195,7 @@ export class ChainXyTableComponent implements OnInit {
     switch (status) {
       case statuses.COMPLETE:
         return 'lightgreen';
-      case statuses.ALTERED:
+      case statuses.DELETED:
         return 'orange';
       case statuses.INCOMPLETE:
         return 'red';
@@ -210,7 +210,7 @@ export class ChainXyTableComponent implements OnInit {
         return 'fas fa-check-circle';
       case statuses.INCOMPLETE:
         return 'fas fa-exclamation-triangle';
-      case statuses.ALTERED:
+      case statuses.DELETED:
         return 'fas fa-exclamation-circle';
       default:
         return '';

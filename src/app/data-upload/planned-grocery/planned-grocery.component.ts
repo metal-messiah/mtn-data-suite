@@ -21,12 +21,12 @@ import { PlannedGroceryLayer } from '../../models/planned-grocery-layer';
 import { EntityMapLayer } from '../../models/entity-map-layer';
 import { MapDataLayer } from '../../models/map-data-layer';
 import { SourceUpdatable } from '../../models/source-updatable';
-import { StoreSource } from '../../models/full/store-source';
 
 import { PlannedGroceryService } from './planned-grocery-service.service';
 import { StoreMapLayer } from '../../models/store-map-layer';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
 import { SourceUpdatableService } from '../../core/services/source-updatable.service';
+import { SimplifiedStoreSource } from '../../models/simplified/simplified-store-source';
 
 @Component({
   selector: 'mds-planned-grocery',
@@ -43,8 +43,8 @@ export class PlannedGroceryComponent implements OnInit {
   mapDataLayer: MapDataLayer;
 
   // StoreSource to-do list
-  records: StoreSource[];
-  currentStoreSource: StoreSource;
+  records: SimplifiedStoreSource[];
+  currentStoreSource: SimplifiedStoreSource;
   currentRecordIndex: number;
   totalStoreSourceRecords: number;
 
@@ -101,7 +101,7 @@ export class PlannedGroceryComponent implements OnInit {
     this.sourceService
       .getSourcesNotValidated(this.PLANNED_GROCERY_SOURCE_NAME)
       .pipe(finalize(() => (retrievingSources = false)))
-      .subscribe((page: Pageable<StoreSource>) => {
+      .subscribe((page: Pageable<SimplifiedStoreSource>) => {
         this.totalStoreSourceRecords = page.totalElements;
         this.records = page.content;
         this.setCurrentRecord(0);

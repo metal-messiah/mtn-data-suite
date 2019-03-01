@@ -24,12 +24,12 @@ import { Coordinates } from '../../../models/coordinates';
 import { EntityMapLayer } from '../../../models/entity-map-layer';
 import { MapDataLayer } from '../../../models/map-data-layer';
 import { SourceUpdatable } from '../../../models/source-updatable';
-import { StoreSource } from '../../../models/full/store-source';
 import { StoreMapLayer } from '../../../models/store-map-layer';
 import { ChainXyLayer } from 'app/models/chain-xy-layer.';
 import { ChainXyMappable } from 'app/models/chain-xy-mappable';
 import { BannerSource } from 'app/models/full/banner-source';
 import { ChainXy } from 'app/models/chain-xy';
+import { SimplifiedStoreSource } from '../../../models/simplified/simplified-store-source';
 
 export enum PageEvent {
   PREV,
@@ -54,8 +54,8 @@ export class ChainXyMapComponent implements OnInit {
   mapDataLayer: MapDataLayer;
 
   // StoreSource
-  records: StoreSource[] = [];
-  currentStoreSource: StoreSource;
+  records: SimplifiedStoreSource[] = [];
+  currentStoreSource: SimplifiedStoreSource;
   currentRecordIndex = 0;
   totalStoreSourceRecords = 0;
 
@@ -63,7 +63,7 @@ export class ChainXyMapComponent implements OnInit {
   retrievingSources = false;
 
   // Pagination Management Stuff
-  page: Pageable<StoreSource> = {
+  page: Pageable<SimplifiedStoreSource> = {
     content: [],
     last: false,
     totalElements: -1,
@@ -75,7 +75,7 @@ export class ChainXyMapComponent implements OnInit {
     numberOfElements: -1
   };
   validatedPages: any = {};
-  recordsPerPage = 250;
+  recordsPerPage = 50;
   sizeOptions = [10, 50, 100, 250, 500];
 
   // ChainXY Data
@@ -202,7 +202,7 @@ export class ChainXyMapComponent implements OnInit {
     this.sourceService
       .getSourcesByBannerSourceId(this.selectedBannerSource.id, pageNumber, `${this.recordsPerPage}`)
       .pipe(finalize(() => (this.retrievingSources = false)))
-      .subscribe((page: Pageable<StoreSource>) => {
+      .subscribe((page: Pageable<SimplifiedStoreSource>) => {
         this.page = page;
         this.totalStoreSourceRecords = page.totalElements;
         this.records = page.content;
@@ -247,7 +247,7 @@ export class ChainXyMapComponent implements OnInit {
     this.sourceService
       .getSourcesNotValidated('ChainXY', pageNumber, `${this.recordsPerPage}`)
       .pipe(finalize(() => (this.retrievingSources = false)))
-      .subscribe((page: Pageable<StoreSource>) => {
+      .subscribe((page: Pageable<SimplifiedStoreSource>) => {
         this.page = page;
         this.totalStoreSourceRecords = page.totalElements;
         this.records = page.content;

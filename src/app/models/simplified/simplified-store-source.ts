@@ -7,6 +7,7 @@ export class SimplifiedStoreSource implements  Entity {
   sourceNativeId: string;
   sourceUrl: string;
   sourceStoreName: string;
+  sourceBannerName: string;
   validatedDate: Date;
 
   constructor(obj?) {

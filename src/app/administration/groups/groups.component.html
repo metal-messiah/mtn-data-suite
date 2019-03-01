@@ -8,7 +8,7 @@
     <div class="list-wrapper">
       <h3 *ngIf="groups && groups.length < 1">No Groups</h3>
       <div *ngIf="isLoading" style="text-align: center">
-        <i class="fas fa-spinner fa-3x fa-spin" aria-hidden="true"></i>
+        <i class="fas fa-spinner fa-3x fa-pulse" aria-hidden="true"></i>
       </div>
       <mat-accordion *ngIf="!isLoading">
         <mat-expansion-panel *ngFor="let group of groups">
@@ -20,7 +20,7 @@
           <p>{{group.description}}</p>
           <mat-action-row>
             <button [disabled]="isDeleting" mat-button color="warn" (click)="confirmDelete(group)">
-              <span *ngIf="isDeleting"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></span>
+              <span *ngIf="isDeleting"><i class="fas fa-spinner fa-pulse" aria-hidden="true"></i></span>
               <span>Delete</span>
             </button>
             <button [disabled]="isDeleting" mat-button color="primary" [routerLink]="['../group-detail/', group.id]">

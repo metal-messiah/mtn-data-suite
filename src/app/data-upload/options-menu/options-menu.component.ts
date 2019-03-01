@@ -15,7 +15,7 @@ export class OptionsMenuComponent implements OnInit {
         label: 'Upload a Spreadsheet',
         icon: 'fas fa-file-alt',
         link: 'spreadsheet',
-        disabled: false
+        disabled: true
       },
       {
         label: 'Upload from Planned Grocery',

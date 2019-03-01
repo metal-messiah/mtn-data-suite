@@ -5,39 +5,43 @@
         {{(currentRecordIndex + 1) + (recordsPerPage * page.number) | number }} / {{totalStoreSourceRecords | number}}
       </h4>
       <h4 style="margin: 10px; text-align:center;" *ngIf="records.length > 0 && retrievingSources">
-        <i class="fas fa-spinner fa-spin"></i> / {{totalStoreSourceRecords | number}}
+        <i class="fas fa-spinner fa-pulse"></i> / {{totalStoreSourceRecords | number}}
       </h4>
     </div>
     <div *ngIf="records.length > 0" style="padding: 0 15px;">
       <mat-form-field>
-          <mat-select placeholder="Records Per Page" (selectionChange)="getSources()" [(value)]="recordsPerPage">
-              <mat-option *ngFor="let o of sizeOptions" [value]="o">{{o}}</mat-option>
-            </mat-select>
+        <mat-select placeholder="Records Per Page" (selectionChange)="getSources()" [(value)]="recordsPerPage">
+          <mat-option *ngFor="let o of sizeOptions" [value]="o">{{o}}</mat-option>
+        </mat-select>
       </mat-form-field>
-      
+
     </div>
     <div class="flex-between" *ngIf="page && page.totalPages > 1">
-        <button title="Previous Page" [disabled]="page.first" (click)="prevPage()"><i class="fas fa-step-backward"></i></button>
-        <button title="Go To Next Unvalidated Record" (click)="getSources()"><i class="far fa-check-circle"></i></button>
-        <button title="Next Page" [disabled]="page.last" (click)="nextPage()"><i class="fas fa-step-forward"></i></button>
+      <button title="Previous Page" [disabled]="page.first" (click)="prevPage()"><i class="fas fa-step-backward"></i>
+      </button>
+      <button title="Go To Next Unvalidated Record" (click)="getSources()"><i class="far fa-check-circle"></i></button>
+      <button title="Next Page" [disabled]="page.last" (click)="nextPage()"><i class="fas fa-step-forward"></i></button>
     </div>
     <mat-list>
-      <mat-list-item [id]="i" *ngFor="let record of records; let i = index" [ngClass]="{highlighted: i === currentRecordIndex, muted: record.validatedDate}"
+      <mat-list-item [id]="i" *ngFor="let record of records; let i = index"
+                     [ngClass]="{highlighted: i === currentRecordIndex, muted: record.validatedDate}"
                      (click)="setCurrentRecord(i)">
         <div>
           <span class='list-item-header' id="ssn" *ngIf="record.sourceStoreName">{{record.sourceStoreName}}</span>
           <br>
-           
-            <span class="list-item-desc" *ngIf="record.validatedDate">Validated: {{record.validatedDate | date}}</span>
-            <span class="list-item-desc" *ngIf="!record.validatedDate">Not Validated</span>
-          
+          <span class='list-item-subheader' id="sbn" *ngIf="record.sourceBannerName">{{record.sourceBannerName}}</span>
+          <br>
+          <span class="list-item-desc" *ngIf="record.validatedDate">Validated: {{record.validatedDate | date}}</span>
+          <span class="list-item-desc" *ngIf="!record.validatedDate">Not Validated</span>
+
         </div>
       </mat-list-item>
     </mat-list>
     <div class="flex-between" *ngIf="page && page.totalPages > 1">
-        <button title="Previous Page" [disabled]="page.first" (click)="prevPage()"><i class="fas fa-step-backward"></i></button>
-        <button title="Go To Next Unvalidated Record" (click)="getSources()"><i class="far fa-check-circle"></i></button>
-        <button title="Next Page" [disabled]="page.last" (click)="nextPage()"><i class="fas fa-step-forward"></i></button>
+      <button title="Previous Page" [disabled]="page.first" (click)="prevPage()"><i class="fas fa-step-backward"></i>
+      </button>
+      <button title="Go To Next Unvalidated Record" (click)="getSources()"><i class="far fa-check-circle"></i></button>
+      <button title="Next Page" [disabled]="page.last" (click)="nextPage()"><i class="fas fa-step-forward"></i></button>
     </div>
   </div>
   <div class="center-panel hidden-sm">
@@ -65,9 +69,9 @@
         <div class='flex-container' *ngIf="chainXyRecord">
           <div>
             <div class='large-text'>
-              
-                {{chainXyRecord.StoreName}}
-              
+
+              {{chainXyRecord.StoreName}}
+
             </div>
             <div class='med-text'> {{chainXyRecord.Address + ", "
               + chainXyRecord.City + ","+
@@ -136,10 +140,10 @@
       <mat-step>
         <ng-template matStepLabel>Match/Edit Data</ng-template>
         <mds-chain-xy-data-form *ngIf="sourceUpdatable" [chainXyUpdatable]="sourceUpdatable"
-                          [chainXyFeature]="chainXyRecord"
-                          [storeSource]="currentStoreSource"
-                          (cancelEvent)="cancelStep2()"
-                          (completedEvent)="nextRecord()">
+                                [chainXyFeature]="chainXyRecord"
+                                [storeSource]="currentStoreSource"
+                                (cancelEvent)="cancelStep2()"
+                                (completedEvent)="nextRecord()">
         </mds-chain-xy-data-form>
       </mat-step>
     </mat-horizontal-stepper>

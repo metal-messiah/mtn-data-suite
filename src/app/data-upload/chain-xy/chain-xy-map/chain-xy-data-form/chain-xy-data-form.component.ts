@@ -11,11 +11,11 @@ import { ErrorService } from '../../../../core/services/error.service';
 
 // MODELS
 import { SourceUpdatable } from '../../../../models/source-updatable';
-import { StoreSource } from '../../../../models/full/store-source';
 import { ChainXy } from 'app/models/chain-xy';
 
 // COMPONENTS
 import { QuadDialogComponent } from '../../../../casing/quad-dialog/quad-dialog.component';
+import { SimplifiedStoreSource } from '../../../../models/simplified/simplified-store-source';
 
 @Component({
   selector: 'mds-chain-xy-data-form',
@@ -25,7 +25,7 @@ import { QuadDialogComponent } from '../../../../casing/quad-dialog/quad-dialog.
 export class ChainXyDataFormComponent implements OnChanges {
   @Input() chainXyUpdatable: SourceUpdatable;
   @Input() chainXyFeature: ChainXy;
-  @Input() storeSource: StoreSource;
+  @Input() storeSource: SimplifiedStoreSource;
 
   @Output() cancelEvent = new EventEmitter<void>();
   @Output() completedEvent = new EventEmitter<void>();
