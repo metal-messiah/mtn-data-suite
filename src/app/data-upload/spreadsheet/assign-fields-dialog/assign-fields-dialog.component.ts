@@ -7,7 +7,6 @@ import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
 import { Banner } from 'app/models/full/banner';
 import { Company } from 'app/models/full/company';
 import { FieldMappingItem } from './field-mapping-item';
-import { Store } from '../../../models/full/store';
 
 import { SpreadsheetService } from '../spreadsheet.service';
 import { CompanyService } from 'app/core/services/company.service';
@@ -15,280 +14,281 @@ import { BannerService } from 'app/core/services/banner.service';
 import { StoreService } from 'app/core/services/store.service';
 
 @Component({
-	selector: 'mds-assign-fields-dialog',
-	templateUrl: './assign-fields-dialog.component.html',
-	styleUrls: [ './assign-fields-dialog.component.css' ],
-	providers: []
+  selector: 'mds-assign-fields-dialog',
+  templateUrl: './assign-fields-dialog.component.html',
+  styleUrls: ['./assign-fields-dialog.component.css'],
+  providers: []
 })
 export class AssignFieldsDialogComponent implements OnInit {
-	title = 'Assign Fields';
-	fields: string[];
-	spreadsheetService: SpreadsheetService;
+  title = 'Assign Fields';
+  fields: string[];
+  spreadsheetService: SpreadsheetService;
 
-	form: FormGroup;
+  form: FormGroup;
 
-	csvAsText: string;
+  csvAsText: string;
 
-	sendingData = false;
+  sendingData = false;
 
-	matchType: string;
+  matchType: string;
 
-	updateItems: FieldMappingItem[];
-	insertItems: FieldMappingItem[];
+  updateItems: FieldMappingItem[];
+  insertItems: FieldMappingItem[];
 
-	companies: SimplifiedCompany[] = [];
-	filteredCompanies: SimplifiedCompany[] = [];
-	banners: SimplifiedBanner[];
+  companies: SimplifiedCompany[] = [];
+  filteredCompanies: SimplifiedCompany[] = [];
+  banners: SimplifiedBanner[];
 
-	bannerFetches = 0;
+  bannerFetches = 0;
 
-	volumeTypes: string[] = [ 'ACTUAL', 'ESTIMATE', 'PROJECTION', 'THIRD_PARTY', 'PLACEHOLDER' ];
+  volumeTypes: string[] = ['ACTUAL', 'ESTIMATE', 'PROJECTION', 'THIRD_PARTY', 'PLACEHOLDER'];
 
-	volumeDate = null;
-	volumeType: string = null;
+  volumeDate = null;
+  volumeType: string = null;
 
-	@ViewChild('stepper') stepper: MatStepper;
+  @ViewChild('stepper') stepper: MatStepper;
 
-	MatDialog;
-	constructor(
-		public dialogRef: MatDialogRef<AssignFieldsDialogComponent>,
-		private fb: FormBuilder,
-		private companyService: CompanyService,
-		private bannerService: BannerService,
-		private storeService: StoreService,
-		@Inject(MAT_DIALOG_DATA) public data: any
-	) {
-		dialogRef.disableClose = true;
+  MatDialog;
 
-		this.fields = data.fields;
-		this.spreadsheetService = data.spreadsheetService;
+  constructor(
+    public dialogRef: MatDialogRef<AssignFieldsDialogComponent>,
+    private fb: FormBuilder,
+    private companyService: CompanyService,
+    private bannerService: BannerService,
+    private storeService: StoreService,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    dialogRef.disableClose = true;
 
-		this.updateItems = [];
+    this.fields = data.fields;
+    this.spreadsheetService = data.spreadsheetService;
 
-		this.insertItems = [];
+    this.updateItems = [];
 
-		this.csvAsText = data.csvAsText;
-		this.sendingData = false;
+    this.insertItems = [];
 
-		this.companies = [];
-		this.banners = [];
-	}
+    this.csvAsText = data.csvAsText;
+    this.sendingData = false;
 
-	ngOnInit() {
-		this.createForm();
-		this.getCompanies();
-	}
+    this.companies = [];
+    this.banners = [];
+  }
 
-	private createForm(): void {
-		this.form = this.fb.group({
-			name: '',
-			lat: '',
-			lng: '',
-			company: null,
-			banner: null,
-			storeNumber: '',
-			matchType: 'location',
-			updateFields: [],
-			insertFields: []
-		});
-	}
+  ngOnInit() {
+    this.createForm();
+    this.getCompanies();
+  }
 
-	getCompanies(attempts?: number): void {
-		// list of companies for input
-		attempts = attempts || 0;
-		if (attempts < 3) {
-			this.companyService.getAllByQuery().subscribe(
-				(resp) => {
-					this.companies = resp.content.sort((a, b) => a.companyName.localeCompare(b.companyName));
-					this.filteredCompanies = this.companies;
-				},
-				() => this.getCompanies(attempts + 1)
-			);
-		}
-	}
+  private createForm(): void {
+    this.form = this.fb.group({
+      name: '',
+      lat: '',
+      lng: '',
+      company: null,
+      banner: null,
+      storeNumber: '',
+      matchType: 'location',
+      updateFields: [],
+      insertFields: []
+    });
+  }
 
-	filterCompanies(value): void {
-		// filtering for auto populate input
-		value = value || '';
-		this.filteredCompanies = this.companies.length
-			? this.companies.filter((comp) => {
-					return comp.companyName.toLowerCase().includes(value.toLowerCase());
-				})
-			: [];
-	}
+  getCompanies(attempts?: number): void {
+    // list of companies for input
+    attempts = attempts || 0;
+    if (attempts < 3) {
+      this.companyService.getAllByQuery().subscribe(
+        (resp) => {
+          this.companies = resp.content.sort((a, b) => a.companyName.localeCompare(b.companyName));
+          this.filteredCompanies = this.companies;
+        },
+        () => this.getCompanies(attempts + 1)
+      );
+    }
+  }
 
-	getBannersFromCompany(attempts?: number): void {
-		// list of banners based on company selection
-		const companyName = this.form.value.company;
-		const matches = this.companies.filter((comp) => comp.companyName === companyName);
-		let companyId;
+  filterCompanies(value): void {
+    // filtering for auto populate input
+    value = value || '';
+    this.filteredCompanies = this.companies.length
+      ? this.companies.filter((comp) => {
+        return comp.companyName.toLowerCase().includes(value.toLowerCase());
+      })
+      : [];
+  }
 
-		if (matches.length) {
-			companyId = matches[0].id;
-		}
+  getBannersFromCompany(attempts?: number): void {
+    // list of banners based on company selection
+    const companyName = this.form.value.company;
+    const matches = this.companies.filter((comp) => comp.companyName === companyName);
+    let companyId;
 
-		if (companyId) {
-			attempts = attempts || 0;
-			this.banners = [];
-			this.bannerFetches = 0;
-			if (attempts < 3) {
-				this.companyService.getOneById(companyId).subscribe(
-					(company: Company) => {
-						const { banners } = company;
-						attempts = 0;
+    if (matches.length) {
+      companyId = matches[0].id;
+    }
 
-						this.bannerFetches = banners.length;
-						banners.forEach((banner) => {
-							this.bannerService.getOneById(banner.id).subscribe(
-								(b: Banner) => {
-									this.banners.push(b);
-								},
-								() => this.getBannersFromCompany(attempts + 1) // just a failsafe
-							);
-						});
-					},
-					() => this.getBannersFromCompany(attempts + 1) // just a failsafe
-				);
-			}
-		}
-	}
+    if (companyId) {
+      attempts = attempts || 0;
+      this.banners = [];
+      this.bannerFetches = 0;
+      if (attempts < 3) {
+        this.companyService.getOneById(companyId).subscribe(
+          (company: Company) => {
+            const {banners} = company;
+            attempts = 0;
 
-	getBanner(bannerId, attempts?: number): void {
-		// get full banner obj for the mapping later on
-		attempts = attempts || 0;
-		if (attempts < 3) {
-			this.bannerService.getOneById(bannerId).subscribe(
-				(b: Banner) => {
-					this.form.value.banner = b;
-					console.log(this.form.value);
-				},
-				() => this.getBannersFromCompany(attempts + 1) // failsafe
-			);
-		}
-	}
+            this.bannerFetches = banners.length;
+            banners.forEach((banner) => {
+              this.bannerService.getOneById(banner.id).subscribe(
+                (b: Banner) => {
+                  this.banners.push(b);
+                },
+                () => this.getBannersFromCompany(attempts + 1) // just a failsafe
+              );
+            });
+          },
+          () => this.getBannersFromCompany(attempts + 1) // just a failsafe
+        );
+      }
+    }
+  }
 
-	showVolumeFields(item): boolean {
-		// some inputs show when storeVolumes is selected
-		return item.selectedStoreField === 'storeVolumes';
-	}
+  getBanner(bannerId, attempts?: number): void {
+    // get full banner obj for the mapping later on
+    attempts = attempts || 0;
+    if (attempts < 3) {
+      this.bannerService.getOneById(bannerId).subscribe(
+        (b: Banner) => {
+          this.form.value.banner = b;
+          console.log(this.form.value);
+        },
+        () => this.getBannersFromCompany(attempts + 1) // failsafe
+      );
+    }
+  }
 
-	updateItemsAreValid(): boolean {
-		// update item has full mapping
-		let isValid = true;
-		this.updateItems.forEach((i) => {
-			if (!i.selectedFileField || !i.selectedStoreField) {
-				isValid = false;
-			}
-		});
-		if (isValid) {
-			this.mapUpdateItemsToForm();
-		}
-		return isValid;
-	}
+  showVolumeFields(item): boolean {
+    // some inputs show when storeVolumes is selected
+    return item.selectedStoreField === 'storeVolumes';
+  }
 
-	insertItemsAreValid(): boolean {
-		let isValid = true;
-		this.insertItems.forEach((i) => {
-			if (!i.selectedFileField || !i.selectedStoreField) {
-				isValid = false;
-			}
-		});
-		if (isValid) {
-			this.mapInsertItemsToForm();
-		}
-		return isValid;
-	}
+  updateItemsAreValid(): boolean {
+    // update item has full mapping
+    let isValid = true;
+    this.updateItems.forEach((i) => {
+      if (!i.selectedFileField || !i.selectedStoreField) {
+        isValid = false;
+      }
+    });
+    if (isValid) {
+      this.mapUpdateItemsToForm();
+    }
+    return isValid;
+  }
 
-	mapUpdateItemsToForm() {
-		// place update items in form
-		this.form.value.updateFields = this.updateItems.map((i) => {
-			return { file: i.selectedFileField, store: i.selectedStoreField };
-		});
-	}
+  insertItemsAreValid(): boolean {
+    let isValid = true;
+    this.insertItems.forEach((i) => {
+      if (!i.selectedFileField || !i.selectedStoreField) {
+        isValid = false;
+      }
+    });
+    if (isValid) {
+      this.mapInsertItemsToForm();
+    }
+    return isValid;
+  }
 
-	mapInsertItemsToForm() {
-		this.form.value.insertFields = this.insertItems.map((i) => {
-			return { file: i.selectedFileField, store: i.selectedStoreField };
-		});
-	}
+  mapUpdateItemsToForm() {
+    // place update items in form
+    this.form.value.updateFields = this.updateItems.map((i) => {
+      return {file: i.selectedFileField, store: i.selectedStoreField};
+    });
+  }
 
-	updateSelectedFileField(id, val, type) {
-		const prop = type === 'update' ? 'updateItems' : 'insertItems';
-		const idx = this[prop].findIndex((item) => item.id === id);
-		this[prop][idx].selectedFileField = val;
-	}
+  mapInsertItemsToForm() {
+    this.form.value.insertFields = this.insertItems.map((i) => {
+      return {file: i.selectedFileField, store: i.selectedStoreField};
+    });
+  }
 
-	updateSelectedStoreField(id, val: string, type: string) {
-		const prop = type === 'update' ? 'updateItems' : 'insertItems';
-		const idx = this[prop].findIndex((item) => item.id === id);
-		this[prop][idx].selectedStoreField = val;
+  updateSelectedFileField(id, val, type) {
+    const prop = type === 'update' ? 'updateItems' : 'insertItems';
+    const idx = this[prop].findIndex((item) => item.id === id);
+    this[prop][idx].selectedFileField = val;
+  }
 
-		if (val === 'storeVolumes') {
-			this.volumeDate = new Date();
-			this.volumeDate.setMinutes(this.volumeDate.getMinutes() - this.volumeDate.getTimezoneOffset());
-			this.volumeDate = this.volumeDate.toISOString().substring(0, 10);
+  updateSelectedStoreField(id, val: string, type: string) {
+    const prop = type === 'update' ? 'updateItems' : 'insertItems';
+    const idx = this[prop].findIndex((item) => item.id === id);
+    this[prop][idx].selectedStoreField = val;
 
-			this.volumeType = this.volumeTypes[0];
-		}
-	}
+    if (val === 'storeVolumes') {
+      this.volumeDate = new Date();
+      this.volumeDate.setMinutes(this.volumeDate.getMinutes() - this.volumeDate.getTimezoneOffset());
+      this.volumeDate = this.volumeDate.toISOString().substring(0, 10);
 
-	updateVolumeType(type: string): void {
-		this.volumeType = type;
-	}
+      this.volumeType = this.volumeTypes[0];
+    }
+  }
 
-	addFieldMappingItem(type: string): void {
-		// 'update' or 'insert'
-		if (type === 'update') {
-			this.updateItems.push(new FieldMappingItem(this.fields));
-		} else {
-			this.insertItems.push(new FieldMappingItem(this.fields));
-		}
-	}
+  updateVolumeType(type: string): void {
+    this.volumeType = type;
+  }
 
-	formIsValid(): boolean {
-		const step = this.stepper.selectedIndex;
-		const { controls, value } = this.form;
-		if (step === 0) {
-			return controls.name.valid && ((value.lat && value.lng) || (value.company && value.storeNumber));
-		}
-		if (step === 1) {
-			return this.updateItems.length > 0 && this.updateItemsAreValid() && this.insertItemsAreValid();
-		}
-		return false;
-	}
+  addFieldMappingItem(type: string): void {
+    // 'update' or 'insert'
+    if (type === 'update') {
+      this.updateItems.push(new FieldMappingItem(this.fields));
+    } else {
+      this.insertItems.push(new FieldMappingItem(this.fields));
+    }
+  }
 
-	goForward(): void {
-		if (this.stepper.selectedIndex === 1) {
-			if (this.formIsValid()) {
-				this.assignFields();
-			}
-		} else {
-			this.stepper.next();
-		}
-	}
+  formIsValid(): boolean {
+    const step = this.stepper.selectedIndex;
+    const {controls, value} = this.form;
+    if (step === 0) {
+      return controls.name.valid && ((value.lat && value.lng) || (value.company && value.storeNumber));
+    }
+    if (step === 1) {
+      return this.updateItems.length > 0 && this.updateItemsAreValid() && this.insertItemsAreValid();
+    }
+    return false;
+  }
 
-	goBackward(): void {
-		if (this.stepper.selectedIndex === 0) {
-			// window.location.reload();
-			this.dialogRef.close('cancel');
-		} else {
-			this.stepper.reset();
-		}
-	}
+  goForward(): void {
+    if (this.stepper.selectedIndex === 1) {
+      if (this.formIsValid()) {
+        this.assignFields();
+      }
+    } else {
+      this.stepper.next();
+    }
+  }
 
-	assignFields(): void {
-		// the end of the flow
-		this.sendingData = true;
-		const volumeRules = {
-			volumeDate: this.volumeDate,
-			volumeType: this.volumeType
-		};
+  goBackward(): void {
+    if (this.stepper.selectedIndex === 0) {
+      // window.location.reload();
+      this.dialogRef.close('cancel');
+    } else {
+      this.stepper.reset();
+    }
+  }
 
-		const matchType = this.form.value.company ? 'storeNumber' : 'location';
+  assignFields(): void {
+    // the end of the flow
+    this.sendingData = true;
+    const volumeRules = {
+      volumeDate: this.volumeDate,
+      volumeType: this.volumeType
+    };
 
-		this.spreadsheetService.setMatchType(matchType);
+    const matchType = this.form.value.company ? 'storeNumber' : 'location';
 
-		this.spreadsheetService.assignFields(this.fields, this.form.value, volumeRules);
-		this.dialogRef.close();
-	}
+    this.spreadsheetService.setMatchType(matchType);
+
+    this.spreadsheetService.assignFields(this.fields, this.form.value, volumeRules);
+    this.dialogRef.close();
+  }
 }

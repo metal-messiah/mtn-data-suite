@@ -35,52 +35,52 @@ import { SourceUpdatableService } from './services/source-updatable.service';
 import { BannerSourceService } from './services/banner-source.service';
 
 @NgModule({
-	imports: [ CommonModule ],
-	declarations: [],
-	providers: [
-		AuthService,
-		AuthGuard,
-		BannerService,
-		CompanyService,
-		DetailFormService,
-		EntityListService,
-		ErrorService,
-		ExtractionService,
-		GeocoderService,
-		GroupService,
-		MapService,
-		NavigatorService,
-		PermissionService,
-		ProjectService,
-		RestService,
-		RoleService,
-		RoutingStateService,
-		ShoppingCenterAccessService,
-		ShoppingCenterCasingService,
-		ShoppingCenterService,
-		ShoppingCenterSurveyService,
-		ShoppingCenterTenantService,
-		SiteService,
-		StoreSourceService,
-		StoreCasingService,
-		StoreService,
-		StoreSurveyService,
-		StoreVolumeService,
-		UserProfileService,
-		EntitySelectionService,
-		StorageService,
-		SourceUpdatableService,
-		BannerSourceService
-	]
+  imports: [CommonModule],
+  declarations: [],
+  providers: [
+    AuthService,
+    AuthGuard,
+    BannerService,
+    CompanyService,
+    DetailFormService,
+    EntityListService,
+    ErrorService,
+    ExtractionService,
+    GeocoderService,
+    GroupService,
+    MapService,
+    NavigatorService,
+    PermissionService,
+    ProjectService,
+    RestService,
+    RoleService,
+    RoutingStateService,
+    ShoppingCenterAccessService,
+    ShoppingCenterCasingService,
+    ShoppingCenterService,
+    ShoppingCenterSurveyService,
+    ShoppingCenterTenantService,
+    SiteService,
+    StoreSourceService,
+    StoreCasingService,
+    StoreService,
+    StoreSurveyService,
+    StoreVolumeService,
+    UserProfileService,
+    EntitySelectionService,
+    StorageService,
+    SourceUpdatableService,
+    BannerSourceService
+  ]
 })
 export class CoreModule {
-	constructor(
-		@Optional()
-		@SkipSelf()
-		parentModule: CoreModule
-	) {
-		if (parentModule) {
-			throw new Error('CoreModule is already loaded. Import it in the AppModule only');
-		}
-	}
+  constructor(
+    @Optional()
+    @SkipSelf()
+      parentModule: CoreModule
+  ) {
+    if (parentModule) {
+      throw new Error('CoreModule is already loaded. Import it in the AppModule only');
+    }
+  }
 }

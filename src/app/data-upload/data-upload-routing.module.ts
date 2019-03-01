@@ -12,29 +12,30 @@ import { ChainXyTableComponent } from './chain-xy/chain-xy-table/chain-xy-table.
 import { ChainXyMapComponent } from './chain-xy/chain-xy-map/chain-xy-map.component';
 
 const routes: Routes = [
-	{
-		path: 'data-upload',
-		component: DataUploadComponent,
-		canActivate: [ AuthGuard ],
-		children: [
-			{ path: '', component: OptionsMenuComponent },
-			{ path: 'planned-grocery', component: PlannedGroceryComponent },
-			{ path: 'spreadsheet', component: SpreadsheetComponent },
-			{
-				path: 'chain-xy',
-				component: ChainXyComponent,
-				children: [
-					{ path: '', redirectTo: 'chains', pathMatch: 'full' },
-					{ path: 'chains', component: ChainXyTableComponent },
-					{ path: 'update', component: ChainXyMapComponent }
-				]
-			}
-		]
-	}
+  {
+    path: 'data-upload',
+    component: DataUploadComponent,
+    canActivate: [AuthGuard],
+    children: [
+      {path: '', component: OptionsMenuComponent},
+      {path: 'planned-grocery', component: PlannedGroceryComponent},
+      {path: 'spreadsheet', component: SpreadsheetComponent},
+      {
+        path: 'chain-xy',
+        component: ChainXyComponent,
+        children: [
+          {path: '', redirectTo: 'chains', pathMatch: 'full'},
+          {path: 'chains', component: ChainXyTableComponent},
+          {path: 'update', component: ChainXyMapComponent}
+        ]
+      }
+    ]
+  }
 ];
 
 @NgModule({
-	imports: [ RouterModule.forChild(routes) ],
-	exports: [ RouterModule ]
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
 })
-export class DataUploadRoutingModule {}
+export class DataUploadRoutingModule {
+}
