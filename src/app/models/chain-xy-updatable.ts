@@ -3,47 +3,47 @@ import { DateUtil } from '../utils/date-util';
 import { StoreSource } from './full/store-source';
 
 export class ChainXyUpdatable {
-	// Shopping Center
-	readonly shoppingCenterId: number;
-	shoppingCenterName: string;
+    // Shopping Center
+    readonly shoppingCenterId: number;
+    shoppingCenterName: string;
 
-	// Site
-	readonly siteId: number;
-	address: string;
-	quad: string;
-	intersectionStreetPrimary: string;
-	intersectionStreetSecondary: string;
-	city: string;
-	county: string;
-	state: string;
-	postalCode: string;
-	latitude: number;
-	longitude: number;
+    // Site
+    readonly siteId: number;
+    address: string;
+    quad: string;
+    intersectionStreetPrimary: string;
+    intersectionStreetSecondary: string;
+    city: string;
+    county: string;
+    state: string;
+    postalCode: string;
+    latitude: number;
+    longitude: number;
 
-	// Store
-	readonly storeId: number;
-	storeName: string;
-	dateOpened: Date;
+    // Store
+    readonly storeId: number;
+    storeName: string;
+    dateOpened: Date;
 
-	// Only a new status (one without an ID) will be regarded when submitted. (Forbids editing of existing status records)
-	storeStatuses: SimplifiedStoreStatus[] = [];
+    // Only a new status (one without an ID) will be regarded when submitted. (Forbids editing of existing status records)
+    storeStatuses: SimplifiedStoreStatus[] = [];
 
-	// Store Survey
-	readonly storeSurveyId: number;
-	areaTotal: number;
+    // Store Survey
+    readonly storeSurveyId: number;
+    areaTotal: number;
 
-	storeSource: StoreSource;
+    storeSource: StoreSource;
 
-	constructor(obj?: ChainXyUpdatable) {
-		if (obj) {
-			Object.assign(this, obj);
-			this.dateOpened = DateUtil.getDate(obj.dateOpened);
-			if (obj.storeSource) {
-				this.storeSource = new StoreSource(obj.storeSource);
-			}
-			if (obj.storeStatuses) {
-				this.storeStatuses = obj.storeStatuses.map((status) => new SimplifiedStoreStatus(status));
-			}
-		}
-	}
+    constructor(obj?: ChainXyUpdatable) {
+        if (obj) {
+            Object.assign(this, obj);
+            this.dateOpened = DateUtil.getDate(obj.dateOpened);
+            if (obj.storeSource) {
+                this.storeSource = new StoreSource(obj.storeSource);
+            }
+            if (obj.storeStatuses) {
+                this.storeStatuses = obj.storeStatuses.map((status) => new SimplifiedStoreStatus(status));
+            }
+        }
+    }
 }

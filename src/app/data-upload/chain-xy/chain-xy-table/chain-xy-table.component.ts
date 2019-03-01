@@ -226,15 +226,15 @@ export class ChainXyTableComponent implements OnInit {
         const isAsc = sort.direction === 'asc';
         switch (sort.active) {
           case 'chain':
-            return compare(a.sourceName, b.sourceName, isAsc);
+            return this.compare(a.sourceName, b.sourceName, isAsc);
           case 'status':
-            return compare(a.status, b.status, isAsc);
+            return this.compare(a.status, b.status, isAsc);
           case 'validated':
-            return compare(a.validatedDate, b.validatedDate, isAsc);
+            return this.compare(a.validatedDate, b.validatedDate, isAsc);
           case 'updated':
-            return compare(a.updatedDate, b.updatedDate, isAsc);
+            return this.compare(a.updatedDate, b.updatedDate, isAsc);
           case 'banner':
-            return compare(a.banner, b.banner, isAsc);
+            return this.compare(a.banner, b.banner, isAsc);
           default:
             return 0;
         }
@@ -253,8 +253,10 @@ export class ChainXyTableComponent implements OnInit {
     this.chainXyService.setSelectedBannerSource(this.selectedBannerSource);
     this.router.navigate(['data-upload/chain-xy/update']);
   }
+
+  private compare(a: number | string, b: number | string, isAsc: boolean) {
+    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
+  };
 }
 
-const compare = (a: number | string, b: number | string, isAsc: boolean) => {
-  return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
-};
+
