@@ -12,9 +12,6 @@ import { LoadComponent } from './spreadsheet/load/load.component';
 import { SpreadsheetService } from './spreadsheet/spreadsheet.service';
 import { AutomatchDialogComponent } from './spreadsheet/automatch-dialog/automatch-dialog.component';
 import { ChainXyComponent } from './chain-xy/chain-xy.component';
-import { ChainXyTableComponent } from './chain-xy/chain-xy-table/chain-xy-table.component';
-import { ChainXyMapComponent } from './chain-xy/chain-xy-map/chain-xy-map.component';
-import { ChainXyDataFormComponent } from './chain-xy/chain-xy-map/chain-xy-data-form/chain-xy-data-form.component';
 import { ChainXyService } from './chain-xy/chain-xy.service';
 
 @NgModule({
@@ -29,10 +26,7 @@ import { ChainXyService } from './chain-xy/chain-xy.service';
     AssignFieldsDialogComponent,
     LoadComponent,
     AutomatchDialogComponent,
-    ChainXyComponent,
-    ChainXyTableComponent,
-    ChainXyMapComponent,
-    ChainXyDataFormComponent
+    ChainXyComponent
   ],
   entryComponents: [AssignFieldsDialogComponent, LoadComponent, AutomatchDialogComponent],
   providers: [SpreadsheetService, ChainXyService]
