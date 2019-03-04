@@ -13,23 +13,28 @@ import { SpreadsheetService } from './spreadsheet/spreadsheet.service';
 import { AutomatchDialogComponent } from './spreadsheet/automatch-dialog/automatch-dialog.component';
 import { ChainXyComponent } from './chain-xy/chain-xy.component';
 import { ChainXyService } from './chain-xy/chain-xy.service';
+import { ChainXyTableComponent } from './chain-xy/chain-xy-table/chain-xy-table.component';
+import { ChainXyMapComponent } from './chain-xy/chain-xy-map/chain-xy-map.component';
+import { ChainXyDataFormComponent } from './chain-xy/chain-xy-map/chain-xy-data-form/chain-xy-data-form.component';
 
 @NgModule({
-  imports: [SharedModule, DataUploadRoutingModule],
-  declarations: [
-    DataUploadComponent,
-    OptionsMenuComponent,
-    PlannedGroceryComponent,
-    SpreadsheetComponent,
-    PgDataFormComponent,
-    SpreadsheetDataFormComponent,
-    AssignFieldsDialogComponent,
-    LoadComponent,
-    AutomatchDialogComponent,
-    ChainXyComponent
-  ],
-  entryComponents: [AssignFieldsDialogComponent, LoadComponent, AutomatchDialogComponent],
-  providers: [SpreadsheetService, ChainXyService]
+    imports: [ SharedModule, DataUploadRoutingModule ],
+    declarations: [
+        DataUploadComponent,
+        OptionsMenuComponent,
+        PlannedGroceryComponent,
+        SpreadsheetComponent,
+        PgDataFormComponent,
+        SpreadsheetDataFormComponent,
+        AssignFieldsDialogComponent,
+        LoadComponent,
+        AutomatchDialogComponent,
+        ChainXyComponent,
+        ChainXyTableComponent,
+        ChainXyMapComponent,
+        ChainXyDataFormComponent
+    ],
+    entryComponents: [ AssignFieldsDialogComponent, LoadComponent, AutomatchDialogComponent ],
+    providers: [ SpreadsheetService, ChainXyService ]
 })
-export class DataUploadModule {
-}
+export class DataUploadModule {}
