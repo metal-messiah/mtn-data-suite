@@ -44,23 +44,6 @@ export class StoreService extends CrudService<Store> {
       .pipe(map(newCasing => new StoreCasing(newCasing)));
   }
 
-  getIdsInShape(shape: string): Observable<{siteIds: number[], storeIds: number[]}> {
-    const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams();
-    params = params.set('geojson', shape);
-    return this.http.get<{siteIds: number[], storeIds: number[]}>(url, {headers: this.rest.getHeaders(), params: params});
-  }
-
-  getIdsInRadius(latitude: number, longitude: number, radiusMeters: number)
-    : Observable<{siteIds: number[], storeIds: number[]}> {
-    const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams();
-    params = params.set('latitude', String(latitude));
-    params = params.set('longitude', String(longitude));
-    params = params.set('radiusMeters', String(radiusMeters));
-    return this.http.get<{siteIds: number[], storeIds: number[]}>(url, {headers: this.rest.getHeaders(), params: params});
-  }
-
   getStoresOfTypeInBounds(bounds: { north, south, east, west }, types: string[],
                           includeProjectIds?: boolean): Observable<SimplifiedStore[]> {
     const url = this.rest.getHost() + this.endpoint;
