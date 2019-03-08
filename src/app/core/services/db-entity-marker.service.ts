@@ -278,20 +278,9 @@ export class DbEntityMarkerService {
   }
 
   private showHideMarkersInBounds(markersInBounds: google.maps.Marker[], gmap: google.maps.Map) {
-    const currentlyVisibleMarkers = markersInBounds.filter(marker => {
-
-      const storeMarker: StoreMarker = marker['store'];
-      if (storeMarker) {
-        return this.includeStore(storeMarker);
-      }
-
-      const siteMarker: SiteMarker = marker['site'];
-      if (siteMarker) {
-        return this.includeSite(siteMarker);
-      }
-
-      return true;
-    });
+    const currentlyVisibleMarkers = markersInBounds.filter(marker =>
+      marker['store'] ? this.includeStore(marker['store']) : (marker['site'] ? this.includeSite(marker['site']) : true)
+    );
     currentlyVisibleMarkers.forEach(marker => this.refreshMarkerOptions(marker, gmap));
 
     // If visible marker is not in currentVisibleMarker, remove from map.
