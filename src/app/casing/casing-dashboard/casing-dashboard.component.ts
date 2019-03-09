@@ -41,7 +41,6 @@ import { FollowMeLayer } from '../../models/follow-me-layer';
 import { GooglePlaceLayer } from '../../models/google-place-layer';
 
 import { GeometryUtil } from '../../utils/geometry-util';
-import { MapSelectionMode } from '../enums/map-selection-mode';
 
 import { DbEntityInfoCardItem } from '../db-entity-info-card-item';
 import { InfoCardItem } from '../info-card-item';
@@ -75,7 +74,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   // Enums for template
   casingDashboardMode = CasingDashboardMode;
-  storeSelectionMode = MapSelectionMode;
 
   googleSearchSubscription: Subscription;
 
@@ -119,6 +117,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   onMapReady() {
+    this.dbEntityMarkerService.initMap(this.mapService.getMap());
+
     console.log(`Map is ready`);
     this.subscriptions.push(this.initiateDuplicateSelection$.subscribe(siteId => {
       // Change the mode (should disables all other user interactions that might conflict)
@@ -141,7 +141,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, {lat: site.latitude, lng: site.longitude});
     }));
 
-    this.subscriptions.push(this.siteUpdated$.subscribe(() => this.dbEntityMarkerService.getMarkersInMapView(this.mapService.getMap())));
+    this.subscriptions.push(this.siteUpdated$.subscribe(() => this.dbEntityMarkerService.getMarkersInMapView()));
 
     this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe(() => this.getEntitiesInBounds()));
 
@@ -185,7 +185,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   getEntitiesInBounds(): void {
     if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.get('minPullZoomLevel').value) {
-      this.dbEntityMarkerService.getMarkersInMapView(this.mapService.getMap())
+      this.dbEntityMarkerService.getMarkersInMapView()
     } else {
       this.snackBar.open('Zoom in or change Pull zoom limit', null, {duration: 3000})
     }
@@ -326,7 +326,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
         this.snackBar.open('Successfully created new Site', null, {duration: 1500});
-        this.dbEntityMarkerService.getMarkersInMapView(this.mapService.getMap());
+        this.dbEntityMarkerService.getMarkersInMapView();
       }, err => this.errorService.handleServerError('Failed to update new Site location!', err,
         () => console.log('Cancel'),
         () => this.saveMove()));
@@ -337,7 +337,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
    */
   enableMultiSelect(): void {
     this.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
-    this.dbEntityMarkerService.clearSelection(this.mapService.getMap());
+    this.dbEntityMarkerService.clearSelection();
     this.dbEntityMarkerService.multiSelect = true;
     // Activate Map Drawing Tools and listen for completed Shapes
     this.mapService.activateDrawingTools().subscribe(shape => {
@@ -346,9 +346,9 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         const longitude = geoJson.geometry.coordinates[0];
         const latitude = geoJson.geometry.coordinates[1];
         const radiusMeters = geoJson.properties.radius;
-        this.dbEntityMarkerService.selectInRadius(latitude, longitude, radiusMeters, this.mapService.getMap());
+        this.dbEntityMarkerService.selectInRadius(latitude, longitude, radiusMeters);
       } else {
-        this.dbEntityMarkerService.selectInGeoJson(JSON.stringify(geoJson), this.mapService.getMap());
+        this.dbEntityMarkerService.selectInGeoJson(JSON.stringify(geoJson));
       }
       this.mapService.clearDrawings();
     });
@@ -356,9 +356,9 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   cancelMultiSelect(): void {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.dbEntityMarkerService.selectionMode = 'select';
+    this.dbEntityMarkerService.deselecting = false;
     this.mapService.deactivateDrawingTools();
-    this.dbEntityMarkerService.clearSelection(this.mapService.getMap());
+    this.dbEntityMarkerService.clearSelection();
   }
 
   openDatabaseSearch() {
@@ -467,7 +467,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   filterClosed() {
-    this.dbEntityMarkerService.refreshMarkers(this.mapService.getMap());
+    this.dbEntityMarkerService.refreshMarkers();
   }
 
   saveProjectBoundary() {
@@ -498,14 +498,14 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   selectAllInBoundary() {
-    this.dbEntityMarkerService.clearSelection(this.mapService.getMap());
+    this.dbEntityMarkerService.clearSelection();
     if (this.projectBoundaryService.isShowingBoundary()) {
       const geoJsonString = JSON.stringify(this.projectBoundaryService.projectBoundary.geojson);
-      this.dbEntityMarkerService.selectInGeoJson(geoJsonString, this.mapService.getMap());
+      this.dbEntityMarkerService.selectInGeoJson(geoJsonString);
     } else {
       this.projectBoundaryService.showProjectBoundaries().subscribe(boundary => {
         if (boundary != null) {
-          this.dbEntityMarkerService.selectInGeoJson(boundary.geojson, this.mapService.getMap());
+          this.dbEntityMarkerService.selectInGeoJson(boundary.geojson);
           this.projectBoundaryService.zoomToProjectBoundary();
         } else {
           this.snackBar.open('No Boundary for Project', null, {duration: 2000, verticalPosition: 'top'});
@@ -557,7 +557,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
       // When the user completes or cancels merging the sites, refresh the locations on the screen
       siteMergeDialog.afterClosed().subscribe(() => {
-        this.dbEntityMarkerService.clearSelection(this.mapService.getMap());
+        this.dbEntityMarkerService.clearSelection();
         this.getEntitiesInBounds();
       });
     }

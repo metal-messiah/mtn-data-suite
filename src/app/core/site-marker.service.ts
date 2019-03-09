@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { RestService } from './services/rest.service';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import * as _ from 'lodash';
 import { Pageable } from '../models/pageable';
 import { SiteMarker } from '../models/site-marker';
@@ -18,13 +18,25 @@ export class SiteMarkerService {
               private rest: RestService) {
   }
 
-  getSiteMarkersInBounds(bounds: any, handbrake: { interrupt: boolean }, sortBy?: string) {
+  getSiteMarkersForView(newBounds: {north: number, south: number, east: number, west: number},
+                        prevBounds: {north: number, south: number, east: number, west: number},
+                        updatedAt: Date): Observable<SiteMarker[]> {
+    const url = this.rest.getHost() + this.endpoint;
+    let params = new HttpParams();
+    _.forEach(newBounds, (value, key) => params = params.set(key, String(value)));
+    _.forEach(prevBounds, (value, key) => params = params.set('prev-' + key, String(value)));
+    params = params.set('updated-at', updatedAt.toLocaleString());
+    return this.http.get<SiteMarker[]>(url, {headers: this.rest.getHeaders(), params: params});
+  }
+
+  getSiteMarkersInBounds(bounds: {north: number, south: number, east: number, west: number},
+                         handbrake: { interrupt: boolean }, sortBy?: string) {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams();
     if (sortBy) {
       params = params.set('sort', 'longitude');
     }
-    _.forEach(bounds, (value, key) => params = params.set(key, value));
+    _.forEach(bounds, (value, key) => params = params.set(key, String(value)));
     return this.runPages(url, params, this.defaultPageSize, 0, new Subject<SiteMarker[]>(), handbrake);
   }
 
