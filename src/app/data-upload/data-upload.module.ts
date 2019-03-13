@@ -17,6 +17,7 @@ import { ChainXyTableComponent } from './chain-xy/chain-xy-table/chain-xy-table.
 import { ChainXyMapComponent } from './chain-xy/chain-xy-map/chain-xy-map.component';
 import { ChainXyDataFormComponent } from './chain-xy/chain-xy-map/chain-xy-data-form/chain-xy-data-form.component';
 import { CloudinaryComponent } from './cloudinary/cloudinary.component';
+import { MatchingComponent } from './matching/matching.component';
 
 @NgModule({
     imports: [ SharedModule, DataUploadRoutingModule ],
@@ -34,7 +35,8 @@ import { CloudinaryComponent } from './cloudinary/cloudinary.component';
         ChainXyTableComponent,
         ChainXyMapComponent,
         ChainXyDataFormComponent,
-        CloudinaryComponent
+        CloudinaryComponent,
+        MatchingComponent
     ],
     entryComponents: [ AssignFieldsDialogComponent, LoadComponent, AutomatchDialogComponent ],
     providers: [ SpreadsheetService, ChainXyService ]

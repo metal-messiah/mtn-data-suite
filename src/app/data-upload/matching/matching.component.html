@@ -1,0 +1,66 @@
+<div class='wrapper'>
+  <div class='left-panel' *ngIf="records != null">
+    <mat-list>
+      <mat-list-item *ngFor="let record of records; let i = index" [ngClass]="{highlighted: currentRecord === record}"
+                     (click)="setCurrentRecord(record)">
+        <div>
+          <span class='list-item-header'>{{record.sourceStoreName}}</span>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <div class="center-panel hidden-sm">
+    <mds-map class="row content" (ready)="onMapReady($event)"></mds-map>
+  </div>
+  <div class="right-panel">
+    <ng-template matStepLabel>Match Site</ng-template>
+    <!-- CONTENT FOR FIRST SECTION! -->
+    <div class='flex-container' *ngIf="currentRecord">
+      <div>
+        <div class='large-text'>
+          {{currentRecord.storeName || ''}}
+        </div>
+      </div>
+      <button (click)="noMatch()" mat-button class=''>Add Site
+      </button>
+    </div>
+    <div class='accent-bar large-text'>Match to Existing</div>
+    <div class='results-table'>
+
+      <div class='loader' *ngIf="gettingEntities">
+        <div>
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          <br>
+          <div class='large-text'>
+            Fetching Stores From MTNRA Database
+          </div>
+        </div>
+      </div>
+      <div [ngClass]="i % 2 != 0 ? 'results-item secondary-row':'results-item'"
+           *ngFor="let site of currentDBResults; let i=index;">
+        <div class="results-header large-text flex-container">
+
+          <div *ngIf="site.distanceFrom" [style.color]="site.distanceFrom < 0.5 ? 'green': '#ff9802'"
+               class='site-distance'>
+            <i class="fas fa-arrow-circle-up" [style.transform]="site.heading"></i> {{site.distanceFrom.toFixed(2)}}
+            Miles
+          </div>
+          <div class='site-title'>{{site.address1 + ", " + site.city + ", " + site.state }}</div>
+        </div>
+        <mat-divider></mat-divider>
+        <div (mouseenter)="siteHover(store, 'enter')" (mouseleave)="siteHover(store, 'leave')" class="results-each"
+             *ngFor="let store of site.stores">
+          <div class="flex-container">
+            <div class='store-attribute'>{{store.storeName}}</div>
+            <div class='hidden-xs store-attribute'>{{store.storeType}}</div>
+            <div class='hidden-xs store-attribute'>{{store.currentStoreStatus}}</div>
+            <button (click)="matchStore(store.id)" mat-button
+                    [ngClass]="{'highlighted': bestMatch && bestMatch.store.id == store.id && bestMatch.score <=4}">
+              Match
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

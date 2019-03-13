@@ -12,6 +12,12 @@ export class OptionsMenuComponent implements OnInit {
         // disabled hides list-item if true
         this.options = [
             {
+              label: 'Match a Spreadsheet',
+              icon: 'fas fa-file-alt',
+              link: 'matching',
+              disabled: false
+            },
+            {
                 label: 'Upload a Spreadsheet',
                 icon: 'fas fa-file-alt',
                 link: 'spreadsheet',
