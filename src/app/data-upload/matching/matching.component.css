@@ -23,17 +23,16 @@
 
 .left-panel, .right-panel, .center-panel{
   height: calc(100vh - 64px);
-  display: inline-block;
-  overflow-x: hidden;
-  overflow-y: auto;
-  margin: 0;
 }
 
 .left-panel{
   background: lightgray;
   flex: 1;
   max-width: 15vw;
-  min-width: 160px;
+  min-width: 200px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 0;
 }
 
 .left-panel mat-list-item{
@@ -55,6 +54,18 @@
   margin: 10px 0 0 0;
 }
 
+.matched{
+  background: #c4fd99 !important;
+  color: black !important;
+  box-shadow: 0 0 10px 2px inset #5b8e5a;
+}
+
+.noMatch{
+  background: #ffcbc5 !important;
+  color: black !important;
+  box-shadow: 0 0 10px 2px inset #ff2620;
+}
+
 .highlighted{
   background: #ffcb00 !important;
   color: black !important;
@@ -71,14 +82,17 @@
 }
 
 .center-panel{
-  flex: 0;
   min-width: 40vw;
+  width: 100%;
   background: lightblue;
 }
 
 .right-panel{
   flex: 1;
   min-width: 45vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .flex-container{
@@ -100,15 +114,6 @@
 
 .small-text{
   font-size: x-small;
-}
-
-.accent-bar{
-  padding: 10px;
-  margin: 25px 0 0 0;
-  text-align: center;
-  text-transform: capitalize;
-  background: #607d8b;
-  color: white;
 }
 
 .results-table{
@@ -144,11 +149,6 @@
   background-color: #edfaff;
 }
 
-button{
-  background: #607d8b;
-  color:white;
-}
-
 .mat-menu-item{
   color:  black;
 }
@@ -171,14 +171,6 @@ button{
 
 .site-title{
   flex: 3;
-}
-
-.stepper-button{
-  margin-right: 25px;
-}
-
-mat-form-field{
-  width: 100%;
 }
 
 @media screen and (max-width: 1000px){
