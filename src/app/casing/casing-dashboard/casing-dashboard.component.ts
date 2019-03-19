@@ -360,9 +360,10 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   cancelMultiSelect(): void {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+    this.dbEntityMarkerService.clearSelection();
+    this.dbEntityMarkerService.multiSelect = false;
     this.dbEntityMarkerService.deselecting = false;
     this.mapService.deactivateDrawingTools();
-    this.dbEntityMarkerService.clearSelection();
   }
 
   openDatabaseSearch() {
