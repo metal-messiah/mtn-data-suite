@@ -242,12 +242,16 @@ export class DbEntityMarkerService {
     siteMarkers.forEach(siteMarker => {
       if (siteMarker.stores && siteMarker.stores.length > 0) {
         siteMarker.stores.forEach(storeMarker => {
-          if (this.includeStore(storeMarker)) {
+          // If not updating with bound changes, only select visible markers
+          if (this.includeStore(storeMarker) && (this.controls.get('updateOnBoundsChange').value ||
+              this.visibleMarkers.findIndex(vm => vm.store && vm.store.id === storeMarker.id) !== -1)) {
             storeIds.push(storeMarker.id);
           }
         })
       }
-      if (this.includeSite(siteMarker)) {
+
+      if (this.includeSite(siteMarker) && (this.controls.get('updateOnBoundsChange').value ||
+        this.visibleMarkers.findIndex(vm => vm.site && vm.site.id === siteMarker.id) !== -1)) {
         siteIds.push(siteMarker.id);
       }
     });

@@ -281,7 +281,8 @@
 </mat-menu>
 
 <i *ngIf="dbEntityMarkerService.gettingLocations" id="loadingSpinner" class="fas fa-spinner fa-pulse fa-2x"></i>
-<button *ngIf="!dbEntityMarkerService.controls.get('updateOnBoundsChange').value && !dbEntityMarkerService.gettingLocations"
+<button *ngIf="!dbEntityMarkerService.controls.get('updateOnBoundsChange').value &&
+               !dbEntityMarkerService.gettingLocations && !filterSideNavIsOpen"
         mat-raised-button id="refresh" (click)="dbEntityMarkerService.getMarkersInMapView()" color="primary">
   <i class="fas fa-sync"></i>
 </button>
