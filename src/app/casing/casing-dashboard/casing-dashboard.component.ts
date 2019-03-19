@@ -143,7 +143,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(this.siteUpdated$.subscribe(() => this.dbEntityMarkerService.getMarkersInMapView()));
 
-    this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe(() => this.getEntitiesInBounds()));
+    this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe(() => {
+      if (this.dbEntityMarkerService.controls.get('updateOnBoundsChange').value) {
+        this.getEntitiesInBounds()
+      }
+    }));
 
     this.subscriptions.push(this.dbEntityMarkerService.clickListener$.subscribe(selection => {
       if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
@@ -466,7 +470,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         () => this.assign(userId)));
   }
 
-  filterClosed() {
+  controlSideMenuClosed() {
     this.dbEntityMarkerService.refreshMarkers();
   }
 

@@ -1,6 +1,6 @@
 <mat-sidenav-container id="casing-dash-container">
   <mat-sidenav mode="over" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end"
-               (closedStart)="filterClosed()">
+               (closedStart)="controlSideMenuClosed()">
     <mat-list role="list" id="filter-side-nav" [formGroup]="dbEntityMarkerService.controls">
       <h3 mat-subheader>Filters</h3>
       <div class="checklist">
@@ -27,6 +27,7 @@
       <h3 mat-subheader>Controls</h3>
       <div>
         <div class="checklist">
+          <mat-checkbox formControlName="updateOnBoundsChange">Update as map moves</mat-checkbox>
           <mat-checkbox formControlName="cluster">Cluster Stores</mat-checkbox>
         </div>
         <div *ngIf="dbEntityMarkerService.controls.get('cluster').value">
@@ -280,3 +281,7 @@
 </mat-menu>
 
 <i *ngIf="dbEntityMarkerService.gettingLocations" id="loadingSpinner" class="fas fa-spinner fa-pulse fa-2x"></i>
+<button *ngIf="!dbEntityMarkerService.controls.get('updateOnBoundsChange').value && !dbEntityMarkerService.gettingLocations"
+        mat-raised-button id="refresh" (click)="dbEntityMarkerService.getMarkersInMapView()" color="primary">
+  <i class="fas fa-sync"></i>
+</button>

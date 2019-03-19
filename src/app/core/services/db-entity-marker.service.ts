@@ -14,6 +14,7 @@ import { ProjectService } from './project.service';
 import { CasingDashboardService } from '../../casing/casing-dashboard/casing-dashboard.service';
 import { SiteMarkerService } from '../site-marker.service';
 import { StoreIconUtil } from '../../utils/StoreIconUtil';
+import { MarkerType } from '../functionalEnums/MarkerType';
 
 @Injectable()
 export class DbEntityMarkerService {
@@ -23,26 +24,25 @@ export class DbEntityMarkerService {
   public readonly clickListener$ = new Subject<{ storeId: number, siteId: number, marker: google.maps.Marker }>();
 
   public gettingLocations = false;
-  public controls: FormGroup;
-
   public multiSelect = false;
   public deselecting = false;
+  public controls: FormGroup;
 
   private gmap: google.maps.Map;
-
   private clusterer: MarkerClusterer;
 
-  private prevHandbrake: { interrupt: boolean };
-
   private siteMarkerCache: { siteMarker: SiteMarker, markers: google.maps.Marker[] }[] = [];
+  private selectedMarkers = new Set<google.maps.Marker>();
 
   private storeIdsCasedForProject = new Set<number>();
   private selectedSiteIds = new Set<number>();
   private selectedStoreIds = new Set<number>();
 
+  private prevUpdate: Date;
+  private prevBounds: { north: number, south: number, east: number, west: number };
+  private prevSubscription;
+
   private visibleMarkers = [];
-  private markersInBounds = [];
-  private selectedMarkers = [];
 
   constructor(private authService: AuthService,
               private errorService: ErrorService,
@@ -58,7 +58,7 @@ export class DbEntityMarkerService {
         this.selectedSiteIds.clear();
         this.selectedStoreIds.clear();
         this.selectedMarkers.forEach(marker => this.refreshMarkerOptions(marker));
-        this.selectedMarkers.length = 0;
+        this.selectedMarkers.clear();
       }
 
       // Add to selected Ids
@@ -101,6 +101,11 @@ export class DbEntityMarkerService {
   public getMarkersInMapView() {
     this.verifyMapInitialized();
 
+    // Cancel previous web service request
+    if (this.prevSubscription && !this.prevSubscription.closed) {
+      this.prevSubscription.unsubscribe();
+    }
+
     const bounds = {
       north: this.gmap.getBounds().getNorthEast().lat(),
       east: this.gmap.getBounds().getNorthEast().lng(),
@@ -108,21 +113,18 @@ export class DbEntityMarkerService {
       west: this.gmap.getBounds().getSouthWest().lng()
     };
 
-    if (this.prevHandbrake) {
-      this.prevHandbrake.interrupt = true;
-    }
-
     const requests = [];
 
-    this.prevHandbrake = {
-      interrupt: false
-    };
+    requests.push(this.siteMarkerService.getSiteMarkersForView(bounds, this.prevBounds, this.prevUpdate)
+      .pipe(map((siteMarkers: SiteMarker[]) => {
+        this.prevUpdate = new Date();
+        this.prevBounds = bounds;
+        this.removeOutOfBoundsMarkers(bounds);
+        siteMarkers.forEach(sm => this.getMarkersForSite(sm));
+      }))
+    );
 
-    requests.push(this.siteMarkerService.getSiteMarkersInBounds(bounds, this.prevHandbrake, 'longitude')
-      .pipe(map((siteMarkers: SiteMarker[]) => this.getMarkersForPage(siteMarkers)))
-      .pipe(reduce((prev, curr) => prev.concat(curr))));
-
-    if (this.controls.get('markerType').value === 'Cased for Project') {
+    if (this.controls.get('markerType').value === MarkerType.CASED_FOR_PROJECT) {
       const selectedProject = this.casingDashboardService.getSelectedProject();
       if (selectedProject) {
         requests.push(this.projectService.getAllCasedStoreIds(selectedProject.id)
@@ -134,12 +136,22 @@ export class DbEntityMarkerService {
     }
 
     this.gettingLocations = true;
-    forkJoin(requests).pipe(finalize(() => this.gettingLocations = false))
-      .subscribe(results => {
-          this.markersInBounds = results[0] as google.maps.Marker[];
-          this.showHideMarkersInBounds(this.markersInBounds);
-        },
-        () => console.log('Cancelled'));
+    this.prevSubscription = forkJoin(requests).pipe(finalize(() => this.gettingLocations = false))
+      .subscribe(() => this.showHideMarkersInBounds(),
+        (e) => console.log('Cancelled', e));
+  }
+
+  private removeOutOfBoundsMarkers(bounds: { north: number, south: number, east: number, west: number }) {
+    const outOfBoundsSiteIds = new Set<number>();
+    this.siteMarkerCache.forEach(s => {
+      if (s.siteMarker.latitude > bounds.north || s.siteMarker.latitude < bounds.south ||
+        s.siteMarker.longitude > bounds.east || s.siteMarker.longitude < bounds.west) {
+        outOfBoundsSiteIds.add(s.siteMarker.id);
+        s.markers.forEach(marker => this.removeMarker(marker));
+      }
+    });
+
+    this.siteMarkerCache = this.siteMarkerCache.filter(s => !outOfBoundsSiteIds.has(s.siteMarker.id))
   }
 
   /**
@@ -149,8 +161,8 @@ export class DbEntityMarkerService {
     this.verifyMapInitialized();
 
     // If no call has been made yet, get rather than refresh
-    if (this.prevHandbrake) {
-      if (this.controls.get('markerType').value === 'Cased for Project') {
+    if (this.prevUpdate) {
+      if (this.controls.get('markerType').value === MarkerType.CASED_FOR_PROJECT) {
         const selectedProject = this.casingDashboardService.getSelectedProject();
         if (selectedProject) {
           this.gettingLocations = true;
@@ -159,11 +171,11 @@ export class DbEntityMarkerService {
             .subscribe((storeIds: number[]) => {
               this.storeIdsCasedForProject.clear();
               storeIds.forEach(storeId => this.storeIdsCasedForProject.add(storeId));
-              this.showHideMarkersInBounds(this.markersInBounds)
+              this.showHideMarkersInBounds()
             });
         }
       } else {
-        this.showHideMarkersInBounds(this.markersInBounds);
+        this.showHideMarkersInBounds();
       }
     } else {
       this.getMarkersInMapView();
@@ -181,12 +193,8 @@ export class DbEntityMarkerService {
   public selectInRadius(latitude: number, longitude: number, radiusMeters: number) {
     this.verifyMapInitialized();
 
-    if (this.prevHandbrake) {
-      this.prevHandbrake.interrupt = true;
-    }
-    this.prevHandbrake = {interrupt: false};
     this.gettingLocations = true;
-    this.siteMarkerService.getSiteMarkersInRadius(latitude, longitude, radiusMeters, this.prevHandbrake)
+    this.siteMarkerService.getSiteMarkersInRadius(latitude, longitude, radiusMeters)
       .pipe(finalize(() => this.gettingLocations = false))
       .pipe(reduce((prev, curr) => prev.concat(curr)))
       .subscribe((siteMarkers: SiteMarker[]) => this.selectByIds(this.getSelectionIds(siteMarkers)));
@@ -195,12 +203,8 @@ export class DbEntityMarkerService {
   public selectInGeoJson(geoJson: string) {
     this.verifyMapInitialized();
 
-    if (this.prevHandbrake) {
-      this.prevHandbrake.interrupt = true;
-    }
-    this.prevHandbrake = {interrupt: false};
     this.gettingLocations = true;
-    this.siteMarkerService.getSiteMarkersInGeoJson(geoJson, this.prevHandbrake)
+    this.siteMarkerService.getSiteMarkersInGeoJson(geoJson)
       .pipe(finalize(() => this.gettingLocations = false))
       .pipe(reduce((prev, curr) => prev.concat(curr)))
       .subscribe((siteMarkers: SiteMarker[]) => this.selectByIds(this.getSelectionIds(siteMarkers)));
@@ -267,7 +271,8 @@ export class DbEntityMarkerService {
         clusterZoomLevel: 13,
         minPullZoomLevel: 10,
         fullLabelMinZoomLevel: 16,
-        markerType: 'Pin'
+        markerType: 'Pin',
+        updateOnBoundsChange: true
       });
     }
 
@@ -286,35 +291,40 @@ export class DbEntityMarkerService {
       marker.setOptions(this.getMarkerOptionsForSite(site, selected));
     }
     if (selected) {
-      this.selectedMarkers.push(marker);
+      this.selectedMarkers.add(marker);
     }
     // Do nothing for non-store non-site markers (like historical count marker)
   }
 
-  private showHideMarkersInBounds(markersInBounds: google.maps.Marker[]) {
-    // Get stores currently visible
-    const currentlyVisibleMarkers = markersInBounds.filter(marker =>
-      marker['store'] ? this.includeStore(marker['store']) : (marker['site'] ? this.includeSite(marker['site']) : true)
-    );
-    currentlyVisibleMarkers.forEach(marker => this.refreshMarkerOptions(marker));
+  private showHideMarkersInBounds() {
+    const filteredMarkers = this.siteMarkerCache.map(s => s.markers)
+      .reduce((prev, curr) => prev.concat(curr))
+      .filter(marker =>
+        marker['store'] ? this.includeStore(marker['store']) : (marker['site'] ? this.includeSite(marker['site']) : true)
+      );
+
+    filteredMarkers.forEach(marker => this.refreshMarkerOptions(marker));
 
     // If visible marker is not in currentVisibleMarker, remove from map.
-    this.visibleMarkers.filter(marker => !currentlyVisibleMarkers.includes(marker))
-      .forEach(marker => {
-        marker.setMap(null);
-        this.clusterer.removeMarker(marker);
-      });
+    this.visibleMarkers.filter(marker => !filteredMarkers.includes(marker))
+      .forEach(marker => this.removeMarker(marker));
 
     // Show the now visible markers
     if (this.controls.get('cluster').value && this.gmap.getZoom() <= this.controls.get('clusterZoomLevel').value) {
-      this.clusterer.addMarkers(currentlyVisibleMarkers);
+      this.clusterer.addMarkers(filteredMarkers);
     } else {
       this.clusterer.clearMarkers();
-      currentlyVisibleMarkers.forEach(marker => marker.setMap(this.gmap));
+      filteredMarkers.forEach(marker => marker.setMap(this.gmap));
     }
 
     // Reset visible markers
-    this.visibleMarkers = currentlyVisibleMarkers;
+    this.visibleMarkers = filteredMarkers;
+  }
+
+  private removeMarker(marker: google.maps.Marker) {
+    marker.setMap(null);
+    this.clusterer.removeMarker(marker);
+    this.selectedMarkers.delete(marker);
   }
 
   private includeStore(storeMarker: StoreMarker) {
@@ -327,10 +337,7 @@ export class DbEntityMarkerService {
     if (!this.controls.get('showFuture').value && (storeMarker && storeMarker.storeType === 'FUTURE')) {
       return false;
     }
-    if (!this.controls.get('showFloat').value && storeMarker.float) {
-      return false;
-    }
-    return true;
+    return !(!this.controls.get('showFloat').value && storeMarker.float);
   }
 
   private includeSite(siteMarker: SiteMarker) {
@@ -341,11 +348,7 @@ export class DbEntityMarkerService {
     return !(!this.controls.get('showEmptySites').value && siteIsEmpty);
   }
 
-  private getMarkersForPage(sites: SiteMarker[]): google.maps.Marker[] {
-    // Create new markers for each result and reduce into one list
-    return sites.reduce((prev, curr) => prev.concat(this.getMarkersForSite(curr)), []);
-  }
-
+  // Gets markers from cache if they exist or creates them
   private getMarkersForSite(site: SiteMarker): google.maps.Marker[] {
     // Check if cached markers exist
     const cached = this.siteMarkerCache.find(obj => obj.siteMarker.id === site.id);
@@ -353,10 +356,8 @@ export class DbEntityMarkerService {
       // If cached markers exist, check if they need to be updated
       if (site.updatedDate > cached.siteMarker.updatedDate) {
         // If updated required, ensure markers are removed from map
-        cached.markers.forEach(marker => {
-          marker.setMap(null);
-          this.clusterer.removeMarker(marker);
-        });
+        cached.markers.forEach(marker => this.removeMarker(marker));
+
         // and replace cached markers with new ones
         cached.siteMarker = site;
         cached.markers = this.createMarkersForSite(site);
@@ -418,7 +419,7 @@ export class DbEntityMarkerService {
     marker.addListener('click', () => this.clickListener$.next({storeId: null, siteId: site.id, marker: marker}));
 
     if (this.selectedSiteIds.has(site.id)) {
-      this.selectedMarkers.push(marker);
+      this.selectedMarkers.add(marker);
     }
     return marker;
   }
@@ -431,7 +432,7 @@ export class DbEntityMarkerService {
     marker.addListener('click', () => this.clickListener$.next({storeId: store.id, siteId: site.id, marker: marker}));
 
     if (this.selectedStoreIds.has(store.id)) {
-      this.selectedMarkers.push(marker);
+      this.selectedMarkers.add(marker);
     }
     return marker;
   }
@@ -460,10 +461,11 @@ export class DbEntityMarkerService {
   }
 
   private getMarkerOptionsForStore(store: StoreMarker, site: SiteMarker, selected: boolean) {
-    const showLogo = this.controls.get('markerType').value === 'Logo' && store.logoFileName != null;
-    const showCased = this.controls.get('markerType').value === 'Cased for Project' && this.storeIdsCasedForProject.has(store.id);
+    const markerType = this.controls.get('markerType').value;
+    const showLogo = markerType === MarkerType.LOGO && store.logoFileName != null;
+    const showCased = markerType === MarkerType.CASED_FOR_PROJECT && this.storeIdsCasedForProject.has(store.id);
     const showFullLabel = this.gmap.getZoom() >= this.controls.get('fullLabelMinZoomLevel').value;
-    const showValidated = this.controls.get('markerType').value === 'Validation' && store.validatedDate != null;
+    const showValidated = markerType === MarkerType.VALIDATION && store.validatedDate != null;
     const assignedToUser = site.assigneeId === this.authService.sessionUser.id;
     const assignedToOther = !assignedToUser && site.assigneeId != null;
 
