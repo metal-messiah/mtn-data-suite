@@ -114,10 +114,19 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.forEach((s: Subscription) => s.unsubscribe());
+    this.dbEntityMarkerService.onDestroy();
   }
 
   onMapReady() {
-    this.dbEntityMarkerService.initMap(this.mapService.getMap());
+    this.dbEntityMarkerService.initMap(this.mapService.getMap(), selection => {
+      console.log(selection);
+      if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
+        this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,
+          this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
+      } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
+        this.onDuplicateSiteSelected(selection.siteId);
+      }
+    });
 
     console.log(`Map is ready`);
     this.subscriptions.push(this.initiateDuplicateSelection$.subscribe(siteId => {
@@ -146,15 +155,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe(() => {
       if (this.dbEntityMarkerService.controls.get('updateOnBoundsChange').value) {
         this.getEntitiesInBounds()
-      }
-    }));
-
-    this.subscriptions.push(this.dbEntityMarkerService.clickListener$.subscribe(selection => {
-      if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
-        this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,
-          this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
-      } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
-        this.onDuplicateSiteSelected(selection.siteId);
       }
     }));
 

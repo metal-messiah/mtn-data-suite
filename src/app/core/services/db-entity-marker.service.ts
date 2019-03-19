@@ -21,7 +21,7 @@ export class DbEntityMarkerService {
 
   public readonly markerTypeOptions = ['Pin', 'Logo', 'Validation', 'Cased for Project'];
 
-  public readonly clickListener$ = new Subject<{ storeId: number, siteId: number, marker: google.maps.Marker }>();
+  private readonly clickListener$ = new Subject<{ storeId: number, siteId: number, marker: google.maps.Marker }>();
 
   public gettingLocations = false;
   public multiSelect = false;
@@ -87,12 +87,25 @@ export class DbEntityMarkerService {
 
   /**
    * Initializes the map. Must be called before other public methods will work.
-   * @param gmap
    */
-  public initMap(gmap: google.maps.Map) {
+  public initMap(gmap: google.maps.Map, clickListener) {
     this.gmap = gmap;
+    this.clickListener$.subscribe(clickListener);
+
     this.clusterer = new MarkerClusterer(this.gmap, [],
       {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+
+    if (!this.controls.get('updateOnBoundsChange').value) {
+      const siteMarkersJson = localStorage.getItem('siteMarkers');
+      if (siteMarkersJson) {
+        JSON.parse(siteMarkersJson).forEach(sm => this.getMarkersForSite(new SiteMarker(sm)));
+        this.showHideMarkersInBounds();
+      }
+    }
+  }
+
+  public onDestroy() {
+    this.clickListener$.unsubscribe();
   }
 
   /**
@@ -121,6 +134,10 @@ export class DbEntityMarkerService {
         this.prevBounds = bounds;
         this.removeOutOfBoundsMarkers(bounds);
         siteMarkers.forEach(sm => this.getMarkersForSite(sm));
+
+        if (!this.controls.get('updateOnBoundsChange').value) {
+          localStorage.setItem('siteMarkers', JSON.stringify(siteMarkers))
+        }
       }))
     );
 
@@ -244,7 +261,7 @@ export class DbEntityMarkerService {
         siteMarker.stores.forEach(storeMarker => {
           // If not updating with bound changes, only select visible markers
           if (this.includeStore(storeMarker) && (this.controls.get('updateOnBoundsChange').value ||
-              this.visibleMarkers.findIndex(vm => vm.store && vm.store.id === storeMarker.id) !== -1)) {
+            this.visibleMarkers.findIndex(vm => vm.store && vm.store.id === storeMarker.id) !== -1)) {
             storeIds.push(storeMarker.id);
           }
         })
@@ -309,20 +326,24 @@ export class DbEntityMarkerService {
 
     filteredMarkers.forEach(marker => this.refreshMarkerOptions(marker));
 
-    // If visible marker is not in currentVisibleMarker, remove from map.
+    // If visible marker is not in filteredMarkers, remove from map.
     this.visibleMarkers.filter(marker => !filteredMarkers.includes(marker))
       .forEach(marker => this.removeMarker(marker));
 
-    // Show the now visible markers
-    if (this.controls.get('cluster').value && this.gmap.getZoom() <= this.controls.get('clusterZoomLevel').value) {
-      this.clusterer.addMarkers(filteredMarkers);
-    } else {
-      this.clusterer.clearMarkers();
-      filteredMarkers.forEach(marker => marker.setMap(this.gmap));
-    }
-
     // Reset visible markers
     this.visibleMarkers = filteredMarkers;
+
+    this.showMarkers(this.visibleMarkers);
+  }
+
+  private showMarkers(markers: google.maps.Marker[]) {
+    // Show the now visible markers
+    if (this.controls.get('cluster').value && this.gmap.getZoom() <= this.controls.get('clusterZoomLevel').value) {
+      this.clusterer.addMarkers(markers);
+    } else {
+      this.clusterer.clearMarkers();
+      markers.forEach(marker => marker.setMap(this.gmap));
+    }
   }
 
   private removeMarker(marker: google.maps.Marker) {
