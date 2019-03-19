@@ -23,13 +23,22 @@ export class StoreListService extends CrudService<StoreList> {
         return new StoreList(entityObj);
     }
 
-    getStoreListsBySubscriberId(subscriberId: number, pageNumber?: number): Observable<Pageable<SimplifiedStoreList>> {
+    getStoreLists(
+        subscriberId?: number,
+        storeId?: number,
+        pageNumber?: number
+    ): Observable<Pageable<SimplifiedStoreList>> {
         const url = this.rest.getHost() + this.endpoint;
         let params = new HttpParams();
         if (pageNumber != null) {
             params = params.set('page', pageNumber.toLocaleString());
         }
-        params = params.set('subscriber-id', subscriberId.toString());
+        if (subscriberId) {
+            params = params.set('subscriber-id', subscriberId.toString());
+        }
+        if (storeId) {
+            params = params.set('store-id', subscriberId.toString());
+        }
         return this.http
             .get<Pageable<SimplifiedStoreList>>(url, { headers: this.rest.getHeaders(), params: params })
             .pipe(
