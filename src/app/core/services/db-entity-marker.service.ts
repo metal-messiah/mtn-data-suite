@@ -155,7 +155,7 @@ export class DbEntityMarkerService {
     this.gettingLocations = true;
     this.prevSubscription = forkJoin(requests).pipe(finalize(() => this.gettingLocations = false))
       .subscribe(() => this.showHideMarkersInBounds(),
-        (e) => console.log('Cancelled', e));
+        (e) => this.errorService.handleServerError('Failed to retrieve map locations!', e, () => console.error(e)));
   }
 
   private removeOutOfBoundsMarkers(bounds: { north: number, south: number, east: number, west: number }) {
@@ -318,8 +318,9 @@ export class DbEntityMarkerService {
   }
 
   private showHideMarkersInBounds() {
-    const filteredMarkers = this.siteMarkerCache.map(s => s.markers)
-      .reduce((prev, curr) => prev.concat(curr))
+    const markers = this.siteMarkerCache.map(s => s.markers);
+    const filteredMarkers = markers
+      .reduce((prev, curr) => prev.concat(curr), [])
       .filter(marker =>
         marker['store'] ? this.includeStore(marker['store']) : (marker['site'] ? this.includeSite(marker['site']) : true)
       );
