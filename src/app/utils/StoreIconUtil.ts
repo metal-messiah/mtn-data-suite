@@ -141,7 +141,7 @@ export class StoreIconUtil {
       pictureLabel.src = `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${store.logoFileName}`;
       return pictureLabel
     }
-    if (store.storeName && !store.float) {
+    if (store.storeName) {
       if (showFullLabel) {
         labelText = store.storeName
       } else {
