@@ -119,7 +119,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   onMapReady() {
     this.dbEntityMarkerService.initMap(this.mapService.getMap(), selection => {
-      console.log(selection);
       if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
         this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,
           this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
