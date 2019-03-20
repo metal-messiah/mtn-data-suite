@@ -15,7 +15,7 @@ export class GoogleSearchComponent {
   searchQuery = '';
   searchError;
   searching = false;
-  limitToView = true;
+  limitToView = false;
 
   constructor(public dialogRef: MatDialogRef<GoogleSearchComponent>,
               private mapService: MapService,

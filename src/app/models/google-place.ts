@@ -2,7 +2,6 @@ import { Mappable } from '../interfaces/mappable';
 import { Coordinates } from './coordinates';
 import PlaceResult = google.maps.places.PlaceResult;
 import { MarkerType } from '../core/functionalEnums/MarkerType';
-import { MarkerShape } from '../core/functionalEnums/MarkerShape';
 import { Color } from '../core/functionalEnums/Color';
 import MarkerLabel = google.maps.MarkerLabel;
 
