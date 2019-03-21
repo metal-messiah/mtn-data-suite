@@ -1,0 +1,37 @@
+<div class="list-manager">
+    <h2 mat-dialog-title *ngIf="page === pages.LISTMANAGER">List Manager</h2>
+    <h2 mat-dialog-title *ngIf="page === pages.ADD">Add Store To List</h2>
+    <div mat-dialog-content>
+        <div *ngIf="page === pages.LISTMANAGER">
+           <button mat-flat-button (click)="setPage(pages.ADD)">Add Store To List</button>
+           <mat-list id="included">
+               <mat-list-item *ngFor="let storeList of includedStoreLists">
+                   <h3 matLine><b>{{storeList.storeListName}}</b></h3>
+                   <p matLine>
+                       <span>{{storeList.storeCount | number}} Stores</span>
+                       <span>{{storeList.subscriberCount | number}} Subscribers</span>
+               </mat-list-item>
+           </mat-list>
+        </div>
+        <div *ngIf="page === pages.ADD">
+            <mat-form-field>
+                <input #newListName matInput type="text" placeholder="New List Name" >
+                <button [disabled]="!newListName.value" matSuffix mat-flat-button (click)="createNewStoreList(newListName.value)">Create New List</button>
+            </mat-form-field>
+            <mat-selection-list #selectionList class="excluded">
+                <mat-list-option [value]="storeList" *ngFor="let storeList of excludedStoreLists">
+                    <h3 matLine><b>{{storeList.storeListName}}</b></h3>
+                    <p matLine>
+                        <span>{{storeList.storeCount | number}} Stores</span>
+                        <span>{{storeList.subscriberCount | number}} Subscribers</span>
+                </mat-list-option>
+            </mat-selection-list>
+        </div>
+    </div>
+    <div mat-dialog-actions>
+        <button *ngIf="page === pages.LISTMANAGER" mat-raised-button mat-dialog-close>Close</button>
+        <button *ngIf="page === pages.ADD" color="accent" mat-raised-button (click)="addToList()">Save</button>
+        <button *ngIf="page === pages.ADD" color="primary" mat-raised-button mat-dialog-close>Cancel</button>
+    </div>
+</div>
+

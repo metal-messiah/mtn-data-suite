@@ -22,57 +22,59 @@ import { FileInputComponent } from './file-input/file-input.component';
 import { TabSelectDialogComponent } from './file-input/tab-select-dialog/tab-select-dialog.component';
 import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
 import { FuzzySearchComponent } from './fuzzy-search/fuzzy-search.component';
+import { ListManagerDialogComponent } from './list-manager-dialog/list-manager-dialog.component';
 
 @NgModule({
-  imports: [CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule],
-  declarations: [
-    ErrorDialogComponent,
-    ConfirmDialogComponent,
-    CallbackComponent,
-    PathNotFoundComponent,
-    MapComponent,
-    LogoMenuComponent,
-    DataFieldComponent,
-    UserProfileSelectComponent,
-    DataFieldInfoDialogComponent,
-    AppInfoDialogComponent,
-    NewProjectNameComponent,
-    StoreInfoCardComponent,
-    SiteInfoCardComponent,
-    FileInputComponent,
-    TabSelectDialogComponent,
-    ThousandsCurrencyPipe,
-    FuzzySearchComponent
-  ],
-  providers: [BreakpointObserver, DatePipe, MediaMatcher],
-  entryComponents: [
-    ErrorDialogComponent,
-    ConfirmDialogComponent,
-    UserProfileSelectComponent,
-    DataFieldInfoDialogComponent,
-    AppInfoDialogComponent,
-    NewProjectNameComponent,
-    TabSelectDialogComponent
-  ],
-  exports: [
-    CallbackComponent,
-    CommonModule,
-    CustomMaterialModule,
-    DatePipe,
-    FormsModule,
-    HttpClientModule,
-    LogoMenuComponent,
-    MapComponent,
-    PathNotFoundComponent,
-    ReactiveFormsModule,
-    DataFieldComponent,
-    DataFieldInfoDialogComponent,
-    StoreInfoCardComponent,
-    SiteInfoCardComponent,
-    FileInputComponent,
-    ThousandsCurrencyPipe,
-    FuzzySearchComponent
-  ]
+	imports: [ CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule ],
+	declarations: [
+		ErrorDialogComponent,
+		ConfirmDialogComponent,
+		CallbackComponent,
+		PathNotFoundComponent,
+		MapComponent,
+		LogoMenuComponent,
+		DataFieldComponent,
+		UserProfileSelectComponent,
+		DataFieldInfoDialogComponent,
+		AppInfoDialogComponent,
+		NewProjectNameComponent,
+		StoreInfoCardComponent,
+		SiteInfoCardComponent,
+		FileInputComponent,
+		TabSelectDialogComponent,
+		ThousandsCurrencyPipe,
+		FuzzySearchComponent,
+		ListManagerDialogComponent
+	],
+	providers: [ BreakpointObserver, DatePipe, MediaMatcher ],
+	entryComponents: [
+		ErrorDialogComponent,
+		ConfirmDialogComponent,
+		UserProfileSelectComponent,
+		DataFieldInfoDialogComponent,
+		AppInfoDialogComponent,
+		NewProjectNameComponent,
+		TabSelectDialogComponent,
+		ListManagerDialogComponent
+	],
+	exports: [
+		CallbackComponent,
+		CommonModule,
+		CustomMaterialModule,
+		DatePipe,
+		FormsModule,
+		HttpClientModule,
+		LogoMenuComponent,
+		MapComponent,
+		PathNotFoundComponent,
+		ReactiveFormsModule,
+		DataFieldComponent,
+		DataFieldInfoDialogComponent,
+		StoreInfoCardComponent,
+		SiteInfoCardComponent,
+		FileInputComponent,
+		ThousandsCurrencyPipe,
+		FuzzySearchComponent
+	]
 })
-export class SharedModule {
-}
+export class SharedModule {}

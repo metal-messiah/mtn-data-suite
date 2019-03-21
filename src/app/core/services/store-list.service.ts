@@ -10,6 +10,7 @@ import { map } from 'rxjs/internal/operators';
 import { SimplifiedUserProfile } from 'app/models/simplified/simplified-user-profile';
 import { StoreList } from 'app/models/full/store-list';
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
+import { StoreListSearchType } from '../functionalEnums/StoreListSearchType';
 
 @Injectable()
 export class StoreListService extends CrudService<StoreList> {
@@ -24,20 +25,33 @@ export class StoreListService extends CrudService<StoreList> {
     }
 
     getStoreLists(
-        subscriberId?: number,
-        storeId?: number,
+        subscriberIds?: number[],
+        createdById?: number,
+        includingStoreIds?: number[],
+        excludingStoreIds?: number[],
+        searchType?: StoreListSearchType,
         pageNumber?: number
     ): Observable<Pageable<SimplifiedStoreList>> {
         const url = this.rest.getHost() + this.endpoint;
         let params = new HttpParams();
+
+        if (subscriberIds) {
+            params = params.set('subscriber-ids', subscriberIds.join(','));
+        }
+        if (createdById) {
+            params = params.set('created-by-id', createdById.toString());
+        }
+        if (includingStoreIds) {
+            params = params.set('including-store-ids', includingStoreIds.join(','));
+        }
+        if (excludingStoreIds) {
+            params = params.set('excluding-store-ids', excludingStoreIds.join(','));
+        }
+        if (searchType) {
+            params = params.set('search-type', searchType.toString());
+        }
         if (pageNumber != null) {
             params = params.set('page', pageNumber.toLocaleString());
-        }
-        if (subscriberId) {
-            params = params.set('subscriber-id', subscriberId.toString());
-        }
-        if (storeId) {
-            params = params.set('store-id', subscriberId.toString());
         }
         return this.http
             .get<Pageable<SimplifiedStoreList>>(url, { headers: this.rest.getHeaders(), params: params })

@@ -1,0 +1,21 @@
+.excluded mat-list-option {
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.excluded mat-list-option:hover {
+	background: #999;
+}
+
+mat-selection-list {
+	max-height: 50vh;
+	overflow-y: auto;
+	background: #efefef;
+	border-radius: 5px;
+	padding-top: 0px !important;
+}
+
+mat-list-option span,
+mat-list-item span {
+	padding: 5px 5px 5px 0;
+}
