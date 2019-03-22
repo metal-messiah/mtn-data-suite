@@ -188,7 +188,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   getEntitiesInBounds(): void {
     if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.get('minPullZoomLevel').value) {
-      this.dbEntityMarkerService.getMarkersInMapView()
+      this.dbEntityMarkerService.getMarkersInMapView();
     } else {
       this.snackBar.open('Zoom in or change Pull zoom limit', null, {duration: 3000})
     }
