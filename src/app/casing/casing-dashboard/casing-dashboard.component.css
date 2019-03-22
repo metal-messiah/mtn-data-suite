@@ -65,6 +65,12 @@ mat-sidenav {
   z-index: 100;
 }
 
+@media (max-width: 600px) {
+  #loadingSpinner, #refresh {
+    bottom: 240px;
+  }
+}
+
 #refresh {
   min-width: unset;
   padding: unset;
