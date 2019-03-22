@@ -12,22 +12,20 @@ import { ErrorService } from 'app/core/services/error.service';
 import { UserProfileService } from 'app/core/services/user-profile.service';
 
 export enum Pages {
-	LISTMANAGER,
-	ADD
+    LISTMANAGER,
+    ADD
 }
 
 @Component({
-	selector: 'mds-list-manager-dialog',
-	templateUrl: './list-manager-dialog.component.html',
-	styleUrls: [ './list-manager-dialog.component.css' ],
-	providers: [ StoreListService, UserProfileService ]
+    selector: 'mds-list-manager-dialog',
+    templateUrl: './list-manager-dialog.component.html',
+    styleUrls: [ './list-manager-dialog.component.css' ],
+    providers: [ StoreListService, UserProfileService ]
 })
 export class ListManagerDialogComponent implements OnInit {
-	stores: SimplifiedStore[] = []; // list of stores (single/multiselect usually from casing app)
+    stores: SimplifiedStore[] = []; // list of stores (single/multiselect usually from casing app)
 
-	includedStoreLists: SimplifiedStoreList[] = [];
-    subscribedIncludedStoreLists: SimplifiedStoreList[] = [];
-    createdIncludedStoreLists: SimplifiedStoreList[] = [];
+    includedStoreLists: SimplifiedStoreList[] = [];
     excludedStoreLists: SimplifiedStoreList[] = [];
 
     pages = Pages;
@@ -38,6 +36,7 @@ export class ListManagerDialogComponent implements OnInit {
     constructor(
         snackBar: MatSnackBar,
         public dialogRef: MatDialogRef<ErrorDialogComponent>,
+        private self: MatDialogRef<ListManagerDialogComponent>,
         private errorService: ErrorService,
         private storeListService: StoreListService,
         private userProfileService: UserProfileService,
@@ -51,70 +50,45 @@ export class ListManagerDialogComponent implements OnInit {
 
         this.getIncludedStoreLists();
         this.getExcludedStoreLists();
+
+        this.self.disableClose = true;
     }
 
     ngOnInit() {}
 
     getIncludedStoreLists() {
         const promises: Promise<Pageable<SimplifiedStoreList>>[] = [];
-        promises.push(
-            this.storeListService
-                .getStoreLists(
-                    [ this.authService.sessionUser.id ],
-                    null,
-                    this.stores.map((store) => store.id),
-                    null,
-                    StoreListSearchType.ANY
-                )
-                .toPromise()
-        );
+        const userId = this.authService.sessionUser.id;
+        const storeIds = this.stores.map((store) => store.id);
+        const searchType = StoreListSearchType.ANY;
 
-        promises.push(
-            this.storeListService
-                .getStoreLists(
-                    null,
-                    this.authService.sessionUser.id,
-                    this.stores.map((store) => store.id),
-                    null,
-                    StoreListSearchType.ANY
-                )
-                .toPromise()
-        );
+        // subscribed storeLists
+        promises.push(this.storeListService.getStoreLists([ userId ], null, storeIds, null, searchType).toPromise());
+        // owned storeLists
+        promises.push(this.storeListService.getStoreLists(null, userId, storeIds, null, searchType).toPromise());
 
+        // loop through both sets and create includedStoreLists
         Promise.all(promises).then((results: Pageable<SimplifiedStoreList>[]) => {
             const combined = Object.assign([], results[0].content, results[1].content);
             this.includedStoreLists = combined.map((storeList) => new SimplifiedStoreList(storeList));
-            // results.forEach((pageable: Pageable<SimplifiedStoreList>) => {
-            //     pageable.content.forEach((storeList: SimplifiedStoreList) => {
-            //         this.includedStoreLists.push(new SimplifiedStoreList(storeList));
-            //     });
-            // });
-
-            console.log(this.includedStoreLists);
         });
     }
 
     getExcludedStoreLists() {
-        this.storeListService
-            .getStoreLists(
-                null,
-                this.authService.sessionUser.id,
-                null,
-                this.stores.map((store) => store.id),
-                StoreListSearchType.ANY
-            )
-            .subscribe(
-                (pageable: Pageable<SimplifiedStoreList>) => {
-                    this.excludedStoreLists = pageable.content.map((storeList) => new SimplifiedStoreList(storeList));
-                },
-                (err) => this.errorService.handleServerError('Failed to Get StoreLists!', err, () => console.log(err))
-            );
+        const userId = this.authService.sessionUser.id;
+        const storeIds = this.stores.map((store) => store.id);
+        const searchType = StoreListSearchType.ANY;
+        this.storeListService.getStoreLists(null, userId, null, storeIds, searchType).subscribe(
+            (pageable: Pageable<SimplifiedStoreList>) => {
+                this.excludedStoreLists = pageable.content.map((storeList) => new SimplifiedStoreList(storeList));
+            },
+            (err) => this.errorService.handleServerError('Failed to Get StoreLists!', err, () => console.log(err))
+        );
     }
 
     createNewStoreList(listName: string) {
         if (listName) {
             const newStoreList: StoreList = new StoreList({ storeListName: listName });
-            console.log(newStoreList);
             this.storeListService.create(newStoreList).subscribe(
                 (storeList: StoreList) => {
                     this.excludedStoreLists.unshift(new SimplifiedStoreList(storeList));
@@ -132,22 +106,28 @@ export class ListManagerDialogComponent implements OnInit {
         const selections: MatListOption[] = this.selectionList.selectedOptions.selected;
         const selectedStoreLists: SimplifiedStoreList[] = selections.map((s) => s.value);
         if (selections.length && this.stores) {
+            const promises = [];
             selectedStoreLists.forEach((storeList) => {
                 const storeListId = storeList.id;
                 const storeIds = this.stores.map((store) => store.id);
 
-                this.storeListService.addStoresToStoreList(storeListId, storeIds).subscribe(
-                    (response: SimplifiedStoreList) => {
-                        this.getIncludedStoreLists();
-                        this.subscribeToList(response);
-                        this.page = Pages.LISTMANAGER;
-                    },
-                    (err) =>
-                        this.errorService.handleServerError('Failed to Add Stores to StoreList!', err, () =>
-                            console.log(err)
-                        )
-                );
+                promises.push(this.storeListService.addStoresToStoreList(storeListId, storeIds).toPromise());
             });
+
+            Promise.all(promises)
+                .then((results) => {
+                    results.forEach((response: SimplifiedStoreList) => {
+                        this.subscribeToList(response);
+                    });
+
+                    this.getIncludedStoreLists();
+                    this.page = Pages.LISTMANAGER;
+                })
+                .catch((err) =>
+                    this.errorService.handleServerError('Failed to Add Stores to StoreList!', err, () =>
+                        console.log(err)
+                    )
+                );
         }
     }
 
@@ -161,5 +141,13 @@ export class ListManagerDialogComponent implements OnInit {
 
     setPage(page: Pages) {
         this.page = page;
+    }
+
+    getStoreTitle(): string {
+        if (this.stores.length === 1) {
+            return `Store #${this.stores[0].id}`;
+        } else {
+            return `These ${this.stores.length.toLocaleString()} Selected Stores`;
+        }
     }
 }

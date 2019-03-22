@@ -1,20 +1,23 @@
 <div class="list-manager">
-    <h2 mat-dialog-title *ngIf="page === pages.LISTMANAGER">List Manager</h2>
-    <h2 mat-dialog-title *ngIf="page === pages.ADD">Add Store To List</h2>
+    <h2 mat-dialog-title *ngIf="page === pages.LISTMANAGER">List Manager - {{stores.length | number}} Store{{stores.length > 1 ? 's' : ''}} Selected</h2>
+    <h2 mat-dialog-title *ngIf="page === pages.ADD">Add {{getStoreTitle()}} To Lists</h2>
     <div mat-dialog-content>
         <div *ngIf="page === pages.LISTMANAGER">
-           <button mat-flat-button (click)="setPage(pages.ADD)">Add Store To List</button>
-           <mat-list id="included">
+           <button mat-flat-button class="add-store-button" (click)="setPage(pages.ADD)">Add {{getStoreTitle()}} To Lists</button>
+           <mat-progress-bar mode="indeterminate" *ngIf="!includedStoreLists.length"></mat-progress-bar>
+           <h3>Lists Containing {{getStoreTitle()}}</h3>
+           <mat-list id="included" *ngIf="includedStoreLists.length">
                <mat-list-item *ngFor="let storeList of includedStoreLists">
                    <h3 matLine><b>{{storeList.storeListName}}</b></h3>
                    <p matLine>
                        <span>{{storeList.storeCount | number}} Stores</span>
                        <span>{{storeList.subscriberCount | number}} Subscribers</span>
+                    <p matLine class="mat-caption">Created By {{storeList.createdBy.name}}</p>
                </mat-list-item>
            </mat-list>
         </div>
         <div *ngIf="page === pages.ADD">
-            <mat-form-field>
+            <mat-form-field style="width: 100%;">
                 <input #newListName matInput type="text" placeholder="New List Name" >
                 <button [disabled]="!newListName.value" matSuffix mat-flat-button (click)="createNewStoreList(newListName.value)">Create New List</button>
             </mat-form-field>
@@ -29,9 +32,9 @@
         </div>
     </div>
     <div mat-dialog-actions>
-        <button *ngIf="page === pages.LISTMANAGER" mat-raised-button mat-dialog-close>Close</button>
+        <button *ngIf="page === pages.LISTMANAGER" color="primary" mat-raised-button mat-dialog-close>Close</button>
         <button *ngIf="page === pages.ADD" color="accent" mat-raised-button (click)="addToList()">Save</button>
-        <button *ngIf="page === pages.ADD" color="primary" mat-raised-button mat-dialog-close>Cancel</button>
+        <button *ngIf="page === pages.ADD" color="primary" mat-raised-button (click)="setPage(pages.LISTMANAGER)">Cancel</button>
     </div>
 </div>
 

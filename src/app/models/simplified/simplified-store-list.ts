@@ -7,7 +7,7 @@ export class SimplifiedStoreList implements Entity {
     storeCount: number;
     subscriberCount: number;
     subscribers: SimplifiedUserProfile[];
-    createdById: number;
+    createdBy: SimplifiedUserProfile;
 
     constructor(obj) {
         Object.assign(this, obj);
@@ -21,7 +21,7 @@ export class SimplifiedStoreList implements Entity {
         }
 
         if (obj.createdBy) {
-            this.createdById = obj.createdBy.id;
+            this.createdBy = new SimplifiedUserProfile(obj.createdBy);
         }
     }
 }

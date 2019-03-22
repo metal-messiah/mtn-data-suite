@@ -4,15 +4,9 @@ import { SimplifiedBanner } from '../simplified/simplified-banner';
 
 export class BannerSource extends AuditingEntity {
     id: number;
-    createdBy: {
-        id: number;
-        email: string;
-    };
+    createdBy: SimplifiedUserProfile;
     createdDate: Date;
-    updatedBy: {
-        id: number;
-        email: string;
-    };
+    updatedBy: SimplifiedUserProfile;
     updatedDate: Date;
     version: number;
     sourceName: string;
