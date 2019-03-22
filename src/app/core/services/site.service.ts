@@ -30,24 +30,6 @@ export class SiteService extends CrudService<Site> {
       .pipe(map((savedStore) => new Store(savedStore)));
   }
 
-  updateIsDuplicate(siteId: number, isDuplicate: boolean) {
-    const url = this.rest.getHost() + this.endpoint + '/' + siteId;
-    const params = new HttpParams().set('is-duplicate', String(isDuplicate));
-    return this.http.put<SimplifiedSite>(url, null, {headers: this.rest.getHeaders(), params})
-      .pipe(map((simpleSite) => new SimplifiedSite(simpleSite)));
-  }
-
-  getSitesWithoutStoresInBounds(bounds: any): Observable<SimplifiedSite[]> {
-    const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams().set('size', '300');
-    params = params.set('no_stores', 'true');
-    _.forEach(bounds, function (value, key) {
-      params = params.set(key, value);
-    });
-    return this.http.get<SimplifiedSite[]>(url, {headers: this.rest.getHeaders(), params: params})
-      .pipe(map(list => list.map(site => new SimplifiedSite(site))));
-  }
-
   getSitePointsInBounds(bounds: any): Observable<Coordinates[]> {
     const url = this.rest.getHost() + this.endpoint + '/points';
     let params = new HttpParams();
@@ -57,7 +39,7 @@ export class SiteService extends CrudService<Site> {
     return this.http.get<Coordinates[]>(url, {headers: this.rest.getHeaders(), params: params})
   }
 
-  assignToUser(siteIds: number[], userId: number) {
+  assignSitesToUser(siteIds: number[], userId: number) {
     const url = this.rest.getHost() + this.endpoint + '/assign-to-user';
     let params = new HttpParams();
     if (userId != null) {
@@ -65,6 +47,16 @@ export class SiteService extends CrudService<Site> {
     }
     return this.http.post<SimplifiedSite[]>(url, siteIds, {headers: this.rest.getHeaders(), params: params})
       .pipe(map(sites => sites.map(site => new SimplifiedSite(site))));
+  }
+
+  assignSiteToUser(site: Site, userId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + site.id + '/assign-to-user';
+    let params = new HttpParams();
+    if (userId != null) {
+      params = params.set('user-id', String(userId));
+    }
+    return this.http.post<Site>(url, null, {headers: this.rest.getHeaders(), params: params})
+      .pipe(map(s => new Site(s)));
   }
 
   getFormattedIntersection(site: Site | SimplifiedSite): string {

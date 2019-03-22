@@ -5,7 +5,7 @@ import { Color } from '../core/functionalEnums/Color';
 import { MarkerShape } from '../core/functionalEnums/MarkerShape';
 import { MapService } from '../core/services/map.service';
 
-export class NewSiteLayer extends MapPointLayer<Mappable> {
+export class DraggableSiteLayer extends MapPointLayer<Mappable> {
 
   newSiteMappable: Mappable;
 
@@ -33,7 +33,7 @@ export class NewSiteLayer extends MapPointLayer<Mappable> {
     this.addToMap(this.mapService.getMap());
   }
 
-  getCoordinatesOfNewSite() {
+  getCoordinatesOfDraggableMarker() {
     return this.getCoordinatesOfMappableMarker(this.newSiteMappable);
   }
 }

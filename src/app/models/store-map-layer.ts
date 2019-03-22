@@ -45,7 +45,7 @@ export class StoreMapLayer extends EntityMapLayer<StoreMappable> {
       this.iconProvider = new ValidationIconProvider(this.mapService);
     } else if (markerType === MarkerType.LOGO) {
       this.iconProvider = new LogoIconProvider(this.mapService);
-    } else if (markerType === MarkerType.PROJECT_COMPLETION) {
+    } else if (markerType === MarkerType.CASED_FOR_PROJECT) {
       this.iconProvider = new ProjectCompletionIconProvider(this.mapService, this.getSelectedProjectId)
     } else {
       this.iconProvider = new StoreIconProvider(this.mapService);

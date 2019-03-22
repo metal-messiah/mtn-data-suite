@@ -1,15 +1,15 @@
 import { TestBed, inject } from '@angular/core/testing';
+import { PlannedGroceryService } from './planned-grocery-service.service';
 
-import { PlannedGroceryServiceService } from './planned-grocery-service.service';
 
 describe('PlannedGroceryServiceService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [PlannedGroceryServiceService]
+      providers: [PlannedGroceryService]
     });
   });
 
-  it('should be created', inject([PlannedGroceryServiceService], (service: PlannedGroceryServiceService) => {
+  it('should be created', inject([PlannedGroceryService], (service: PlannedGroceryService) => {
     expect(service).toBeTruthy();
   }));
 });

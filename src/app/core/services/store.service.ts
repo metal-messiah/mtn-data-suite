@@ -13,7 +13,6 @@ import { StoreVolume } from '../../models/full/store-volume';
 import { StoreCasing } from '../../models/full/store-casing';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
-import { StoreFilter } from '../../models/store-filter';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 
 @Injectable()
@@ -45,29 +44,6 @@ export class StoreService extends CrudService<Store> {
       .pipe(map(newCasing => new StoreCasing(newCasing)));
   }
 
-  getIdsInShape(shape: string, filter: StoreFilter): Observable<{siteIds: number[], storeIds: number[]}> {
-    const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams();
-    params = params.set('geojson', shape);
-    params = params.set('active', String(filter.active));
-    params = params.set('future', String(filter.future));
-    params = params.set('historical', String(filter.historical));
-    return this.http.get<{siteIds: number[], storeIds: number[]}>(url, {headers: this.rest.getHeaders(), params: params});
-  }
-
-  getIdsInRadius(latitude: number, longitude: number, radiusMeters: number, filter: StoreFilter)
-    : Observable<{siteIds: number[], storeIds: number[]}> {
-    const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams();
-    params = params.set('latitude', String(latitude));
-    params = params.set('longitude', String(longitude));
-    params = params.set('radiusMeters', String(radiusMeters));
-    params = params.set('active', String(filter.active));
-    params = params.set('future', String(filter.future));
-    params = params.set('historical', String(filter.historical));
-    return this.http.get<{siteIds: number[], storeIds: number[]}>(url, {headers: this.rest.getHeaders(), params: params});
-  }
-
   getStoresOfTypeInBounds(bounds: { north, south, east, west }, types: string[],
                           includeProjectIds?: boolean): Observable<SimplifiedStore[]> {
     const url = this.rest.getHost() + this.endpoint;
@@ -84,12 +60,14 @@ export class StoreService extends CrudService<Store> {
 
   createNewStatus(storeId: number, status: SimplifiedStoreStatus) {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-statuses`;
-    return this.http.post<Store>(url, status, {headers: this.rest.getHeaders()}).pipe(this.convertStore);
+    return this.http.post<Store>(url, status, {headers: this.rest.getHeaders()}).pipe(this.convertStore)
+      .pipe(map(store => new Store(store)));
   }
 
   deleteStatus(storeId: number, status: SimplifiedStoreStatus) {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-statuses/${status.id}`;
-    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()}).pipe(this.convertStore);
+    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()}).pipe(this.convertStore)
+      .pipe(map(store => new Store(store)));
   }
 
   getAllVolumes(storeId: number) {
@@ -105,40 +83,27 @@ export class StoreService extends CrudService<Store> {
       volume.source = 'MTN Data Suite: Casing';
     }
 
-    return this.http.post<Store>(url, volume, {headers: this.rest.getHeaders()}).pipe(this.convertStore);
+    return this.http.post<Store>(url, volume, {headers: this.rest.getHeaders()}).pipe(this.convertStore)
+      .pipe(map(store => new Store(store)));
   }
 
   deleteVolume(storeId: number, volume: SimplifiedStoreVolume) {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-volumes/${volume.id}`;
 
-    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()}).pipe(this.convertStore);
+    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()}).pipe(this.convertStore)
+      .pipe(map(store => new Store(store)));
   }
 
-  updateFloating(storeId: number, isFloat: boolean) {
-    const url = this.rest.getHost() + this.endpoint + '/' + storeId;
-    const params = new HttpParams().set('is-float', String(isFloat));
-    return this.http.put<SimplifiedStore>(url, null, {headers: this.rest.getHeaders(), params})
-      .pipe(map(simpleStore => new SimplifiedStore(simpleStore)));
-  }
-
-  validateStore(storeId: number): Observable<SimplifiedStore> {
+  validateStore(storeId: number): Observable<Store> {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/validate`;
-    return this.http.put<SimplifiedStore>(url, null, {headers: this.rest.getHeaders()})
-      .pipe(map(store => new SimplifiedStore(store)));
+    return this.http.put<Store>(url, null, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new Store(store)));
   }
 
-  invalidateStore(storeId: number): Observable<SimplifiedStore> {
+  invalidateStore(storeId: number): Observable<Store> {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/invalidate`;
-    return this.http.put<SimplifiedStore>(url, null, {headers: this.rest.getHeaders()})
-      .pipe(map(store => new SimplifiedStore(store)));
-  }
-
-  getLabel(store: Store | SimplifiedStore) {
-    let label = store.storeName;
-    if (store.storeNumber != null) {
-      label = `${label} (${store.storeNumber})`;
-    }
-    return label;
+    return this.http.put<Store>(url, null, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new Store(store)));
   }
 
   assignToUser(storeIds: number[], userId: number) {
@@ -167,12 +132,14 @@ export class StoreService extends CrudService<Store> {
       return this.removeBanner(storeId);
     }
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/banner/${bannerId}`;
-    return this.http.put<Store>(url, null, {headers: this.rest.getHeaders()});
+    return this.http.put<Store>(url, null, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new Store(store)));
   }
 
   removeBanner(storeId: number) {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/banner`;
-    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()});
+    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new Store(store)));
   }
 
   mergeStores(mergedStore: Store, storeIds: number[]) {
@@ -181,6 +148,7 @@ export class StoreService extends CrudService<Store> {
       mergedStore: mergedStore,
       storeIds: storeIds
     };
-    return this.http.post<SimplifiedSite>(url, body, {headers: this.rest.getHeaders()})
+    return this.http.post<Store>(url, body, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new Store(store)));
   }
 }

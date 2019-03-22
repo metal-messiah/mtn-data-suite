@@ -16,62 +16,65 @@ import { UserProfileSelectComponent } from './user-profile-select/user-profile-s
 import { DataFieldInfoDialogComponent } from './data-field-info-dialog/data-field-info-dialog.component';
 import { AppInfoDialogComponent } from './app-info-dialog/app-info-dialog.component';
 import { NewProjectNameComponent } from './new-project-name/new-project-name.component';
-import { StoreInfoCardComponent } from './store-info-card/store-info-card.component';
-import { SiteInfoCardComponent } from './site-info-card/site-info-card.component';
+import { DbLocationInfoCardComponent } from './db-location-info-card/db-location-info-card.component';
 import { FileInputComponent } from './file-input/file-input.component';
 import { TabSelectDialogComponent } from './file-input/tab-select-dialog/tab-select-dialog.component';
 import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
+import { GoogleInfoCardComponent } from './google-info-card/google-info-card.component';
 import { FuzzySearchComponent } from './fuzzy-search/fuzzy-search.component';
 
 @NgModule({
   imports: [CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule],
   declarations: [
-    ErrorDialogComponent,
-    ConfirmDialogComponent,
-    CallbackComponent,
-    PathNotFoundComponent,
-    MapComponent,
-    LogoMenuComponent,
-    DataFieldComponent,
-    UserProfileSelectComponent,
-    DataFieldInfoDialogComponent,
     AppInfoDialogComponent,
-    NewProjectNameComponent,
-    StoreInfoCardComponent,
-    SiteInfoCardComponent,
+    CallbackComponent,
+    ConfirmDialogComponent,
+    DataFieldComponent,
+    DataFieldInfoDialogComponent,
+    DbLocationInfoCardComponent,
+    ErrorDialogComponent,
     FileInputComponent,
+    FuzzySearchComponent,
+    GoogleInfoCardComponent,
+    LogoMenuComponent,
+    MapComponent,
+    NewProjectNameComponent,
+    PathNotFoundComponent,
     TabSelectDialogComponent,
     ThousandsCurrencyPipe,
-    FuzzySearchComponent
+    UserProfileSelectComponent
   ],
-  providers: [BreakpointObserver, DatePipe, MediaMatcher],
+  providers: [
+    BreakpointObserver,
+    DatePipe,
+    MediaMatcher
+  ],
   entryComponents: [
-    ErrorDialogComponent,
-    ConfirmDialogComponent,
-    UserProfileSelectComponent,
-    DataFieldInfoDialogComponent,
     AppInfoDialogComponent,
+    ConfirmDialogComponent,
+    DataFieldInfoDialogComponent,
+    ErrorDialogComponent,
     NewProjectNameComponent,
-    TabSelectDialogComponent
+    TabSelectDialogComponent,
+    UserProfileSelectComponent
   ],
   exports: [
     CallbackComponent,
     CommonModule,
     CustomMaterialModule,
+    DataFieldComponent,
+    DataFieldInfoDialogComponent,
     DatePipe,
+    DbLocationInfoCardComponent,
+    FileInputComponent,
     FormsModule,
+    FuzzySearchComponent,
     HttpClientModule,
     LogoMenuComponent,
     MapComponent,
     PathNotFoundComponent,
     ReactiveFormsModule,
-    DataFieldComponent,
-    DataFieldInfoDialogComponent,
-    StoreInfoCardComponent,
-    SiteInfoCardComponent,
-    FileInputComponent,
-    ThousandsCurrencyPipe,
-    FuzzySearchComponent
+    ThousandsCurrencyPipe
   ]
 })
 export class SharedModule {
