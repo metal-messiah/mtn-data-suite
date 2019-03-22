@@ -60,12 +60,14 @@ export class StoreService extends CrudService<Store> {
 
   createNewStatus(storeId: number, status: SimplifiedStoreStatus) {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-statuses`;
-    return this.http.post<Store>(url, status, {headers: this.rest.getHeaders()}).pipe(this.convertStore);
+    return this.http.post<Store>(url, status, {headers: this.rest.getHeaders()}).pipe(this.convertStore)
+      .pipe(map(store => new Store(store)));
   }
 
   deleteStatus(storeId: number, status: SimplifiedStoreStatus) {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-statuses/${status.id}`;
-    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()}).pipe(this.convertStore);
+    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()}).pipe(this.convertStore)
+      .pipe(map(store => new Store(store)));
   }
 
   getAllVolumes(storeId: number) {
@@ -81,13 +83,15 @@ export class StoreService extends CrudService<Store> {
       volume.source = 'MTN Data Suite: Casing';
     }
 
-    return this.http.post<Store>(url, volume, {headers: this.rest.getHeaders()}).pipe(this.convertStore);
+    return this.http.post<Store>(url, volume, {headers: this.rest.getHeaders()}).pipe(this.convertStore)
+      .pipe(map(store => new Store(store)));
   }
 
   deleteVolume(storeId: number, volume: SimplifiedStoreVolume) {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/store-volumes/${volume.id}`;
 
-    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()}).pipe(this.convertStore);
+    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()}).pipe(this.convertStore)
+      .pipe(map(store => new Store(store)));
   }
 
   validateStore(storeId: number): Observable<Store> {
@@ -100,14 +104,6 @@ export class StoreService extends CrudService<Store> {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/invalidate`;
     return this.http.put<Store>(url, null, {headers: this.rest.getHeaders()})
       .pipe(map(store => new Store(store)));
-  }
-
-  getLabel(store: Store | SimplifiedStore) {
-    let label = store.storeName;
-    if (store.storeNumber != null) {
-      label = `${label} (${store.storeNumber})`;
-    }
-    return label;
   }
 
   assignToUser(storeIds: number[], userId: number) {
@@ -136,12 +132,14 @@ export class StoreService extends CrudService<Store> {
       return this.removeBanner(storeId);
     }
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/banner/${bannerId}`;
-    return this.http.put<Store>(url, null, {headers: this.rest.getHeaders()});
+    return this.http.put<Store>(url, null, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new Store(store)));
   }
 
   removeBanner(storeId: number) {
     const url = this.rest.getHost() + this.endpoint + `/${storeId}/banner`;
-    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()});
+    return this.http.delete<Store>(url, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new Store(store)));
   }
 
   mergeStores(mergedStore: Store, storeIds: number[]) {
@@ -150,6 +148,7 @@ export class StoreService extends CrudService<Store> {
       mergedStore: mergedStore,
       storeIds: storeIds
     };
-    return this.http.post<SimplifiedSite>(url, body, {headers: this.rest.getHeaders()})
+    return this.http.post<Store>(url, body, {headers: this.rest.getHeaders()})
+      .pipe(map(store => new Store(store)));
   }
 }

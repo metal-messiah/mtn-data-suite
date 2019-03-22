@@ -6,7 +6,7 @@
     <mat-card-header>
       <mat-card-title>
         <strong>
-          <span *ngIf="store">{{storeService.getLabel(store)}}</span>
+          <span *ngIf="store">{{store.storeName}}<span *ngIf="store.storeNumber">&nbsp;{{store.storeNumber}}</span></span>
           <span *ngIf="!store">Empty Site</span>
         </strong>
       </mat-card-title>
