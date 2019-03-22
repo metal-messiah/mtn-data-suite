@@ -136,7 +136,7 @@ export class DbEntityMarkerService {
         siteMarkers.forEach(sm => this.getMarkersForSite(sm));
 
         if (!this.controls.get('updateOnBoundsChange').value) {
-          localStorage.setItem('siteMarkers', JSON.stringify(siteMarkers))
+          localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
         }
       }))
     );
@@ -305,6 +305,12 @@ export class DbEntityMarkerService {
     }
 
     this.controls.valueChanges.subscribe(val => localStorage.setItem('dbEntityMarkerServiceControls', JSON.stringify(val)));
+    // If user turns off auto refresh = repull the locations in view in order to preserve them
+    this.controls.get('updateOnBoundsChange').valueChanges.subscribe(val => {
+      if (!val) {
+        localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
+      }
+    });
   }
 
   private refreshMarkerOptions(marker: google.maps.Marker) {
