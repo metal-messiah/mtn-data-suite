@@ -92,11 +92,11 @@
           <div class="content" id="tab-content">
             <mat-tab-group>
               <mat-tab label="Active">
-                <h3 *ngIf="warningHasMultipleActiveStores">Warning! Site has multiple Active Stores!</h3>
-                <mds-store-summary-card *ngIf="activeStore != null"
-                                        [store]="activeStore"
+                <h3 *ngIf="activeStores.length > 1" style="padding: 0 10px; font-size: inherit">Warning! Site has multiple Active Stores!</h3>
+                <mds-store-summary-card *ngFor="let store of activeStores"
+                                        [store]="store"
                                         (onStoreUpdated)="updateStoreView($event)"></mds-store-summary-card>
-                <div class="mds-card" *ngIf="activeStore == null">
+                <div class="mds-card" *ngIf="activeStores.length === 0">
                   <div class="header">
                     <div class="title">No Active Store</div>
                   </div>

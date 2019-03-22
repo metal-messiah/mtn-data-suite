@@ -14,6 +14,7 @@ import { StoreService } from '../../core/services/store.service';
 import { finalize } from 'rxjs/internal/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { StoreSelectionDialogComponent } from '../store-merge/store-selection-dialog/store-selection-dialog.component';
+import { StoreAttrSelectionDialogComponent } from '../store-merge/store-attr-selection-dialog/store-attr-selection-dialog.component';
 
 @Component({
   selector: 'mds-site-overview',
@@ -23,10 +24,9 @@ import { StoreSelectionDialogComponent } from '../store-merge/store-selection-di
 export class SiteOverviewComponent implements OnInit {
 
   site: Site;
-  activeStore: Store;
+  activeStores: Store[];
   futureStores: Store[];
   historicalStores: Store[];
-  warningHasMultipleActiveStores = false;
   saving = false;
   loading = false;
 
@@ -60,26 +60,27 @@ export class SiteOverviewComponent implements OnInit {
 
   private setStores(stores: Store[]) {
     this.historicalStores = [];
-    this.activeStore = null;
+    this.activeStores = [];
     this.futureStores = [];
     stores.forEach(store => {
       if (store.storeType === 'ACTIVE') {
-        if (this.activeStore != null) {
-          this.warningHasMultipleActiveStores = true;
-        }
-        this.activeStore = store;
+        this.activeStores.push(store);
       } else if (store.storeType === 'FUTURE') {
         this.futureStores.push(store);
       } else {
         this.historicalStores.push(store);
       }
     });
-    this.historicalStores = this.historicalStores.sort((a: Store, b: Store) => {
+
+    const sortByStatusStartDate = (a: Store, b: Store) => {
       if (a.currentStoreStatus != null && b.currentStoreStatus != null) {
         return b.currentStoreStatus.statusStartDate.getTime() - a.currentStoreStatus.statusStartDate.getTime();
       }
       return 0;
-    });
+    };
+    this.activeStores.sort(sortByStatusStartDate);
+    this.futureStores.sort(sortByStatusStartDate);
+    this.historicalStores.sort(sortByStatusStartDate);
   }
 
   goBack() {
@@ -195,6 +196,19 @@ export class SiteOverviewComponent implements OnInit {
       disableClose: true,
       maxWidth: '90%',
       minWidth: '300px'
-    });
+    }).afterClosed().subscribe((stores: Store[]) => {
+      if (stores && stores.length > 1) {
+        // Open the attribute selection dialog
+        this.dialog.open(StoreAttrSelectionDialogComponent, {
+          data: {selectedStores: stores},
+          maxWidth: '90%',
+          minWidth: '300px'
+        }).afterClosed().subscribe((store: Store) => {
+          if (store) {
+            this.ngOnInit()
+          }
+        });
+      }
+    })
   }
 }
