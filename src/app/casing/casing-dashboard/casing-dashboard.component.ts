@@ -149,7 +149,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, {lat: site.latitude, lng: site.longitude});
     }));
 
-    this.subscriptions.push(this.siteUpdated$.subscribe(() => this.dbEntityMarkerService.getMarkersInMapView()));
+    this.subscriptions.push(this.siteUpdated$.subscribe(() => this.getEntitiesInBounds()));
 
     this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe(() => {
       if (this.dbEntityMarkerService.controls.get('updateOnBoundsChange').value) {
@@ -329,7 +329,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
         this.snackBar.open('Successfully created new Site', null, {duration: 1500});
-        this.dbEntityMarkerService.getMarkersInMapView();
+        this.getEntitiesInBounds();
       }, err => this.errorService.handleServerError('Failed to update new Site location!', err,
         () => console.log('Cancel'),
         () => this.saveMove()));
@@ -561,6 +561,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
       // When the user completes or cancels merging the sites, refresh the locations on the screen
       siteMergeDialog.afterClosed().subscribe(() => {
+        this.dbEntityMarkerService.removeMarkerForSite(duplicateSiteId);
         this.dbEntityMarkerService.clearSelection();
         this.getEntitiesInBounds();
       });

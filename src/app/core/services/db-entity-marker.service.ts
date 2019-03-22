@@ -158,6 +158,13 @@ export class DbEntityMarkerService {
         (e) => this.errorService.handleServerError('Failed to retrieve map locations!', e, () => console.error(e)));
   }
 
+  public removeMarkerForSite(siteId: number) {
+    const index = this.siteMarkerCache.findIndex(sm => sm.siteMarker.id === siteId);
+    const cached = this.siteMarkerCache[index];
+    cached.markers.forEach(marker => this.removeMarker(marker));
+    this.siteMarkerCache.splice(index, 1);
+  }
+
   private removeOutOfBoundsMarkers(bounds: { north: number, south: number, east: number, west: number }) {
     const outOfBoundsSiteIds = new Set<number>();
     this.siteMarkerCache.forEach(s => {
