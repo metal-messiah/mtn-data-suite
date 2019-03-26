@@ -47,30 +47,26 @@ export class StoreDataVerificationComponent implements OnInit {
   }
 
   createForm() {
+    this.storeControls = this.rbs.reportTableData.storeList
+      .filter(s => s.category !== 'Do Not Include')
+      .map(si => {
+        const group = this.fb.group(si);
+        group.get('totalArea').setValidators([Validators.required, Validators.min(0)]);
+        return group;
+      });
+
     this.form = this.fb.group({
-      stores: this.fb.array(this.rbs.reportTableData.storeList
-        .filter(s => s.category !== 'Do Not Include')
-        .map(si => {
-          const group = this.fb.group(si);
-          group.get('totalArea').setValidators([Validators.required, Validators.min(0)]);
-          return group;
-        }))
+      stores: this.fb.array(this.storeControls)
     });
-    this.storeControls = (this.form.get('stores') as FormArray).controls;
   }
 
   private updateSiteListItems() {
     (this.form.get('stores') as FormArray).controls.forEach(siControl => {
       const mapKey = siControl.get('mapKey').value;
       const storeListItem: StoreListItem = this.rbs.reportTableData.storeList.find(s => s.mapKey === mapKey);
-      const totalAreaControl = siControl.get('totalArea');
-      if (totalAreaControl.dirty) {
-        storeListItem.totalArea = totalAreaControl.value;
-      }
-      const useTradeAreaChangeControl = siControl.get('useTradeAreaChange');
-      if (useTradeAreaChangeControl.dirty) {
-        storeListItem.useTradeAreaChange = useTradeAreaChangeControl.value;
-      }
+      storeListItem.category = siControl.get('category').value;
+      storeListItem.totalArea = siControl.get('totalArea').value;
+      storeListItem.useTradeAreaChange = siControl.get('useTradeAreaChange').value;
       storeListItem.forceInclusion = siControl.get('forceInclusion').value;
     });
   }
