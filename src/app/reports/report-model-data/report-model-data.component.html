@@ -33,7 +33,7 @@
     <input hidden type="file" accept=".xls, .xlsx" id="fileInput" #fileInput (change)="readFile($event)"/>
   </div>
   <div>
-    <button (click)="next()" [color]="'warn'"
+    <button (click)="next()" color="warn" type="button"
             [disabled]="rbs.modelMetaDataForm.invalid || !rbs.modelFile || !rbs.getReportTableData() || parsingFile || postProcessing"
             mat-raised-button style="margin-top:20px;">Next
     </button>
