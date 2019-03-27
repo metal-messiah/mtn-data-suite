@@ -33,6 +33,7 @@ import { ExtractionService } from './services/extraction.service';
 import { StorageService } from './services/storage.service';
 import { SourceUpdatableService } from './services/source-updatable.service';
 import { BannerSourceService } from './services/banner-source.service';
+import { StoreListService } from './services/store-list.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -70,7 +71,8 @@ import { BannerSourceService } from './services/banner-source.service';
     EntitySelectionService,
     StorageService,
     SourceUpdatableService,
-    BannerSourceService
+    BannerSourceService,
+    StoreListService
   ]
 })
 export class CoreModule {

@@ -1,146 +1,143 @@
-import { Component, Inject, OnInit, Input, ViewChild } from '@angular/core';
-import { MatSnackBar, MAT_DIALOG_DATA, MatDialogRef, MatSelectionList, MatListOption } from '@angular/material';
+import { Component, Inject, OnInit, Input, ViewChild, OnDestroy } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatSnackBar } from '@angular/material';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
-import { StoreList } from 'app/models/full/store-list';
-import { StoreListService } from 'app/core/services/store-list.service';
-import { AuthService } from 'app/core/services/auth.service';
-import { StoreListSearchType } from 'app/core/functionalEnums/StoreListSearchType';
-import { Pageable } from 'app/models/pageable';
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
 import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
 import { ErrorService } from 'app/core/services/error.service';
-import { UserProfileService } from 'app/core/services/user-profile.service';
-
-export enum Pages {
-    LISTMANAGER,
-    ADD
-}
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { ListManagerService } from './list-manager.service';
+import { Pages } from './list-manager-pages';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'mds-list-manager-dialog',
     templateUrl: './list-manager-dialog.component.html',
     styleUrls: [ './list-manager-dialog.component.css' ],
-    providers: [ StoreListService, UserProfileService ]
+    providers: [ ]
 })
-export class ListManagerDialogComponent implements OnInit {
+export class ListManagerDialogComponent implements OnInit, OnDestroy {
     stores: SimplifiedStore[] = []; // list of stores (single/multiselect usually from casing app)
 
+    allStoreLists: SimplifiedStoreList[] = [];
     includedStoreLists: SimplifiedStoreList[] = [];
     excludedStoreLists: SimplifiedStoreList[] = [];
+    
+    selectedStoreList: SimplifiedStoreList;
 
+    subscriptions: Subscription[] = [];
+
+    fetching: boolean;
+    
     pages = Pages;
-    page: Pages = Pages.LISTMANAGER;
+    page: Pages;
 
     @ViewChild('selectionList') selectionList: any;
 
     constructor(
-        snackBar: MatSnackBar,
-        public dialogRef: MatDialogRef<ErrorDialogComponent>,
         private self: MatDialogRef<ListManagerDialogComponent>,
+        private listManagerService: ListManagerService,
         private errorService: ErrorService,
-        private storeListService: StoreListService,
-        private userProfileService: UserProfileService,
-        private authService: AuthService,
+        public snackBar: MatSnackBar,
+        public dialogRef: MatDialogRef<ErrorDialogComponent>,
+        private dialog: MatDialog,
         @Inject(MAT_DIALOG_DATA)
         public data: {
             stores: SimplifiedStore[];
         }
     ) {
-        this.stores = data.stores;
-
-        this.getIncludedStoreLists();
-        this.getExcludedStoreLists();
-
+        this.listManagerService.setStores(data.stores);
+        this.createSubscriptions();
+        
         this.self.disableClose = true;
+    }
+
+    ngOnDestroy() {
+        this.subscriptions.forEach((s: Subscription) => s.unsubscribe());
     }
 
     ngOnInit() {}
 
-    getIncludedStoreLists() {
-        const promises: Promise<Pageable<SimplifiedStoreList>>[] = [];
-        const userId = this.authService.sessionUser.id;
-        const storeIds = this.stores.map((store) => store.id);
-        const searchType = StoreListSearchType.ANY;
+    createSubscriptions() {
+        this.subscriptions.push(
+            this.listManagerService.allStoreListsChanged$.subscribe((allStoreLists: SimplifiedStoreList[]) => {
+                this.allStoreLists = allStoreLists;
+            })
+        );
 
-        // subscribed storeLists
-        promises.push(this.storeListService.getStoreLists([ userId ], null, storeIds, null, searchType).toPromise());
-        // owned storeLists
-        promises.push(this.storeListService.getStoreLists(null, userId, storeIds, null, searchType).toPromise());
+        this.subscriptions.push(
+            this.listManagerService.includedStoreListsChanged$.subscribe(
+                (includedStoreLists: SimplifiedStoreList[]) => {
+                    this.includedStoreLists = includedStoreLists;
+                }
+            )
+        );
 
-        // loop through both sets and create includedStoreLists
-        Promise.all(promises).then((results: Pageable<SimplifiedStoreList>[]) => {
-            const combined = Object.assign([], results[0].content, results[1].content);
-            this.includedStoreLists = combined.map((storeList) => new SimplifiedStoreList(storeList));
-        });
-    }
+        this.subscriptions.push(
+            this.listManagerService.excludedStoreListsChanged$.subscribe(
+                (excludedStoreLists: SimplifiedStoreList[]) => {
+                    this.excludedStoreLists = excludedStoreLists;
+                }
+            )
+        );
+        
+        this.subscriptions.push(
+            this.listManagerService.selectedStoreListChanged$.subscribe(
+                (selectedStoreList: SimplifiedStoreList) => {
+                    this.selectedStoreList = selectedStoreList;
+                }
+            )
+        );
 
-    getExcludedStoreLists() {
-        const userId = this.authService.sessionUser.id;
-        const storeIds = this.stores.map((store) => store.id);
-        const searchType = StoreListSearchType.ANY;
-        this.storeListService.getStoreLists(null, userId, null, storeIds, searchType).subscribe(
-            (pageable: Pageable<SimplifiedStoreList>) => {
-                this.excludedStoreLists = pageable.content.map((storeList) => new SimplifiedStoreList(storeList));
-            },
-            (err) => this.errorService.handleServerError('Failed to Get StoreLists!', err, () => console.log(err))
+        this.subscriptions.push(
+            this.listManagerService.storesChanged$.subscribe((stores: SimplifiedStore[]) => {
+                this.stores = stores;
+            })
+        );
+
+        this.subscriptions.push(
+            this.listManagerService.fetching$.subscribe((fetching: boolean) => {
+                this.fetching = fetching;
+            })
+        );
+
+        this.subscriptions.push(
+            this.listManagerService.error$.subscribe((data: { title: string; error: any }) => {
+                this.errorService.handleServerError(data.title, data.error, () => console.log(data.error));
+            })
+        );
+
+        this.subscriptions.push(
+            this.listManagerService.snackbar$.subscribe((message: string) => {
+                this.snackBar.open(message, null, {
+                    duration: 2000,
+                    verticalPosition: 'top'
+                });
+            })
+        );
+        
+        this.subscriptions.push(
+            this.listManagerService.page$.subscribe((page: Pages) => {
+                this.page = page;
+            })
+        );
+        
+        this.subscriptions.push(
+            this.listManagerService.scrollIntoViewId$.subscribe((identifier: { targetList: string; id: number }) => {
+                this.scrollIntoView(identifier.targetList, identifier.id);
+            })
         );
     }
 
-    createNewStoreList(listName: string) {
-        if (listName) {
-            const newStoreList: StoreList = new StoreList({ storeListName: listName });
-            this.storeListService.create(newStoreList).subscribe(
-                (storeList: StoreList) => {
-                    this.excludedStoreLists.unshift(new SimplifiedStoreList(storeList));
-                    setTimeout(() => {
-                        this.selectionList.options.first.toggle();
-                    }, 100);
-                },
-                (err) =>
-                    this.errorService.handleServerError('Failed to Create New StoreList!', err, () => console.log(err))
-            );
+    isPage(page: Pages) {
+        return this.page === page;
+    }
+
+    scrollIntoView(targetList: string, storeListId: number): void {
+        const selector = `${targetList}_${storeListId}`;
+        const elem = document.getElementById(selector);
+        if (elem) {
+            elem.scrollIntoView({ behavior: 'smooth' });
         }
-    }
-
-    addToList() {
-        const selections: MatListOption[] = this.selectionList.selectedOptions.selected;
-        const selectedStoreLists: SimplifiedStoreList[] = selections.map((s) => s.value);
-        if (selections.length && this.stores) {
-            const promises = [];
-            selectedStoreLists.forEach((storeList) => {
-                const storeListId = storeList.id;
-                const storeIds = this.stores.map((store) => store.id);
-
-                promises.push(this.storeListService.addStoresToStoreList(storeListId, storeIds).toPromise());
-            });
-
-            Promise.all(promises)
-                .then((results) => {
-                    results.forEach((response: SimplifiedStoreList) => {
-                        this.subscribeToList(response);
-                    });
-
-                    this.getIncludedStoreLists();
-                    this.page = Pages.LISTMANAGER;
-                })
-                .catch((err) =>
-                    this.errorService.handleServerError('Failed to Add Stores to StoreList!', err, () =>
-                        console.log(err)
-                    )
-                );
-        }
-    }
-
-    subscribeToList(storeList) {
-        this.userProfileService
-            .subscribeToStoreListById(this.authService.sessionUser.id, storeList.id)
-            .subscribe((resp) => {
-                console.log(resp);
-            });
-    }
-
-    setPage(page: Pages) {
-        this.page = page;
     }
 
     getStoreTitle(): string {
@@ -149,5 +146,23 @@ export class ListManagerDialogComponent implements OnInit {
         } else {
             return `These ${this.stores.length.toLocaleString()} Selected Stores`;
         }
+    }
+
+    createNewList(listName: string) {
+        this.listManagerService.createNewList(listName);
+    }
+
+    
+
+    addToList() {
+        this.listManagerService.addToList(this.selectionList.selectedOptions.selected);
+    }
+    
+    setPage(page: Pages) {
+        this.listManagerService.setPage(page);
+    }
+    
+    clearStores() {
+        this.listManagerService.setStores([]);
     }
 }

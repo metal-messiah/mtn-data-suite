@@ -53,6 +53,8 @@ export class StoreListService extends CrudService<StoreList> {
         if (pageNumber != null) {
             params = params.set('page', pageNumber.toLocaleString());
         }
+
+        params = params.set('size', '100');
         return this.http
             .get<Pageable<SimplifiedStoreList>>(url, { headers: this.rest.getHeaders(), params: params })
             .pipe(

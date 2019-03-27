@@ -242,6 +242,9 @@
           [mat-menu-trigger-for]="projectSubMenu">
     {{casingDashboardService.getSelectedProject().projectName}}
   </button>
+  <button mat-menu-item (click)="openListManagerDialog()">
+    <i class="fas fa-list-ul"></i>&nbsp;List Manager
+  </button>
 </mat-menu>
 
 <mat-menu #geolocationSubMenu="matMenu">
