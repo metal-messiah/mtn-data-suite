@@ -16,7 +16,7 @@ export class SiteEvaluationComponent implements OnInit {
   constructor(public _location: Location,
               private router: Router,
               private snackBar: MatSnackBar,
-              private rbs: ReportBuilderService) {
+              public rbs: ReportBuilderService) {
   }
 
   ngOnInit() {

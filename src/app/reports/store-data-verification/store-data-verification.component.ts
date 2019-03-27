@@ -20,7 +20,7 @@ export class StoreDataVerificationComponent implements OnInit {
     'Do Not Include'
   ];
 
-  constructor(private rbs: ReportBuilderService,
+  constructor(public rbs: ReportBuilderService,
               public _location: Location,
               public router: Router,
               private snackBar: MatSnackBar) {
