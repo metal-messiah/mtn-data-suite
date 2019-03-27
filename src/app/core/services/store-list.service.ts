@@ -75,7 +75,7 @@ export class StoreListService extends CrudService<StoreList> {
     }
 
     removeStoresFromStoreList(storeListId: number, storeIds: number[]): Observable<SimplifiedStoreList> {
-        const url = `${this.rest.getHost()}${this.endpoint}/${storeListId}/removeStores`;
+        const url = `${this.rest.getHost()}${this.endpoint}/${storeListId}/remove-stores`;
         return this.http.put<SimplifiedStoreList>(url, storeIds, { headers: this.rest.getHeaders() }).pipe(
             map((data) => {
                 return new SimplifiedStoreList(data);

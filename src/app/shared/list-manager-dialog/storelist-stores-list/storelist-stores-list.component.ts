@@ -7,6 +7,7 @@ import { StoreList } from 'app/models/full/store-list';
 import { MatDialog } from '@angular/material';
 import { ListManagerDialogComponent } from '../list-manager-dialog.component';
 import { ListManagerService } from '../list-manager.service';
+import { MapService } from 'app/core/services/map.service';
 
 @Component({
   selector: 'mds-storelist-stores-list',
@@ -14,13 +15,17 @@ import { ListManagerService } from '../list-manager.service';
   styleUrls: ['./storelist-stores-list.component.css']
 })
 export class StorelistStoresListComponent implements OnInit {
-
   storeList: StoreList;
 
-  constructor(private listManagerService: ListManagerService, private storeListService: StoreListService, protected dialog: MatDialog) { }
+  constructor(
+    private listManagerService: ListManagerService,
+    private storeListService: StoreListService,
+    protected dialog: MatDialog,
+    private mapService: MapService
+    
+  ) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   get selectedStoreList(): StoreList {
     return this.storeList;
@@ -28,14 +33,28 @@ export class StorelistStoresListComponent implements OnInit {
 
   @Input()
   set selectedStoreList(storeList: StoreList) {
-
-    this.storeListService.getOneById(storeList.id).subscribe((fullStoreList: StoreList) => {
-      this.storeList = fullStoreList;
-    })
-    
+    this.storeListService
+      .getOneById(storeList.id)
+      .subscribe((fullStoreList: StoreList) => {
+        this.storeList = fullStoreList;
+      });
   }
 
-  openListManagerDialog(store: SimplifiedStore) {
+  setStore(store: SimplifiedStore) {
     this.listManagerService.setStores([store]);
-}
+  }
+
+  removeStoreFromList(store: SimplifiedStore) {
+    this.listManagerService.removeFromList(
+      [new SimplifiedStoreList(this.storeList)],
+      [store]
+    );
+  }
+
+  showOnMap(store: SimplifiedStore) {
+    this.mapService.setCenter({
+      lat: store.site.latitude,
+      lng: store.site.longitude
+    });
+  }
 }

@@ -35,9 +35,12 @@ export class SiteInfoCardComponent implements OnInit {
   }
 
   ngOnInit() {
+    
   }
 
   moveSite() {
+
+    
     this.initiateMove.emit(this.site);
   }
 

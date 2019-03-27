@@ -2,11 +2,13 @@
     <!-- TOP TITLE OF DIALOG -->
     <h1 mat-dialog-title *ngIf="isPage(pages.LISTMANAGER)">List Manager</h1>
     <h1 mat-dialog-title *ngIf="isPage(pages.ADDSTORES)">Add {{getStoreTitle()}} To Lists</h1>
-    <h1 mat-dialog-title *ngIf="isPage(pages.VIEWSTORES)">Stores in {{selectedStoreList.storeListName}}</h1>
+    <h1 mat-dialog-title *ngIf="isPage(pages.VIEWSTORES) && selectedStoreList">{{selectedStoreList.storeCount | number}} Stores in {{selectedStoreList.storeListName}}</h1>
+    <h1 mat-dialog-title *ngIf="isPage(pages.VIEWSUBSCRIBERS) && selectedStoreList">{{selectedStoreList.subscribers.length | number}} Subscribers For {{selectedStoreList.storeListName}}</h1>
 
     <div mat-dialog-content>
         <!-- LISTMANAGER (INITIAL) VIEW -->
         <div *ngIf="isPage(pages.LISTMANAGER)">
+
             <!-- TOP BUTTON -->
            <button mat-flat-button class="add-store-button" 
            (click)="setPage(pages.ADDSTORES)" 
@@ -68,23 +70,34 @@
 
         <!-- VIEW STORES VIEW -->
         <div *ngIf="isPage(pages.VIEWSTORES)">
-             <!-- LIST OF ALL LISTS (SHOWS IF NO STORES ARE PASSED TO DIALOG) -->
+             <!-- LIST OF ALL STORES IN SELECTED LIST -->
             <mds-storelist-stores-list [selectedStoreList]="selectedStoreList"></mds-storelist-stores-list>
         </div>
 
+
+        <!-- VIEW SUBSCRIBERS VIEW -->
+        <div *ngIf="isPage(pages.VIEWSUBSCRIBERS)">
+                <!-- LIST OF ALL SUBSCRIBERS IN SELECTED LIST -->
+               <mds-storelist-subscribers-list [storeList]="selectedStoreList"></mds-storelist-subscribers-list>
+           </div>
     </div>
 
     <div mat-dialog-actions>
         <!-- LISTMANAGER VIEW -->
         <button *ngIf="isPage(pages.LISTMANAGER)" color="primary" mat-raised-button mat-dialog-close>Close</button>
-        <button *ngIf="isPage(pages.LISTMANAGER) && stores.length" color="primary" mat-raised-button (click)="clearStores()">View All Lists</button>
+        <button *ngIf="isPage(pages.LISTMANAGER) && stores.length" color="accent" mat-raised-button (click)="clearStores()">View All Lists</button>
 
         <!-- ADD STORES VIEW -->
-        <button *ngIf="isPage(pages.ADDSTORES)" color="accent" mat-raised-button (click)="addToList()">Save</button>
         <button *ngIf="isPage(pages.ADDSTORES)" color="primary" mat-raised-button (click)="setPage(pages.LISTMANAGER)">Cancel</button>
+        <button *ngIf="isPage(pages.ADDSTORES)" color="accent" mat-raised-button (click)="addToList()">Save</button>
 
         <!-- VIEW STORES VIEW -->
-        <button *ngIf="isPage(pages.VIEWSTORES)" color="primary" mat-raised-button (click)="setPage(pages.LISTMANAGER)">Go Back</button>
+        <button *ngIf="isPage(pages.VIEWSTORES)" color="primary" mat-raised-button mat-dialog-close>Close</button>
+        <button *ngIf="isPage(pages.VIEWSTORES)" color="accent" mat-raised-button (click)="setPage(pages.LISTMANAGER)">Go Back</button>
+
+        <!-- VIEW STORES VIEW -->
+        <button *ngIf="isPage(pages.VIEWSUBSCRIBERS)" color="primary" mat-raised-button mat-dialog-close>Close</button>
+        <button *ngIf="isPage(pages.VIEWSUBSCRIBERS)" color="accent" mat-raised-button (click)="setPage(pages.LISTMANAGER)">Go Back</button>
     </div>
 </div>
 

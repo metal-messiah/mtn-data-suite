@@ -13,6 +13,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Pages } from './list-manager-pages';
+import { SimplifiedUserProfile } from 'app/models/simplified/simplified-user-profile';
 
 
 @Injectable()
@@ -51,33 +52,45 @@ export class ListManagerService {
         private userProfileService: UserProfileService
     ) {
         this.userId = this.authService.sessionUser.id;
-        console.log('created list-manager-service for user: ', this.userId);
     }
 
     setStores(stores: SimplifiedStore[]) {
         this.stores = stores;
         this.storesChanged$.next(this.stores);
 
-        this.page = Pages.LISTMANAGER;
-        this.page$.next(this.page);
+        this.setPage(Pages.LISTMANAGER);
 
         this.refreshStoreLists();
         
     }
 
-    setSelectedStoreList(storeList: SimplifiedStoreList) {
+    setSelectedStoreList(storeList: SimplifiedStoreList, page?: Pages) {
         this.selectedStoreList = storeList;
         this.selectedStoreListChanged$.next(this.selectedStoreList);
-        this.page = Pages.VIEWSTORES;
-        this.page$.next(this.page);
+        
+        if (page) {
+            this.setPage(page)
+        }
     }
 
     refreshStoreLists() {
         if (this.stores.length) {
             this.getIncludedStoreLists();
             this.getExcludedStoreLists();
+
+            
         } else {
             this.getAllStoreLists();
+        }
+
+
+    }
+
+    refreshSelectedStoreList(storeList: SimplifiedStoreList) {
+        if (this.selectedStoreList) {
+            if (this.selectedStoreList.id === storeList.id) {
+                this.setSelectedStoreList(storeList);
+            }
         }
     }
 
@@ -96,8 +109,19 @@ export class ListManagerService {
         if (this.stores.length) {
             this.includedStoreListsChanged$.next(this.includedStoreLists);
             this.excludedStoreListsChanged$.next(this.excludedStoreLists);
+
+            this.includedStoreLists.forEach((storeList: SimplifiedStoreList) => {
+                this.refreshSelectedStoreList(storeList);
+            })
+            this.excludedStoreLists.forEach((storeList: SimplifiedStoreList) => {
+                this.refreshSelectedStoreList(storeList);
+            })
         } else {
             this.allStoreListsChanged$.next(this.allStoreLists);
+            
+            this.allStoreLists.forEach((storeList: SimplifiedStoreList) => {
+                this.refreshSelectedStoreList(storeList);
+            })
         }
     }
 
@@ -186,7 +210,6 @@ export class ListManagerService {
     }
 
     toggleSubscribe(storeList) {
-        console.log('toggle')
         if (this.userIsSubscribedToStoreList(storeList)) {
             this.userProfileService.unsubscribeToStoreListById(this.userId, storeList.id).subscribe(resp => {
                 this.snackbar$.next(`Unsubscribed from ${storeList.storeListName}`)
@@ -202,6 +225,24 @@ export class ListManagerService {
         }
     }
 
+    subscribe(user: SimplifiedUserProfile, storeList: SimplifiedStoreList) {
+        this.userProfileService
+                .subscribeToStoreListById(user.id, storeList.id)
+                .subscribe((resp) => {
+                    this.snackbar$.next(`Subscribed ${user.name} to ${storeList.storeListName}`)
+                    this.refreshStoreLists();
+                });
+    }
+
+    unsubscribe(user: SimplifiedUserProfile, storeList: SimplifiedStoreList) {
+        this.userProfileService
+                .unsubscribeToStoreListById(user.id, storeList.id)
+                .subscribe((resp) => {
+                    this.snackbar$.next(`Unsubscribed ${user.name} from ${storeList.storeListName}`)
+                    this.refreshStoreLists();
+                });
+    }
+
     userIsSubscribedToStoreList(storeList: SimplifiedStoreList): boolean {
         return storeList.subscribers.findIndex((s) => s.id === this.userId) >= 0;
     }
@@ -214,10 +255,37 @@ export class ListManagerService {
         });
     }
 
-    addToList(selections: MatListOption[]) {
+    removeFromList(storeLists: SimplifiedStoreList[], storeListStores: SimplifiedStore[]) {
+        if (storeLists.length) {
+            const promises = [];
+            storeLists.forEach((storeList: SimplifiedStoreList) => {
+                const storeListId = storeList.id;
+                const storeIds = storeListStores.map(s => s.id)
+
+                promises.push(this.storeListService.removeStoresFromStoreList(storeListId, storeIds).toPromise());
+            })
+
+            Promise.all(promises)
+            .then((results) => {
+                
+                this.refreshStoreLists();
+            })
+            .catch(
+                (err) => this.error$.next({ title: 'Failed to Remove Stores from StoreList!', error: err })
+            );
+        }
+    }
+
+    addToList(selections?: MatListOption[], storeLists?: SimplifiedStoreList[]) {
         // const selections: MatListOption[] = this.selectionList.selectedOptions.selected;
-        const selectedStoreLists: SimplifiedStoreList[] = selections.map((s) => s.value);
-        if (selections.length && this.stores) {
+        let selectedStoreLists: SimplifiedStoreList[] = [];
+        if (selections) {   
+            selectedStoreLists = selections.map((s) => s.value);
+        }
+        if (!selectedStoreLists.length && storeLists) {
+            selectedStoreLists = storeLists;   
+        }
+        if (selectedStoreLists.length && this.stores) {
             const promises = [];
             selectedStoreLists.forEach((storeList) => {
                 const storeListId = storeList.id;
@@ -229,18 +297,16 @@ export class ListManagerService {
             Promise.all(promises)
                 .then((results) => {
                     results.forEach((response: SimplifiedStoreList) => {
-                        this.toggleSubscribe(response);
+                        if (!this.userIsSubscribedToStoreList(response)) {
+                            this.toggleSubscribe(response);
+                        }
                     });
 
                     this.getIncludedStoreLists();
-                    this.page = Pages.LISTMANAGER;
-                    this.page$.next(this.page);
+                    this.setPage(Pages.LISTMANAGER)
                 })
                 .catch(
                     (err) => this.error$.next({ title: 'Failed to Add Stores to StoreList!', error: err })
-                    // this.errorService.handleServerError('Failed to Add Stores to StoreList!', err, () =>
-                    //     console.log(err)
-                    // )
                 );
         }
     }

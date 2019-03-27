@@ -861,11 +861,18 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     }
 
     openListManagerDialog() {
-        const listManagerDialogComponent = this.dialog.open(ListManagerDialogComponent, {
-            data: { stores: [] }
-        });
-        listManagerDialogComponent.afterClosed().subscribe((e) => {
-            console.log(e);
-        });
+        const selectedIds = this.storeMapLayer.getSelectedEntityIds();
+        if (selectedIds.length) {
+            this.storeService.getAllByIds(selectedIds).subscribe((stores: SimplifiedStore[]) => {
+                const listManagerDialogComponent = this.dialog.open(ListManagerDialogComponent, {
+                    data: { stores }
+                });
+            })
+        } else {
+                const listManagerDialogComponent = this.dialog.open(ListManagerDialogComponent, {
+                    data: { stores: [] }
+                });
+        }
+        
     }
 }

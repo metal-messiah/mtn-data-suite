@@ -27,6 +27,7 @@ import { ListManagerDialogComponent } from './list-manager-dialog/list-manager-d
 import { StorelistListItemComponent } from './list-manager-dialog/storelist-list-item/storelist-list-item.component';
 import { StorelistStoresListComponent } from './list-manager-dialog/storelist-stores-list/storelist-stores-list.component';
 import { ListManagerModule } from './list-manager-dialog/list-manager.module';
+import { StorelistSubscribersListComponent } from './list-manager-dialog/storelist-subscribers-list/storelist-subscribers-list.component';
 
 @NgModule({
     imports: [ CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule ],
@@ -50,7 +51,8 @@ import { ListManagerModule } from './list-manager-dialog/list-manager.module';
         FuzzySearchComponent,
         ListManagerDialogComponent,
         StorelistListItemComponent,
-        StorelistStoresListComponent
+        StorelistStoresListComponent,
+        StorelistSubscribersListComponent
     ],
     providers: [ BreakpointObserver, DatePipe, MediaMatcher ],
     entryComponents: [

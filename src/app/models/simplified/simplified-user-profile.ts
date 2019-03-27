@@ -7,5 +7,8 @@ export class SimplifiedUserProfile implements Entity {
 
     constructor(obj) {
         Object.assign(this, obj);
+        if (obj.firstName && obj.lastName) {
+            this.name = `${obj.firstName} ${obj.lastName}`;
+        }
     }
 }

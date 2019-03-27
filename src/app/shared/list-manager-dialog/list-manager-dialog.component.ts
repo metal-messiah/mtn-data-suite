@@ -8,12 +8,13 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 import { ListManagerService } from './list-manager.service';
 import { Pages } from './list-manager-pages';
 import { Subscription } from 'rxjs';
+import { MapService } from 'app/core/services/map.service';
 
 @Component({
     selector: 'mds-list-manager-dialog',
     templateUrl: './list-manager-dialog.component.html',
-    styleUrls: [ './list-manager-dialog.component.css' ],
-    providers: [ ]
+    styleUrls: ['./list-manager-dialog.component.css'],
+    providers: []
 })
 export class ListManagerDialogComponent implements OnInit, OnDestroy {
     stores: SimplifiedStore[] = []; // list of stores (single/multiselect usually from casing app)
@@ -21,13 +22,13 @@ export class ListManagerDialogComponent implements OnInit, OnDestroy {
     allStoreLists: SimplifiedStoreList[] = [];
     includedStoreLists: SimplifiedStoreList[] = [];
     excludedStoreLists: SimplifiedStoreList[] = [];
-    
+
     selectedStoreList: SimplifiedStoreList;
 
     subscriptions: Subscription[] = [];
 
     fetching: boolean;
-    
+
     pages = Pages;
     page: Pages;
 
@@ -47,7 +48,7 @@ export class ListManagerDialogComponent implements OnInit, OnDestroy {
     ) {
         this.listManagerService.setStores(data.stores);
         this.createSubscriptions();
-        
+
         this.self.disableClose = true;
     }
 
@@ -55,7 +56,7 @@ export class ListManagerDialogComponent implements OnInit, OnDestroy {
         this.subscriptions.forEach((s: Subscription) => s.unsubscribe());
     }
 
-    ngOnInit() {}
+    ngOnInit() { }
 
     createSubscriptions() {
         this.subscriptions.push(
@@ -79,7 +80,7 @@ export class ListManagerDialogComponent implements OnInit, OnDestroy {
                 }
             )
         );
-        
+
         this.subscriptions.push(
             this.listManagerService.selectedStoreListChanged$.subscribe(
                 (selectedStoreList: SimplifiedStoreList) => {
@@ -114,13 +115,13 @@ export class ListManagerDialogComponent implements OnInit, OnDestroy {
                 });
             })
         );
-        
+
         this.subscriptions.push(
             this.listManagerService.page$.subscribe((page: Pages) => {
                 this.page = page;
             })
         );
-        
+
         this.subscriptions.push(
             this.listManagerService.scrollIntoViewId$.subscribe((identifier: { targetList: string; id: number }) => {
                 this.scrollIntoView(identifier.targetList, identifier.id);
@@ -152,16 +153,16 @@ export class ListManagerDialogComponent implements OnInit, OnDestroy {
         this.listManagerService.createNewList(listName);
     }
 
-    
+
 
     addToList() {
         this.listManagerService.addToList(this.selectionList.selectedOptions.selected);
     }
-    
+
     setPage(page: Pages) {
         this.listManagerService.setPage(page);
     }
-    
+
     clearStores() {
         this.listManagerService.setStores([]);
     }
