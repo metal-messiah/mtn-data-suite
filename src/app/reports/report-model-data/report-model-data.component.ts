@@ -165,13 +165,12 @@ export class ReportModelDataComponent implements OnInit {
     return this.storeService.getAllByIds(storeIds)
       .pipe(tap((stores: SimplifiedStore[]) => {
           stores.forEach((store: SimplifiedStore) => {
-            const idx = reportData.storeList.findIndex(s => s.uniqueId === store.id);
-            if (idx !== -1) {
-              reportData.storeList[idx].totalArea = Math.round(store.areaTotal / 100) * 100;
+            reportData.storeList.filter(s => s.uniqueId === store.id).forEach(s => {
+              s.totalArea = Math.round(store.areaTotal / 100) * 100;
               if (store.banner) {
-                reportData.storeList[idx].bannerName = store.banner.bannerName;
+                s.bannerName = store.banner.bannerName;
               }
-            }
+            });
           });
         },
         () => {

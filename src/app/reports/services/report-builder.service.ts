@@ -21,9 +21,9 @@ export class ReportBuilderService {
 
   compilingReport = false;
 
-  constructor(protected http: HttpClient,
+  constructor(private http: HttpClient,
+              private rest: RestService,
               private fb: FormBuilder,
-              protected rest: RestService,
               private authService: AuthService) {
     this.createForms();
   }
