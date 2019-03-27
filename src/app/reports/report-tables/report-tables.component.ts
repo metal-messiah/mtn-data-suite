@@ -31,7 +31,7 @@ export class ReportTablesComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (!this.rbs.reportTableData) {
+    if (!this.rbs.getReportTableData()) {
       setTimeout(() => {
         this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
         this.router.navigate(['reports']);
@@ -44,7 +44,7 @@ export class ReportTablesComponent implements OnInit {
   }
 
   startBuildingReport() {
-    const REPORT_NAME = this.rbs.reportMetaData.modelName;
+    const REPORT_NAME = this.rbs.getReportMetaData().modelName;
     this.rbs.compilingReport = true;
     this.reportData.mapUrl = this.util.getMapUrl(this.googleMapsBasemap, this.zoom);
     this.rbs.startReportBuilding(this.reportData, REPORT_NAME)

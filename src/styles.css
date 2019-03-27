@@ -106,3 +106,54 @@ fieldset {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.db-marker-full-label-active,
+.db-marker-full-label-historical,
+.db-marker-full-label-future {
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #ffffffb0;
+  box-shadow: 0 0 3px 2px #00000080;
+  font-weight: bold;
+  font-size: 12px;
+  color: #000000;
+}
+
+.db-marker-full-label-active,
+.db-marker-image-label-active,
+.db-marker-image-label-active-selected {
+  -webkit-transform: translateX(-50%);
+}
+
+.db-marker-full-label-historical,
+.db-marker-image-label-historical,
+.db-marker-image-label-historical-selected {
+  -webkit-transform: translateX(-100%);
+}
+
+.db-marker-short-label {
+  -webkit-transform: translateX(-50%);
+  font-weight: bold;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.db-marker-image-label-active,
+.db-marker-image-label-historical,
+.db-marker-image-label-future,
+.db-marker-image-label-active-selected,
+.db-marker-image-label-historical-selected,
+.db-marker-image-label-future-selected {
+  border-radius: 5px;
+  padding: 2px;
+  background: #ffffffc9;
+  box-shadow: 0 0 3px 2px #00000080;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.db-marker-image-label-active-selected,
+.db-marker-image-label-historical-selected,
+.db-marker-image-label-future-selected {
+  box-shadow: 0 0 0 3px #ffe448;
+}

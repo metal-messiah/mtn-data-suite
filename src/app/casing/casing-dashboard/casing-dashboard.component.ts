@@ -45,6 +45,7 @@ import { GeometryUtil } from '../../utils/geometry-util';
 import { DbEntityInfoCardItem } from '../db-entity-info-card-item';
 import { InfoCardItem } from '../info-card-item';
 import { GoogleInfoCardItem } from '../google-info-card-item';
+import { ListManagerDialogComponent } from '../../shared/list-manager-dialog/list-manager-dialog.component';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -154,7 +155,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe(() => {
       if (this.dbEntityMarkerService.controls.get('updateOnBoundsChange').value) {
         this.getEntitiesInBounds()
-        }
+      }
     }));
 
     this.subscriptions.push(this.mapService.mapClick$.subscribe(() => this.infoCard = null));
@@ -189,9 +190,9 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   getEntitiesInBounds(): void {
     if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.get('minPullZoomLevel').value) {
       this.dbEntityMarkerService.getMarkersInMapView();
-      } else {
+    } else {
       this.snackBar.open('Zoom in or change Pull zoom limit', null, {duration: 3000})
-  }
+    }
   }
 
   initSiteCreation(): void {
@@ -331,7 +332,7 @@ Geo-location
         this.snackBar.open('Successfully created new Site', null, {duration: 1500});
         this.getEntitiesInBounds();
       }, err => this.errorService.handleServerError('Failed to update new Site location!', err,
-          () => console.log('Cancel'),
+        () => console.log('Cancel'),
         () => this.saveMove()));
   }
 
@@ -353,8 +354,8 @@ Multi-select
       } else {
         this.dbEntityMarkerService.selectInGeoJson(JSON.stringify(geoJson));
       }
-              this.mapService.clearDrawings();
-            });
+      this.mapService.clearDrawings();
+    });
   }
 
   cancelMultiSelect(): void {
@@ -462,8 +463,8 @@ Assigning
     this.storeService.assignToUser(this.dbEntityMarkerService.getSelectedStoreIds(), userId)
       .pipe(finalize(() => this.updating = false))
       .subscribe((sites: SimplifiedSite[]) => {
-          const message = `Successfully updated ${sites.length} Sites`;
-          this.snackBar.open(message, null, {duration: 2000});
+        const message = `Successfully updated ${sites.length} Sites`;
+        this.snackBar.open(message, null, {duration: 2000});
         this.getEntitiesInBounds();
       }, err => this.errorService.handleServerError('Failed to update sites!', err,
             () => console.log(err),
@@ -515,7 +516,7 @@ Assigning
           this.snackBar.open('No Boundary for Project', null, {duration: 2000, verticalPosition: 'top'});
         }
       });
-  }
+    }
   }
 
   openDownloadDialog() {
@@ -569,15 +570,16 @@ Assigning
   }
 
   openListManagerDialog() {
-    const selectedIds = this.storeMapLayer.getSelectedEntityIds();
-    if (selectedIds.length) {
+    const selectedIds = this.dbEntityMarkerService.getSelectedStoreIds();
+    if (selectedIds.length > 0) {
       this.storeService.getAllByIds(selectedIds).subscribe((stores: SimplifiedStore[]) => {
-        const listManagerDialogComponent = this.dialog.open(ListManagerDialogComponent, {
+        this.dialog.open(ListManagerDialogComponent, {
           data: {stores}
         });
-      })
+      }, error1 => this.errorService.handleServerError('Failed to get stores for store lists', error1,
+        () => console.log(error1), () => this.openListManagerDialog()))
     } else {
-      const listManagerDialogComponent = this.dialog.open(ListManagerDialogComponent, {
+      this.dialog.open(ListManagerDialogComponent, {
         data: {stores: []}
       });
     }

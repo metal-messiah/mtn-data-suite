@@ -2,22 +2,17 @@ import { Injectable } from '@angular/core';
 import { SelectProjectComponent } from '../select-project/select-project.component';
 import { MatDialog } from '@angular/material';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
-import { Observable, Subject } from 'rxjs';
-import { StoreFilter } from '../../models/store-filter';
+import { Subject } from 'rxjs';
 
 @Injectable()
 export class CasingDashboardService {
 
   // Filters
-  filter: StoreFilter;
-
   projectChanged$: Subject<SimplifiedProject>;
 
   private selectedProject: SimplifiedProject;
 
   constructor(private dialog: MatDialog) {
-    const filter: StoreFilter = JSON.parse(localStorage.getItem('casingDashboardFilters'));
-    this.filter = (filter && Object.keys(filter).length > 0) ? filter : new StoreFilter();
     const selectedProject = JSON.parse(localStorage.getItem('selectedProject'));
     if (selectedProject != null) {
       this.selectedProject = new SimplifiedProject(selectedProject);
@@ -55,14 +50,4 @@ export class CasingDashboardService {
     return this.selectedProject;
   }
 
-  saveFilters(): Observable<boolean> {
-    return Observable.create(observer => {
-      try {
-        localStorage.setItem('casingDashboardFilters', JSON.stringify(this.filter));
-        observer.next(true);
-      } catch (e) {
-        observer.error(e);
-      }
-    });
-  }
 }

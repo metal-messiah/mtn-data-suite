@@ -59,7 +59,8 @@ export class SiteDetailComponent implements OnInit, CanComponentDeactivate {
       quad: '',
       positionInCenter: '',
       duplicate: false,
-      assignee: ''
+      assignee: '',
+      backfilledNonGrocery: false
     });
   }
 
