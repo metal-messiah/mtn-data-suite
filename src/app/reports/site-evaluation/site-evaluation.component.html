@@ -1,6 +1,6 @@
 <div class="narrative-wrapper">
-  <form *ngIf="form && ratingsForm" >
-    <div [formGroup]="form">
+  <form *ngIf="rbs.siteEvaluationNarrativeForm && rbs.siteEvaluationRatingsForm" >
+    <div [formGroup]="rbs.siteEvaluationNarrativeForm">
       <mat-form-field>
         <textarea matInput placeholder="Executive Summary" formControlName="executiveSummary"></textarea>
       </mat-form-field>
@@ -29,7 +29,7 @@
         <textarea matInput placeholder="Affected Sister Stores" formControlName="affectedSisterStores"></textarea>
       </mat-form-field>
     </div>
-    <div [formGroup]="ratingsForm">
+    <div [formGroup]="rbs.siteEvaluationRatingsForm">
       <h3 class='select-group-header bold'>Access</h3>
       <div class='select-group'>
         <mat-form-field>
@@ -113,6 +113,6 @@
     <button [color]="'primary'" type="button" mat-raised-button (click)="_location.back()"
             style="margin:20px 20px 0 0;">Go Back
     </button>
-    <button [color]="'warn'" type="button" mat-raised-button (click)="next()" style="margin-top:20px;">Next</button>
+    <button [color]="'warn'" type="submit" mat-raised-button (click)="next()" style="margin-top:20px;">Next</button>
   </div>
 </div>

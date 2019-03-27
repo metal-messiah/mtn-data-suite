@@ -41,7 +41,7 @@ export class HarrisTeeterComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (!this.rbs.reportTableData) {
+    if (!this.rbs.getReportTableData()) {
       this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
       this.router.navigate(['reports']);
     } else {
@@ -54,7 +54,7 @@ export class HarrisTeeterComponent implements OnInit {
 
   createForm() {
     this.form = this.fb.group({
-      compChanges: this.fb.array(this.rbs.reportTableData.storeList
+      compChanges: this.fb.array(this.rbs.getReportTableData().storeList
         .filter(store => store.scenario === 'Opening' || store.scenario === 'Closed')
         .map(store => {
           const fg = this.fb.group(store);
@@ -91,7 +91,7 @@ export class HarrisTeeterComponent implements OnInit {
   }
 
   private getSite() {
-    const store = this.rbs.reportTableData.storeList.find(s => s.mapKey === this.rbs.reportTableData.selectedMapKey);
+    const store = this.rbs.getReportTableData().storeList.find(s => s.mapKey === this.rbs.getReportTableData().selectedMapKey);
     return {
       areaTotal: store.totalArea,
       intersection: store.location.split(' / ')[0],
@@ -129,11 +129,12 @@ export class HarrisTeeterComponent implements OnInit {
   }
 
   getHTReport() {
+    const metaData = this.rbs.getReportMetaData();
     this.reportData['assumptions'] = this.getAssumptions();
     this.reportData['site'] = this.getSite();
     this.reportData['analyst'] = this.authService.sessionUser;
-    this.reportData['reportTitle'] = this.rbs.reportMetaData.modelName;
-    this.reportData['reportType'] = this.rbs.reportMetaData.type;
+    this.reportData['reportTitle'] = metaData.modelName;
+    this.reportData['reportType'] = metaData.type;
     this.reportData['impactedSisterStores'] = this.getImpactedSisterStores(this.reportData);
     this.reportData['scenarios'] = [{
       scenario: 'S1 A',
@@ -146,7 +147,7 @@ export class HarrisTeeterComponent implements OnInit {
 
     console.log(this.reportData);
     this.rbs.getHTReport(this.reportData)
-      .subscribe(res => saveAs(res.body, `${this.rbs.reportMetaData.modelName}.pdf`),
+      .subscribe(res => saveAs(res.body, `${metaData.modelName}.pdf`),
         err => {
           this.rbs.compilingReport = false;
           this.errorService.handleServerError('Failed get pdf', err, () => console.log(err))

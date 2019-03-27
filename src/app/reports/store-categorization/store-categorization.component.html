@@ -1,4 +1,4 @@
-<div class="wrapper" *ngIf="rbs.reportTableData">
+<div class="wrapper" *ngIf="rbs.getReportTableData()">
   <h3 style="text-align: center;">Existing Stores</h3>
   <div class="categories-wrapper">
     <div class="categories-box" *ngFor="let store of getExistingStoresCombined(); let i=index;"
@@ -13,7 +13,7 @@
   </div>
   <div *ngIf="getProposedStores().length > 0">
     <h3 style="text-align: center;">Proposed Stores</h3>
-    <div *ngIf="rbs.reportTableData" class="categories-wrapper">
+    <div class="categories-wrapper">
       <div class='categories-box' *ngFor="let store of getProposedStores(); let i=index;"
            [ngClass]="store.category === 'Company Store' ? 'blue' : store.category === 'Existing Competition' ? 'yellow' : store.category === 'Proposed Competition' ? 'pink' : 'grey'">
         <div>

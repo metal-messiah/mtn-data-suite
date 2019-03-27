@@ -1,4 +1,4 @@
-<form [formGroup]="modelMetaDataForm" class="wrapper">
+<form [formGroup]="rbs.modelMetaDataForm" class="wrapper">
   <mat-form-field>
     <input required matInput placeholder="Analyst Full Name" type="text" formControlName="analyst">
   </mat-form-field>
@@ -20,21 +20,21 @@
 
   <div>
     <button type="button" mat-raised-button
-            [color]="file ? 'primary' : 'warn'"
+            [color]="rbs.modelFile ? 'primary' : 'warn'"
             (click)="fileInput.click()"
             [disabled]="parsingFile">
       <i class="fas fa-spinner fa-pulse" *ngIf="parsingFile"></i>
       {{parsingFile ? ' Fetching Data From Server': 'Upload File'}}
     </button>
-    <span class="file-tip" *ngIf="file">
+    <span class="file-tip" *ngIf="rbs.modelFile">
         <i class="fas fa-check-circle" style="color:green;margin-right:5px;"></i>
-        <b>{{file ? file.name : ''}}</b>
+        <b>{{rbs.modelFile ? rbs.modelFile.name : ''}}</b>
       </span>
     <input hidden type="file" accept=".xls, .xlsx" id="fileInput" #fileInput (change)="readFile($event)"/>
   </div>
   <div>
-    <button (click)="submitModelData()" [color]="'warn'"
-            [disabled]="modelMetaDataForm.invalid || !file || parsingFile || postProcessing"
+    <button (click)="next()" [color]="'warn'"
+            [disabled]="rbs.modelMetaDataForm.invalid || !rbs.modelFile || !rbs.getReportTableData() || parsingFile || postProcessing"
             mat-raised-button style="margin-top:20px;">Next
     </button>
     <span class="file-tip" *ngIf="parsingFile || postProcessing">
