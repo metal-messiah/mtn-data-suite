@@ -50,11 +50,11 @@
   </table>
   <div>
     <h3 *ngIf="rbs.dataVerifcationForm.invalid" style="color: #ff4c3e;">All Total Areas are Required</h3>
-    <button color="primary" mat-raised-button (click)="_location.back()" style="margin-top:20px;">Go Back</button>
-    <button color="accent" mat-raised-button (click)="harrisTeeter()" [disabled]="rbs.dataVerifcationForm.invalid" style="margin:20px 0 0 20px;">
+    <button color="primary" type="button" mat-raised-button (click)="_location.back()" style="margin-top:20px;">Go Back</button>
+    <button color="accent" type="button" mat-raised-button (click)="harrisTeeter()" [disabled]="rbs.dataVerifcationForm.invalid" style="margin:20px 0 0 20px;">
       Harris Teeter
     </button>
-    <button color="warn" mat-raised-button (click)="next()" [disabled]="rbs.dataVerifcationForm.invalid" style="margin:20px 0 0 20px;">
+    <button color="warn" type="button" mat-raised-button (click)="next()" [disabled]="rbs.dataVerifcationForm.invalid" style="margin:20px 0 0 20px;">
       Next
     </button>
   </div>
