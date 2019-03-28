@@ -46,6 +46,7 @@ export class ListManagerDialogComponent implements OnInit, OnDestroy {
             stores: SimplifiedStore[];
         }
     ) {
+        console.log('set stores')
         this.listManagerService.setStores(data.stores);
         this.createSubscriptions();
 

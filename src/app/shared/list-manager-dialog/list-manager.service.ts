@@ -14,6 +14,7 @@ import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Pages } from './list-manager-pages';
 import { SimplifiedUserProfile } from 'app/models/simplified/simplified-user-profile';
+import * as _ from 'lodash';
 
 
 @Injectable()
@@ -41,8 +42,8 @@ export class ListManagerService {
     pages = Pages;
     page: Pages = Pages.LISTMANAGER;
     page$: BehaviorSubject<Pages> = new BehaviorSubject(this.page);
-    
-    scrollIntoViewId$: Subject<{targetList: string, id: number}> = new Subject();
+
+    scrollIntoViewId$: Subject<{ targetList: string, id: number }> = new Subject();
 
     userId: number;
 
@@ -61,29 +62,20 @@ export class ListManagerService {
         this.setPage(Pages.LISTMANAGER);
 
         this.refreshStoreLists();
-        
+
     }
 
     setSelectedStoreList(storeList: SimplifiedStoreList, page?: Pages) {
         this.selectedStoreList = storeList;
         this.selectedStoreListChanged$.next(this.selectedStoreList);
-        
+
         if (page) {
             this.setPage(page)
         }
     }
 
     refreshStoreLists() {
-        if (this.stores.length) {
-            this.getIncludedStoreLists();
-            this.getExcludedStoreLists();
-
-            
-        } else {
-            this.getAllStoreLists();
-        }
-
-
+        this.getStoreLists();
     }
 
     refreshSelectedStoreList(storeList: SimplifiedStoreList) {
@@ -96,8 +88,8 @@ export class ListManagerService {
 
     sortStoreListsAlphabetically(): void {
         const targets = this.stores.length
-            ? [ this.includedStoreLists, this.excludedStoreLists ]
-            : [ this.allStoreLists ];
+            ? [this.includedStoreLists, this.excludedStoreLists]
+            : [this.allStoreLists];
         targets.forEach((storeList: SimplifiedStoreList[]) => {
             storeList.sort((a: SimplifiedStoreList, b: SimplifiedStoreList) => {
                 const text1 = a.storeListName.toUpperCase();
@@ -118,72 +110,62 @@ export class ListManagerService {
             })
         } else {
             this.allStoreListsChanged$.next(this.allStoreLists);
-            
+
             this.allStoreLists.forEach((storeList: SimplifiedStoreList) => {
                 this.refreshSelectedStoreList(storeList);
             })
         }
     }
 
-    getAllStoreLists() {
+    filterLists(allStoreLists: SimplifiedStoreList[]) {
+        this.allStoreLists = allStoreLists;
+        this.includedStoreLists = allStoreLists.filter((storeList: SimplifiedStoreList) => {
+            if (this.stores.length) {
+                const storeIds = this.stores.map((store: SimplifiedStore) => store.id);
+                const storeListStoreIds = storeList.storeIds;
+                const hasMatches = _.intersectionWith(storeIds, storeListStoreIds, _.isEqual);
+                return hasMatches.length;
+            } else {
+                return false
+            }
+        })
+        this.excludedStoreLists = allStoreLists.filter((storeList: SimplifiedStoreList) => {
+            if (this.stores.length) {
+                const storeIds = this.stores.map((store: SimplifiedStore) => store.id);
+                const storeListStoreIds = storeList.storeIds;
+                const hasMatches = _.intersectionWith(storeIds, storeListStoreIds, _.isEqual);
+                return hasMatches.length === 0;
+            } else {
+                return false
+            }
+        })
+
+        this.sortStoreListsAlphabetically();
+    }
+
+    getStoreLists() {
         this.fetching$.next(true);
         const userId = this.userId;
         const storeIds = null;
         const searchType = StoreListSearchType.ANY;
 
         const subscribed: Promise<Pageable<SimplifiedStoreList>> = this.storeListService
-            .getStoreLists([ userId ], null, storeIds, null, searchType)
+            .getStoreLists([userId], null, storeIds, null, searchType)
             .toPromise();
         const owned: Promise<Pageable<SimplifiedStoreList>> = this.storeListService
             .getStoreLists(null, userId, storeIds, null, searchType)
             .toPromise();
 
-        const promises: Promise<Pageable<SimplifiedStoreList>>[] = [ subscribed, owned ];
+        const promises: Promise<Pageable<SimplifiedStoreList>>[] = [subscribed, owned];
 
         // loop through both sets and create includedStoreLists dataset
         Promise.all(promises).then((results: Pageable<SimplifiedStoreList>[]) => {
             const combined = Object.assign([], results[0].content, results[1].content);
-            this.allStoreLists = combined.map((storeList) => new SimplifiedStoreList(storeList));
-            this.sortStoreListsAlphabetically();
+            this.filterLists( combined.map((storeList) => new SimplifiedStoreList(storeList)));
+            
             this.fetching$.next(false);
+
         });
-    }
-
-    getIncludedStoreLists() {
-        this.fetching$.next(true);
-        const userId = this.userId;
-        const storeIds = this.stores.map((store) => store.id);
-        const searchType = StoreListSearchType.ANY;
-
-        const subscribed: Promise<Pageable<SimplifiedStoreList>> = this.storeListService
-            .getStoreLists([ userId ], null, storeIds, null, searchType)
-            .toPromise();
-        const owned: Promise<Pageable<SimplifiedStoreList>> = this.storeListService
-            .getStoreLists(null, userId, storeIds, null, searchType)
-            .toPromise();
-
-        const promises: Promise<Pageable<SimplifiedStoreList>>[] = [ subscribed, owned ];
-
-        // loop through both sets and create includedStoreLists dataset
-        Promise.all(promises).then((results: Pageable<SimplifiedStoreList>[]) => {
-            const combined = Object.assign([], results[0].content, results[1].content);
-            this.includedStoreLists = combined.map((storeList) => new SimplifiedStoreList(storeList));
-            this.sortStoreListsAlphabetically();
-            this.fetching$.next(false);
-        });
-    }
-
-    getExcludedStoreLists() {
-        const userId = this.userId;
-        const storeIds = this.stores.map((store) => store.id);
-        const searchType = StoreListSearchType.ANY;
-        this.storeListService.getStoreLists(null, userId, null, storeIds, searchType).subscribe(
-            (pageable: Pageable<SimplifiedStoreList>) => {
-                this.excludedStoreLists = pageable.content.map((storeList) => new SimplifiedStoreList(storeList));
-                this.sortStoreListsAlphabetically();
-            },
-            (err) => this.error$.next({ title: 'Failed to Fetch Excluded Store Lists!!', error: err })
-        );
     }
 
     createNewList(listName: string) {
@@ -200,9 +182,9 @@ export class ListManagerService {
                     }
                     this.sortStoreListsAlphabetically();
                     setTimeout(() => {
-                        this.scrollIntoViewId$.next({targetList, id: simpleStoreList.id})
+                        this.scrollIntoViewId$.next({ targetList, id: simpleStoreList.id })
                     }, 100);
-                    
+
                 },
                 (err) => this.error$.next({ title: 'Failed to Create New StoreList!!', error: err })
             );
@@ -227,20 +209,20 @@ export class ListManagerService {
 
     subscribe(user: SimplifiedUserProfile, storeList: SimplifiedStoreList) {
         this.userProfileService
-                .subscribeToStoreListById(user.id, storeList.id)
-                .subscribe((resp) => {
-                    this.snackbar$.next(`Subscribed ${user.name} to ${storeList.storeListName}`)
-                    this.refreshStoreLists();
-                });
+            .subscribeToStoreListById(user.id, storeList.id)
+            .subscribe((resp) => {
+                this.snackbar$.next(`Subscribed ${user.name} to ${storeList.storeListName}`)
+                this.refreshStoreLists();
+            });
     }
 
     unsubscribe(user: SimplifiedUserProfile, storeList: SimplifiedStoreList) {
         this.userProfileService
-                .unsubscribeToStoreListById(user.id, storeList.id)
-                .subscribe((resp) => {
-                    this.snackbar$.next(`Unsubscribed ${user.name} from ${storeList.storeListName}`)
-                    this.refreshStoreLists();
-                });
+            .unsubscribeToStoreListById(user.id, storeList.id)
+            .subscribe((resp) => {
+                this.snackbar$.next(`Unsubscribed ${user.name} from ${storeList.storeListName}`)
+                this.refreshStoreLists();
+            });
     }
 
     userIsSubscribedToStoreList(storeList: SimplifiedStoreList): boolean {
@@ -266,24 +248,24 @@ export class ListManagerService {
             })
 
             Promise.all(promises)
-            .then((results) => {
-                
-                this.refreshStoreLists();
-            })
-            .catch(
-                (err) => this.error$.next({ title: 'Failed to Remove Stores from StoreList!', error: err })
-            );
+                .then((results) => {
+
+                    this.refreshStoreLists();
+                })
+                .catch(
+                    (err) => this.error$.next({ title: 'Failed to Remove Stores from StoreList!', error: err })
+                );
         }
     }
 
     addToList(selections?: MatListOption[], storeLists?: SimplifiedStoreList[]) {
         // const selections: MatListOption[] = this.selectionList.selectedOptions.selected;
         let selectedStoreLists: SimplifiedStoreList[] = [];
-        if (selections) {   
+        if (selections) {
             selectedStoreLists = selections.map((s) => s.value);
         }
         if (!selectedStoreLists.length && storeLists) {
-            selectedStoreLists = storeLists;   
+            selectedStoreLists = storeLists;
         }
         if (selectedStoreLists.length && this.stores) {
             const promises = [];
@@ -302,7 +284,7 @@ export class ListManagerService {
                         }
                     });
 
-                    this.getIncludedStoreLists();
+                    this.refreshStoreLists();
                     this.setPage(Pages.LISTMANAGER)
                 })
                 .catch(
@@ -310,7 +292,7 @@ export class ListManagerService {
                 );
         }
     }
-    
+
     setPage(page: Pages) {
         this.page = page;
         this.page$.next(this.page);
