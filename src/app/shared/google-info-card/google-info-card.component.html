@@ -1,0 +1,18 @@
+<div class="infoCard">
+  <div *ngIf="!googlePlace">
+    <i class="fas fa-spinner fa-pulse"></i>
+  </div>
+  <mat-card *ngIf="googlePlace">
+    <mat-card-header>
+      <mat-card-title>
+        <strong>
+          <a href="https://www.google.com/maps/search/?api=1&query=Google&query_place_id={{googlePlace.place_id}}" target='_blank'>{{googlePlace.name}}</a>
+        </strong>
+      </mat-card-title>
+      <mat-card-subtitle><em>(Provided by Google)</em></mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      {{googlePlace.vicinity}}
+    </mat-card-content>
+  </mat-card>
+</div>

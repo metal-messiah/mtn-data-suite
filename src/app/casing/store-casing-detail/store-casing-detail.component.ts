@@ -156,7 +156,7 @@ export class StoreCasingDetailComponent implements OnInit, CanComponentDeactivat
 
     this.storeVolumeForm = this.fb.group({
       volumeTotal: ['', [Validators.required, Validators.min(10000), Validators.max(10000000)]],
-      volumeBoxTotal: ['', [Validators.min(10000), Validators.max(10000000)]],
+      volumeBoxTotal: ['', [Validators.min(10000), Validators.max(100000000)]],
       volumeDate: new Date(),
       volumeType: ['', [Validators.required]],
       source: ['MTN Casing App', [Validators.required]],

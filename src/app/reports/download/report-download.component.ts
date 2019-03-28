@@ -18,7 +18,7 @@ export class ReportDownloadComponent implements OnInit {
 
   ngOnInit() {
     window.scrollTo(0, 0);
-    if (!this.rbs.reportTableData) {
+    if (!this.rbs.getReportTableData()) {
       this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
       this.router.navigate(['reports']);
     }

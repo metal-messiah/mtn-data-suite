@@ -1,51 +1,61 @@
 <mat-sidenav-container id="casing-dash-container">
   <mat-sidenav mode="over" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end"
-               (closedStart)="filterClosed()">
-    <mat-list role="list" id="filter-side-nav">
-      <h3 mat-subheader>Store Type</h3>
+               (closedStart)="controlSideMenuClosed()">
+    <mat-list role="list" id="filter-side-nav" [formGroup]="dbEntityMarkerService.controls">
+      <h3 mat-subheader>Filters</h3>
       <div class="checklist">
-        <mat-checkbox [(ngModel)]="casingDashboardService.filter.active">Active</mat-checkbox>
-        <mat-checkbox [(ngModel)]="casingDashboardService.filter.future">Future</mat-checkbox>
-        <mat-checkbox [(ngModel)]="casingDashboardService.filter.historical">Historical</mat-checkbox>
+        <mat-checkbox formControlName="showActive">Active</mat-checkbox>
+        <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
+        <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
+        <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
+        <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
+        <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
+      </div>
+      <mat-divider></mat-divider>
+
+      <h3 mat-subheader>Marker Type</h3>
+      <mat-form-field id="marker-type-selector" floatLabel="never">
+        <mat-select formControlName="markerType">
+          <mat-option *ngFor="let markerType of dbEntityMarkerService.markerTypeOptions" [value]="markerType">
+            {{markerType}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-divider></mat-divider>
+
+      <h3 mat-subheader>Controls</h3>
+      <div>
+        <div class="checklist">
+          <mat-checkbox formControlName="updateOnBoundsChange">Update as map moves</mat-checkbox>
+          <mat-checkbox formControlName="cluster">Cluster Stores</mat-checkbox>
+        </div>
+        <div *ngIf="dbEntityMarkerService.controls.get('cluster').value">
+          <h3 mat-subheader>Cluster when zoom <= {{dbEntityMarkerService.controls.get('clusterZoomLevel').value}}</h3>
+          <mat-slider [max]="21" [min]="0" [thumbLabel]="true" formControlName="clusterZoomLevel"></mat-slider>
+        </div>
+        <mat-divider></mat-divider>
+        <div>
+          <h3 mat-subheader>Pull when zoom >= {{dbEntityMarkerService.controls.get('minPullZoomLevel').value}}</h3>
+          <mat-slider [max]="21" [min]="7" [thumbLabel]="true" formControlName="minPullZoomLevel"></mat-slider>
+        </div>
+        <mat-divider></mat-divider>
+        <div>
+          <h3 mat-subheader>Full Label when zoom >=
+            {{dbEntityMarkerService.controls.get('fullLabelMinZoomLevel').value}}</h3>
+          <mat-slider [max]="21" [min]="0" [thumbLabel]="true" formControlName="fullLabelMinZoomLevel"></mat-slider>
+        </div>
+        <mat-divider></mat-divider>
+        <h3 mat-subheader>(Current Zoom: {{mapService.getZoom()}})</h3>
       </div>
     </mat-list>
   </mat-sidenav>
   <mat-sidenav-content>
     <div class="box">
       <mds-map #casingMap class="row content" (ready)="onMapReady()"></mds-map>
-      <div class="infoCardContainer">
-        <div class="infoCard" *ngIf="selectedCardState === cardState.GOOGLE && selectedGooglePlace">
-          <mat-card>
-            <mat-card-header>
-              <mat-card-title>
-                <strong>{{selectedGooglePlace.name}}</strong>
-              </mat-card-title>
-              <mat-card-subtitle><em>(Provided by Google)</em></mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              {{selectedGooglePlace.vicinity}}
-            </mat-card-content>
-            <mat-card-actions>
-              <button mat-button [disabled]="true || selectedDashboardMode === casingDashboardMode.MOVING_MAPPABLE"
-                      (click)="saveGooglePlaceAsStore()">
-                <i class="fas fa-save"></i>&nbsp;Save To DB
-              </button>
-            </mat-card-actions>
-          </mat-card>
-        </div>
-        <mds-store-info-card class="infoCard" [store]="selectedStore"
-                             [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
-                             (onUpdate)="onStoreUpdated($event)"
-                             (initiateMove)="moveStore($event)"
-                             (initiateDuplicateSiteSelection)="initiateDuplicateSiteSelection($event.id)"
-                             *ngIf="selectedCardState === cardState.SELECTED_STORE && selectedStore != null"></mds-store-info-card>
-        <mds-site-info-card class="infoCard" [site]="selectedSite"
-                            [disableActions]="selectedDashboardMode !== casingDashboardMode.DEFAULT"
-                            (onUpdate)="onSiteUpdated($event)"
-                            (initiateMove)="moveSite($event)"
-                            (initiateDuplicateSiteSelection)="initiateDuplicateSiteSelection($event.id)"
-                            *ngIf="selectedCardState === cardState.SELECTED_SITE && selectedSite != null"></mds-site-info-card>
-      </div>
+      <mds-info-card *ngIf="infoCard" class="infoCardContainer"
+                     [infoCard]="infoCard" [disabled]="selectedDashboardMode !== casingDashboardMode.DEFAULT">
+      </mds-info-card>
       <div class="row footer">
         <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" color="primary"
                      class="flex-space-between">
@@ -82,8 +92,8 @@
           </div>
           <div>
             <button mat-mini-fab [mat-menu-trigger-for]="multiSelectModeMenu" color="primary">
-              <i *ngIf="storeMapLayer.selectionMode === storeSelectionMode.MULTI_SELECT" class="fas fa-plus"></i>
-              <i *ngIf="storeMapLayer.selectionMode === storeSelectionMode.MULTI_DESELECT" class="fas fa-minus"></i>
+              <i *ngIf="!dbEntityMarkerService.deselecting" class="fas fa-plus"></i>
+              <i *ngIf="dbEntityMarkerService.deselecting" class="fas fa-minus"></i>
             </button>
           </div>
           <div>
@@ -143,10 +153,7 @@
             <i class="fas fa-search"></i>
           </button>
           <button mat-mini-fab color="primary" (click)="filterSideNavIsOpen = !filterSideNavIsOpen">
-            <i class="fas fa-filter"></i>
-          </button>
-          <button disabled mat-mini-fab color="primary" routerLink="site-list">
-            <i class="fas fa-list"></i>
+            <i class="fas fa-sliders-h"></i>
           </button>
         </mat-toolbar>
       </div>
@@ -155,7 +162,9 @@
 </mat-sidenav-container>
 
 <mat-menu #multiSelectActionMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item *ngIf="storeMapLayer.getSelectionCount() > 0" disabled>{{storeMapLayer.getSelectionCount()}}&nbsp;Stores</button>
+  <button mat-menu-item *ngIf="dbEntityMarkerService.getSelectedStoreIds().length > 0" disabled>
+    {{dbEntityMarkerService.getSelectedStoreIds().length}}&nbsp;Stores
+  </button>
   <button mat-menu-item (click)="openDownloadDialog()" *ngIf="!userIsGuest()">
     <i class="fas fa-download"></i>&nbsp;&nbsp;Download Latest Data
   </button>
@@ -171,14 +180,6 @@
   <button mat-menu-item (click)="openListManagerDialog()">
       <i class="fas fa-user"></i>&nbsp;&nbsp;Store Lists
     </button>
-</mat-menu>
-
-<mat-menu #markerTypeMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="setMarkerType(markerType.PIN)">{{markerType.PIN.valueOf()}}</button>
-  <!--<button mat-menu-item (click)="setMarkerType(markerType.LABEL)">{{markerType.LABEL.valueOf()}}</button>-->
-  <button mat-menu-item (click)="setMarkerType(markerType.LOGO)">{{markerType.LOGO.valueOf()}}</button>
-  <button mat-menu-item (click)="setMarkerType(markerType.VALIDATION)">{{markerType.VALIDATION.valueOf()}}</button>
-  <button mat-menu-item (click)="setMarkerType(markerType.PROJECT_COMPLETION)">{{markerType.PROJECT_COMPLETION.valueOf()}}</button>
 </mat-menu>
 
 <mat-menu #drawingToolsMenu="matMenu" [overlapTrigger]="false">
@@ -197,10 +198,10 @@
 </mat-menu>
 
 <mat-menu #multiSelectModeMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="storeMapLayer.selectionMode = storeSelectionMode.MULTI_SELECT">
+  <button mat-menu-item (click)="dbEntityMarkerService.deselecting = false">
     <i class="fas fa-plus-circle"></i>&nbsp;Select
   </button>
-  <button mat-menu-item (click)="storeMapLayer.selectionMode = storeSelectionMode.MULTI_DESELECT">
+  <button mat-menu-item (click)="dbEntityMarkerService.deselecting = true">
     <i class="fas fa-minus-circle"></i>&nbsp;Deselect
   </button>
 </mat-menu>
@@ -221,9 +222,6 @@
 </mat-menu>
 
 <mat-menu #moreMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item [mat-menu-trigger-for]="markerTypeMenu">
-    <i class="fas fa-map-marker"></i>&nbsp;Marker Type: {{storeMapLayer.markerType.valueOf()}}
-  </button>
   <button mat-menu-item (click)="initSiteCreation()">
     <i class="fas fa-plus-circle"></i>&nbsp;Create New Site
   </button>
@@ -288,4 +286,9 @@
   </div>
 </mat-menu>
 
-<i *ngIf="gettingEntities" id="loadingSpinner" class="fas fa-spinner fa-pulse fa-2x"></i>
+<i *ngIf="dbEntityMarkerService.gettingLocations && !filterSideNavIsOpen" id="loadingSpinner" class="fas fa-spinner fa-pulse fa-2x"></i>
+<button *ngIf="!dbEntityMarkerService.controls.get('updateOnBoundsChange').value &&
+               !dbEntityMarkerService.gettingLocations && !filterSideNavIsOpen"
+        mat-raised-button id="refresh" (click)="getEntitiesInBounds()" color="primary">
+  <i class="fas fa-sync"></i>
+</button>

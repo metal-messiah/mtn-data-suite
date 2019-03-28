@@ -30,10 +30,10 @@ export class JsonToTablesUtil {
   private readonly maxSovCount = 20;
 
   constructor(rbs: ReportBuilderService) {
-    this.reportMetaData = rbs.reportMetaData;
-    this.tableData = rbs.reportTableData;
-    this.siteEvaluationNarrative = rbs.siteEvaluationNarrative;
-    this.siteEvaluationRatings = rbs.siteEvaluationRatings;
+    this.reportMetaData = rbs.getReportMetaData();
+    this.tableData = rbs.getReportTableData();
+    this.siteEvaluationNarrative = rbs.getSiteEvaluationNarrative();
+    this.siteEvaluationRatings = rbs.getSiteEvaluationRatings();
 
     this.targetStore = this.tableData.storeList.find(item => item.mapKey === this.tableData.selectedMapKey);
 

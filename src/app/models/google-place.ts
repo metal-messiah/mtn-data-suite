@@ -2,7 +2,6 @@ import { Mappable } from '../interfaces/mappable';
 import { Coordinates } from './coordinates';
 import PlaceResult = google.maps.places.PlaceResult;
 import { MarkerType } from '../core/functionalEnums/MarkerType';
-import { MarkerShape } from '../core/functionalEnums/MarkerShape';
 import { Color } from '../core/functionalEnums/Color';
 import MarkerLabel = google.maps.MarkerLabel;
 
@@ -42,17 +41,8 @@ export class GooglePlace implements PlaceResult, Mappable {
   };
 
   getIcon(markerType?: MarkerType): (string | google.maps.Icon | google.maps.Symbol) {
-    return {
-      path: MarkerShape.FILLED,
-      fillColor: Color.PINK,
-      fillOpacity: 1,
-      scale: 0.075,
-      strokeColor: Color.WHITE,
-      strokeWeight: 2.5,
-      anchor: new google.maps.Point(80, 510),
-      labelOrigin: new google.maps.Point(255, -80),
-      rotation: 0
-    };
+    // Use default google marker
+    return null;
   };
 
   getLabel(markerType?: MarkerType): string | MarkerLabel {

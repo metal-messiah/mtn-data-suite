@@ -97,9 +97,9 @@ export class StoreAttrSelectionDialogComponent implements OnInit {
     this.merging = true;
     this.storeService.mergeStores(this.mergedStore, this.data.selectedStores.map(st => st.id))
       .pipe(finalize(() => this.merging = false))
-      .subscribe(() => {
+      .subscribe((store: Store) => {
           this.snackBar.open('Successfully merged', null, {duration: 2000});
-          this.dialogRef.close();
+          this.dialogRef.close(store);
         },
         err => this.errorService.handleServerError('Failed to merge!', err, () => console.log(err))
       );
