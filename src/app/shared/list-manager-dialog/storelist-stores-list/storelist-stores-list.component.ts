@@ -1,11 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
-import { StoreService } from 'app/core/services/store.service';
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
 import { StoreListService } from 'app/core/services/store-list.service';
 import { StoreList } from 'app/models/full/store-list';
 import { MatDialog } from '@angular/material';
-import { ListManagerDialogComponent } from '../list-manager-dialog.component';
 import { ListManagerService } from '../list-manager.service';
 import { MapService } from 'app/core/services/map.service';
 
@@ -17,15 +15,20 @@ import { MapService } from 'app/core/services/map.service';
 export class StorelistStoresListComponent implements OnInit {
   storeList: StoreList;
 
+  loadingConstraint = 100;
+  storesForRender: SimplifiedStore[] = [];
+
+  @ViewChild('listOfStores') listOfStores;
+
   constructor(
     private listManagerService: ListManagerService,
     private storeListService: StoreListService,
     protected dialog: MatDialog,
     private mapService: MapService
-    
-  ) {}
 
-  ngOnInit() {}
+  ) { }
+
+  ngOnInit() { }
 
   get selectedStoreList(): StoreList {
     return this.storeList;
@@ -37,6 +40,7 @@ export class StorelistStoresListComponent implements OnInit {
       .getOneById(storeList.id)
       .subscribe((fullStoreList: StoreList) => {
         this.storeList = fullStoreList;
+        this.updateStoresForRender();
       });
   }
 
@@ -57,4 +61,21 @@ export class StorelistStoresListComponent implements OnInit {
       lng: store.site.longitude
     });
   }
+
+  updateStoresForRender() {
+    const index = this.storesForRender.length;
+    if (index < this.storeList.stores.length) {
+      const additionalRenders = this.storeList.stores.slice(index, index + this.loadingConstraint);
+      this.storesForRender = this.storesForRender.concat(additionalRenders);
+    }
+  }
+
+  reachedBottom(e) {
+    const elem = document.getElementById('listOfStores');
+    if (elem.offsetHeight + elem.scrollTop >= elem.scrollHeight) {
+      this.updateStoresForRender()
+    }
+  }
+
+
 }

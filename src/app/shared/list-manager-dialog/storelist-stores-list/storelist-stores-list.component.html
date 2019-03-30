@@ -1,5 +1,6 @@
-<mat-list id="included" *ngIf="storeList">
-    <mat-list-item *ngFor="let store of storeList.stores">
+<mat-progress-bar mode="indeterminate" *ngIf="!storeList"></mat-progress-bar>
+<mat-list #listOfStores id="listOfStores" (scroll)="reachedBottom()" *ngIf="storesForRender.length">
+    <mat-list-item *ngFor="let store of storesForRender">
         <h3 matLine><b>{{store.storeName}} ({{store.banner ? store.banner.bannerName : ''}} #{{store.id}})</b></h3>
         <p matLine>
             <span>{{store.site.address1}} • {{store.site.city}} • {{store.site.state}}</span>
