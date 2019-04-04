@@ -17,7 +17,7 @@ export class BannerService extends CrudService<Banner> {
   }
   public getAllByQuery(query: string, pageNumber?: number): Observable<Pageable<SimplifiedBanner>> {
     const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams();
+    let params = new HttpParams().set('sort', 'bannerName');
     if (query != null && query.length > 0) {
       params = params.set('query', query);
     }

@@ -21,7 +21,7 @@ export class ProjectService extends CrudService<Project> {
   public getAllByQuery(projectQuery: string, active: boolean, primaryData:
     boolean, pageNumber?: number): Observable<Pageable<Project>> {
     const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams();
+    let params = new HttpParams().set('sort', 'projectName');
     if (projectQuery != null && projectQuery.length > 0) {
       params = params.set('query', projectQuery);
     }
