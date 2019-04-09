@@ -1,0 +1,17 @@
+.store-sidenav{
+    background: white;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.main-menu{
+    display: flex;
+    flex-direction: column;
+}
+
+.main-menu > button{
+    margin: 10px 0;
+}

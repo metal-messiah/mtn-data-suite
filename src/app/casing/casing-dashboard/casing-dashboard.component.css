@@ -87,3 +87,52 @@ mat-slider {
   width: 210px;
   margin: 0 20px;
 }
+
+.center-content{
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+mds-store-sidenav{
+  height: 100%;
+  position: relative;
+  transition: all 0.5s ease-in-out;
+}
+
+mds-store-sidenav::after{
+  font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f54e";
+    position: absolute;
+    right: -35px;
+    top: calc(50% - 50px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999999;
+    width: 35px;
+    height: 100px;
+    background: white;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+}
+
+.sidenav-show{
+  width: 30%;
+}
+
+.sidenav-hide{
+  width: 0%;
+}
+
+@media (max-width: 600px){
+  mds-store-sidenav{
+    height: 100%;
+  }
+
+  .sidenav-show{
+    width: calc(100% - 35px);
+  }
+}

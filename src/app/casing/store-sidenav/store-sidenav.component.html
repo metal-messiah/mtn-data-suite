@@ -1,0 +1,8 @@
+<div class="store-sidenav">
+  <div class="main-menu">
+    <button mat-flat-button (click)="setPage(pages.STORESONMAP)">List The Stores On The Map</button>
+    <button mat-flat-button (click)="setPage(pages.MYLISTS)">Manage My Lists Of Stores</button>
+    <button mat-flat-button (click)="setPage(pages.SEARCH)" disabled>Search For Stores</button>
+  </div>
+  <mds-list-manager *ngIf="isPage(pages.MYLISTS)"></mds-list-manager>
+</div>

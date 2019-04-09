@@ -37,6 +37,8 @@ import { InfoCardDirective } from './info-card.directive';
 import { InfoCardComponent } from './info-card/info-card.component';
 import { DbLocationInfoCardComponent } from '../shared/db-location-info-card/db-location-info-card.component';
 import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-card.component';
+import { StoreSidenavComponent } from './store-sidenav/store-sidenav.component';
+
 
 @NgModule({
   imports: [
@@ -76,7 +78,8 @@ import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-
     StoreAttrSelectionDialogComponent,
     SelectBannerComponent,
     InfoCardDirective,
-    InfoCardComponent
+    InfoCardComponent,
+    StoreSidenavComponent
   ],
   entryComponents: [
     AccessListDialogComponent,
@@ -98,7 +101,8 @@ import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-
     StoreAttrSelectionDialogComponent,
     SelectBannerComponent,
     DbLocationInfoCardComponent,
-    GoogleInfoCardComponent
+    GoogleInfoCardComponent,
+    StoreSidenavComponent
   ],
   providers: [CasingDashboardService]
 })

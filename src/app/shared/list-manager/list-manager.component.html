@@ -1,0 +1,112 @@
+<div class="list-manager">
+    <!-- TOP TITLE OF DIALOG -->
+    <h1 mat-dialog-title *ngIf="isPage(pages.LISTMANAGER)">List Manager</h1>
+    <h1 mat-dialog-title *ngIf="isPage(pages.ADDSTORES)">Add {{getStoreTitle()}} To Lists</h1>
+    <h1 mat-dialog-title *ngIf="isPage(pages.VIEWSTORES) && selectedStoreList">{{selectedStoreList.storeCount | number}}
+        Stores in {{selectedStoreList.storeListName}}</h1>
+    <h1 mat-dialog-title *ngIf="isPage(pages.VIEWSUBSCRIBERS) && selectedStoreList">
+        {{selectedStoreList.subscribers.length | number}} Subscribers For {{selectedStoreList.storeListName}}</h1>
+
+    <div mat-dialog-content>
+        <!-- LISTMANAGER (INITIAL) VIEW -->
+        <div *ngIf="isPage(pages.LISTMANAGER)">
+
+            <!-- TOP BUTTON -->
+            <button mat-flat-button class="add-store-button" (click)="setPage(pages.ADDSTORES)" *ngIf="stores.length">
+                Add {{getStoreTitle()}} To Lists
+            </button>
+
+            <mat-progress-bar mode="indeterminate" *ngIf="fetching"></mat-progress-bar>
+
+            <!-- IF NO STORES!!! -->
+            <!-- INPUT FOR NEW LISTS -->
+            <mat-form-field *ngIf="!stores.length && !fetching" style="width: 100%;">
+                <input #newListName matInput type="text" placeholder="New List Name">
+                <button [disabled]="!newListName.value" matSuffix mat-flat-button
+                    (click)="createNewList(newListName.value)">Create New List</button>
+            </mat-form-field>
+
+            <!-- TITLE FOR LIST OF LISTS -->
+            <div *ngIf="!fetching">
+                <h3 class="mat-h3 mat-subheading-2" *ngIf="includedStoreLists.length && stores.length">
+                    Lists Containing {{getStoreTitle()}}</h3>
+                <h3 class="mat-h3 mat-subheading-2" *ngIf="!includedStoreLists.length && stores.length">
+                    No Lists Found Containing {{getStoreTitle()}}</h3>
+                <h3 class="mat-h3 mat-subheading-2" *ngIf="allStoreLists.length && !stores.length">All Lists</h3>
+                <h3 class="mat-h3 mat-subheading-2" *ngIf="!allStoreLists.length && !stores.length">No Lists Found</h3>
+            </div>
+
+            <!-- LIST OF LISTS (THAT STORE IS MEMBER OF) -->
+            <mat-list id="included" *ngIf="stores.length && includedStoreLists.length && !fetching">
+                <mds-storelist-list-item [listItemId]="'included_' + storeList.id" [storeList]="storeList"
+                    [stores]="stores" *ngFor="let storeList of includedStoreLists"></mds-storelist-list-item>
+            </mat-list>
+
+
+
+            <!-- LIST OF ALL LISTS (SHOWS IF NO STORES ARE PASSED TO DIALOG) -->
+            <mat-list id="included" *ngIf="!stores.length && allStoreLists.length && !fetching">
+                <mds-storelist-list-item [listItemId]="'all_' + storeList.id" [storeList]="storeList" [stores]="stores"
+                    *ngFor="let storeList of allStoreLists"></mds-storelist-list-item>
+            </mat-list>
+        </div>
+
+        <!-- ADD STORES VIEW -->
+        <div *ngIf="isPage(pages.ADDSTORES)">
+
+            <!-- INPUT FOR NEW LISTS -->
+            <mat-form-field style="width: 100%;">
+                <input #newListName matInput type="text" placeholder="New List Name">
+                <button [disabled]="!newListName.value" matSuffix mat-flat-button
+                    (click)="createNewStoreList(newListName.value)">Create New List</button>
+            </mat-form-field>
+
+            <!-- LIST OF EXISTING LISTS (THAT STORE ISNT PART OF) -->
+            <mat-selection-list #selectionList class="excluded">
+                <mat-list-option [id]="'excluded_' + storeList.id" [value]="storeList"
+                    *ngFor="let storeList of excludedStoreLists">
+                    <h3 matLine><b>{{storeList.storeListName}}</b></h3>
+                    <p matLine>
+                        <span>{{storeList.storeCount | number}} Stores</span>
+                        <span>{{storeList.subscriberCount | number}} Subscribers</span>
+                </mat-list-option>
+            </mat-selection-list>
+        </div>
+
+
+        <!-- VIEW STORES VIEW -->
+        <div *ngIf="isPage(pages.VIEWSTORES)">
+            <!-- LIST OF ALL STORES IN SELECTED LIST -->
+            <mds-storelist-stores-list [selectedStoreList]="selectedStoreList"></mds-storelist-stores-list>
+        </div>
+
+
+        <!-- VIEW SUBSCRIBERS VIEW -->
+        <div *ngIf="isPage(pages.VIEWSUBSCRIBERS)">
+            <!-- LIST OF ALL SUBSCRIBERS IN SELECTED LIST -->
+            <mds-storelist-subscribers-list [storeList]="selectedStoreList"></mds-storelist-subscribers-list>
+        </div>
+    </div>
+
+    <div mat-dialog-actions>
+        <!-- LISTMANAGER VIEW -->
+        <button *ngIf="isPage(pages.LISTMANAGER)" color="primary" mat-raised-button mat-dialog-close>Close</button>
+        <button *ngIf="isPage(pages.LISTMANAGER) && stores.length" color="accent" mat-raised-button
+            (click)="clearStores()">View All Lists</button>
+
+        <!-- ADD STORES VIEW -->
+        <button *ngIf="isPage(pages.ADDSTORES)" color="primary" mat-raised-button
+            (click)="setPage(pages.LISTMANAGER)">Cancel</button>
+        <button *ngIf="isPage(pages.ADDSTORES)" color="accent" mat-raised-button (click)="addToList()">Save</button>
+
+        <!-- VIEW STORES VIEW -->
+        <button *ngIf="isPage(pages.VIEWSTORES)" color="primary" mat-raised-button mat-dialog-close>Close</button>
+        <button *ngIf="isPage(pages.VIEWSTORES)" color="accent" mat-raised-button
+            (click)="setPage(pages.LISTMANAGER)">Go Back</button>
+
+        <!-- VIEW STORES VIEW -->
+        <button *ngIf="isPage(pages.VIEWSUBSCRIBERS)" color="primary" mat-raised-button mat-dialog-close>Close</button>
+        <button *ngIf="isPage(pages.VIEWSUBSCRIBERS)" color="accent" mat-raised-button
+            (click)="setPage(pages.LISTMANAGER)">Go Back</button>
+    </div>
+</div>

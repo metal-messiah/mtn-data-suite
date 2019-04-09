@@ -22,14 +22,14 @@ import { TabSelectDialogComponent } from './file-input/tab-select-dialog/tab-sel
 import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
 import { GoogleInfoCardComponent } from './google-info-card/google-info-card.component';
 import { FuzzySearchComponent } from './fuzzy-search/fuzzy-search.component';
-import { ListManagerDialogComponent } from './list-manager-dialog/list-manager-dialog.component';
-import { StorelistListItemComponent } from './list-manager-dialog/storelist-list-item/storelist-list-item.component';
-import { StorelistStoresListComponent } from './list-manager-dialog/storelist-stores-list/storelist-stores-list.component';
-import { ListManagerModule } from './list-manager-dialog/list-manager.module';
-import { StorelistSubscribersListComponent } from './list-manager-dialog/storelist-subscribers-list/storelist-subscribers-list.component';
+// import { ListManagerComponent } from './list-manager/list-manager.component';
+// import { StorelistListItemComponent } from './list-manager/storelist-list-item/storelist-list-item.component';
+// import { StorelistStoresListComponent } from './list-manager/storelist-stores-list/storelist-stores-list.component';
+import { ListManagerModule } from './list-manager/list-manager.module';
+// import { StorelistSubscribersListComponent } from './list-manager/storelist-subscribers-list/storelist-subscribers-list.component';
 
 @NgModule({
-  imports: [CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule, ListManagerModule],
   declarations: [
     AppInfoDialogComponent,
     CallbackComponent,
@@ -42,14 +42,14 @@ import { StorelistSubscribersListComponent } from './list-manager-dialog/storeli
     FuzzySearchComponent,
     FuzzySearchComponent,
     GoogleInfoCardComponent,
-    ListManagerDialogComponent,
+    // ListManagerComponent,
     LogoMenuComponent,
     MapComponent,
     NewProjectNameComponent,
     PathNotFoundComponent,
-    StorelistListItemComponent,
-    StorelistStoresListComponent,
-    StorelistSubscribersListComponent,
+    // StorelistListItemComponent,
+    // StorelistStoresListComponent,
+    // StorelistSubscribersListComponent,
     TabSelectDialogComponent,
     ThousandsCurrencyPipe,
     UserProfileSelectComponent
@@ -64,7 +64,7 @@ import { StorelistSubscribersListComponent } from './list-manager-dialog/storeli
     ConfirmDialogComponent,
     DataFieldInfoDialogComponent,
     ErrorDialogComponent,
-    ListManagerDialogComponent,
+    // ListManagerComponent,
     NewProjectNameComponent,
     TabSelectDialogComponent,
     UserProfileSelectComponent

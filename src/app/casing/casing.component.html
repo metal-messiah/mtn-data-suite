@@ -5,11 +5,11 @@
   </div>
   <div class="project-button-container">
     <button class="project-button" mat-raised-button color="warn" *ngIf="!casingDashboardService.getSelectedProject()"
-            (click)="casingDashboardService.openProjectSelectionDialog()">
+      (click)="casingDashboardService.openProjectSelectionDialog()">
       Select Project
     </button>
     <button class="project-button" mat-raised-button color="accent" *ngIf="casingDashboardService.getSelectedProject()"
-            [mat-menu-trigger-for]="projectMenu">
+      [mat-menu-trigger-for]="projectMenu">
       {{casingDashboardService.getSelectedProject().projectName}}
     </button>
   </div>
