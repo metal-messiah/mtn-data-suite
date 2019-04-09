@@ -33,6 +33,13 @@ import { SiteMergeDialogComponent } from './site-merge-dialog/site-merge-dialog.
 import { StoreSelectionDialogComponent } from './store-merge/store-selection-dialog/store-selection-dialog.component';
 import { StoreAttrSelectionDialogComponent } from './store-merge/store-attr-selection-dialog/store-attr-selection-dialog.component';
 import { SelectBannerComponent } from './select-banner/select-banner.component';
+import { InfoCardDirective } from './info-card.directive';
+import { InfoCardComponent } from './info-card/info-card.component';
+import { DbLocationInfoCardComponent } from '../shared/db-location-info-card/db-location-info-card.component';
+import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-card.component';
+import { StoreSidenavComponent } from './store-sidenav/store-sidenav.component';
+import { StorageService } from 'app/core/services/storage.service';
+
 
 @NgModule({
   imports: [
@@ -70,7 +77,10 @@ import { SelectBannerComponent } from './select-banner/select-banner.component';
     SiteMergeDialogComponent,
     StoreSelectionDialogComponent,
     StoreAttrSelectionDialogComponent,
-    SelectBannerComponent
+    SelectBannerComponent,
+    InfoCardDirective,
+    InfoCardComponent,
+    StoreSidenavComponent
   ],
   entryComponents: [
     AccessListDialogComponent,
@@ -90,9 +100,12 @@ import { SelectBannerComponent } from './select-banner/select-banner.component';
     SiteMergeDialogComponent,
     StoreSelectionDialogComponent,
     StoreAttrSelectionDialogComponent,
-    SelectBannerComponent
+    SelectBannerComponent,
+    DbLocationInfoCardComponent,
+    GoogleInfoCardComponent,
+    StoreSidenavComponent
   ],
-  providers: [CasingDashboardService]
+  providers: [CasingDashboardService, StorageService]
 })
 export class CasingModule {
 }

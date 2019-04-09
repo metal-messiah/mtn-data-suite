@@ -8,7 +8,7 @@ import { StorageService } from 'app/core/services/storage.service';
 @Component({
     selector: 'mds-load',
     templateUrl: './load.component.html',
-    styleUrls: [ './load.component.css' ]
+    styleUrls: ['./load.component.css']
 })
 export class LoadComponent implements OnInit {
     file: File;
@@ -37,7 +37,7 @@ export class LoadComponent implements OnInit {
         dialogRef.disableClose = true;
     }
 
-    ngOnInit() {}
+    ngOnInit() { }
 
     close(): void {
         this.dialogRef.close();
@@ -52,16 +52,14 @@ export class LoadComponent implements OnInit {
 
             this.storageService
                 .import(this.localStorageKey, storageItem, true, this.getNewProjectId())
-                .then((success) => {
+                .subscribe((success) => {
                     // we imported it to local memory, now we need to update the list of stored projects with it
-                    this.storageService.getOne(this.localStorageKey).then((item) => {
+                    this.storageService.getOne(this.localStorageKey).subscribe((item) => {
                         this.storedProjects = item ? item : {};
                         this.showProjects();
                     });
                 })
-                .catch((err) => {
-                    this.snackBar.open('Could not load any stored projects! :(', null, { duration: 5000 });
-                });
+
         } else {
             // read as spreadsheet
             const fields = this.spreadsheetService.getFields(file.fileOutput);
@@ -82,7 +80,7 @@ export class LoadComponent implements OnInit {
         );
         if (answer) {
             delete this.storedProjects[id];
-            this.storageService.set(this.localStorageKey, this.storedProjects).then((r) => {
+            this.storageService.set(this.localStorageKey, this.storedProjects).subscribe((r) => {
                 this.snackBar.open('Deleted Stored Item', null, { duration: 2000 });
             });
         }
