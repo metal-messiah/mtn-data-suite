@@ -38,6 +38,7 @@ import { InfoCardComponent } from './info-card/info-card.component';
 import { DbLocationInfoCardComponent } from '../shared/db-location-info-card/db-location-info-card.component';
 import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-card.component';
 import { StoreSidenavComponent } from './store-sidenav/store-sidenav.component';
+import { StorageService } from 'app/core/services/storage.service';
 
 
 @NgModule({
@@ -104,7 +105,7 @@ import { StoreSidenavComponent } from './store-sidenav/store-sidenav.component';
     GoogleInfoCardComponent,
     StoreSidenavComponent
   ],
-  providers: [CasingDashboardService]
+  providers: [CasingDashboardService, StorageService]
 })
 export class CasingModule {
 }

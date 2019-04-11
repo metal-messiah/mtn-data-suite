@@ -12,6 +12,10 @@ export class CasingDashboardService {
 
   private selectedProject: SimplifiedProject;
 
+  // sidenav
+  private shouldOpenInfoCard = true;
+  public readonly programmaticSelectionChanged$ = new Subject<{ storeId: number, siteId: number }>();
+
   constructor(private dialog: MatDialog) {
     const selectedProject = JSON.parse(localStorage.getItem('selectedProject'));
     if (selectedProject != null) {
@@ -21,7 +25,7 @@ export class CasingDashboardService {
   }
 
   openProjectSelectionDialog(): void {
-    const dialogRef = this.dialog.open(SelectProjectComponent, {maxWidth: '90%'});
+    const dialogRef = this.dialog.open(SelectProjectComponent, { maxWidth: '90%' });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'clear') {
@@ -50,4 +54,15 @@ export class CasingDashboardService {
     return this.selectedProject;
   }
 
+  setShouldOpenInfoCard(shouldOpen: boolean) {
+    this.shouldOpenInfoCard = shouldOpen;
+  }
+
+  getShouldOpenInfoCard(): boolean {
+    return this.shouldOpenInfoCard
+  }
+
+  public selectItemProgrammatically(siteId, storeId) {
+    this.programmaticSelectionChanged$.next({ siteId, storeId })
+  }
 }

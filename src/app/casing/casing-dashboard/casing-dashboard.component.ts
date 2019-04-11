@@ -46,6 +46,7 @@ import { DbEntityInfoCardItem } from '../db-entity-info-card-item';
 import { InfoCardItem } from '../info-card-item';
 import { GoogleInfoCardItem } from '../google-info-card-item';
 import { ListManagerDialogComponent } from '../../shared/list-manager-dialog/list-manager-dialog.component';
+import { StorageService } from 'app/core/services/storage.service';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -69,7 +70,10 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   updating = false;
   markCasedStores = false;
   savingBoundary = false;
-  showStoreLists = true;
+
+  // sidenav
+  showStoreLists: boolean;
+  storeListsStorageKey = 'showStoreLists';
 
   // Modes
   selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
@@ -91,6 +95,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   movingSite: Site;
 
+  visibleStores: SimplifiedStore[];
+
+  isMobile: boolean;
+  isTooNarrow: boolean;
+
   constructor(public mapService: MapService,
     public dbEntityMarkerService: DbEntityMarkerService,
     public geocoderService: GeocoderService,
@@ -107,11 +116,26 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private errorService: ErrorService,
     public entitySelectionService: EntitySelectionService,
-    public projectBoundaryService: ProjectBoundaryService) {
+    public projectBoundaryService: ProjectBoundaryService,
+    private storageService: StorageService) {
   }
 
   ngOnInit() {
     this.markCasedStores = (localStorage.getItem('markCasedStores') === 'true');
+
+    this.storageService.getOne(this.storeListsStorageKey).subscribe((shouldShow) => {
+      if (shouldShow === undefined) {
+        this.storageService.set(this.storeListsStorageKey, false).subscribe((resp: boolean) => {
+          this.showStoreLists = resp;
+        })
+      } else {
+        this.showStoreLists = shouldShow;
+      }
+    })
+
+    this.isMobile = this.checkMobile();
+    this.isTooNarrow = this.checkTooNarrow();
+
   }
 
   ngOnDestroy() {
@@ -119,17 +143,37 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.dbEntityMarkerService.onDestroy();
   }
 
+  checkMobile() {
+    return (typeof window.orientation !== 'undefined') || (navigator.userAgent.indexOf('IEMobile') !== -1);
+  }
+
+  checkTooNarrow() {
+    const body: HTMLElement = document.querySelector('body');
+    return body.offsetWidth < 700;
+  }
+
   onMapReady() {
     this.dbEntityMarkerService.initMap(this.mapService.getMap(), selection => {
       if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
-        this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,
-          this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
+        if (this.casingDashboardService.getShouldOpenInfoCard()) {
+          this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,
+            this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
+        }
       } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
         this.onDuplicateSiteSelected(selection.siteId);
       }
     });
 
     console.log(`Map is ready`);
+
+
+    this.subscriptions.push(this.casingDashboardService.programmaticSelectionChanged$.subscribe(selection => {
+      this.isMobile = this.checkMobile();
+      this.isTooNarrow = this.checkTooNarrow();
+
+      this.openInfoCardFromSidenav(selection.storeId, selection.siteId);
+    }))
+
     this.subscriptions.push(this.initiateDuplicateSelection$.subscribe(siteId => {
       // Change the mode (should disables all other user interactions that might conflict)
       this.selectedDashboardMode = CasingDashboardMode.DUPLICATE_SELECTION;
@@ -180,6 +224,13 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     // Check Project boundary service to see if boundary should be showing, if so, show it anew
     if (this.projectBoundaryService.isShowingBoundary()) {
       this.projectBoundaryService.showProjectBoundaries().subscribe();
+    }
+  }
+
+  openInfoCardFromSidenav(storeId, siteId) {
+    if (this.casingDashboardService.getShouldOpenInfoCard()) {
+      this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, { storeId, siteId },
+        this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
     }
   }
 
@@ -385,7 +436,9 @@ Multi-select
         if (this.googlePlacesLayer == null) {
           this.googlePlacesLayer = new GooglePlaceLayer(this.mapService);
           this.googlePlacesLayer.markerClick$.subscribe((googlePlace: GooglePlace) => {
-            this.infoCard = new GoogleInfoCardItem(GoogleInfoCardComponent, googlePlace);
+            if (this.casingDashboardService.getShouldOpenInfoCard()) {
+              this.infoCard = new GoogleInfoCardItem(GoogleInfoCardComponent, googlePlace);
+            }
           });
         }
 
@@ -588,6 +641,10 @@ Assigning
 
   toggleStoreLists() {
     this.showStoreLists = !this.showStoreLists;
+    this.storageService.set(this.storeListsStorageKey, this.showStoreLists);
+
+    // this.casingDashboardService.setShouldOpenInfoCard(!this.showStoreLists)
+
   }
 
   handleSidenavClick(e: MouseEvent) {

@@ -6,17 +6,26 @@ mds-map {
   height: inherit;
 }
 
-.infoCardContainer {
+/* .infoCardContainer {
   position: absolute;
   pointer-events: all;
   max-width: 300px;
   left: 5px;
   bottom: 60px;
+} */
+
+.infoCardContainer{
+  position: absolute;
+    pointer-events: all;
+    max-width: 300px;
+    bottom: 70px;
+    z-index: 9999;
+    right: 75px;
 }
 
 @media (min-width: 600px) {
   .infoCardContainer {
-    bottom: 70px;
+    bottom: 60px;
     justify-content: left;
     padding-left: 5px;
     padding-bottom: 30px;
@@ -99,6 +108,9 @@ mds-store-sidenav{
   height: 100%;
   position: relative;
   transition: all 0.5s ease-in-out;
+  
+  /* padding: 0 10px; */
+  background: white;
 }
 
 mds-store-sidenav::after{
@@ -120,19 +132,28 @@ mds-store-sidenav::after{
 }
 
 .sidenav-show{
-  width: 30%;
+  width: 400px;
 }
 
 .sidenav-hide{
-  width: 0%;
+  width: 0;
 }
 
 @media (max-width: 600px){
   mds-store-sidenav{
     height: 100%;
+    position: absolute;
+    z-index: 9999;
+    height: calc(100vh - 112px);
+    left: 0;
   }
 
   .sidenav-show{
     width: calc(100% - 35px);
+    
   }
+}
+
+.invisible{
+  opacity: 0.25;
 }

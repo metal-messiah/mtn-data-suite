@@ -22,11 +22,13 @@ import { TabSelectDialogComponent } from './file-input/tab-select-dialog/tab-sel
 import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
 import { GoogleInfoCardComponent } from './google-info-card/google-info-card.component';
 import { FuzzySearchComponent } from './fuzzy-search/fuzzy-search.component';
-// import { ListManagerComponent } from './list-manager/list-manager.component';
-// import { StorelistListItemComponent } from './list-manager/storelist-list-item/storelist-list-item.component';
-// import { StorelistStoresListComponent } from './list-manager/storelist-stores-list/storelist-stores-list.component';
 import { ListManagerModule } from './list-manager/list-manager.module';
-// import { StorelistSubscribersListComponent } from './list-manager/storelist-subscribers-list/storelist-subscribers-list.component';
+import { ListManagerService } from './list-manager/list-manager.service';
+import { ListManagerComponent } from './list-manager/list-manager.component';
+import { StorelistListItemComponent } from './list-manager/storelist-list-item/storelist-list-item.component';
+import { StorelistSubscribersListComponent } from './list-manager/storelist-subscribers-list/storelist-subscribers-list.component';
+import { StorelistStoresListComponent } from './list-manager/storelist-stores-list/storelist-stores-list.component';
+import { StoresListComponent } from './stores-list/stores-list.component';
 
 @NgModule({
   imports: [CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule, ListManagerModule],
@@ -42,29 +44,31 @@ import { ListManagerModule } from './list-manager/list-manager.module';
     FuzzySearchComponent,
     FuzzySearchComponent,
     GoogleInfoCardComponent,
-    // ListManagerComponent,
+    ListManagerComponent,
     LogoMenuComponent,
     MapComponent,
     NewProjectNameComponent,
     PathNotFoundComponent,
-    // StorelistListItemComponent,
-    // StorelistStoresListComponent,
-    // StorelistSubscribersListComponent,
+    StorelistListItemComponent,
+    StorelistStoresListComponent,
+    StorelistSubscribersListComponent,
     TabSelectDialogComponent,
     ThousandsCurrencyPipe,
-    UserProfileSelectComponent
+    UserProfileSelectComponent,
+    StoresListComponent
   ],
   providers: [
     BreakpointObserver,
     DatePipe,
-    MediaMatcher
+    MediaMatcher,
+    ListManagerService
   ],
   entryComponents: [
     AppInfoDialogComponent,
     ConfirmDialogComponent,
     DataFieldInfoDialogComponent,
     ErrorDialogComponent,
-    // ListManagerComponent,
+    ListManagerComponent,
     NewProjectNameComponent,
     TabSelectDialogComponent,
     UserProfileSelectComponent
@@ -86,7 +90,13 @@ import { ListManagerModule } from './list-manager/list-manager.module';
     MapComponent,
     PathNotFoundComponent,
     ReactiveFormsModule,
-    ThousandsCurrencyPipe
+    ThousandsCurrencyPipe,
+    CustomMaterialModule,
+    ListManagerComponent,
+    StorelistListItemComponent,
+    StorelistSubscribersListComponent,
+    StorelistStoresListComponent,
+    StoresListComponent
   ]
 })
 export class SharedModule {

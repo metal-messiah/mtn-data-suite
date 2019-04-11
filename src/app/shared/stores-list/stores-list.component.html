@@ -1,0 +1,40 @@
+<mat-progress-bar mode="indeterminate" *ngIf="!items.length"></mat-progress-bar>
+<div #listOfStores class="list-of-items" id="listOfStores" (scroll)="reachedBottom()"
+  *ngIf="items.length && items[0].address1">
+  <div *ngFor="let item of items">
+
+    <div class="site">
+      <div class="site-info">
+        <div>{{item.address1}}, {{item.city}}, {{item.state}}</div>
+      </div>
+      <div class="store-info">
+        <div (click)="select(item, store)" class="store-info-item" *ngFor="let store of item.stores">
+          <div class="store">
+            <div class="store-descriptions">
+              <div>{{store.storeName}}</div>
+              <div>{{store.storeType}}</div>
+            </div>
+
+            <img class="store-logo" *ngIf="store.logoFileName" [src]="getLogoPath(store.logoFileName)" />
+          </div>
+          <!-- OPTIONS MENU FOR EACH STORE -->
+          <!-- <button class='menu-icon-button' mat-icon-button color="primary" [mat-menu-trigger-for]="siteMenu">
+            <i class="site-menu fas fa-ellipsis-v"></i>
+          </button>
+
+          <mat-menu #siteMenu="matMenu">
+            <button mat-menu-item (click)="select(item, store)">
+              <i class="fas fa-map-marked-alt"></i>
+              <span>Select</span>
+            </button>
+          </mat-menu> -->
+        </div>
+
+
+      </div>
+    </div>
+
+
+
+  </div>
+</div>

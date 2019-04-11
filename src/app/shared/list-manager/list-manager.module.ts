@@ -16,8 +16,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     RouterModule,
     ReactiveFormsModule
   ],
-  declarations: [ListManagerComponent, StorelistListItemComponent, StorelistSubscribersListComponent, StorelistStoresListComponent],
+  declarations: [],
   providers: [ListManagerService],
-  exports: [CustomMaterialModule, ListManagerComponent, StorelistListItemComponent, StorelistSubscribersListComponent, StorelistStoresListComponent]
+  exports: []
 })
 export class ListManagerModule { }

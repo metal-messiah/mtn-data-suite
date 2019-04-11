@@ -34,7 +34,7 @@ import { AutomatchDialogComponent } from './automatch-dialog/automatch-dialog.co
 @Component({
     selector: 'mds-spreadsheet',
     templateUrl: './spreadsheet.component.html',
-    styleUrls: [ './spreadsheet.component.css' ],
+    styleUrls: ['./spreadsheet.component.css'],
     providers: []
 })
 export class SpreadsheetComponent implements OnInit {
@@ -49,7 +49,7 @@ export class SpreadsheetComponent implements OnInit {
 
     currentDBSiteResults: SimplifiedSite[];
 
-    readonly storeTypes: string[] = [ 'ACTIVE', 'FUTURE', 'HISTORICAL' ];
+    readonly storeTypes: string[] = ['ACTIVE', 'FUTURE', 'HISTORICAL'];
 
     gettingEntities = false;
 
@@ -305,7 +305,7 @@ export class SpreadsheetComponent implements OnInit {
             this.mapDataLayer.clearDataPoints();
             this.gettingEntities = true;
             this.getStoresInBounds(bounds).pipe(finalize(() => (this.gettingEntities = false))).subscribe(
-                () => {},
+                () => { },
                 (err) => {
                     this.ngZone.run(() => {
                         this.errorService.handleServerError(`Failed to retrieve entities!`, err, () =>
@@ -525,11 +525,11 @@ export class SpreadsheetComponent implements OnInit {
         return new Promise((resolve, reject) => {
             this.storageService
                 .getOne(this.storageKey)
-                .then((r) => {
+                .subscribe((r) => {
                     this.storedProjects = r ? r : {};
                     return resolve();
                 })
-                .catch((err) => reject(err));
+            // .catch((err) => reject(err));
         });
     }
 
@@ -577,11 +577,11 @@ export class SpreadsheetComponent implements OnInit {
     saveStoredProjects(): void {
         this.storageService
             .set(this.storageKey, this.storedProjects)
-            .then((r) => {
+            .subscribe((r) => {
                 this.snackBar.open('Saved Progress', null, { duration: 1000 });
             })
-            .catch((err) => {
-                this.snackBar.open('Failed to Save Progress!!', null, { duration: 5000 });
-            });
+        // .catch((err) => {
+        //     this.snackBar.open('Failed to Save Progress!!', null, { duration: 5000 });
+        // });
     }
 }

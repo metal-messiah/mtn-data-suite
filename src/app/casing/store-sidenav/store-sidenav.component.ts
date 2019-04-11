@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { Pages } from './store-sidenave-pages';
+import { Component, OnInit, Input } from '@angular/core';
+import { StorageService } from 'app/core/services/storage.service';
+import { Pages } from './store-sidenav-pages';
+import { StoreSidenavService } from './store-sidenav.service';
+import { SimplifiedStore } from 'app/models/simplified/simplified-store';
 
 
 @Component({
@@ -8,20 +11,25 @@ import { Pages } from './store-sidenave-pages';
   styleUrls: ['./store-sidenav.component.css']
 })
 export class StoreSidenavComponent implements OnInit {
-  pages = Pages;
-  currentPage: Pages = null;
 
-  constructor() { }
+  pages = Pages;
+
+  @Input() expanded: boolean;
+
+  constructor(private storeSidenavService: StoreSidenavService) { }
 
   ngOnInit() {
+
+
+
   }
 
   isPage(page: Pages) {
-    return (this.currentPage === page);
+    return (this.storeSidenavService.currentPage === page);
   }
 
   setPage(page: Pages) {
-    this.currentPage = page;
+    this.storeSidenavService.setPage(page);
   }
 
 }

@@ -54,13 +54,13 @@
   <mat-sidenav-content>
     <div class="box">
       <div class="center-content">
-        <mds-store-sidenav id="store-sidenav"
-          [ngClass]="{'sidenav-hide': !showStoreLists, 'sidenav-show':showStoreLists}"
+        <mds-store-sidenav id="store-sidenav" [expanded]="showStoreLists"
+          [ngClass]="{'sidenav-hide': !showStoreLists, 'sidenav-show':showStoreLists, 'invisible': (infoCard && isTooNarrow)}"
           (click)="handleSidenavClick($event)">
         </mds-store-sidenav>
         <mds-map #casingMap class="row content" (ready)="onMapReady()"></mds-map>
       </div>
-      <mds-info-card *ngIf="infoCard" class="infoCardContainer" [infoCard]="infoCard"
+      <mds-info-card id="infoCardElement" *ngIf="infoCard" class="infoCardContainer" [infoCard]="infoCard"
         [disabled]="selectedDashboardMode !== casingDashboardMode.DEFAULT">
       </mds-info-card>
       <div class="row footer">

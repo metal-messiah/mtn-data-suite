@@ -9,6 +9,7 @@ import { ListManagerService } from './list-manager.service';
 import { Pages } from './list-manager-pages';
 import { Subscription } from 'rxjs';
 import { MapService } from 'app/core/services/map.service';
+import { StoreSidenavService } from 'app/casing/store-sidenav/store-sidenav.service';
 
 @Component({
     selector: 'mds-list-manager',
@@ -37,7 +38,8 @@ export class ListManagerComponent implements OnInit, OnDestroy {
     constructor(
         private listManagerService: ListManagerService,
         private errorService: ErrorService,
-        public snackBar: MatSnackBar
+        public snackBar: MatSnackBar,
+        private storeSidenavService: StoreSidenavService
     ) {
         console.log('set stores')
         this.listManagerService.setStores([]);
@@ -159,5 +161,9 @@ export class ListManagerComponent implements OnInit, OnDestroy {
 
     clearStores() {
         this.listManagerService.setStores([]);
+    }
+
+    closeListManager() {
+        this.storeSidenavService.setPage(null);
     }
 }
