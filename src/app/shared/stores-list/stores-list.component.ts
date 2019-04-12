@@ -70,6 +70,14 @@ export class StoresListComponent implements OnInit, OnDestroy {
     })
   }
 
+  siteHover(store, type) {
+    if (type === 'enter') {
+      this.dbEntityMarkerService.selectByIds({ siteIds: [], storeIds: [store.id] });
+    } else {
+      this.dbEntityMarkerService.clearSelection();
+    }
+  }
+
   select(siteMarker: SiteMarker, storeMarker: StoreMarker) {
     this.casingDashboardService.selectItemProgrammatically(siteMarker.id, storeMarker.id)
   }

@@ -6,13 +6,15 @@
     <div class="site">
       <div class="site-info">
         <div>{{item.address1}}, {{item.city}}, {{item.state}}</div>
+        <div>{{siteService.getFormattedIntersection(item)}}</div>
       </div>
       <div class="store-info">
-        <div (click)="select(item, store)" class="store-info-item" *ngFor="let store of item.stores">
+        <div (mouseenter)="siteHover(store, 'enter')" (mouseleave)="siteHover(store, 'leave')"
+          (click)="select(item, store)" class="store-info-item" *ngFor="let store of item.stores">
           <div class="store">
             <div class="store-descriptions">
-              <div>{{store.storeName}}</div>
-              <div>{{store.storeType}}</div>
+              <div class="store-name">{{store.storeName}}</div>
+              <div class="store-type">{{store.storeType}}</div>
             </div>
 
             <img class="store-logo" *ngIf="store.logoFileName" [src]="getLogoPath(store.logoFileName)" />

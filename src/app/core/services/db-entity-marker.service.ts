@@ -211,6 +211,7 @@ export class DbEntityMarkerService {
   }
 
   public clearSelection() {
+    console.log('clear selection')
     this.verifyMapInitialized();
 
     this.selectedSiteIds.clear();
@@ -260,6 +261,7 @@ export class DbEntityMarkerService {
       ids.siteIds.forEach(id => this.selectedSiteIds.add(id));
       ids.storeIds.forEach(id => this.selectedStoreIds.add(id));
     }
+    console.log('Select by Ids')
     this.refreshMarkers();
   }
 

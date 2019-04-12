@@ -1,5 +1,6 @@
 *{
     box-sizing: border-box;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 /* width */
 ::-webkit-scrollbar {
@@ -48,7 +49,7 @@ button.mat-menu-item > span {
 }
 
 .site > .site-info {
-    font-size: large;
+    font-size: medium;
     font-weight: bold;
     border-bottom: 1px solid black;
 }
@@ -92,6 +93,16 @@ button.mat-menu-item > span {
 .store-descriptions{
     margin-right: 25px;
 }
+
+.store-name{
+    font-weight: 500;
+    color: #444;
+}
+
+.store-type{
+    font-size: small;
+}
+
 .menu-icon-button:hover{
     color: #444;
 }
