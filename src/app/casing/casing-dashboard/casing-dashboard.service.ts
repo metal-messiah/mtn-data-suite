@@ -12,6 +12,8 @@ export class CasingDashboardService {
 
   private selectedProject: SimplifiedProject;
 
+  private selectedDashboardMode = 0;
+
   // sidenav
   private shouldOpenInfoCard = true;
   public readonly programmaticSelectionChanged$ = new Subject<{ storeId: number, siteId: number }>();
@@ -64,5 +66,13 @@ export class CasingDashboardService {
 
   public selectItemProgrammatically(siteId, storeId) {
     this.programmaticSelectionChanged$.next({ siteId, storeId })
+  }
+
+  setSelectedDashboardMode(selectedDashboardMode: any) {
+    this.selectedDashboardMode = selectedDashboardMode;
+  }
+
+  getSelectedDashboardMode() {
+    return this.selectedDashboardMode;
   }
 }

@@ -24,8 +24,12 @@ mat-progress-spinner{
     margin: 0 auto;
 }
 
-mat-option i{
+i{
     font-family: "Font Awesome 5 Free" !important;
+}
+i:hover{
+    color: orange;
+    cursor:pointer;
 }
 
 .sort-toolbar{
@@ -62,12 +66,20 @@ button.mat-menu-item > span {
     padding: 10px;
 
     position: relative;
+
+    cursor: default;
 }
 
 .site > .site-info {
-    font-size: medium;
+    font-size: small;
     font-weight: bold;
     border-bottom: 1px solid black;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    padding-bottom: 3px;
 }
 
 .list-of-items{
@@ -82,13 +94,17 @@ button.mat-menu-item > span {
     cursor: pointer;
 }
 
+.store-info{
+    cursor: pointer;
+}
+
 .store-info-item{    
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.store-info-item:hover{
+.store-info-item:not(.highlighted):hover{
     background: #ddd;
 }
 
@@ -121,4 +137,13 @@ button.mat-menu-item > span {
 
 .menu-icon-button:hover{
     color: #444;
+}
+
+.highlighted { 
+    background: rgba(255,165,0, 0.5);
+}
+
+.show-on-map-button{
+    font-size: large;
+    margin-right: 5px;
 }

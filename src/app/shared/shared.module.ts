@@ -29,6 +29,8 @@ import { StorelistListItemComponent } from './list-manager/storelist-list-item/s
 import { StorelistSubscribersListComponent } from './list-manager/storelist-subscribers-list/storelist-subscribers-list.component';
 import { StorelistStoresListComponent } from './list-manager/storelist-stores-list/storelist-stores-list.component';
 import { StoresListComponent } from './stores-list/stores-list.component';
+import { StoreSidenavComponent } from './store-sidenav/store-sidenav.component';
+import { StoreSidenavService } from './store-sidenav/store-sidenav.service';
 
 @NgModule({
   imports: [CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule, ListManagerModule],
@@ -55,13 +57,15 @@ import { StoresListComponent } from './stores-list/stores-list.component';
     TabSelectDialogComponent,
     ThousandsCurrencyPipe,
     UserProfileSelectComponent,
-    StoresListComponent
+    StoresListComponent,
+    StoreSidenavComponent
   ],
   providers: [
     BreakpointObserver,
     DatePipe,
     MediaMatcher,
-    ListManagerService
+    ListManagerService,
+    StoreSidenavService
   ],
   entryComponents: [
     AppInfoDialogComponent,
@@ -96,7 +100,8 @@ import { StoresListComponent } from './stores-list/stores-list.component';
     StorelistListItemComponent,
     StorelistSubscribersListComponent,
     StorelistStoresListComponent,
-    StoresListComponent
+    StoresListComponent,
+    StoreSidenavComponent
   ]
 })
 export class SharedModule {

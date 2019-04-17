@@ -9,15 +9,23 @@
   <div class="sidenav-content" *ngIf="isPage(pages.STORESONMAP)">
     <i (click)="setPage(null)" title="Go Back" class="fas fa-arrow-alt-circle-left fa-2x go-back-button"
       *ngIf="expanded"></i>
+    <i (click)="selectAllVisible()" title="Select All" class="fas fa-check-square fa-2x select-all-button"
+      *ngIf="expanded && isMultiSelect()"></i>
     <h1 mat-dialog-title> Visible Stores
-      <span *ngIf="!isFetchingStores">
+      <span *ngIf="!getStoreListFetching()">
         ({{visibleStores | number}})
       </span>
-      <span *ngIf="isFetchingStores">
+      <span *ngIf="getStoreListFetching()">
         <i class="fas fa-spinner fa-pulse" aria-hidden="true"> </i>
       </span>
+      <br />
+      <div *ngIf="getSelectedStoresCount()" title="Zoom to Selected Stores" (click)="zoomToSelection()"
+        class="selected-stores">
+        {{getSelectedStoresCount() | number}} Selected
+        Store{{getSelectedStoresCount() === 1 ? '' : 's'}}
+      </div>
     </h1>
-    <mds-stores-list (onFetching)="storesListIsFetching($event)"></mds-stores-list>
+    <mds-stores-list></mds-stores-list>
   </div>
   <!-- LIST MANAGER -->
   <div class="sidenav-content" *ngIf="isPage(pages.MYLISTS)">

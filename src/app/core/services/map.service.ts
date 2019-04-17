@@ -394,6 +394,12 @@ export class MapService {
     });
   }
 
+  getBoundsOfPoints(points: { lat: number, lng: number }[]): google.maps.LatLngBounds {
+    const bounds = new google.maps.LatLngBounds();
+    points.forEach(pt => bounds.extend(pt));
+    return bounds;
+  }
+
   getMap() {
     return this.map;
   }

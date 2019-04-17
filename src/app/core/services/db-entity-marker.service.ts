@@ -16,6 +16,8 @@ import { SiteMarkerService } from '../site-marker.service';
 import { StoreIconUtil } from '../../utils/StoreIconUtil';
 import { MarkerType } from '../functionalEnums/MarkerType';
 
+import * as _ from 'lodash';
+
 @Injectable()
 export class DbEntityMarkerService {
 
@@ -23,6 +25,9 @@ export class DbEntityMarkerService {
 
   private readonly clickListener$ = new Subject<{ storeId: number, siteId: number, marker: google.maps.Marker }>();
   public readonly visibleMarkersChanged$ = new Subject<google.maps.Marker[]>();
+
+  private selectionSetPrev: { selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number };
+  public readonly selectionSet$ = new Subject<{ selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number }>();
 
   public gettingLocations = false;
   public multiSelect = false;
@@ -218,8 +223,8 @@ export class DbEntityMarkerService {
     this.refreshMarkers();
   }
 
-  public selectStore(storeId: number) {
-    this.selectByIds({ siteIds: [], storeIds: [storeId] });
+  public selectStores(storeIds: number[]) {
+    this.selectByIds({ siteIds: [], storeIds });
   }
 
   public selectInRadius(latitude: number, longitude: number, radiusMeters: number) {
@@ -341,6 +346,24 @@ export class DbEntityMarkerService {
     });
   }
 
+  broadcastSelections() {
+    if (!this.selectionSetPrev) {
+      this.selectionSetPrev = { selectedSiteIds: new Set(this.selectedSiteIds), selectedStoreIds: new Set(this.selectedStoreIds), scrollTo: this.getScrollTo() }
+      this.selectionSet$.next(this.selectionSetPrev);
+    } else {
+      const prevSelectedSiteIds = this.selectionSetPrev.selectedSiteIds;
+      const prevSelectedStoreIds = this.selectionSetPrev.selectedStoreIds;
+      if (!_.isEqual(prevSelectedSiteIds, this.selectedSiteIds) || !_.isEqual(prevSelectedStoreIds, this.selectedStoreIds)) {
+        this.selectionSetPrev = { selectedSiteIds: new Set(this.selectedSiteIds), selectedStoreIds: new Set(this.selectedStoreIds), scrollTo: this.getScrollTo() };
+        this.selectionSet$.next(this.selectionSetPrev);
+      }
+    }
+  }
+
+  getScrollTo() {
+    return Array.from(this.selectedStoreIds).pop() || null;
+  }
+
   private refreshMarkerOptions(marker: google.maps.Marker) {
     const store = marker['store'];
     const site = marker['site'];
@@ -355,6 +378,7 @@ export class DbEntityMarkerService {
     if (selected) {
       this.selectedMarkers.add(marker);
     }
+    this.broadcastSelections();
     // Do nothing for non-store non-site markers (like historical count marker)
   }
 
@@ -382,7 +406,12 @@ export class DbEntityMarkerService {
     if (JSON.stringify(prevMarkersIds.sort()) !== JSON.stringify(currMarkersIds.sort())) {
       this.visibleMarkersChanged$.next(this.visibleMarkers);
     }
+
   }
+
+  // setsAreEqual(a: Set<number>, b: Set<number>) {
+  //   return a.size === b.size && [...a].every(value => b.has(value))
+  // }
 
   private showMarkers(markers: google.maps.Marker[]) {
     // Show the now visible markers

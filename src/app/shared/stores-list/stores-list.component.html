@@ -4,7 +4,7 @@
   <mat-form-field>
     <mat-label>Sort Results</mat-label>
     <mat-select [(value)]="sortType" #sortTypeSelect (selectionChange)="setSortOptions(sortTypeSelect.value, null)">
-      <mat-optgroup *ngFor="let group of sortGroups" [label]="group.name">
+      <mat-optgroup *ngFor="let group of getSortGroups()" [label]="group.name">
         <mat-option *ngFor="let key of group.keys" [value]="key.enumIndex">
           {{key.label}}
         </mat-option>
@@ -24,38 +24,28 @@
     </mat-select>
   </mat-form-field>
 </div>
-<div #listOfStores class="list-of-items" id="listOfStores" (scroll)="reachedBottom()" *ngIf="!fetching">
-  <div *ngFor="let item of items">
+<div #listOfStores class="list-of-items" id="listOfStores" (scroll)="reachedBottom()" *ngIf="!isFetching()">
+  <div *ngFor="let item of getItems()">
 
     <div class="site">
       <div class="site-info">
-        <div>{{item.address1}}, {{item.city}}, {{item.state}}</div>
-        <div>{{siteService.getFormattedIntersection(item)}}</div>
+        <div>
+          <div>{{getAddressLabel(item)}}</div>
+          <div>{{getFormattedIntersection(item)}}</div>
+        </div>
+        <i (click)="showOnMap(item)" title="Center On Map" class="fas fa-map-marked-alt show-on-map-button"></i>
       </div>
       <div class="store-info">
-        <!-- <div (mouseenter)="siteHover(store, 'enter')" (mouseleave)="siteHover(store, 'leave')"
-          (click)="select(item, store)" class="store-info-item" *ngFor="let store of item.stores"> -->
-        <div (click)="select(item, store)" class="store-info-item" *ngFor="let store of item.stores">
+        <div [id]="store.id" (click)="select(item, store)"
+          [ngClass]="{'store-info-item': true, 'highlighted': shouldHighlight(store)}"
+          *ngFor="let store of item.stores">
           <div class="store">
             <div class="store-descriptions">
               <div class="store-name">{{store.storeName}}</div>
-              <!-- <div class="store-type">{{store.storeType}}</div> -->
               <div class="store-subtext">{{getStoreSubtext(item, store)}}</div>
             </div>
-
             <img class="store-logo" *ngIf="store.logoFileName" [src]="getLogoPath(store.logoFileName)" />
           </div>
-          <!-- OPTIONS MENU FOR EACH STORE -->
-          <!-- <button class='menu-icon-button' mat-icon-button color="primary" [mat-menu-trigger-for]="siteMenu">
-            <i class="site-menu fas fa-ellipsis-v"></i>
-          </button>
-
-          <mat-menu #siteMenu="matMenu">
-            <button mat-menu-item (click)="select(item, store)">
-              <i class="fas fa-map-marked-alt"></i>
-              <span>Select</span>
-            </button>
-          </mat-menu> -->
         </div>
 
 

@@ -56,7 +56,7 @@ export enum CasingDashboardMode {
   selector: 'mds-casing-dashboard',
   templateUrl: './casing-dashboard.component.html',
   styleUrls: ['./casing-dashboard.component.css'],
-  providers: [DbEntityMarkerService]
+  providers: []
 })
 export class CasingDashboardComponent implements OnInit, OnDestroy {
 
@@ -100,6 +100,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   isMobile: boolean;
   isTooNarrow: boolean;
 
+  highlightTab = false;
+
   constructor(public mapService: MapService,
     public dbEntityMarkerService: DbEntityMarkerService,
     public geocoderService: GeocoderService,
@@ -140,7 +142,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.forEach((s: Subscription) => s.unsubscribe());
-    this.dbEntityMarkerService.onDestroy();
+    // this.dbEntityMarkerService.onDestroy();
   }
 
   checkMobile() {
@@ -171,12 +173,17 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       this.isMobile = this.checkMobile();
       this.isTooNarrow = this.checkTooNarrow();
 
+      if (this.isTooNarrow) {
+        this.toggleStoreLists();
+      }
+
       this.openInfoCardFromSidenav(selection.storeId, selection.siteId);
     }))
 
     this.subscriptions.push(this.initiateDuplicateSelection$.subscribe(siteId => {
       // Change the mode (should disables all other user interactions that might conflict)
       this.selectedDashboardMode = CasingDashboardMode.DUPLICATE_SELECTION;
+      this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
 
       // Save the first site's ID so you can use it later
       this.selectedSiteId = siteId;
@@ -185,12 +192,16 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       const ref = this.snackBar.open(`Select another site to merge with this one`, 'Cancel');
 
       // If user clicks cancel, close snackbar and return to default mode
-      ref.onAction().subscribe(() => this.selectedDashboardMode = CasingDashboardMode.DEFAULT);
+      ref.onAction().subscribe(() => {
+        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+      });
     }));
 
     this.subscriptions.push(this.initiateSiteMove$.subscribe((site: Site) => {
       this.movingSite = site;
       this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
+      this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
       // Create new site layer
       this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, { lat: site.latitude, lng: site.longitude });
     }));
@@ -207,6 +218,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(this.casingDashboardService.projectChanged$.subscribe(() => {
       this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+      this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
       this.projectBoundaryService.hideProjectBoundaries();
       this.getEntitiesInBounds();
     }));
@@ -229,6 +241,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   openInfoCardFromSidenav(storeId, siteId) {
     if (this.casingDashboardService.getShouldOpenInfoCard()) {
+      this.dbEntityMarkerService.clearSelection();
+      this.dbEntityMarkerService.selectStores([storeId]);
       this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, { storeId, siteId },
         this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
     }
@@ -249,12 +263,14 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   initSiteCreation(): void {
     this.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
+    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
     // Create new Layer for new Location
     this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, this.mapService.getCenter());
   }
 
   cancelSiteCreation(): void {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
     // Remove layer from map
     this.draggableSiteLayer.removeFromMap();
     // Delete new Location layer
@@ -318,6 +334,7 @@ Geo-location
 
   activateFollowMe(): void {
     this.selectedDashboardMode = CasingDashboardMode.FOLLOWING;
+    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
     this.followMeLayer = new FollowMeLayer(this.mapService, this.mapService.getCenter());
     this.navigatorService.watchPosition({ maximumAge: 2000 }).subscribe(
       position => {
@@ -344,6 +361,7 @@ Geo-location
 
   deactivateFollowMe(): void {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
 
     this.navigatorService.cancelWatch();
     this.followMeLayer.removeFromMap();
@@ -360,6 +378,7 @@ Geo-location
   cancelMove() {
     this.movingSite = null;
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
     // Remove layer from map
     this.draggableSiteLayer.removeFromMap();
     // Delete new Location layer
@@ -381,6 +400,7 @@ Geo-location
       }))
       .subscribe(() => {
         this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
         this.snackBar.open('Successfully created new Site', null, { duration: 1500 });
         this.getEntitiesInBounds();
       }, err => this.errorService.handleServerError('Failed to update new Site location!', err,
@@ -393,6 +413,7 @@ Multi-select
  */
   enableMultiSelect(): void {
     this.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
+    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
     this.dbEntityMarkerService.clearSelection();
     this.dbEntityMarkerService.multiSelect = true;
     // Activate Map Drawing Tools and listen for completed Shapes
@@ -412,6 +433,7 @@ Multi-select
 
   cancelMultiSelect(): void {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
     this.dbEntityMarkerService.clearSelection();
     this.dbEntityMarkerService.multiSelect = false;
     this.dbEntityMarkerService.deselecting = false;
@@ -533,7 +555,10 @@ Assigning
     this.savingBoundary = true;
     this.projectBoundaryService.saveProjectBoundaries()
       .pipe(finalize(() => this.savingBoundary = false))
-      .subscribe(() => this.selectedDashboardMode = CasingDashboardMode.DEFAULT,
+      .subscribe(() => {
+        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+      },
         err => this.errorService.handleServerError('Failed to save project boundary!', err,
           () => console.log(err),
           () => this.saveProjectBoundary()))
@@ -541,11 +566,13 @@ Assigning
 
   cancelProjectBoundaryEditing() {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
     this.projectBoundaryService.cancelProjectBoundaryEditing();
   }
 
   enableProjectBoundaryEditing() {
     this.selectedDashboardMode = CasingDashboardMode.EDIT_PROJECT_BOUNDARY;
+    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
     this.projectBoundaryService.enableProjectBoundaryEditing();
     this.projectBoundaryService.zoomToProjectBoundary();
   }
@@ -596,12 +623,16 @@ Assigning
       const ref = this.snackBar.open(message, 'Cancel');
 
       // If user clicks cancel, close snackbar and return to default mode
-      ref.onAction().subscribe(() => this.selectedDashboardMode = CasingDashboardMode.DEFAULT);
+      ref.onAction().subscribe(() => {
+        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+      });
     } else {
       // If the user successfully selects a different site
 
       // Change the mode back to default (for when they are done)
       this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+      this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
 
       // Dismiss the instructions
       this.snackBar.dismiss();
@@ -642,9 +673,6 @@ Assigning
   toggleStoreLists() {
     this.showStoreLists = !this.showStoreLists;
     this.storageService.set(this.storeListsStorageKey, this.showStoreLists);
-
-    // this.casingDashboardService.setShouldOpenInfoCard(!this.showStoreLists)
-
   }
 
   handleSidenavClick(e: MouseEvent) {

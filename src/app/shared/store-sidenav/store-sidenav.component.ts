@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Pages } from './store-sidenav-pages';
 import { StoreSidenavService } from './store-sidenav.service';
+import { CasingDashboardMode } from 'app/casing/casing-dashboard/casing-dashboard.component';
 
 
 @Component({
@@ -22,18 +23,30 @@ export class StoreSidenavComponent implements OnInit {
   ngOnInit() { }
 
   isPage(page: Pages) {
-    return (this.storeSidenavService.currentPage === page);
+    return (this.storeSidenavService.getPage() === page);
   }
 
   setPage(page: Pages) {
     this.storeSidenavService.setPage(page);
   }
 
-  storesListIsFetching(isFetchingStores: boolean) {
-    setTimeout(() => {
-
-      this.isFetchingStores = isFetchingStores;
-    }, 1)
+  getStoreListFetching() {
+    return this.storeSidenavService.getFetching();
   }
 
+  getSelectedStoresCount(): number {
+    return this.storeSidenavService.getMapSelections().selectedStoreIds.size;
+  }
+
+  zoomToSelection() {
+    this.storeSidenavService.zoomToSelectionSet();
+  }
+
+  isMultiSelect() {
+    return this.storeSidenavService.getSelectedDashboardMode() === CasingDashboardMode.MULTI_SELECT;
+  }
+
+  selectAllVisible() {
+    this.storeSidenavService.selectAllVisible();
+  }
 }

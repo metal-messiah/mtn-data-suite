@@ -9,7 +9,7 @@ import { ListManagerService } from './list-manager.service';
 import { Pages } from './list-manager-pages';
 import { Subscription } from 'rxjs';
 import { MapService } from 'app/core/services/map.service';
-import { StoreSidenavService } from 'app/casing/store-sidenav/store-sidenav.service';
+import { StoreSidenavService } from '../../shared//store-sidenav/store-sidenav.service';
 
 @Component({
     selector: 'mds-list-manager',

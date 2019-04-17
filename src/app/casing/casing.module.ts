@@ -37,7 +37,6 @@ import { InfoCardDirective } from './info-card.directive';
 import { InfoCardComponent } from './info-card/info-card.component';
 import { DbLocationInfoCardComponent } from '../shared/db-location-info-card/db-location-info-card.component';
 import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-card.component';
-import { StoreSidenavComponent } from './store-sidenav/store-sidenav.component';
 import { StorageService } from 'app/core/services/storage.service';
 
 
@@ -79,8 +78,7 @@ import { StorageService } from 'app/core/services/storage.service';
     StoreAttrSelectionDialogComponent,
     SelectBannerComponent,
     InfoCardDirective,
-    InfoCardComponent,
-    StoreSidenavComponent
+    InfoCardComponent
   ],
   entryComponents: [
     AccessListDialogComponent,
@@ -102,8 +100,7 @@ import { StorageService } from 'app/core/services/storage.service';
     StoreAttrSelectionDialogComponent,
     SelectBannerComponent,
     DbLocationInfoCardComponent,
-    GoogleInfoCardComponent,
-    StoreSidenavComponent
+    GoogleInfoCardComponent
   ],
   providers: [CasingDashboardService, StorageService]
 })

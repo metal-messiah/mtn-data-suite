@@ -34,6 +34,7 @@ import { StorageService } from './services/storage.service';
 import { SourceUpdatableService } from './services/source-updatable.service';
 import { BannerSourceService } from './services/banner-source.service';
 import { StoreListService } from './services/store-list.service';
+import { DbEntityMarkerService } from './services/db-entity-marker.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -72,14 +73,15 @@ import { StoreListService } from './services/store-list.service';
     StorageService,
     SourceUpdatableService,
     BannerSourceService,
-    StoreListService
+    StoreListService,
+    DbEntityMarkerService
   ]
 })
 export class CoreModule {
   constructor(
     @Optional()
     @SkipSelf()
-      parentModule: CoreModule
+    parentModule: CoreModule
   ) {
     if (parentModule) {
       throw new Error('CoreModule is already loaded. Import it in the AppModule only');

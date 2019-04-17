@@ -18,6 +18,14 @@
     /* border-radius: 10px; */
   }
 
+  i{
+    font-family: "Font Awesome 5 Free" !important;
+}
+i:hover{
+    color: orange;
+    cursor:pointer;
+}
+
 .store-sidenav{
     background: white;
     width: 100%;
@@ -72,6 +80,28 @@ mds-list-manager{
 .go-back-button:hover{
     color: orange;
     cursor: pointer;
+}
+
+.select-all-button{
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    color: #607d8b;
+}
+
+.select-all-button:hover{
+    color: orange;
+    cursor: pointer;
+}
+
+.selected-stores{
+    font-size: small;
+    font-style: italic;
+    cursor: pointer;
+}
+
+.selected-stores:hover{
+    color: orange;
 }
 
 @media(max-width: 600px){
