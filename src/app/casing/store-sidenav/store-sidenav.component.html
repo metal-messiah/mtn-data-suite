@@ -1,16 +1,28 @@
 <div class="store-sidenav">
-  <div class="sidenav-content" *ngIf="isPage(null)">
+  <div class="sidenav-content" *ngIf="isPage(null)" style="padding:0 10px;">
     <h1 mat-dialog-title>Organize Stores</h1>
     <button mat-flat-button (click)="setPage(pages.STORESONMAP)">List Of Stores On The Map</button>
     <button mat-flat-button (click)="setPage(pages.MYLISTS)">Manage My Lists Of Stores</button>
     <button mat-flat-button (click)="setPage(pages.SEARCH)" disabled>Search For Stores</button>
   </div>
-  <!-- LIST OF ALL LISTS (SHOWS IF NO STORES ARE PASSED TO DIALOG) -->
+  <!-- STORES ON MAP -->
   <div class="sidenav-content" *ngIf="isPage(pages.STORESONMAP)">
-    <h1 mat-dialog-title>Visible Stores</h1>
-    <mds-stores-list></mds-stores-list>
+    <i (click)="setPage(null)" title="Go Back" class="fas fa-arrow-alt-circle-left fa-2x go-back-button"
+      *ngIf="expanded"></i>
+    <h1 mat-dialog-title> Visible Stores
+      <span *ngIf="!isFetchingStores">
+        ({{visibleStores | number}})
+      </span>
+      <span *ngIf="isFetchingStores">
+        <i class="fas fa-spinner fa-pulse" aria-hidden="true"> </i>
+      </span>
+    </h1>
+    <mds-stores-list (onFetching)="storesListIsFetching($event)"></mds-stores-list>
   </div>
+  <!-- LIST MANAGER -->
   <div class="sidenav-content" *ngIf="isPage(pages.MYLISTS)">
+    <i (click)="setPage(null)" title="Go Back" class="fas fa-arrow-alt-circle-left fa-2x go-back-button"
+      *ngIf="expanded"></i>
     <h1 mat-dialog-title>My Lists</h1>
     <mds-list-manager></mds-list-manager>
   </div>

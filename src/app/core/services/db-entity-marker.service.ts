@@ -211,12 +211,15 @@ export class DbEntityMarkerService {
   }
 
   public clearSelection() {
-    console.log('clear selection')
     this.verifyMapInitialized();
 
     this.selectedSiteIds.clear();
     this.selectedStoreIds.clear();
     this.refreshMarkers();
+  }
+
+  public selectStore(storeId: number) {
+    this.selectByIds({ siteIds: [], storeIds: [storeId] });
   }
 
   public selectInRadius(latitude: number, longitude: number, radiusMeters: number) {
@@ -261,7 +264,6 @@ export class DbEntityMarkerService {
       ids.siteIds.forEach(id => this.selectedSiteIds.add(id));
       ids.storeIds.forEach(id => this.selectedStoreIds.add(id));
     }
-    console.log('Select by Ids')
     this.refreshMarkers();
   }
 
@@ -279,6 +281,10 @@ export class DbEntityMarkerService {
 
   public getVisibleMarkers() {
     return this.visibleMarkers;
+  }
+
+  public getVisibleMarkersCount(): number {
+    return this.visibleMarkers.length;
   }
 
   private getSelectionIds(siteMarkers: SiteMarker[]) {
@@ -353,6 +359,7 @@ export class DbEntityMarkerService {
   }
 
   private showHideMarkersInBounds() {
+    const prevMarkersIds = this.visibleMarkers.map(m => m.id);
     const markers = this.siteMarkerCache.map(s => s.markers);
     const filteredMarkers = markers
       .reduce((prev, curr) => prev.concat(curr), [])
@@ -371,7 +378,10 @@ export class DbEntityMarkerService {
 
     this.showMarkers(this.visibleMarkers);
 
-    this.visibleMarkersChanged$.next(this.visibleMarkers);
+    const currMarkersIds = this.visibleMarkers.map(m => m.id);
+    if (JSON.stringify(prevMarkersIds.sort()) !== JSON.stringify(currMarkersIds.sort())) {
+      this.visibleMarkersChanged$.next(this.visibleMarkers);
+    }
   }
 
   private showMarkers(markers: google.maps.Marker[]) {

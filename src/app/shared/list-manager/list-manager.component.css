@@ -22,11 +22,10 @@ mat-list-item {
 
 mat-selection-list,
 mat-list {
-	max-height: 50vh;
-	overflow-y: auto;
 	background: #efefef;
-	border-radius: 5px;
-	padding-top: 0px !important;
+    border-radius: 5px;
+    padding-top: 0px !important;
+    margin-bottom: 50px;
 }
 
 mat-list-option span,

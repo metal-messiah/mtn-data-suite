@@ -22,8 +22,6 @@ export class StoreSidenavService {
 
   setPage(page: Pages) {
     this.currentPage = page;
-    this.storageService.set(this.sidenavPageStorageKey, this.currentPage).subscribe(resp => {
-      console.log(resp)
-    })
+    this.storageService.set(this.sidenavPageStorageKey, this.currentPage)
   }
 }

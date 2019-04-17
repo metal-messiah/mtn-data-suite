@@ -1,6 +1,6 @@
 <div class="list-manager">
     <!-- TOP TITLE OF DIALOG -->
-    <h1 mat-dialog-title *ngIf="isPage(pages.LISTMANAGER)">List Manager</h1>
+    <!-- <h1 mat-dialog-title *ngIf="isPage(pages.LISTMANAGsER)">List Manager</h1> -->
     <h1 mat-dialog-title *ngIf="isPage(pages.ADDSTORES)">Add {{getStoreTitle()}} To Lists</h1>
     <h1 mat-dialog-title *ngIf="isPage(pages.VIEWSTORES) && selectedStoreList">{{selectedStoreList.storeCount | number}}
         Stores in {{selectedStoreList.storeListName}}</h1>
@@ -90,8 +90,8 @@
 
     <div mat-dialog-actions>
         <!-- LISTMANAGER VIEW -->
-        <button *ngIf="isPage(pages.LISTMANAGER)" color="primary" mat-raised-button
-            (click)="closeListManager()">Close</button>
+        <!-- <button *ngIf="isPage(pages.LISTMANAGER)" color="primary" mat-raised-button
+            (click)="closeListManager()">Close</button> -->
         <button *ngIf="isPage(pages.LISTMANAGER) && stores.length" color="accent" mat-raised-button
             (click)="clearStores()">View All Lists</button>
 
@@ -101,14 +101,14 @@
         <button *ngIf="isPage(pages.ADDSTORES)" color="accent" mat-raised-button (click)="addToList()">Save</button>
 
         <!-- VIEW STORES VIEW -->
-        <button *ngIf="isPage(pages.VIEWSTORES)" color="primary" mat-raised-button
-            (click)="closeListManager()">Close</button>
+        <!-- <button *ngIf="isPage(pages.VIEWSTORES)" color="primary" mat-raised-button
+            (click)="closeListManager()">Close</button> -->
         <button *ngIf="isPage(pages.VIEWSTORES)" color="accent" mat-raised-button
             (click)="setPage(pages.LISTMANAGER)">Go Back</button>
 
         <!-- VIEW STORES VIEW -->
-        <button *ngIf="isPage(pages.VIEWSUBSCRIBERS)" color="primary" mat-raised-button
-            (click)="closeListManager()">Close</button>
+        <!-- <button *ngIf="isPage(pages.VIEWSUBSCRIBERS)" color="primary" mat-raised-button
+            (click)="closeListManager()">Close</button> -->
         <button *ngIf="isPage(pages.VIEWSUBSCRIBERS)" color="accent" mat-raised-button
             (click)="setPage(pages.LISTMANAGER)">Go Back</button>
     </div>

@@ -1,6 +1,30 @@
-<mat-progress-bar mode="indeterminate" *ngIf="!items.length"></mat-progress-bar>
-<div #listOfStores class="list-of-items" id="listOfStores" (scroll)="reachedBottom()"
-  *ngIf="items.length && items[0].address1">
+<!-- <mat-progress-spinner mode="indeterminate" *ngIf="fetching">
+</mat-progress-spinner> -->
+<div class="sort-toolbar">
+  <mat-form-field>
+    <mat-label>Sort Results</mat-label>
+    <mat-select [(value)]="sortType" #sortTypeSelect (selectionChange)="setSortOptions(sortTypeSelect.value, null)">
+      <mat-optgroup *ngFor="let group of sortGroups" [label]="group.name">
+        <mat-option *ngFor="let key of group.keys" [value]="key.enumIndex">
+          {{key.label}}
+        </mat-option>
+      </mat-optgroup>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field style="min-width: 150px;">
+    <mat-label>Order</mat-label>
+    <mat-select #sortDirectionSelect [(value)]="sortDirection"
+      (selectionChange)="setSortOptions(null, sortDirectionSelect.value)">
+      <mat-option [value]="0">
+        <i class="fas fa-sort-amount-up"></i> Ascending
+      </mat-option>
+      <mat-option [value]="1">
+        <i class="fas fa-sort-amount-down"></i> Descending
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+<div #listOfStores class="list-of-items" id="listOfStores" (scroll)="reachedBottom()" *ngIf="!fetching">
   <div *ngFor="let item of items">
 
     <div class="site">
@@ -9,12 +33,14 @@
         <div>{{siteService.getFormattedIntersection(item)}}</div>
       </div>
       <div class="store-info">
-        <div (mouseenter)="siteHover(store, 'enter')" (mouseleave)="siteHover(store, 'leave')"
-          (click)="select(item, store)" class="store-info-item" *ngFor="let store of item.stores">
+        <!-- <div (mouseenter)="siteHover(store, 'enter')" (mouseleave)="siteHover(store, 'leave')"
+          (click)="select(item, store)" class="store-info-item" *ngFor="let store of item.stores"> -->
+        <div (click)="select(item, store)" class="store-info-item" *ngFor="let store of item.stores">
           <div class="store">
             <div class="store-descriptions">
               <div class="store-name">{{store.storeName}}</div>
-              <div class="store-type">{{store.storeType}}</div>
+              <!-- <div class="store-type">{{store.storeType}}</div> -->
+              <div class="store-subtext">{{getStoreSubtext(item, store)}}</div>
             </div>
 
             <img class="store-logo" *ngIf="store.logoFileName" [src]="getLogoPath(store.logoFileName)" />

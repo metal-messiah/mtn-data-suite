@@ -139,13 +139,13 @@ mds-store-sidenav::after{
   width: 0;
 }
 
-@media (max-width: 600px){
+@media (max-width: 740px){
   mds-store-sidenav{
-    height: 100%;
     position: absolute;
     z-index: 9999;
-    height: calc(100vh - 112px);
+    height: calc(100vh - 129px);
     left: 0;
+    top: 0;
   }
 
   .sidenav-show{
@@ -154,6 +154,17 @@ mds-store-sidenav::after{
   }
 }
 
+@media (max-width: 600px){
+  mds-store-sidenav{
+    height: calc(100vh - 112px);
+  }
+}
+
 .invisible{
   opacity: 0.25;
+}
+
+.adjusted-height{
+  height: calc(100% - 250px);
+  padding-bottom: 10px;
 }

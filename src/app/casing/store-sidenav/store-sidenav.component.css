@@ -37,6 +37,8 @@
     height: 100%;
 
     direction: rtl;
+
+    position: relative;
 }
 
 .sidenav-content * {
@@ -47,6 +49,10 @@
     margin: 10px 0;
 }
 
+.sidenav-content > button:hover{
+    background: #444;
+}
+
 .sidenav-content > h1{
     text-align: center;
 }
@@ -54,6 +60,18 @@
 mds-list-manager{
     width: 100%;
     padding: 0 25px;
+}
+
+.go-back-button{
+    position: absolute;
+    left: 15px;
+    top: 10px;
+    color: #607d8b;
+}
+
+.go-back-button:hover{
+    color: orange;
+    cursor: pointer;
 }
 
 @media(max-width: 600px){

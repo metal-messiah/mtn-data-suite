@@ -149,7 +149,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   checkTooNarrow() {
     const body: HTMLElement = document.querySelector('body');
-    return body.offsetWidth < 700;
+    return body.offsetWidth < 740;
   }
 
   onMapReady() {

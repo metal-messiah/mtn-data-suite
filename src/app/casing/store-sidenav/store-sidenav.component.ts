@@ -1,8 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { StorageService } from 'app/core/services/storage.service';
 import { Pages } from './store-sidenav-pages';
 import { StoreSidenavService } from './store-sidenav.service';
-import { SimplifiedStore } from 'app/models/simplified/simplified-store';
 
 
 @Component({
@@ -14,15 +12,14 @@ export class StoreSidenavComponent implements OnInit {
 
   pages = Pages;
 
+  isFetchingStores = false;
+
   @Input() expanded: boolean;
+  @Input() visibleStores: number;
 
   constructor(private storeSidenavService: StoreSidenavService) { }
 
-  ngOnInit() {
-
-
-
-  }
+  ngOnInit() { }
 
   isPage(page: Pages) {
     return (this.storeSidenavService.currentPage === page);
@@ -30,6 +27,13 @@ export class StoreSidenavComponent implements OnInit {
 
   setPage(page: Pages) {
     this.storeSidenavService.setPage(page);
+  }
+
+  storesListIsFetching(isFetchingStores: boolean) {
+    setTimeout(() => {
+
+      this.isFetchingStores = isFetchingStores;
+    }, 1)
   }
 
 }

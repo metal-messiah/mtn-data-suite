@@ -55,7 +55,8 @@
     <div class="box">
       <div class="center-content">
         <mds-store-sidenav id="store-sidenav" [expanded]="showStoreLists"
-          [ngClass]="{'sidenav-hide': !showStoreLists, 'sidenav-show':showStoreLists, 'invisible': (infoCard && isTooNarrow)}"
+          [visibleStores]="dbEntityMarkerService.getVisibleMarkersCount()"
+          [ngClass]="{'sidenav-hide': !showStoreLists, 'sidenav-show':showStoreLists, 'adjusted-height': (infoCard && isTooNarrow)}"
           (click)="handleSidenavClick($event)">
         </mds-store-sidenav>
         <mds-map #casingMap class="row content" (ready)="onMapReady()"></mds-map>
