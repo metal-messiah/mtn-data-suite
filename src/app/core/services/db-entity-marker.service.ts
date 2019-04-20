@@ -59,6 +59,7 @@ export class DbEntityMarkerService {
     this.initControls();
 
     this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker }) => {
+      console.log(selection.storeId, selection.siteId)
       // If not in multi-select mode, deselect previously selected markers
       if (!this.multiSelect) {
         this.selectedSiteIds.clear();
@@ -225,6 +226,10 @@ export class DbEntityMarkerService {
 
   public selectStores(storeIds: number[]) {
     this.selectByIds({ siteIds: [], storeIds });
+  }
+
+  public selectSites(siteIds: number[]) {
+    this.selectByIds({ siteIds, storeIds: [] });
   }
 
   public selectInRadius(latitude: number, longitude: number, radiusMeters: number) {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 
 import * as _ from 'lodash';
 import { StoreMarker } from 'app/models/store-marker';
@@ -18,7 +18,6 @@ export class StoresListComponent implements OnInit {
   sortType: SortType;
   sortDirection: SortDirection;
 
-  clickedItemId: number;
 
   @ViewChild('listOfStores') listOfStores;
 
@@ -39,7 +38,19 @@ export class StoresListComponent implements OnInit {
     this.storeSidenavService.scrollToMapSelectionId$.subscribe((id: number) => {
       this.scrollToElem(id);
     })
+
+
+
   }
+
+  getItemIndex(i: number) {
+    return `render_${i}`;
+  }
+
+
+
+
+
 
   scrollToElem(id) {
     const elem = document.getElementById(`${id}`);
@@ -53,7 +64,8 @@ export class StoresListComponent implements OnInit {
   }
 
   getItems() {
-    return this.storeSidenavService.getItems();
+    // return this.storeSidenavService.getItems();
+    return this.storeSidenavService.getRenderer();
   }
 
   getSortType() {
@@ -98,7 +110,12 @@ export class StoresListComponent implements OnInit {
     return '';
   }
 
+  getIdForElem(site: SiteMarker, store: StoreMarker): string {
+    return store.isEmpty ? `empty_${site.id}` : `${store.id}`;
+  }
+
   shouldHighlight(store: StoreMarker) {
+
     return this.storeSidenavService.getMapSelections().selectedStoreIds.has(store.id)
   }
 

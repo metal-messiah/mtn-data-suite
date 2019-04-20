@@ -3,6 +3,8 @@ import { SelectProjectComponent } from '../select-project/select-project.compone
 import { MatDialog } from '@angular/material';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
 import { Subject } from 'rxjs';
+import { SiteMarker } from 'app/models/site-marker';
+import { StoreMarker } from 'app/models/store-marker';
 
 @Injectable()
 export class CasingDashboardService {
@@ -16,7 +18,7 @@ export class CasingDashboardService {
 
   // sidenav
   private shouldOpenInfoCard = true;
-  public readonly programmaticSelectionChanged$ = new Subject<{ storeId: number, siteId: number }>();
+  public readonly programmaticSelectionChanged$ = new Subject<{ siteMarker: SiteMarker, storeMarker: StoreMarker }>();
 
   constructor(private dialog: MatDialog) {
     const selectedProject = JSON.parse(localStorage.getItem('selectedProject'));
@@ -64,8 +66,8 @@ export class CasingDashboardService {
     return this.shouldOpenInfoCard
   }
 
-  public selectItemProgrammatically(siteId, storeId) {
-    this.programmaticSelectionChanged$.next({ siteId, storeId })
+  public selectItemProgrammatically(siteMarker: SiteMarker, storeMarker: StoreMarker) {
+    this.programmaticSelectionChanged$.next({ siteMarker, storeMarker })
   }
 
   setSelectedDashboardMode(selectedDashboardMode: any) {

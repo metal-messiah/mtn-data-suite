@@ -96,6 +96,12 @@ export class StoreSidenavService {
 
   subscriptions = [];
 
+  emptyMappings = {};
+
+
+  loadingConstraint = 20;
+  renderer = [];
+
   constructor(
     private storageService: StorageService,
     private dbEntityMarkerService: DbEntityMarkerService,
@@ -195,16 +201,19 @@ export class StoreSidenavService {
           const shouldShowActive = this.dbEntityMarkerService.controls.get('showActive').value;
           const shouldShowEmpty = this.dbEntityMarkerService.controls.get('showEmptySites').value;
           if (active.length === 0 && shouldShowActive && shouldShowEmpty) {
+            const psuedoId = this.emptyMappings[item.id] ? this.emptyMappings[item.id] : Math.round(Math.random() * 10000000);
             item.stores.push(new StoreMarker({
-              id: Math.floor(Math.random() * 10000000000),
-              storeName: 'EMPTY SITE'
+              id: psuedoId,
+              storeName: 'EMPTY SITE',
+              isEmpty: true
             }));
+
+            this.emptyMappings[item.id] = this.emptyMappings[item.id] ? this.emptyMappings[item.id] : psuedoId;
           }
         })
 
         this.sortItems()
         this.setFetching(false)
-
 
       })
     }
@@ -216,6 +225,48 @@ export class StoreSidenavService {
 
   setItems(items: SiteMarker[]) {
     this.items = items;
+  }
+
+  getRenderer() {
+    return this.renderer;
+  }
+
+  setRenderer() {
+    this.renderer = this.items.slice(0, this.loadingConstraint);
+
+    const elem = document.querySelector('.sidenav-content');
+    elem.removeEventListener('scroll', () => this.reachedBottom(), false);
+    elem.addEventListener('scroll', () => this.reachedBottom(), false);
+  }
+
+  reachedBottom() {
+    const bottomIndex = this.renderer.length - 1;
+    const elem = document.getElementById(`render_${bottomIndex}`);
+    if (this.isInViewport(elem)) {
+      this.updateRenderer();
+    }
+  }
+
+  isInViewport(elem) {
+    if (elem) {
+      const bounding = elem.getBoundingClientRect();
+      return (
+        bounding.top >= 0 &&
+        bounding.left >= 0 &&
+        bounding.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        bounding.right <= (window.innerWidth || document.documentElement.clientWidth)
+      );
+    }
+    return false
+  };
+
+
+  updateRenderer() {
+    const index = this.renderer.length;
+    if (index < this.items.length) {
+      const additionalRenders = this.items.slice(index, index + this.loadingConstraint);
+      this.renderer = this.renderer.concat(additionalRenders);
+    }
   }
 
   /////////////
@@ -311,6 +362,7 @@ export class StoreSidenavService {
           if (storeA && storeB) {
             if (storeA.storeType < storeB.storeType) { return -1 };
             if (storeA.storeType > storeB.storeType) { return 1 };
+
           }
           return 0;
         })
@@ -336,6 +388,8 @@ export class StoreSidenavService {
     // the list updated, so if there is an active selection scroll to it
 
     this.items$.next(this.items);
+
+    this.setRenderer();
   }
 
   getStoresForSort(itemA: SiteMarker, itemB: SiteMarker) {
@@ -410,14 +464,21 @@ export class StoreSidenavService {
     return this.casingDashboardService.getSelectedDashboardMode();
   }
 
+
+
   select(siteMarker: SiteMarker, storeMarker: StoreMarker) {
     if (this.getSelectedDashboardMode() !== CasingDashboardMode.MULTI_SELECT) {
       // open the info card
-      this.casingDashboardService.selectItemProgrammatically(siteMarker.id, storeMarker.id)
+      this.casingDashboardService.selectItemProgrammatically(siteMarker, storeMarker)
     } else {
-      this.dbEntityMarkerService.selectStores([storeMarker.id]);
+      // just select it
+      if (storeMarker.id) {
+        this.dbEntityMarkerService.selectStores([storeMarker.id]);
+      }
+      if (siteMarker && siteMarker.id && storeMarker.isEmpty) {
+        this.dbEntityMarkerService.selectSites([siteMarker.id]);
+      }
     }
-    // this.mapService.setCenter({ lat: siteMarker.latitude, lng: siteMarker.longitude })
   }
 
   selectAllVisible() {
@@ -430,16 +491,32 @@ export class StoreSidenavService {
     this.dbEntityMarkerService.selectStores(visibleIds);
   }
 
+  selectAllByIds(ids: number[]) {
+    this.dbEntityMarkerService.selectStores(ids);
+  }
+
   zoomToSelectionSet() {
     if (this.mapSelections.selectedStoreIds.size) {
       this.storeService.getAllByIds(Array.from(this.mapSelections.selectedStoreIds)).subscribe((stores: SimplifiedStore[]) => {
-        const geoms = stores.map((s: SimplifiedStore) => {
+        const storeGeoms = stores.map((s: SimplifiedStore) => {
           return { lat: s.site.latitude, lng: s.site.longitude }
         });
-        const bounds = this.mapService.getBoundsOfPoints(geoms);
-        this.mapService.getMap().fitBounds(bounds);
+
+        if (this.mapSelections.selectedSiteIds.size) {
+          this.siteService.getAllByIds(Array.from(this.mapSelections.selectedSiteIds)).subscribe((sites: SimplifiedSite[]) => {
+            const siteGeoms = sites.map((s: SimplifiedSite) => {
+              return { lat: s.latitude, lng: s.longitude }
+            });
+
+            const geoms = storeGeoms.concat(siteGeoms);
+            const bounds = this.mapService.getBoundsOfPoints(geoms);
+            this.mapService.getMap().fitBounds(bounds);
+          })
+        } else {
+          const bounds = this.mapService.getBoundsOfPoints(storeGeoms);
+          this.mapService.getMap().fitBounds(bounds);
+        }
       })
     }
   }
-
 }

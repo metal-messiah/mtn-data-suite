@@ -14,7 +14,6 @@ import { ShoppingCenterDetailComponent } from './shopping-center-detail/shopping
 import { StoreDetailComponent } from './store-detail/store-detail.component';
 import { StoreCasingsComponent } from './store-casings/store-casings.component';
 import { StoreCasingDetailComponent } from './store-casing-detail/store-casing-detail.component';
-import { StoreSidenavComponent } from './store-sidenav/store-sidenav.component';
 
 const routes: Routes = [
   {
@@ -23,7 +22,6 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', component: CasingDashboardComponent },
-      // { path: '', component: StoreSidenavComponent, outlet: 'storeSidenav' },
       { path: 'site-list', component: SiteListComponent },
       { path: 'site/:siteId', component: SiteOverviewComponent },
       { path: 'site/:siteId/edit', component: SiteDetailComponent, canDeactivate: [CanDeactivateGuard] },

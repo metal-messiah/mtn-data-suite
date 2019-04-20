@@ -25,7 +25,7 @@
   </mat-form-field>
 </div>
 <div #listOfStores class="list-of-items" id="listOfStores" (scroll)="reachedBottom()" *ngIf="!isFetching()">
-  <div *ngFor="let item of getItems()">
+  <div *ngFor="let item of getItems(); let itemIndex = index;">
 
     <div class="site">
       <div class="site-info">
@@ -36,10 +36,10 @@
         <i (click)="showOnMap(item)" title="Center On Map" class="fas fa-map-marked-alt show-on-map-button"></i>
       </div>
       <div class="store-info">
-        <div [id]="store.id" (click)="select(item, store)"
+        <div [id]="getIdForElem(item, store)" (click)="select(item, store)"
           [ngClass]="{'store-info-item': true, 'highlighted': shouldHighlight(store)}"
           *ngFor="let store of item.stores">
-          <div class="store">
+          <div class="store" [id]="getItemIndex(itemIndex)">
             <div class="store-descriptions">
               <div class="store-name">{{store.storeName}}</div>
               <div class="store-subtext">{{getStoreSubtext(item, store)}}</div>

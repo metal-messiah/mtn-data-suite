@@ -22,7 +22,7 @@ mat-list-item {
 
 mat-selection-list,
 mat-list {
-	max-height: 50vh;
+	/* max-height: 50vh; */
 	overflow-y: auto;
 	background: #efefef;
 	border-radius: 5px;

@@ -1,13 +1,7 @@
 <div class="list-manager">
-    <!-- TOP TITLE OF DIALOG -->
-    <!-- <h1 mat-dialog-title *ngIf="isPage(pages.LISTMANAGsER)">List Manager</h1> -->
-    <h1 mat-dialog-title *ngIf="isPage(pages.ADDSTORES)">Add {{getStoreTitle()}} To Lists</h1>
-    <h1 mat-dialog-title *ngIf="isPage(pages.VIEWSTORES) && selectedStoreList">{{selectedStoreList.storeCount | number}}
-        Stores in {{selectedStoreList.storeListName}}</h1>
-    <h1 mat-dialog-title *ngIf="isPage(pages.VIEWSUBSCRIBERS) && selectedStoreList">
-        {{selectedStoreList.subscribers.length | number}} Subscribers For {{selectedStoreList.storeListName}}</h1>
 
-    <div mat-dialog-content>
+
+    <div>
         <!-- LISTMANAGER (INITIAL) VIEW -->
         <div *ngIf="isPage(pages.LISTMANAGER)">
 
@@ -21,9 +15,10 @@
             <!-- IF NO STORES!!! -->
             <!-- INPUT FOR NEW LISTS -->
             <mat-form-field *ngIf="!stores.length && !fetching" style="width: 100%;">
-                <input #newListName matInput type="text" placeholder="New List Name">
-                <button [disabled]="!newListName.value" matSuffix mat-flat-button
-                    (click)="createNewList(newListName.value)">Create New List</button>
+                <input #newListName matInput type="text" [placeholder]="getNewListNamePlaceholder(newListName.value)"
+                    [ngClass]="{'red': getNewListNamePlaceholderColor(newListName.value)}">
+                <button [disabled]="shouldDisableNewListButton(newListName.value)" matSuffix mat-flat-button
+                    (click)="createNewList(newListName)">Create New List</button>
             </mat-form-field>
 
             <!-- TITLE FOR LIST OF LISTS -->
@@ -51,65 +46,21 @@
             </mat-list>
         </div>
 
-        <!-- ADD STORES VIEW -->
-        <div *ngIf="isPage(pages.ADDSTORES)">
-
-            <!-- INPUT FOR NEW LISTS -->
-            <mat-form-field style="width: 100%;">
-                <input #newListName matInput type="text" placeholder="New List Name">
-                <button [disabled]="!newListName.value" matSuffix mat-flat-button
-                    (click)="createNewStoreList(newListName.value)">Create New List</button>
-            </mat-form-field>
-
-            <!-- LIST OF EXISTING LISTS (THAT STORE ISNT PART OF) -->
-            <mat-selection-list #selectionList class="excluded">
-                <mat-list-option [id]="'excluded_' + storeList.id" [value]="storeList"
-                    *ngFor="let storeList of excludedStoreLists">
-                    <h3 matLine><b>{{storeList.storeListName}}</b></h3>
-                    <p matLine>
-                        <span>{{storeList.storeCount | number}} Stores</span>
-                        <span>{{storeList.subscriberCount | number}} Subscribers</span>
-                </mat-list-option>
-            </mat-selection-list>
-        </div>
-
 
         <!-- VIEW STORES VIEW -->
         <div *ngIf="isPage(pages.VIEWSTORES)">
             <!-- LIST OF ALL STORES IN SELECTED LIST -->
+
             <mds-storelist-stores-list [selectedStoreList]="selectedStoreList"></mds-storelist-stores-list>
         </div>
 
 
         <!-- VIEW SUBSCRIBERS VIEW -->
-        <div *ngIf="isPage(pages.VIEWSUBSCRIBERS)">
-            <!-- LIST OF ALL SUBSCRIBERS IN SELECTED LIST -->
-            <mds-storelist-subscribers-list [storeList]="selectedStoreList"></mds-storelist-subscribers-list>
-        </div>
+        <!-- <div *ngIf="isPage(pages.VIEWSUBSCRIBERS)"> -->
+        <!-- LIST OF ALL SUBSCRIBERS IN SELECTED LIST -->
+        <!-- <mds-storelist-subscribers-list [storeList]="selectedStoreList"></mds-storelist-subscribers-list> -->
+        <!-- </div> -->
     </div>
 
-    <div mat-dialog-actions>
-        <!-- LISTMANAGER VIEW -->
-        <!-- <button *ngIf="isPage(pages.LISTMANAGER)" color="primary" mat-raised-button
-            (click)="closeListManager()">Close</button> -->
-        <button *ngIf="isPage(pages.LISTMANAGER) && stores.length" color="accent" mat-raised-button
-            (click)="clearStores()">View All Lists</button>
 
-        <!-- ADD STORES VIEW -->
-        <button *ngIf="isPage(pages.ADDSTORES)" color="primary" mat-raised-button
-            (click)="setPage(pages.LISTMANAGER)">Cancel</button>
-        <button *ngIf="isPage(pages.ADDSTORES)" color="accent" mat-raised-button (click)="addToList()">Save</button>
-
-        <!-- VIEW STORES VIEW -->
-        <!-- <button *ngIf="isPage(pages.VIEWSTORES)" color="primary" mat-raised-button
-            (click)="closeListManager()">Close</button> -->
-        <button *ngIf="isPage(pages.VIEWSTORES)" color="accent" mat-raised-button
-            (click)="setPage(pages.LISTMANAGER)">Go Back</button>
-
-        <!-- VIEW STORES VIEW -->
-        <!-- <button *ngIf="isPage(pages.VIEWSUBSCRIBERS)" color="primary" mat-raised-button
-            (click)="closeListManager()">Close</button> -->
-        <button *ngIf="isPage(pages.VIEWSUBSCRIBERS)" color="accent" mat-raised-button
-            (click)="setPage(pages.LISTMANAGER)">Go Back</button>
-    </div>
 </div>

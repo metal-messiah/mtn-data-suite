@@ -29,9 +29,21 @@
   </div>
   <!-- LIST MANAGER -->
   <div class="sidenav-content" *ngIf="isPage(pages.MYLISTS)">
-    <i (click)="setPage(null)" title="Go Back" class="fas fa-arrow-alt-circle-left fa-2x go-back-button"
+    <i (click)="listManagerGoBack()" title="Go Back" class="fas fa-arrow-alt-circle-left fa-2x go-back-button"
       *ngIf="expanded"></i>
-    <h1 mat-dialog-title>My Lists</h1>
+    <i (click)="selectAllFromList()" title="Select All" class="fas fa-check-square fa-2x select-all-button"
+      *ngIf="expanded && isMultiSelect() && isInListOfStoresView()"></i>
+    <h1 mat-dialog-title>{{getListPageText()}}
+
+      <br />
+      <div *ngIf="getSelectedStoresCount()" title="Zoom to Selected Stores" (click)="zoomToSelection()"
+        class="selected-stores">
+        {{getSelectedStoresCount() | number}} Selected
+        Store{{getSelectedStoresCount() === 1 ? '' : 's'}}
+      </div>
+    </h1>
+
+
     <mds-list-manager></mds-list-manager>
   </div>
 </div>

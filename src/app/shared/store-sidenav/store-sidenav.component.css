@@ -26,6 +26,10 @@ i:hover{
     cursor:pointer;
 }
 
+.mat-dialog-title{
+    margin: 10px 0;
+    padding: 0 50px;
+}
 .store-sidenav{
     background: white;
     width: 100%;

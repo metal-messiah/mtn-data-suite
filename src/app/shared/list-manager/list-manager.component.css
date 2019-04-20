@@ -52,3 +52,7 @@ button.mat-menu-item > span {
 .menu-item-warn:hover {
 	color: rgba(255, 0, 0, 0.75);
 }
+
+.red{
+	color: red !important;
+}

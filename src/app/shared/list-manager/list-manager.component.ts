@@ -133,7 +133,7 @@ export class ListManagerComponent implements OnInit, OnDestroy {
         const selector = `${targetList}_${storeListId}`;
         const elem = document.getElementById(selector);
         if (elem) {
-            elem.scrollIntoView({ behavior: 'smooth' });
+            elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
 
@@ -145,11 +145,28 @@ export class ListManagerComponent implements OnInit, OnDestroy {
         }
     }
 
-    createNewList(listName: string) {
+    createNewList(listNameInput) {
+        const listName = listNameInput.value;
         this.listManagerService.createNewList(listName);
+        listNameInput.value = '';
     }
 
+    shouldDisableNewListButton(newListName: string) {
+        return this.allStoreLists.filter(
+            (sl: SimplifiedStoreList) => sl.storeListName.toLowerCase() === newListName.toLowerCase()
+        ).length > 0;
+    }
 
+    getNewListNamePlaceholder(newListName: string) {
+        if (this.shouldDisableNewListButton(newListName)) {
+            return 'List Name Already Exists!'
+        }
+        return 'New List Name'
+    }
+
+    getNewListNamePlaceholderColor(newListName: string) {
+        return this.shouldDisableNewListButton(newListName);
+    }
 
     addToList() {
         this.listManagerService.addToList(this.selectionList.selectedOptions.selected);

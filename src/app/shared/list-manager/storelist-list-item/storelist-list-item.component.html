@@ -3,19 +3,19 @@
     <p matLine>
         <span>{{storeList.storeCount | number}} Store{{storeList.storeCount > 1 ? 's' : ''}}</span>
         <span>{{storeList.subscriberCount | number}} Subscriber{{storeList.subscriberCount > 1 ? 's' : ''}}</span>
-    <p matLine class="mat-caption">Created By {{storeList.createdBy.name}}</p>
+        <p matLine class="mat-caption">Created By {{storeList.createdBy.name}}</p>
 
-    <!-- OPTIONS MENU FOR EACH STORELIST -->
-    <button class='menu-icon-button' mat-icon-button color="primary" [mat-menu-trigger-for]="siteMenu">
+        <!-- OPTIONS MENU FOR EACH STORELIST -->
+        <button class='menu-icon-button' mat-icon-button color="primary" [mat-menu-trigger-for]="siteMenu">
             <i class="site-menu fas fa-ellipsis-v"></i>
         </button>
 
-    <mat-menu #siteMenu="matMenu">
-        <button mat-menu-item (click)="viewStores(storeList)">
-            <i class="fas fa-list-ul"></i>
-            <span>View Stores</span>
-        </button>
-        <button mat-menu-item (click)="viewSubscribers(storeList)">
+        <mat-menu #siteMenu="matMenu">
+            <button mat-menu-item (click)="viewStores(storeList)">
+                <i class="fas fa-list-ul"></i>
+                <span>View Stores</span>
+            </button>
+            <!-- <button mat-menu-item (click)="viewSubscribers(storeList)">
             <i class="fas fa-users"></i>
             <span>View Subscribers</span>
         </button>
@@ -34,11 +34,11 @@
         <button mat-menu-item (click)="share(storeList)">
             <i class="fas fa-share-square"></i>
             <span>Share List</span>
-        </button>
-        <button class="menu-item-warn" mat-menu-item (click)="deleteList(storeList)">
-            <i class="fas fa-trash-alt"></i>
-            <span>Delete List</span>
-        </button>
-    </mat-menu>
+        </button> -->
+            <button class="menu-item-warn" mat-menu-item (click)="deleteList(storeList)">
+                <i class="fas fa-trash-alt"></i>
+                <span>Delete List</span>
+            </button>
+        </mat-menu>
 
-  </mat-list-item>
+</mat-list-item>

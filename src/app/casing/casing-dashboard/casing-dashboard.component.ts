@@ -45,8 +45,11 @@ import { GeometryUtil } from '../../utils/geometry-util';
 import { DbEntityInfoCardItem } from '../db-entity-info-card-item';
 import { InfoCardItem } from '../info-card-item';
 import { GoogleInfoCardItem } from '../google-info-card-item';
-import { ListManagerDialogComponent } from '../../shared/list-manager-dialog/list-manager-dialog.component';
 import { StorageService } from 'app/core/services/storage.service';
+import { SiteMarker } from 'app/models/site-marker';
+import { StoreMarker } from 'app/models/store-marker';
+
+import * as _ from 'lodash';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -169,16 +172,17 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     console.log(`Map is ready`);
 
 
-    this.subscriptions.push(this.casingDashboardService.programmaticSelectionChanged$.subscribe(selection => {
-      this.isMobile = this.checkMobile();
-      this.isTooNarrow = this.checkTooNarrow();
+    this.subscriptions.push(this.casingDashboardService.programmaticSelectionChanged$.subscribe(
+      (selection: { siteMarker: SiteMarker, storeMarker: StoreMarker }) => {
+        this.isMobile = this.checkMobile();
+        this.isTooNarrow = this.checkTooNarrow();
 
-      if (this.isTooNarrow) {
-        this.toggleStoreLists();
-      }
+        if (this.isTooNarrow) {
+          this.toggleStoreLists();
+        }
 
-      this.openInfoCardFromSidenav(selection.storeId, selection.siteId);
-    }))
+        this.openInfoCardFromSidenav(selection.siteMarker, selection.storeMarker);
+      }))
 
     this.subscriptions.push(this.initiateDuplicateSelection$.subscribe(siteId => {
       // Change the mode (should disables all other user interactions that might conflict)
@@ -239,11 +243,16 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  openInfoCardFromSidenav(storeId, siteId) {
+  openInfoCardFromSidenav(siteMarker: SiteMarker, storeMarker: StoreMarker) {
     if (this.casingDashboardService.getShouldOpenInfoCard()) {
       this.dbEntityMarkerService.clearSelection();
-      this.dbEntityMarkerService.selectStores([storeId]);
-      this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, { storeId, siteId },
+      if (storeMarker.id) {
+        this.dbEntityMarkerService.selectStores([storeMarker.id]);
+      }
+      if (siteMarker && siteMarker.id && storeMarker.isEmpty) {
+        this.dbEntityMarkerService.selectSites([siteMarker.id]);
+      }
+      this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, { storeId: storeMarker.id, siteId: siteMarker ? siteMarker.id : null },
         this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
     }
   }
@@ -655,19 +664,19 @@ Assigning
   }
 
   openListManagerDialog() {
-    const selectedIds = this.dbEntityMarkerService.getSelectedStoreIds();
-    if (selectedIds.length > 0) {
-      this.storeService.getAllByIds(selectedIds).subscribe((stores: SimplifiedStore[]) => {
-        this.dialog.open(ListManagerDialogComponent, {
-          data: { stores }
-        });
-      }, error1 => this.errorService.handleServerError('Failed to get stores for store lists', error1,
-        () => console.log(error1), () => this.openListManagerDialog()))
-    } else {
-      this.dialog.open(ListManagerDialogComponent, {
-        data: { stores: [] }
-      });
-    }
+    // const selectedIds = this.dbEntityMarkerService.getSelectedStoreIds();
+    // if (selectedIds.length > 0) {
+    //   this.storeService.getAllByIds(selectedIds).subscribe((stores: SimplifiedStore[]) => {
+    //     this.dialog.open(ListManagerDialogComponent, {
+    //       data: { stores }
+    //     });
+    //   }, error1 => this.errorService.handleServerError('Failed to get stores for store lists', error1,
+    //     () => console.log(error1), () => this.openListManagerDialog()))
+    // } else {
+    //   this.dialog.open(ListManagerDialogComponent, {
+    //     data: { stores: [] }
+    //   });
+    // }
   }
 
   toggleStoreLists() {
@@ -683,5 +692,9 @@ Assigning
     if (mouseX > sidenavWidth) {
       this.toggleStoreLists();
     }
+  }
+
+  getVisibleMarkersCount() {
+    return _.uniqBy(this.dbEntityMarkerService.getVisibleMarkers().map(m => new SiteMarker(m['site'])), 'id').length;
   }
 }

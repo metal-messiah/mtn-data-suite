@@ -161,8 +161,8 @@ export class ListManagerService {
         // loop through both sets and create includedStoreLists dataset
         Promise.all(promises).then((results: Pageable<SimplifiedStoreList>[]) => {
             const combined = Object.assign([], results[0].content, results[1].content);
-            this.filterLists( combined.map((storeList) => new SimplifiedStoreList(storeList)));
-            
+            this.filterLists(combined.map((storeList) => new SimplifiedStoreList(storeList)));
+
             this.fetching$.next(false);
 
         });
@@ -231,7 +231,7 @@ export class ListManagerService {
 
     deleteList(storeList: SimplifiedStoreList): void {
         this.storeListService.delete(storeList.id).subscribe(() => {
-            this.snackbar$.next(`Deleted Store #${storeList.id}`);
+            this.snackbar$.next(`Deleted ${storeList.storeListName}`);
 
             this.refreshStoreLists();
         });
@@ -239,6 +239,7 @@ export class ListManagerService {
 
     removeFromList(storeLists: SimplifiedStoreList[], storeListStores: SimplifiedStore[]) {
         if (storeLists.length) {
+            this.fetching$.next(true);
             const promises = [];
             storeLists.forEach((storeList: SimplifiedStoreList) => {
                 const storeListId = storeList.id;
@@ -251,10 +252,14 @@ export class ListManagerService {
                 .then((results) => {
 
                     this.refreshStoreLists();
+                    this.fetching$.next(false);
                 })
                 .catch(
-                    (err) => this.error$.next({ title: 'Failed to Remove Stores from StoreList!', error: err })
-                );
+                    (err) => {
+                        this.error$.next({ title: 'Failed to Remove Stores from StoreList!', error: err });
+                        this.fetching$.next(false);
+                    }
+                )
         }
     }
 
