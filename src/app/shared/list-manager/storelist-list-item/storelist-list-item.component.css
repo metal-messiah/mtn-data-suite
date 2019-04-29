@@ -53,3 +53,13 @@ button.mat-menu-item > span {
 .menu-item-warn:hover {
 	color: rgba(255, 0, 0, 0.75);
 }
+
+.current-filter{
+	background: repeating-linear-gradient(
+  45deg,
+  #fff,
+  #fff 10px,
+  #efefef 10px,
+  #efefef 20px
+);
+}

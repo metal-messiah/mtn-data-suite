@@ -6,7 +6,8 @@
     <mat-card-header>
       <mat-card-title>
         <strong>
-          <span *ngIf="store">{{store.storeName}}<span *ngIf="store.storeNumber">&nbsp;{{store.storeNumber}}</span></span>
+          <span *ngIf="store">{{store.storeName}}<span
+              *ngIf="store.storeNumber">&nbsp;{{store.storeNumber}}</span></span>
           <span *ngIf="!store">Empty Site</span>
         </strong>
       </mat-card-title>
@@ -15,7 +16,8 @@
         <span *ngIf="site.duplicate">&nbsp;&nbsp;<strong>DUPLICATE!</strong></span>
         <span *ngIf="store.floating">&nbsp;&nbsp;<strong>FLOAT!</strong></span>
         <span *ngIf="store.latestStoreVolume != null">
-          (Latest: {{store.latestStoreVolume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k&nbsp;&nbsp;{{store.latestStoreVolume.volumeDate | date}})
+          (Latest:
+          {{store.latestStoreVolume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k&nbsp;&nbsp;{{store.latestStoreVolume.volumeDate | date}})
         </span>
       </mat-card-subtitle>
     </mat-card-header>
@@ -68,9 +70,13 @@
     <i class="fas fa-certificate"></i>&nbsp;Validate
   </button>
   <button mat-menu-item (click)="invalidateStore()" *ngIf="store && store.validatedDate">
-    <i class="fas fa-times"></i>&nbsp;Invalidate&nbsp;({{store.validatedDate.getMonth()+1}}/{{store.validatedDate.getFullYear()%1000}})
+    <i
+      class="fas fa-times"></i>&nbsp;Invalidate&nbsp;({{store.validatedDate.getMonth()+1}}/{{store.validatedDate.getFullYear()%1000}})
   </button>
-  <button mat-menu-item (click)="openListManagerDialog()">
-      <i class="fas fa-list-ul"></i>&nbsp;Store Lists
-    </button>
+  <button mat-menu-item (click)="addToList()">
+    <i class="fas fa-plus-circle"></i>&nbsp;&nbsp;Add to List
+  </button>
+  <button mat-menu-item (click)="removeFromList()">
+    <i class="fas fa-minus-circle"></i>&nbsp;&nbsp;Remove From List
+  </button>
 </mat-menu>

@@ -15,7 +15,7 @@ import { SimplifiedSite } from 'app/models/simplified/simplified-site';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { CasingDashboardService } from 'app/casing/casing-dashboard/casing-dashboard.service';
 import { UpdateService } from 'app/core/services/update.service';
-import { CasingDashboardMode } from 'app/casing/casing-dashboard/casing-dashboard.component';
+// import { CasingDashboardMode } from 'app/casing/casing-dashboard/casing-dashboard.component';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
 import { isObject } from 'util';
 
@@ -216,6 +216,8 @@ export class StoreSidenavService {
         this.setFetching(false)
 
       })
+    } else {
+      this.setRenderer();
     }
   }
 
@@ -235,8 +237,10 @@ export class StoreSidenavService {
     this.renderer = this.items.slice(0, this.loadingConstraint);
 
     const elem = document.querySelector('.sidenav-content');
-    elem.removeEventListener('scroll', () => this.reachedBottom(), false);
-    elem.addEventListener('scroll', () => this.reachedBottom(), false);
+    if (elem) {
+      elem.removeEventListener('scroll', () => this.reachedBottom(), false);
+      elem.addEventListener('scroll', () => this.reachedBottom(), false);
+    }
   }
 
   reachedBottom() {
@@ -467,7 +471,7 @@ export class StoreSidenavService {
 
 
   select(siteMarker: SiteMarker, storeMarker: StoreMarker) {
-    if (this.getSelectedDashboardMode() !== CasingDashboardMode.MULTI_SELECT) {
+    if (this.getSelectedDashboardMode() !== 4) {
       // open the info card
       this.casingDashboardService.selectItemProgrammatically(siteMarker, storeMarker)
     } else {

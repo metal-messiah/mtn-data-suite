@@ -1,8 +1,13 @@
-<mat-list-item [id]="listItemId">
-    <h3 matLine><b>{{storeList.storeListName}}</b></h3>
+<mat-list-item [id]="listItemId" [ngClass]="{'current-filter': storeListIsCurrentFilter(storeList)}">
+    <h3 matLine>
+        <b>
+            {{storeList.storeListName}} <i [title]="'Only Showing Stores in ' + storeList.storeListName"
+                *ngIf="storeListIsCurrentFilter(storeList)" class="fas fa-filter" style="color: #607d8b"></i>
+        </b>
+    </h3>
     <p matLine>
         <span>{{storeList.storeCount | number}} Store{{storeList.storeCount > 1 ? 's' : ''}}</span>
-        <span>{{storeList.subscriberCount | number}} Subscriber{{storeList.subscriberCount > 1 ? 's' : ''}}</span>
+        <!-- <span>{{storeList.subscriberCount | number}} Subscriber{{storeList.subscriberCount > 1 ? 's' : ''}}</span> -->
         <p matLine class="mat-caption">Created By {{storeList.createdBy.name}}</p>
 
         <!-- OPTIONS MENU FOR EACH STORELIST -->

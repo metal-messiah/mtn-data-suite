@@ -41,11 +41,8 @@ export class ListManagerComponent implements OnInit, OnDestroy {
         public snackBar: MatSnackBar,
         private storeSidenavService: StoreSidenavService
     ) {
-        console.log('set stores')
         this.listManagerService.setStores([]);
         this.createSubscriptions();
-
-        // this.self.disableClose = true;
     }
 
     ngOnDestroy() {
@@ -80,6 +77,7 @@ export class ListManagerComponent implements OnInit, OnDestroy {
         this.subscriptions.push(
             this.listManagerService.selectedStoreListChanged$.subscribe(
                 (selectedStoreList: SimplifiedStoreList) => {
+                    console.log('selectedStoreList Changed', selectedStoreList)
                     this.selectedStoreList = selectedStoreList;
                 }
             )

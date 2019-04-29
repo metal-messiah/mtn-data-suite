@@ -17,30 +17,30 @@ export class SiteMarkerService {
   private readonly defaultPageSize = 100;
 
   constructor(private http: HttpClient,
-              private rest: RestService) {
+    private rest: RestService) {
   }
 
-  getSiteMarkersForView(newBounds: {north: number, south: number, east: number, west: number},
-                        prevBounds?: {north: number, south: number, east: number, west: number},
-                        updatedAt?: Date): Observable<SiteMarker[]> {
+  getSiteMarkersForView(newBounds: { north: number, south: number, east: number, west: number },
+    prevBounds?: { north: number, south: number, east: number, west: number },
+    updatedAt?: Date): Observable<SiteMarker[]> {
     if (prevBounds && updatedAt) {
       const url = this.rest.getHost() + this.endpoint;
       let params = new HttpParams();
       _.forEach(newBounds, (value, key) => params = params.set(key, String(value)));
       _.forEach(prevBounds, (value, key) => params = params.set('prev-' + key, String(value)));
       params = params.set('updated-at', DateUtil.formatDateForUrlParam(updatedAt));
-      return this.http.get<SiteMarker[]>(url, {headers: this.rest.getHeaders(), params: params})
+      return this.http.get<SiteMarker[]>(url, { headers: this.rest.getHeaders(), params: params })
         .pipe(map(siteMarkers => siteMarkers.map(sm => new SiteMarker(sm))));
     } else {
       return this.getSiteMarkersInBounds(newBounds);
     }
   }
 
-  private getSiteMarkersInBounds(bounds: {north: number, south: number, east: number, west: number}) {
+  private getSiteMarkersInBounds(bounds: { north: number, south: number, east: number, west: number }) {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams();
     _.forEach(bounds, (value, key) => params = params.set(key, String(value)));
-    return this.http.get<SiteMarker[]>(url, {headers: this.rest.getHeaders(), params: params})
+    return this.http.get<SiteMarker[]>(url, { headers: this.rest.getHeaders(), params: params })
       .pipe(map(siteMarkers => siteMarkers.map(sm => new SiteMarker(sm))));
   }
 
@@ -70,10 +70,10 @@ export class SiteMarkerService {
    * @param obs$
    */
   private runPages(url: string, params: HttpParams, pageSize: number, pageNumber: number,
-                   obs$: Subject<SiteMarker[]>) {
+    obs$: Subject<SiteMarker[]>) {
     params = params.set('size', String(pageSize));
     params = params.set('page', String(pageNumber));
-    this.http.get<Pageable<SiteMarker>>(url, {headers: this.rest.getHeaders(), params: params})
+    this.http.get<Pageable<SiteMarker>>(url, { headers: this.rest.getHeaders(), params: params })
       .subscribe((page: Pageable<SiteMarker>) => {
         // Add markers for page to markers in Bounds
         obs$.next(page.content.map(sm => new SiteMarker(sm)));

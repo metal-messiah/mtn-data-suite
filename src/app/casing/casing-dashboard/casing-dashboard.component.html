@@ -10,11 +10,27 @@
         <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
         <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
         <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
+        <!-- <mat-checkbox #onlyShowListStoresCheckbox formControlName="onlyShowListStores">Filter Using Store List -->
+        <!-- </mat-checkbox> -->
+
       </div>
       <mat-divider></mat-divider>
 
+      <h3 mat-subheader id="dataset-header">Dataset <i title="View List of Stores"
+          (click)="openSidenavDirectlyToSelectedListStores(datasetSelect.selected.value)"
+          class="fas fa-list-alt fa-2x"></i></h3>
+      <mat-form-field class="control-selector">
+        <mat-select #datasetSelect [compareWith]="compareFn" formControlName="dataset">
+          <mat-option *ngFor="let option of storeListOptions" [value]="option">
+            {{option.storeListName}} ({{option.storeCount | number}})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-divider></mat-divider>
+
       <h3 mat-subheader>Marker Type</h3>
-      <mat-form-field id="marker-type-selector" floatLabel="never">
+      <mat-form-field class="control-selector" floatLabel="never">
         <mat-select formControlName="markerType">
           <mat-option *ngFor="let markerType of dbEntityMarkerService.markerTypeOptions" [value]="markerType">
             {{markerType}}
@@ -27,7 +43,7 @@
       <h3 mat-subheader>Controls</h3>
       <div>
         <div class="checklist">
-          <mat-checkbox formControlName="updateOnBoundsChange">Update as map moves</mat-checkbox>
+          <mat-checkbox formControlName="updateOnBoundsChange">Update as Map Moves</mat-checkbox>
           <mat-checkbox formControlName="cluster">Cluster Stores</mat-checkbox>
         </div>
         <div *ngIf="dbEntityMarkerService.controls.get('cluster').value">
@@ -60,7 +76,8 @@
         </mds-store-sidenav>
         <mds-map #casingMap class="row content" (ready)="onMapReady()"></mds-map>
       </div>
-      <mds-info-card id="infoCardElement" *ngIf="infoCard" class="infoCardContainer" [infoCard]="infoCard"
+      <mds-info-card id="infoCardElement" *ngIf="infoCard"
+        [ngClass]="{'infoCardContainer':true, 'right': showStoreLists}" [infoCard]="infoCard"
         [disabled]="selectedDashboardMode !== casingDashboardMode.DEFAULT">
       </mds-info-card>
       <div class="row footer">
@@ -184,8 +201,11 @@
   <button mat-menu-item (click)="openAssignmentDialog()">
     <i class="fas fa-user"></i>&nbsp;&nbsp;Assign
   </button>
-  <button mat-menu-item (click)="openListManagerDialog()">
-    <i class="fas fa-user"></i>&nbsp;&nbsp;Store Lists
+  <button mat-menu-item (click)="addToList()">
+    <i class="fas fa-plus-circle"></i>&nbsp;&nbsp;Add to List
+  </button>
+  <button mat-menu-item (click)="removeFromList()">
+    <i class="fas fa-minus-circle"></i>&nbsp;&nbsp;Remove From List
   </button>
 </mat-menu>
 
@@ -249,9 +269,6 @@
   <button mat-menu-item *ngIf="casingDashboardService.getSelectedProject()" [mat-menu-trigger-for]="projectSubMenu">
     {{casingDashboardService.getSelectedProject().projectName}}
   </button>
-  <!-- <button mat-menu-item (click)="openStoreLists()">
-    <i class="fas fa-list-ul"></i>&nbsp;Store Lists
-  </button> -->
 </mat-menu>
 
 <mat-menu #geolocationSubMenu="matMenu">

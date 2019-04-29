@@ -1,4 +1,4 @@
-import { MatSnackBar, MatDialogRef, MatListOption, MatDialog } from '@angular/material';
+import { MatListOption } from '@angular/material';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
 import { StoreList } from 'app/models/full/store-list';
 import { StoreListService } from 'app/core/services/store-list.service';
@@ -6,14 +6,12 @@ import { AuthService } from 'app/core/services/auth.service';
 import { StoreListSearchType } from 'app/core/functionalEnums/StoreListSearchType';
 import { Pageable } from 'app/models/pageable';
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
-import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
-import { ErrorService } from 'app/core/services/error.service';
 import { UserProfileService } from 'app/core/services/user-profile.service';
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Pages } from './list-manager-pages';
 import { SimplifiedUserProfile } from 'app/models/simplified/simplified-user-profile';
+import { DbEntityMarkerService } from 'app/core/services/db-entity-marker.service';
 import * as _ from 'lodash';
 
 
@@ -50,9 +48,11 @@ export class ListManagerService {
     constructor(
         private storeListService: StoreListService,
         private authService: AuthService,
-        private userProfileService: UserProfileService
+        private userProfileService: UserProfileService,
+        private dbEntityMarkerService: DbEntityMarkerService
     ) {
         this.userId = this.authService.sessionUser.id;
+        console.log('INIT!')
     }
 
     setStores(stores: SimplifiedStore[]) {
@@ -75,7 +75,7 @@ export class ListManagerService {
     }
 
     refreshStoreLists() {
-        this.getStoreLists();
+        this.fetchStoreLists();
     }
 
     refreshSelectedStoreList(storeList: SimplifiedStoreList) {
@@ -84,6 +84,18 @@ export class ListManagerService {
                 this.setSelectedStoreList(storeList);
             }
         }
+    }
+
+    sortAndReturnStoreListObjectsAlphabetically(storeLists: SimplifiedStoreList[]): SimplifiedStoreList[] {
+
+        storeLists.sort((a: SimplifiedStoreList, b: SimplifiedStoreList) => {
+            const text1 = a.storeListName.toUpperCase();
+            const text2 = b.storeListName.toUpperCase();
+            return text1 < text2 ? -1 : text1 > text2 ? 1 : 0;
+        });
+
+
+        return storeLists;
     }
 
     sortStoreListsAlphabetically(): void {
@@ -143,10 +155,10 @@ export class ListManagerService {
         this.sortStoreListsAlphabetically();
     }
 
-    getStoreLists() {
+    fetchStoreLists(storeIds?: number[]) {
         this.fetching$.next(true);
         const userId = this.userId;
-        const storeIds = null;
+        storeIds = storeIds && storeIds.length ? storeIds : null;
         const searchType = StoreListSearchType.ANY;
 
         const subscribed: Promise<Pageable<SimplifiedStoreList>> = this.storeListService
@@ -166,6 +178,43 @@ export class ListManagerService {
             this.fetching$.next(false);
 
         });
+    }
+
+    getStoreLists(storeIds?: number[]): Observable<SimplifiedStoreList[]> {
+        console.log('get store lists')
+        return Observable.create(observer => {
+            if (this.allStoreLists.length) {
+                observer.next(this.allStoreLists)
+            } else {
+                const userId = this.userId;
+                storeIds = storeIds && storeIds.length ? storeIds : null;
+                const searchType = StoreListSearchType.ANY;
+
+
+                const subscribed: Promise<Pageable<SimplifiedStoreList>> = this.storeListService
+                    .getStoreLists([userId], null, storeIds, null, searchType)
+                    .toPromise();
+                const owned: Promise<Pageable<SimplifiedStoreList>> = this.storeListService
+                    .getStoreLists(null, userId, storeIds, null, searchType)
+                    .toPromise();
+
+                const promises: Promise<Pageable<SimplifiedStoreList>>[] = [subscribed, owned];
+
+                // loop through both sets and create includedStoreLists dataset
+                Promise.all(promises).then((results: Pageable<SimplifiedStoreList>[]) => {
+                    const combined = Object.assign([], results[0].content, results[1].content);
+                    const combinedObjs = combined.map((storeList) => new SimplifiedStoreList(storeList));
+
+                    const sortedStoreLists = this.sortAndReturnStoreListObjectsAlphabetically(combinedObjs);
+                    observer.next(sortedStoreLists);
+                }).catch(err => observer.error(err));
+            }
+        })
+
+    }
+
+    storeListIsCurrentFilter(storeList: SimplifiedStoreList): boolean {
+        return this.dbEntityMarkerService.controls.get('dataset').value.id === storeList.id
     }
 
     createNewList(listName: string) {
@@ -263,26 +312,31 @@ export class ListManagerService {
         }
     }
 
-    addToList(selections?: MatListOption[], storeLists?: SimplifiedStoreList[]) {
+    addToList(selections?: MatListOption[], storeLists?: SimplifiedStoreList[], stores?: SimplifiedStore[]) {
         // const selections: MatListOption[] = this.selectionList.selectedOptions.selected;
         let selectedStoreLists: SimplifiedStoreList[] = [];
+        stores = stores ? stores : this.stores;
+
         if (selections) {
             selectedStoreLists = selections.map((s) => s.value);
         }
         if (!selectedStoreLists.length && storeLists) {
             selectedStoreLists = storeLists;
         }
-        if (selectedStoreLists.length && this.stores) {
+        console.log(selectedStoreLists, stores)
+        if (selectedStoreLists.length && stores.length) {
+            console.log('start promises')
             const promises = [];
             selectedStoreLists.forEach((storeList) => {
                 const storeListId = storeList.id;
-                const storeIds = this.stores.map((store) => store.id);
+                const storeIds = stores.map((store) => store.id);
 
                 promises.push(this.storeListService.addStoresToStoreList(storeListId, storeIds).toPromise());
             });
 
             Promise.all(promises)
                 .then((results) => {
+                    console.log('results!')
                     results.forEach((response: SimplifiedStoreList) => {
                         if (!this.userIsSubscribedToStoreList(response)) {
                             this.toggleSubscribe(response);
@@ -302,4 +356,9 @@ export class ListManagerService {
         this.page = page;
         this.page$.next(this.page);
     }
+
+    getSelectedStoreList() {
+        return this.selectedStoreList;
+    }
+
 }

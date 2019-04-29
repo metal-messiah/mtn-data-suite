@@ -45,11 +45,18 @@ import { GeometryUtil } from '../../utils/geometry-util';
 import { DbEntityInfoCardItem } from '../db-entity-info-card-item';
 import { InfoCardItem } from '../info-card-item';
 import { GoogleInfoCardItem } from '../google-info-card-item';
-import { StorageService } from 'app/core/services/storage.service';
-import { SiteMarker } from 'app/models/site-marker';
-import { StoreMarker } from 'app/models/store-marker';
+import { StorageService } from '../../core/services/storage.service';
+import { SiteMarker } from '../../models/site-marker';
+import { StoreMarker } from '../../models/store-marker';
 
 import * as _ from 'lodash';
+import { ListManagerService } from '../../shared/list-manager/list-manager.service';
+import { SimplifiedStoreList } from '../../models/simplified/simplified-store-list';
+import { StoreSidenavService } from '../../shared/store-sidenav/store-sidenav.service';
+
+import { Pages as ListManagerPages } from '../../shared/list-manager/list-manager-pages';
+import { Pages as StoreSidenavPages } from '../../shared/store-sidenav/store-sidenav-pages';
+import { AddRemoveType, AddRemoveStoresListDialogComponent } from 'app/shared/add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -98,12 +105,16 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   movingSite: Site;
 
-  visibleStores: SimplifiedStore[];
+  visibleStoresCount = 0;
 
   isMobile: boolean;
   isTooNarrow: boolean;
 
   highlightTab = false;
+
+
+  storeListOptions: SimplifiedStoreList[] = [];
+
 
   constructor(public mapService: MapService,
     public dbEntityMarkerService: DbEntityMarkerService,
@@ -114,7 +125,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     private projectService: ProjectService,
     private snackBar: MatSnackBar,
     private ngZone: NgZone,
-    private router: Router,
     private route: ActivatedRoute,
     private navigatorService: NavigatorService,
     private dialog: MatDialog,
@@ -122,7 +132,9 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     private errorService: ErrorService,
     public entitySelectionService: EntitySelectionService,
     public projectBoundaryService: ProjectBoundaryService,
-    private storageService: StorageService) {
+    private storageService: StorageService,
+    private listManagerService: ListManagerService,
+    private storeSidenavService: StoreSidenavService) {
   }
 
   ngOnInit() {
@@ -138,14 +150,27 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       }
     })
 
+    this.dbEntityMarkerService.visibleMarkersChanged$.subscribe((vm) => {
+      this.visibleStoresCount = _.uniqBy(vm.map(m => new SiteMarker(m['site'])), 'id').length;
+    })
+
     this.isMobile = this.checkMobile();
     this.isTooNarrow = this.checkTooNarrow();
+
+    this.listManagerService.getStoreLists().subscribe((storeLists: SimplifiedStoreList[]) => {
+      this.storeListOptions = [this.dbEntityMarkerService.allStoresOption].concat(storeLists);
+    });
 
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach((s: Subscription) => s.unsubscribe());
     // this.dbEntityMarkerService.onDestroy();
+  }
+
+
+  compareFn(o1: SimplifiedStoreList, o2: SimplifiedStoreList): boolean {
+    return o1 && o2 ? o1.id === o2.id : o1 === o2;
   }
 
   checkMobile() {
@@ -663,21 +688,34 @@ Assigning
     }
   }
 
-  openListManagerDialog() {
-    // const selectedIds = this.dbEntityMarkerService.getSelectedStoreIds();
-    // if (selectedIds.length > 0) {
-    //   this.storeService.getAllByIds(selectedIds).subscribe((stores: SimplifiedStore[]) => {
-    //     this.dialog.open(ListManagerDialogComponent, {
-    //       data: { stores }
-    //     });
-    //   }, error1 => this.errorService.handleServerError('Failed to get stores for store lists', error1,
-    //     () => console.log(error1), () => this.openListManagerDialog()))
-    // } else {
-    //   this.dialog.open(ListManagerDialogComponent, {
-    //     data: { stores: [] }
-    //   });
-    // }
+  getSelectedStoreIds() {
+    return this.dbEntityMarkerService.getSelectedStoreIds();
   }
+
+  addToList() {
+    const selectedIds = this.dbEntityMarkerService.getSelectedStoreIds();
+    if (selectedIds.length > 0) {
+
+      const addRemoveDialogRef = this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.ADD, storeIds: selectedIds } });
+      addRemoveDialogRef.afterClosed().subscribe(() => {
+        console.log('closed');
+      });
+    }
+
+  }
+
+  removeFromList() {
+    const selectedIds = this.dbEntityMarkerService.getSelectedStoreIds();
+    if (selectedIds.length > 0) {
+
+      const addRemoveDialogRef = this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.REMOVE, storeIds: selectedIds } });
+      addRemoveDialogRef.afterClosed().subscribe(() => {
+        console.log('closed');
+      });
+    }
+
+  }
+
 
   toggleStoreLists() {
     this.showStoreLists = !this.showStoreLists;
@@ -694,7 +732,28 @@ Assigning
     }
   }
 
+  getActiveStoreListName() {
+    const activeStoreList = this.listManagerService.getSelectedStoreList();
+    return activeStoreList ? activeStoreList.storeListName : '';
+  }
+
   getVisibleMarkersCount() {
-    return _.uniqBy(this.dbEntityMarkerService.getVisibleMarkers().map(m => new SiteMarker(m['site'])), 'id').length;
+    // return _.uniqBy(this.dbEntityMarkerService.getVisibleMarkers().map(m => new SiteMarker(m['site'])), 'id').length;
+    return this.visibleStoresCount;
+  }
+
+  openSidenavDirectlyToSelectedListStores(storeList: SimplifiedStoreList) {
+    if (storeList.id !== -1) {
+      this.storeSidenavService.setPage(StoreSidenavPages.MYLISTS);
+      this.listManagerService.setSelectedStoreList(new SimplifiedStoreList(storeList));
+      setTimeout(() => {
+        this.listManagerService.setPage(ListManagerPages.VIEWSTORES);
+      }, 100)
+    } else {
+      this.storeSidenavService.setPage(StoreSidenavPages.STORESONMAP);
+    }
+
+    this.showStoreLists = true;
+    this.filterSideNavIsOpen = false;
   }
 }

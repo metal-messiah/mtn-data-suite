@@ -87,4 +87,10 @@ export class StorelistListItemComponent implements OnInit, OnDestroy {
       this.listManagerService.subscribe(new SimplifiedUserProfile(user), storeList);
     })
   }
+
+  storeListIsCurrentFilter(storeList: SimplifiedStoreList) {
+    return this.listManagerService.storeListIsCurrentFilter(storeList);
+  }
+
+
 }

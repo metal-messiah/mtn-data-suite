@@ -17,6 +17,24 @@ import { StoreIconUtil } from '../../utils/StoreIconUtil';
 import { MarkerType } from '../functionalEnums/MarkerType';
 
 import * as _ from 'lodash';
+import { ListManagerService } from 'app/shared/list-manager/list-manager.service';
+import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
+
+export interface DbEntityMarkerControls {
+  showActive: boolean,
+  showHistorical: boolean,
+  showFuture: boolean,
+  showEmptySites: boolean,
+  showSitesBackfilledByNonGrocery: boolean,
+  showFloat: boolean,
+  cluster: boolean,
+  clusterZoomLevel: number,
+  minPullZoomLevel: number,
+  fullLabelMinZoomLevel: number,
+  markerType: string,
+  updateOnBoundsChange: boolean,
+  dataset: SimplifiedStoreList
+}
 
 @Injectable()
 export class DbEntityMarkerService {
@@ -50,6 +68,30 @@ export class DbEntityMarkerService {
 
   private visibleMarkers = [];
 
+  allStoresOption: SimplifiedStoreList = new SimplifiedStoreList({
+    id: -1,
+    storeListName: 'All Stores',
+    storeCount: Infinity
+  })
+
+  private defaultControls: DbEntityMarkerControls = {
+    showActive: true,
+    showHistorical: true,
+    showFuture: true,
+    showEmptySites: true,
+    showSitesBackfilledByNonGrocery: false,
+    showFloat: false,
+    cluster: false,
+    clusterZoomLevel: 13,
+    minPullZoomLevel: 10,
+    fullLabelMinZoomLevel: 16,
+    markerType: 'Pin',
+    updateOnBoundsChange: true,
+    dataset: this.allStoresOption
+  }
+
+
+
   constructor(private authService: AuthService,
     private errorService: ErrorService,
     private fb: FormBuilder,
@@ -57,6 +99,8 @@ export class DbEntityMarkerService {
     private projectService: ProjectService,
     private casingDashboardService: CasingDashboardService) {
     this.initControls();
+
+
 
     this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker }) => {
       console.log(selection.storeId, selection.siteId)
@@ -322,27 +366,15 @@ export class DbEntityMarkerService {
   }
 
   private initControls() {
-    const storedControls = localStorage.getItem('dbEntityMarkerServiceControls');
-    if (storedControls) {
-      this.controls = this.fb.group(JSON.parse(storedControls));
-    } else {
-      this.controls = this.fb.group({
-        showActive: true,
-        showHistorical: true,
-        showFuture: true,
-        showEmptySites: true,
-        showSitesBackfilledByNonGrocery: false,
-        showFloat: false,
-        cluster: false,
-        clusterZoomLevel: 13,
-        minPullZoomLevel: 10,
-        fullLabelMinZoomLevel: 16,
-        markerType: 'Pin',
-        updateOnBoundsChange: true
-      });
-    }
+    const storedControls = JSON.parse(localStorage.getItem('dbEntityMarkerServiceControls'))
+    const controls: DbEntityMarkerControls = this.validateStoredControls(storedControls);
 
-    this.controls.valueChanges.subscribe(val => localStorage.setItem('dbEntityMarkerServiceControls', JSON.stringify(val)));
+    this.controls = this.fb.group(controls);
+
+    this.controls.valueChanges.subscribe(val => {
+      this.updateDbEntityMarkerServiceControlsStorage(val);
+      this.refreshMarkers();
+    });
     // If user turns off auto refresh = repull the locations in view in order to preserve them
     this.controls.get('updateOnBoundsChange').valueChanges.subscribe(val => {
       if (!val) {
@@ -351,15 +383,63 @@ export class DbEntityMarkerService {
     });
   }
 
+  validateStoredControls(storedControls: any): DbEntityMarkerControls {
+    if (storedControls) {
+      const hasAllKeys = (a, b) => {
+        const aKeys = Object.keys(a).sort();
+        const bKeys = Object.keys(b).sort();
+        return JSON.stringify(aKeys) === JSON.stringify(bKeys);
+      }
+
+      if (!hasAllKeys(storedControls, this.defaultControls)) {
+        for (const property in this.defaultControls) {
+          if (this.defaultControls.hasOwnProperty(property)) {
+            if (!storedControls[property]) {
+              storedControls[property] = this.defaultControls[property]
+            }
+          }
+        }
+      }
+    } else {
+      storedControls = this.defaultControls;
+    }
+
+    if (storedControls.dataset) {
+      storedControls.dataset = new SimplifiedStoreList(storedControls.dataset);
+    }
+
+
+    this.updateDbEntityMarkerServiceControlsStorage(storedControls);
+    return storedControls;
+  }
+
+  updateDbEntityMarkerServiceControlsStorage(storedControls) {
+    localStorage.setItem('dbEntityMarkerServiceControls', JSON.stringify(storedControls));
+    try {
+      this.refreshMarkers();
+    } catch (err) {
+      // map just hasnt initialized yet on load..  TODO figure out how to deal with this
+    }
+  }
+
+
   broadcastSelections() {
     if (!this.selectionSetPrev) {
-      this.selectionSetPrev = { selectedSiteIds: new Set(this.selectedSiteIds), selectedStoreIds: new Set(this.selectedStoreIds), scrollTo: this.getScrollTo() }
+      this.selectionSetPrev = {
+        selectedSiteIds: new Set(this.selectedSiteIds),
+        selectedStoreIds: new Set(this.selectedStoreIds),
+        scrollTo: this.getScrollTo()
+      }
       this.selectionSet$.next(this.selectionSetPrev);
     } else {
       const prevSelectedSiteIds = this.selectionSetPrev.selectedSiteIds;
       const prevSelectedStoreIds = this.selectionSetPrev.selectedStoreIds;
       if (!_.isEqual(prevSelectedSiteIds, this.selectedSiteIds) || !_.isEqual(prevSelectedStoreIds, this.selectedStoreIds)) {
-        this.selectionSetPrev = { selectedSiteIds: new Set(this.selectedSiteIds), selectedStoreIds: new Set(this.selectedStoreIds), scrollTo: this.getScrollTo() };
+        this.selectionSetPrev = {
+          selectedSiteIds: new Set(this.selectedSiteIds),
+          selectedStoreIds: new Set(this.selectedStoreIds),
+          scrollTo: this.getScrollTo()
+        };
         this.selectionSet$.next(this.selectionSetPrev);
       }
     }
@@ -444,6 +524,17 @@ export class DbEntityMarkerService {
     if (!this.controls.get('showFuture').value && (storeMarker && storeMarker.storeType === 'FUTURE')) {
       return false;
     }
+
+    const dataset = this.controls.get('dataset').value;
+    if (dataset && storeMarker) {
+      if (
+        dataset &&
+        dataset.id !== -1 &&
+        !dataset.storeIds.includes(storeMarker.id)
+      ) {
+        return false;
+      }
+    }
     return !(!this.controls.get('showFloat').value && storeMarker.float);
   }
 
@@ -451,7 +542,13 @@ export class DbEntityMarkerService {
     if (siteMarker.backfilledNonGrocery) {
       return this.controls.get('showSitesBackfilledByNonGrocery').value;
     }
+
     const siteIsEmpty = siteMarker.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
+
+    if (this.controls.get('dataset').value.id !== -1 && siteIsEmpty) {
+      return false;
+    }
+
     return !(!this.controls.get('showEmptySites').value && siteIsEmpty);
   }
 

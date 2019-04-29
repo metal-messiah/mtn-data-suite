@@ -17,19 +17,26 @@ mds-map {
 .infoCardContainer{
   position: absolute;
     pointer-events: all;
-    max-width: 300px;
-    bottom: 70px;
+    width: 300px;
+    bottom: 100px;
     z-index: 9999;
-    right: 75px;
+    /* right: 75px; */
+    left: 6px;
+    transition: all 0.5s ease-in-out;
 }
 
-@media (min-width: 600px) {
+@media (max-width: 600px) {
   .infoCardContainer {
     bottom: 60px;
     justify-content: left;
     padding-left: 5px;
     padding-bottom: 30px;
+    left: calc(50% - 160px) !important;
   }
+}
+
+.right{
+  left: calc(100% - 375px);
 }
 
 mat-slider {
@@ -87,8 +94,8 @@ mat-sidenav {
   height: 40px;
 }
 
-#marker-type-selector {
-  max-width: 155px;
+.control-selector {
+  width: 200px;
   margin: 0 10%;
 }
 
@@ -167,4 +174,14 @@ mds-store-sidenav::after{
 .adjusted-height{
   height: calc(100% - 250px);
   padding-bottom: 10px;
+}
+
+#dataset-header{
+  display:flex;
+  justify-content: space-between;
+}
+
+h3 > i:hover {
+  cursor: pointer;
+  color: orange;
 }

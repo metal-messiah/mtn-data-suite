@@ -1,8 +1,8 @@
 <div class="store-sidenav">
   <div class="sidenav-content" *ngIf="isPage(null)" style="padding:0 10px;">
     <h1 mat-dialog-title>Organize Stores</h1>
-    <button mat-flat-button (click)="setPage(pages.STORESONMAP)">List Of Stores On The Map</button>
-    <button mat-flat-button (click)="setPage(pages.MYLISTS)">Manage My Lists Of Stores</button>
+    <button mat-flat-button (click)="setPage(pages.STORESONMAP)">Stores On The Map</button>
+    <button mat-flat-button (click)="setPage(pages.MYLISTS)">Manage My Lists</button>
     <button mat-flat-button (click)="setPage(pages.SEARCH)" disabled>Search For Stores</button>
   </div>
   <!-- STORES ON MAP -->
@@ -33,6 +33,7 @@
       *ngIf="expanded"></i>
     <i (click)="selectAllFromList()" title="Select All" class="fas fa-check-square fa-2x select-all-button"
       *ngIf="expanded && isMultiSelect() && isInListOfStoresView()"></i>
+
     <h1 mat-dialog-title>{{getListPageText()}}
 
       <br />

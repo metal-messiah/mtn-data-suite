@@ -31,6 +31,7 @@ import { StorelistStoresListComponent } from './list-manager/storelist-stores-li
 import { StoresListComponent } from './stores-list/stores-list.component';
 import { StoreSidenavComponent } from './store-sidenav/store-sidenav.component';
 import { StoreSidenavService } from './store-sidenav/store-sidenav.service';
+import { AddRemoveStoresListDialogComponent } from './add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
 
 @NgModule({
   imports: [CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule, ListManagerModule],
@@ -58,7 +59,8 @@ import { StoreSidenavService } from './store-sidenav/store-sidenav.service';
     ThousandsCurrencyPipe,
     UserProfileSelectComponent,
     StoresListComponent,
-    StoreSidenavComponent
+    StoreSidenavComponent,
+    AddRemoveStoresListDialogComponent
   ],
   providers: [
     BreakpointObserver,
@@ -75,7 +77,8 @@ import { StoreSidenavService } from './store-sidenav/store-sidenav.service';
     ListManagerComponent,
     NewProjectNameComponent,
     TabSelectDialogComponent,
-    UserProfileSelectComponent
+    UserProfileSelectComponent,
+    AddRemoveStoresListDialogComponent
   ],
   exports: [
     CallbackComponent,
@@ -101,7 +104,8 @@ import { StoreSidenavService } from './store-sidenav/store-sidenav.service';
     StorelistSubscribersListComponent,
     StorelistStoresListComponent,
     StoresListComponent,
-    StoreSidenavComponent
+    StoreSidenavComponent,
+    AddRemoveStoresListDialogComponent
   ]
 })
 export class SharedModule {

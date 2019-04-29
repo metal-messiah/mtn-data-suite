@@ -1,9 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Pages as StoreSidenavPages } from './store-sidenav-pages';
 import { StoreSidenavService } from './store-sidenav.service';
 import { CasingDashboardMode } from 'app/casing/casing-dashboard/casing-dashboard.component';
 import { ListManagerService } from '../list-manager/list-manager.service';
 import { Pages as ListManagerPages } from '../list-manager/list-manager-pages';
+import { Pages as StoreSidenavPages } from './store-sidenav-pages';
 import { StoreListService } from 'app/core/services/store-list.service';
 
 
@@ -82,6 +82,7 @@ export class StoreSidenavComponent implements OnInit {
         break;
       case ListManagerPages.VIEWSTORES:
         this.listManagerService.setPage(ListManagerPages.LISTMANAGER);
+        // this.listManagerService.setSelectedStoreList(null, ListManagerPages.LISTMANAGER)
         break;
     }
   }
