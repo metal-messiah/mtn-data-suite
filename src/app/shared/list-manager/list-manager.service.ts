@@ -33,6 +33,7 @@ export class ListManagerService {
     selectedStoreListChanged$: BehaviorSubject<SimplifiedStoreList> = new BehaviorSubject(this.selectedStoreList);
 
     fetching$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    listsAreDirty$: Subject<void> = new Subject();
 
     error$: Subject<{ title: string; error: any }> = new Subject();
     snackbar$: Subject<string> = new Subject();
@@ -52,7 +53,6 @@ export class ListManagerService {
         private dbEntityMarkerService: DbEntityMarkerService
     ) {
         this.userId = this.authService.sessionUser.id;
-        console.log('INIT!')
     }
 
     setStores(stores: SimplifiedStore[]) {
@@ -127,6 +127,8 @@ export class ListManagerService {
                 this.refreshSelectedStoreList(storeList);
             })
         }
+
+        this.listsAreDirty$.next();
     }
 
     filterLists(allStoreLists: SimplifiedStoreList[]) {
@@ -181,7 +183,6 @@ export class ListManagerService {
     }
 
     getStoreLists(storeIds?: number[]): Observable<SimplifiedStoreList[]> {
-        console.log('get store lists')
         return Observable.create(observer => {
             if (this.allStoreLists.length) {
                 observer.next(this.allStoreLists)
@@ -320,12 +321,12 @@ export class ListManagerService {
         if (selections) {
             selectedStoreLists = selections.map((s) => s.value);
         }
+
         if (!selectedStoreLists.length && storeLists) {
             selectedStoreLists = storeLists;
         }
-        console.log(selectedStoreLists, stores)
+
         if (selectedStoreLists.length && stores.length) {
-            console.log('start promises')
             const promises = [];
             selectedStoreLists.forEach((storeList) => {
                 const storeListId = storeList.id;
@@ -336,7 +337,6 @@ export class ListManagerService {
 
             Promise.all(promises)
                 .then((results) => {
-                    console.log('results!')
                     results.forEach((response: SimplifiedStoreList) => {
                         if (!this.userIsSubscribedToStoreList(response)) {
                             this.toggleSubscribe(response);

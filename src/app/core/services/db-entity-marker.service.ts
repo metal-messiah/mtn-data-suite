@@ -103,7 +103,6 @@ export class DbEntityMarkerService {
 
 
     this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker }) => {
-      console.log(selection.storeId, selection.siteId)
       // If not in multi-select mode, deselect previously selected markers
       if (!this.multiSelect) {
         this.selectedSiteIds.clear();

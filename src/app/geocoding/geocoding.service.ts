@@ -89,7 +89,7 @@ export class GeocodingService {
   getNewestResourceQuota() {
     this.resourceQuotaService.getNewest(this.resourceQuotaName)
       .subscribe(
-      (quota: ResourceQuota) => {
+        (quota: ResourceQuota) => {
           this.newestResourceQuota = quota;
           this.resourceQuota$.next(this.newestResourceQuota);
           this.snackBar.open(
@@ -102,37 +102,36 @@ export class GeocodingService {
               duration: 5000
             }
           );
-      },
-      err => {
-        if (err.status === 404) {
-          this.resourceQuotaService
-            .createNewResourceQuota(this.resourceQuotaName)
-            .subscribe((newRQ: ResourceQuota) => {
-              this.newestResourceQuota = newRQ;
-              this.resourceQuota$.next(this.newestResourceQuota);
-              this.snackBar.open(
-                `${(
-                  this.newestResourceQuota.quotaLimit -
-                  this.newestResourceQuota.queryCount
-                ).toLocaleString()} Geocodes Remaining This Month`,
-                null,
-                {
-                  duration: 5000
-                }
-              );
-            });
-        } else {
-          this.errorService.handleServerError(`Failed to retrieve geocoder quota information`, err, () => {});
+        },
+        err => {
+          if (err.status === 404) {
+            this.resourceQuotaService
+              .createNewResourceQuota(this.resourceQuotaName)
+              .subscribe((newRQ: ResourceQuota) => {
+                this.newestResourceQuota = newRQ;
+                this.resourceQuota$.next(this.newestResourceQuota);
+                this.snackBar.open(
+                  `${(
+                    this.newestResourceQuota.quotaLimit -
+                    this.newestResourceQuota.queryCount
+                  ).toLocaleString()} Geocodes Remaining This Month`,
+                  null,
+                  {
+                    duration: 5000
+                  }
+                );
+              });
+          } else {
+            this.errorService.handleServerError(`Failed to retrieve geocoder quota information`, err, () => { });
+          }
         }
-      }
-    );
+      );
   }
 
   shouldGeocode() {
     if (this.newestResourceQuota) {
       const rqStart = new Date(this.newestResourceQuota.periodStartDate);
       const now = new Date();
-      console.log(this.newestResourceQuota);
       if (
         rqStart.getMonth() < now.getMonth() ||
         rqStart.getFullYear() < now.getFullYear()
@@ -237,7 +236,6 @@ export class GeocodingService {
   }
 
   getPromises(save?: boolean) {
-    console.log(this.promises);
     Promise.all(this.promises).then((all: any) => {
       // this returns an array of promise responses
       all.forEach((res, i) => {

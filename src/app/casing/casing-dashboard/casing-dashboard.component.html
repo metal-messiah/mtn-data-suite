@@ -187,7 +187,7 @@
 
 <mat-menu #multiSelectActionMenu="matMenu" [overlapTrigger]="false">
   <button mat-menu-item *ngIf="dbEntityMarkerService.getSelectedStoreIds().length > 0" disabled>
-    {{dbEntityMarkerService.getSelectedStoreIds().length}}&nbsp;Stores
+    {{getSelectedStoreIds().length}}&nbsp;Stores
   </button>
   <button mat-menu-item (click)="openDownloadDialog()" *ngIf="!userIsGuest()">
     <i class="fas fa-download"></i>&nbsp;&nbsp;Download Latest Data
@@ -201,10 +201,10 @@
   <button mat-menu-item (click)="openAssignmentDialog()">
     <i class="fas fa-user"></i>&nbsp;&nbsp;Assign
   </button>
-  <button mat-menu-item (click)="addToList()">
+  <button *ngIf="getSelectedStoreIds() > 0" mat-menu-item (click)="addToList()">
     <i class="fas fa-plus-circle"></i>&nbsp;&nbsp;Add to List
   </button>
-  <button mat-menu-item (click)="removeFromList()">
+  <button *ngIf="getSelectedStoreIds() > 0" mat-menu-item (click)="removeFromList()">
     <i class="fas fa-minus-circle"></i>&nbsp;&nbsp;Remove From List
   </button>
 </mat-menu>

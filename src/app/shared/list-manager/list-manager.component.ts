@@ -77,7 +77,6 @@ export class ListManagerComponent implements OnInit, OnDestroy {
         this.subscriptions.push(
             this.listManagerService.selectedStoreListChanged$.subscribe(
                 (selectedStoreList: SimplifiedStoreList) => {
-                    console.log('selectedStoreList Changed', selectedStoreList)
                     this.selectedStoreList = selectedStoreList;
                 }
             )

@@ -61,10 +61,28 @@ export class AddRemoveStoresListDialogComponent {
     dialogRef.disableClose = true;
   }
 
-  addOrRemoveTitle() {
+  getStoresText() {
+    return this.storeIds.length > 1 ? 'Stores' : 'Store';
+  }
+
+  getListsText(targetListsCount) {
+    return targetListsCount > 1 ? 'Lists' : 'List'
+  }
+
+  getAddOrRemoveTitle() {
+    const storesText = this.getStoresText();
     return this.type === AddRemoveType.ADD ?
-      `Add ${this.storeIds.length.toLocaleString()} Stores To List` :
-      `Remove ${this.storeIds.length.toLocaleString()} Stores From List`;
+      `Add Selected ${storesText} To Lists` :
+      `Remove Selected ${storesText} From Lists`;
+  }
+
+  getSaveButtonText() {
+    const targetListsCount = this.selectionList.selectedOptions.selected.length;
+    const storesText = this.getStoresText();
+    const listsText = this.getListsText(targetListsCount);
+    return this.type === AddRemoveType.ADD ?
+      `Add Selected ${storesText} To ${targetListsCount} ${listsText}` :
+      `Remove Selected ${storesText} From ${targetListsCount} ${listsText}`;
   }
 
   createNewList(listNameInput) {

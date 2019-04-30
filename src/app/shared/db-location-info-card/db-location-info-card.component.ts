@@ -10,6 +10,7 @@ import { UserProfileSelectComponent } from '../user-profile-select/user-profile-
 import { Store } from '../../models/full/store';
 import { Site } from '../../models/full/site';
 import { DbEntityInfoCardItem } from '../../casing/db-entity-info-card-item';
+import { AddRemoveStoresListDialogComponent, AddRemoveType } from '../add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
 
 @Component({
   selector: 'mds-db-location-info-card',
@@ -171,13 +172,18 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
           () => this.validateStore()))
   }
 
-  openListManagerDialog() {
-    // const listManagerDialogComponent = this.dialog.open(ListManagerDialogComponent, {
-    //   data: { stores: [this.store] }
-    // });
-    // listManagerDialogComponent.afterClosed().subscribe((e) => {
-    //   console.log(e);
-    // });
+  addToList() {
+    const storeIds = [this.infoCardItem.selection.storeId];
+    if (storeIds.length) {
+      this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.ADD, storeIds } });
+    }
+  }
+
+  removeFromList() {
+    const storeIds = [this.infoCardItem.selection.storeId];
+    if (storeIds.length) {
+      this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.REMOVE, storeIds } });
+    }
   }
 
 }

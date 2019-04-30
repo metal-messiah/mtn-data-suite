@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{addOrRemoveTitle()}}</h2>
+<h2 mat-dialog-title>{{getAddOrRemoveTitle()}}</h2>
 <div mat-dialog-content>
   <!-- FETCHING -->
   <mat-progress-bar mode="indeterminate" *ngIf="fetching"></mat-progress-bar>
@@ -43,6 +43,5 @@
     mat-dialog-close>
     Close</button>
   <button *ngIf="selectionList.selectedOptions.selected.length" type="button" mat-raised-button color="accent"
-    (click)="modifyList()" mat-dialog-close>Save &
-    Close</button>
+    (click)="modifyList()" mat-dialog-close>{{getSaveButtonText()}}</button>
 </mat-dialog-actions>

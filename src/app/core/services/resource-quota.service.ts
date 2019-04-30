@@ -20,13 +20,12 @@ export class ResourceQuotaService extends CrudService<ResourceQuota> {
     if (name != null && name.length > 0) {
       params = params.set('name', name);
     }
-    return this.http.get<ResourceQuota>(url, {headers: this.rest.getHeaders(), params: params});
+    return this.http.get<ResourceQuota>(url, { headers: this.rest.getHeaders(), params: params });
   }
 
   createNewResourceQuota(name) {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    console.log(firstDay)
     const rq = new ResourceQuota({
       resourceName: name,
       periodStartDate: firstDay,

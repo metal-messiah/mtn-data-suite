@@ -157,8 +157,10 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.isMobile = this.checkMobile();
     this.isTooNarrow = this.checkTooNarrow();
 
-    this.listManagerService.getStoreLists().subscribe((storeLists: SimplifiedStoreList[]) => {
-      this.storeListOptions = [this.dbEntityMarkerService.allStoresOption].concat(storeLists);
+    this.setStoreListOptions();
+
+    this.listManagerService.listsAreDirty$.subscribe(() => {
+      this.setStoreListOptions();
     });
 
   }
@@ -693,24 +695,21 @@ Assigning
   }
 
   addToList() {
-    const selectedIds = this.dbEntityMarkerService.getSelectedStoreIds();
+    const selectedIds = this.getSelectedStoreIds();
     if (selectedIds.length > 0) {
-
       const addRemoveDialogRef = this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.ADD, storeIds: selectedIds } });
       addRemoveDialogRef.afterClosed().subscribe(() => {
-        console.log('closed');
       });
     }
 
   }
 
   removeFromList() {
-    const selectedIds = this.dbEntityMarkerService.getSelectedStoreIds();
+    const selectedIds = this.getSelectedStoreIds();
     if (selectedIds.length > 0) {
-
       const addRemoveDialogRef = this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.REMOVE, storeIds: selectedIds } });
       addRemoveDialogRef.afterClosed().subscribe(() => {
-        console.log('closed');
+
       });
     }
 
@@ -755,5 +754,11 @@ Assigning
 
     this.showStoreLists = true;
     this.filterSideNavIsOpen = false;
+  }
+
+  setStoreListOptions() {
+    this.listManagerService.getStoreLists().subscribe((storeLists: SimplifiedStoreList[]) => {
+      this.storeListOptions = [this.dbEntityMarkerService.allStoresOption].concat(storeLists);
+    });
   }
 }

@@ -49,7 +49,7 @@ export class ImagesComponent implements OnInit {
     // window['global'] = window;
     this.signature = `cloud_name=${this.cloudName}&timestamp=${
       this.timeStamp
-    }&username=${this.username}${this.apiSecret}`;
+      }&username=${this.username}${this.apiSecret}`;
 
     this.encodedSignature = shajs('sha256')
       .update(this.signature)
@@ -69,7 +69,7 @@ export class ImagesComponent implements OnInit {
     this.selectedFiles = [];
   }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   getValue(item) {
     return `${item.public_id}.${item.format}`;
@@ -157,7 +157,6 @@ export class ImagesComponent implements OnInit {
         }
       });
     }
-    console.log(this.identifierTargets);
   }
 
   getIdentifierTargetNames() {
@@ -167,7 +166,6 @@ export class ImagesComponent implements OnInit {
   targetChange(event, name) {
     const prop = event.value;
     this.identifierTargets[prop] = name;
-    console.log(this.identifierTargets);
   }
 
   targetIsTaken(target) {
@@ -176,7 +174,7 @@ export class ImagesComponent implements OnInit {
 
   exportNewCsv() {
     let output = '';
-    this.csvArray.forEach( (row, i) => {
+    this.csvArray.forEach((row, i) => {
       output += row.join(',');
       if (!row.includes('logo') && i === 0) {
         output += ',logo'
@@ -184,20 +182,19 @@ export class ImagesComponent implements OnInit {
       if (i !== 0) {
         Object.keys(this.identifierTargets).forEach(key => {
           if (key === row[this.identifierIdx]) {
-            output += ',' + this.identifierTargets[key] 
+            output += ',' + this.identifierTargets[key]
           }
         })
       }
       output += '\r\n';
     })
 
-    // console.log(output);
     saveAs(
       new Blob([output]),
       `${
-        this.file
-          ? this.file.name.split('.')[0] + '_logos'
-          : 'export_logos'
+      this.file
+        ? this.file.name.split('.')[0] + '_logos'
+        : 'export_logos'
       }.csv`
     );
   }
@@ -225,11 +222,6 @@ export class ImagesComponent implements OnInit {
   }
 
   setSelectedFiles(files) {
-    console.log(files);
     this.selectedFiles = files;
   }
-
-  // insertHandler(data) {
-  //   this.selectedFiles = data.assets;
-  // }
 }
