@@ -10,9 +10,6 @@
         <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
         <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
         <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
-        <!-- <mat-checkbox #onlyShowListStoresCheckbox formControlName="onlyShowListStores">Filter Using Store List -->
-        <!-- </mat-checkbox> -->
-
       </div>
       <mat-divider></mat-divider>
 
@@ -201,10 +198,10 @@
   <button mat-menu-item (click)="openAssignmentDialog()">
     <i class="fas fa-user"></i>&nbsp;&nbsp;Assign
   </button>
-  <button *ngIf="getSelectedStoreIds() > 0" mat-menu-item (click)="addToList()">
+  <button mat-menu-item (click)="addToList()">
     <i class="fas fa-plus-circle"></i>&nbsp;&nbsp;Add to List
   </button>
-  <button *ngIf="getSelectedStoreIds() > 0" mat-menu-item (click)="removeFromList()">
+  <button mat-menu-item (click)="removeFromList()">
     <i class="fas fa-minus-circle"></i>&nbsp;&nbsp;Remove From List
   </button>
 </mat-menu>

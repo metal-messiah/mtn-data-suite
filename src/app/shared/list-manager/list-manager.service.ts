@@ -214,6 +214,10 @@ export class ListManagerService {
 
     }
 
+    setStoreListAsCurrentFilter(storeList: SimplifiedStoreList) {
+        this.dbEntityMarkerService.controls.get('dataset').setValue(storeList);
+    }
+
     storeListIsCurrentFilter(storeList: SimplifiedStoreList): boolean {
         return this.dbEntityMarkerService.controls.get('dataset').value.id === storeList.id
     }
@@ -359,6 +363,20 @@ export class ListManagerService {
 
     getSelectedStoreList() {
         return this.selectedStoreList;
+    }
+
+    renameList(storeList: SimplifiedStoreList, newListName: string) {
+        if (storeList.storeListName !== newListName) {
+
+            this.storeListService.getOneById(storeList.id).subscribe((storeList: StoreList) => {
+                storeList.storeListName = newListName;
+                this.storeListService.update(storeList).subscribe((data) => {
+
+                    this.refreshStoreLists();
+                })
+            })
+
+        }
     }
 
 }

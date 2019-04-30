@@ -9,6 +9,7 @@ import { Pages } from '../list-manager-pages';
 import { UserProfileSelectComponent } from 'app/shared/user-profile-select/user-profile-select.component';
 import { UserProfile } from 'app/models/full/user-profile';
 import { SimplifiedUserProfile } from 'app/models/simplified/simplified-user-profile';
+import { TextInputDialogComponent } from 'app/shared/text-input-dialog/text-input-dialog.component';
 
 @Component({
   selector: 'mds-storelist-list-item',
@@ -92,5 +93,21 @@ export class StorelistListItemComponent implements OnInit, OnDestroy {
     return this.listManagerService.storeListIsCurrentFilter(storeList);
   }
 
+  renameList(storeList: SimplifiedStoreList) {
+    const textInputDialog = this.dialog.open(TextInputDialogComponent, { data: { title: 'Rename List', placeholder: 'New List Name' } });
+    textInputDialog.afterClosed().subscribe((text: string) => {
+      console.log(text);
+      if (text) {
+        // save new name
+        this.listManagerService.renameList(storeList, text);
+      }
+    })
+  }
+
+  filterMap(storeList: SimplifiedStoreList) {
+    if (!this.storeListIsCurrentFilter(storeList)) {
+      this.listManagerService.setStoreListAsCurrentFilter(storeList);
+    }
+  }
 
 }

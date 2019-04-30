@@ -33,6 +33,8 @@
       *ngIf="expanded"></i>
     <i (click)="selectAllFromList()" title="Select All" class="fas fa-check-square fa-2x select-all-button"
       *ngIf="expanded && isMultiSelect() && isInListOfStoresView()"></i>
+    <i (click)="filterMap()" title="Use List As Map Filter" class="fas fa-filter fa-2x select-all-button"
+      *ngIf="expanded && !storeListIsCurrentFilter() && !isMultiSelect() && isInListOfStoresView()"></i>
 
     <h1 mat-dialog-title>{{getListPageText()}}
 

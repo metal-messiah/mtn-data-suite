@@ -5,6 +5,7 @@ import { ListManagerService } from '../list-manager/list-manager.service';
 import { Pages as ListManagerPages } from '../list-manager/list-manager-pages';
 import { Pages as StoreSidenavPages } from './store-sidenav-pages';
 import { StoreListService } from 'app/core/services/store-list.service';
+import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
 
 
 @Component({
@@ -84,6 +85,21 @@ export class StoreSidenavComponent implements OnInit {
         this.listManagerService.setPage(ListManagerPages.LISTMANAGER);
         // this.listManagerService.setSelectedStoreList(null, ListManagerPages.LISTMANAGER)
         break;
+    }
+  }
+
+  storeListIsCurrentFilter() {
+    const { selectedStoreList } = this.listManagerService;
+    if (selectedStoreList) {
+      return this.listManagerService.storeListIsCurrentFilter(selectedStoreList);
+    }
+    return false;
+  }
+
+  filterMap() {
+    const { selectedStoreList } = this.listManagerService;
+    if (!this.storeListIsCurrentFilter()) {
+      this.listManagerService.setStoreListAsCurrentFilter(selectedStoreList);
     }
   }
 }

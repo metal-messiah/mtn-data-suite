@@ -32,6 +32,7 @@ import { StoresListComponent } from './stores-list/stores-list.component';
 import { StoreSidenavComponent } from './store-sidenav/store-sidenav.component';
 import { StoreSidenavService } from './store-sidenav/store-sidenav.service';
 import { AddRemoveStoresListDialogComponent } from './add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
+import { TextInputDialogComponent } from './text-input-dialog/text-input-dialog.component';
 
 @NgModule({
   imports: [CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule, ListManagerModule],
@@ -60,7 +61,8 @@ import { AddRemoveStoresListDialogComponent } from './add-remove-stores-list-dia
     UserProfileSelectComponent,
     StoresListComponent,
     StoreSidenavComponent,
-    AddRemoveStoresListDialogComponent
+    AddRemoveStoresListDialogComponent,
+    TextInputDialogComponent
   ],
   providers: [
     BreakpointObserver,
@@ -78,7 +80,8 @@ import { AddRemoveStoresListDialogComponent } from './add-remove-stores-list-dia
     NewProjectNameComponent,
     TabSelectDialogComponent,
     UserProfileSelectComponent,
-    AddRemoveStoresListDialogComponent
+    AddRemoveStoresListDialogComponent,
+    TextInputDialogComponent
   ],
   exports: [
     CallbackComponent,
