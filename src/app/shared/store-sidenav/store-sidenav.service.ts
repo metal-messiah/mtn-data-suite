@@ -175,7 +175,11 @@ export class StoreSidenavService {
   ////// ITEMS /////
 
   updateItems(visibleMarkers: google.maps.Marker[]) {
-    this.items = [];
+    // drop items that arent in the visible marker set, no reason to store them, and no reason to drop them all and build from scratch
+    this.items = this.items.filter(item => visibleMarkers.map(m => m['site'].id).includes(item.id));
+
+    // only get full data for visible markers not in items, to reduce server bandwidth
+    visibleMarkers = visibleMarkers.filter(m => !this.items.map(i => i.id).includes(m['site'].id));
 
     if (visibleMarkers.length) {
       this.setFetching(true)
