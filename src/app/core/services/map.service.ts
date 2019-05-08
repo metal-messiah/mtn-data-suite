@@ -3,7 +3,7 @@
 import { Injectable } from '@angular/core';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
-import { Observable, Observer, of, Subject } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 
 /*
   The MapService should
@@ -82,10 +82,10 @@ export class MapService {
   initialize(element: HTMLElement) {
     // Create map
     this.map = new google.maps.Map(element, {
-      center: { lat: 39.8283, lng: -98.5795 },
+      center: {lat: 39.8283, lng: -98.5795},
       zoom: 8
     });
-    this.map.getStreetView().setOptions({ imageDateControl: true });
+    this.map.getStreetView().setOptions({imageDateControl: true});
     this.placesService = new google.maps.places.PlacesService(this.map);
     this.boundsChanged$ = new Subject<{ east; north; south; west }>();
     this.mapClick$ = new Subject<Coordinates>();
@@ -177,7 +177,7 @@ export class MapService {
     }
     return {
       zoom: 10,
-      center: { lat: 39.8283, lng: -98.5795 },
+      center: {lat: 39.8283, lng: -98.5795},
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
   }
@@ -345,38 +345,36 @@ export class MapService {
     queryString: string,
     bounds?: google.maps.LatLngBoundsLiteral
   ): Observable<GooglePlace[]> {
-    return Observable.create((observer: Observer<any>) => {
-      const callback = (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-          observer.next(results.map(place => new GooglePlace(place)));
-        } else {
-          observer.error(status);
-        }
-        observer.complete();
-      };
+    const subject = new Subject<any>();
 
-      if (bounds == null) {
-        const fields = [
-          'formatted_address',
-          'geometry',
-          'icon',
-          'id',
-          'name',
-          'place_id'
-        ];
-
-        this.placesService.findPlaceFromQuery(
-          { fields: fields, query: queryString },
-          callback
-        );
+    const callback = (results, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK) {
+        subject.next(results.map(r => new GooglePlace(r)));
       } else {
-        const request = {
-          bounds: bounds,
-          name: queryString
-        };
-        this.placesService.nearbySearch(request, callback);
+        subject.error(status);
       }
-    });
+    };
+
+    if (bounds == null) {
+      const fields = [
+        'formatted_address',
+        'geometry',
+        'icon',
+        'id',
+        'name',
+        'place_id'
+      ];
+
+      this.placesService.findPlaceFromQuery({fields: fields, query: queryString}, callback);
+    } else {
+      const request = {
+        bounds: bounds,
+        name: queryString
+      };
+      this.placesService.nearbySearch(request, callback);
+    }
+
+    return subject;
   }
 
   getDetailedGooglePlace(requestPlace: GooglePlace) {

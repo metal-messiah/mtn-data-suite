@@ -14,15 +14,15 @@ mds-map {
   bottom: 60px;
 } */
 
-.infoCardContainer{
+.infoCardContainer {
   position: absolute;
-    pointer-events: all;
-    width: 300px;
-    bottom: 100px;
-    z-index: 9999;
-    /* right: 75px; */
-    left: 6px;
-    transition: all 0.5s ease-in-out;
+  pointer-events: all;
+  width: 300px;
+  bottom: 100px;
+  z-index: 9999;
+  /* right: 75px; */
+  left: 6px;
+  transition: all 0.5s ease-in-out;
 }
 
 @media (max-width: 600px) {
@@ -35,7 +35,7 @@ mds-map {
   }
 }
 
-.right{
+.right {
   left: calc(100% - 375px);
 }
 
@@ -104,50 +104,54 @@ mat-slider {
   margin: 0 20px;
 }
 
-.center-content{
-  display:flex;
+.center-content {
+  display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
 }
 
-mds-store-sidenav{
+mds-store-sidenav {
   height: 100%;
   position: relative;
   transition: all 0.5s ease-in-out;
-  
+
   /* padding: 0 10px; */
   background: white;
 }
 
-mds-store-sidenav::after{
+mds-store-sidenav::after {
   font-family: "Font Awesome 5 Free";
-    font-weight: 900;
-    content: "\f54e";
-    position: absolute;
-    right: -35px;
-    top: calc(50% - 50px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999999;
-    width: 35px;
-    height: 100px;
-    background: white;
-    border-radius: 0 5px 5px 0;
-    cursor: pointer;
+  font-weight: 900;
+  content: "\f054";
+  position: absolute;
+  right: -20px;
+  top: calc(50% - 50px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999999;
+  width: 20px;
+  height: 50px;
+  background: white;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
 }
 
-.sidenav-show{
+mds-store-sidenav.sidenav-show::after {
+  content: "\f053";
+}
+
+.sidenav-show {
   width: 400px;
 }
 
-.sidenav-hide{
+.sidenav-hide {
   width: 0;
 }
 
-@media (max-width: 740px){
-  mds-store-sidenav{
+@media (max-width: 740px) {
+  mds-store-sidenav {
     position: absolute;
     z-index: 9999;
     height: calc(100vh - 129px);
@@ -155,29 +159,29 @@ mds-store-sidenav::after{
     top: 0;
   }
 
-  .sidenav-show{
+  .sidenav-show {
     width: calc(100% - 35px);
-    
+
   }
 }
 
-@media (max-width: 600px){
-  mds-store-sidenav{
+@media (max-width: 600px) {
+  mds-store-sidenav {
     height: calc(100vh - 112px);
   }
 }
 
-.invisible{
+.invisible {
   opacity: 0.25;
 }
 
-.adjusted-height{
+.adjusted-height {
   height: calc(100% - 250px);
   padding-bottom: 10px;
 }
 
-#dataset-header{
-  display:flex;
+#dataset-header {
+  display: flex;
   justify-content: space-between;
 }
 

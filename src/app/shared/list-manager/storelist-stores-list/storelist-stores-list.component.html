@@ -1,61 +1,59 @@
 <div class="sort-toolbar">
-    <mat-form-field>
-        <mat-label>Sort Results</mat-label>
-        <mat-select [(value)]="sortType" #sortTypeSelect (selectionChange)="setSortOptions(sortTypeSelect.value, null)">
-            <mat-optgroup *ngFor="let group of getSortGroups()" [label]="group.name">
-                <mat-option *ngFor="let key of group.keys" [value]="key.enumIndex">
-                    {{key.label}}
-                </mat-option>
-            </mat-optgroup>
-        </mat-select>
-    </mat-form-field>
-    <mat-form-field style="min-width: 150px;">
-        <mat-label>Order</mat-label>
-        <mat-select #sortDirectionSelect [(value)]="sortDirection"
-            (selectionChange)="setSortOptions(null, sortDirectionSelect.value)">
-            <mat-option [value]="0">
-                <i class="fas fa-sort-amount-up"></i> Ascending
-            </mat-option>
-            <mat-option [value]="1">
-                <i class="fas fa-sort-amount-down"></i> Descending
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
+  <mat-form-field>
+    <mat-label>Sort Results</mat-label>
+    <mat-select [(value)]="sortType" #sortTypeSelect (selectionChange)="setSortOptions(sortTypeSelect.value, null)">
+      <mat-optgroup *ngFor="let group of sortGroups" [label]="group.name">
+        <mat-option *ngFor="let key of group.keys" [value]="key">
+          {{key}}
+        </mat-option>
+      </mat-optgroup>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field style="min-width: 150px;">
+    <mat-label>Order</mat-label>
+    <mat-select #sortDirectionSelect [(value)]="sortDirection"
+                (selectionChange)="setSortOptions(null, sortDirectionSelect.value)">
+      <mat-option [value]="0">
+        <i class="fas fa-sort-amount-up"></i> Ascending
+      </mat-option>
+      <mat-option [value]="1">
+        <i class="fas fa-sort-amount-down"></i> Descending
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
 </div>
-<mat-progress-bar mode="indeterminate" *ngIf="isFetching || items === undefined"></mat-progress-bar>
-<div #listOfStores class="list-of-items" id="listOfStores" *ngIf="renderer.length && !isFetching">
-    <div *ngFor="let item of renderer; let itemIndex = index;" [id]="getItemIndex(itemIndex)">
-        <div class="site">
-            <div class="site-info">
-                <div>
-                    <div>{{getAddressLabel(item)}}</div>
-                    <div>{{getFormattedIntersection(item)}}</div>
-                </div>
-                <div>
-                    <i (click)="showOnMap(item)" title="Center On Map"
-                        class="fas fa-map-marked-alt show-on-map-button"></i>
-                </div>
-            </div>
-            <div class="store-info">
-                <div [id]="getIdForElem(item, store)" (click)="select(item, store)"
-                    [ngClass]="{'store-info-item': true, 'highlighted': shouldHighlight(store)}"
-                    *ngFor="let store of item.stores">
-                    <div class="store">
-                        <div class="store-descriptions">
-                            <div class="store-name">{{store.storeName}}</div>
-                            <div class="store-subtext">{{getStoreSubtext(item, store)}}</div>
-                        </div>
-
-                        <i (click)="removeStoreFromList(store)" title="Remove From List"
-                            class="fas fa-trash show-on-map-button"></i>
-                    </div>
-                </div>
-            </div>
+<mat-progress-bar mode="indeterminate" *ngIf="fetching || items === undefined"></mat-progress-bar>
+<div #listOfStores class="list-of-items" id="listOfStores" *ngIf="renderer.length && !fetching">
+  <div *ngFor="let item of renderer; let itemIndex = index;" [id]="getItemIndex(itemIndex)">
+    <div class="site">
+      <div class="site-info">
+        <div>
+          <div>{{getAddressLabel(item)}}</div>
+          <div>{{getFormattedIntersection(item)}}</div>
         </div>
+        <div>
+          <i (click)="showOnMap(item)" title="Center On Map"
+             class="fas fa-map-marked-alt show-on-map-button"></i>
+        </div>
+      </div>
+      <div class="store-info">
+        <div [id]="getIdForElem(item, store)" (click)="select(item, store)"
+             [ngClass]="{'store-info-item': true, 'highlighted': shouldHighlight(store)}"
+             *ngFor="let store of item.stores">
+          <div class="store">
+            <div class="store-descriptions">
+              <div class="store-name">{{store.storeName}}</div>
+              <div class="store-subtext">{{getStoreSubtext(item, store)}}</div>
+            </div>
+
+            <i (click)="removeStoreFromList(store)" title="Remove From List"
+               class="fas fa-trash show-on-map-button"></i>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
-
-
 
 
 <!-- <mat-progress-bar mode="indeterminate" *ngIf="!storeList"></mat-progress-bar>

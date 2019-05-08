@@ -1,11 +1,10 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-
-import * as _ from 'lodash';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { StoreMarker } from 'app/models/store-marker';
-import { StoreSidenavService, SortType, SortDirection } from '../../shared/store-sidenav/store-sidenav.service';
+import { SortDirection, SortType, StoreSidenavService } from '../store-sidenav/store-sidenav.service';
 import { SiteMarker } from 'app/models/site-marker';
 import { SiteService } from 'app/core/services/site.service';
 import { Site } from 'app/models/full/site';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -13,13 +12,11 @@ import { Site } from 'app/models/full/site';
   templateUrl: './stores-list.component.html',
   styleUrls: ['./stores-list.component.css']
 })
-export class StoresListComponent implements OnInit {
-
-  sortType: SortType;
-  sortDirection: SortDirection;
-
+export class StoresListComponent implements OnInit, OnDestroy {
 
   @ViewChild('listOfStores') listOfStores;
+
+  scrollSubscription: Subscription;
 
   constructor(
     private storeSidenavService: StoreSidenavService,
@@ -27,57 +24,36 @@ export class StoresListComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.storeSidenavService.sortType$.subscribe((sortType: SortType) => {
-      this.sortType = sortType;
-    })
+    this.scrollSubscription = this.storeSidenavService.scrollToMapSelectionId$
+      .subscribe((id: number) => this.scrollToElem(id));
+  }
 
-    this.storeSidenavService.sortDirection$.subscribe((sortDirection: SortDirection) => {
-      this.sortDirection = sortDirection;
-    })
+  ngOnDestroy() {
+    this.scrollSubscription.unsubscribe();
+  }
 
-    this.storeSidenavService.scrollToMapSelectionId$.subscribe((id: number) => {
-      this.scrollToElem(id);
-    })
+  get sortType() {
+    return this.storeSidenavService.sortType;
+  }
 
+  get sortDirection() {
+    return this.storeSidenavService.sortDirection;
+  }
 
+  get fetching() {
+    return this.storeSidenavService.fetching;
+  }
 
+  get renderer() {
+    return this.storeSidenavService.renderer;
+  }
+
+  get sortGroups() {
+    return this.storeSidenavService.sortGroups;
   }
 
   getItemIndex(i: number) {
     return `render_${i}`;
-  }
-
-
-
-
-
-
-  scrollToElem(id) {
-    const elem = document.getElementById(`${id}`);
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }
-
-  isFetching() {
-    return this.storeSidenavService.getFetching();
-  }
-
-  getItems() {
-    // return this.storeSidenavService.getItems();
-    return this.storeSidenavService.getRenderer();
-  }
-
-  getSortType() {
-    return this.storeSidenavService.getSortType();
-  }
-
-  setSortType(sortType: SortType) {
-    this.storeSidenavService.setSortType(sortType);
-  }
-
-  getSortGroups() {
-    return this.storeSidenavService.getSortGroups();
   }
 
   setSortOptions(sortType?: SortType, sortDirection?: SortDirection) {
@@ -115,7 +91,6 @@ export class StoresListComponent implements OnInit {
   }
 
   shouldHighlight(store: StoreMarker) {
-
     return this.storeSidenavService.getMapSelections().selectedStoreIds.has(store.id)
   }
 
@@ -125,5 +100,12 @@ export class StoresListComponent implements OnInit {
 
   showOnMap(site: SiteMarker) {
     this.storeSidenavService.showOnMap(site);
+  }
+
+  private scrollToElem(id) {
+    const elem = document.getElementById(`${id}`);
+    if (elem) {
+      elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }
 }

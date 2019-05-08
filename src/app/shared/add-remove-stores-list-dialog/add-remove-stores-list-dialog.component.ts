@@ -1,11 +1,11 @@
-import { Component, OnInit, Input, OnChanges, Inject, ViewChild } from '@angular/core';
+import { Component, Inject, ViewChild } from '@angular/core';
 import { ListManagerService } from '../list-manager/list-manager.service';
 import { SimplifiedStoreList } from '../../models/simplified/simplified-store-list';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { StoreService } from '../../core/services/store.service';
 
 import * as _ from 'lodash';
-import { MatDialogRef, MatDialog, MatSnackBar, MAT_DIALOG_DATA } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { StoreListService } from 'app/core/services/store-list.service';
 import { StoreList } from 'app/models/full/store-list';
 
@@ -23,6 +23,8 @@ export class AddRemoveStoresListDialogComponent {
 
   type: AddRemoveType;
   storeIds: number[];
+
+  // TODO Unused attribute
   visible = false;
 
   stores: SimplifiedStore[] = [];
@@ -31,20 +33,20 @@ export class AddRemoveStoresListDialogComponent {
   includedStoreLists: SimplifiedStoreList[] = [];
   excludedStoreLists: SimplifiedStoreList[] = [];
 
+  // TODO Unused Attrubutes
   selectedLists: SimplifiedStoreList[] = [];
 
   fetching = true;
 
   @ViewChild('selectionList') selectionList: any = {
-    selectedOptions: { selected: [] }
+    selectedOptions: {selected: []}
   };
 
-
-  constructor(private listManagerService: ListManagerService, private storeService: StoreService, private storeListService: StoreListService,
-    public dialogRef: MatDialogRef<AddRemoveStoresListDialogComponent>,
-    public dialog: MatDialog,
-    public snackBar: MatSnackBar,
-    @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor(private listManagerService: ListManagerService,
+              private storeService: StoreService,
+              private storeListService: StoreListService,
+              private dialogRef: MatDialogRef<AddRemoveStoresListDialogComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: any) {
     this.type = data.type;
     this.storeIds = data.storeIds;
 
@@ -55,8 +57,6 @@ export class AddRemoveStoresListDialogComponent {
         this.filterLists(storeLists);
       })
     });
-
-
 
     dialogRef.disableClose = true;
   }
@@ -87,12 +87,14 @@ export class AddRemoveStoresListDialogComponent {
 
   createNewList(listNameInput) {
     const listName = listNameInput.value;
+
+    // TODO Remove unused code?
     // this.listManagerService.createNewList(listName);
 
     if (listName) {
 
       this.fetching = true;
-      const newStoreList: StoreList = new StoreList({ storeListName: listName });
+      const newStoreList: StoreList = new StoreList({storeListName: listName});
       this.storeListService.create(newStoreList).subscribe(() => {
         this.listManagerService.getStoreLists().subscribe((storeLists: SimplifiedStoreList[]) => {
           this.filterLists(storeLists);
@@ -130,7 +132,7 @@ export class AddRemoveStoresListDialogComponent {
       } else {
         return false
       }
-    })
+    });
     this.excludedStoreLists = allStoreLists.filter((storeList: SimplifiedStoreList) => {
       if (this.stores.length) {
         const storeIds = this.stores.map((store: SimplifiedStore) => store.id);
@@ -140,7 +142,7 @@ export class AddRemoveStoresListDialogComponent {
       } else {
         return false
       }
-    })
+    });
 
     this.sortStoreListsAlphabetically();
   }

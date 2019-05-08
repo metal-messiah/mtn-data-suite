@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { Pages } from './store-sidenav-pages';
 import { StorageService } from 'app/core/services/storage.service';
 import { SiteMarker } from 'app/models/site-marker';
@@ -6,31 +6,27 @@ import { DbEntityMarkerService } from 'app/core/services/db-entity-marker.servic
 
 import * as _ from 'lodash';
 import { SiteService } from 'app/core/services/site.service';
-import { StoreMapLayer } from 'app/models/store-map-layer';
 import { StoreMarker } from 'app/models/store-marker';
 import { StoreService } from 'app/core/services/store.service';
 import { MapService } from 'app/core/services/map.service';
 import { Store } from 'app/models/full/store';
 import { SimplifiedSite } from 'app/models/simplified/simplified-site';
-import { Subject, BehaviorSubject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { CasingDashboardService } from 'app/casing/casing-dashboard/casing-dashboard.service';
-import { UpdateService } from 'app/core/services/update.service';
-// import { CasingDashboardMode } from 'app/casing/casing-dashboard/casing-dashboard.component';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
-import { isObject } from 'util';
+import { finalize } from 'rxjs/operators';
 
 
 export enum SortType {
-  ALPHABETICAL,
-  LAT,
-  LNG,
-  VALIDATEDDATE,
-  CREATEDDATE,
-  FLOAT,
-  ASSIGNEEID,
-  DUPLICATE,
-  BACKFILLEDNONGROCERY,
-  STORETYPE
+  ASSIGNEE_ID = 'Assignee ID',
+  BACK_FILLED_NON_GROCERY = 'Back-filled by non-grocery',
+  CREATED_DATE = 'Created Date',
+  LATITUDE = 'Latitude',
+  LONGITUDE = 'Longitude',
+  FLOAT = 'Store Is Float',
+  STORE_NAME = 'Store Name',
+  STORE_TYPE = 'Store Type',
+  VALIDATED_DATE = 'Validated Date'
 }
 
 export enum SortDirection {
@@ -44,60 +40,56 @@ export enum SortDirection {
 export class StoreSidenavService {
 
   private items: SiteMarker[] = [];
-  items$: BehaviorSubject<SiteMarker[]> = new BehaviorSubject(this.items);
 
   private mapSelections: {
     selectedSiteIds: Set<number>,
     selectedStoreIds: Set<number>,
     scrollTo: number
   } = {
-      selectedSiteIds: new Set(),
-      selectedStoreIds: new Set(),
-      scrollTo: null
-    };
+    selectedSiteIds: new Set(),
+    selectedStoreIds: new Set(),
+    scrollTo: null
+  };
 
   scrollToMapSelectionId$ = new Subject<number>();
 
   pages = Pages;
-  public currentPage: Pages = null;
+  currentPage: Pages = null;
 
   sidenavPageStorageKey = 'currentPage';
 
   fetching = false;
 
-  sortType: SortType = SortType.ALPHABETICAL;
+  sortType: SortType = SortType.STORE_NAME;
   sortDirection: SortDirection = SortDirection.ASC;
 
-  sortType$: BehaviorSubject<SortType> = new BehaviorSubject(this.sortType);
-  sortDirection$: BehaviorSubject<SortDirection> = new BehaviorSubject(this.sortDirection);
+  sort$ = new EventEmitter();
 
-  sortTypeStorageKey = 'storesListSortType';
-  sortDirectionStorageKey = 'storesListSortDirection';
+  private readonly sortTypeStorageKey = 'storesListSortType';
+  private readonly sortDirectionStorageKey = 'storesListSortDirection';
 
-  sortGroups = [
+  readonly sortGroups = [
     {
       name: 'Store', keys: [
-        { label: 'Store Name', enumIndex: 0 },
-        { label: 'Store Type', enumIndex: 9 },
-        { label: 'Float', enumIndex: 5 },
-        { label: 'Created Date', enumIndex: 4 },
-        { label: 'Validated Date', enumIndex: 3 }
+        SortType.STORE_NAME,
+        SortType.STORE_TYPE,
+        SortType.FLOAT,
+        SortType.CREATED_DATE,
+        SortType.VALIDATED_DATE
       ]
     }, {
       name: 'Site', keys: [
-        { label: 'Latitude', enumIndex: 1 },
-        { label: 'Longitude', enumIndex: 2 },
-        { label: 'Assignee ID', enumIndex: 6 },
-        { label: 'Duplicate', enumIndex: 7 },
-        { label: 'Backfilled Non Grocery', enumIndex: 8 }
+        SortType.LATITUDE,
+        SortType.LONGITUDE,
+        SortType.ASSIGNEE_ID,
+        SortType.BACK_FILLED_NON_GROCERY
       ]
     }
-  ]
+  ];
 
   subscriptions = [];
 
   emptyMappings = {};
-
 
   loadingConstraint = 20;
   renderer = [];
@@ -120,21 +112,19 @@ export class StoreSidenavService {
         this.dbEntityMarkerService.visibleMarkersChanged$.subscribe((visibleMarkers: google.maps.Marker[]) => {
           this.updateItems(visibleMarkers)
         })
-      )
+      );
 
       this.subscriptions.push(
-        this.dbEntityMarkerService.selectionSet$.subscribe((selectionSet: { selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number }) => {
-          this.mapSelections = selectionSet;
-          const { scrollTo } = this.mapSelections;
-          if (scrollTo) {
-            this.scrollToMapSelectionId$.next(scrollTo);
-          }
-        })
+        this.dbEntityMarkerService.selectionSet$
+          .subscribe((selectionSet: { selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number }) => {
+            this.mapSelections = selectionSet;
+            const {scrollTo} = this.mapSelections;
+            if (scrollTo) {
+              this.scrollToMapSelectionId$.next(scrollTo);
+            }
+          })
       )
-
     }
-
-
   }
 
   getSettings() {
@@ -143,19 +133,15 @@ export class StoreSidenavService {
       if (currentPage !== undefined) {
         this.currentPage = currentPage;
       }
-    })
+    });
 
     this.storageService.getOne(this.sortTypeStorageKey).subscribe((sortType: SortType) => {
       this.setSortOptions(sortType, null);
-    })
+    });
 
     this.storageService.getOne(this.sortDirectionStorageKey).subscribe((sortDirection: SortDirection) => {
       this.setSortOptions(null, sortDirection);
     })
-  }
-
-  getPage() {
-    return this.currentPage;
   }
 
   setPage(page: Pages) {
@@ -163,78 +149,57 @@ export class StoreSidenavService {
     this.storageService.set(this.sidenavPageStorageKey, this.currentPage)
   }
 
-
-  getFetching(): boolean {
-    return this.fetching;
-  }
-
-  setFetching(fetching: boolean): void {
-    this.fetching = fetching;
-  }
-
   ////// ITEMS /////
 
   updateItems(visibleMarkers: google.maps.Marker[]) {
-    // drop items that arent in the visible marker set, no reason to store them, and no reason to drop them all and build from scratch
+    // drop items that aren't in the visible marker set, no reason to store them, and no reason to drop them all and build from scratch
     this.items = this.items.filter(item => visibleMarkers.map(m => m['site'].id).includes(item.id));
 
     // only get full data for visible markers not in items, to reduce server bandwidth
     visibleMarkers = visibleMarkers.filter(m => !this.items.map(i => i.id).includes(m['site'].id));
 
     if (visibleMarkers.length) {
-      this.setFetching(true)
 
+      // Sort site's stores by type (Active, Future, Historical), then add the site marker to items
       visibleMarkers.forEach(m => {
-        m['site']['stores'].sort((storesA, storesB) => storesA.storeType < storesB.storeType ? -1 : storesA.storeType > storesB.storeType ? 1 : 0);
+        m['site']['stores'].sort((storeA, storeB) => storeA.storeType.localeCompare(storeB.storeType));
         this.items.push(new SiteMarker(m['site']));
       });
 
-
       this.items = _.uniqBy(this.items, 'id');
 
-      this.siteService.getAllByIds(this.items.map(item => item.id)).subscribe((sites: SimplifiedSite[]) => {
-        sites.forEach(site => {
-          const itemIdx = this.items.findIndex((i) => i.id === site.id)
-          this.items[itemIdx] = Object.assign({}, this.items[itemIdx], site);
+      // Get all Sites for visible site markers
+      this.fetching = true;
+      this.siteService.getAllByIds(this.items.map(item => item.id))
+        .pipe(finalize(() => this.fetching = false))
+        .subscribe((sites: SimplifiedSite[]) => {
+          sites.forEach(site => {
+            const itemIdx = this.items.findIndex((i) => i.id === site.id);
+            this.items[itemIdx] = Object.assign({}, this.items[itemIdx], site);
+          });
+
+          // Loop through stores array and check if NONE of them are active, but they want to see active AND empty
+          this.items.forEach(item => {
+            const active = item.stores.filter(store => store.storeType === 'ACTIVE');
+            const shouldShowActive = this.dbEntityMarkerService.controls.get('showActive').value;
+            const shouldShowEmpty = this.dbEntityMarkerService.controls.get('showEmptySites').value;
+            if (active.length === 0 && shouldShowActive && shouldShowEmpty) {
+              const psuedoId = this.emptyMappings[item.id] ? this.emptyMappings[item.id] : Math.round(Math.random() * 10000000);
+              item.stores.push(new StoreMarker({
+                id: psuedoId,
+                storeName: 'EMPTY SITE',
+                isEmpty: true
+              }));
+
+              this.emptyMappings[item.id] = this.emptyMappings[item.id] ? this.emptyMappings[item.id] : psuedoId;
+            }
+          });
+
+          this.sortItems();
         })
-
-
-        // Loop through stores array and check if NONE of them are active, but they want to see active AND empty
-        this.items.forEach(item => {
-          const active = item.stores.filter(store => store.storeType === 'ACTIVE');
-          const shouldShowActive = this.dbEntityMarkerService.controls.get('showActive').value;
-          const shouldShowEmpty = this.dbEntityMarkerService.controls.get('showEmptySites').value;
-          if (active.length === 0 && shouldShowActive && shouldShowEmpty) {
-            const psuedoId = this.emptyMappings[item.id] ? this.emptyMappings[item.id] : Math.round(Math.random() * 10000000);
-            item.stores.push(new StoreMarker({
-              id: psuedoId,
-              storeName: 'EMPTY SITE',
-              isEmpty: true
-            }));
-
-            this.emptyMappings[item.id] = this.emptyMappings[item.id] ? this.emptyMappings[item.id] : psuedoId;
-          }
-        })
-
-        this.sortItems()
-        this.setFetching(false)
-
-      })
     } else {
       this.setRenderer();
     }
-  }
-
-  getItems(): SiteMarker[] {
-    return this.items;
-  }
-
-  setItems(items: SiteMarker[]) {
-    this.items = items;
-  }
-
-  getRenderer() {
-    return this.renderer;
   }
 
   setRenderer() {
@@ -280,22 +245,6 @@ export class StoreSidenavService {
   /////////////
   //////////// SORTING ////
 
-  getSortType(): SortType {
-    return this.sortType;
-  }
-
-  setSortType(sortType: SortType) {
-    this.sortType = sortType;
-  }
-
-  getSortGroups() {
-    return this.sortGroups;
-  }
-
-  getSortDirection(): SortDirection {
-    return this.sortDirection;
-  }
-
   setSortOptions(sortType?: SortType, sortDirection?: SortDirection) {
     this.sortType = sortType !== null ? sortType : this.sortType;
     this.sortDirection = sortDirection !== null ? sortDirection : this.sortDirection;
@@ -303,99 +252,71 @@ export class StoreSidenavService {
     this.storageService.set(this.sortTypeStorageKey, this.sortType);
     this.storageService.set(this.sortDirectionStorageKey, this.sortDirection);
 
-    this.sortType$.next(this.sortType);
-    this.sortDirection$.next(this.sortDirection);
+    this.sort$.emit();
 
     this.sortItems();
   }
 
   sortItems() {
     switch (this.sortType) {
-      case SortType.ALPHABETICAL:
+      case SortType.STORE_NAME:
         this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort ALPHABETICALLY by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
-          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-
-          if (storeA && storeB) {
-            if (storeA.storeName < storeB.storeName) { return -1 };
-            if (storeA.storeName > storeB.storeName) { return 1 };
-          }
-          return 0;
-        })
+          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
+          return storeA.storeName.localeCompare(storeB.storeName);
+        });
         break;
-      case SortType.ASSIGNEEID:
+      case SortType.ASSIGNEE_ID:
         this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.assigneeId - itemB.assigneeId);
         break;
-      case SortType.BACKFILLEDNONGROCERY:
-        this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.backfilledNonGrocery === itemB.backfilledNonGrocery ? 0 : itemA.backfilledNonGrocery ? -1 : 1);
+      case SortType.BACK_FILLED_NON_GROCERY:
+        this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+          return itemA.backfilledNonGrocery === itemB.backfilledNonGrocery ? 0 : itemA.backfilledNonGrocery ? -1 : 1;
+        });
         break;
-      case SortType.CREATEDDATE:
+      case SortType.CREATED_DATE:
         this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
-          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-
-          if (storeA && storeB) {
-            if (storeA.createdDate < storeB.createdDate) { return -1 };
-            if (storeA.createdDate > storeB.createdDate) { return 1 };
-          }
-          return 0;
-        })
-        break;
-      case SortType.DUPLICATE:
-        this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.duplicate === itemB.duplicate ? 0 : itemA.duplicate ? -1 : 1);
+          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
+          return storeA.createdDate.getTime() - storeB.createdDate.getTime();
+        });
         break;
       case SortType.FLOAT:
         this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort by FLOAT using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
-          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
+          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
 
           if (storeA && storeB) {
             return storeA.float === storeB.float ? 0 : storeA.float ? -1 : 1;
           }
           return 0;
-        })
+        });
         break;
-      case SortType.LAT:
+      case SortType.LATITUDE:
         this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.latitude - itemB.latitude);
         break;
-      case SortType.LNG:
+      case SortType.LONGITUDE:
         this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.longitude - itemB.longitude);
         break;
-      case SortType.STORETYPE:
+      case SortType.STORE_TYPE:
         this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort STORE TYPE by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
-
-          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-
-          if (storeA && storeB) {
-            if (storeA.storeType < storeB.storeType) { return -1 };
-            if (storeA.storeType > storeB.storeType) { return 1 };
-
-          }
-          return 0;
-        })
+          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
+          return storeA.storeType.localeCompare(storeB.storeType);
+        });
         break;
-      case SortType.VALIDATEDDATE:
+      case SortType.VALIDATED_DATE:
         this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
-          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-
-          if (storeA && storeB) {
-            if (storeA.validatedDate < storeB.validatedDate) { return -1 };
-            if (storeA.validatedDate > storeB.validatedDate) { return 1 };
-          }
-          return 0;
-        })
+          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
+          return storeA.validatedDate.getTime() - storeB.validatedDate.getTime();
+        });
         break;
     }
 
     if (this.sortDirection === SortDirection.DESC) {
       this.items.reverse();
     }
-
-    // the list updated, so if there is an active selection scroll to it
-
-    this.items$.next(this.items);
 
     this.setRenderer();
   }
@@ -406,7 +327,7 @@ export class StoreSidenavService {
     const activeStoresB = itemB.stores.filter(s => s.storeType === 'ACTIVE');
     const storeB = activeStoresB.length ? activeStoresB[0] : itemB.stores.length ? itemB.stores[0] : null;
 
-    return { storeA, storeB };
+    return {storeA, storeB};
   }
 
 
@@ -423,43 +344,36 @@ export class StoreSidenavService {
   ////// TEMPLATE STUFF ////////////
 
   getStoreSubtext(item: any, store: StoreMarker) {
-    if (this.sortType === SortType.ASSIGNEEID) {
-      return `Assignee ID: ${item.assigneeId}`;
-    }
-    if (this.sortType === SortType.BACKFILLEDNONGROCERY) {
-      return `Backfilled Non-Grocery: ${item.backfilledNonGrocery}`;
-    }
-    if (this.sortType === SortType.CREATEDDATE) {
-      return `Created: ${new Date(store.createdDate).toLocaleDateString()}`;
-    }
-    if (this.sortType === SortType.DUPLICATE) {
-      return `Duplicate: ${item.duplicate}`;
-    }
-    if (this.sortType === SortType.FLOAT) {
-      return `Float: ${store.float ? store.float : 'False'}`;
-    }
-    if (this.sortType === SortType.LAT) {
-      return `Latitude: ${item.latitude}`;
-    }
-    if (this.sortType === SortType.LNG) {
-      return `Longitude: ${item.longitude}`;
-    }
-    if (this.sortType === SortType.VALIDATEDDATE) {
-      return `Validated: ${new Date(store.validatedDate).toLocaleDateString()}`;
-    }
+    let text = this.sortType.toString();
 
-    return store.storeType
+    switch (this.sortType) {
+      case SortType.ASSIGNEE_ID:
+        return text += `: ${item.assigneeId}`;
+      case SortType.BACK_FILLED_NON_GROCERY:
+        return text += `: ${item.backfilledNonGrocery}`;
+      case SortType.CREATED_DATE:
+        return text += `: ${new Date(store.createdDate).toLocaleDateString()}`;
+      case SortType.FLOAT:
+        return text += `: ${store.float ? store.float : 'False'}`;
+      case SortType.LATITUDE:
+        return text += `: ${item.latitude}`;
+      case SortType.LONGITUDE:
+        return text += `: ${item.longitude}`;
+      case SortType.VALIDATED_DATE:
+        return text += `: ${new Date(store.validatedDate).toLocaleDateString()}`;
+      default:
+        return store.storeType;
+    }
   }
 
   showOnMap(site: SiteMarker) {
-
     this.mapService.setCenter({
       lat: site.latitude,
       lng: site.longitude
     });
-
   }
 
+  // TODO implement hovering or delete unused method
   siteHover(store, type) {
     if (type === 'enter') {
       this.dbEntityMarkerService.selectStores([store.id]);
@@ -471,8 +385,6 @@ export class StoreSidenavService {
   getSelectedDashboardMode() {
     return this.casingDashboardService.getSelectedDashboardMode();
   }
-
-
 
   select(siteMarker: SiteMarker, storeMarker: StoreMarker) {
     if (this.getSelectedDashboardMode() !== 4) {
@@ -495,7 +407,7 @@ export class StoreSidenavService {
       return i.stores.forEach((store: StoreMarker) => {
         visibleIds.push(store.id);
       })
-    })
+    });
     this.dbEntityMarkerService.selectStores(visibleIds);
   }
 
@@ -507,13 +419,13 @@ export class StoreSidenavService {
     if (this.mapSelections.selectedStoreIds.size) {
       this.storeService.getAllByIds(Array.from(this.mapSelections.selectedStoreIds)).subscribe((stores: SimplifiedStore[]) => {
         const storeGeoms = stores.map((s: SimplifiedStore) => {
-          return { lat: s.site.latitude, lng: s.site.longitude }
+          return {lat: s.site.latitude, lng: s.site.longitude}
         });
 
         if (this.mapSelections.selectedSiteIds.size) {
           this.siteService.getAllByIds(Array.from(this.mapSelections.selectedSiteIds)).subscribe((sites: SimplifiedSite[]) => {
             const siteGeoms = sites.map((s: SimplifiedSite) => {
-              return { lat: s.latitude, lng: s.longitude }
+              return {lat: s.latitude, lng: s.longitude};
             });
 
             const geoms = storeGeoms.concat(siteGeoms);

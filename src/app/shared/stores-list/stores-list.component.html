@@ -1,12 +1,10 @@
-<!-- <mat-progress-spinner mode="indeterminate" *ngIf="fetching">
-</mat-progress-spinner> -->
 <div class="sort-toolbar">
   <mat-form-field>
     <mat-label>Sort Results</mat-label>
     <mat-select [(value)]="sortType" #sortTypeSelect (selectionChange)="setSortOptions(sortTypeSelect.value, null)">
-      <mat-optgroup *ngFor="let group of getSortGroups()" [label]="group.name">
-        <mat-option *ngFor="let key of group.keys" [value]="key.enumIndex">
-          {{key.label}}
+      <mat-optgroup *ngFor="let group of sortGroups" [label]="group.name">
+        <mat-option *ngFor="let key of group.keys" [value]="key">
+          {{key}}
         </mat-option>
       </mat-optgroup>
     </mat-select>
@@ -24,9 +22,8 @@
     </mat-select>
   </mat-form-field>
 </div>
-<div #listOfStores class="list-of-items" id="listOfStores" (scroll)="reachedBottom()" *ngIf="!isFetching()">
-  <div *ngFor="let item of getItems(); let itemIndex = index;">
-
+<div #listOfStores class="list-of-items" id="listOfStores" (scroll)="reachedBottom()" *ngIf="!fetching">
+  <div *ngFor="let item of renderer; let itemIndex = index;">
     <div class="site">
       <div class="site-info">
         <div>
@@ -47,12 +44,7 @@
             <img class="store-logo" *ngIf="store.logoFileName" [src]="getLogoPath(store.logoFileName)" />
           </div>
         </div>
-
-
       </div>
     </div>
-
-
-
   </div>
 </div>

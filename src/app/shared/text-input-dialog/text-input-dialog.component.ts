@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
   templateUrl: './text-input-dialog.component.html',
   styleUrls: ['./text-input-dialog.component.css']
 })
-export class TextInputDialogComponent implements OnInit {
+export class TextInputDialogComponent {
 
   title: string;
   placeholder: string;
@@ -17,7 +17,8 @@ export class TextInputDialogComponent implements OnInit {
     this.placeholder = data.placeholder;
   }
 
-  ngOnInit() {
+  submit(value: string) {
+    this.dialogRef.close(value);
   }
 
 }

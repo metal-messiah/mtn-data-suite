@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
 import { StoreListService } from 'app/core/services/store-list.service';
@@ -6,12 +6,11 @@ import { StoreList } from 'app/models/full/store-list';
 import { MatDialog } from '@angular/material';
 import { ListManagerService } from '../list-manager.service';
 import { MapService } from 'app/core/services/map.service';
-import { StoreSidenavService, SortType, SortDirection } from 'app/shared/store-sidenav/store-sidenav.service';
+import { SortDirection, SortType, StoreSidenavService } from 'app/shared/store-sidenav/store-sidenav.service';
 import { StoreMarker } from 'app/models/store-marker';
 import { SiteMarker } from 'app/models/site-marker';
 import { SiteService } from 'app/core/services/site.service';
 import { Site } from 'app/models/full/site';
-import { SimplifiedSite } from 'app/models/simplified/simplified-site';
 
 @Component({
   selector: 'mds-storelist-stores-list',
@@ -25,12 +24,6 @@ export class StorelistStoresListComponent implements OnInit {
 
   loadingConstraint = 20;
   renderer = [];
-  renderedCount = this.loadingConstraint;
-
-  sortType: SortType;
-  sortDirection: SortDirection;
-
-  isFetching = false;
 
   @ViewChild('listOfStores') listOfStores;
 
@@ -44,28 +37,28 @@ export class StorelistStoresListComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.storeSidenavService.sortType$.subscribe((sortType: SortType) => {
-      this.sortType = sortType;
-      this.sortItems();
-    })
-
-    this.storeSidenavService.sortDirection$.subscribe((sortDirection: SortDirection) => {
-      this.sortDirection = sortDirection;
-      this.sortItems();
-    })
+    this.storeSidenavService.sort$.subscribe(() => this.sortItems());
 
     this.storeSidenavService.scrollToMapSelectionId$.subscribe((id: number) => {
       this.scrollToElem(id);
-    })
-
-    this.listManagerService.fetching$.subscribe((isFetching: boolean) => {
-      this.isFetching = isFetching;
-    })
+    });
 
   }
 
-  get selectedStoreList(): StoreList {
-    return this.storeList;
+  get fetching() {
+    return this.listManagerService.fetching;
+  }
+
+  get sortGroups() {
+    return this.storeSidenavService.sortGroups;
+  }
+
+  get sortType() {
+    return this.storeSidenavService.sortType;
+  }
+
+  get sortDirection() {
+    return this.storeSidenavService.sortDirection;
   }
 
   @Input()
@@ -80,11 +73,10 @@ export class StorelistStoresListComponent implements OnInit {
       });
   }
 
+  // TODO Delete unused method?
   setStore(store: SimplifiedStore) {
     this.listManagerService.setStores([store]);
   }
-
-
 
   removeStoreFromList(storeMarker: StoreMarker) {
     const store = new SimplifiedStore(storeMarker);
@@ -101,7 +93,7 @@ export class StorelistStoresListComponent implements OnInit {
       const storeMarker = new StoreMarker(store);
       siteMarker.stores = [storeMarker];
       items.push(siteMarker);
-    })
+    });
     return items;
   }
 
@@ -125,57 +117,35 @@ export class StorelistStoresListComponent implements OnInit {
     }
   }
 
-  getSortType() {
-    return this.storeSidenavService.getSortType();
-  }
-
-  setSortType(sortType: SortType) {
-    this.storeSidenavService.setSortType(sortType);
-  }
-
-  getSortGroups() {
-    return this.storeSidenavService.getSortGroups();
-  }
-
   setSortOptions(sortType?: SortType, sortDirection?: SortDirection) {
     this.storeSidenavService.setSortOptions(sortType, sortDirection);
   }
 
+  // TODO Eliminate duplicate code (found almost examctly in store-sidenav.service.ts:260)
   sortItems() {
     if (this.items) {
       switch (this.sortType) {
-        case SortType.ALPHABETICAL:
+        case SortType.STORE_NAME:
           this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
             // try to sort ALPHABETICALLY by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
             const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-
-            if (storeA && storeB) {
-              if (storeA.storeName < storeB.storeName) { return -1 };
-              if (storeA.storeName > storeB.storeName) { return 1 };
-            }
-            return 0;
-          })
+            return storeA.storeName.localeCompare(storeB.storeName);
+          });
           break;
-        case SortType.ASSIGNEEID:
+        case SortType.ASSIGNEE_ID:
           this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.assigneeId - itemB.assigneeId);
           break;
-        case SortType.BACKFILLEDNONGROCERY:
-          this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.backfilledNonGrocery === itemB.backfilledNonGrocery ? 0 : itemA.backfilledNonGrocery ? -1 : 1);
+        case SortType.BACK_FILLED_NON_GROCERY:
+          this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+            return itemA.backfilledNonGrocery === itemB.backfilledNonGrocery ? 0 : itemA.backfilledNonGrocery ? -1 : 1;
+          });
           break;
-        case SortType.CREATEDDATE:
+        case SortType.CREATED_DATE:
           this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
             // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
             const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-
-            if (storeA && storeB) {
-              if (storeA.createdDate < storeB.createdDate) { return -1 };
-              if (storeA.createdDate > storeB.createdDate) { return 1 };
-            }
-            return 0;
-          })
-          break;
-        case SortType.DUPLICATE:
-          this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.duplicate === itemB.duplicate ? 0 : itemA.duplicate ? -1 : 1);
+            return storeA.createdDate.getTime() - storeB.createdDate.getTime();
+          });
           break;
         case SortType.FLOAT:
           this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
@@ -186,38 +156,27 @@ export class StorelistStoresListComponent implements OnInit {
               return storeA.float === storeB.float ? 0 : storeA.float ? -1 : 1;
             }
             return 0;
-          })
+          });
           break;
-        case SortType.LAT:
+        case SortType.LATITUDE:
           this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.latitude - itemB.latitude);
           break;
-        case SortType.LNG:
+        case SortType.LONGITUDE:
           this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.longitude - itemB.longitude);
           break;
-        case SortType.STORETYPE:
+        case SortType.STORE_TYPE:
           this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
             // try to sort STORE TYPE by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
-
             const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-
-            if (storeA && storeB) {
-              if (storeA.storeType < storeB.storeType) { return -1 };
-              if (storeA.storeType > storeB.storeType) { return 1 };
-            }
-            return 0;
-          })
+            return storeA.storeType.localeCompare(storeB.storeType);
+          });
           break;
-        case SortType.VALIDATEDDATE:
+        case SortType.VALIDATED_DATE:
           this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
             // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
             const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-
-            if (storeA && storeB) {
-              if (storeA.validatedDate < storeB.validatedDate) { return -1 };
-              if (storeA.validatedDate > storeB.validatedDate) { return 1 };
-            }
-            return 0;
-          })
+            return storeA.validatedDate.getTime() - storeB.validatedDate.getTime();
+          });
           break;
       }
 
@@ -286,6 +245,7 @@ export class StorelistStoresListComponent implements OnInit {
     return this.siteService.getFormattedIntersection(site);
   }
 
+  // TODO Delete unused method?
   getLogoPath(fileName: string) {
     return `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${fileName}`;
   }

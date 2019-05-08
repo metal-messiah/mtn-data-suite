@@ -4,9 +4,6 @@ import { CasingDashboardMode } from 'app/casing/casing-dashboard/casing-dashboar
 import { ListManagerService } from '../list-manager/list-manager.service';
 import { Pages as ListManagerPages } from '../list-manager/list-manager-pages';
 import { Pages as StoreSidenavPages } from './store-sidenav-pages';
-import { StoreListService } from 'app/core/services/store-list.service';
-import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
-
 
 @Component({
   selector: 'mds-store-sidenav',
@@ -17,25 +14,24 @@ export class StoreSidenavComponent implements OnInit {
 
   pages = StoreSidenavPages;
 
-  isFetchingStores = false;
-
   @Input() expanded: boolean;
   @Input() visibleStores: number;
 
-  constructor(private storeSidenavService: StoreSidenavService, private listManagerService: ListManagerService, private storeListService: StoreListService) { }
+  constructor(private storeSidenavService: StoreSidenavService,
+              private listManagerService: ListManagerService) { }
 
   ngOnInit() { }
 
   isPage(page: StoreSidenavPages) {
-    return (this.storeSidenavService.getPage() === page);
+    return (this.storeSidenavService.currentPage === page);
   }
 
   setPage(page: StoreSidenavPages) {
     this.storeSidenavService.setPage(page);
   }
 
-  getStoreListFetching() {
-    return this.storeSidenavService.getFetching();
+  get fetching() {
+    return this.storeSidenavService.fetching;
   }
 
   getSelectedStoresCount(): number {

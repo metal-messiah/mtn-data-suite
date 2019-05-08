@@ -35,7 +35,14 @@ import { AddRemoveStoresListDialogComponent } from './add-remove-stores-list-dia
 import { TextInputDialogComponent } from './text-input-dialog/text-input-dialog.component';
 
 @NgModule({
-  imports: [CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule, ListManagerModule],
+  imports: [
+    CommonModule,
+    CustomMaterialModule,
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ListManagerModule
+  ],
   declarations: [
     AppInfoDialogComponent,
     CallbackComponent,

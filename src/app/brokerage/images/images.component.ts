@@ -3,6 +3,7 @@ import { MatSnackBar } from '@angular/material';
 
 import { saveAs } from 'file-saver';
 import shajs from 'sha.js';
+
 declare var cloudinary: any;
 
 @Component({
@@ -69,7 +70,8 @@ export class ImagesComponent implements OnInit {
     this.selectedFiles = [];
   }
 
-  ngOnInit() { }
+  ngOnInit() {
+  }
 
   getValue(item) {
     return `${item.public_id}.${item.format}`;
@@ -108,7 +110,7 @@ export class ImagesComponent implements OnInit {
   }
 
   readCsv(event) {
-    const { files } = event.target;
+    const {files} = event.target;
     if (files && files.length === 1) {
       // only want 1 file at a time!
       this.file = files[0];
@@ -122,7 +124,7 @@ export class ImagesComponent implements OnInit {
       }
     } else {
       // notify about file constraints
-      this.snackBar.open('1 file at a time please', null, { duration: 2000 });
+      this.snackBar.open('1 file at a time please', null, {duration: 2000});
     }
   }
 
@@ -187,15 +189,15 @@ export class ImagesComponent implements OnInit {
         })
       }
       output += '\r\n';
-    })
+    });
 
     saveAs(
       new Blob([output]),
       `${
-      this.file
-        ? this.file.name.split('.')[0] + '_logos'
-        : 'export_logos'
-      }.csv`
+        this.file
+          ? this.file.name.split('.')[0] + '_logos'
+          : 'export_logos'
+        }.csv`
     );
   }
 

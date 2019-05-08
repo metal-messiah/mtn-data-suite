@@ -7,7 +7,7 @@ import { Subject } from 'rxjs';
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css']
 })
-export class MapComponent implements OnInit {
+export class MapComponent implements OnInit, OnDestroy {
 
   map: any;
 
@@ -25,8 +25,8 @@ export class MapComponent implements OnInit {
     this.ready.next(map);
   }
 
-  // ngOnDestroy() {
-  //   this.mapService.destroy();
-  // }
+  ngOnDestroy() {
+    this.mapService.destroy();
+  }
 
 }

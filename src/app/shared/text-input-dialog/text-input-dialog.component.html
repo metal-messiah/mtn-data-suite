@@ -1,11 +1,12 @@
 <h2 mat-dialog-title>{{title}}</h2>
-<div mat-dialog-content>
+<form id="text-form" mat-dialog-content>
   <mat-form-field>
     <input #textInput type="text" matInput [placeholder]="placeholder">
   </mat-form-field>
-</div>
+</form>
 <div mat-dialog-actions>
   <button type="button" mat-raised-button [mat-dialog-close]="null" color="primary">Cancel</button>
-  <button type="button" mat-raised-button [mat-dialog-close]="textInput.value" color="warn"
-    cdkFocusInitial>Submit</button>
+  <button type="submit" form="text-form" (click)="submit(textInput.value)" mat-raised-button color="warn">
+    Submit
+  </button>
 </div>

@@ -1,6 +1,6 @@
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatSnackBar } from '@angular/material';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { of, Subject, Subscription } from 'rxjs';
 import { debounce, debounceTime, delay, finalize } from 'rxjs/internal/operators';
@@ -56,7 +56,10 @@ import { StoreSidenavService } from '../../shared/store-sidenav/store-sidenav.se
 
 import { Pages as ListManagerPages } from '../../shared/list-manager/list-manager-pages';
 import { Pages as StoreSidenavPages } from '../../shared/store-sidenav/store-sidenav-pages';
-import { AddRemoveType, AddRemoveStoresListDialogComponent } from 'app/shared/add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
+import {
+  AddRemoveStoresListDialogComponent,
+  AddRemoveType
+} from 'app/shared/add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -115,26 +118,25 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   storeListOptions: SimplifiedStoreList[] = [];
 
-
   constructor(public mapService: MapService,
-    public dbEntityMarkerService: DbEntityMarkerService,
-    public geocoderService: GeocoderService,
-    public casingDashboardService: CasingDashboardService,
-    private siteService: SiteService,
-    private storeService: StoreService,
-    private projectService: ProjectService,
-    private snackBar: MatSnackBar,
-    private ngZone: NgZone,
-    private route: ActivatedRoute,
-    private navigatorService: NavigatorService,
-    private dialog: MatDialog,
-    private authService: AuthService,
-    private errorService: ErrorService,
-    public entitySelectionService: EntitySelectionService,
-    public projectBoundaryService: ProjectBoundaryService,
-    private storageService: StorageService,
-    private listManagerService: ListManagerService,
-    private storeSidenavService: StoreSidenavService) {
+              public dbEntityMarkerService: DbEntityMarkerService,
+              public geocoderService: GeocoderService,
+              public casingDashboardService: CasingDashboardService,
+              private siteService: SiteService,
+              private storeService: StoreService,
+              private projectService: ProjectService,
+              private snackBar: MatSnackBar,
+              private ngZone: NgZone,
+              private route: ActivatedRoute,
+              private navigatorService: NavigatorService,
+              private dialog: MatDialog,
+              private authService: AuthService,
+              private errorService: ErrorService,
+              public entitySelectionService: EntitySelectionService,
+              public projectBoundaryService: ProjectBoundaryService,
+              private storageService: StorageService,
+              private listManagerService: ListManagerService,
+              private storeSidenavService: StoreSidenavService) {
   }
 
   ngOnInit() {
@@ -148,11 +150,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       } else {
         this.showStoreLists = shouldShow;
       }
-    })
+    });
 
     this.dbEntityMarkerService.visibleMarkersChanged$.subscribe((vm) => {
       this.visibleStoresCount = _.uniqBy(vm.map(m => new SiteMarker(m['site'])), 'id').length;
-    })
+    });
 
     this.isMobile = this.checkMobile();
     this.isTooNarrow = this.checkTooNarrow();
@@ -209,7 +211,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         }
 
         this.openInfoCardFromSidenav(selection.siteMarker, selection.storeMarker);
-      }))
+      }));
 
     this.subscriptions.push(this.initiateDuplicateSelection$.subscribe(siteId => {
       // Change the mode (should disables all other user interactions that might conflict)
@@ -234,7 +236,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
       this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
       // Create new site layer
-      this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, { lat: site.latitude, lng: site.longitude });
+      this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, {lat: site.latitude, lng: site.longitude});
     }));
 
     this.subscriptions.push(this.siteUpdated$.subscribe(() => this.getEntitiesInBounds()));
@@ -279,7 +281,10 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       if (siteMarker && siteMarker.id && storeMarker.isEmpty) {
         this.dbEntityMarkerService.selectSites([siteMarker.id]);
       }
-      this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, { storeId: storeMarker.id, siteId: siteMarker ? siteMarker.id : null },
+      this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, {
+          storeId: storeMarker.id,
+          siteId: siteMarker ? siteMarker.id : null
+        },
         this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
     }
   }
@@ -293,7 +298,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.get('minPullZoomLevel').value) {
       this.dbEntityMarkerService.getMarkersInMapView();
     } else {
-      this.snackBar.open('Zoom in or change Pull zoom limit', null, { duration: 3000 })
+      this.snackBar.open('Zoom in or change Pull zoom limit', null, {duration: 3000})
     }
   }
 
@@ -339,7 +344,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       this.siteService.create(site)
         .pipe(finalize(() => this.cancelSiteCreation()))
         .subscribe(() => {
-          this.snackBar.open('Successfully created new Site', null, { duration: 1500 });
+          this.snackBar.open('Successfully created new Site', null, {duration: 1500});
           this.getEntitiesInBounds();
         }, err => {
           snackBarRef2.dismiss();
@@ -372,7 +377,7 @@ Geo-location
     this.selectedDashboardMode = CasingDashboardMode.FOLLOWING;
     this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
     this.followMeLayer = new FollowMeLayer(this.mapService, this.mapService.getCenter());
-    this.navigatorService.watchPosition({ maximumAge: 2000 }).subscribe(
+    this.navigatorService.watchPosition({maximumAge: 2000}).subscribe(
       position => {
         this.followMeLayer.updatePosition(position);
         this.mapService.setCenter(position);
@@ -437,7 +442,7 @@ Geo-location
       .subscribe(() => {
         this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
         this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-        this.snackBar.open('Successfully created new Site', null, { duration: 1500 });
+        this.snackBar.open('Successfully created new Site', null, {duration: 1500});
         this.getEntitiesInBounds();
       }, err => this.errorService.handleServerError('Failed to update new Site location!', err,
         () => console.log('Cancel'),
@@ -576,7 +581,7 @@ Assigning
       .pipe(finalize(() => this.updating = false))
       .subscribe((sites: SimplifiedSite[]) => {
         const message = `Successfully updated ${sites.length} Sites`;
-        this.snackBar.open(message, null, { duration: 2000 });
+        this.snackBar.open(message, null, {duration: 2000});
         this.getEntitiesInBounds();
       }, err => this.errorService.handleServerError('Failed to update sites!', err,
         () => console.log(err),
@@ -592,9 +597,9 @@ Assigning
     this.projectBoundaryService.saveProjectBoundaries()
       .pipe(finalize(() => this.savingBoundary = false))
       .subscribe(() => {
-        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-        this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-      },
+          this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+          this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+        },
         err => this.errorService.handleServerError('Failed to save project boundary!', err,
           () => console.log(err),
           () => this.saveProjectBoundary()))
@@ -630,14 +635,14 @@ Assigning
           this.dbEntityMarkerService.selectInGeoJson(boundary.geojson);
           this.projectBoundaryService.zoomToProjectBoundary();
         } else {
-          this.snackBar.open('No Boundary for Project', null, { duration: 2000, verticalPosition: 'top' });
+          this.snackBar.open('No Boundary for Project', null, {duration: 2000, verticalPosition: 'top'});
         }
       });
     }
   }
 
   openDownloadDialog() {
-    const config = { data: { selectedStoreIds: this.dbEntityMarkerService.getSelectedStoreIds() }, maxWidth: '90%' };
+    const config = {data: {selectedStoreIds: this.dbEntityMarkerService.getSelectedStoreIds()}, maxWidth: '90%'};
     const downloadDialog = this.dialog.open(DownloadDialogComponent, config);
     downloadDialog.afterClosed().subscribe(project => {
       if (project) {
@@ -678,7 +683,7 @@ Assigning
         maxWidth: '90%',
         minWidth: '300px',
         disableClose: true,
-        data: { duplicateSiteId: duplicateSiteId, selectedSiteId: this.selectedSiteId }
+        data: {duplicateSiteId: duplicateSiteId, selectedSiteId: this.selectedSiteId}
       });
 
       // When the user completes or cancels merging the sites, refresh the locations on the screen
@@ -697,24 +702,23 @@ Assigning
   addToList() {
     const selectedIds = this.getSelectedStoreIds();
     if (selectedIds.length > 0) {
-      const addRemoveDialogRef = this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.ADD, storeIds: selectedIds } });
+      const addRemoveDialogRef = this.dialog.open(AddRemoveStoresListDialogComponent, {
+        data: {
+          type: AddRemoveType.ADD,
+          storeIds: selectedIds
+        }
+      });
       addRemoveDialogRef.afterClosed().subscribe(() => {
       });
     }
-
   }
 
   removeFromList() {
     const selectedIds = this.getSelectedStoreIds();
     if (selectedIds.length > 0) {
-      const addRemoveDialogRef = this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.REMOVE, storeIds: selectedIds } });
-      addRemoveDialogRef.afterClosed().subscribe(() => {
-
-      });
+      this.dialog.open(AddRemoveStoresListDialogComponent, {data: {type: AddRemoveType.REMOVE, storeIds: selectedIds}});
     }
-
   }
-
 
   toggleStoreLists() {
     this.showStoreLists = !this.showStoreLists;

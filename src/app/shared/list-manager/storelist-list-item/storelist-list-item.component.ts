@@ -1,6 +1,5 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
-import { Subscription } from 'rxjs';
 import { ListManagerService } from '../list-manager.service';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
 import { ConfirmDialogComponent } from 'app/shared/confirm-dialog/confirm-dialog.component';
@@ -16,8 +15,7 @@ import { TextInputDialogComponent } from 'app/shared/text-input-dialog/text-inpu
   templateUrl: './storelist-list-item.component.html',
   styleUrls: ['./storelist-list-item.component.css']
 })
-export class StorelistListItemComponent implements OnInit, OnDestroy {
-  subscriptions: Subscription[] = [];
+export class StorelistListItemComponent {
 
   @Input() storeList: SimplifiedStoreList;
   @Input() stores: SimplifiedStore[];
@@ -26,35 +24,28 @@ export class StorelistListItemComponent implements OnInit, OnDestroy {
   constructor(
     private listManagerService: ListManagerService,
     private dialog: MatDialog
-  ) { }
-
-  ngOnInit() {
-
-
+  ) {
   }
 
-  ngOnDestroy() {
-    this.subscriptions.forEach((s: Subscription) => s.unsubscribe());
-  }
-
-  getSubscribeButtonText(storeList: SimplifiedStoreList): string {
-    if (this.listManagerService.userIsSubscribedToStoreList(storeList)) {
-      return 'Unsubscribe From List';
-    } else {
-      return 'Subscribe to List';
-    }
-  }
-
-  toggleSubscribe(storeList: SimplifiedStoreList) {
-    this.listManagerService.toggleSubscribe(storeList);
-  }
+  // TODO Implement list subscription
+  // getSubscribeButtonText(storeList: SimplifiedStoreList): string {
+  //   if (this.listManagerService.userIsSubscribedToStoreList(storeList)) {
+  //     return 'Unsubscribe From List';
+  //   } else {
+  //     return 'Subscribe to List';
+  //   }
+  // }
+  //
+  // toggleSubscribe(storeList: SimplifiedStoreList) {
+  //   this.listManagerService.toggleSubscribe(storeList);
+  // }
+  //
+  // viewSubscribers(storeList: SimplifiedStoreList) {
+  //   this.listManagerService.setSelectedStoreList(storeList, Pages.VIEWSUBSCRIBERS);
+  // }
 
   viewStores(storeList: SimplifiedStoreList) {
     this.listManagerService.setSelectedStoreList(storeList, Pages.VIEWSTORES);
-  }
-
-  viewSubscribers(storeList: SimplifiedStoreList) {
-    this.listManagerService.setSelectedStoreList(storeList, Pages.VIEWSUBSCRIBERS);
   }
 
   deleteList(storeList: SimplifiedStoreList): void {
@@ -74,19 +65,18 @@ export class StorelistListItemComponent implements OnInit, OnDestroy {
     });
   }
 
-  addStoresToStoreList(storeList: SimplifiedStoreList) {
-    this.listManagerService.addToList(null, [storeList]);
-  }
-
-  removeStoresFromStoreList(storeList: SimplifiedStoreList) {
-    this.listManagerService.removeFromList([storeList], this.stores);
-  }
+  // TODO Implement Adding/Removing stores from list
+  // addStoresToStoreList(storeList: SimplifiedStoreList) {
+  //   this.listManagerService.addToList(null, [storeList]);
+  // }
+  //
+  // removeStoresFromStoreList(storeList: SimplifiedStoreList) {
+  //   this.listManagerService.removeFromList([storeList], this.stores);
+  // }
 
   share(storeList: SimplifiedStoreList) {
-    const userProfileSelect = this.dialog.open(UserProfileSelectComponent)
-    userProfileSelect.afterClosed().subscribe((user: UserProfile) => {
-      this.listManagerService.subscribe(new SimplifiedUserProfile(user), storeList);
-    })
+    this.dialog.open(UserProfileSelectComponent).afterClosed()
+      .subscribe((user: UserProfile) => this.listManagerService.subscribe(new SimplifiedUserProfile(user), storeList))
   }
 
   storeListIsCurrentFilter(storeList: SimplifiedStoreList) {
@@ -94,7 +84,7 @@ export class StorelistListItemComponent implements OnInit, OnDestroy {
   }
 
   renameList(storeList: SimplifiedStoreList) {
-    const textInputDialog = this.dialog.open(TextInputDialogComponent, { data: { title: 'Rename List', placeholder: 'New List Name' } });
+    const textInputDialog = this.dialog.open(TextInputDialogComponent, {data: {title: 'Rename List', placeholder: 'New List Name'}});
     textInputDialog.afterClosed().subscribe((text: string) => {
       console.log(text);
       if (text) {
