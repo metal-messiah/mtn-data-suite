@@ -18,25 +18,16 @@ mds-map {
   position: absolute;
   pointer-events: all;
   width: 300px;
-  bottom: 100px;
+  bottom: 81px;
   z-index: 9999;
-  /* right: 75px; */
-  left: 6px;
   transition: all 0.5s ease-in-out;
+  padding-left: 5px;
 }
 
-@media (max-width: 600px) {
-  .infoCardContainer {
-    bottom: 60px;
-    justify-content: left;
-    padding-left: 5px;
-    padding-bottom: 30px;
-    left: calc(50% - 160px) !important;
+@media (min-width: 600px) {
+  .infoCardContainer.right {
+    left: calc(100% - 375px);
   }
-}
-
-.right {
-  left: calc(100% - 375px);
 }
 
 mat-slider {

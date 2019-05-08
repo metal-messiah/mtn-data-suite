@@ -40,9 +40,9 @@ export class StoreCategorizationComponent implements OnInit {
 
   changeCombinedCategory(event, combo) {
     console.log(combo, ' change to ', event.target.value);
-    this.rbs.getReportTableData().storeList.forEach((s, i) => {
+    this.rbs.getReportTableData().storeList.forEach(s => {
       if (s.bannerName === combo.bannerName && s.scenario === 'Existing') {
-        this.rbs.getReportTableData().storeList[i].category = event.target.value;
+        s.category = event.target.value;
       }
     });
   }
@@ -64,10 +64,6 @@ export class StoreCategorizationComponent implements OnInit {
 
   getProposedStores() {
     return this.rbs.getReportTableData().storeList.filter(s => s.scenario !== 'Existing');
-  }
-
-  next() {
-    this.router.navigate(['reports/data-verification']);
   }
 
 }

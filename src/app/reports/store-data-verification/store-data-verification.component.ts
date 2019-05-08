@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ReportBuilderService } from '../services/report-builder.service';
-import { AbstractControl, FormArray } from '@angular/forms';
+import { AbstractControl, FormArray, FormGroup } from '@angular/forms';
 import { Location } from '@angular/common';
 import { StoreListItem } from '../../models/store-list-item';
 import { Router } from '@angular/router';
@@ -13,6 +13,7 @@ import { MatSnackBar, Sort } from '@angular/material';
 })
 export class StoreDataVerificationComponent implements OnInit {
 
+  dataVerificationForm: FormGroup;
   categories: string[] = [
     'Company Store',
     'Existing Competition',
@@ -27,16 +28,17 @@ export class StoreDataVerificationComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (!this.rbs.dataVerifcationForm) {
+    if (this.rbs.getReportTableData()) {
+      this.dataVerificationForm = this.rbs.getDataVerificationForm();
+      document.getElementById('reports-content-wrapper').scrollTop = 0;
+    } else {
       this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
       this.router.navigate(['reports']);
-    } else {
-      document.getElementById('reports-content-wrapper').scrollTop = 0;
     }
   }
 
   private updateSiteListItems() {
-    (this.rbs.dataVerifcationForm.get('stores') as FormArray).controls.forEach(siControl => {
+    (this.dataVerificationForm.get('stores') as FormArray).controls.forEach(siControl => {
       const mapKey = siControl.get('mapKey').value;
       const storeListItem: StoreListItem = this.rbs.getReportTableData().storeList.find(s => s.mapKey === mapKey);
       storeListItem.category = siControl.get('category').value;
@@ -61,7 +63,7 @@ export class StoreDataVerificationComponent implements OnInit {
   }
 
   sortData(sort: Sort): AbstractControl[] {
-    const controls = (this.rbs.dataVerifcationForm.get('stores') as FormArray).controls;
+    const controls = (this.dataVerificationForm.get('stores') as FormArray).controls;
     if (!sort.active || sort.direction === '') {
       return controls;
     } else {

@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReportBuilderService } from '../services/report-builder.service';
 import { ReportData } from '../../models/report-data';
 import { MatSnackBar } from '@angular/material';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../../core/services/auth.service';
+import { FormBuilder } from '@angular/forms';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { StoreService } from '../../core/services/store.service';
 import { finalize, tap } from 'rxjs/operators';
@@ -147,12 +146,12 @@ export class ReportModelDataComponent implements OnInit {
     reportData.storeList.forEach(storeListItem => {
       if (storeListItem.scenario === 'Exclude') {
         storeListItem.category = 'Do Not Include';
+      } else if (storeListItem.bannerName === target.bannerName) {
+        storeListItem.category = 'Company Store';
       } else if (storeListItem.scenario === 'Existing' || storeListItem.scenario === 'Closed') {
         storeListItem.category = 'Existing Competition';
       } else if (storeListItem.scenario === 'Opening') {
         storeListItem.category = 'Proposed Competition';
-      } else if (storeListItem.bannerName === target.bannerName) {
-        storeListItem.category = 'Company Store';
       }
     });
   }

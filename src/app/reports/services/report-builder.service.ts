@@ -14,7 +14,6 @@ export class ReportBuilderService {
 
   modelFile: File;
 
-  dataVerifcationForm: FormGroup;
   siteEvaluationNarrativeForm: FormGroup;
   siteEvaluationRatingsForm: FormGroup;
   modelMetaDataForm: FormGroup;
@@ -70,14 +69,21 @@ export class ReportBuilderService {
 
   setReportTableData(reportData: ReportData) {
     this.reportTableData = reportData;
-    this.dataVerifcationForm = this.fb.group({
-      stores: this.fb.array(this.reportTableData.storeList
-        .map(si => {
-          const group = this.fb.group(si);
-          group.get('totalArea').setValidators([Validators.required, Validators.min(0)]);
-          return group;
-        }))
-    });
+  }
+
+  getDataVerificationForm() {
+    if (this.reportTableData) {
+      return this.fb.group({
+        stores: this.fb.array(this.reportTableData.storeList
+          .map(si => {
+            const group = this.fb.group(si);
+            group.get('totalArea').setValidators([Validators.required, Validators.min(0)]);
+            return group;
+          }))
+      });
+    } else {
+      return null;
+    }
   }
 
   getReportMetaData() {
