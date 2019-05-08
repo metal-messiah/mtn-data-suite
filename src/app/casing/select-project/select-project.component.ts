@@ -90,7 +90,6 @@ export class SelectProjectComponent implements OnInit {
   }
 
   editProject(project: Project): void {
-    // TODO Navigate to edit project page
     this.dialogRef.close();
     this.router.navigate(['casing/project', project.id]);
   }

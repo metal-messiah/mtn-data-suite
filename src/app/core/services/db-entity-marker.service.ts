@@ -417,10 +417,9 @@ export class DbEntityMarkerService {
     try {
       this.refreshMarkers();
     } catch (err) {
-      // map just hasnt initialized yet on load..  TODO figure out how to deal with this
+      // map just hasn't initialized yet on load..  TODO figure out how to deal with this
     }
   }
-
 
   broadcastSelections() {
     if (!this.selectionSetPrev) {

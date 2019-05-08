@@ -18,11 +18,7 @@ describe('RoleDetailComponent', () => {
   beforeEach(async(() => {
     const permissionServiceSpy = jasmine.createSpyObj('PermissionService', ['getPermissions']);
     permissionServiceSpy.getPermissions.and.returnValue(of({content: []}));
-    // TODO Mcok return of getPermissions
     const detailFormService = jasmine.createSpyObj('DetailFormService', ['retrieveObj', 'save', 'canDeactivate']);
-    // TODO Mock return of retrieveObj
-    // TODO Mock return of create
-    // TODO Mock return of canDeactivate
     const errorServiceSpy = jasmine.createSpyObj('ErrorService', ['handleServerError']);
 
     TestBed.configureTestingModule({
