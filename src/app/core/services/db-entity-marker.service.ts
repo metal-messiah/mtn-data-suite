@@ -275,6 +275,10 @@ export class DbEntityMarkerService {
     this.selectByIds({ siteIds, storeIds: [] });
   }
 
+  public showMapSpinner(shouldShow: boolean) {
+    this.gettingLocations = shouldShow;
+  }
+
   public selectInRadius(latitude: number, longitude: number, radiusMeters: number) {
     this.verifyMapInitialized();
 

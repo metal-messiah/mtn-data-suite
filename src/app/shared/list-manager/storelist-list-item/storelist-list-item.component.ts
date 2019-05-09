@@ -10,6 +10,9 @@ import { UserProfile } from 'app/models/full/user-profile';
 import { SimplifiedUserProfile } from 'app/models/simplified/simplified-user-profile';
 import { TextInputDialogComponent } from 'app/shared/text-input-dialog/text-input-dialog.component';
 import { DbEntityMarkerService } from 'app/core/services/db-entity-marker.service';
+import { StoreService } from 'app/core/services/store.service';
+import { MapService } from 'app/core/services/map.service';
+import { ErrorService } from 'app/core/services/error.service';
 
 @Component({
   selector: 'mds-storelist-list-item',
@@ -24,7 +27,11 @@ export class StorelistListItemComponent {
 
   constructor(
     private listManagerService: ListManagerService,
-    private dialog: MatDialog
+    private storeService: StoreService,
+    private dbEntityMarkerService: DbEntityMarkerService,
+    private mapService: MapService,
+    private dialog: MatDialog,
+    private errorService: ErrorService
   ) {
   }
 
@@ -93,6 +100,24 @@ export class StorelistListItemComponent {
 
   clearMapFilter() {
     this.listManagerService.setStoreListAsCurrentFilter(null);
+  }
+
+  zoomToList(storeList: SimplifiedStoreList) {
+    if (storeList.storeIds.length) {
+      this.dbEntityMarkerService.showMapSpinner(true);
+      this.storeService.getAllByIds(storeList.storeIds).subscribe((stores: SimplifiedStore[]) => {
+        const storeGeoms = stores.map((s: SimplifiedStore) => {
+          return { lat: s.site.latitude, lng: s.site.longitude }
+        });
+        const bounds = this.mapService.getBoundsOfPoints(storeGeoms);
+        this.mapService.getMap().fitBounds(bounds);
+        this.dbEntityMarkerService.showMapSpinner(false)
+      }, err => this.errorService.handleServerError('Failed to create new access!', err,
+        () => {
+        },
+        () => this.zoomToList(storeList)));
+    }
+
   }
 
 }
