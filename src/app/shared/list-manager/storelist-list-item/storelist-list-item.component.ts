@@ -65,15 +65,6 @@ export class StorelistListItemComponent {
     });
   }
 
-  // TODO Implement Adding/Removing stores from list
-  // addStoresToStoreList(storeList: SimplifiedStoreList) {
-  //   this.listManagerService.addToList(null, [storeList]);
-  // }
-  //
-  // removeStoresFromStoreList(storeList: SimplifiedStoreList) {
-  //   this.listManagerService.removeFromList([storeList], this.stores);
-  // }
-
   share(storeList: SimplifiedStoreList) {
     this.dialog.open(UserProfileSelectComponent).afterClosed()
       .subscribe((user: UserProfile) => this.listManagerService.subscribe(new SimplifiedUserProfile(user), storeList))
@@ -84,9 +75,8 @@ export class StorelistListItemComponent {
   }
 
   renameList(storeList: SimplifiedStoreList) {
-    const textInputDialog = this.dialog.open(TextInputDialogComponent, {data: {title: 'Rename List', placeholder: 'New List Name'}});
+    const textInputDialog = this.dialog.open(TextInputDialogComponent, { data: { title: 'Rename List', placeholder: 'New List Name' } });
     textInputDialog.afterClosed().subscribe((text: string) => {
-      console.log(text);
       if (text) {
         // save new name
         this.listManagerService.renameList(storeList, text);

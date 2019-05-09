@@ -26,6 +26,10 @@
                 <i class="fas fa-filter"></i>
                 <span>Filter Map</span>
             </button>
+            <button *ngIf="storeListIsCurrentFilter(storeList)" mat-menu-item (click)="clearMapFilter()">
+                <i class="fas fa-filter"></i>
+                <span>Remove Filter</span>
+            </button>
             <button mat-menu-item (click)="renameList(storeList)">
                 <i class="fas fa-edit"></i>
                 <span>Rename List</span>
