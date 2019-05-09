@@ -210,7 +210,6 @@ export class ListManagerService {
   }
 
   setStoreListAsCurrentFilter(storeList: SimplifiedStoreList) {
-    console.log('setStoreListAsCurrentFilter')
     if (storeList) {
       this.dbEntityMarkerService.controls.get('dataset').setValue(storeList);
     } else {

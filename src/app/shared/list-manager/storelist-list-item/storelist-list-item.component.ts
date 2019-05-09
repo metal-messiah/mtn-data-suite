@@ -12,6 +12,7 @@ import { TextInputDialogComponent } from 'app/shared/text-input-dialog/text-inpu
 import { DbEntityMarkerService } from 'app/core/services/db-entity-marker.service';
 import { StoreService } from 'app/core/services/store.service';
 import { MapService } from 'app/core/services/map.service';
+import * as MarkerWithLabel from '@google/markerwithlabel';
 import { ErrorService } from 'app/core/services/error.service';
 
 @Component({
@@ -110,12 +111,59 @@ export class StorelistListItemComponent {
           return { lat: s.site.latitude, lng: s.site.longitude }
         });
         const bounds = this.mapService.getBoundsOfPoints(storeGeoms);
-        this.mapService.getMap().fitBounds(bounds);
-        this.dbEntityMarkerService.showMapSpinner(false)
-      }, err => this.errorService.handleServerError('Failed to create new access!', err,
-        () => {
-        },
-        () => this.zoomToList(storeList)));
+        const map = this.mapService.getMap();
+        map.fitBounds(bounds);
+        this.dbEntityMarkerService.showMapSpinner(false);
+
+        const rectangle = new google.maps.Rectangle({
+          strokeColor: 'orange',
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: null,
+          fillOpacity: 0.35,
+          map,
+          bounds
+        });
+
+        const getLabelStyle = (opacity) => {
+          return `color: orange; font-size: 18px; font-weight: bold; text-align: center; width: 100%; opacity: ${opacity}`;
+        }
+
+        const labelStyle = getLabelStyle(1);
+        const labelMarker = new MarkerWithLabel({
+          position: { lat: bounds.getSouthWest().lat(), lng: bounds.getCenter().lng() },
+          icon: { url: 'https://maps.gstatic.com/mapfiles/transparent.png' },
+          labelContent: `<div style="${labelStyle}">${storeList.storeListName.toUpperCase()}</div>`,
+          labelAnchor: new google.maps.Point(15, 0),
+          labelClass: '',
+          labelInBackground: false
+        })
+
+        labelMarker.setMap(map);
+
+        const fade = (rect: google.maps.Rectangle, labelMarker: MarkerWithLabel, fillOpacity: number) => {
+          const strokeOpacity = (fillOpacity + 0.45) / 2;
+          const lblStyle = getLabelStyle(strokeOpacity * 2);
+          const labelContent = `<div style="${lblStyle}">${storeList.storeListName.toUpperCase()}</div>`;
+          labelMarker.setOptions({ labelContent })
+          rect.setOptions({ fillOpacity, strokeOpacity });
+          const newOpacity = fillOpacity - 0.01;
+          if (newOpacity >= 0) {
+            setTimeout(() => fade(rect, labelMarker, newOpacity), 250);
+          } else {
+            rect.setMap(null);
+            labelMarker.setMap(null);
+          }
+        }
+
+        fade(rectangle, labelMarker, 0.30);
+
+      }, err => {
+        this.errorService.handleServerError('Failed to Zoom to List!', err,
+          () => { },
+          () => this.zoomToList(storeList));
+        this.dbEntityMarkerService.showMapSpinner(false);
+      });
     }
 
   }

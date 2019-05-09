@@ -67,9 +67,10 @@ mat-sidenav {
 #loadingSpinner, #refresh {
   position: absolute;
   bottom: 250px;
-  right: 10px;
+  right: 15px;
   /*pointer-events: none;*/
   z-index: 100;
+  color: orange;
 }
 
 @media (max-width: 600px) {
@@ -77,7 +78,6 @@ mat-sidenav {
     bottom: 240px;
   }
 }
-
 #refresh {
   min-width: unset;
   padding: unset;
