@@ -73,11 +73,6 @@ export class StorelistStoresListComponent implements OnInit {
       });
   }
 
-  // TODO Delete unused method?
-  setStore(store: SimplifiedStore) {
-    this.listManagerService.setStores([store]);
-  }
-
   removeStoreFromList(storeMarker: StoreMarker) {
     const store = new SimplifiedStore(storeMarker);
     this.listManagerService.removeFromList(

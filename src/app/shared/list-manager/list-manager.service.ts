@@ -56,6 +56,8 @@ export class ListManagerService {
     private errorService: ErrorService
   ) {
     this.userId = this.authService.sessionUser.id;
+
+
   }
 
   setStores(stores: SimplifiedStore[]) {
@@ -205,10 +207,10 @@ export class ListManagerService {
         }).catch(err => observer.error(err));
       }
     })
-
   }
 
   setStoreListAsCurrentFilter(storeList: SimplifiedStoreList) {
+    console.log('setStoreListAsCurrentFilter')
     if (storeList) {
       this.dbEntityMarkerService.controls.get('dataset').setValue(storeList);
     } else {
@@ -285,11 +287,27 @@ export class ListManagerService {
     this.storeListService.delete(storeList.id).subscribe(() => {
       this.snackbar$.next(`Deleted ${storeList.storeListName}`);
       this.refreshStoreLists();
+      this.refreshMapFilter(null);
     });
   }
 
+  refreshMapFilter(storeLists: SimplifiedStoreList[]) {
+    if (storeLists) {
+      storeLists.forEach((storeList: SimplifiedStoreList) => {
+        if (this.storeListIsCurrentFilter(storeList)) {
+          this.storeListService.getOneById(storeList.id).subscribe((sl: StoreList) => {
+            this.setStoreListAsCurrentFilter(new SimplifiedStoreList(sl))
+          });
+        }
+      })
+    } else {
+      // LIST DELETED, SET MAP TO ALL POINTS!
+      this.setStoreListAsCurrentFilter(null);
+    }
+  }
+
   removeFromList(storeLists: SimplifiedStoreList[], storeListStores: SimplifiedStore[]) {
-    if (storeLists.length) {
+    if (storeLists.length && storeListStores.length) {
 
       const observables = [];
       storeLists.forEach((storeList: SimplifiedStoreList) => {
@@ -302,7 +320,10 @@ export class ListManagerService {
       this.fetching = true;
       forkJoin(observables)
         .pipe(finalize(() => this.fetching = false))
-        .subscribe(() => this.refreshStoreLists(),
+        .subscribe(() => {
+          this.refreshStoreLists();
+          this.refreshMapFilter(storeLists);
+        },
           err => this.errorService.handleServerError('Failed to remove stores from lists!', err,
             () => console.log(err), () => this.removeFromList(storeLists, storeListStores)));
     }
