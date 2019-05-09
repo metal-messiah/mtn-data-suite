@@ -183,7 +183,7 @@ export class StoreSidenavService {
             const active = item.stores.filter(store => store.storeType === 'ACTIVE');
             const shouldShowActive = this.dbEntityMarkerService.controls.get('showActive').value;
             const shouldShowEmpty = this.dbEntityMarkerService.controls.get('showEmptySites').value;
-            if (active.length === 0 && shouldShowActive && shouldShowEmpty) {
+            if (active.length === 0 && shouldShowActive && shouldShowEmpty && !this.emptyMappings[item.id]) {
               const psuedoId = this.emptyMappings[item.id] ? this.emptyMappings[item.id] : Math.round(Math.random() * 10000000);
               item.stores.push(new StoreMarker({
                 id: psuedoId,
