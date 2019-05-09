@@ -18,7 +18,7 @@ export class StoreSidenavComponent implements OnInit {
   @Input() visibleStores: number;
 
   constructor(private storeSidenavService: StoreSidenavService,
-              private listManagerService: ListManagerService) { }
+    private listManagerService: ListManagerService) { }
 
   ngOnInit() { }
 
@@ -97,5 +97,9 @@ export class StoreSidenavComponent implements OnInit {
     if (!this.storeListIsCurrentFilter()) {
       this.listManagerService.setStoreListAsCurrentFilter(selectedStoreList);
     }
+  }
+
+  clearMapFilter() {
+    this.listManagerService.setStoreListAsCurrentFilter(null);
   }
 }

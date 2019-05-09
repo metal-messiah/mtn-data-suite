@@ -27,14 +27,20 @@
     <mds-stores-list></mds-stores-list>
   </div>
   <!-- LIST MANAGER -->
+  <!-- TOP BUTTONS -->
   <div class="sidenav-content" *ngIf="isPage(pages.MYLISTS)">
     <i (click)="listManagerGoBack()" title="Go Back" class="fas fa-arrow-alt-circle-left fa-2x go-back-button"
       *ngIf="expanded"></i>
-    <i (click)="selectAllFromList()" title="Select All" class="fas fa-check-square fa-2x select-all-button"
+    <i (click)="selectAllFromList()" title="Select All" class="fas fa-check-square fa-2x top-right-button"
       *ngIf="expanded && isMultiSelect() && isInListOfStoresView()"></i>
-    <i (click)="filterMap()" title="Use List As Map Filter" class="fas fa-filter fa-2x select-all-button"
+    <i (click)="filterMap()" title="Use List As Map Filter" class="fas fa-filter fa-2x top-right-button"
       *ngIf="expanded && !storeListIsCurrentFilter() && !isMultiSelect() && isInListOfStoresView()"></i>
-
+    <i (click)="clearMapFilter()" title="Clear Map Filter" class="fa-stack top-right-button"
+      *ngIf="expanded && storeListIsCurrentFilter() && !isMultiSelect() && isInListOfStoresView()">
+      <i class="fas fa-filter fa-stack-1x"></i>
+      <i class="fas fa-ban fa-stack-2x" style="color:Tomato"></i>
+    </i>
+    <!-- CONTENT -->
     <h1 mat-dialog-title>{{getListPageText()}}
       <br />
       <span *ngIf="getSelectedStoresCount()" title="Zoom to Selected Stores" (click)="zoomToSelection()"

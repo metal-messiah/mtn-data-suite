@@ -209,7 +209,11 @@ export class ListManagerService {
   }
 
   setStoreListAsCurrentFilter(storeList: SimplifiedStoreList) {
-    this.dbEntityMarkerService.controls.get('dataset').setValue(storeList);
+    if (storeList) {
+      this.dbEntityMarkerService.controls.get('dataset').setValue(storeList);
+    } else {
+      this.dbEntityMarkerService.controls.get('dataset').setValue(this.dbEntityMarkerService.allStoresOption);
+    }
   }
 
   storeListIsCurrentFilter(storeList: SimplifiedStoreList): boolean {
@@ -218,23 +222,23 @@ export class ListManagerService {
 
   createNewList(listName: string) {
     if (listName) {
-      const newStoreList: StoreList = new StoreList({storeListName: listName});
+      const newStoreList: StoreList = new StoreList({ storeListName: listName });
       this.saving = true;
       this.storeListService.create(newStoreList)
         .pipe(finalize(() => this.saving = false))
         .subscribe((storeList: StoreList) => {
-            const targetList = this.stores.length ? 'excluded' : 'all';
-            const simpleStoreList = new SimplifiedStoreList(storeList);
-            if (targetList === 'excluded') {
-              this.excludedStoreLists.push(simpleStoreList);
-            } else {
-              this.allStoreLists.push(simpleStoreList);
-            }
-            this.sortStoreListsAlphabetically();
-            setTimeout(() => {
-              this.scrollIntoViewId$.next({targetList, id: simpleStoreList.id})
-            }, 100);
-          },
+          const targetList = this.stores.length ? 'excluded' : 'all';
+          const simpleStoreList = new SimplifiedStoreList(storeList);
+          if (targetList === 'excluded') {
+            this.excludedStoreLists.push(simpleStoreList);
+          } else {
+            this.allStoreLists.push(simpleStoreList);
+          }
+          this.sortStoreListsAlphabetically();
+          setTimeout(() => {
+            this.scrollIntoViewId$.next({ targetList, id: simpleStoreList.id })
+          }, 100);
+        },
           (err) => this.errorService.handleServerError('Failed to Create New Store List!', err,
             () => console.log(err), () => this.createNewList(listName))
         );
@@ -249,9 +253,9 @@ export class ListManagerService {
       })
     } else {
       this.userProfileService.subscribeToStoreListById(this.userId, storeList.id).subscribe(() => {
-          this.snackbar$.next(`Subscribed to ${storeList.storeListName}`);
-          this.refreshStoreLists();
-        });
+        this.snackbar$.next(`Subscribed to ${storeList.storeListName}`);
+        this.refreshStoreLists();
+      });
     }
   }
 

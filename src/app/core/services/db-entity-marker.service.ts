@@ -68,13 +68,13 @@ export class DbEntityMarkerService {
 
   private visibleMarkers = [];
 
-  allStoresOption: SimplifiedStoreList = new SimplifiedStoreList({
+  readonly allStoresOption: SimplifiedStoreList = new SimplifiedStoreList({
     id: -1,
     storeListName: 'All Stores',
     storeCount: Infinity
   })
 
-  private defaultControls: DbEntityMarkerControls = {
+  readonly defaultControls: DbEntityMarkerControls = {
     showActive: true,
     showHistorical: true,
     showFuture: true,

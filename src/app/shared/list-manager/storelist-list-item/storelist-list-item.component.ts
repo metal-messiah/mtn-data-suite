@@ -9,6 +9,7 @@ import { UserProfileSelectComponent } from 'app/shared/user-profile-select/user-
 import { UserProfile } from 'app/models/full/user-profile';
 import { SimplifiedUserProfile } from 'app/models/simplified/simplified-user-profile';
 import { TextInputDialogComponent } from 'app/shared/text-input-dialog/text-input-dialog.component';
+import { DbEntityMarkerService } from 'app/core/services/db-entity-marker.service';
 
 @Component({
   selector: 'mds-storelist-list-item',
@@ -88,6 +89,10 @@ export class StorelistListItemComponent {
     if (!this.storeListIsCurrentFilter(storeList)) {
       this.listManagerService.setStoreListAsCurrentFilter(storeList);
     }
+  }
+
+  clearMapFilter() {
+    this.listManagerService.setStoreListAsCurrentFilter(null);
   }
 
 }

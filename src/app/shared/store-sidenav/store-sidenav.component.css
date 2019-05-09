@@ -21,10 +21,17 @@
   i{
     font-family: "Font Awesome 5 Free" !important;
 }
-i:hover{
-    color: orange;
-    cursor:pointer;
+
+
+.fa-ban{
+    color: tomato;
 }
+
+i:hover{
+    color: orange !important;
+    cursor: pointer;
+}
+
 
 .mat-dialog-title{
     margin: 10px 0;
@@ -86,7 +93,7 @@ mds-list-manager{
     cursor: pointer;
 }
 
-.select-all-button{
+.top-right-button{
     position: absolute;
     right: 15px;
     top: 10px;
