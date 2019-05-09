@@ -24,29 +24,23 @@ export class AddRemoveStoresListDialogComponent {
   type: AddRemoveType;
   storeIds: number[];
 
-  // TODO Unused attribute
-  visible = false;
-
   stores: SimplifiedStore[] = [];
 
   allStoreLists: SimplifiedStoreList[] = [];
   includedStoreLists: SimplifiedStoreList[] = [];
   excludedStoreLists: SimplifiedStoreList[] = [];
 
-  // TODO Unused Attrubutes
-  selectedLists: SimplifiedStoreList[] = [];
-
   fetching = true;
 
   @ViewChild('selectionList') selectionList: any = {
-    selectedOptions: {selected: []}
+    selectedOptions: { selected: [] }
   };
 
   constructor(private listManagerService: ListManagerService,
-              private storeService: StoreService,
-              private storeListService: StoreListService,
-              private dialogRef: MatDialogRef<AddRemoveStoresListDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: any) {
+    private storeService: StoreService,
+    private storeListService: StoreListService,
+    private dialogRef: MatDialogRef<AddRemoveStoresListDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any) {
     this.type = data.type;
     this.storeIds = data.storeIds;
 
@@ -88,13 +82,9 @@ export class AddRemoveStoresListDialogComponent {
   createNewList(listNameInput) {
     const listName = listNameInput.value;
 
-    // TODO Remove unused code?
-    // this.listManagerService.createNewList(listName);
-
     if (listName) {
-
       this.fetching = true;
-      const newStoreList: StoreList = new StoreList({storeListName: listName});
+      const newStoreList: StoreList = new StoreList({ storeListName: listName });
       this.storeListService.create(newStoreList).subscribe(() => {
         this.listManagerService.getStoreLists().subscribe((storeLists: SimplifiedStoreList[]) => {
           this.filterLists(storeLists);

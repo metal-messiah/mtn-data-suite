@@ -240,11 +240,6 @@ export class StorelistStoresListComponent implements OnInit {
     return this.siteService.getFormattedIntersection(site);
   }
 
-  // TODO Delete unused method?
-  getLogoPath(fileName: string) {
-    return `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${fileName}`;
-  }
-
   getAddressLabel(item: any) {
     const { address1, city, state } = item;
     if (address1 && city && state) {

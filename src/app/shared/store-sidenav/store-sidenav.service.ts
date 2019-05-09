@@ -46,10 +46,10 @@ export class StoreSidenavService {
     selectedStoreIds: Set<number>,
     scrollTo: number
   } = {
-    selectedSiteIds: new Set(),
-    selectedStoreIds: new Set(),
-    scrollTo: null
-  };
+      selectedSiteIds: new Set(),
+      selectedStoreIds: new Set(),
+      scrollTo: null
+    };
 
   scrollToMapSelectionId$ = new Subject<number>();
 
@@ -118,7 +118,7 @@ export class StoreSidenavService {
         this.dbEntityMarkerService.selectionSet$
           .subscribe((selectionSet: { selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number }) => {
             this.mapSelections = selectionSet;
-            const {scrollTo} = this.mapSelections;
+            const { scrollTo } = this.mapSelections;
             if (scrollTo) {
               this.scrollToMapSelectionId$.next(scrollTo);
             }
@@ -262,7 +262,7 @@ export class StoreSidenavService {
       case SortType.STORE_NAME:
         this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort ALPHABETICALLY by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
-          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
+          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
           return storeA.storeName.localeCompare(storeB.storeName);
         });
         break;
@@ -277,14 +277,14 @@ export class StoreSidenavService {
       case SortType.CREATED_DATE:
         this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
-          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
+          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
           return storeA.createdDate.getTime() - storeB.createdDate.getTime();
         });
         break;
       case SortType.FLOAT:
         this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort by FLOAT using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
-          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
+          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
 
           if (storeA && storeB) {
             return storeA.float === storeB.float ? 0 : storeA.float ? -1 : 1;
@@ -301,14 +301,14 @@ export class StoreSidenavService {
       case SortType.STORE_TYPE:
         this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort STORE TYPE by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
-          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
+          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
           return storeA.storeType.localeCompare(storeB.storeType);
         });
         break;
       case SortType.VALIDATED_DATE:
         this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
-          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
+          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
           return storeA.validatedDate.getTime() - storeB.validatedDate.getTime();
         });
         break;
@@ -327,7 +327,7 @@ export class StoreSidenavService {
     const activeStoresB = itemB.stores.filter(s => s.storeType === 'ACTIVE');
     const storeB = activeStoresB.length ? activeStoresB[0] : itemB.stores.length ? itemB.stores[0] : null;
 
-    return {storeA, storeB};
+    return { storeA, storeB };
   }
 
 
@@ -373,15 +373,6 @@ export class StoreSidenavService {
     });
   }
 
-  // TODO implement hovering or delete unused method
-  siteHover(store, type) {
-    if (type === 'enter') {
-      this.dbEntityMarkerService.selectStores([store.id]);
-    } else {
-      this.dbEntityMarkerService.clearSelection();
-    }
-  }
-
   getSelectedDashboardMode() {
     return this.casingDashboardService.getSelectedDashboardMode();
   }
@@ -419,13 +410,13 @@ export class StoreSidenavService {
     if (this.mapSelections.selectedStoreIds.size) {
       this.storeService.getAllByIds(Array.from(this.mapSelections.selectedStoreIds)).subscribe((stores: SimplifiedStore[]) => {
         const storeGeoms = stores.map((s: SimplifiedStore) => {
-          return {lat: s.site.latitude, lng: s.site.longitude}
+          return { lat: s.site.latitude, lng: s.site.longitude }
         });
 
         if (this.mapSelections.selectedSiteIds.size) {
           this.siteService.getAllByIds(Array.from(this.mapSelections.selectedSiteIds)).subscribe((sites: SimplifiedSite[]) => {
             const siteGeoms = sites.map((s: SimplifiedSite) => {
-              return {lat: s.latitude, lng: s.longitude};
+              return { lat: s.latitude, lng: s.longitude };
             });
 
             const geoms = storeGeoms.concat(siteGeoms);
