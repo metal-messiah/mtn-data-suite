@@ -18,7 +18,7 @@ import { finalize } from 'rxjs/operators';
 
 
 export enum SortType {
-  ASSIGNEE_ID = 'Assignee ID',
+  ASSIGNEE_NAME = 'Assignee Name',
   BACK_FILLED_NON_GROCERY = 'Back-filled by non-grocery',
   CREATED_DATE = 'Created Date',
   LATITUDE = 'Latitude',
@@ -81,7 +81,7 @@ export class StoreSidenavService {
       name: 'Site', keys: [
         SortType.LATITUDE,
         SortType.LONGITUDE,
-        SortType.ASSIGNEE_ID,
+        SortType.ASSIGNEE_NAME,
         SortType.BACK_FILLED_NON_GROCERY
       ]
     }
@@ -195,7 +195,12 @@ export class StoreSidenavService {
             }
           });
 
-          this.sortItems();
+          this.sortItems(this.items);
+          if (this.sortDirection === SortDirection.DESC) {
+            this.items.reverse();
+          }
+
+          this.setRenderer();
         })
     } else {
       this.setRenderer();
@@ -254,35 +259,51 @@ export class StoreSidenavService {
 
     this.sort$.emit();
 
-    this.sortItems();
+    this.sortItems(this.items);
+
+    if (this.sortDirection === SortDirection.DESC) {
+      this.items.reverse();
+    }
+
+    this.setRenderer();
   }
 
-  sortItems() {
+  sortItems(items) {
     switch (this.sortType) {
       case SortType.STORE_NAME:
-        this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort ALPHABETICALLY by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
           const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
           return storeA.storeName.localeCompare(storeB.storeName);
         });
         break;
-      case SortType.ASSIGNEE_ID:
-        this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.assigneeId - itemB.assigneeId);
+      case SortType.ASSIGNEE_NAME:
+        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+          if (itemA.assigneeName) {
+            if (itemB.assigneeName) {
+              return itemA.assigneeName.localeCompare(itemB.assigneeName);
+            } else {
+              return -1
+            }
+          } else {
+            return 1
+          }
+        });
         break;
       case SortType.BACK_FILLED_NON_GROCERY:
-        this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           return itemA.backfilledNonGrocery === itemB.backfilledNonGrocery ? 0 : itemA.backfilledNonGrocery ? -1 : 1;
         });
         break;
       case SortType.CREATED_DATE:
-        this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
           const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
           return storeA.createdDate.getTime() - storeB.createdDate.getTime();
         });
         break;
       case SortType.FLOAT:
-        this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort by FLOAT using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
           const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
 
@@ -293,32 +314,26 @@ export class StoreSidenavService {
         });
         break;
       case SortType.LATITUDE:
-        this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.latitude - itemB.latitude);
+        items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.latitude - itemB.latitude);
         break;
       case SortType.LONGITUDE:
-        this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.longitude - itemB.longitude);
+        items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.longitude - itemB.longitude);
         break;
       case SortType.STORE_TYPE:
-        this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort STORE TYPE by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
           const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
           return storeA.storeType.localeCompare(storeB.storeType);
         });
         break;
       case SortType.VALIDATED_DATE:
-        this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
           const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
           return storeA.validatedDate.getTime() - storeB.validatedDate.getTime();
         });
         break;
     }
-
-    if (this.sortDirection === SortDirection.DESC) {
-      this.items.reverse();
-    }
-
-    this.setRenderer();
   }
 
   getStoresForSort(itemA: SiteMarker, itemB: SiteMarker) {
@@ -345,10 +360,9 @@ export class StoreSidenavService {
 
   getStoreSubtext(item: any, store: StoreMarker) {
     let text = this.sortType.toString();
-
     switch (this.sortType) {
-      case SortType.ASSIGNEE_ID:
-        return text += `: ${item.assigneeId}`;
+      case SortType.ASSIGNEE_NAME:
+        return item.assigneeName ? `${text}: ${item.assigneeName}` : 'Not Assigned';
       case SortType.BACK_FILLED_NON_GROCERY:
         return text += `: ${item.backfilledNonGrocery}`;
       case SortType.CREATED_DATE:

@@ -7,7 +7,8 @@ export class SiteMarker implements Entity {
   id: number;
   latitude: number;
   longitude: number;
-  assigneeId: number;
+  assigneeId: number = null;
+  assigneeName: string = null;
   duplicate: boolean;
   backfilledNonGrocery: boolean;
   stores: StoreMarker[];
@@ -21,6 +22,11 @@ export class SiteMarker implements Entity {
 
     if (obj.stores) {
       this.stores = obj.stores.map(st => new StoreMarker(st));
+    }
+
+    if (obj.assignee) {
+      this.assigneeId = obj.assignee.id;
+      this.assigneeName = obj.assignee.name;
     }
   }
 

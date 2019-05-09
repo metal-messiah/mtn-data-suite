@@ -611,7 +611,6 @@ export class DbEntityMarkerService {
     } else {
       markers.push(this.createSiteMarker(site));
     }
-
     return markers;
   }
 

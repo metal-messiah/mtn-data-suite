@@ -37,7 +37,14 @@ export class StorelistStoresListComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.storeSidenavService.sort$.subscribe(() => this.sortItems());
+    this.storeSidenavService.sort$.subscribe(() => {
+      this.storeSidenavService.sortItems(this.items);
+      if (this.sortDirection === SortDirection.DESC) {
+        this.items.reverse();
+      }
+
+      this.setRenderer();
+    });
 
     this.storeSidenavService.scrollToMapSelectionId$.subscribe((id: number) => {
       this.scrollToElem(id);
@@ -69,7 +76,12 @@ export class StorelistStoresListComponent implements OnInit {
         this.storeList = fullStoreList;
         // this.updateStoresForRender();
         this.items = this.getItems();
-        this.sortItems();
+        this.storeSidenavService.sortItems(this.items);
+        if (this.sortDirection === SortDirection.DESC) {
+          this.items.reverse();
+        }
+
+        this.setRenderer();
       });
   }
 
@@ -114,73 +126,6 @@ export class StorelistStoresListComponent implements OnInit {
 
   setSortOptions(sortType?: SortType, sortDirection?: SortDirection) {
     this.storeSidenavService.setSortOptions(sortType, sortDirection);
-  }
-
-  // TODO Eliminate duplicate code (found almost examctly in store-sidenav.service.ts:260)
-  sortItems() {
-    if (this.items) {
-      switch (this.sortType) {
-        case SortType.STORE_NAME:
-          this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
-            // try to sort ALPHABETICALLY by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
-            const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-            return storeA.storeName.localeCompare(storeB.storeName);
-          });
-          break;
-        case SortType.ASSIGNEE_ID:
-          this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.assigneeId - itemB.assigneeId);
-          break;
-        case SortType.BACK_FILLED_NON_GROCERY:
-          this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
-            return itemA.backfilledNonGrocery === itemB.backfilledNonGrocery ? 0 : itemA.backfilledNonGrocery ? -1 : 1;
-          });
-          break;
-        case SortType.CREATED_DATE:
-          this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
-            // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
-            const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-            return storeA.createdDate.getTime() - storeB.createdDate.getTime();
-          });
-          break;
-        case SortType.FLOAT:
-          this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
-            // try to sort by FLOAT using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
-            const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-
-            if (storeA && storeB) {
-              return storeA.float === storeB.float ? 0 : storeA.float ? -1 : 1;
-            }
-            return 0;
-          });
-          break;
-        case SortType.LATITUDE:
-          this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.latitude - itemB.latitude);
-          break;
-        case SortType.LONGITUDE:
-          this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.longitude - itemB.longitude);
-          break;
-        case SortType.STORE_TYPE:
-          this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
-            // try to sort STORE TYPE by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
-            const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-            return storeA.storeType.localeCompare(storeB.storeType);
-          });
-          break;
-        case SortType.VALIDATED_DATE:
-          this.items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
-            // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
-            const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-            return storeA.validatedDate.getTime() - storeB.validatedDate.getTime();
-          });
-          break;
-      }
-
-      if (this.sortDirection === SortDirection.DESC) {
-        this.items.reverse();
-      }
-
-      this.setRenderer();
-    }
   }
 
   setRenderer() {
