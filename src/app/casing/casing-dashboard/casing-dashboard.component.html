@@ -2,18 +2,111 @@
   <mat-sidenav mode="over" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end"
     (closedStart)="controlSideMenuClosed()">
     <mat-list role="list" id="filter-side-nav" [formGroup]="dbEntityMarkerService.controls">
-      <h3 mat-subheader>Filters</h3>
-      <div class="checklist">
-        <mat-checkbox formControlName="showActive">Active</mat-checkbox>
-        <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
-        <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
-        <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
-        <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
-        <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
-      </div>
-      <mat-divider></mat-divider>
+      <mat-accordion [multi]="true">
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Filters
+            </mat-panel-title>
+            <mat-panel-description>
+              {{getActiveFilterNames()}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <!-- <h3 mat-subheader>Filters</h3> -->
+          <div class="checklist">
+            <mat-checkbox formControlName="showActive">Active</mat-checkbox>
+            <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
+            <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
+            <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
+            <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
+            <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
+          </div>
+        </mat-expansion-panel>
 
-      <h3 mat-subheader id="dataset-header">Dataset <i title="View List of Stores"
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Dataset
+            </mat-panel-title>
+            <mat-panel-description>
+              {{datasetSelect.selected.value.storeListName}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <mat-form-field class="control-selector">
+            <mat-select #datasetSelect [compareWith]="compareFn" formControlName="dataset">
+              <mat-option *ngFor="let option of storeListOptions" [value]="option">
+                {{option.storeListName}} ({{option.storeCount | number}})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-action-row>
+            <button (click)="openSidenavDirectlyToSelectedListStores(datasetSelect.selected.value)" mat-button>
+              <i class="fas fa-list-alt fa-2x"></i>
+            </button>
+          </mat-action-row>
+        </mat-expansion-panel>
+
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Marker Type
+            </mat-panel-title>
+            <mat-panel-description>
+              subtext
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <mat-form-field class="control-selector" floatLabel="never">
+            <mat-select formControlName="markerType">
+              <mat-option *ngFor="let markerType of dbEntityMarkerService.markerTypeOptions" [value]="markerType">
+                {{markerType}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Controls
+            </mat-panel-title>
+            <mat-panel-description>
+              subtext
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div>
+            <div class="checklist">
+              <mat-checkbox formControlName="updateOnBoundsChange">Update as Map Moves</mat-checkbox>
+              <mat-checkbox formControlName="cluster">Cluster Stores</mat-checkbox>
+            </div>
+            <div *ngIf="dbEntityMarkerService.controls.get('cluster').value">
+              <h3 mat-subheader>Cluster when zoom <=
+                  {{dbEntityMarkerService.controls.get('clusterZoomLevel').value}}</h3> <mat-slider [max]="21" [min]="0"
+                  [thumbLabel]="true" formControlName="clusterZoomLevel">
+                  </mat-slider>
+            </div>
+            <mat-divider></mat-divider>
+            <div>
+              <h3 mat-subheader>Pull when zoom >= {{dbEntityMarkerService.controls.get('minPullZoomLevel').value}}</h3>
+              <mat-slider [max]="21" [min]="7" [thumbLabel]="true" formControlName="minPullZoomLevel"></mat-slider>
+            </div>
+            <mat-divider></mat-divider>
+            <div>
+              <h3 mat-subheader>Full Label when zoom >=
+                {{dbEntityMarkerService.controls.get('fullLabelMinZoomLevel').value}}</h3>
+              <mat-slider [max]="21" [min]="0" [thumbLabel]="true" formControlName="fullLabelMinZoomLevel"></mat-slider>
+            </div>
+            <mat-divider></mat-divider>
+            <h3 mat-subheader>(Current Zoom: {{mapService.getZoom()}})</h3>
+          </div>
+        </mat-expansion-panel>
+
+
+      </mat-accordion>
+      <!-- <mat-divider></mat-divider> -->
+
+      <!-- <h3 mat-subheader id="dataset-header">Dataset <i title="View List of Stores"
           (click)="openSidenavDirectlyToSelectedListStores(datasetSelect.selected.value)"
           class="fas fa-list-alt fa-2x"></i></h3>
       <mat-form-field class="control-selector">
@@ -22,9 +115,9 @@
             {{option.storeListName}} ({{option.storeCount | number}})
           </mat-option>
         </mat-select>
-      </mat-form-field>
+      </mat-form-field> -->
 
-      <mat-divider></mat-divider>
+      <!-- <mat-divider></mat-divider>
 
       <h3 mat-subheader>Marker Type</h3>
       <mat-form-field class="control-selector" floatLabel="never">
@@ -33,9 +126,9 @@
             {{markerType}}
           </mat-option>
         </mat-select>
-      </mat-form-field>
+      </mat-form-field> -->
 
-      <mat-divider></mat-divider>
+      <!-- <mat-divider></mat-divider>
 
       <h3 mat-subheader>Controls</h3>
       <div>
@@ -61,7 +154,7 @@
         </div>
         <mat-divider></mat-divider>
         <h3 mat-subheader>(Current Zoom: {{mapService.getZoom()}})</h3>
-      </div>
+      </div> -->
     </mat-list>
   </mat-sidenav>
   <mat-sidenav-content>

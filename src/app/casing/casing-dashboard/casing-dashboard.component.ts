@@ -764,4 +764,25 @@ Assigning
       this.storeListOptions = [this.dbEntityMarkerService.allStoresOption].concat(storeLists);
     });
   }
+
+  getActiveFilterNames() {
+    const { showActive,
+      showHistorical,
+      showFuture,
+      showEmptySites,
+      showSitesBackfilledByNonGrocery,
+      showFloat } = this.dbEntityMarkerService.controls.controls;
+
+    let output = '';
+    output += showActive.value ? 'Active' : '';
+    output += showHistorical.value ? ', Historical' : '';
+    output += showFuture.value ? ', Future' : '';
+    output += showEmptySites.value ? ', Empty Sites' : '';
+    output += showSitesBackfilledByNonGrocery.value ? ', Backfilled' : '';
+    output += showFloat.value ? ', Float' : '';
+    if (output.startsWith(', ')) {
+      output = output.replace(', ', '');
+    }
+    return output || 'None';
+  }
 }
