@@ -90,6 +90,10 @@ mat-sidenav {
   font-size: large; background: #607d8b; color: white;
 }
 
+.mat-expansion-panel-spacing{
+  margin: 0;
+}
+
 mat-panel-title{
   align-items: center;
 }

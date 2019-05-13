@@ -7,7 +7,7 @@
         <mat-expansion-panel [expanded]="true">
           <mat-expansion-panel-header>
             <mat-panel-title>
-              Store Type
+              Type
             </mat-panel-title>
             <mat-panel-description>
               {{getActiveFilterNames()}}
@@ -24,6 +24,65 @@
           </div>
         </mat-expansion-panel>
 
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Status
+            </mat-panel-title>
+            <mat-panel-description>
+              Planned, Under Construction
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <!-- <h3 mat-subheader>Filters</h3> -->
+          <div class="checklist">
+            <mat-checkbox formControlName="showActive">Active</mat-checkbox>
+            <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
+            <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
+            <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
+            <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
+            <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Banner
+            </mat-panel-title>
+            <mat-panel-description>
+              Kroger
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <!-- <h3 mat-subheader>Filters</h3> -->
+          <div class="checklist">
+            <mat-checkbox formControlName="showActive">Active</mat-checkbox>
+            <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
+            <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
+            <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
+            <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
+            <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Assignment
+            </mat-panel-title>
+            <mat-panel-description>
+              Jordan Porter
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <!-- <h3 mat-subheader>Filters</h3> -->
+          <div class="checklist">
+            <mat-checkbox formControlName="showActive">Active</mat-checkbox>
+            <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
+            <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
+            <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
+            <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
+            <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
+          </div>
+        </mat-expansion-panel>
 
         <mat-expansion-panel>
           <mat-expansion-panel-header>
@@ -31,7 +90,7 @@
               Dataset
             </mat-panel-title>
             <mat-panel-description>
-              {{getActiveDatasetName()}}
+              Jordan Porter
             </mat-panel-description>
           </mat-expansion-panel-header>
           <mat-form-field class="control-selector">
