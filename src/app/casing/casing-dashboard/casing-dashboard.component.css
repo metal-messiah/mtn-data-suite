@@ -86,11 +86,21 @@ mat-sidenav {
   color: orange;
 }
 
+.accordion-header-text{
+  font-size: large; background: #607d8b; color: white;
+}
+
+mat-panel-title{
+  align-items: center;
+}
+
 mat-panel-description{
   font-size: x-small;
   font-style: italic;
   align-items: center;
+  justify-content: flex-end;
   text-align: center;
+  white-space: pre-wrap;
 }
 
 @media (max-width: 600px) {

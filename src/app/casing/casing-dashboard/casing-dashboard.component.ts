@@ -765,6 +765,10 @@ Assigning
     });
   }
 
+  trimFirstOccurenceIfLeading(s: string, term: string) {
+    return s.startsWith(term) ? s.replace(term, '').trim() : s;
+  }
+
   getActiveFilterNames() {
     const { showActive,
       showHistorical,
@@ -773,16 +777,39 @@ Assigning
       showSitesBackfilledByNonGrocery,
       showFloat } = this.dbEntityMarkerService.controls.controls;
 
-    let output = '';
-    output += showActive.value ? 'Active' : '';
-    output += showHistorical.value ? ', Historical' : '';
-    output += showFuture.value ? ', Future' : '';
-    output += showEmptySites.value ? ', Empty Sites' : '';
-    output += showSitesBackfilledByNonGrocery.value ? ', Backfilled' : '';
-    output += showFloat.value ? ', Float' : '';
-    if (output.startsWith(', ')) {
-      output = output.replace(', ', '');
-    }
-    return output || 'None';
+    const labels = [
+      showActive.value ? 'Active' : '',
+      showHistorical.value ? 'Historical' : '',
+      showFuture.value ? 'Future' : '',
+      showEmptySites.value ? 'Empty Sites' : '',
+      showSitesBackfilledByNonGrocery.value ? 'Backfilled' : '',
+      showFloat.value ? 'Float' : ''
+    ];
+
+    return labels.filter(l => l).join(', ') || 'Exclude All Stores';
+  }
+
+  getActiveDatasetName() {
+    return this.dbEntityMarkerService.controls.get('dataset').value.storeListName;
+  }
+
+  getActiveMarkerTypeName() {
+    return this.dbEntityMarkerService.controls.get('markerType').value;
+  }
+
+  getActiveControlNames() {
+    const {
+      updateOnBoundsChange,
+      cluster,
+      fullLabelMinZoomLevel
+    } = this.dbEntityMarkerService.controls.controls;
+
+    const labels = [
+      updateOnBoundsChange.value ? `Updating` : `NOT Updating`,
+      cluster.value ? `Clustering` : '',
+      fullLabelMinZoomLevel.value <= this.mapService.getZoom() ? `Labeling` : ''
+    ];
+
+    return labels.filter(l => l).join(', ');
   }
 }

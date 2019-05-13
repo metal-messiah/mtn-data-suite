@@ -3,10 +3,11 @@
     (closedStart)="controlSideMenuClosed()">
     <mat-list role="list" id="filter-side-nav" [formGroup]="dbEntityMarkerService.controls">
       <mat-accordion [multi]="true">
+        <h2 class="accordion-header-text" mat-subheader>Filters</h2>
         <mat-expansion-panel [expanded]="true">
           <mat-expansion-panel-header>
             <mat-panel-title>
-              Filters
+              Store Type
             </mat-panel-title>
             <mat-panel-description>
               {{getActiveFilterNames()}}
@@ -30,7 +31,7 @@
               Dataset
             </mat-panel-title>
             <mat-panel-description>
-              {{datasetSelect.selected.value.storeListName}}
+              {{getActiveDatasetName()}}
             </mat-panel-description>
           </mat-expansion-panel-header>
           <mat-form-field class="control-selector">
@@ -40,21 +41,22 @@
               </mat-option>
             </mat-select>
           </mat-form-field>
-          <mat-action-row>
-            <button (click)="openSidenavDirectlyToSelectedListStores(datasetSelect.selected.value)" mat-button>
-              <i class="fas fa-list-alt fa-2x"></i>
+          <mat-action-row style="justify-content: center;">
+            <button (click)="openSidenavDirectlyToSelectedListStores(datasetSelect.selected.value)" mat-flat-button
+              color="primary">
+              <i class="fas fa-list"></i> View List of Stores
             </button>
           </mat-action-row>
         </mat-expansion-panel>
 
-
+        <h2 class="accordion-header-text" mat-subheader>Controls</h2>
         <mat-expansion-panel>
           <mat-expansion-panel-header>
             <mat-panel-title>
               Marker Type
             </mat-panel-title>
             <mat-panel-description>
-              subtext
+              {{getActiveMarkerTypeName()}}
             </mat-panel-description>
           </mat-expansion-panel-header>
           <mat-form-field class="control-selector" floatLabel="never">
@@ -69,10 +71,10 @@
         <mat-expansion-panel>
           <mat-expansion-panel-header>
             <mat-panel-title>
-              Controls
+              Map Options
             </mat-panel-title>
             <mat-panel-description>
-              subtext
+              {{getActiveControlNames()}}
             </mat-panel-description>
           </mat-expansion-panel-header>
           <div>
@@ -88,14 +90,16 @@
             </div>
             <mat-divider></mat-divider>
             <div>
-              <h3 mat-subheader>Pull when zoom >= {{dbEntityMarkerService.controls.get('minPullZoomLevel').value}}</h3>
+              <h3 mat-subheader>Pull when zoom >= {{dbEntityMarkerService.controls.get('minPullZoomLevel').value}}
+              </h3>
               <mat-slider [max]="21" [min]="7" [thumbLabel]="true" formControlName="minPullZoomLevel"></mat-slider>
             </div>
             <mat-divider></mat-divider>
             <div>
               <h3 mat-subheader>Full Label when zoom >=
                 {{dbEntityMarkerService.controls.get('fullLabelMinZoomLevel').value}}</h3>
-              <mat-slider [max]="21" [min]="0" [thumbLabel]="true" formControlName="fullLabelMinZoomLevel"></mat-slider>
+              <mat-slider [max]="21" [min]="0" [thumbLabel]="true" formControlName="fullLabelMinZoomLevel">
+              </mat-slider>
             </div>
             <mat-divider></mat-divider>
             <h3 mat-subheader>(Current Zoom: {{mapService.getZoom()}})</h3>
