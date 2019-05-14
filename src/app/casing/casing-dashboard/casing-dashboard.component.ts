@@ -888,7 +888,6 @@ Assigning
   selectAssignment() {
     this.dialog.open(UserProfileSelectComponent).afterClosed()
       .subscribe(user => {
-        console.log(user)
         if (user != null) {
           this.dbEntityMarkerService.controls.get('assignment').setValue(user);
         }

@@ -630,7 +630,14 @@ export class DbEntityMarkerService {
     }
 
     // BANNER FILTER
-    if (this.controls.get('banner').value && (storeMarker && storeMarker.bannerId !== this.controls.get('banner').value.id)) {
+    const banner = this.controls.get('banner').value;
+    if (banner && (storeMarker && storeMarker.bannerId !== banner.id)) {
+      return false;
+    }
+
+    // ASSIGNMENT FILTER
+    const assignment = this.controls.get('assignment').value;
+    if (assignment && (siteMarker && siteMarker.assigneeId !== assignment.id)) {
       return false;
     }
 
@@ -641,6 +648,11 @@ export class DbEntityMarkerService {
   private includeSite(siteMarker: SiteMarker) {
     if (this.controls.get('banner').value) {
       return false
+    }
+
+    const assignment = this.controls.get('assignment').value;
+    if (assignment && (siteMarker && siteMarker.assigneeId !== assignment.id)) {
+      return false;
     }
 
     if (siteMarker.backfilledNonGrocery) {
