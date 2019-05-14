@@ -60,6 +60,11 @@ import {
   AddRemoveStoresListDialogComponent,
   AddRemoveType
 } from 'app/shared/add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
+import { StoreStatusOptions } from 'app/core/functionalEnums/StoreStatusOptions';
+import { ConfirmDialogComponent } from 'app/shared/confirm-dialog/confirm-dialog.component';
+import { SelectBannerComponent } from '../select-banner/select-banner.component';
+import { BannerService } from 'app/core/services/banner.service';
+import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -125,6 +130,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     private siteService: SiteService,
     private storeService: StoreService,
     private projectService: ProjectService,
+    private bannerService: BannerService,
     private snackBar: MatSnackBar,
     private ngZone: NgZone,
     private route: ActivatedRoute,
@@ -765,11 +771,22 @@ Assigning
     });
   }
 
-  trimFirstOccurenceIfLeading(s: string, term: string) {
-    return s.startsWith(term) ? s.replace(term, '').trim() : s;
+  resetFilters() {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Reset All Filters',
+        question: `Reset All Filters and Options to Default Values?`,
+        options: ['Confirm']
+      }
+    });
+    dialogRef.afterClosed().subscribe((result: string) => {
+      if (result === 'Confirm') {
+        this.dbEntityMarkerService.resetControlsToDefaults();
+      }
+    });
   }
 
-  getActiveFilterNames() {
+  getActiveTypeNames() {
     const { showActive,
       showHistorical,
       showFuture,
@@ -786,7 +803,7 @@ Assigning
       showFloat.value ? 'Float' : ''
     ];
 
-    return labels.filter(l => l).join(', ') || 'Exclude All Stores';
+    return labels.filter(l => l).join(', ') || 'Exclude All Types';
   }
 
   getActiveDatasetName() {
@@ -812,4 +829,74 @@ Assigning
 
     return labels.filter(l => l).join(', ');
   }
+
+  getActiveStatusNames() {
+    const {
+      showClosed, showDeadDeal, showNewUnderConstruction, showOpen, showPlanned,
+      showProposed, showRemodel, showRumored, showStrongRumor, showTemporarilyClosed
+    } = this.dbEntityMarkerService.controls.controls;
+
+    const labels = [
+      showClosed.value ? StoreStatusOptions.CLOSED : '',
+      showDeadDeal.value ? StoreStatusOptions.DEAD_DEAL : '',
+      showNewUnderConstruction.value ? StoreStatusOptions.NEW_UNDER_CONSTRUCTION : '',
+      showOpen.value ? StoreStatusOptions.OPEN : '',
+      showPlanned.value ? StoreStatusOptions.PLANNED : '',
+      showProposed.value ? StoreStatusOptions.PROPOSED : '',
+      showRemodel.value ? StoreStatusOptions.REMODEL : '',
+      showRumored.value ? StoreStatusOptions.RUMORED : '',
+      showStrongRumor.value ? StoreStatusOptions.STRONG_RUMOR : '',
+      showTemporarilyClosed.value ? StoreStatusOptions.TEMPORARILY_CLOSED : ''
+    ];
+
+    return labels.filter(l => l).join(', ') || 'Exclude All Statuses';
+  }
+
+  getActiveBannerName() {
+    const { banner } = this.dbEntityMarkerService.controls.controls;
+    return banner.value ? banner.value.bannerName : null;
+  }
+
+  getActiveAssignmentName() {
+    const { assignment } = this.dbEntityMarkerService.controls.controls;
+    return assignment.value ? `${assignment.value.firstName} ${assignment.value.lastName}` : null;
+  }
+
+
+  selectBanner() {
+    const dialog = this.dialog.open(SelectBannerComponent, { maxWidth: '90%' });
+    dialog.afterClosed().subscribe((result) => {
+      if (result && result.bannerName) {
+        this.dbEntityMarkerService.controls.get('banner').setValue(result)
+      } else if (result === 'remove') {
+        this.dbEntityMarkerService.controls.get('banner').setValue(null);
+      } else {
+        // do nothing for now
+      }
+    });
+  }
+
+  getBannerImageSrc() {
+    const { banner } = this.dbEntityMarkerService.controls.controls;
+    return banner.value ? this.bannerService.getBannerImageSrc(banner.value) : null;
+  }
+
+  clearBanner() {
+    this.dbEntityMarkerService.controls.get('banner').setValue(null);
+  }
+
+  selectAssignment() {
+    this.dialog.open(UserProfileSelectComponent).afterClosed()
+      .subscribe(user => {
+        console.log(user)
+        if (user != null) {
+          this.dbEntityMarkerService.controls.get('assignment').setValue(user);
+        }
+      });
+  }
+
+  clearAssignment() {
+    this.dbEntityMarkerService.controls.get('assignment').setValue(null);
+  }
+
 }

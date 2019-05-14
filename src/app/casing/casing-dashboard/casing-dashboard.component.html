@@ -3,86 +3,8 @@
     (closedStart)="controlSideMenuClosed()">
     <mat-list role="list" id="filter-side-nav" [formGroup]="dbEntityMarkerService.controls">
       <mat-accordion [multi]="true">
-        <h2 class="accordion-header-text" mat-subheader>Filters</h2>
-        <mat-expansion-panel [expanded]="true">
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              Type
-            </mat-panel-title>
-            <mat-panel-description>
-              {{getActiveFilterNames()}}
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-          <!-- <h3 mat-subheader>Filters</h3> -->
-          <div class="checklist">
-            <mat-checkbox formControlName="showActive">Active</mat-checkbox>
-            <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
-            <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
-            <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
-            <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
-            <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
-          </div>
-        </mat-expansion-panel>
-
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              Status
-            </mat-panel-title>
-            <mat-panel-description>
-              Planned, Under Construction
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-          <!-- <h3 mat-subheader>Filters</h3> -->
-          <div class="checklist">
-            <mat-checkbox formControlName="showActive">Active</mat-checkbox>
-            <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
-            <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
-            <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
-            <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
-            <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
-          </div>
-        </mat-expansion-panel>
-
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              Banner
-            </mat-panel-title>
-            <mat-panel-description>
-              Kroger
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-          <!-- <h3 mat-subheader>Filters</h3> -->
-          <div class="checklist">
-            <mat-checkbox formControlName="showActive">Active</mat-checkbox>
-            <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
-            <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
-            <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
-            <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
-            <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
-          </div>
-        </mat-expansion-panel>
-
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              Assignment
-            </mat-panel-title>
-            <mat-panel-description>
-              Jordan Porter
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-          <!-- <h3 mat-subheader>Filters</h3> -->
-          <div class="checklist">
-            <mat-checkbox formControlName="showActive">Active</mat-checkbox>
-            <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
-            <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
-            <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
-            <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
-            <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
-          </div>
-        </mat-expansion-panel>
+        <h2 class="accordion-header-text" mat-subheader>Filters <i title="Reset To Default" class="fas fa-times-circle"
+            (click)="resetFilters()"></i></h2>
 
         <mat-expansion-panel>
           <mat-expansion-panel-header>
@@ -90,7 +12,7 @@
               Dataset
             </mat-panel-title>
             <mat-panel-description>
-              Jordan Porter
+              {{getActiveDatasetName()}}
             </mat-panel-description>
           </mat-expansion-panel-header>
           <mat-form-field class="control-selector">
@@ -107,6 +29,87 @@
             </button>
           </mat-action-row>
         </mat-expansion-panel>
+
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Type
+            </mat-panel-title>
+            <mat-panel-description>
+              {{getActiveTypeNames()}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="checklist">
+            <mat-checkbox formControlName="showActive">Active</mat-checkbox>
+            <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
+            <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
+            <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
+            <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
+            <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Status
+            </mat-panel-title>
+            <mat-panel-description>
+              {{getActiveStatusNames()}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="checklist">
+            <mat-checkbox formControlName="showClosed">Closed</mat-checkbox>
+            <mat-checkbox formControlName="showDeadDeal">Dead Deal</mat-checkbox>
+            <mat-checkbox formControlName="showNewUnderConstruction">Under Construction</mat-checkbox>
+            <mat-checkbox formControlName="showOpen">Open</mat-checkbox>
+            <mat-checkbox formControlName="showPlanned">Planned</mat-checkbox>
+            <mat-checkbox formControlName="showProposed">Proposed</mat-checkbox>
+            <mat-checkbox formControlName="showRemodel">Remodel</mat-checkbox>
+            <mat-checkbox formControlName="showRumored">Rumored</mat-checkbox>
+            <mat-checkbox formControlName="showStrongRumor">Strong Rumor</mat-checkbox>
+            <mat-checkbox formControlName="showTemporarilyClosed">Temporarily Closed</mat-checkbox>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Banner
+            </mat-panel-title>
+            <mat-panel-description>
+              {{getActiveBannerName() || 'Any Banner'}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="meta-data">
+            <span (click)="selectBanner()" style="text-align: center; width: 100%;"
+              *ngIf="!getActiveBannerName()">Select Banner</span>
+            <span (click)="selectBanner()" *ngIf="getActiveBannerName()">{{getActiveBannerName()}}</span>
+            <img (click)="selectBanner()" *ngIf="getActiveBannerName()" (click)="selectBanner()" class="banner-logo"
+              [title]="getActiveBannerName()" [src]="getBannerImageSrc()" />
+            <i *ngIf="getActiveBannerName()" class="fas fa-times-circle" (click)="clearBanner()"></i>
+          </div>
+
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Assignment
+            </mat-panel-title>
+            <mat-panel-description>
+              {{getActiveAssignmentName() || 'Any User'}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="meta-data">
+            <span (click)="selectAssignment()" style="text-align: center; width: 100%;"
+              *ngIf="!getActiveAssignmentName()">Select User</span>
+            <span (click)="selectAssignment()" *ngIf="getActiveAssignmentName()">{{getActiveAssignmentName()}}</span>
+            <i *ngIf="getActiveAssignmentName()" class="fas fa-times-circle" (click)="clearAssignment()"></i>
+          </div>
+        </mat-expansion-panel>
+
+
 
         <h2 class="accordion-header-text" mat-subheader>Controls</h2>
         <mat-expansion-panel>

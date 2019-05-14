@@ -6,6 +6,11 @@ mds-map {
   height: inherit;
 }
 
+i:hover{
+  color: orange;
+  cursor:pointer;
+}
+
 /* .infoCardContainer {
   position: absolute;
   pointer-events: all;
@@ -50,6 +55,26 @@ form {
   max-width: 300px;
 }
 
+.meta-data {
+  text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.meta-data:hover{
+  background: #efefef;
+}
+
+.banner-logo {
+  height: auto;
+  max-width: 100%;
+  max-height: 50px;
+}
+
 .checklist {
   display: flex;
   flex-direction: column;
@@ -87,7 +112,12 @@ mat-sidenav {
 }
 
 .accordion-header-text{
-  font-size: large; background: #607d8b; color: white;
+  font-size: large;
+  background: #607d8b; 
+  color: white;
+  display:flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .mat-expansion-panel-spacing{
@@ -103,7 +133,7 @@ mat-panel-description{
   font-style: italic;
   align-items: center;
   justify-content: flex-end;
-  text-align: center;
+  text-align: right;
   white-space: pre-wrap;
 }
 

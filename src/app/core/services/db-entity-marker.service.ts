@@ -19,6 +19,8 @@ import { MarkerType } from '../functionalEnums/MarkerType';
 import * as _ from 'lodash';
 import { ListManagerService } from 'app/shared/list-manager/list-manager.service';
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
+import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
+import { UserProfile } from 'app/models/full/user-profile';
 
 export interface DbEntityMarkerControls {
   showActive: boolean,
@@ -33,7 +35,19 @@ export interface DbEntityMarkerControls {
   fullLabelMinZoomLevel: number,
   markerType: string,
   updateOnBoundsChange: boolean,
-  dataset: SimplifiedStoreList
+  dataset: SimplifiedStoreList,
+  showClosed: boolean,
+  showDeadDeal: boolean,
+  showNewUnderConstruction: boolean,
+  showOpen: boolean,
+  showPlanned: boolean,
+  showProposed: boolean,
+  showRemodel: boolean,
+  showRumored: boolean,
+  showStrongRumor: boolean,
+  showTemporarilyClosed: boolean,
+  banner: SimplifiedBanner,
+  assignment: UserProfile
 }
 
 @Injectable()
@@ -75,19 +89,40 @@ export class DbEntityMarkerService {
   })
 
   readonly defaultControls: DbEntityMarkerControls = {
+    //// FILTERS ////
+    // DATASET
+    dataset: this.allStoresOption,
+    // TYPE
     showActive: true,
     showHistorical: true,
     showFuture: true,
     showEmptySites: true,
     showSitesBackfilledByNonGrocery: false,
     showFloat: false,
+    // STATUS
+    showClosed: false,
+    showDeadDeal: false,
+    showNewUnderConstruction: true,
+    showOpen: true,
+    showPlanned: true,
+    showProposed: true,
+    showRemodel: true,
+    showRumored: false,
+    showStrongRumor: false,
+    showTemporarilyClosed: false,
+    // BANNER
+    banner: null,
+    // ASSIGNMENT
+    assignment: null,
+    //// OPTIONS ////
+    // MARKER TYPE
+    markerType: 'Pin',
+    // MAP OPTIONS
     cluster: false,
     clusterZoomLevel: 13,
     minPullZoomLevel: 10,
     fullLabelMinZoomLevel: 16,
-    markerType: 'Pin',
-    updateOnBoundsChange: true,
-    dataset: this.allStoresOption
+    updateOnBoundsChange: true
   }
 
 
@@ -373,6 +408,21 @@ export class DbEntityMarkerService {
     const controls: DbEntityMarkerControls = this.validateStoredControls(storedControls);
 
     this.controls = this.fb.group(controls);
+
+    this.controls.valueChanges.subscribe(val => {
+      this.updateDbEntityMarkerServiceControlsStorage(val);
+      this.refreshMarkers();
+    });
+    // If user turns off auto refresh = repull the locations in view in order to preserve them
+    this.controls.get('updateOnBoundsChange').valueChanges.subscribe(val => {
+      if (!val) {
+        localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
+      }
+    });
+  }
+
+  resetControlsToDefaults() {
+    this.controls = this.fb.group(this.validateStoredControls(null));
 
     this.controls.valueChanges.subscribe(val => {
       this.updateDbEntityMarkerServiceControlsStorage(val);
