@@ -527,7 +527,7 @@ export class DbEntityMarkerService {
     const filteredMarkers = markers
       .reduce((prev, curr) => prev.concat(curr), [])
       .filter(marker =>
-        marker['store'] ? this.includeStore(marker['store']) : (marker['site'] ? this.includeSite(marker['site']) : true)
+        marker['store'] ? this.includeStore(marker['store'], marker['site']) : (marker['site'] ? this.includeSite(marker['site']) : true)
       );
 
     filteredMarkers.forEach(marker => this.refreshMarkerOptions(marker));
@@ -568,7 +568,7 @@ export class DbEntityMarkerService {
     this.selectedMarkers.delete(marker);
   }
 
-  private includeStore(storeMarker: StoreMarker) {
+  private includeStore(storeMarker: StoreMarker, siteMarker?: SiteMarker) {
     // TYPES FILTERS
     if (!this.controls.get('showActive').value && (storeMarker && storeMarker.storeType === 'ACTIVE')) {
       return false;
@@ -629,11 +629,20 @@ export class DbEntityMarkerService {
       return false;
     }
 
+    // BANNER FILTER
+    if (this.controls.get('banner').value && (storeMarker && storeMarker.bannerId !== this.controls.get('banner').value.id)) {
+      return false;
+    }
+
     return true;
 
   }
 
   private includeSite(siteMarker: SiteMarker) {
+    if (this.controls.get('banner').value) {
+      return false
+    }
+
     if (siteMarker.backfilledNonGrocery) {
       return this.controls.get('showSitesBackfilledByNonGrocery').value;
     }
