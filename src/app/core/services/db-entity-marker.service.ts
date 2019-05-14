@@ -21,6 +21,8 @@ import { ListManagerService } from 'app/shared/list-manager/list-manager.service
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
 import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
 import { UserProfile } from 'app/models/full/user-profile';
+import { StoreStatus } from 'app/models/full/store-status';
+import { StoreStatusOptions } from '../functionalEnums/StoreStatusOptions';
 
 export interface DbEntityMarkerControls {
   showActive: boolean,
@@ -567,6 +569,7 @@ export class DbEntityMarkerService {
   }
 
   private includeStore(storeMarker: StoreMarker) {
+    // TYPES FILTERS
     if (!this.controls.get('showActive').value && (storeMarker && storeMarker.storeType === 'ACTIVE')) {
       return false;
     }
@@ -576,7 +579,11 @@ export class DbEntityMarkerService {
     if (!this.controls.get('showFuture').value && (storeMarker && storeMarker.storeType === 'FUTURE')) {
       return false;
     }
+    if (!this.controls.get('showFloat').value && (storeMarker && storeMarker.float)) {
+      return false;
+    }
 
+    // DATASET FILTER
     const dataset = this.controls.get('dataset').value;
     if (dataset && storeMarker) {
       if (
@@ -587,7 +594,43 @@ export class DbEntityMarkerService {
         return false;
       }
     }
-    return !(!this.controls.get('showFloat').value && storeMarker.float);
+
+    // STATUS FILTER
+
+    if (!this.controls.get('showClosed').value && (storeMarker && storeMarker.status === StoreStatusOptions.CLOSED)) {
+      return false;
+    }
+    if (!this.controls.get('showDeadDeal').value && (storeMarker && storeMarker.status === StoreStatusOptions.DEAD_DEAL)) {
+      return false;
+    }
+    if (!this.controls.get('showNewUnderConstruction').value && (storeMarker && storeMarker.status === StoreStatusOptions.NEW_UNDER_CONSTRUCTION)) {
+      return false;
+    }
+    if (!this.controls.get('showOpen').value && (storeMarker && storeMarker.status === StoreStatusOptions.OPEN)) {
+      return false;
+    }
+    if (!this.controls.get('showPlanned').value && (storeMarker && storeMarker.status === StoreStatusOptions.PLANNED)) {
+      return false;
+    }
+    if (!this.controls.get('showProposed').value && (storeMarker && storeMarker.status === StoreStatusOptions.PROPOSED)) {
+      return false;
+    }
+    if (!this.controls.get('showRemodel').value && (storeMarker && storeMarker.status === StoreStatusOptions.REMODEL)) {
+      return false;
+    }
+    if (!this.controls.get('showRumored').value && (storeMarker && storeMarker.status === StoreStatusOptions.RUMORED)) {
+      return false;
+    }
+    if (!this.controls.get('showStrongRumor').value && (storeMarker && storeMarker.status === StoreStatusOptions.STRONG_RUMOR)) {
+      return false;
+    }
+    if (!this.controls.get('showTemporarilyClosed').value
+      && (storeMarker && storeMarker.status === StoreStatusOptions.TEMPORARILY_CLOSED)) {
+      return false;
+    }
+
+    return true;
+
   }
 
   private includeSite(siteMarker: SiteMarker) {
