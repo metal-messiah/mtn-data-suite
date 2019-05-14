@@ -18,6 +18,7 @@ import { Site } from 'app/models/full/site';
   styleUrls: ['./storelist-stores-list.component.css']
 })
 export class StorelistStoresListComponent implements OnInit {
+
   storeList: StoreList;
 
   items: SiteMarker[];
@@ -39,17 +40,10 @@ export class StorelistStoresListComponent implements OnInit {
   ngOnInit() {
     this.storeSidenavService.sort$.subscribe(() => {
       this.storeSidenavService.sortItems(this.items);
-      if (this.sortDirection === SortDirection.DESC) {
-        this.items.reverse();
-      }
-
       this.setRenderer();
     });
 
-    this.storeSidenavService.scrollToMapSelectionId$.subscribe((id: number) => {
-      this.scrollToElem(id);
-    });
-
+    this.storeSidenavService.scrollToMapSelectionId$.subscribe((id: number) => this.scrollToElem(id));
   }
 
   get fetching() {
@@ -69,18 +63,13 @@ export class StorelistStoresListComponent implements OnInit {
   }
 
   @Input()
-  set selectedStoreList(storeList: StoreList) {
-    this.storeListService
-      .getOneById(storeList.id)
+  set selectedStoreListId(storeListId: number) {
+    this.storeListService.getOneById(storeListId)
       .subscribe((fullStoreList: StoreList) => {
         this.storeList = fullStoreList;
         // this.updateStoresForRender();
         this.items = this.getItems();
         this.storeSidenavService.sortItems(this.items);
-        if (this.sortDirection === SortDirection.DESC) {
-          this.items.reverse();
-        }
-
         this.setRenderer();
       });
   }
@@ -164,17 +153,6 @@ export class StorelistStoresListComponent implements OnInit {
       const additionalRenders = this.items.slice(index, index + this.loadingConstraint);
       this.renderer = this.renderer.concat(additionalRenders);
     }
-  }
-
-
-
-  getStoresForSort(itemA: SiteMarker, itemB: SiteMarker) {
-    const activeStoresA = itemA.stores.filter(s => s.storeType === 'ACTIVE');
-    const storeA = activeStoresA.length ? activeStoresA[0] : itemA.stores.length ? itemA.stores[0] : null;
-    const activeStoresB = itemB.stores.filter(s => s.storeType === 'ACTIVE');
-    const storeB = activeStoresB.length ? activeStoresB[0] : itemB.stores.length ? itemB.stores[0] : null;
-
-    return { storeA, storeB };
   }
 
   getStoreSubtext(item: any, store: StoreMarker) {

@@ -11,10 +11,11 @@ import { StoreService } from 'app/core/services/store.service';
 import { MapService } from 'app/core/services/map.service';
 import { Store } from 'app/models/full/store';
 import { SimplifiedSite } from 'app/models/simplified/simplified-site';
-import { Subject } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { CasingDashboardService } from 'app/casing/casing-dashboard/casing-dashboard.service';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
-import { finalize } from 'rxjs/operators';
+import { finalize, map } from 'rxjs/operators';
+import { Coordinates } from '../../models/coordinates';
 
 
 export enum SortType {
@@ -41,15 +42,11 @@ export class StoreSidenavService {
 
   private items: SiteMarker[] = [];
 
-  private mapSelections: {
-    selectedSiteIds: Set<number>,
-    selectedStoreIds: Set<number>,
-    scrollTo: number
-  } = {
-      selectedSiteIds: new Set(),
-      selectedStoreIds: new Set(),
-      scrollTo: null
-    };
+  private mapSelections = {
+    selectedSiteIds: new Set(),
+    selectedStoreIds: new Set(),
+    scrollTo: 0
+  };
 
   scrollToMapSelectionId$ = new Subject<number>();
 
@@ -118,9 +115,8 @@ export class StoreSidenavService {
         this.dbEntityMarkerService.selectionSet$
           .subscribe((selectionSet: { selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number }) => {
             this.mapSelections = selectionSet;
-            const { scrollTo } = this.mapSelections;
-            if (scrollTo) {
-              this.scrollToMapSelectionId$.next(scrollTo);
+            if (this.mapSelections.scrollTo) {
+              this.scrollToMapSelectionId$.next(this.mapSelections.scrollTo);
             }
           })
       )
@@ -128,20 +124,19 @@ export class StoreSidenavService {
   }
 
   getSettings() {
-
     this.storageService.getOne(this.sidenavPageStorageKey).subscribe((currentPage) => {
       if (currentPage !== undefined) {
         this.currentPage = currentPage;
       }
     });
 
-    this.storageService.getOne(this.sortTypeStorageKey).subscribe((sortType: SortType) => {
-      this.setSortOptions(sortType, null);
+    const getSortType = this.storageService.getOne(this.sortTypeStorageKey);
+    const getSortDirection = this.storageService.getOne(this.sortDirectionStorageKey);
+    forkJoin(getSortType, getSortDirection).subscribe(sortOptions => {
+      const sortType = sortOptions[0] as SortType;
+      const sortDirection = sortOptions[1] as SortDirection;
+      this.setSortOptions(sortType, sortDirection);
     });
-
-    this.storageService.getOne(this.sortDirectionStorageKey).subscribe((sortDirection: SortDirection) => {
-      this.setSortOptions(null, sortDirection);
-    })
   }
 
   setPage(page: Pages) {
@@ -196,9 +191,6 @@ export class StoreSidenavService {
           });
 
           this.sortItems(this.items);
-          if (this.sortDirection === SortDirection.DESC) {
-            this.items.reverse();
-          }
 
           this.setRenderer();
         })
@@ -260,10 +252,6 @@ export class StoreSidenavService {
     this.sort$.emit();
 
     this.sortItems(this.items);
-
-    if (this.sortDirection === SortDirection.DESC) {
-      this.items.reverse();
-    }
 
     this.setRenderer();
   }
@@ -333,6 +321,10 @@ export class StoreSidenavService {
           return storeA.validatedDate.getTime() - storeB.validatedDate.getTime();
         });
         break;
+    }
+
+    if (this.sortDirection === SortDirection.DESC) {
+      this.items.reverse();
     }
   }
 
@@ -421,27 +413,21 @@ export class StoreSidenavService {
   }
 
   zoomToSelectionSet() {
+    const requests = [];
     if (this.mapSelections.selectedStoreIds.size) {
-      this.storeService.getAllByIds(Array.from(this.mapSelections.selectedStoreIds)).subscribe((stores: SimplifiedStore[]) => {
-        const storeGeoms = stores.map((s: SimplifiedStore) => {
-          return { lat: s.site.latitude, lng: s.site.longitude }
-        });
-
-        if (this.mapSelections.selectedSiteIds.size) {
-          this.siteService.getAllByIds(Array.from(this.mapSelections.selectedSiteIds)).subscribe((sites: SimplifiedSite[]) => {
-            const siteGeoms = sites.map((s: SimplifiedSite) => {
-              return { lat: s.latitude, lng: s.longitude };
-            });
-
-            const geoms = storeGeoms.concat(siteGeoms);
-            const bounds = this.mapService.getBoundsOfPoints(geoms);
-            this.mapService.getMap().fitBounds(bounds);
-          })
-        } else {
-          const bounds = this.mapService.getBoundsOfPoints(storeGeoms);
-          this.mapService.getMap().fitBounds(bounds);
-        }
-      })
+      requests.push(this.storeService.getAllByIds(Array.from(this.mapSelections.selectedStoreIds))
+        .pipe(map((stores: SimplifiedStore[]) =>
+          stores.map((s: SimplifiedStore) => new Coordinates(s.site.latitude, s.site.longitude)))));
     }
+    if (this.mapSelections.selectedSiteIds.size) {
+      requests.push(this.siteService.getAllByIds(Array.from(this.mapSelections.selectedSiteIds))
+        .pipe(map((sites: SimplifiedSite[]) =>
+          sites.map((s: SimplifiedSite) => new Coordinates(s.latitude, s.longitude)))));
+    }
+
+    forkJoin(requests).subscribe(results => {
+      const points = [].concat(...results);
+      this.mapService.fitToPoints(points);
+    });
   }
 }

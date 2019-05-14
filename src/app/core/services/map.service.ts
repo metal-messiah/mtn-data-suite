@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
 import { Observable, of, Subject } from 'rxjs';
+import { MatSnackBar } from '@angular/material';
 
 /*
   The MapService should
@@ -71,7 +72,7 @@ export class MapService {
     return map.getProjection().fromPointToLatLng(worldPoint);
   }
 
-  constructor() {
+  constructor(private snackBar: MatSnackBar) {
     this.dataPointFeatures = [];
   }
 
@@ -392,11 +393,38 @@ export class MapService {
     });
   }
 
-  getBoundsOfPoints(points: { lat: number, lng: number }[]): google.maps.LatLngBounds {
+  fitToPoints(points: Coordinates[], label?: string) {
     const bounds = new google.maps.LatLngBounds();
     points.forEach(pt => bounds.extend(pt));
-    return bounds;
+    this.map.fitBounds(bounds);
+
+    if (label) {
+      this.snackBar.open(label, null, {duration: 2000});
+    }
+
+    const rectangle = new google.maps.Rectangle({
+      strokeColor: 'orange',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: null,
+      fillOpacity: 0.35,
+      map: this.map,
+      bounds: bounds
+    });
+
+    this.fade(rectangle, 0.35);
   }
+
+  private fade(rect: google.maps.Rectangle, fillOpacity: number) {
+    const strokeOpacity = (fillOpacity + 0.45) / 2;
+    rect.setOptions({fillOpacity, strokeOpacity});
+    const newOpacity = fillOpacity - 0.01;
+    if (newOpacity >= 0) {
+      setTimeout(() => this.fade(rect, newOpacity), 50);
+    } else {
+      rect.setMap(null);
+    }
+  };
 
   getMap() {
     return this.map;

@@ -144,9 +144,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
     this.storageService.getOne(this.storeListsStorageKey).subscribe((shouldShow) => {
       if (shouldShow === undefined) {
-        this.storageService.set(this.storeListsStorageKey, false).subscribe((resp: boolean) => {
-          this.showStoreLists = resp;
-        })
+        this.storageService.set(this.storeListsStorageKey, false).subscribe((resp: boolean) => this.showStoreLists = resp)
       } else {
         this.showStoreLists = shouldShow;
       }
@@ -161,9 +159,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
     this.setStoreListOptions();
 
-    this.listManagerService.listsAreDirty$.subscribe(() => {
-      this.setStoreListOptions();
-    });
+    this.listManagerService.listsAreDirty$.subscribe(() => this.setStoreListOptions());
 
   }
 
@@ -449,9 +445,9 @@ Geo-location
         () => this.saveMove()));
   }
 
-  /*
-Multi-select
- */
+  /****************
+   * Multi-select
+   ****************/
   enableMultiSelect(): void {
     this.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
     this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
@@ -555,9 +551,9 @@ Multi-select
     });
   }
 
-  /*
-Assigning
- */
+  /***************
+   * Assigning
+  ***************/
   openAssignmentDialog() {
     this.dialog.open(UserProfileSelectComponent).afterClosed()
       .subscribe(user => {
@@ -733,11 +729,6 @@ Assigning
     if (mouseX > sidenavWidth) {
       this.toggleStoreLists();
     }
-  }
-
-  getActiveStoreListName() {
-    const activeStoreList = this.listManagerService.getSelectedStoreList();
-    return activeStoreList ? activeStoreList.storeListName : '';
   }
 
   getVisibleMarkersCount() {
