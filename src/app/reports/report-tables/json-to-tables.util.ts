@@ -231,7 +231,8 @@ export class JsonToTablesUtil {
         pwta: store.PWTA,
         fitPower: store.effectivePower,
         category: store.category,
-        isSite: store.mapKey === this.targetStore.mapKey
+        isSite: store.mapKey === this.targetStore.mapKey,
+        scenario: store.scenario
       }
     })
   }
