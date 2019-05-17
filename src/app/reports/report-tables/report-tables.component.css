@@ -180,3 +180,7 @@ mat-progress-bar {
 .summary td {
   border-top: 1px solid black;
 }
+
+pdf-viewer {
+  display: block;
+}

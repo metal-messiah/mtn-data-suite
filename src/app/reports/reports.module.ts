@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { SharedModule } from '../shared/shared.module';
 import { ReportsRoutingModule } from './reports-routing.module';
 import { ReportsComponent } from './reports.component';
@@ -11,12 +11,15 @@ import { StoreCategorizationComponent } from './store-categorization/store-categ
 import { StoreDataVerificationComponent } from './store-data-verification/store-data-verification.component';
 import { ReportDownloadComponent } from './download/report-download.component';
 import { HarrisTeeterComponent } from './harris-teeter/harris-teeter.component';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({
   imports: [
     SharedModule,
-    ReportsRoutingModule
+    ReportsRoutingModule,
+    PdfViewerModule
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   declarations: [
     ReportsComponent,
     ReportModelDataComponent,

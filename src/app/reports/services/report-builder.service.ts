@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { RestService } from '../../core/services/rest.service';
 import { AuthService } from '../../core/services/auth.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class ReportBuilderService {
@@ -27,8 +28,13 @@ export class ReportBuilderService {
     this.createForms();
   }
 
-  public getReportTableData() {
+  getReportTableData() {
     return this.reportTableData;
+  }
+
+  getPdf(tableName: string, data: any) {
+    return this.http.post(this.rest.getNodeReportHost() + '/pdf/' + tableName, data, {responseType: 'arraybuffer'})
+      .pipe(map(result => new Uint8Array(result)));
   }
 
   private createForms() {
