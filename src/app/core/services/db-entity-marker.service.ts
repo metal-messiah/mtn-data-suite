@@ -102,7 +102,7 @@ export class DbEntityMarkerService {
     showSitesBackfilledByNonGrocery: false,
     showFloat: false,
     // STATUS
-    showClosed: false,
+    showClosed: true,
     showDeadDeal: false,
     showNewUnderConstruction: true,
     showOpen: true,
@@ -193,7 +193,6 @@ export class DbEntityMarkerService {
 
   public onDestroy() {
     this.clickListener$.unsubscribe();
-    // this.visibleMarkersChanged$.unsubscribe();
   }
 
 
@@ -522,12 +521,10 @@ export class DbEntityMarkerService {
   }
 
   private showHideMarkersInBounds() {
-    const prevMarkersIds = this.visibleMarkers.map(m => m.id);
     const markers = this.siteMarkerCache.map(s => s.markers);
     const filteredMarkers = markers
       .reduce((prev, curr) => prev.concat(curr), [])
-      .filter(marker =>
-        marker['store'] ? this.includeStore(marker['store'], marker['site']) : (marker['site'] ? this.includeSite(marker['site']) : true)
+      .filter(marker => marker['store'] ? this.includeStore(marker['store'], marker['site']) : (marker['site'] ? this.includeSite(marker['site']) : true)
       );
 
     filteredMarkers.forEach(marker => this.refreshMarkerOptions(marker));
@@ -540,11 +537,8 @@ export class DbEntityMarkerService {
     this.visibleMarkers = filteredMarkers;
 
     this.showMarkers(this.visibleMarkers);
+    this.visibleMarkersChanged$.next(this.visibleMarkers);
 
-    const currMarkersIds = this.visibleMarkers.map(m => m.id);
-    if (JSON.stringify(prevMarkersIds.sort()) !== JSON.stringify(currMarkersIds.sort())) {
-      this.visibleMarkersChanged$.next(this.visibleMarkers);
-    }
 
   }
 
@@ -568,7 +562,9 @@ export class DbEntityMarkerService {
     this.selectedMarkers.delete(marker);
   }
 
-  private includeStore(storeMarker: StoreMarker, siteMarker?: SiteMarker) {
+
+
+  public includeStore(storeMarker: StoreMarker, siteMarker?: SiteMarker) {
     // TYPES FILTERS
     if (!this.controls.get('showActive').value && (storeMarker && storeMarker.storeType === 'ACTIVE')) {
       return false;
@@ -641,14 +637,10 @@ export class DbEntityMarkerService {
       return false;
     }
 
-    return true;
-
+    return storeMarker !== undefined;
   }
 
-  private includeSite(siteMarker: SiteMarker) {
-    if (this.controls.get('banner').value) {
-      return false
-    }
+  public includeSite(siteMarker: SiteMarker) {
 
     const assignment = this.controls.get('assignment').value;
     if (assignment && (siteMarker && siteMarker.assigneeId !== assignment.id)) {
@@ -660,6 +652,10 @@ export class DbEntityMarkerService {
     }
 
     const siteIsEmpty = siteMarker.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
+
+    if (this.controls.get('banner').value && siteIsEmpty) {
+      return false
+    }
 
     if (this.controls.get('dataset').value.id !== -1 && siteIsEmpty) {
       return false;

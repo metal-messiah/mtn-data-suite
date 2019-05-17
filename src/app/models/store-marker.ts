@@ -14,6 +14,7 @@ export class StoreMarker implements Entity {
   isEmpty: boolean;
   status: string;
   statusStartDate: Date;
+  hidden: boolean = false;
 
   constructor(obj) {
     Object.assign(this, obj);
