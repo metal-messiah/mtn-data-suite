@@ -64,6 +64,7 @@ form {
   padding: 10px;
   border-radius: 5px;
   margin: 0 0 15px 0;
+  color: white;
 }
 
 .meta-data {
@@ -80,6 +81,7 @@ form {
 }
 .meta-data > div:hover{
   background: #efefef;
+  color: black;
 }
 
 .banner-logo {
@@ -131,6 +133,13 @@ mat-sidenav {
   display:flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.accordion-header-text> div{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 75px;
 }
 
 .mat-expansion-panel-spacing{

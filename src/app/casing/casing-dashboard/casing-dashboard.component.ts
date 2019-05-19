@@ -65,6 +65,8 @@ import { ConfirmDialogComponent } from 'app/shared/confirm-dialog/confirm-dialog
 import { SelectBannerComponent } from '../select-banner/select-banner.component';
 import { BannerService } from 'app/core/services/banner.service';
 import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
+import { TextInputDialogComponent } from 'app/shared/text-input-dialog/text-input-dialog.component';
+import { FileInputComponent } from 'app/shared/file-input/file-input.component';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -781,7 +783,7 @@ Assigning
     });
     dialogRef.afterClosed().subscribe((result: string) => {
       if (result === 'Confirm') {
-        this.dbEntityMarkerService.resetControlsToDefaults();
+        this.dbEntityMarkerService.setAllControls(null);
       }
     });
   }
@@ -871,7 +873,6 @@ Assigning
     const dialog = this.dialog.open(SelectBannerComponent, config);
     dialog.afterClosed().subscribe((result) => {
       const activeBanners: SimplifiedBanner[] = this.getActiveBanners() || [];
-      console.log(activeBanners);
       if (result && result.bannerName) {
         if (banner) {
           const idx = activeBanners.findIndex(b => b.id === banner.id);
@@ -905,5 +906,43 @@ Assigning
   clearAssignment() {
     this.dbEntityMarkerService.controls.get('assignment').setValue(null);
   }
+
+  saveFilter() {
+    const dialogRef = this.dialog.open(TextInputDialogComponent, { data: { title: 'Filter Name', placeholder: 'Filter Name' } });
+    dialogRef.afterClosed().subscribe((fileName: string) => {
+      if (fileName) {
+        this.dbEntityMarkerService.saveControlsToFile(fileName);
+      }
+    })
+  }
+
+  loadFilter(event) {
+    const files = event.target.files;
+
+    if (files && files.length === 1) {
+      // only want 1 file at a time!
+      const file = files[0];
+      const fileReader = new FileReader();
+      fileReader.onload = () => {
+        if (fileReader.result && typeof fileReader.result === 'string') {
+          this.dbEntityMarkerService.loadControlsFromFile(JSON.parse(fileReader.result))
+        } else {
+          this.snackBar.open('Error Reading file! No result!', null, {
+            duration: 5000
+          });
+        }
+      };
+
+      fileReader.onerror = (error) => this.snackBar.open(error.toString(), null, { duration: 2000 });
+      fileReader.readAsText(file);
+    } else {
+      // notify about file constraints
+      this.snackBar.open('1 file at a time please', null, { duration: 2000 });
+    }
+
+    document.getElementById('fileInput')['value'] = '';
+  }
+
+
 
 }

@@ -3,8 +3,15 @@
     (closedStart)="controlSideMenuClosed()">
     <mat-list role="list" id="filter-side-nav" [formGroup]="dbEntityMarkerService.controls">
       <mat-accordion [multi]="true">
-        <h2 class="accordion-header-text" mat-subheader>Filters <i title="Reset To Default" class="fas fa-times-circle"
-            (click)="resetFilters()"></i></h2>
+        <h2 class="accordion-header-text" mat-subheader>Filters
+          <div>
+            <input hidden type="file" [accept]="'.json'" id="fileInput" #fileInput (input)="loadFilter($event)" />
+
+            <i title="Load Filter" class="fas fa-upload" (click)="fileInput.click()"></i>
+            <i title="Save Filter" class="fas fa-save" (click)="saveFilter()"></i>
+            <i title="Reset To Default" class="fas fa-times-circle" (click)="resetFilters()"></i>
+          </div>
+        </h2>
 
         <mat-expansion-panel>
           <mat-expansion-panel-header>
@@ -82,11 +89,12 @@
             </mat-panel-description>
           </mat-expansion-panel-header>
           <div class="meta-data">
-            <div (click)="selectBanner()" class="add-banner-button">Add Banner</div>
+            <div (click)="selectBanner()" class="add-banner-button"><i class="fas fa-plus-circle"></i>&nbsp;Add Banner
+            </div>
             <div *ngFor="let banner of getActiveBanners()">
               <span (click)="selectBanner(banner)">{{banner.bannerName}}</span>
-              <img (click)="selectBanner(banner)" class="banner-logo" [title]="getActiveBannerName()"
-                [src]="getBannerImageSrc(banner)" />
+              <img #image (click)="selectBanner(banner)" class="banner-logo" [title]="getActiveBannerName()"
+                [src]="getBannerImageSrc(banner)" (error)="image.hidden = true" />
               <i class="fas fa-times-circle" (click)="clearBanner(banner)"></i>
             </div>
           </div>
@@ -103,9 +111,10 @@
             </mat-panel-description>
           </mat-expansion-panel-header>
           <div class="meta-data">
-            <span (click)="selectAssignment()" style="text-align: center; width: 100%;"
+            <span (click)="selectAssignment()" style="text-align: center; width: 100%; cursor: pointer;"
               *ngIf="!getActiveAssignmentName()">Select User</span>
-            <span (click)="selectAssignment()" *ngIf="getActiveAssignmentName()">{{getActiveAssignmentName()}}</span>
+            <span (click)="selectAssignment()"
+              *ngIf="getActiveAssignmentName()">{{getActiveAssignmentName()}}</span>&nbsp;
             <i *ngIf="getActiveAssignmentName()" class="fas fa-times-circle" (click)="clearAssignment()"></i>
           </div>
         </mat-expansion-panel>

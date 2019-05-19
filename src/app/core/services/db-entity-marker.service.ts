@@ -23,6 +23,8 @@ import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
 import { UserProfile } from 'app/models/full/user-profile';
 import { StoreStatus } from 'app/models/full/store-status';
 import { StoreStatusOptions } from '../functionalEnums/StoreStatusOptions';
+import { StorageService } from './storage.service';
+import { TextInputDialogComponent } from 'app/shared/text-input-dialog/text-input-dialog.component';
 
 export interface DbEntityMarkerControls {
   showActive: boolean,
@@ -90,6 +92,7 @@ export class DbEntityMarkerService {
     storeCount: Infinity
   })
 
+  readonly controlsStorageKey = 'dbEntityMarkerServiceControls';
   readonly defaultControls: DbEntityMarkerControls = {
     //// FILTERS ////
     // DATASET
@@ -134,10 +137,11 @@ export class DbEntityMarkerService {
     private fb: FormBuilder,
     private siteMarkerService: SiteMarkerService,
     private projectService: ProjectService,
-    private casingDashboardService: CasingDashboardService) {
+    private casingDashboardService: CasingDashboardService,
+    private storageService: StorageService) {
+
+    this.controls = this.fb.group(this.validateStoredControls(null)); // initial state
     this.initControls();
-
-
 
     this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker }) => {
       // If not in multi-select mode, deselect previously selected markers
@@ -405,25 +409,35 @@ export class DbEntityMarkerService {
   }
 
   private initControls() {
-    const storedControls = JSON.parse(localStorage.getItem('dbEntityMarkerServiceControls'))
-    const controls: DbEntityMarkerControls = this.validateStoredControls(storedControls);
+    this.storageService.getOne(this.controlsStorageKey).subscribe(storedControls => {
+      const controls: DbEntityMarkerControls = this.validateStoredControls(storedControls);
 
-    this.controls = this.fb.group(controls);
+      this.controls = this.fb.group(controls);
+      this.controls.valueChanges.subscribe(val => {
+        this.updateDbEntityMarkerServiceControlsStorage(val);
+        this.refreshMarkers();
+      });
+      // If user turns off auto refresh = repull the locations in view in order to preserve them
+      this.controls.get('updateOnBoundsChange').valueChanges.subscribe(val => {
+        if (!val) {
+          localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
+        }
+      });
+    })
 
-    this.controls.valueChanges.subscribe(val => {
-      this.updateDbEntityMarkerServiceControlsStorage(val);
-      this.refreshMarkers();
-    });
-    // If user turns off auto refresh = repull the locations in view in order to preserve them
-    this.controls.get('updateOnBoundsChange').valueChanges.subscribe(val => {
-      if (!val) {
-        localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
-      }
-    });
   }
 
-  resetControlsToDefaults() {
-    this.controls = this.fb.group(this.validateStoredControls(null));
+  saveControlsToFile(fileName: string) {
+    this.storageService.export(this.controlsStorageKey, true, fileName)
+  }
+
+  loadControlsFromFile(json) {
+    this.setAllControls(json);
+
+  }
+
+  setAllControls(json) {
+    this.controls = this.fb.group(this.validateStoredControls(json));
 
     this.controls.valueChanges.subscribe(val => {
       this.updateDbEntityMarkerServiceControlsStorage(val);
@@ -435,6 +449,8 @@ export class DbEntityMarkerService {
         localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
       }
     });
+
+    this.updateDbEntityMarkerServiceControlsStorage(json);
   }
 
   validateStoredControls(storedControls: any): DbEntityMarkerControls {
@@ -472,7 +488,7 @@ export class DbEntityMarkerService {
   }
 
   updateDbEntityMarkerServiceControlsStorage(storedControls) {
-    localStorage.setItem('dbEntityMarkerServiceControls', JSON.stringify(storedControls));
+    this.storageService.set(this.controlsStorageKey, storedControls);
     try {
       this.refreshMarkers();
     } catch (err) {
@@ -542,13 +558,7 @@ export class DbEntityMarkerService {
 
     this.showMarkers(this.visibleMarkers);
     this.visibleMarkersChanged$.next(this.visibleMarkers);
-
-
   }
-
-  // setsAreEqual(a: Set<number>, b: Set<number>) {
-  //   return a.size === b.size && [...a].every(value => b.has(value))
-  // }
 
   private showMarkers(markers: google.maps.Marker[]) {
     // Show the now visible markers
