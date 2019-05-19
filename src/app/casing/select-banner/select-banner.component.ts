@@ -1,5 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { MatDialogRef } from '@angular/material';
+import { Component, ElementRef, OnInit, ViewChild, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ErrorService } from '../../core/services/error.service';
 import { fromEvent } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, map, switchMap } from 'rxjs/operators';
@@ -21,11 +21,15 @@ export class SelectBannerComponent implements OnInit {
 
   loading = false;
 
+  remove = true;
+
   @ViewChild('bannerSearchBox') bannerSearchBoxElement: ElementRef;
 
   constructor(public dialogRef: MatDialogRef<SelectBannerComponent>,
-              private errorService: ErrorService,
-              private bannerService: BannerService) {
+    private errorService: ErrorService,
+    private bannerService: BannerService,
+    @Inject(MAT_DIALOG_DATA) public data: any) {
+    this.remove = data.remove !== undefined ? data.remove : this.remove;
   }
 
   ngOnInit() {

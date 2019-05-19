@@ -55,24 +55,37 @@ form {
   max-width: 300px;
 }
 
+.add-banner-button{
+  text-align: center; 
+  justify-content: center !important;
+  font-style: italic;
+  font-weight: bold;
+  background: #607d8b;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 0 0 15px 0;
+}
+
 .meta-data {
   text-align: center;
-    display: flex;
+}
+.meta-data > div{
+  display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 5px 10px;
     border-radius: 5px;
     cursor: pointer;
+    margin: 0 0 5px 0;
 }
-
-.meta-data:hover{
+.meta-data > div:hover{
   background: #efefef;
 }
 
 .banner-logo {
   height: auto;
-  max-width: 100%;
-  max-height: 50px;
+  max-width: 50%;
+  max-height: 30px;
 }
 
 .checklist {

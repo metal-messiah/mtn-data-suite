@@ -854,7 +854,7 @@ Assigning
 
   getActiveBannerName() {
     const { banner } = this.dbEntityMarkerService.controls.controls;
-    return banner.value ? banner.value.bannerName : null;
+    return banner.value && banner.value.length ? banner.value.map(b => b.bannerName).join(', ') : null;
   }
 
   getActiveAssignmentName() {
@@ -862,27 +862,35 @@ Assigning
     return assignment.value ? `${assignment.value.firstName} ${assignment.value.lastName}` : null;
   }
 
+  getActiveBanners(): SimplifiedBanner[] {
+    return this.dbEntityMarkerService.controls.get('banner').value;
+  }
 
-  selectBanner() {
-    const dialog = this.dialog.open(SelectBannerComponent, { maxWidth: '90%' });
+  selectBanner(banner?: SimplifiedBanner) {
+    const config = { data: { remove: false }, maxWidth: '90%' };
+    const dialog = this.dialog.open(SelectBannerComponent, config);
     dialog.afterClosed().subscribe((result) => {
+      const activeBanners: SimplifiedBanner[] = this.getActiveBanners() || [];
+      console.log(activeBanners);
       if (result && result.bannerName) {
-        this.dbEntityMarkerService.controls.get('banner').setValue(result)
-      } else if (result === 'remove') {
-        this.dbEntityMarkerService.controls.get('banner').setValue(null);
-      } else {
-        // do nothing for now
+        if (banner) {
+          const idx = activeBanners.findIndex(b => b.id === banner.id);
+          activeBanners[idx] = result;
+        } else {
+          activeBanners.push(result);
+        }
+        this.dbEntityMarkerService.controls.get('banner').setValue(activeBanners);
       }
     });
   }
 
-  getBannerImageSrc() {
-    const { banner } = this.dbEntityMarkerService.controls.controls;
-    return banner.value ? this.bannerService.getBannerImageSrc(banner.value) : null;
+  getBannerImageSrc(banner: SimplifiedBanner) {
+    return banner ? this.bannerService.getBannerImageSrc(banner) : null;
   }
 
-  clearBanner() {
-    this.dbEntityMarkerService.controls.get('banner').setValue(null);
+  clearBanner(banner: SimplifiedBanner) {
+    const activeBanners = this.getActiveBanners().filter(b => b.id !== banner.id);
+    this.dbEntityMarkerService.controls.get('banner').setValue(activeBanners);
   }
 
   selectAssignment() {

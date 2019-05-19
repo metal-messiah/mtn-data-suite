@@ -48,7 +48,7 @@ export interface DbEntityMarkerControls {
   showRumored: boolean,
   showStrongRumor: boolean,
   showTemporarilyClosed: boolean,
-  banner: SimplifiedBanner,
+  banner: SimplifiedBanner[],
   assignment: UserProfile
 }
 
@@ -113,7 +113,7 @@ export class DbEntityMarkerService {
     showStrongRumor: false,
     showTemporarilyClosed: false,
     // BANNER
-    banner: null,
+    banner: [],
     // ASSIGNMENT
     assignment: null,
     //// OPTIONS ////
@@ -462,6 +462,10 @@ export class DbEntityMarkerService {
       storedControls.dataset = new SimplifiedStoreList(storedControls.dataset);
     }
 
+    // Angular FormBuilder has known issue with populating forms with arrays -- suggested workaround method below
+    if (storedControls.banner && !storedControls.banner.hasOwnProperty('value')) {
+      storedControls.banner = { value: storedControls.banner, disabled: false };
+    }
 
     this.updateDbEntityMarkerServiceControlsStorage(storedControls);
     return storedControls;
@@ -627,7 +631,7 @@ export class DbEntityMarkerService {
 
     // BANNER FILTER
     const banner = this.controls.get('banner').value;
-    if (banner && (storeMarker && storeMarker.bannerId !== banner.id)) {
+    if (banner.length && (storeMarker && !banner.map(b => b.id).includes(storeMarker.bannerId))) {
       return false;
     }
 
@@ -653,7 +657,7 @@ export class DbEntityMarkerService {
 
     const siteIsEmpty = siteMarker.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
 
-    if (this.controls.get('banner').value && siteIsEmpty) {
+    if (this.controls.get('banner').value.length && siteIsEmpty) {
       return false
     }
 

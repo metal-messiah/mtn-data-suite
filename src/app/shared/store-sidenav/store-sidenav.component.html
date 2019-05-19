@@ -9,8 +9,9 @@
   <div class="sidenav-content" *ngIf="isPage(pages.STORESONMAP)">
     <i (click)="setPage(null)" title="Go Back" class="fas fa-arrow-alt-circle-left fa-2x go-back-button"
       *ngIf="expanded"></i>
-    <i (click)="selectAllVisible()" title="Select All" class="fas fa-check-square fa-2x select-all-button"
-      *ngIf="expanded && isMultiSelect()"></i>
+    <i (click)="selectAllVisible()" title="Select All"
+      class="fas fa-check-square fa-2x select-all-button top-right-button" *ngIf="expanded && isMultiSelect()">
+    </i>
     <h1 mat-dialog-title> Visible Stores
       <span *ngIf="!fetching">
         ({{visibleStores | number}})

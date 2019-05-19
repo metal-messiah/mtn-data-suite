@@ -82,12 +82,13 @@
             </mat-panel-description>
           </mat-expansion-panel-header>
           <div class="meta-data">
-            <span (click)="selectBanner()" style="text-align: center; width: 100%;"
-              *ngIf="!getActiveBannerName()">Select Banner</span>
-            <span (click)="selectBanner()" *ngIf="getActiveBannerName()">{{getActiveBannerName()}}</span>
-            <img (click)="selectBanner()" *ngIf="getActiveBannerName()" (click)="selectBanner()" class="banner-logo"
-              [title]="getActiveBannerName()" [src]="getBannerImageSrc()" />
-            <i *ngIf="getActiveBannerName()" class="fas fa-times-circle" (click)="clearBanner()"></i>
+            <div (click)="selectBanner()" class="add-banner-button">Add Banner</div>
+            <div *ngFor="let banner of getActiveBanners()">
+              <span (click)="selectBanner(banner)">{{banner.bannerName}}</span>
+              <img (click)="selectBanner(banner)" class="banner-logo" [title]="getActiveBannerName()"
+                [src]="getBannerImageSrc(banner)" />
+              <i class="fas fa-times-circle" (click)="clearBanner(banner)"></i>
+            </div>
           </div>
 
         </mat-expansion-panel>
