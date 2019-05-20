@@ -5,9 +5,7 @@
       <mat-accordion [multi]="true">
         <h2 class="accordion-header-text" mat-subheader>Filters
           <div>
-            <input hidden type="file" [accept]="'.json'" id="fileInput" #fileInput (input)="loadFilter($event)" />
-
-            <i title="Load Filter" class="fas fa-upload" (click)="fileInput.click()"></i>
+            <i title="Load Filter" class="fas fa-upload" (click)="loadFilter()"></i>
             <i title="Save Filter" class="fas fa-save" (click)="saveFilter()"></i>
             <i title="Reset To Default" class="fas fa-times-circle" (click)="resetFilters()"></i>
           </div>

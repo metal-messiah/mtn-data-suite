@@ -17,14 +17,11 @@ import { StoreIconUtil } from '../../utils/StoreIconUtil';
 import { MarkerType } from '../functionalEnums/MarkerType';
 
 import * as _ from 'lodash';
-import { ListManagerService } from 'app/shared/list-manager/list-manager.service';
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
-import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
 import { UserProfile } from 'app/models/full/user-profile';
-import { StoreStatus } from 'app/models/full/store-status';
 import { StoreStatusOptions } from '../functionalEnums/StoreStatusOptions';
 import { StorageService } from './storage.service';
-import { TextInputDialogComponent } from 'app/shared/text-input-dialog/text-input-dialog.component';
+import { ControlStorageKeys } from 'app/models/control';
 
 export interface DbEntityMarkerControls {
   showActive: boolean,
@@ -50,7 +47,7 @@ export interface DbEntityMarkerControls {
   showRumored: boolean,
   showStrongRumor: boolean,
   showTemporarilyClosed: boolean,
-  banner: SimplifiedBanner[],
+  banner: any,
   assignment: UserProfile
 }
 
@@ -92,7 +89,8 @@ export class DbEntityMarkerService {
     storeCount: Infinity
   })
 
-  readonly controlsStorageKey = 'dbEntityMarkerServiceControls';
+  readonly savedControlsStorageKey = ControlStorageKeys.savedDbEntityMarkerServiceControls;
+  readonly controlsStorageKey = ControlStorageKeys.dbEntityMarkerServiceControls;
   readonly defaultControls: DbEntityMarkerControls = {
     //// FILTERS ////
     // DATASET
@@ -116,7 +114,7 @@ export class DbEntityMarkerService {
     showStrongRumor: false,
     showTemporarilyClosed: false,
     // BANNER
-    banner: [],
+    banner: { value: [], disabled: false },
     // ASSIGNMENT
     assignment: null,
     //// OPTIONS ////
@@ -129,8 +127,6 @@ export class DbEntityMarkerService {
     fullLabelMinZoomLevel: 16,
     updateOnBoundsChange: true
   }
-
-
 
   constructor(private authService: AuthService,
     private errorService: ErrorService,
@@ -410,34 +406,30 @@ export class DbEntityMarkerService {
 
   private initControls() {
     this.storageService.getOne(this.controlsStorageKey).subscribe(storedControls => {
-      const controls: DbEntityMarkerControls = this.validateStoredControls(storedControls);
-
-      this.controls = this.fb.group(controls);
-      this.controls.valueChanges.subscribe(val => {
-        this.updateDbEntityMarkerServiceControlsStorage(val);
-        this.refreshMarkers();
-      });
-      // If user turns off auto refresh = repull the locations in view in order to preserve them
-      this.controls.get('updateOnBoundsChange').valueChanges.subscribe(val => {
-        if (!val) {
-          localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
-        }
-      });
+      this.setAllControls(storedControls);
     })
+  }
 
+  saveControlsToStorage(savedControls: any) {
+    this.storageService.set(this.savedControlsStorageKey, savedControls)
   }
 
   saveControlsToFile(fileName: string) {
     this.storageService.export(this.controlsStorageKey, true, fileName)
   }
 
-  loadControlsFromFile(json) {
-    this.setAllControls(json);
 
+  loadControlsFromJson(json) {
+    this.setAllControls(json);
   }
 
   setAllControls(json) {
+
     this.controls = this.fb.group(this.validateStoredControls(json));
+
+    if (!json) {
+      this.controls.controls.banner.setValue([]);
+    }
 
     this.controls.valueChanges.subscribe(val => {
       this.updateDbEntityMarkerServiceControlsStorage(val);
@@ -465,13 +457,16 @@ export class DbEntityMarkerService {
         for (const property in this.defaultControls) {
           if (this.defaultControls.hasOwnProperty(property)) {
             if (!storedControls[property]) {
+              if (property === 'banner') {
+                storedControls[property] = { value: Object.assign({}, this.defaultControls[property]), disabled: false };
+              }
               storedControls[property] = this.defaultControls[property]
             }
           }
         }
       }
     } else {
-      storedControls = this.defaultControls;
+      storedControls = Object.assign({}, this.defaultControls);
     }
 
     if (storedControls.dataset) {
@@ -480,7 +475,7 @@ export class DbEntityMarkerService {
 
     // Angular FormBuilder has known issue with populating forms with arrays -- suggested workaround method below
     if (storedControls.banner && !storedControls.banner.hasOwnProperty('value')) {
-      storedControls.banner = { value: storedControls.banner, disabled: false };
+      storedControls.banner = { value: Object.assign([], storedControls.banner), disabled: false };
     }
 
     this.updateDbEntityMarkerServiceControlsStorage(storedControls);
