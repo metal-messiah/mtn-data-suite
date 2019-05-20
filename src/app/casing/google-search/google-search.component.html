@@ -5,7 +5,7 @@
   <div mat-dialog-content>
     <div id="search-bar">
       <mat-form-field class="example-full-width">
-        <input matInput placeholder="Search for something" [(ngModel)]="searchQuery">
+        <input matInput placeholder="Search for something" #searchInput [(ngModel)]="searchQuery">
       </mat-form-field>
       <div>
         <button mat-mini-fab color="primary" type="submit" (click)="search()" [disabled]="searching">
@@ -31,6 +31,7 @@
   </div>
   <div mat-dialog-actions>
     <button mat-raised-button color="accent" type="button" [disabled]="searching" (click)="closeDialog()">Close</button>
-    <button mat-raised-button color="primary" type="button" [disabled]="searching" (click)="searchWithMap()">Search with Map</button>
+    <button mat-raised-button color="primary" type="button" [disabled]="searching" (click)="searchWithMap()">Search with
+      Map</button>
   </div>
 </div>

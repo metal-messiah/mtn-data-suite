@@ -1,4 +1,4 @@
-import { Component, NgZone } from '@angular/core';
+import { Component, NgZone, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material';
 import { GooglePlace } from '../../models/google-place';
 import { MapService } from '../../core/services/map.service';
@@ -9,7 +9,7 @@ import { finalize } from 'rxjs/operators';
   templateUrl: './google-search.component.html',
   styleUrls: ['./google-search.component.css']
 })
-export class GoogleSearchComponent {
+export class GoogleSearchComponent implements OnInit, AfterViewInit {
 
   places: GooglePlace[];
   searchQuery = '';
@@ -17,9 +17,29 @@ export class GoogleSearchComponent {
   searching = false;
   limitToView = false;
 
+  @ViewChild('searchInput') searchInput: any;
+  autocomplete: google.maps.places.Autocomplete;
+
   constructor(public dialogRef: MatDialogRef<GoogleSearchComponent>,
-              private mapService: MapService,
-              private ngZone: NgZone) {
+    private mapService: MapService,
+    private ngZone: NgZone) {
+
+  }
+
+  ngOnInit() {
+
+  }
+
+  ngAfterViewInit() {
+    this.initAutocomplete();
+  }
+
+  initAutocomplete() {
+    this.autocomplete = new google.maps.places.Autocomplete(this.searchInput.nativeElement, {
+      componentRestrictions: { country: 'US' },
+      types: []  // all search types
+    });
+    this.autocomplete.bindTo('bounds', this.mapService.getMap());
   }
 
   closeDialog() {
@@ -38,7 +58,7 @@ export class GoogleSearchComponent {
   }
 
   goToStore(place: GooglePlace) {
-    this.dialogRef.close({place: place});
+    this.dialogRef.close({ place: place });
   }
 
   searchWithMap() {
