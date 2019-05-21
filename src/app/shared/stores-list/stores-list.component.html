@@ -35,7 +35,7 @@
       <div class="store-info">
         <div [id]="getIdForElem(item, store)" (click)="select(item, store)"
           [ngClass]="{'store-info-item': true, 'highlighted': shouldHighlight(store)}"
-          *ngFor="let store of item.stores">
+          *ngFor="let store of getValidStores(item)">
           <div class="store" [id]="getItemIndex(itemIndex)">
             <div class="store-descriptions">
               <div class="store-name">{{store.storeName}}</div>

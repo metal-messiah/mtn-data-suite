@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Saved Filters</h2>
+<div *ngIf="!controls.length">No Filters Found</div>
+<mat-list>
+  <mat-list-item *ngFor="let control of controls">
+    <h3 title="Load Filter" (click)="submit(control)" matLine>{{control.name}}</h3>
+    <p title="Load Filter" (click)="submit(control)" matLine>{{control.date | date}}</p>
+    <i title="Delete Filter" (click)="delete(control)" class="fas fa-trash-alt"></i>
+  </mat-list-item>
+
+</mat-list>
+<div mat-dialog-actions>
+  <button type="button" mat-raised-button [mat-dialog-close]="null" color="primary">Cancel</button>
+</div>

@@ -17,8 +17,11 @@ import { StoreIconUtil } from '../../utils/StoreIconUtil';
 import { MarkerType } from '../functionalEnums/MarkerType';
 
 import * as _ from 'lodash';
-import { ListManagerService } from 'app/shared/list-manager/list-manager.service';
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
+import { UserProfile } from 'app/models/full/user-profile';
+import { StoreStatusOptions } from '../functionalEnums/StoreStatusOptions';
+import { StorageService } from './storage.service';
+import { ControlStorageKeys } from 'app/models/control';
 
 export interface DbEntityMarkerControls {
   showActive: boolean,
@@ -33,7 +36,19 @@ export interface DbEntityMarkerControls {
   fullLabelMinZoomLevel: number,
   markerType: string,
   updateOnBoundsChange: boolean,
-  dataset: SimplifiedStoreList
+  dataset: SimplifiedStoreList,
+  showClosed: boolean,
+  showDeadDeal: boolean,
+  showNewUnderConstruction: boolean,
+  showOpen: boolean,
+  showPlanned: boolean,
+  showProposed: boolean,
+  showRemodel: boolean,
+  showRumored: boolean,
+  showStrongRumor: boolean,
+  showTemporarilyClosed: boolean,
+  banner: any,
+  assignment: UserProfile
 }
 
 @Injectable()
@@ -74,33 +89,55 @@ export class DbEntityMarkerService {
     storeCount: Infinity
   })
 
+  readonly savedControlsStorageKey = ControlStorageKeys.savedDbEntityMarkerServiceControls;
+  readonly controlsStorageKey = ControlStorageKeys.dbEntityMarkerServiceControls;
   readonly defaultControls: DbEntityMarkerControls = {
+    //// FILTERS ////
+    // DATASET
+    dataset: this.allStoresOption,
+    // TYPE
     showActive: true,
     showHistorical: true,
     showFuture: true,
     showEmptySites: true,
     showSitesBackfilledByNonGrocery: false,
     showFloat: false,
+    // STATUS
+    showClosed: true,
+    showDeadDeal: false,
+    showNewUnderConstruction: true,
+    showOpen: true,
+    showPlanned: true,
+    showProposed: true,
+    showRemodel: true,
+    showRumored: false,
+    showStrongRumor: false,
+    showTemporarilyClosed: false,
+    // BANNER
+    banner: { value: [], disabled: false },
+    // ASSIGNMENT
+    assignment: null,
+    //// OPTIONS ////
+    // MARKER TYPE
+    markerType: 'Pin',
+    // MAP OPTIONS
     cluster: false,
     clusterZoomLevel: 13,
     minPullZoomLevel: 10,
     fullLabelMinZoomLevel: 16,
-    markerType: 'Pin',
-    updateOnBoundsChange: true,
-    dataset: this.allStoresOption
+    updateOnBoundsChange: true
   }
-
-
 
   constructor(private authService: AuthService,
     private errorService: ErrorService,
     private fb: FormBuilder,
     private siteMarkerService: SiteMarkerService,
     private projectService: ProjectService,
-    private casingDashboardService: CasingDashboardService) {
+    private casingDashboardService: CasingDashboardService,
+    private storageService: StorageService) {
+
+    this.controls = this.fb.group(this.validateStoredControls(null)); // initial state
     this.initControls();
-
-
 
     this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker }) => {
       // If not in multi-select mode, deselect previously selected markers
@@ -156,7 +193,6 @@ export class DbEntityMarkerService {
 
   public onDestroy() {
     this.clickListener$.unsubscribe();
-    // this.visibleMarkersChanged$.unsubscribe();
   }
 
 
@@ -369,10 +405,31 @@ export class DbEntityMarkerService {
   }
 
   private initControls() {
-    const storedControls = JSON.parse(localStorage.getItem('dbEntityMarkerServiceControls'))
-    const controls: DbEntityMarkerControls = this.validateStoredControls(storedControls);
+    this.storageService.getOne(this.controlsStorageKey).subscribe(storedControls => {
+      this.setAllControls(storedControls);
+    })
+  }
 
-    this.controls = this.fb.group(controls);
+  saveControlsToStorage(savedControls: any) {
+    this.storageService.set(this.savedControlsStorageKey, savedControls)
+  }
+
+  saveControlsToFile(fileName: string) {
+    this.storageService.export(this.controlsStorageKey, true, fileName)
+  }
+
+
+  loadControlsFromJson(json) {
+    this.setAllControls(json);
+  }
+
+  setAllControls(json) {
+
+    this.controls = this.fb.group(this.validateStoredControls(json));
+
+    if (!json) {
+      this.controls.controls.banner.setValue([]);
+    }
 
     this.controls.valueChanges.subscribe(val => {
       this.updateDbEntityMarkerServiceControlsStorage(val);
@@ -384,6 +441,8 @@ export class DbEntityMarkerService {
         localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
       }
     });
+
+    this.updateDbEntityMarkerServiceControlsStorage(json);
   }
 
   validateStoredControls(storedControls: any): DbEntityMarkerControls {
@@ -398,26 +457,33 @@ export class DbEntityMarkerService {
         for (const property in this.defaultControls) {
           if (this.defaultControls.hasOwnProperty(property)) {
             if (!storedControls[property]) {
+              if (property === 'banner') {
+                storedControls[property] = { value: Object.assign({}, this.defaultControls[property]), disabled: false };
+              }
               storedControls[property] = this.defaultControls[property]
             }
           }
         }
       }
     } else {
-      storedControls = this.defaultControls;
+      storedControls = Object.assign({}, this.defaultControls);
     }
 
     if (storedControls.dataset) {
       storedControls.dataset = new SimplifiedStoreList(storedControls.dataset);
     }
 
+    // Angular FormBuilder has known issue with populating forms with arrays -- suggested workaround method below
+    if (storedControls.banner && !storedControls.banner.hasOwnProperty('value')) {
+      storedControls.banner = { value: Object.assign([], storedControls.banner), disabled: false };
+    }
 
     this.updateDbEntityMarkerServiceControlsStorage(storedControls);
     return storedControls;
   }
 
   updateDbEntityMarkerServiceControlsStorage(storedControls) {
-    localStorage.setItem('dbEntityMarkerServiceControls', JSON.stringify(storedControls));
+    this.storageService.set(this.controlsStorageKey, storedControls);
     try {
       this.refreshMarkers();
     } catch (err) {
@@ -470,12 +536,10 @@ export class DbEntityMarkerService {
   }
 
   private showHideMarkersInBounds() {
-    const prevMarkersIds = this.visibleMarkers.map(m => m.id);
     const markers = this.siteMarkerCache.map(s => s.markers);
     const filteredMarkers = markers
       .reduce((prev, curr) => prev.concat(curr), [])
-      .filter(marker =>
-        marker['store'] ? this.includeStore(marker['store']) : (marker['site'] ? this.includeSite(marker['site']) : true)
+      .filter(marker => marker['store'] ? this.includeStore(marker['store'], marker['site']) : (marker['site'] ? this.includeSite(marker['site']) : true)
       );
 
     filteredMarkers.forEach(marker => this.refreshMarkerOptions(marker));
@@ -488,17 +552,8 @@ export class DbEntityMarkerService {
     this.visibleMarkers = filteredMarkers;
 
     this.showMarkers(this.visibleMarkers);
-
-    const currMarkersIds = this.visibleMarkers.map(m => m.id);
-    if (JSON.stringify(prevMarkersIds.sort()) !== JSON.stringify(currMarkersIds.sort())) {
-      this.visibleMarkersChanged$.next(this.visibleMarkers);
-    }
-
+    this.visibleMarkersChanged$.next(this.visibleMarkers);
   }
-
-  // setsAreEqual(a: Set<number>, b: Set<number>) {
-  //   return a.size === b.size && [...a].every(value => b.has(value))
-  // }
 
   private showMarkers(markers: google.maps.Marker[]) {
     // Show the now visible markers
@@ -516,7 +571,10 @@ export class DbEntityMarkerService {
     this.selectedMarkers.delete(marker);
   }
 
-  private includeStore(storeMarker: StoreMarker) {
+
+
+  public includeStore(storeMarker: StoreMarker, siteMarker?: SiteMarker) {
+    // TYPES FILTERS
     if (!this.controls.get('showActive').value && (storeMarker && storeMarker.storeType === 'ACTIVE')) {
       return false;
     }
@@ -526,7 +584,11 @@ export class DbEntityMarkerService {
     if (!this.controls.get('showFuture').value && (storeMarker && storeMarker.storeType === 'FUTURE')) {
       return false;
     }
+    if (!this.controls.get('showFloat').value && (storeMarker && storeMarker.float)) {
+      return false;
+    }
 
+    // DATASET FILTER
     const dataset = this.controls.get('dataset').value;
     if (dataset && storeMarker) {
       if (
@@ -537,15 +599,72 @@ export class DbEntityMarkerService {
         return false;
       }
     }
-    return !(!this.controls.get('showFloat').value && storeMarker.float);
+
+    // STATUS FILTER
+
+    if (!this.controls.get('showClosed').value && (storeMarker && storeMarker.status === StoreStatusOptions.CLOSED)) {
+      return false;
+    }
+    if (!this.controls.get('showDeadDeal').value && (storeMarker && storeMarker.status === StoreStatusOptions.DEAD_DEAL)) {
+      return false;
+    }
+    if (!this.controls.get('showNewUnderConstruction').value && (storeMarker && storeMarker.status === StoreStatusOptions.NEW_UNDER_CONSTRUCTION)) {
+      return false;
+    }
+    if (!this.controls.get('showOpen').value && (storeMarker && storeMarker.status === StoreStatusOptions.OPEN)) {
+      return false;
+    }
+    if (!this.controls.get('showPlanned').value && (storeMarker && storeMarker.status === StoreStatusOptions.PLANNED)) {
+      return false;
+    }
+    if (!this.controls.get('showProposed').value && (storeMarker && storeMarker.status === StoreStatusOptions.PROPOSED)) {
+      return false;
+    }
+    if (!this.controls.get('showRemodel').value && (storeMarker && storeMarker.status === StoreStatusOptions.REMODEL)) {
+      return false;
+    }
+    if (!this.controls.get('showRumored').value && (storeMarker && storeMarker.status === StoreStatusOptions.RUMORED)) {
+      return false;
+    }
+    if (!this.controls.get('showStrongRumor').value && (storeMarker && storeMarker.status === StoreStatusOptions.STRONG_RUMOR)) {
+      return false;
+    }
+    if (!this.controls.get('showTemporarilyClosed').value
+      && (storeMarker && storeMarker.status === StoreStatusOptions.TEMPORARILY_CLOSED)) {
+      return false;
+    }
+
+    // BANNER FILTER
+    const banner = this.controls.get('banner').value;
+    if (banner.length && (storeMarker && !banner.map(b => b.id).includes(storeMarker.bannerId))) {
+      return false;
+    }
+
+    // ASSIGNMENT FILTER
+    const assignment = this.controls.get('assignment').value;
+    if (assignment && (siteMarker && siteMarker.assigneeId !== assignment.id)) {
+      return false;
+    }
+
+    return storeMarker !== undefined;
   }
 
-  private includeSite(siteMarker: SiteMarker) {
+  public includeSite(siteMarker: SiteMarker) {
+
+    const assignment = this.controls.get('assignment').value;
+    if (assignment && (siteMarker && siteMarker.assigneeId !== assignment.id)) {
+      return false;
+    }
+
     if (siteMarker.backfilledNonGrocery) {
       return this.controls.get('showSitesBackfilledByNonGrocery').value;
     }
 
     const siteIsEmpty = siteMarker.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
+
+    if (this.controls.get('banner').value.length && siteIsEmpty) {
+      return false
+    }
 
     if (this.controls.get('dataset').value.id !== -1 && siteIsEmpty) {
       return false;

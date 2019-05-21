@@ -24,14 +24,14 @@ export class BannerService extends CrudService<Banner> {
     if (pageNumber != null) {
       params = params.set('page', pageNumber.toLocaleString());
     }
-    return this.http.get<Pageable<SimplifiedBanner>>(url, {headers: this.rest.getHeaders(), params: params});
+    return this.http.get<Pageable<SimplifiedBanner>>(url, { headers: this.rest.getHeaders(), params: params });
   }
 
   protected createEntityFromObj(entityObj): Banner {
     return new Banner(entityObj);
   }
 
-  getBannerImageSrc(banner: Banner) {
+  getBannerImageSrc(banner: Banner | SimplifiedBanner) {
     return `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_40,w_100/${banner.logoFileName}`;
   }
 

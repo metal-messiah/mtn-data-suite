@@ -2,18 +2,185 @@
   <mat-sidenav mode="over" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end"
     (closedStart)="controlSideMenuClosed()">
     <mat-list role="list" id="filter-side-nav" [formGroup]="dbEntityMarkerService.controls">
-      <h3 mat-subheader>Filters</h3>
-      <div class="checklist">
-        <mat-checkbox formControlName="showActive">Active</mat-checkbox>
-        <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
-        <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
-        <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
-        <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
-        <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
-      </div>
-      <mat-divider></mat-divider>
+      <mat-accordion [multi]="true">
+        <h2 class="accordion-header-text" mat-subheader>Filters
+          <div>
+            <i title="Load Filter" class="fas fa-upload" (click)="loadFilter()"></i>
+            <i title="Save Filter" class="fas fa-save" (click)="saveFilter()"></i>
+            <i title="Reset To Default" class="fas fa-times-circle" (click)="resetFilters()"></i>
+          </div>
+        </h2>
 
-      <h3 mat-subheader id="dataset-header">Dataset <i title="View List of Stores"
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Dataset
+            </mat-panel-title>
+            <mat-panel-description>
+              {{getActiveDatasetName()}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <mat-form-field class="control-selector">
+            <mat-select #datasetSelect [compareWith]="compareFn" formControlName="dataset">
+              <mat-option *ngFor="let option of storeListOptions" [value]="option">
+                {{option.storeListName}} ({{option.storeCount | number}})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-action-row style="justify-content: center;">
+            <button (click)="openSidenavDirectlyToSelectedListStores(datasetSelect.selected.value)" mat-flat-button
+              color="primary">
+              <i class="fas fa-list"></i> View List of Stores
+            </button>
+          </mat-action-row>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Type
+            </mat-panel-title>
+            <mat-panel-description>
+              {{getActiveTypeNames()}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="checklist">
+            <mat-checkbox formControlName="showActive">Active</mat-checkbox>
+            <mat-checkbox formControlName="showFuture">Future</mat-checkbox>
+            <mat-checkbox formControlName="showHistorical">Historical</mat-checkbox>
+            <mat-checkbox formControlName="showEmptySites">Empty Sites</mat-checkbox>
+            <mat-checkbox formControlName="showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
+            <mat-checkbox formControlName="showFloat">Float Stores</mat-checkbox>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Status
+            </mat-panel-title>
+            <mat-panel-description>
+              {{getActiveStatusNames()}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="checklist">
+            <mat-checkbox formControlName="showClosed">Closed</mat-checkbox>
+            <mat-checkbox formControlName="showDeadDeal">Dead Deal</mat-checkbox>
+            <mat-checkbox formControlName="showNewUnderConstruction">Under Construction</mat-checkbox>
+            <mat-checkbox formControlName="showOpen">Open</mat-checkbox>
+            <mat-checkbox formControlName="showPlanned">Planned</mat-checkbox>
+            <mat-checkbox formControlName="showProposed">Proposed</mat-checkbox>
+            <mat-checkbox formControlName="showRemodel">Remodel</mat-checkbox>
+            <mat-checkbox formControlName="showRumored">Rumored</mat-checkbox>
+            <mat-checkbox formControlName="showStrongRumor">Strong Rumor</mat-checkbox>
+            <mat-checkbox formControlName="showTemporarilyClosed">Temporarily Closed</mat-checkbox>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Banner
+            </mat-panel-title>
+            <mat-panel-description>
+              {{getActiveBannerName() || 'Any Banner'}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="meta-data">
+            <div (click)="selectBanner()" class="add-banner-button"><i class="fas fa-plus-circle"></i>&nbsp;Add Banner
+            </div>
+            <div *ngFor="let banner of getActiveBanners()">
+              <span (click)="selectBanner(banner)">{{banner.bannerName}}</span>
+              <img #image (click)="selectBanner(banner)" class="banner-logo" [title]="getActiveBannerName()"
+                [src]="getBannerImageSrc(banner)" (error)="image.hidden = true" />
+              <i class="fas fa-times-circle" (click)="clearBanner(banner)"></i>
+            </div>
+          </div>
+
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Assignment
+            </mat-panel-title>
+            <mat-panel-description>
+              {{getActiveAssignmentName() || 'Any User'}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="meta-data">
+            <span (click)="selectAssignment()" style="text-align: center; width: 100%; cursor: pointer;"
+              *ngIf="!getActiveAssignmentName()">Select User</span>
+            <span (click)="selectAssignment()"
+              *ngIf="getActiveAssignmentName()">{{getActiveAssignmentName()}}</span>&nbsp;
+            <i *ngIf="getActiveAssignmentName()" class="fas fa-times-circle" (click)="clearAssignment()"></i>
+          </div>
+        </mat-expansion-panel>
+
+
+
+        <h2 class="accordion-header-text" mat-subheader>Controls</h2>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Marker Type
+            </mat-panel-title>
+            <mat-panel-description>
+              {{getActiveMarkerTypeName()}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <mat-form-field class="control-selector" floatLabel="never">
+            <mat-select formControlName="markerType">
+              <mat-option *ngFor="let markerType of dbEntityMarkerService.markerTypeOptions" [value]="markerType">
+                {{markerType}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Map Options
+            </mat-panel-title>
+            <mat-panel-description>
+              {{getActiveControlNames()}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div>
+            <div class="checklist">
+              <mat-checkbox formControlName="updateOnBoundsChange">Update as Map Moves</mat-checkbox>
+              <mat-checkbox formControlName="cluster">Cluster Stores</mat-checkbox>
+            </div>
+            <div *ngIf="dbEntityMarkerService.controls.get('cluster').value">
+              <h3 mat-subheader>Cluster when zoom <=
+                  {{dbEntityMarkerService.controls.get('clusterZoomLevel').value}}</h3> <mat-slider [max]="21" [min]="0"
+                  [thumbLabel]="true" formControlName="clusterZoomLevel">
+                  </mat-slider>
+            </div>
+            <mat-divider></mat-divider>
+            <div>
+              <h3 mat-subheader>Pull when zoom >= {{dbEntityMarkerService.controls.get('minPullZoomLevel').value}}
+              </h3>
+              <mat-slider [max]="21" [min]="7" [thumbLabel]="true" formControlName="minPullZoomLevel"></mat-slider>
+            </div>
+            <mat-divider></mat-divider>
+            <div>
+              <h3 mat-subheader>Full Label when zoom >=
+                {{dbEntityMarkerService.controls.get('fullLabelMinZoomLevel').value}}</h3>
+              <mat-slider [max]="21" [min]="0" [thumbLabel]="true" formControlName="fullLabelMinZoomLevel">
+              </mat-slider>
+            </div>
+            <mat-divider></mat-divider>
+            <h3 mat-subheader>(Current Zoom: {{mapService.getZoom()}})</h3>
+          </div>
+        </mat-expansion-panel>
+
+
+      </mat-accordion>
+      <!-- <mat-divider></mat-divider> -->
+
+      <!-- <h3 mat-subheader id="dataset-header">Dataset <i title="View List of Stores"
           (click)="openSidenavDirectlyToSelectedListStores(datasetSelect.selected.value)"
           class="fas fa-list-alt fa-2x"></i></h3>
       <mat-form-field class="control-selector">
@@ -22,9 +189,9 @@
             {{option.storeListName}} ({{option.storeCount | number}})
           </mat-option>
         </mat-select>
-      </mat-form-field>
+      </mat-form-field> -->
 
-      <mat-divider></mat-divider>
+      <!-- <mat-divider></mat-divider>
 
       <h3 mat-subheader>Marker Type</h3>
       <mat-form-field class="control-selector" floatLabel="never">
@@ -33,9 +200,9 @@
             {{markerType}}
           </mat-option>
         </mat-select>
-      </mat-form-field>
+      </mat-form-field> -->
 
-      <mat-divider></mat-divider>
+      <!-- <mat-divider></mat-divider>
 
       <h3 mat-subheader>Controls</h3>
       <div>
@@ -61,7 +228,7 @@
         </div>
         <mat-divider></mat-divider>
         <h3 mat-subheader>(Current Zoom: {{mapService.getZoom()}})</h3>
-      </div>
+      </div> -->
     </mat-list>
   </mat-sidenav>
   <mat-sidenav-content>

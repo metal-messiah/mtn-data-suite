@@ -35,15 +35,15 @@ export class StorageService {
     return from(this.storage.clear());
   }
 
-  export(key: string, isJson: boolean, child?: string): Observable<void> {
-    return this.getOne(key).pipe(map((item) => {
+  export(key: string, isJson: boolean, fileName?: string, child?: string): void {
+    this.getOne(key).subscribe((item) => {
       let obj = child ? item[child] : item;
-      const name = obj.name ? obj.name : 'storage_item';
+      const name = fileName ? fileName : obj.name ? obj.name : 'storage_item';
       if (isJson) {
         obj = JSON.stringify(obj);
       }
       saveAs(new Blob([obj]), `${name}.json`);
-    }));
+    });
   }
 
   import(key: string, data: any, isJson: boolean, child?: any): Observable<void> {

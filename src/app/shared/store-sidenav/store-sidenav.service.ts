@@ -86,8 +86,6 @@ export class StoreSidenavService {
 
   subscriptions = [];
 
-  emptyMappings = {};
-
   loadingConstraint = 20;
   renderer = [];
 
@@ -146,6 +144,20 @@ export class StoreSidenavService {
 
   ////// ITEMS /////
 
+  private cleanSiteMarkerStores(marker) {
+    // if (!this.dbEntityMarkerService.controls.get('showActive').value) {
+    //   marker['site'].stores = marker['site'].stores.filter(s => s.storeType !== 'ACTIVE');
+    // }
+    // if (!this.dbEntityMarkerService.controls.get('showHistorical').value) {
+    //   marker['site'].stores = marker['site'].stores.filter(s => s.storeType !== 'HISTORICAL');
+    // }
+    // if (!this.dbEntityMarkerService.controls.get('showFuture').value) {
+    //   marker['site'].stores = marker['site'].stores.filter(s => s.storeType !== 'FUTURE');
+    // }
+
+    return marker;
+  }
+
   updateItems(visibleMarkers: google.maps.Marker[]) {
     // drop items that aren't in the visible marker set, no reason to store them, and no reason to drop them all and build from scratch
     this.items = this.items.filter(item => visibleMarkers.map(m => m['site'].id).includes(item.id));
@@ -154,7 +166,6 @@ export class StoreSidenavService {
     visibleMarkers = visibleMarkers.filter(m => !this.items.map(i => i.id).includes(m['site'].id));
 
     if (visibleMarkers.length) {
-
       // Sort site's stores by type (Active, Future, Historical), then add the site marker to items
       visibleMarkers.forEach(m => {
         m['site']['stores'].sort((storeA, storeB) => storeA.storeType.localeCompare(storeB.storeType));
@@ -176,17 +187,14 @@ export class StoreSidenavService {
           // Loop through stores array and check if NONE of them are active, but they want to see active AND empty
           this.items.forEach(item => {
             const active = item.stores.filter(store => store.storeType === 'ACTIVE');
-            const shouldShowActive = this.dbEntityMarkerService.controls.get('showActive').value;
             const shouldShowEmpty = this.dbEntityMarkerService.controls.get('showEmptySites').value;
-            if (active.length === 0 && shouldShowActive && shouldShowEmpty && !this.emptyMappings[item.id]) {
-              const psuedoId = this.emptyMappings[item.id] ? this.emptyMappings[item.id] : Math.round(Math.random() * 10000000);
+            if (active.length === 0 && shouldShowEmpty && !item.stores.filter(s => s.storeName === 'EMPTY SITE' && s.id === null).length) {
+              const psuedoId = Math.round(Math.random() * 10000000);
               item.stores.push(new StoreMarker({
-                id: psuedoId,
+                // id: psuedoId,
                 storeName: 'EMPTY SITE',
                 isEmpty: true
               }));
-
-              this.emptyMappings[item.id] = this.emptyMappings[item.id] ? this.emptyMappings[item.id] : psuedoId;
             }
           });
 
@@ -195,6 +203,16 @@ export class StoreSidenavService {
           this.setRenderer();
         })
     } else {
+      this.items.forEach(item => {
+        item.stores = item.stores.map(store => {
+          if (!this.dbEntityMarkerService.controls.get('showEmptySites').value && store.isEmpty) {
+            store.hidden = true;
+          } else {
+            store.hidden = !this.dbEntityMarkerService.includeStore(store, item)
+          }
+          return store;
+        })
+      })
       this.setRenderer();
     }
   }
@@ -262,7 +280,7 @@ export class StoreSidenavService {
         items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort ALPHABETICALLY by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
           const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-          return storeA.storeName.localeCompare(storeB.storeName);
+          return storeA && storeB ? storeA.storeName.localeCompare(storeB.storeName) : 0;
         });
         break;
       case SortType.ASSIGNEE_NAME:
@@ -311,14 +329,14 @@ export class StoreSidenavService {
         items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort STORE TYPE by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
           const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-          return storeA.storeType.localeCompare(storeB.storeType);
+          return storeA && storeB ? storeA.storeType.localeCompare(storeB.storeType) : 0;
         });
         break;
       case SortType.VALIDATED_DATE:
         items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
           // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
           const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
-          return storeA.validatedDate.getTime() - storeB.validatedDate.getTime();
+          return storeA && storeB ? storeA.validatedDate.getTime() - storeB.validatedDate.getTime() : 0;
         });
         break;
     }

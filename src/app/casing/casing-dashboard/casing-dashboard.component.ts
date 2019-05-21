@@ -60,6 +60,15 @@ import {
   AddRemoveStoresListDialogComponent,
   AddRemoveType
 } from 'app/shared/add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
+import { StoreStatusOptions } from 'app/core/functionalEnums/StoreStatusOptions';
+import { ConfirmDialogComponent } from 'app/shared/confirm-dialog/confirm-dialog.component';
+import { SelectBannerComponent } from '../select-banner/select-banner.component';
+import { BannerService } from 'app/core/services/banner.service';
+import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
+import { TextInputDialogComponent } from 'app/shared/text-input-dialog/text-input-dialog.component';
+import { FileInputComponent } from 'app/shared/file-input/file-input.component';
+import { ControlStorageKeys, Control } from 'app/models/control';
+import { StoredControlsSelectionDialogComponent } from 'app/shared/stored-controls-selection-dialog/stored-controls-selection-dialog.component';
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -125,6 +134,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     private siteService: SiteService,
     private storeService: StoreService,
     private projectService: ProjectService,
+    private bannerService: BannerService,
     private snackBar: MatSnackBar,
     private ngZone: NgZone,
     private route: ActivatedRoute,
@@ -755,4 +765,167 @@ Geo-location
       this.storeListOptions = [this.dbEntityMarkerService.allStoresOption].concat(storeLists);
     });
   }
+
+  resetFilters() {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Reset All Filters',
+        question: `Reset All Filters and Options to Default Values?`,
+        options: ['Confirm']
+      }
+    });
+    dialogRef.afterClosed().subscribe((result: string) => {
+      if (result === 'Confirm') {
+        this.dbEntityMarkerService.setAllControls(null);
+      }
+    });
+  }
+
+  getActiveTypeNames() {
+    const { showActive,
+      showHistorical,
+      showFuture,
+      showEmptySites,
+      showSitesBackfilledByNonGrocery,
+      showFloat } = this.dbEntityMarkerService.controls.controls;
+
+    const labels = [
+      showActive.value ? 'Active' : '',
+      showHistorical.value ? 'Historical' : '',
+      showFuture.value ? 'Future' : '',
+      showEmptySites.value ? 'Empty Sites' : '',
+      showSitesBackfilledByNonGrocery.value ? 'Backfilled' : '',
+      showFloat.value ? 'Float' : ''
+    ];
+
+    return labels.filter(l => l).join(', ') || 'Exclude All Types';
+  }
+
+  getActiveDatasetName() {
+    return this.dbEntityMarkerService.controls.get('dataset').value.storeListName;
+  }
+
+  getActiveMarkerTypeName() {
+    return this.dbEntityMarkerService.controls.get('markerType').value;
+  }
+
+  getActiveControlNames() {
+    const {
+      updateOnBoundsChange,
+      cluster,
+      fullLabelMinZoomLevel
+    } = this.dbEntityMarkerService.controls.controls;
+
+    const labels = [
+      updateOnBoundsChange.value ? `Updating` : `NOT Updating`,
+      cluster.value ? `Clustering` : '',
+      fullLabelMinZoomLevel.value <= this.mapService.getZoom() ? `Labeling` : ''
+    ];
+
+    return labels.filter(l => l).join(', ');
+  }
+
+  getActiveStatusNames() {
+    const {
+      showClosed, showDeadDeal, showNewUnderConstruction, showOpen, showPlanned,
+      showProposed, showRemodel, showRumored, showStrongRumor, showTemporarilyClosed
+    } = this.dbEntityMarkerService.controls.controls;
+
+    const labels = [
+      showClosed.value ? StoreStatusOptions.CLOSED : '',
+      showDeadDeal.value ? StoreStatusOptions.DEAD_DEAL : '',
+      showNewUnderConstruction.value ? StoreStatusOptions.NEW_UNDER_CONSTRUCTION : '',
+      showOpen.value ? StoreStatusOptions.OPEN : '',
+      showPlanned.value ? StoreStatusOptions.PLANNED : '',
+      showProposed.value ? StoreStatusOptions.PROPOSED : '',
+      showRemodel.value ? StoreStatusOptions.REMODEL : '',
+      showRumored.value ? StoreStatusOptions.RUMORED : '',
+      showStrongRumor.value ? StoreStatusOptions.STRONG_RUMOR : '',
+      showTemporarilyClosed.value ? StoreStatusOptions.TEMPORARILY_CLOSED : ''
+    ];
+
+    return labels.filter(l => l).join(', ') || 'Exclude All Statuses';
+  }
+
+  getActiveBannerName() {
+    const { banner } = this.dbEntityMarkerService.controls.controls;
+    return banner.value && banner.value.length ? banner.value.map(b => b.bannerName).join(', ') : null;
+  }
+
+  getActiveAssignmentName() {
+    const { assignment } = this.dbEntityMarkerService.controls.controls;
+    return assignment.value ? `${assignment.value.firstName} ${assignment.value.lastName}` : null;
+  }
+
+  getActiveBanners(): SimplifiedBanner[] {
+    return this.dbEntityMarkerService.controls.get('banner').value;
+  }
+
+  selectBanner(banner?: SimplifiedBanner) {
+    const config = { data: { remove: false }, maxWidth: '90%' };
+    const dialog = this.dialog.open(SelectBannerComponent, config);
+    dialog.afterClosed().subscribe((result) => {
+      const activeBanners: SimplifiedBanner[] = this.getActiveBanners() || [];
+      if (result && result.bannerName) {
+        if (banner) {
+          const idx = activeBanners.findIndex(b => b.id === banner.id);
+          activeBanners[idx] = result;
+        } else {
+          activeBanners.push(result);
+        }
+        this.dbEntityMarkerService.controls.get('banner').setValue(activeBanners);
+      }
+    });
+  }
+
+  getBannerImageSrc(banner: SimplifiedBanner) {
+    return banner ? this.bannerService.getBannerImageSrc(banner) : null;
+  }
+
+  clearBanner(banner: SimplifiedBanner) {
+    const activeBanners = this.getActiveBanners().filter(b => b.id !== banner.id);
+    this.dbEntityMarkerService.controls.get('banner').setValue(activeBanners);
+  }
+
+  selectAssignment() {
+    this.dialog.open(UserProfileSelectComponent).afterClosed()
+      .subscribe(user => {
+        if (user != null) {
+          this.dbEntityMarkerService.controls.get('assignment').setValue(user);
+        }
+      });
+  }
+
+  clearAssignment() {
+    this.dbEntityMarkerService.controls.get('assignment').setValue(null);
+  }
+
+  saveFilter() {
+    const dialogRef = this.dialog.open(TextInputDialogComponent, { data: { title: 'Filter Name', placeholder: 'Filter Name' } });
+    dialogRef.afterClosed().subscribe(async (name: string) => {
+      if (name) {
+
+        let savedControls = await this.storageService.getOne(ControlStorageKeys.savedDbEntityMarkerServiceControls).toPromise();
+        const activeControl = this.dbEntityMarkerService.controls.value;
+        if (!savedControls) {
+          savedControls = {};
+        }
+        savedControls[name] = new Control(name, new Date(), activeControl);
+
+        this.dbEntityMarkerService.saveControlsToStorage(savedControls);
+      }
+    })
+  }
+
+  loadFilter(event) {
+    const dialogRef = this.dialog.open(StoredControlsSelectionDialogComponent);
+    dialogRef.afterClosed().subscribe((control: Control) => {
+      if (control) {
+        this.dbEntityMarkerService.loadControlsFromJson(control.control);
+      }
+    })
+  }
+
+
+
 }

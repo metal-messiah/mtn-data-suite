@@ -102,6 +102,10 @@ export class StoresListComponent implements OnInit, OnDestroy {
     this.storeSidenavService.showOnMap(site);
   }
 
+  getValidStores(item) {
+    return item.stores.filter(store => !store.hidden);
+  }
+
   private scrollToElem(id) {
     const elem = document.getElementById(`${id}`);
     if (elem) {
