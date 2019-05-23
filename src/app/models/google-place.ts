@@ -4,6 +4,7 @@ import PlaceResult = google.maps.places.PlaceResult;
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { Color } from '../core/functionalEnums/Color';
 import MarkerLabel = google.maps.MarkerLabel;
+import * as MarkerWithLabel from '@google/markerwithlabel';
 
 export class GooglePlace implements PlaceResult, Mappable {
 
@@ -31,6 +32,13 @@ export class GooglePlace implements PlaceResult, Mappable {
   website: string;
   aspects: google.maps.places.PlaceAspectRating[];
 
+  options = {
+    icon: '/assets/images/google-g-map-icon.png',
+    labelAnchor: new google.maps.Point(0, 0),
+    labelClass: 'google-places-marker-label',
+    labelInBackground: false
+  };
+
   constructor(obj) {
     Object.assign(this, obj);
     this.id = this.place_id;
@@ -39,6 +47,11 @@ export class GooglePlace implements PlaceResult, Mappable {
   getCoordinates(): Coordinates {
     return this.geometry.location.toJSON();
   };
+
+  getOptions() {
+    const label = { labelContent: this.name }
+    return Object.assign({}, this.options, label);
+  }
 
   getIcon(markerType?: MarkerType): (string | google.maps.Icon | google.maps.Symbol) {
     // Use default google marker

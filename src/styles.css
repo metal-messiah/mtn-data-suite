@@ -109,7 +109,8 @@ fieldset {
 
 .db-marker-full-label-active,
 .db-marker-full-label-historical,
-.db-marker-full-label-future {
+.db-marker-full-label-future,
+.google-places-marker-label {
   padding: 2px 5px;
   border-radius: 5px;
   background: #ffffffb0;
@@ -121,7 +122,8 @@ fieldset {
 
 .db-marker-full-label-active,
 .db-marker-image-label-active,
-.db-marker-image-label-active-selected {
+.db-marker-image-label-active-selected,
+.google-places-marker-label {
   -webkit-transform: translateX(-50%);
 }
 

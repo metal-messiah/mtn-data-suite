@@ -534,9 +534,19 @@ Multi-select
 
   getGoogleLocationsInView(query: string, bounds?: any) {
     this.mapService.searchFor(query, bounds).subscribe((searchResults: GooglePlace[]) => {
-      this.ngZone.run(() => {
-        this.googlePlacesLayer.setGooglePlaces(searchResults);
-      });
+      if (searchResults.length) {
+        this.ngZone.run(() => {
+          this.googlePlacesLayer.setGooglePlaces(searchResults);
+        });
+      } else {
+        const message = `No Google results found for '${query}'`;
+        this.snackBar.open(message, null, { duration: 2000 });
+      }
+    }, err => {
+      if (err === 'ZERO_RESULTS') {
+        const message = `No Google results found for '${query}'`;
+        this.snackBar.open(message, null, { duration: 2000 });
+      }
     });
   }
 

@@ -2,33 +2,25 @@ import { Component, NgZone, ViewChild, OnInit, AfterViewInit } from '@angular/co
 import { MatDialogRef } from '@angular/material';
 import { GooglePlace } from '../../models/google-place';
 import { MapService } from '../../core/services/map.service';
-import { finalize } from 'rxjs/operators';
+
 
 @Component({
   selector: 'mds-search',
   templateUrl: './google-search.component.html',
   styleUrls: ['./google-search.component.css']
 })
-export class GoogleSearchComponent implements OnInit, AfterViewInit {
+export class GoogleSearchComponent implements AfterViewInit {
 
-  places: GooglePlace[];
   searchQuery = '';
-  searchError;
-  searching = false;
-  limitToView = false;
+  autocomplete: google.maps.places.Autocomplete;
+  autocompleteResult: google.maps.places.PlaceResult = null;
+  autocompleteValidate = '';
 
   @ViewChild('searchInput') searchInput: any;
-  autocomplete: google.maps.places.Autocomplete;
 
   constructor(public dialogRef: MatDialogRef<GoogleSearchComponent>,
     private mapService: MapService,
-    private ngZone: NgZone) {
-
-  }
-
-  ngOnInit() {
-
-  }
+    private ngZone: NgZone) { }
 
   ngAfterViewInit() {
     this.initAutocomplete();
@@ -40,31 +32,55 @@ export class GoogleSearchComponent implements OnInit, AfterViewInit {
       types: []  // all search types
     });
     this.autocomplete.bindTo('bounds', this.mapService.getMap());
+    this.autocomplete.addListener('place_changed', () => {
+      this.autocompleteResult = new GooglePlace(this.autocomplete.getPlace());
+      this.autocompleteValidate = this.searchQuery; // for checking if input has changed vs autocomplete
+
+      // google autocomplete selection event doesnt re-paint the DOM, force it here...
+      this.ngZone.run(() => { })
+    })
+  }
+
+  validate() {
+    if (this.autocompleteResult && this.autocompleteValidate && this.autocompleteValidate !== this.searchQuery) {
+      // search query must have changed since the time we set the placeResult!!!
+      this.autocompleteResult = null;
+      this.autocompleteValidate = '';
+    }
+  }
+
+  isValidSearch() {
+    return this.searchQuery !== '' && this.searchQuery.length >= 3
+  }
+
+  getSubmitButtonText() {
+    return this.isValidSearch() ?
+      this.autocompleteValidate !== '' ? 'Go to Exact Match' : 'Show All Matches As I Navigate' :
+      'Invalid Search Terms';
+  }
+
+  getBadge(): string {
+    return this.isValidSearch() ? this.autocompleteValidate !== '' ? '1' : '∞' : null;
+  }
+
+  getBadgeColor() {
+    return this.isValidSearch() ? 'accent' : 'warn'
   }
 
   closeDialog() {
     this.dialogRef.close();
   }
 
-  search() {
-    this.places = [];
-    this.searchError = null;
-    this.searching = true;
-    this.mapService.searchFor(this.searchQuery, this.limitToView ? this.mapService.getBounds() : null)
-      .pipe(finalize(() => this.searching = false))
-      .subscribe((searchResults: GooglePlace[]) => {
-        this.ngZone.run(() => this.places = searchResults);
-      }, (error) => this.searchError = error);
-  }
-
-  goToStore(place: GooglePlace) {
-    this.dialogRef.close({ place: place });
-  }
-
-  searchWithMap() {
-    this.dialogRef.close({
-      query: this.searchQuery
-    });
+  submit() {
+    if (this.autocompleteResult) {
+      this.dialogRef.close({
+        place: this.autocompleteResult
+      })
+    } else {
+      this.dialogRef.close({
+        query: this.searchQuery
+      });
+    }
   }
 
 }
