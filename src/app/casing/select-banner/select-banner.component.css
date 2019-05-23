@@ -95,3 +95,8 @@ mat-list-item img {
   cursor: pointer;
   background: #efefef;
 }
+
+.company-name{
+  font-size: small !important;
+  max-width: 95%;
+}
