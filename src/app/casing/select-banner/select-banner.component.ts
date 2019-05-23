@@ -76,6 +76,10 @@ export class SelectBannerComponent implements OnInit {
     return this.bannerService.getBannerImageSrc(banner);
   }
 
+  getBannerCompanyName(banner: SimplifiedBanner): string {
+    return banner.companyName !== banner.bannerName ? banner.companyName : ''
+  }
+
   getBannerParentCompanyName(banner: SimplifiedBanner): string {
     return banner.companyName !== banner.parentCompanyName ? banner.parentCompanyName : ''
   }
@@ -83,5 +87,4 @@ export class SelectBannerComponent implements OnInit {
   selectBanner(banner: SimplifiedBanner) {
     this.dialogRef.close(banner);
   }
-
 }

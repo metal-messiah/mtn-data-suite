@@ -20,12 +20,13 @@
           <mat-list-item (click)="selectBanner(banner)" class="banner-list-item">
             <img *ngIf="banner.logoFileName" [src]="getBannerImageSrc(banner)" [alt]="banner.bannerName">
             <h3 matLine>{{banner.bannerName}}</h3>
-            <span title="Company" class="company-name" matLine>
-              {{banner.companyName}}
+            <span *ngIf="getBannerCompanyName(banner)" title="Company" class="company-name" matLine>
+              <i class="fas fa-level-up-alt fa-rotate-90"
+                style="padding: 0 5px;"></i>&nbsp;{{getBannerCompanyName(banner)}}
             </span>
             <span title="Parent Company" class="company-name" *ngIf="getBannerParentCompanyName(banner)" matLine>
               <i class="fas fa-level-up-alt fa-rotate-90"
-                style="padding: 0 5px;"></i>&nbsp;{{getBannerParentCompanyName(banner)}}
+                style="padding: 0 5px; margin-left: 20px;"></i>&nbsp;{{getBannerParentCompanyName(banner)}}
             </span>
           </mat-list-item>
           <mat-divider></mat-divider>
