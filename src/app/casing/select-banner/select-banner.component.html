@@ -21,7 +21,7 @@
             <img *ngIf="banner.logoFileName" [src]="getBannerImageSrc(banner)" [alt]="banner.bannerName">
             <h3 matLine>{{banner.bannerName}}</h3>
             <span title="Company" class="company-name" matLine>
-              {{getBannerCompanyName(banner)}}
+              {{banner.companyName}}
             </span>
             <span title="Parent Company" class="company-name" *ngIf="getBannerParentCompanyName(banner)" matLine>
               <i class="fas fa-level-up-alt fa-rotate-90"

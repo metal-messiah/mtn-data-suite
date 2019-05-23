@@ -4,10 +4,8 @@ import { ErrorService } from '../../core/services/error.service';
 import { fromEvent } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, map, switchMap } from 'rxjs/operators';
 import { Pageable } from '../../models/pageable';
-import { Banner } from '../../models/full/banner';
 import { BannerService } from '../../core/services/banner.service';
 import { CompanyService } from 'app/core/services/company.service';
-import { SimplifiedCompany } from 'app/models/simplified/simplified-company';
 import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
 
 @Component({
@@ -23,7 +21,6 @@ export class SelectBannerComponent implements OnInit {
   bannerQuery: string;
 
   loading = false;
-
   remove = true;
 
   @ViewChild('bannerSearchBox') bannerSearchBoxElement: ElementRef;
@@ -75,19 +72,15 @@ export class SelectBannerComponent implements OnInit {
     this.pageNumber = pageable.number;
   }
 
-  getBannerImageSrc(banner) {
+  getBannerImageSrc(banner: SimplifiedBanner) {
     return this.bannerService.getBannerImageSrc(banner);
-  }
-
-  getBannerCompanyName(banner: SimplifiedBanner): string {
-    return banner.companyName;
   }
 
   getBannerParentCompanyName(banner: SimplifiedBanner): string {
     return banner.companyName !== banner.parentCompanyName ? banner.parentCompanyName : ''
   }
 
-  selectBanner(banner: Banner) {
+  selectBanner(banner: SimplifiedBanner) {
     this.dialogRef.close(banner);
   }
 
