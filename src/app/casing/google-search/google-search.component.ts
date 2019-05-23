@@ -33,11 +33,14 @@ export class GoogleSearchComponent implements AfterViewInit {
     });
     this.autocomplete.bindTo('bounds', this.mapService.getMap());
     this.autocomplete.addListener('place_changed', () => {
-      this.autocompleteResult = new GooglePlace(this.autocomplete.getPlace());
-      this.autocompleteValidate = this.searchQuery; // for checking if input has changed vs autocomplete
+      const place = this.autocomplete.getPlace();
+      if (place.address_components != null && place.address_components.length) {
+        this.autocompleteResult = new GooglePlace(place);
+        this.autocompleteValidate = this.searchQuery; // for checking if input has changed vs autocomplete
 
-      // google autocomplete selection event doesnt re-paint the DOM, force it here...
-      this.ngZone.run(() => { })
+        // google autocomplete selection event doesnt re-paint the DOM, force it here...
+        this.ngZone.run(() => { });
+      }
     })
   }
 
@@ -64,7 +67,7 @@ export class GoogleSearchComponent implements AfterViewInit {
   }
 
   getBadgeColor() {
-    return this.isValidSearch() ? 'accent' : 'warn'
+    return this.isValidSearch() ? 'accent' : 'warn';
   }
 
   closeDialog() {

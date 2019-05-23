@@ -559,6 +559,14 @@ Multi-select
     this.googlePlacesLayer = null;
   }
 
+  countSearchPoints(): string {
+    if (this.googlePlacesLayer) {
+      const markerCount = this.googlePlacesLayer.getMarkersCount();
+      return markerCount ? markerCount.toLocaleString() : null;
+    }
+    return null;
+  }
+
   openLatLngSearch() {
     const latLngSearchDialog = this.dialog.open(LatLngSearchComponent);
     latLngSearchDialog.afterClosed().subscribe((coordinates: Coordinates) => {

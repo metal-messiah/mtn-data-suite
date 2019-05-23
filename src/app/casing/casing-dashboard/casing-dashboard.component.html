@@ -337,7 +337,8 @@
           <button mat-mini-fab color="primary" [mat-menu-trigger-for]="moreMenu">
             <i class="fas fa-ellipsis-v"></i>
           </button>
-          <button mat-mini-fab color="primary" [mat-menu-trigger-for]="searchMenu">
+          <button [matBadge]="countSearchPoints()" matBadgeColor="accent" mat-mini-fab color="primary"
+            [mat-menu-trigger-for]="searchMenu">
             <i class="fas fa-search"></i>
           </button>
           <button mat-mini-fab color="primary" (click)="filterSideNavIsOpen = !filterSideNavIsOpen">
@@ -405,10 +406,12 @@
     <i class="fas fa-crosshairs"></i>&nbsp;Lat/Lng
   </button>
   <button mat-menu-item (click)="openGoogleSearch()">
-    <i class="fab fa-google"></i>&nbsp;Google
+    <i class="fab fa-google"></i>
+    <span style="padding-right: 10px;" [matBadge]="countSearchPoints()" matBadgeColor="accent">&nbsp;Google
+    </span>
   </button>
   <button mat-menu-item (click)="clearGoogleSearch()" *ngIf="googlePlacesLayer != null">
-    <i class="fas ban"></i>&nbsp;Clear Google Search
+    <i class="fas fa-ban"></i>&nbsp;Clear Google Search
   </button>
 </mat-menu>
 

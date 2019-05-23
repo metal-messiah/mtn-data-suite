@@ -50,6 +50,10 @@ export class MapPointLayer<T extends Mappable> {
     }
   }
 
+  getMarkersCount(): number {
+    return this.markers.length;
+  }
+
   refreshOptions(): void {
     this.markers.forEach((marker) => this.setMarkerOptions(marker));
   }
