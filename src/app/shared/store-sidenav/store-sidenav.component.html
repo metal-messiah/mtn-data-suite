@@ -12,10 +12,7 @@
     <i (click)="selectAllVisible()" title="Select All"
       class="fas fa-check-square fa-2x select-all-button top-right-button" *ngIf="expanded && isMultiSelect()">
     </i>
-    <h1 mat-dialog-title> Visible Stores
-      <span *ngIf="!fetching">
-        ({{visibleStores | number}})
-      </span>
+    <h1 mat-dialog-title>Stores
       <span *ngIf="fetching">
         <i class="fas fa-spinner fa-pulse" aria-hidden="true"> </i>
       </span>

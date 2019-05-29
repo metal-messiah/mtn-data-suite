@@ -67,7 +67,7 @@ export class SiteService extends CrudService<Site> {
       .pipe(map(s => new Site(s)));
   }
 
-  getFormattedIntersection(site: Site | SimplifiedSite): string {
+  getFormattedIntersection(site): string {
     let intersection = '';
     if (site.quad !== null) {
       intersection += site.quad;
@@ -87,7 +87,7 @@ export class SiteService extends CrudService<Site> {
     return intersection;
   }
 
-  getFormattedPrincipality(site: Site | SimplifiedSite): string {
+  getFormattedPrincipality(site): string {
     let principality = '';
     if (site.city !== null) {
       principality += site.city;

@@ -42,8 +42,6 @@ export class StorelistStoresListComponent implements OnInit {
       this.storeSidenavService.sortItems(this.items);
       this.setRenderer();
     });
-
-    this.storeSidenavService.scrollToMapSelectionId$.subscribe((id: number) => this.scrollToElem(id));
   }
 
   get fetching() {

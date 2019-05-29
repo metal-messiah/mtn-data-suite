@@ -38,7 +38,7 @@ import { InfoCardComponent } from './info-card/info-card.component';
 import { DbLocationInfoCardComponent } from '../shared/db-location-info-card/db-location-info-card.component';
 import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-card.component';
 import { StorageService } from 'app/core/services/storage.service';
-
+import { DbEntityControlsComponent } from './casing-dashboard/db-entity-controls/db-entity-controls.component';
 
 @NgModule({
   imports: [
@@ -78,7 +78,8 @@ import { StorageService } from 'app/core/services/storage.service';
     StoreAttrSelectionDialogComponent,
     SelectBannerComponent,
     InfoCardDirective,
-    InfoCardComponent
+    InfoCardComponent,
+    DbEntityControlsComponent
   ],
   entryComponents: [
     AccessListDialogComponent,

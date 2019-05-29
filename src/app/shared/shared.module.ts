@@ -34,6 +34,7 @@ import { StoreSidenavService } from './store-sidenav/store-sidenav.service';
 import { AddRemoveStoresListDialogComponent } from './add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
 import { TextInputDialogComponent } from './text-input-dialog/text-input-dialog.component';
 import { StoredControlsSelectionDialogComponent } from './stored-controls-selection-dialog/stored-controls-selection-dialog.component';
+import { SimpleSelectDialogComponent } from './simple-select-dialog/simple-select-dialog.component';
 
 @NgModule({
   imports: [
@@ -71,7 +72,8 @@ import { StoredControlsSelectionDialogComponent } from './stored-controls-select
     StoreSidenavComponent,
     AddRemoveStoresListDialogComponent,
     TextInputDialogComponent,
-    StoredControlsSelectionDialogComponent
+    StoredControlsSelectionDialogComponent,
+    SimpleSelectDialogComponent
   ],
   providers: [
     BreakpointObserver,
@@ -91,7 +93,8 @@ import { StoredControlsSelectionDialogComponent } from './stored-controls-select
     UserProfileSelectComponent,
     AddRemoveStoresListDialogComponent,
     TextInputDialogComponent,
-    StoredControlsSelectionDialogComponent
+    StoredControlsSelectionDialogComponent,
+    SimpleSelectDialogComponent
   ],
   exports: [
     CallbackComponent,

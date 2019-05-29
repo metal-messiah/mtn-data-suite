@@ -3,18 +3,16 @@ import { Pages } from './store-sidenav-pages';
 import { StorageService } from 'app/core/services/storage.service';
 import { SiteMarker } from 'app/models/site-marker';
 import { DbEntityMarkerService } from 'app/core/services/db-entity-marker.service';
-
-import * as _ from 'lodash';
 import { SiteService } from 'app/core/services/site.service';
 import { StoreMarker } from 'app/models/store-marker';
 import { StoreService } from 'app/core/services/store.service';
 import { MapService } from 'app/core/services/map.service';
 import { Store } from 'app/models/full/store';
 import { SimplifiedSite } from 'app/models/simplified/simplified-site';
-import { forkJoin, Subject } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { CasingDashboardService } from 'app/casing/casing-dashboard/casing-dashboard.service';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
-import { finalize, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Coordinates } from '../../models/coordinates';
 
 
@@ -35,20 +33,16 @@ export enum SortDirection {
   DESC
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class StoreSidenavService {
 
-  private items: SiteMarker[] = [];
+  siteMarkers: SiteMarker[] = [];
 
   private mapSelections = {
     selectedSiteIds: new Set(),
     selectedStoreIds: new Set(),
     scrollTo: 0
   };
-
-  scrollToMapSelectionId$ = new Subject<number>();
 
   pages = Pages;
   currentPage: Pages = null;
@@ -84,10 +78,8 @@ export class StoreSidenavService {
     }
   ];
 
-  subscriptions = [];
-
-  loadingConstraint = 20;
-  renderer = [];
+  private readonly LOADING_CONSTRAINT = 20;
+  renderer: SiteMarker[] = [];
 
   constructor(
     private storageService: StorageService,
@@ -97,33 +89,12 @@ export class StoreSidenavService {
     private mapService: MapService,
     private casingDashboardService: CasingDashboardService
   ) {
-
     this.getSettings();
-
-    this.updateItems(this.dbEntityMarkerService.getVisibleMarkers());
-
-    if (!this.subscriptions.length) {
-      this.subscriptions.push(
-        this.dbEntityMarkerService.visibleMarkersChanged$.subscribe((visibleMarkers: google.maps.Marker[]) => {
-          this.updateItems(visibleMarkers)
-        })
-      );
-
-      this.subscriptions.push(
-        this.dbEntityMarkerService.selectionSet$
-          .subscribe((selectionSet: { selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number }) => {
-            this.mapSelections = selectionSet;
-            if (this.mapSelections.scrollTo) {
-              this.scrollToMapSelectionId$.next(this.mapSelections.scrollTo);
-            }
-          })
-      )
-    }
   }
 
   getSettings() {
-    this.storageService.getOne(this.sidenavPageStorageKey).subscribe((currentPage) => {
-      if (currentPage !== undefined) {
+    this.storageService.getOne(this.sidenavPageStorageKey).subscribe(currentPage => {
+      if (currentPage) {
         this.currentPage = currentPage;
       }
     });
@@ -144,82 +115,29 @@ export class StoreSidenavService {
 
   ////// ITEMS /////
 
-  private cleanSiteMarkerStores(marker) {
-    // if (!this.dbEntityMarkerService.controls.get('showActive').value) {
-    //   marker['site'].stores = marker['site'].stores.filter(s => s.storeType !== 'ACTIVE');
-    // }
-    // if (!this.dbEntityMarkerService.controls.get('showHistorical').value) {
-    //   marker['site'].stores = marker['site'].stores.filter(s => s.storeType !== 'HISTORICAL');
-    // }
-    // if (!this.dbEntityMarkerService.controls.get('showFuture').value) {
-    //   marker['site'].stores = marker['site'].stores.filter(s => s.storeType !== 'FUTURE');
-    // }
+  updateItems(siteMarkers: SiteMarker[]) {
 
-    return marker;
+    this.siteMarkers = siteMarkers;
+    // Hide stores based on Controls
+    this.siteMarkers.forEach(site => {
+      site.stores.forEach(store => store.hidden = !this.dbEntityMarkerService.includeStore(store, site));
+    });
+
+    this.sortItems(this.siteMarkers);
+
+    this.setRenderer();
   }
 
-  updateItems(visibleMarkers: google.maps.Marker[]) {
-    // drop items that aren't in the visible marker set, no reason to store them, and no reason to drop them all and build from scratch
-    this.items = this.items.filter(item => visibleMarkers.map(m => m['site'].id).includes(item.id));
-
-    // only get full data for visible markers not in items, to reduce server bandwidth
-    visibleMarkers = visibleMarkers.filter(m => !this.items.map(i => i.id).includes(m['site'].id));
-
-    if (visibleMarkers.length) {
-      // Sort site's stores by type (Active, Future, Historical), then add the site marker to items
-      visibleMarkers.forEach(m => {
-        m['site']['stores'].sort((storeA, storeB) => storeA.storeType.localeCompare(storeB.storeType));
-        this.items.push(new SiteMarker(m['site']));
-      });
-
-      this.items = _.uniqBy(this.items, 'id');
-
-      // Get all Sites for visible site markers
-      this.fetching = true;
-      this.siteService.getAllByIds(this.items.map(item => item.id))
-        .pipe(finalize(() => this.fetching = false))
-        .subscribe((sites: SimplifiedSite[]) => {
-          sites.forEach(site => {
-            const itemIdx = this.items.findIndex((i) => i.id === site.id);
-            this.items[itemIdx] = Object.assign({}, this.items[itemIdx], site);
-          });
-
-          // Loop through stores array and check if NONE of them are active, but they want to see active AND empty
-          this.items.forEach(item => {
-            const active = item.stores.filter(store => store.storeType === 'ACTIVE');
-            const shouldShowEmpty = this.dbEntityMarkerService.controls.get('showEmptySites').value;
-            if (active.length === 0 && shouldShowEmpty && !item.stores.filter(s => s.storeName === 'EMPTY SITE' && s.id === null).length) {
-              const psuedoId = Math.round(Math.random() * 10000000);
-              item.stores.push(new StoreMarker({
-                // id: psuedoId,
-                storeName: 'EMPTY SITE',
-                isEmpty: true
-              }));
-            }
-          });
-
-          this.sortItems(this.items);
-
-          this.setRenderer();
-        })
-    } else {
-      this.items.forEach(item => {
-        item.stores = item.stores.map(store => {
-          if (!this.dbEntityMarkerService.controls.get('showEmptySites').value && store.isEmpty) {
-            store.hidden = true;
-          } else {
-            store.hidden = !this.dbEntityMarkerService.includeStore(store, item)
-          }
-          return store;
-        })
-      })
-      this.setRenderer();
-    }
-  }
-
+  /***
+   *   The renderer is set when
+   *   - The site details are retrieved
+   *   -
+   */
   setRenderer() {
-    this.renderer = this.items.slice(0, this.loadingConstraint);
+    // The renderer a sub-set of the siteMarkers array
+    this.renderer = this.siteMarkers.slice(0, this.LOADING_CONSTRAINT);
 
+    // When the renderer is set the scroll listener is removed and then added again...
     const elem = document.querySelector('.sidenav-content');
     if (elem) {
       elem.removeEventListener('scroll', () => this.reachedBottom(), false);
@@ -251,8 +169,8 @@ export class StoreSidenavService {
 
   updateRenderer() {
     const index = this.renderer.length;
-    if (index < this.items.length) {
-      const additionalRenders = this.items.slice(index, index + this.loadingConstraint);
+    if (index < this.siteMarkers.length) {
+      const additionalRenders = this.siteMarkers.slice(index, index + this.LOADING_CONSTRAINT);
       this.renderer = this.renderer.concat(additionalRenders);
     }
   }
@@ -269,22 +187,22 @@ export class StoreSidenavService {
 
     this.sort$.emit();
 
-    this.sortItems(this.items);
+    this.sortItems(this.siteMarkers);
 
     this.setRenderer();
   }
 
-  sortItems(items) {
+  sortItems(siteMarkers: SiteMarker[]) {
     switch (this.sortType) {
       case SortType.STORE_NAME:
-        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+        siteMarkers.sort((itemA, itemB) => {
           // try to sort ALPHABETICALLY by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
-          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
+          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
           return storeA && storeB ? storeA.storeName.localeCompare(storeB.storeName) : 0;
         });
         break;
       case SortType.ASSIGNEE_NAME:
-        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+        siteMarkers.sort((itemA, itemB) => {
           if (itemA.assigneeName) {
             if (itemB.assigneeName) {
               return itemA.assigneeName.localeCompare(itemB.assigneeName);
@@ -297,21 +215,21 @@ export class StoreSidenavService {
         });
         break;
       case SortType.BACK_FILLED_NON_GROCERY:
-        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+        siteMarkers.sort((itemA, itemB) => {
           return itemA.backfilledNonGrocery === itemB.backfilledNonGrocery ? 0 : itemA.backfilledNonGrocery ? -1 : 1;
         });
         break;
       case SortType.CREATED_DATE:
-        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+        siteMarkers.sort((itemA, itemB) => {
           // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
-          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
+          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
           return storeA.createdDate.getTime() - storeB.createdDate.getTime();
         });
         break;
       case SortType.FLOAT:
-        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+        siteMarkers.sort((itemA, itemB) => {
           // try to sort by FLOAT using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
-          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
+          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
 
           if (storeA && storeB) {
             return storeA.float === storeB.float ? 0 : storeA.float ? -1 : 1;
@@ -320,29 +238,29 @@ export class StoreSidenavService {
         });
         break;
       case SortType.LATITUDE:
-        items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.latitude - itemB.latitude);
+        siteMarkers.sort((itemA, itemB) => itemA.latitude - itemB.latitude);
         break;
       case SortType.LONGITUDE:
-        items.sort((itemA: SiteMarker, itemB: SiteMarker) => itemA.longitude - itemB.longitude);
+        siteMarkers.sort((itemA, itemB) => itemA.longitude - itemB.longitude);
         break;
       case SortType.STORE_TYPE:
-        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+        siteMarkers.sort((itemA, itemB) => {
           // try to sort STORE TYPE by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
-          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
+          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
           return storeA && storeB ? storeA.storeType.localeCompare(storeB.storeType) : 0;
         });
         break;
       case SortType.VALIDATED_DATE:
-        items.sort((itemA: SiteMarker, itemB: SiteMarker) => {
+        siteMarkers.sort((itemA, itemB) => {
           // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
-          const { storeA, storeB } = this.getStoresForSort(itemA, itemB);
+          const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
           return storeA && storeB ? storeA.validatedDate.getTime() - storeB.validatedDate.getTime() : 0;
         });
         break;
     }
 
     if (this.sortDirection === SortDirection.DESC) {
-      this.items.reverse();
+      this.siteMarkers.reverse();
     }
   }
 
@@ -352,7 +270,7 @@ export class StoreSidenavService {
     const activeStoresB = itemB.stores.filter(s => s.storeType === 'ACTIVE');
     const storeB = activeStoresB.length ? activeStoresB[0] : itemB.stores.length ? itemB.stores[0] : null;
 
-    return { storeA, storeB };
+    return {storeA, storeB};
   }
 
 
@@ -368,21 +286,21 @@ export class StoreSidenavService {
 
   ////// TEMPLATE STUFF ////////////
 
-  getStoreSubtext(item: any, store: StoreMarker) {
+  getStoreSubtext(site: SiteMarker, store: StoreMarker) {
     let text = this.sortType.toString();
     switch (this.sortType) {
       case SortType.ASSIGNEE_NAME:
-        return item.assigneeName ? `${text}: ${item.assigneeName}` : 'Not Assigned';
+        return site.assigneeName ? `${text}: ${site.assigneeName}` : 'Not Assigned';
       case SortType.BACK_FILLED_NON_GROCERY:
-        return text += `: ${item.backfilledNonGrocery}`;
+        return text += `: ${site.backfilledNonGrocery}`;
       case SortType.CREATED_DATE:
         return text += `: ${new Date(store.createdDate).toLocaleDateString()}`;
       case SortType.FLOAT:
         return text += `: ${store.float ? store.float : 'False'}`;
       case SortType.LATITUDE:
-        return text += `: ${item.latitude}`;
+        return text += `: ${site.latitude}`;
       case SortType.LONGITUDE:
-        return text += `: ${item.longitude}`;
+        return text += `: ${site.longitude}`;
       case SortType.VALIDATED_DATE:
         return text += `: ${new Date(store.validatedDate).toLocaleDateString()}`;
       default:
@@ -418,7 +336,7 @@ export class StoreSidenavService {
 
   selectAllVisible() {
     const visibleIds = [];
-    this.items.forEach((i: SiteMarker) => {
+    this.siteMarkers.forEach((i: SiteMarker) => {
       return i.stores.forEach((store: StoreMarker) => {
         visibleIds.push(store.id);
       })

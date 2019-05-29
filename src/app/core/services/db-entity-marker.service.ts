@@ -9,7 +9,7 @@ import { StoreMarker } from '../../models/store-marker';
 import { forkJoin, Subject } from 'rxjs';
 import { ErrorService } from './error.service';
 import { finalize, map, reduce, tap } from 'rxjs/operators';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { ProjectService } from './project.service';
 import { CasingDashboardService } from '../../casing/casing-dashboard/casing-dashboard.service';
 import { SiteMarkerService } from '../site-marker.service';
@@ -17,55 +17,29 @@ import { StoreIconUtil } from '../../utils/StoreIconUtil';
 import { MarkerType } from '../functionalEnums/MarkerType';
 
 import * as _ from 'lodash';
-import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
-import { UserProfile } from 'app/models/full/user-profile';
 import { StoreStatusOptions } from '../functionalEnums/StoreStatusOptions';
 import { StorageService } from './storage.service';
-import { ControlStorageKeys } from 'app/models/control';
-
-export interface DbEntityMarkerControls {
-  showActive: boolean,
-  showHistorical: boolean,
-  showFuture: boolean,
-  showEmptySites: boolean,
-  showSitesBackfilledByNonGrocery: boolean,
-  showFloat: boolean,
-  cluster: boolean,
-  clusterZoomLevel: number,
-  minPullZoomLevel: number,
-  fullLabelMinZoomLevel: number,
-  markerType: string,
-  updateOnBoundsChange: boolean,
-  dataset: SimplifiedStoreList,
-  showClosed: boolean,
-  showDeadDeal: boolean,
-  showNewUnderConstruction: boolean,
-  showOpen: boolean,
-  showPlanned: boolean,
-  showProposed: boolean,
-  showRemodel: boolean,
-  showRumored: boolean,
-  showStrongRumor: boolean,
-  showTemporarilyClosed: boolean,
-  banner: any,
-  assignment: UserProfile
-}
+import { Control, ControlStorageKeys } from 'app/models/control';
+import { DbEntityMarkerControls } from '../../models/db-entity-marker-controls';
 
 @Injectable()
 export class DbEntityMarkerService {
 
-  public readonly markerTypeOptions = ['Pin', 'Logo', 'Validation', 'Cased for Project'];
+  gettingLocations = false;
+  multiSelect = false;
+  deselecting = false;
+  controls: DbEntityMarkerControls;
 
-  private readonly clickListener$ = new Subject<{ storeId: number, siteId: number, marker: google.maps.Marker }>();
-  public readonly visibleMarkersChanged$ = new Subject<google.maps.Marker[]>();
+  readonly visibleMarkersChanged$ = new Subject<SiteMarker[]>();
+  readonly markerTypeOptions = ['Pin', 'Logo', 'Validation', 'Cased for Project'];
+  readonly selectionSet$ = new Subject<{ selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number }>();
+
+  readonly SAVED_CONTROLS_STORAGE_KEY = ControlStorageKeys.savedDbEntityMarkerServiceControls;
+  readonly ACTIVE_CONTROLS_STORAGE_KEY = ControlStorageKeys.dbEntityMarkerServiceControls;
 
   private selectionSetPrev: { selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number };
-  public readonly selectionSet$ = new Subject<{ selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number }>();
 
-  public gettingLocations = false;
-  public multiSelect = false;
-  public deselecting = false;
-  public controls: FormGroup;
+  private readonly clickListener$ = new Subject<{ storeId: number, siteId: number, marker: google.maps.Marker }>();
 
   private gmap: google.maps.Map;
   private clusterer: MarkerClusterer;
@@ -83,60 +57,14 @@ export class DbEntityMarkerService {
 
   private visibleMarkers = [];
 
-  readonly allStoresOption: SimplifiedStoreList = new SimplifiedStoreList({
-    id: -1,
-    storeListName: 'All Stores',
-    storeCount: Infinity
-  })
-
-  readonly savedControlsStorageKey = ControlStorageKeys.savedDbEntityMarkerServiceControls;
-  readonly controlsStorageKey = ControlStorageKeys.dbEntityMarkerServiceControls;
-  readonly defaultControls: DbEntityMarkerControls = {
-    //// FILTERS ////
-    // DATASET
-    dataset: this.allStoresOption,
-    // TYPE
-    showActive: true,
-    showHistorical: true,
-    showFuture: true,
-    showEmptySites: true,
-    showSitesBackfilledByNonGrocery: false,
-    showFloat: false,
-    // STATUS
-    showClosed: true,
-    showDeadDeal: false,
-    showNewUnderConstruction: true,
-    showOpen: true,
-    showPlanned: true,
-    showProposed: true,
-    showRemodel: true,
-    showRumored: false,
-    showStrongRumor: false,
-    showTemporarilyClosed: false,
-    // BANNER
-    banner: { value: [], disabled: false },
-    // ASSIGNMENT
-    assignment: null,
-    //// OPTIONS ////
-    // MARKER TYPE
-    markerType: 'Pin',
-    // MAP OPTIONS
-    cluster: false,
-    clusterZoomLevel: 13,
-    minPullZoomLevel: 10,
-    fullLabelMinZoomLevel: 16,
-    updateOnBoundsChange: true
-  }
-
   constructor(private authService: AuthService,
-    private errorService: ErrorService,
-    private fb: FormBuilder,
-    private siteMarkerService: SiteMarkerService,
-    private projectService: ProjectService,
-    private casingDashboardService: CasingDashboardService,
-    private storageService: StorageService) {
+              private errorService: ErrorService,
+              private fb: FormBuilder,
+              private siteMarkerService: SiteMarkerService,
+              private projectService: ProjectService,
+              private casingDashboardService: CasingDashboardService,
+              private storageService: StorageService) {
 
-    this.controls = this.fb.group(this.validateStoredControls(null)); // initial state
     this.initControls();
 
     this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker }) => {
@@ -175,14 +103,14 @@ export class DbEntityMarkerService {
   /**
    * Initializes the map. Must be called before other public methods will work.
    */
-  public initMap(gmap: google.maps.Map, clickListener) {
+  initMap(gmap: google.maps.Map, clickListener) {
     this.gmap = gmap;
     this.clickListener$.subscribe(clickListener);
 
     this.clusterer = new MarkerClusterer(this.gmap, [],
-      { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
+      {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 
-    if (!this.controls.get('updateOnBoundsChange').value) {
+    if (!this.controls.updateOnBoundsChange) {
       const siteMarkersJson = localStorage.getItem('siteMarkers');
       if (siteMarkersJson) {
         JSON.parse(siteMarkersJson).forEach(sm => this.getMarkersForSite(new SiteMarker(sm)));
@@ -191,16 +119,10 @@ export class DbEntityMarkerService {
     }
   }
 
-  public onDestroy() {
-    this.clickListener$.unsubscribe();
-  }
-
-
-
   /**
    * Retrieves Marker data from web service and handles the showing and hiding markers according to controls
    */
-  public getMarkersInMapView() {
+  getMarkersInMapView() {
     this.verifyMapInitialized();
 
     // Cancel previous web service request
@@ -224,13 +146,13 @@ export class DbEntityMarkerService {
         this.removeOutOfBoundsMarkers(bounds);
         siteMarkers.forEach(sm => this.getMarkersForSite(sm));
 
-        if (!this.controls.get('updateOnBoundsChange').value) {
+        if (!this.controls.updateOnBoundsChange) {
           localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
         }
       }))
     );
 
-    if (this.controls.get('markerType').value === MarkerType.CASED_FOR_PROJECT) {
+    if (this.controls.markerType === MarkerType.CASED_FOR_PROJECT) {
       const selectedProject = this.casingDashboardService.getSelectedProject();
       if (selectedProject) {
         requests.push(this.projectService.getAllCasedStoreIds(selectedProject.id)
@@ -247,35 +169,22 @@ export class DbEntityMarkerService {
         (e) => this.errorService.handleServerError('Failed to retrieve map locations!', e, () => console.error(e)));
   }
 
-  public removeMarkerForSite(siteId: number) {
+  removeMarkerForSite(siteId: number) {
     const index = this.siteMarkerCache.findIndex(sm => sm.siteMarker.id === siteId);
     const cached = this.siteMarkerCache[index];
     cached.markers.forEach(marker => this.removeMarker(marker));
     this.siteMarkerCache.splice(index, 1);
   }
 
-  private removeOutOfBoundsMarkers(bounds: { north: number, south: number, east: number, west: number }) {
-    const outOfBoundsSiteIds = new Set<number>();
-    this.siteMarkerCache.forEach(s => {
-      if (s.siteMarker.latitude > bounds.north || s.siteMarker.latitude < bounds.south ||
-        s.siteMarker.longitude > bounds.east || s.siteMarker.longitude < bounds.west) {
-        outOfBoundsSiteIds.add(s.siteMarker.id);
-        s.markers.forEach(marker => this.removeMarker(marker));
-      }
-    });
-
-    this.siteMarkerCache = this.siteMarkerCache.filter(s => !outOfBoundsSiteIds.has(s.siteMarker.id))
-  }
-
   /**
    * Updates the marker symbology without getting new data from web service. Most useful for updating based on controls
    */
-  public refreshMarkers() {
+  refreshMarkers() {
     this.verifyMapInitialized();
 
     // If no call has been made yet, get rather than refresh
     if (this.prevUpdate) {
-      if (this.controls.get('markerType').value === MarkerType.CASED_FOR_PROJECT) {
+      if (this.controls.markerType === MarkerType.CASED_FOR_PROJECT) {
         const selectedProject = this.casingDashboardService.getSelectedProject();
         if (selectedProject) {
           this.gettingLocations = true;
@@ -295,7 +204,7 @@ export class DbEntityMarkerService {
     }
   }
 
-  public clearSelection() {
+  clearSelection() {
     this.verifyMapInitialized();
 
     this.selectedSiteIds.clear();
@@ -303,19 +212,15 @@ export class DbEntityMarkerService {
     this.refreshMarkers();
   }
 
-  public selectStores(storeIds: number[]) {
-    this.selectByIds({ siteIds: [], storeIds });
+  selectStores(storeIds: number[]) {
+    this.selectByIds({siteIds: [], storeIds});
   }
 
-  public selectSites(siteIds: number[]) {
-    this.selectByIds({ siteIds, storeIds: [] });
+  selectSites(siteIds: number[]) {
+    this.selectByIds({siteIds, storeIds: []});
   }
 
-  public showMapSpinner(shouldShow: boolean) {
-    this.gettingLocations = shouldShow;
-  }
-
-  public selectInRadius(latitude: number, longitude: number, radiusMeters: number) {
+  selectInRadius(latitude: number, longitude: number, radiusMeters: number) {
     this.verifyMapInitialized();
 
     this.gettingLocations = true;
@@ -325,7 +230,7 @@ export class DbEntityMarkerService {
       .subscribe((siteMarkers: SiteMarker[]) => this.selectByIds(this.getSelectionIds(siteMarkers)));
   }
 
-  public selectInGeoJson(geoJson: string) {
+  selectInGeoJson(geoJson: string) {
     this.verifyMapInitialized();
 
     this.gettingLocations = true;
@@ -335,13 +240,141 @@ export class DbEntityMarkerService {
       .subscribe((siteMarkers: SiteMarker[]) => this.selectByIds(this.getSelectionIds(siteMarkers)));
   }
 
-  public getSelectedStoreIds() {
+  getSelectedStoreIds() {
     return Array.from(this.selectedStoreIds);
+  }
+
+  getVisibleSiteMarkers() {
+    return this.siteMarkerCache.map(s => s.siteMarker);
+  }
+
+  getVisibleMarkers() {
+    return this.visibleMarkers;
+  }
+
+  saveControlsAs(name: string) {
+    this.storageService.getOne(ControlStorageKeys.savedDbEntityMarkerServiceControls).subscribe(savedControls => {
+      if (!savedControls) {
+        savedControls = {};
+      }
+      savedControls[name] = new Control(name, new Date(), this.controls);
+      this.storageService.set(this.SAVED_CONTROLS_STORAGE_KEY, savedControls);
+    });
+  }
+
+  resetControls() {
+    this.controls = new DbEntityMarkerControls();
+  }
+
+  onControlsUpdated() {
+    this.storageService.set(this.ACTIVE_CONTROLS_STORAGE_KEY, this.controls);
+
+    // If user turns off auto refresh = re-pull the locations in view in order to preserve them
+    if (!this.controls.updateOnBoundsChange) {
+      localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
+    }
+
+    this.refreshMarkers();
+  }
+
+  broadcastSelections() {
+    if (!this.selectionSetPrev) {
+      this.selectionSetPrev = {
+        selectedSiteIds: new Set(this.selectedSiteIds),
+        selectedStoreIds: new Set(this.selectedStoreIds),
+        scrollTo: this.getScrollTo()
+      };
+      this.selectionSet$.next(this.selectionSetPrev);
+    } else {
+      const prevSelectedSiteIds = this.selectionSetPrev.selectedSiteIds;
+      const prevSelectedStoreIds = this.selectionSetPrev.selectedStoreIds;
+      if (!_.isEqual(prevSelectedSiteIds, this.selectedSiteIds) || !_.isEqual(prevSelectedStoreIds, this.selectedStoreIds)) {
+        this.selectionSetPrev = {
+          selectedSiteIds: new Set(this.selectedSiteIds),
+          selectedStoreIds: new Set(this.selectedStoreIds),
+          scrollTo: this.getScrollTo()
+        };
+        this.selectionSet$.next(this.selectionSetPrev);
+      }
+    }
+  }
+
+  getScrollTo() {
+    return Array.from(this.selectedStoreIds).pop() || null;
+  }
+
+  includeStore(storeMarker: StoreMarker, siteMarker?: SiteMarker) {
+
+    if (!storeMarker) {
+      return false;
+    }
+
+    // TYPES FILTERS
+    if ((!this.controls.showActive && (storeMarker.storeType === 'ACTIVE')) ||
+      (!this.controls.showHistorical && (storeMarker.storeType === 'HISTORICAL')) ||
+      (!this.controls.showFuture && (storeMarker.storeType === 'FUTURE')) ||
+      (!this.controls.showFloat && (storeMarker.float))) {
+      return false;
+    }
+
+    // DATASET FILTER
+    if (this.controls.storeList && this.controls.storeList.storeIds && !this.controls.storeList.storeIds.includes(storeMarker.id)) {
+      return false;
+    }
+
+    // STATUS FILTER
+    if ((!this.controls.showClosed && storeMarker.status === StoreStatusOptions.CLOSED) ||
+      (!this.controls.showDeadDeal && storeMarker.status === StoreStatusOptions.DEAD_DEAL) ||
+      (!this.controls.showNewUnderConstruction && storeMarker.status === StoreStatusOptions.NEW_UNDER_CONSTRUCTION) ||
+      (!this.controls.showOpen && storeMarker.status === StoreStatusOptions.OPEN) ||
+      (!this.controls.showPlanned && storeMarker.status === StoreStatusOptions.PLANNED) ||
+      (!this.controls.showProposed && storeMarker.status === StoreStatusOptions.PROPOSED) ||
+      (!this.controls.showRemodel && storeMarker.status === StoreStatusOptions.REMODEL) ||
+      (!this.controls.showRumored && storeMarker.status === StoreStatusOptions.RUMORED) ||
+      (!this.controls.showStrongRumor && storeMarker.status === StoreStatusOptions.STRONG_RUMOR) ||
+      (!this.controls.showTemporarilyClosed && storeMarker.status === StoreStatusOptions.TEMPORARILY_CLOSED)) {
+      return false;
+    }
+
+    // BANNER FILTER
+    if (this.controls.banners.length && !this.controls.banners.find(b => b.id === storeMarker.bannerId)) {
+      return false;
+    }
+
+    // ASSIGNMENT FILTER
+    return !(this.controls.assignment && siteMarker.assigneeId !== this.controls.assignment.id);
+  }
+
+  includeSite(siteMarker: SiteMarker) {
+
+    if (this.controls.assignment && (siteMarker && siteMarker.assigneeId !== this.controls.assignment.id)) {
+      return false;
+    }
+
+    if (siteMarker.backfilledNonGrocery) {
+      return this.controls.showSitesBackfilledByNonGrocery;
+    }
+
+    const siteIsEmpty = siteMarker.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
+    // If site is empty, don't include if filtering by banner or dataset, or if showEmptySites isn't checked
+    return !(siteIsEmpty && (this.controls.banners.length > 0 || this.controls.storeList || !this.controls.showEmptySites));
   }
 
   /**************************************
    * Private methods
    *************************************/
+  private removeOutOfBoundsMarkers(bounds: { north: number, south: number, east: number, west: number }) {
+    const outOfBoundsSiteIds = new Set<number>();
+    this.siteMarkerCache.forEach(s => {
+      if (s.siteMarker.latitude > bounds.north || s.siteMarker.latitude < bounds.south ||
+        s.siteMarker.longitude > bounds.east || s.siteMarker.longitude < bounds.west) {
+        outOfBoundsSiteIds.add(s.siteMarker.id);
+        s.markers.forEach(marker => this.removeMarker(marker));
+      }
+    });
+
+    this.siteMarkerCache = this.siteMarkerCache.filter(s => !outOfBoundsSiteIds.has(s.siteMarker.id))
+  }
 
   private verifyMapInitialized() {
     if (!this.gmap) {
@@ -360,26 +393,6 @@ export class DbEntityMarkerService {
     this.refreshMarkers();
   }
 
-  public getVisibleMarkersIds(): { siteIds: number[], storeIds: number[] } {
-    const visibleIds = { siteIds: [], storeIds: [] };
-    this.visibleMarkers.forEach(sm => {
-      if (sm['store']) {
-        visibleIds.storeIds.push(sm['store']['id']);
-      } else if (sm['site']) {
-        visibleIds.storeIds.push(sm['site']['id']);
-      }
-    })
-    return visibleIds;
-  }
-
-  public getVisibleMarkers() {
-    return this.visibleMarkers;
-  }
-
-  public getVisibleMarkersCount(): number {
-    return this.visibleMarkers.length;
-  }
-
   private getSelectionIds(siteMarkers: SiteMarker[]) {
     const siteIds = [];
     const storeIds = [];
@@ -388,133 +401,32 @@ export class DbEntityMarkerService {
       if (siteMarker.stores && siteMarker.stores.length > 0) {
         siteMarker.stores.forEach(storeMarker => {
           // If not updating with bound changes, only select visible markers
-          if (this.includeStore(storeMarker) && (this.controls.get('updateOnBoundsChange').value ||
-            this.visibleMarkers.findIndex(vm => vm.store && vm.store.id === storeMarker.id) !== -1)) {
+          if (this.includeStore(storeMarker) && (this.controls.updateOnBoundsChange ||
+            this.visibleMarkers.find(vm => vm.store && vm.store.id === storeMarker.id))) {
             storeIds.push(storeMarker.id);
           }
         })
       }
 
-      if (this.includeSite(siteMarker) && (this.controls.get('updateOnBoundsChange').value ||
+      if (this.includeSite(siteMarker) && (this.controls.updateOnBoundsChange ||
         this.visibleMarkers.findIndex(vm => vm.site && vm.site.id === siteMarker.id) !== -1)) {
         siteIds.push(siteMarker.id);
       }
     });
 
-    return { siteIds: siteIds, storeIds: storeIds };
+    return {siteIds: siteIds, storeIds: storeIds};
   }
 
   private initControls() {
-    this.storageService.getOne(this.controlsStorageKey).subscribe(storedControls => {
-      this.setAllControls(storedControls);
-    })
-  }
-
-  saveControlsToStorage(savedControls: any) {
-    this.storageService.set(this.savedControlsStorageKey, savedControls)
-  }
-
-  saveControlsToFile(fileName: string) {
-    this.storageService.export(this.controlsStorageKey, true, fileName)
-  }
-
-
-  loadControlsFromJson(json) {
-    this.setAllControls(json);
-  }
-
-  setAllControls(json) {
-
-    this.controls = this.fb.group(this.validateStoredControls(json));
-
-    if (!json) {
-      this.controls.controls.banner.setValue([]);
-    }
-
-    this.controls.valueChanges.subscribe(val => {
-      this.updateDbEntityMarkerServiceControlsStorage(val);
-      this.refreshMarkers();
-    });
-    // If user turns off auto refresh = repull the locations in view in order to preserve them
-    this.controls.get('updateOnBoundsChange').valueChanges.subscribe(val => {
-      if (!val) {
-        localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
+    // Immediately set default controls
+    this.controls = new DbEntityMarkerControls();
+    // If any saved controls were found, replace default controls;
+    this.storageService.getOne(this.ACTIVE_CONTROLS_STORAGE_KEY).subscribe(storedControls => {
+      if (storedControls) {
+        this.controls = new DbEntityMarkerControls(storedControls);
       }
     });
 
-    this.updateDbEntityMarkerServiceControlsStorage(json);
-  }
-
-  validateStoredControls(storedControls: any): DbEntityMarkerControls {
-    if (storedControls) {
-      const hasAllKeys = (a, b) => {
-        const aKeys = Object.keys(a).sort();
-        const bKeys = Object.keys(b).sort();
-        return JSON.stringify(aKeys) === JSON.stringify(bKeys);
-      }
-
-      if (!hasAllKeys(storedControls, this.defaultControls)) {
-        for (const property in this.defaultControls) {
-          if (this.defaultControls.hasOwnProperty(property)) {
-            if (!storedControls[property]) {
-              if (property === 'banner') {
-                storedControls[property] = { value: Object.assign({}, this.defaultControls[property]), disabled: false };
-              }
-              storedControls[property] = this.defaultControls[property]
-            }
-          }
-        }
-      }
-    } else {
-      storedControls = Object.assign({}, this.defaultControls);
-    }
-
-    if (storedControls.dataset) {
-      storedControls.dataset = new SimplifiedStoreList(storedControls.dataset);
-    }
-
-    // Angular FormBuilder has known issue with populating forms with arrays -- suggested workaround method below
-    if (storedControls.banner && !storedControls.banner.hasOwnProperty('value')) {
-      storedControls.banner = { value: Object.assign([], storedControls.banner), disabled: false };
-    }
-
-    this.updateDbEntityMarkerServiceControlsStorage(storedControls);
-    return storedControls;
-  }
-
-  updateDbEntityMarkerServiceControlsStorage(storedControls) {
-    this.storageService.set(this.controlsStorageKey, storedControls);
-    try {
-      this.refreshMarkers();
-    } catch (err) {
-      // map just hasn't initialized yet on load..  TODO figure out how to deal with this
-    }
-  }
-
-  broadcastSelections() {
-    if (!this.selectionSetPrev) {
-      this.selectionSetPrev = {
-        selectedSiteIds: new Set(this.selectedSiteIds),
-        selectedStoreIds: new Set(this.selectedStoreIds),
-        scrollTo: this.getScrollTo()
-      }
-      this.selectionSet$.next(this.selectionSetPrev);
-    } else {
-      const prevSelectedSiteIds = this.selectionSetPrev.selectedSiteIds;
-      const prevSelectedStoreIds = this.selectionSetPrev.selectedStoreIds;
-      if (!_.isEqual(prevSelectedSiteIds, this.selectedSiteIds) || !_.isEqual(prevSelectedStoreIds, this.selectedStoreIds)) {
-        this.selectionSetPrev = {
-          selectedSiteIds: new Set(this.selectedSiteIds),
-          selectedStoreIds: new Set(this.selectedStoreIds),
-          scrollTo: this.getScrollTo()
-        };
-        this.selectionSet$.next(this.selectionSetPrev);
-      }
-    }
-  }
-
-  getScrollTo() {
-    return Array.from(this.selectedStoreIds).pop() || null;
   }
 
   private refreshMarkerOptions(marker: google.maps.Marker) {
@@ -536,28 +448,37 @@ export class DbEntityMarkerService {
   }
 
   private showHideMarkersInBounds() {
+    // Collect google markers
     const markers = this.siteMarkerCache.map(s => s.markers);
-    const filteredMarkers = markers
-      .reduce((prev, curr) => prev.concat(curr), [])
-      .filter(marker => marker['store'] ? this.includeStore(marker['store'], marker['site']) : (marker['site'] ? this.includeSite(marker['site']) : true)
+
+    // If google marker has a StoreMarker check for store inclusion, if no store, check for site inclusion
+    const filteredGMarkers = markers.reduce((prev, curr) => prev.concat(curr), [])
+      .filter(marker => {
+          if (marker['store']) {
+            return this.includeStore(marker['store'], marker['site']);
+          } else if (marker['site']) {
+            return this.includeSite(marker['site']);
+          }
+          return true;
+        }
       );
 
-    filteredMarkers.forEach(marker => this.refreshMarkerOptions(marker));
+    filteredGMarkers.forEach(marker => this.refreshMarkerOptions(marker));
 
-    // If visible marker is not in filteredMarkers, remove from map.
-    this.visibleMarkers.filter(marker => !filteredMarkers.includes(marker))
+    // If previously visible marker is not in filteredMarkers, remove from map.
+    this.visibleMarkers.filter(marker => !filteredGMarkers.includes(marker))
       .forEach(marker => this.removeMarker(marker));
 
     // Reset visible markers
-    this.visibleMarkers = filteredMarkers;
+    this.visibleMarkers = filteredGMarkers;
 
     this.showMarkers(this.visibleMarkers);
-    this.visibleMarkersChanged$.next(this.visibleMarkers);
+    this.visibleMarkersChanged$.next(this.getVisibleSiteMarkers());
   }
 
   private showMarkers(markers: google.maps.Marker[]) {
     // Show the now visible markers
-    if (this.controls.get('cluster').value && this.gmap.getZoom() <= this.controls.get('clusterZoomLevel').value) {
+    if (this.controls.cluster && this.gmap.getZoom() <= this.controls.clusterZoomLevel) {
       this.clusterer.addMarkers(markers);
     } else {
       this.clusterer.clearMarkers();
@@ -569,108 +490,6 @@ export class DbEntityMarkerService {
     marker.setMap(null);
     this.clusterer.removeMarker(marker);
     this.selectedMarkers.delete(marker);
-  }
-
-
-
-  public includeStore(storeMarker: StoreMarker, siteMarker?: SiteMarker) {
-    // TYPES FILTERS
-    if (!this.controls.get('showActive').value && (storeMarker && storeMarker.storeType === 'ACTIVE')) {
-      return false;
-    }
-    if (!this.controls.get('showHistorical').value && (storeMarker && storeMarker.storeType === 'HISTORICAL')) {
-      return false;
-    }
-    if (!this.controls.get('showFuture').value && (storeMarker && storeMarker.storeType === 'FUTURE')) {
-      return false;
-    }
-    if (!this.controls.get('showFloat').value && (storeMarker && storeMarker.float)) {
-      return false;
-    }
-
-    // DATASET FILTER
-    const dataset = this.controls.get('dataset').value;
-    if (dataset && storeMarker) {
-      if (
-        dataset &&
-        dataset.id !== -1 &&
-        !dataset.storeIds.includes(storeMarker.id)
-      ) {
-        return false;
-      }
-    }
-
-    // STATUS FILTER
-
-    if (!this.controls.get('showClosed').value && (storeMarker && storeMarker.status === StoreStatusOptions.CLOSED)) {
-      return false;
-    }
-    if (!this.controls.get('showDeadDeal').value && (storeMarker && storeMarker.status === StoreStatusOptions.DEAD_DEAL)) {
-      return false;
-    }
-    if (!this.controls.get('showNewUnderConstruction').value && (storeMarker && storeMarker.status === StoreStatusOptions.NEW_UNDER_CONSTRUCTION)) {
-      return false;
-    }
-    if (!this.controls.get('showOpen').value && (storeMarker && storeMarker.status === StoreStatusOptions.OPEN)) {
-      return false;
-    }
-    if (!this.controls.get('showPlanned').value && (storeMarker && storeMarker.status === StoreStatusOptions.PLANNED)) {
-      return false;
-    }
-    if (!this.controls.get('showProposed').value && (storeMarker && storeMarker.status === StoreStatusOptions.PROPOSED)) {
-      return false;
-    }
-    if (!this.controls.get('showRemodel').value && (storeMarker && storeMarker.status === StoreStatusOptions.REMODEL)) {
-      return false;
-    }
-    if (!this.controls.get('showRumored').value && (storeMarker && storeMarker.status === StoreStatusOptions.RUMORED)) {
-      return false;
-    }
-    if (!this.controls.get('showStrongRumor').value && (storeMarker && storeMarker.status === StoreStatusOptions.STRONG_RUMOR)) {
-      return false;
-    }
-    if (!this.controls.get('showTemporarilyClosed').value
-      && (storeMarker && storeMarker.status === StoreStatusOptions.TEMPORARILY_CLOSED)) {
-      return false;
-    }
-
-    // BANNER FILTER
-    const banner = this.controls.get('banner').value;
-    if (banner.length && (storeMarker && !banner.map(b => b.id).includes(storeMarker.bannerId))) {
-      return false;
-    }
-
-    // ASSIGNMENT FILTER
-    const assignment = this.controls.get('assignment').value;
-    if (assignment && (siteMarker && siteMarker.assigneeId !== assignment.id)) {
-      return false;
-    }
-
-    return storeMarker !== undefined;
-  }
-
-  public includeSite(siteMarker: SiteMarker) {
-
-    const assignment = this.controls.get('assignment').value;
-    if (assignment && (siteMarker && siteMarker.assigneeId !== assignment.id)) {
-      return false;
-    }
-
-    if (siteMarker.backfilledNonGrocery) {
-      return this.controls.get('showSitesBackfilledByNonGrocery').value;
-    }
-
-    const siteIsEmpty = siteMarker.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
-
-    if (this.controls.get('banner').value.length && siteIsEmpty) {
-      return false
-    }
-
-    if (this.controls.get('dataset').value.id !== -1 && siteIsEmpty) {
-      return false;
-    }
-
-    return !(!this.controls.get('showEmptySites').value && siteIsEmpty);
   }
 
   // Gets markers from cache if they exist or creates them
@@ -690,7 +509,7 @@ export class DbEntityMarkerService {
       return cached.markers;
     }
     const markers = this.createMarkersForSite(site);
-    this.siteMarkerCache.push({ markers: markers, siteMarker: site });
+    this.siteMarkerCache.push({markers: markers, siteMarker: site});
     return markers;
   }
 
@@ -740,7 +559,7 @@ export class DbEntityMarkerService {
   private createSiteMarker(site: SiteMarker) {
     const marker = new google.maps.Marker();
     marker['site'] = site;
-    marker.addListener('click', () => this.clickListener$.next({ storeId: null, siteId: site.id, marker: marker }));
+    marker.addListener('click', () => this.clickListener$.next({storeId: null, siteId: site.id, marker: marker}));
 
     if (this.selectedSiteIds.has(site.id)) {
       this.selectedMarkers.add(marker);
@@ -750,10 +569,10 @@ export class DbEntityMarkerService {
 
   private createStoreMarker(store: StoreMarker, site: SiteMarker) {
     // Must make marker with coordinates for MarkerWithLabel to work
-    const marker = new MarkerWithLabel({ position: { lat: site.latitude, lng: site.longitude } });
+    const marker = new MarkerWithLabel({position: {lat: site.latitude, lng: site.longitude}});
     marker['store'] = store;
     marker['site'] = site;
-    marker.addListener('click', () => this.clickListener$.next({ storeId: store.id, siteId: site.id, marker: marker }));
+    marker.addListener('click', () => this.clickListener$.next({storeId: store.id, siteId: site.id, marker: marker}));
 
     if (this.selectedStoreIds.has(store.id)) {
       this.selectedMarkers.add(marker);
@@ -770,7 +589,7 @@ export class DbEntityMarkerService {
     const assignedToOther = !assignedToUser && site.assigneeId != null;
 
     return {
-      position: { lat: site.latitude, lng: site.longitude },
+      position: {lat: site.latitude, lng: site.longitude},
       icon: {
         path: site.duplicate ? MarkerShape.FLAGGED : MarkerShape.DEFAULT,
         fillColor: StoreIconUtil.getFillColor(selected, assignedToUser, assignedToOther),
@@ -785,16 +604,16 @@ export class DbEntityMarkerService {
   }
 
   private getMarkerOptionsForStore(store: StoreMarker, site: SiteMarker, selected: boolean) {
-    const markerType = this.controls.get('markerType').value;
+    const markerType = this.controls.markerType;
     const showLogo = markerType === MarkerType.LOGO && store.logoFileName != null;
     const showCased = markerType === MarkerType.CASED_FOR_PROJECT && this.storeIdsCasedForProject.has(store.id);
-    const showFullLabel = this.gmap.getZoom() >= this.controls.get('fullLabelMinZoomLevel').value;
     const showValidated = markerType === MarkerType.VALIDATION && store.validatedDate != null;
+    const showFullLabel = this.gmap.getZoom() >= this.controls.fullLabelMinZoomLevel;
     const assignedToUser = site.assigneeId === this.authService.sessionUser.id;
     const assignedToOther = !assignedToUser && site.assigneeId != null;
 
     return {
-      position: { lat: site.latitude, lng: site.longitude },
+      position: {lat: site.latitude, lng: site.longitude},
       icon: {
         path: StoreIconUtil.getStoreIconMarkerShape(store, showLogo, showCased, showValidated),
         fillColor: StoreIconUtil.getStoreIconFillColor(store, selected, assignedToUser, assignedToOther, showValidated),

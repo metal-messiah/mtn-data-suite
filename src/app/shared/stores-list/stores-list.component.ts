@@ -1,35 +1,38 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { StoreMarker } from 'app/models/store-marker';
 import { SortDirection, SortType, StoreSidenavService } from '../store-sidenav/store-sidenav.service';
 import { SiteMarker } from 'app/models/site-marker';
 import { SiteService } from 'app/core/services/site.service';
 import { Site } from 'app/models/full/site';
-import { Subscription } from 'rxjs';
-
+import { DbEntityMarkerService } from '../../core/services/db-entity-marker.service';
 
 @Component({
   selector: 'mds-stores-list',
   templateUrl: './stores-list.component.html',
   styleUrls: ['./stores-list.component.css']
 })
-export class StoresListComponent implements OnInit, OnDestroy {
+export class StoresListComponent implements OnInit {
 
   @ViewChild('listOfStores') listOfStores;
 
-  scrollSubscription: Subscription;
-
   constructor(
     private storeSidenavService: StoreSidenavService,
+    private dbEntityMarkerService: DbEntityMarkerService,
     private siteService: SiteService
   ) { }
 
   ngOnInit() {
-    this.scrollSubscription = this.storeSidenavService.scrollToMapSelectionId$
-      .subscribe((id: number) => this.scrollToElem(id));
-  }
+    this.storeSidenavService.updateItems(this.dbEntityMarkerService.getVisibleSiteMarkers());
 
-  ngOnDestroy() {
-    this.scrollSubscription.unsubscribe();
+    this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(v => this.storeSidenavService.updateItems(v));
+
+    this.dbEntityMarkerService.selectionSet$
+      .subscribe((selectionSet: { selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number }) => {
+        this.storeSidenavService.setMapSelections(selectionSet);
+        if (selectionSet.scrollTo) {
+          this.scrollToElem(selectionSet.scrollTo);
+        }
+      });
   }
 
   get sortType() {
@@ -60,11 +63,11 @@ export class StoresListComponent implements OnInit, OnDestroy {
     this.storeSidenavService.setSortOptions(sortType, sortDirection)
   }
 
-  getStoreSubtext(item: any, store: StoreMarker) {
-    return this.storeSidenavService.getStoreSubtext(item, store);
+  getStoreSubtext(site: SiteMarker, store: StoreMarker) {
+    return this.storeSidenavService.getStoreSubtext(site, store);
   }
 
-  getFormattedIntersection(site: Site) {
+  getFormattedIntersection(site: SiteMarker) {
     return this.siteService.getFormattedIntersection(site);
   }
 
@@ -72,18 +75,12 @@ export class StoresListComponent implements OnInit, OnDestroy {
     return `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${fileName}`;
   }
 
-  getAddressLabel(item: any) {
-    const { address1, city, state } = item;
-    if (address1 && city && state) {
-      return `${address1}, ${city}, ${state}`
+  getAddressLabel(siteMarker: SiteMarker) {
+    let address = siteMarker.address;
+    if (address) {
+      address += ', ';
     }
-    if (city && state) {
-      return `${city}, ${state}`
-    }
-    if (state) {
-      return `${state}`
-    }
-    return '';
+    return address + this.siteService.getFormattedPrincipality(siteMarker);
   }
 
   getIdForElem(site: SiteMarker, store: StoreMarker): string {
@@ -102,8 +99,12 @@ export class StoresListComponent implements OnInit, OnDestroy {
     this.storeSidenavService.showOnMap(site);
   }
 
-  getValidStores(item) {
-    return item.stores.filter(store => !store.hidden);
+  getValidStores(siteMarker: SiteMarker) {
+    return siteMarker.stores.filter(store => !store.hidden);
+  }
+
+  get siteMarkers() {
+    return this.storeSidenavService.siteMarkers;
   }
 
   private scrollToElem(id) {

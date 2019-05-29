@@ -210,36 +210,34 @@ export class ListManagerService {
   }
 
   setStoreListAsCurrentFilter(storeList: SimplifiedStoreList) {
-    if (storeList) {
-      this.dbEntityMarkerService.controls.get('dataset').setValue(storeList);
-    } else {
-      this.dbEntityMarkerService.controls.get('dataset').setValue(this.dbEntityMarkerService.allStoresOption);
-    }
+    this.dbEntityMarkerService.controls.storeList = storeList;
+    this.dbEntityMarkerService.refreshMarkers();
   }
 
   storeListIsCurrentFilter(storeList: SimplifiedStoreList): boolean {
-    return this.dbEntityMarkerService.controls.get('dataset').value.id === storeList.id
+    const selectedList = this.dbEntityMarkerService.controls.storeList;
+    return selectedList && selectedList.id === storeList.id
   }
 
   createNewList(listName: string) {
     if (listName) {
-      const newStoreList: StoreList = new StoreList({ storeListName: listName });
+      const newStoreList: StoreList = new StoreList({storeListName: listName});
       this.saving = true;
       this.storeListService.create(newStoreList)
         .pipe(finalize(() => this.saving = false))
         .subscribe((storeList: StoreList) => {
-          const targetList = this.stores.length ? 'excluded' : 'all';
-          const simpleStoreList = new SimplifiedStoreList(storeList);
-          if (targetList === 'excluded') {
-            this.excludedStoreLists.push(simpleStoreList);
-          } else {
-            this.allStoreLists.push(simpleStoreList);
-          }
-          this.sortStoreListsAlphabetically();
-          setTimeout(() => {
-            this.scrollIntoViewId$.next({ targetList, id: simpleStoreList.id })
-          }, 100);
-        },
+            const targetList = this.stores.length ? 'excluded' : 'all';
+            const simpleStoreList = new SimplifiedStoreList(storeList);
+            if (targetList === 'excluded') {
+              this.excludedStoreLists.push(simpleStoreList);
+            } else {
+              this.allStoreLists.push(simpleStoreList);
+            }
+            this.sortStoreListsAlphabetically();
+            setTimeout(() => {
+              this.scrollIntoViewId$.next({targetList, id: simpleStoreList.id})
+            }, 100);
+          },
           (err) => this.errorService.handleServerError('Failed to Create New Store List!', err,
             () => console.log(err), () => this.createNewList(listName))
         );
@@ -320,9 +318,9 @@ export class ListManagerService {
       forkJoin(observables)
         .pipe(finalize(() => this.fetching = false))
         .subscribe(() => {
-          this.refreshStoreLists();
-          this.refreshMapFilter(storeLists);
-        },
+            this.refreshStoreLists();
+            this.refreshMapFilter(storeLists);
+          },
           err => this.errorService.handleServerError('Failed to remove stores from lists!', err,
             () => console.log(err), () => this.removeFromList(storeLists, storeListStores)));
     }
@@ -370,10 +368,6 @@ export class ListManagerService {
   setPage(page: Pages) {
     this.page = page;
     this.page$.next(this.page);
-  }
-
-  getSelectedStoreList() {
-    return this.selectedStoreList;
   }
 
   renameList(storeList: SimplifiedStoreList, newListName: string) {

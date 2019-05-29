@@ -12,7 +12,7 @@
   <mat-form-field style="min-width: 150px;">
     <mat-label>Order</mat-label>
     <mat-select #sortDirectionSelect [(value)]="sortDirection"
-      (selectionChange)="setSortOptions(null, sortDirectionSelect.value)">
+                (selectionChange)="setSortOptions(null, sortDirectionSelect.value)">
       <mat-option [value]="0">
         <i class="fas fa-sort-amount-up"></i> Ascending
       </mat-option>
@@ -23,6 +23,11 @@
   </mat-form-field>
 </div>
 <div #listOfStores class="list-of-items" id="listOfStores" (scroll)="reachedBottom()" *ngIf="!fetching">
+
+  <!--<cdk-virtual-scroll-viewport itemSize="20">-->
+    <!--<div *cdkVirtualFor="let siteMarker of siteMarkers">{{siteMarker.id}}</div>-->
+  <!--</cdk-virtual-scroll-viewport>-->
+
   <div *ngFor="let item of renderer; let itemIndex = index;">
     <div class="site">
       <div class="site-info">
@@ -33,15 +38,14 @@
         <i (click)="showOnMap(item)" title="Center On Map" class="fas fa-map-marked-alt show-on-map-button"></i>
       </div>
       <div class="store-info">
-        <div [id]="getIdForElem(item, store)" (click)="select(item, store)"
-          [ngClass]="{'store-info-item': true, 'highlighted': shouldHighlight(store)}"
-          *ngFor="let store of getValidStores(item)">
+        <div *ngFor="let store of getValidStores(item)" [id]="getIdForElem(item, store)" (click)="select(item, store)"
+             [ngClass]="{'store-info-item': true, 'highlighted': shouldHighlight(store)}">
           <div class="store" [id]="getItemIndex(itemIndex)">
             <div class="store-descriptions">
               <div class="store-name">{{store.storeName}}</div>
               <div class="store-subtext">{{getStoreSubtext(item, store)}}</div>
             </div>
-            <img class="store-logo" *ngIf="store.logoFileName" [src]="getLogoPath(store.logoFileName)" />
+            <img class="store-logo" *ngIf="store.logoFileName" [src]="getLogoPath(store.logoFileName)"/>
           </div>
         </div>
       </div>

@@ -15,12 +15,13 @@ export class StoreSidenavComponent implements OnInit {
   pages = StoreSidenavPages;
 
   @Input() expanded: boolean;
-  @Input() visibleStores: number;
 
   constructor(private storeSidenavService: StoreSidenavService,
-    private listManagerService: ListManagerService) { }
+              private listManagerService: ListManagerService) {
+  }
 
-  ngOnInit() { }
+  ngOnInit() {
+  }
 
   isPage(page: StoreSidenavPages) {
     return (this.storeSidenavService.currentPage === page);
@@ -51,7 +52,7 @@ export class StoreSidenavComponent implements OnInit {
   }
 
   selectAllFromList() {
-    const { selectedStoreList } = this.listManagerService;
+    const {selectedStoreList} = this.listManagerService;
     this.storeSidenavService.selectAllByIds(selectedStoreList.storeIds);
   }
 
@@ -63,7 +64,7 @@ export class StoreSidenavComponent implements OnInit {
     let output = '';
     switch (this.listManagerService.page) {
       case ListManagerPages.VIEWSTORES:
-        const { selectedStoreList } = this.listManagerService;
+        const {selectedStoreList} = this.listManagerService;
         output = `${selectedStoreList.storeCount.toLocaleString()} Stores in ${this.listManagerService.selectedStoreList.storeListName}`;
         break;
       default:
@@ -85,7 +86,7 @@ export class StoreSidenavComponent implements OnInit {
   }
 
   storeListIsCurrentFilter() {
-    const { selectedStoreList } = this.listManagerService;
+    const {selectedStoreList} = this.listManagerService;
     if (selectedStoreList) {
       return this.listManagerService.storeListIsCurrentFilter(selectedStoreList);
     }
@@ -93,7 +94,7 @@ export class StoreSidenavComponent implements OnInit {
   }
 
   filterMap() {
-    const { selectedStoreList } = this.listManagerService;
+    const {selectedStoreList} = this.listManagerService;
     if (!this.storeListIsCurrentFilter()) {
       this.listManagerService.setStoreListAsCurrentFilter(selectedStoreList);
     }

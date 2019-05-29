@@ -55,51 +55,6 @@ form {
   max-width: 300px;
 }
 
-.add-banner-button{
-  text-align: center; 
-  justify-content: center !important;
-  font-style: italic;
-  font-weight: bold;
-  background: #607d8b;
-  padding: 10px;
-  border-radius: 5px;
-  margin: 0 0 15px 0;
-  color: white;
-}
-
-.meta-data {
-  text-align: center;
-}
-.meta-data > div{
-  display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 0 0 5px 0;
-}
-.meta-data > div:hover{
-  background: #efefef;
-  color: black;
-}
-
-.banner-logo {
-  height: auto;
-  max-width: 50%;
-  max-height: 30px;
-}
-
-.checklist {
-  display: flex;
-  flex-direction: column;
-  padding-left: 30px
-}
-
-.checklist mat-checkbox {
-  margin-bottom: 8px;
-}
-
 mat-sidenav {
   min-width: 250px;
 }
@@ -126,54 +81,17 @@ mat-sidenav {
   color: orange;
 }
 
-.accordion-header-text{
-  font-size: large;
-  background: #607d8b; 
-  color: white;
-  display:flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.accordion-header-text> div{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 75px;
-}
-
-.mat-expansion-panel-spacing{
-  margin: 0;
-}
-
-mat-panel-title{
-  align-items: center;
-}
-
-mat-panel-description{
-  font-size: x-small;
-  font-style: italic;
-  align-items: center;
-  justify-content: flex-end;
-  text-align: right;
-  white-space: pre-wrap;
-}
-
 @media (max-width: 600px) {
   #loadingSpinner, #refresh {
     bottom: 240px;
   }
 }
+
 #refresh {
   min-width: unset;
   padding: unset;
   width: 40px;
   height: 40px;
-}
-
-.control-selector {
-  width: 200px;
-  margin: 0 10%;
 }
 
 mat-slider {
@@ -255,14 +173,4 @@ mds-store-sidenav.sidenav-show::after {
 .adjusted-height {
   height: calc(100% - 250px);
   padding-bottom: 10px;
-}
-
-#dataset-header {
-  display: flex;
-  justify-content: space-between;
-}
-
-h3 > i:hover {
-  cursor: pointer;
-  color: orange;
 }
