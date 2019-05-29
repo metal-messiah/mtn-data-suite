@@ -1,7 +1,8 @@
 import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
-import { MatSnackBar, MatDialog, MatStepper } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatStepper } from '@angular/material/stepper';
 import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
-import * as _ from 'lodash';
 
 import { StoreMappable } from '../../models/store-mappable';
 import { Coordinates } from '../../models/coordinates';

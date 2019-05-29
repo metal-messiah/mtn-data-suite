@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {ErrorDialogComponent} from '../../shared/error-dialog/error-dialog.component';
-import {MatDialog} from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import {AuthService} from './auth.service';
 
 @Injectable()

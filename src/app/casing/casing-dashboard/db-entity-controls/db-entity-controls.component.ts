@@ -5,7 +5,7 @@ import { TextInputDialogComponent } from '../../../shared/text-input-dialog/text
 import { StoredControlsSelectionDialogComponent } from '../../../shared/stored-controls-selection-dialog/stored-controls-selection-dialog.component';
 import { Control } from '../../../models/control';
 import { DbEntityMarkerService } from '../../../core/services/db-entity-marker.service';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 import { StoreStatusOptions } from '../../../core/functionalEnums/StoreStatusOptions';
 import { SelectBannerComponent } from '../../select-banner/select-banner.component';

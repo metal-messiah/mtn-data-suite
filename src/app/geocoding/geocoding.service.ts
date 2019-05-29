@@ -7,8 +7,7 @@ import { ResourceQuotaService } from '../core/services/resource-quota.service';
 import { ErrorService } from '../core/services/error.service';
 
 import { saveAs } from 'file-saver';
-import { Pageable } from '../models/pageable';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root'

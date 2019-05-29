@@ -4,7 +4,8 @@ import { AbstractControl, FormArray, FormGroup } from '@angular/forms';
 import { Location } from '@angular/common';
 import { StoreListItem } from '../../models/store-list-item';
 import { Router } from '@angular/router';
-import { MatSnackBar, Sort } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Sort } from '@angular/material/sort';
 
 @Component({
   selector: 'mds-store-data-verification',

@@ -1,6 +1,7 @@
 import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { MatSnackBar, MatStepper } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatStepper } from '@angular/material/stepper';
 import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
 import * as _ from 'lodash';
 

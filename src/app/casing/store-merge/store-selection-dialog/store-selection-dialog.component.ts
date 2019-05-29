@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { Store } from '../../../models/full/store';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ErrorDialogComponent } from '../../../shared/error-dialog/error-dialog.component';
 
 @Component({

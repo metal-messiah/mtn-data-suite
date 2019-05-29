@@ -4,7 +4,7 @@ import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list
 import { ListManagerService } from './list-manager.service';
 import { Pages } from './list-manager-pages';
 import { Subscription } from 'rxjs';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { StoreSidenavService } from '../store-sidenav/store-sidenav.service';
 
 @Component({

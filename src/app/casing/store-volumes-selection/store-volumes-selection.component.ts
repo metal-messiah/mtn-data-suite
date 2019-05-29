@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { SimplifiedStoreVolume } from '../../models/simplified/simplified-store-volume';
 import { StoreVolume } from '../../models/full/store-volume';
 import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { StoreService } from '../../core/services/store.service';
 import { ErrorService } from '../../core/services/error.service';
 import { finalize } from 'rxjs/internal/operators';

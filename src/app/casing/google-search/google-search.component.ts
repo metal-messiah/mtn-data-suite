@@ -1,5 +1,5 @@
 import { Component, NgZone } from '@angular/core';
-import { MatDialogRef } from '@angular/material';
+import { MatDialogRef } from '@angular/material/dialog';
 import { GooglePlace } from '../../models/google-place';
 import { MapService } from '../../core/services/map.service';
 import { finalize } from 'rxjs/operators';

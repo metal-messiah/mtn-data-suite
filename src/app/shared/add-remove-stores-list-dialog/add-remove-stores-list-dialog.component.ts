@@ -5,7 +5,7 @@ import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { StoreService } from '../../core/services/store.service';
 
 import * as _ from 'lodash';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { StoreListService } from 'app/core/services/store-list.service';
 import { StoreList } from 'app/models/full/store-list';
 

@@ -1,4 +1,4 @@
-import { MatListOption } from '@angular/material';
+import { MatListOption } from '@angular/material/list';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
 import { StoreList } from 'app/models/full/store-list';
 import { StoreListService } from 'app/core/services/store-list.service';

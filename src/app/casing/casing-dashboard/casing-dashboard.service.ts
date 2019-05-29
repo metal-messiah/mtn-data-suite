@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SelectProjectComponent } from '../select-project/select-project.component';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
 import { Subject } from 'rxjs';
 import { SiteMarker } from 'app/models/site-marker';

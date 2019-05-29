@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { MatDialogRef } from '@angular/material';
+import { MatDialogRef } from '@angular/material/dialog';
 import { ErrorService } from '../../core/services/error.service';
 import { fromEvent } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, map, switchMap } from 'rxjs/operators';

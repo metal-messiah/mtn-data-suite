@@ -3,7 +3,7 @@ import { SimplifiedStore } from 'app/models/simplified/simplified-store';
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
 import { StoreListService } from 'app/core/services/store-list.service';
 import { StoreList } from 'app/models/full/store-list';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { ListManagerService } from '../list-manager.service';
 import { MapService } from 'app/core/services/map.service';
 import { SortDirection, SortType, StoreSidenavService } from 'app/shared/store-sidenav/store-sidenav.service';

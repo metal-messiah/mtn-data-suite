@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { RestService } from './rest.service';
 import { UserProfile } from '../../models/full/user-profile';
 import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 
 @Injectable()

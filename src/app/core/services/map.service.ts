@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
 import { Observable, of, Subject } from 'rxjs';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 /*
   The MapService should

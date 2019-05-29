@@ -3,7 +3,8 @@ import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list
 import { ListManagerService } from '../list-manager.service';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
 import { ConfirmDialogComponent } from 'app/shared/confirm-dialog/confirm-dialog.component';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Pages } from '../list-manager-pages';
 import { UserProfileSelectComponent } from 'app/shared/user-profile-select/user-profile-select.component';
 import { UserProfile } from 'app/models/full/user-profile';
