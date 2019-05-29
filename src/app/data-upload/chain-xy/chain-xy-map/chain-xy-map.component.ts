@@ -102,7 +102,7 @@ export class ChainXyMapComponent implements OnInit {
   // Reference Values
   storeTypes: string[] = ['ACTIVE', 'FUTURE', 'HISTORICAL'];
 
-  @ViewChild('stepper') stepper: MatStepper;
+  @ViewChild('stepper', { static: true }) stepper: MatStepper;
 
   constructor(
     private sourceService: StoreSourceService,

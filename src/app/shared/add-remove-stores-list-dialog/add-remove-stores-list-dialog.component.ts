@@ -32,7 +32,7 @@ export class AddRemoveStoresListDialogComponent {
 
   fetching = true;
 
-  @ViewChild('selectionList') selectionList: any = {
+  @ViewChild('selectionList', { static: true }) selectionList: any = {
     selectedOptions: { selected: [] }
   };
 

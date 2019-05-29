@@ -21,7 +21,7 @@ export class SelectBannerComponent implements OnInit {
 
   loading = false;
 
-  @ViewChild('bannerSearchBox') bannerSearchBoxElement: ElementRef;
+  @ViewChild('bannerSearchBox', { static: true }) bannerSearchBoxElement: ElementRef;
 
   constructor(public dialogRef: MatDialogRef<SelectBannerComponent>,
     private errorService: ErrorService,

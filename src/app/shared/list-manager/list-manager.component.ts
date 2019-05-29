@@ -28,7 +28,7 @@ export class ListManagerComponent implements OnDestroy {
   pages = Pages;
   page: Pages;
 
-  @ViewChild('selectionList') selectionList: any;
+  @ViewChild('selectionList', { static: false }) selectionList: any;
 
   constructor(private listManagerService: ListManagerService,
               private snackBar: MatSnackBar,

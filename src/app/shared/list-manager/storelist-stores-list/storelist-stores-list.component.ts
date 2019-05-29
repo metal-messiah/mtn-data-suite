@@ -26,7 +26,7 @@ export class StorelistStoresListComponent implements OnInit {
   loadingConstraint = 20;
   renderer = [];
 
-  @ViewChild('listOfStores') listOfStores;
+  @ViewChild('listOfStores', { static: false }) listOfStores;
 
   constructor(
     private listManagerService: ListManagerService,

@@ -74,7 +74,7 @@ export class PlannedGroceryComponent implements OnInit {
     99: {pg: 'Dead Deal', db: 'Dead Deal'}
   };
 
-  @ViewChild('stepper') stepper: MatStepper;
+  @ViewChild('stepper', { static: true }) stepper: MatStepper;
 
   constructor(
     private sourceService: StoreSourceService,

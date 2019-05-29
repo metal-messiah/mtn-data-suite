@@ -46,7 +46,7 @@ export class AssignFieldsDialogComponent implements OnInit {
   volumeDate = null;
   volumeType: string = null;
 
-  @ViewChild('stepper') stepper: MatStepper;
+  @ViewChild('stepper', { static: true }) stepper: MatStepper;
 
   MatDialog;
 

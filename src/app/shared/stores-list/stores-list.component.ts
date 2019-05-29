@@ -13,7 +13,7 @@ import { DbEntityMarkerService } from '../../core/services/db-entity-marker.serv
 })
 export class StoresListComponent implements OnInit {
 
-  @ViewChild('listOfStores') listOfStores;
+  @ViewChild('listOfStores', { static: false }) listOfStores;
 
   constructor(
     private storeSidenavService: StoreSidenavService,

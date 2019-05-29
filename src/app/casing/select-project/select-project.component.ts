@@ -32,7 +32,7 @@ export class SelectProjectComponent implements OnInit {
   gettingProject = false;
   loading = false;
 
-  @ViewChild('projectSearchBox') projectSearchBoxElement: ElementRef;
+  @ViewChild('projectSearchBox', { static: true }) projectSearchBoxElement: ElementRef;
 
   constructor(public dialogRef: MatDialogRef<SelectProjectComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,

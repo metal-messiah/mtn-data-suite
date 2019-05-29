@@ -42,7 +42,7 @@ export class ChainXyTableComponent implements OnInit {
 
   bannerImages = {};
 
-  @ViewChild('sidenav') sidenav: MatSidenav;
+  @ViewChild('sidenav', { static: true }) sidenav: MatSidenav;
 
   constructor(
     private router: Router,

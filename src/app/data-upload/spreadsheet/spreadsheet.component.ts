@@ -86,7 +86,7 @@ export class SpreadsheetComponent implements OnInit {
         lng: number;
     } = null;
 
-    @ViewChild('stepper') stepper: MatStepper;
+    @ViewChild('stepper', { static: false }) stepper: MatStepper;
 
     constructor(
         private mapService: MapService,
