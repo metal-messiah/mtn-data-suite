@@ -17,7 +17,7 @@
     <div class="row content">
       <mat-list>
         <div *ngFor="let banner of banners">
-          <mat-list-item (click)="selectBanner(banner)" class="banner-list-item">
+          <mat-list-item (click)="selectBanner(banner, $event)" class="banner-list-item">
             <img *ngIf="banner.logoFileName" [src]="getBannerImageSrc(banner)" [alt]="banner.bannerName">
             <h3 matLine>{{banner.bannerName}}</h3>
             <span *ngIf="getBannerCompanyName(banner)" title="Company" class="company-name" matLine>
@@ -28,6 +28,20 @@
               <i class="fas fa-level-up-alt fa-rotate-90"
                 style="padding: 0 5px; margin-left: 20px;"></i>&nbsp;{{getBannerParentCompanyName(banner)}}
             </span>
+            <!-- OPTIONS MENU FOR EACH BANNER -->
+            <button id='menu-icon-button' [disabled]="cloudinaryIsActive(banner)" class='menu-icon-button'
+              mat-icon-button color="primary" [mat-menu-trigger-for]="bannerMenu">
+              <i *ngIf="!cloudinaryIsActive(banner)" id="menu-icon-button-icon"
+                class="banner-menu fas fa-ellipsis-v"></i>
+              <i *ngIf="cloudinaryIsActive(banner)" id="menu-icon-button-icon"
+                class="banner-menu fas fa-spinner fa-pulse"></i>
+            </button>
+            <mat-menu #bannerMenu="matMenu">
+              <button mat-menu-item (click)="changeLogo(banner)">
+                <i class="fas fa-image"></i>
+                <span>&nbsp;Change Logo</span>
+              </button>
+            </mat-menu>
           </mat-list-item>
           <mat-divider></mat-divider>
         </div>
@@ -42,3 +56,5 @@
   <button mat-raised-button mat-dialog-close>Cancel</button>
   <button mat-raised-button *ngIf="remove" mat-dialog-close="remove" color="primary">Remove Banner</button>
 </div>
+<mds-cloudinary [cloudName]="cloudName" [username]="username" [apiSecret]="apiSecret" [apiKey]="apiKey"
+  [maxFiles]="maxFiles" *ngIf="showCloudinary" [multiple]="false" (assets)="handleAssets($event)"></mds-cloudinary>

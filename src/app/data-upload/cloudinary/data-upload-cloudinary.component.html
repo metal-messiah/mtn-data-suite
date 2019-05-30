@@ -1,0 +1,10 @@
+<div class='flex-container'>
+  <div style="text-align: center;">
+    <button style="margin:25px;" *ngIf="showCloudinary && !cloudinaryIsShowing()" mat-flat-button color="primary"
+      (click)="openCloudinary()"><i class="fas fa-cloud"></i>
+      Reconnect to Cloudinary
+    </button>
+    <mds-cloudinary [cloudName]="cloudName" [username]="username" [apiSecret]="apiSecret" [apiKey]="apiKey"
+      [maxFiles]="maxFiles" *ngIf="showCloudinary" (assets)="handleAssets($event)"></mds-cloudinary>
+  </div>
+</div>

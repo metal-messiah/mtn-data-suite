@@ -141,7 +141,7 @@ export class AssignFieldsDialogComponent implements OnInit {
             banners.forEach((banner) => {
               this.bannerService.getOneById(banner.id).subscribe(
                 (b: Banner) => {
-                  this.banners.push(b);
+                  this.banners.push(new SimplifiedBanner(b));
                 },
                 () => this.getBannersFromCompany(attempts + 1) // just a failsafe
               );

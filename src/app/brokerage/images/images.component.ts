@@ -3,6 +3,7 @@ import { MatSnackBar } from '@angular/material';
 
 import { saveAs } from 'file-saver';
 import shajs from 'sha.js';
+import { CloudinaryAsset } from 'app/shared/cloudinary/cloudinary.component';
 
 declare var cloudinary: any;
 
@@ -20,15 +21,8 @@ export class ImagesComponent implements OnInit {
 
   config: object;
 
-  signature: string;
-  encodedSignature: string;
-
-  mediaLibrary: any;
-
-  selectedFiles;
+  selectedFiles: CloudinaryAsset[] = [];
   copiedId: string;
-
-  initialized = false;
 
   file: File;
   fileReader: FileReader;
@@ -40,6 +34,8 @@ export class ImagesComponent implements OnInit {
   identifierTargets: object = {};
   identifierIdx: number;
 
+  showCloudinary = false;
+
   constructor(private snackBar: MatSnackBar) {
     this.fileReader = new FileReader();
     this.fileReader.onload = event => this.handleFileContents(event); // desired file content
@@ -47,30 +43,11 @@ export class ImagesComponent implements OnInit {
       this.snackBar.open(error.toString(), null, {
         duration: 2000
       });
-    // window['global'] = window;
-    this.signature = `cloud_name=${this.cloudName}&timestamp=${
-      this.timeStamp
-      }&username=${this.username}${this.apiSecret}`;
 
-    this.encodedSignature = shajs('sha256')
-      .update(this.signature)
-      .digest('hex');
-
-    this.config = {
-      signature: this.encodedSignature,
-      cloud_name: this.cloudName,
-      api_key: this.apiKey,
-      username: this.username,
-      timestamp: this.timeStamp,
-      max_files: 100
-    };
-
-    this.openCloudinary();
-
-    this.selectedFiles = [];
   }
 
   ngOnInit() {
+    this.openCloudinary();
   }
 
   getValue(item) {
@@ -91,26 +68,39 @@ export class ImagesComponent implements OnInit {
     target.disabled = true;
   }
 
-  startOver() {
-    this.initialized = false;
-    this.selectedFiles = [];
-    this.openCloudinary();
+  handleAssets(assets) {
+    this.setSelectedFiles(assets);
+    this.showCloudinary = false;
   }
 
   openCloudinary() {
-    this.mediaLibrary = cloudinary.openMediaLibrary(this.config, {
-      insertHandler: data => {
-        this.setSelectedFiles(data.assets);
-      }
-    });
+    this.selectedFiles = [];
+    this.showCloudinary = true;
+    if (!this.cloudinaryIsShowing()) {
+      setTimeout(() => {
+        this.setCloudinaryElementVisibility('visible');
+      }, 500)
+    }
+  }
 
-    setTimeout(() => {
-      this.initialized = true;
-    }, 5000);
+  cloudinaryIsShowing() {
+    const cloudinaryElem = document.querySelector('div>iframe');
+    let isShowing = false;
+    if (cloudinaryElem) {
+      isShowing = cloudinaryElem.parentElement.style.visibility === 'visible';
+    }
+    return isShowing;
+  }
+
+  setCloudinaryElementVisibility(visibility) {
+    const cloudinaryElem = document.querySelector('div>iframe');
+    if (cloudinaryElem) {
+      cloudinaryElem.parentElement.style.visibility = visibility
+    }
   }
 
   readCsv(event) {
-    const {files} = event.target;
+    const { files } = event.target;
     if (files && files.length === 1) {
       // only want 1 file at a time!
       this.file = files[0];
@@ -124,7 +114,7 @@ export class ImagesComponent implements OnInit {
       }
     } else {
       // notify about file constraints
-      this.snackBar.open('1 file at a time please', null, {duration: 2000});
+      this.snackBar.open('1 file at a time please', null, { duration: 2000 });
     }
   }
 
@@ -194,10 +184,10 @@ export class ImagesComponent implements OnInit {
     saveAs(
       new Blob([output]),
       `${
-        this.file
-          ? this.file.name.split('.')[0] + '_logos'
-          : 'export_logos'
-        }.csv`
+      this.file
+        ? this.file.name.split('.')[0] + '_logos'
+        : 'export_logos'
+      }.csv`
     );
   }
 
@@ -223,7 +213,7 @@ export class ImagesComponent implements OnInit {
     }
   }
 
-  setSelectedFiles(files) {
+  setSelectedFiles(files: CloudinaryAsset[]) {
     this.selectedFiles = files;
   }
 }
