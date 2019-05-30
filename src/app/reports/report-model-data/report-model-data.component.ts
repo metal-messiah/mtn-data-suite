@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReportBuilderService } from '../services/report-builder.service';
 import { ReportData } from '../../models/report-data';
 import { MatSnackBar } from '@angular/material';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../../core/services/auth.service';
+import { FormBuilder } from '@angular/forms';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { StoreService } from '../../core/services/store.service';
 import { finalize, tap } from 'rxjs/operators';
@@ -23,45 +22,29 @@ export class ReportModelDataComponent implements OnInit {
   parsingFile = false;
   postProcessing = false;
 
-  modelMetaDataForm: FormGroup;
-
-  file: File;
-
   fileReader: FileReader;
 
   constructor(public rbs: ReportBuilderService,
               private fb: FormBuilder,
-              private auth: AuthService,
               private router: Router,
               private xlsToModelParserService: XlsToModelParserService,
               private storeService: StoreService,
               private snackBar: MatSnackBar) {
     this.fileReader = new FileReader();
-    this.createForm();
   }
 
   ngOnInit() {
   }
 
-  private createForm() {
-    this.modelMetaDataForm = this.fb.group({
-      analyst: `${this.auth.sessionUser.firstName} ${this.auth.sessionUser.lastName}`,
-      clientName: ['', [Validators.required]],
-      type: ['', [Validators.required]],
-      modelName: ['', [Validators.required]],
-      fieldResDate: new Date()
-    })
-  }
-
   readFile(event) {
-    this.resetFile();
+    this.rbs.modelFile = null;
 
     const files = event.target.files;
 
     if (files && files.length === 1) {
       // only want 1 file at a time!
       if (files[0].name.includes('.xls')) {
-        this.file = files[0];
+        this.rbs.modelFile = files[0];
       } else {
         this.snackBar.open('Only valid .xls or .xlsx files are accepted', null, {
           duration: 2000
@@ -71,15 +54,7 @@ export class ReportModelDataComponent implements OnInit {
       // notify about file constraints
       this.snackBar.open('1 file at a time please', null, {duration: 2000});
     }
-  }
 
-  resetFile() {
-    console.log('RESET FILE');
-    this.file = null;
-  }
-
-  submitModelData() {
-    this.rbs.reportMetaData = this.modelMetaDataForm.value;
     this.fileReader.onload = () => {
       if (this.fileReader.result) {
         this.parsingFile = true;
@@ -89,12 +64,8 @@ export class ReportModelDataComponent implements OnInit {
           .subscribe((reportData: ReportData) => {
             this.postProcessing = true;
             this.postProcessReportData(reportData)
-              .pipe(finalize(() => {
-                this.postProcessing = false;
-                this.rbs.setReportTableData(reportData);
-                this.router.navigate(['reports/categorization']);
-              }))
-              .subscribe();
+              .pipe(finalize(() => this.postProcessing = false))
+              .subscribe(() => this.rbs.setReportTableData(reportData));
           }, err => {
             console.error(err);
             this.snackBar.open('Failed to parse html file!', 'Close')
@@ -104,7 +75,11 @@ export class ReportModelDataComponent implements OnInit {
       }
     };
     this.fileReader.onerror = error => this.snackBar.open(error.toString(), null, {duration: 2000});
-    this.fileReader.readAsBinaryString(this.file); // Triggers FileReader.onload
+    this.fileReader.readAsBinaryString(this.rbs.modelFile); // Triggers FileReader.onload
+  }
+
+  next() {
+    this.router.navigate(['reports/categorization']);
   }
 
   private postProcessReportData(reportData: ReportData): Observable<any> {
@@ -171,12 +146,12 @@ export class ReportModelDataComponent implements OnInit {
     reportData.storeList.forEach(storeListItem => {
       if (storeListItem.scenario === 'Exclude') {
         storeListItem.category = 'Do Not Include';
+      } else if (storeListItem.bannerName === target.bannerName) {
+        storeListItem.category = 'Company Store';
       } else if (storeListItem.scenario === 'Existing' || storeListItem.scenario === 'Closed') {
         storeListItem.category = 'Existing Competition';
       } else if (storeListItem.scenario === 'Opening') {
         storeListItem.category = 'Proposed Competition';
-      } else if (storeListItem.bannerName === target.bannerName) {
-        storeListItem.category = 'Company Store';
       }
     });
   }
@@ -189,13 +164,12 @@ export class ReportModelDataComponent implements OnInit {
     return this.storeService.getAllByIds(storeIds)
       .pipe(tap((stores: SimplifiedStore[]) => {
           stores.forEach((store: SimplifiedStore) => {
-            const idx = reportData.storeList.findIndex(s => s.uniqueId === store.id);
-            if (idx !== -1) {
-              reportData.storeList[idx].totalArea = Math.round(store.areaTotal / 100) * 100;
+            reportData.storeList.filter(s => s.uniqueId === store.id).forEach(s => {
+              s.totalArea = Math.round(store.areaTotal / 100) * 100;
               if (store.banner) {
-                reportData.storeList[idx].bannerName = store.banner.bannerName;
+                s.bannerName = store.banner.bannerName;
               }
-            }
+            });
           });
         },
         () => {

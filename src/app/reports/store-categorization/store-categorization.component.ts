@@ -25,7 +25,7 @@ export class StoreCategorizationComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (!this.rbs.reportTableData) {
+    if (!this.rbs.getReportTableData()) {
       setTimeout(() => {
         this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
         this.router.navigate(['reports']);
@@ -40,19 +40,19 @@ export class StoreCategorizationComponent implements OnInit {
 
   changeCombinedCategory(event, combo) {
     console.log(combo, ' change to ', event.target.value);
-    this.rbs.reportTableData.storeList.forEach((s, i) => {
+    this.rbs.getReportTableData().storeList.forEach(s => {
       if (s.bannerName === combo.bannerName && s.scenario === 'Existing') {
-        this.rbs.reportTableData.storeList[i].category = event.target.value;
+        s.category = event.target.value;
       }
     });
   }
 
   getExistingStoresCount(bannerName) {
-    return this.rbs.reportTableData.storeList.filter(s => s.bannerName === bannerName && s.uniqueId).length;
+    return this.rbs.getReportTableData().storeList.filter(s => s.bannerName === bannerName && s.uniqueId).length;
   }
 
   getExistingStoresCombined() {
-    return this.rbs.reportTableData.storeList
+    return this.rbs.getReportTableData().storeList
     // If store has unique ID, then it exists in DB. If a store has a decimal or the store is the site then it should be treated separately.
       .filter(s => s.scenario === 'Existing')
       .map(s => {
@@ -63,11 +63,7 @@ export class StoreCategorizationComponent implements OnInit {
   }
 
   getProposedStores() {
-    return this.rbs.reportTableData.storeList.filter(s => s.scenario !== 'Existing');
-  }
-
-  next() {
-    this.router.navigate(['reports/data-verification']);
+    return this.rbs.getReportTableData().storeList.filter(s => s.scenario !== 'Existing');
   }
 
 }

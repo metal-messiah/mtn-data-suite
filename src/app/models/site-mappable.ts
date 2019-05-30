@@ -47,7 +47,7 @@ export class SiteMappable implements EntityMappable {
     const scale = 0.075;
     const anchor = this.getAnchor(shape);
     const strokeWeight = 2.5;
-    const fillOpacity = this.getFillOpacity(markerType);
+    const fillOpacity = 1;
     const rotation = 0;
     const labelOrigin = this.getLabelOrigin(shape);
 
@@ -129,13 +129,6 @@ export class SiteMappable implements EntityMappable {
       return new google.maps.Point(255, 220);
     }
     return new google.maps.Point(255, 230);
-  }
-
-  private getFillOpacity(markerType?: MarkerType) {
-    if (markerType === MarkerType.LABEL) {
-      return 0.6;
-    }
-    return 1;
   }
 
 }

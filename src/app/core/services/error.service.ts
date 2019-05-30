@@ -22,9 +22,13 @@ export class ErrorService {
       }
       case 400: {
         showRetry = false;
-        let msg = err['message'];
-        if (!msg) {
+        let msg: string;
+        if (err['error'] && err['error']['message']) {
           msg = err['error']['message'];
+        } else if (err['message']) {
+          msg = err['message'];
+        } else {
+          msg = err.toString();
         }
         reason = `Bad Request: ${msg}`;
         break;

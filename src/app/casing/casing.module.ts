@@ -37,9 +37,6 @@ import { InfoCardDirective } from './info-card.directive';
 import { InfoCardComponent } from './info-card/info-card.component';
 import { DbLocationInfoCardComponent } from '../shared/db-location-info-card/db-location-info-card.component';
 import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-card.component';
-import { StoreSidenavComponent } from './store-sidenav/store-sidenav.component';
-import { StorageService } from 'app/core/services/storage.service';
-
 
 @NgModule({
   imports: [
@@ -79,8 +76,12 @@ import { StorageService } from 'app/core/services/storage.service';
     StoreAttrSelectionDialogComponent,
     SelectBannerComponent,
     InfoCardDirective,
+<<<<<<< HEAD
     InfoCardComponent,
     StoreSidenavComponent
+=======
+    InfoCardComponent
+>>>>>>> 98bb82db2ec346685aee530a64a1b23e7ea6a9f2
   ],
   entryComponents: [
     AccessListDialogComponent,
@@ -102,8 +103,12 @@ import { StorageService } from 'app/core/services/storage.service';
     StoreAttrSelectionDialogComponent,
     SelectBannerComponent,
     DbLocationInfoCardComponent,
+<<<<<<< HEAD
     GoogleInfoCardComponent,
     StoreSidenavComponent
+=======
+    GoogleInfoCardComponent
+>>>>>>> 98bb82db2ec346685aee530a64a1b23e7ea6a9f2
   ],
   providers: [CasingDashboardService, StorageService]
 })

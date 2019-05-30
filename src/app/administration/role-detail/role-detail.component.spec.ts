@@ -9,7 +9,7 @@ import { DetailFormService } from '../../core/services/detail-form.service';
 import { RoleService } from '../../core/services/role.service';
 import { PermissionService } from '../../core/services/permission.service';
 import { ErrorService } from '../../core/services/error.service';
-import { of } from 'rxjs/observable/of';
+import { of } from 'rxjs';
 
 describe('RoleDetailComponent', () => {
   let component: RoleDetailComponent;

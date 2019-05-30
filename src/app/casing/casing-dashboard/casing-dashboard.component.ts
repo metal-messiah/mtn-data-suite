@@ -45,8 +45,11 @@ import { GeometryUtil } from '../../utils/geometry-util';
 import { DbEntityInfoCardItem } from '../db-entity-info-card-item';
 import { InfoCardItem } from '../info-card-item';
 import { GoogleInfoCardItem } from '../google-info-card-item';
+<<<<<<< HEAD
 import { ListManagerDialogComponent } from '../../shared/list-manager-dialog/list-manager-dialog.component';
 import { StorageService } from 'app/core/services/storage.service';
+=======
+>>>>>>> 98bb82db2ec346685aee530a64a1b23e7ea6a9f2
 
 export enum CasingDashboardMode {
   DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
@@ -70,7 +73,10 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   updating = false;
   markCasedStores = false;
   savingBoundary = false;
+<<<<<<< HEAD
   showStoreLists: boolean;
+=======
+>>>>>>> 98bb82db2ec346685aee530a64a1b23e7ea6a9f2
 
   // Modes
   selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
@@ -93,6 +99,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   movingSite: Site;
 
   constructor(public mapService: MapService,
+<<<<<<< HEAD
     public dbEntityMarkerService: DbEntityMarkerService,
     public geocoderService: GeocoderService,
     public casingDashboardService: CasingDashboardService,
@@ -110,6 +117,24 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     public entitySelectionService: EntitySelectionService,
     public projectBoundaryService: ProjectBoundaryService,
     private storageService: StorageService) {
+=======
+              public dbEntityMarkerService: DbEntityMarkerService,
+              public geocoderService: GeocoderService,
+              public casingDashboardService: CasingDashboardService,
+              private siteService: SiteService,
+              private storeService: StoreService,
+              private projectService: ProjectService,
+              private snackBar: MatSnackBar,
+              private ngZone: NgZone,
+              private router: Router,
+              private route: ActivatedRoute,
+              private navigatorService: NavigatorService,
+              private dialog: MatDialog,
+              private authService: AuthService,
+              private errorService: ErrorService,
+              public entitySelectionService: EntitySelectionService,
+              public projectBoundaryService: ProjectBoundaryService) {
+>>>>>>> 98bb82db2ec346685aee530a64a1b23e7ea6a9f2
   }
 
   ngOnInit() {
@@ -151,7 +176,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       this.movingSite = site;
       this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
       // Create new site layer
+<<<<<<< HEAD
       this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, { lat: site.latitude, lng: site.longitude });
+=======
+      this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, {lat: site.latitude, lng: site.longitude});
+>>>>>>> 98bb82db2ec346685aee530a64a1b23e7ea6a9f2
     }));
 
     this.subscriptions.push(this.siteUpdated$.subscribe(() => this.getEntitiesInBounds()));
@@ -195,7 +224,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.get('minPullZoomLevel').value) {
       this.dbEntityMarkerService.getMarkersInMapView();
     } else {
+<<<<<<< HEAD
       this.snackBar.open('Zoom in or change Pull zoom limit', null, { duration: 3000 })
+=======
+      this.snackBar.open('Zoom in or change Pull zoom limit', null, {duration: 3000})
+>>>>>>> 98bb82db2ec346685aee530a64a1b23e7ea6a9f2
     }
   }
 
@@ -239,7 +272,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       this.siteService.create(site)
         .pipe(finalize(() => this.cancelSiteCreation()))
         .subscribe(() => {
+<<<<<<< HEAD
           this.snackBar.open('Successfully created new Site', null, { duration: 1500 });
+=======
+          this.snackBar.open('Successfully created new Site', null, {duration: 1500});
+>>>>>>> 98bb82db2ec346685aee530a64a1b23e7ea6a9f2
           this.getEntitiesInBounds();
         }, err => {
           snackBarRef2.dismiss();
@@ -333,7 +370,11 @@ Geo-location
       }))
       .subscribe(() => {
         this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+<<<<<<< HEAD
         this.snackBar.open('Successfully created new Site', null, { duration: 1500 });
+=======
+        this.snackBar.open('Successfully created new Site', null, {duration: 1500});
+>>>>>>> 98bb82db2ec346685aee530a64a1b23e7ea6a9f2
         this.getEntitiesInBounds();
       }, err => this.errorService.handleServerError('Failed to update new Site location!', err,
         () => console.log('Cancel'),
@@ -468,7 +509,11 @@ Assigning
       .pipe(finalize(() => this.updating = false))
       .subscribe((sites: SimplifiedSite[]) => {
         const message = `Successfully updated ${sites.length} Sites`;
+<<<<<<< HEAD
         this.snackBar.open(message, null, { duration: 2000 });
+=======
+        this.snackBar.open(message, null, {duration: 2000});
+>>>>>>> 98bb82db2ec346685aee530a64a1b23e7ea6a9f2
         this.getEntitiesInBounds();
       }, err => this.errorService.handleServerError('Failed to update sites!', err,
         () => console.log(err),
@@ -524,7 +569,11 @@ Assigning
   }
 
   openDownloadDialog() {
+<<<<<<< HEAD
     const config = { data: { selectedStoreIds: this.dbEntityMarkerService.getSelectedStoreIds() }, maxWidth: '90%' };
+=======
+    const config = {data: {selectedStoreIds: this.dbEntityMarkerService.getSelectedStoreIds()}, maxWidth: '90%'};
+>>>>>>> 98bb82db2ec346685aee530a64a1b23e7ea6a9f2
     const downloadDialog = this.dialog.open(DownloadDialogComponent, config);
     downloadDialog.afterClosed().subscribe(project => {
       if (project) {
@@ -569,22 +618,6 @@ Assigning
         this.dbEntityMarkerService.removeMarkerForSite(duplicateSiteId);
         this.dbEntityMarkerService.clearSelection();
         this.getEntitiesInBounds();
-      });
-    }
-  }
-
-  openListManagerDialog() {
-    const selectedIds = this.dbEntityMarkerService.getSelectedStoreIds();
-    if (selectedIds.length > 0) {
-      this.storeService.getAllByIds(selectedIds).subscribe((stores: SimplifiedStore[]) => {
-        this.dialog.open(ListManagerDialogComponent, {
-          data: { stores }
-        });
-      }, error1 => this.errorService.handleServerError('Failed to get stores for store lists', error1,
-        () => console.log(error1), () => this.openListManagerDialog()))
-    } else {
-      this.dialog.open(ListManagerDialogComponent, {
-        data: { stores: [] }
       });
     }
   }

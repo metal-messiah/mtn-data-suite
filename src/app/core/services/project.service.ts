@@ -21,7 +21,7 @@ export class ProjectService extends CrudService<Project> {
   public getAllByQuery(projectQuery: string, active: boolean, primaryData:
     boolean, pageNumber?: number): Observable<Pageable<Project>> {
     const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams();
+    let params = new HttpParams().set('sort', 'projectName');
     if (projectQuery != null && projectQuery.length > 0) {
       params = params.set('query', projectQuery);
     }
@@ -63,6 +63,11 @@ export class ProjectService extends CrudService<Project> {
     const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/boundary';
     return this.http.delete<SimplifiedProject>(url, {headers: this.rest.getHeaders()})
       .pipe(map((response) => new SimplifiedProject(response)));
+  }
+
+  getAllCasedStoreIds(projectId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/cased-store-ids';
+    return this.http.get<number[]>(url, {headers: this.rest.getHeaders()});
   }
 
   protected createEntityFromObj(entityObj): Project {

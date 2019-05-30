@@ -1,0 +1,10 @@
+<div class='flex-container'>
+  <div style="text-align: center;">
+    <button style="margin:25px;" *ngIf="initialized" mat-flat-button color="primary" (click)="startOver()"><i class="fas fa-cloud"></i>
+      Reconnect to Cloudinary
+    </button>
+    <h3 *ngIf="!initialized">
+      <i class="fas fa-spinner fa-pulse"></i>
+    </h3>
+  </div>
+</div>
