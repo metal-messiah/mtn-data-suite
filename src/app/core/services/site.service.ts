@@ -57,8 +57,8 @@ export class SiteService extends CrudService<Site> {
       .pipe(map(sites => sites.map(site => new SimplifiedSite(site))));
   }
 
-  assignSiteToUser(site: Site, userId: number) {
-    const url = this.rest.getHost() + this.endpoint + '/' + site.id + '/assign-to-user';
+  assignSiteToUser(siteId: number, userId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + siteId + '/assign-to-user';
     let params = new HttpParams();
     if (userId != null) {
       params = params.set('user-id', String(userId));

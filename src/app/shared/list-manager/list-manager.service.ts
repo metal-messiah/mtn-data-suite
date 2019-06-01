@@ -64,7 +64,7 @@ export class ListManagerService {
     this.stores = stores;
     this.storesChanged$.next(this.stores);
 
-    this.setPage(Pages.LISTMANAGER);
+    this.setView(Pages.LISTMANAGER);
 
     this.refreshStoreLists();
 
@@ -75,7 +75,7 @@ export class ListManagerService {
     this.selectedStoreListChanged$.next(this.selectedStoreList);
 
     if (page) {
-      this.setPage(page)
+      this.setView(page)
     }
   }
 
@@ -359,13 +359,13 @@ export class ListManagerService {
           });
 
           this.refreshStoreLists();
-          this.setPage(Pages.LISTMANAGER)
+          this.setView(Pages.LISTMANAGER)
         }, err => this.errorService.handleServerError('Failed to Add Stores to Store List!', err,
           () => console.log(err), () => this.addToList(selections, storeLists, stores)));
     }
   }
 
-  setPage(page: Pages) {
+  setView(page: Pages) {
     this.page = page;
     this.page$.next(this.page);
   }

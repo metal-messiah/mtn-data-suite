@@ -45,16 +45,16 @@
           </div>
           <div>
             <button mat-mini-fab [mat-menu-trigger-for]="drawingToolsMenu" color="primary">
-              <i *ngIf="mapService.drawingModeIs('pointer')" class="far fa-hand-pointer"></i>
-              <i *ngIf="mapService.drawingModeIs('circle')" class="far fa-circle"></i>
-              <i *ngIf="mapService.drawingModeIs('rectangle')" class="far fa-square"></i>
-              <i *ngIf="mapService.drawingModeIs('polygon')" class="far fa-star"></i>
+              <i *ngIf="drawingModeIs('pointer')" class="far fa-hand-pointer"></i>
+              <i *ngIf="drawingModeIs('circle')" class="far fa-circle"></i>
+              <i *ngIf="drawingModeIs('rectangle')" class="far fa-square"></i>
+              <i *ngIf="drawingModeIs('polygon')" class="far fa-star"></i>
             </button>
           </div>
           <div>
             <button mat-mini-fab [mat-menu-trigger-for]="multiSelectModeMenu" color="primary">
-              <i *ngIf="!dbEntityMarkerService.deselecting" class="fas fa-plus"></i>
-              <i *ngIf="dbEntityMarkerService.deselecting" class="fas fa-minus"></i>
+              <i *ngIf="!deselecting" class="fas fa-plus"></i>
+              <i *ngIf="deselecting" class="fas fa-minus"></i>
             </button>
           </div>
           <div>
@@ -70,19 +70,19 @@
           </div>
           <div>
             <button mat-mini-fab [mat-menu-trigger-for]="drawingToolsMenu" color="primary">
-              <i *ngIf="mapService.drawingModeIs('pointer')" class="far fa-hand-pointer"></i>
-              <i *ngIf="mapService.drawingModeIs('circle')" class="far fa-circle"></i>
-              <i *ngIf="mapService.drawingModeIs('rectangle')" class="far fa-square"></i>
-              <i *ngIf="mapService.drawingModeIs('polygon')" class="far fa-star"></i>
+              <i *ngIf="drawingModeIs('pointer')" class="far fa-hand-pointer"></i>
+              <i *ngIf="drawingModeIs('circle')" class="far fa-circle"></i>
+              <i *ngIf="drawingModeIs('rectangle')" class="far fa-square"></i>
+              <i *ngIf="drawingModeIs('polygon')" class="far fa-star"></i>
             </button>
           </div>
           <div>
-            <button mat-mini-fab *ngIf="!projectBoundaryService.deletingProjectShapes" color="primary"
-                    (click)="projectBoundaryService.enableProjectShapeDeletion()">
+            <button mat-mini-fab *ngIf="!deletingProjectShapes" color="primary"
+                    (click)="enableProjectShapeDeletion()">
               <i class="fas fa-trash-alt"></i>
             </button>
-            <button mat-mini-fab *ngIf="projectBoundaryService.deletingProjectShapes" color="accent"
-                    (click)="projectBoundaryService.disableProjectShapeDeletion()">
+            <button mat-mini-fab *ngIf="deletingProjectShapes" color="accent"
+                    (click)="disableProjectShapeDeletion()">
               <i class="fas fa-trash-alt fa-spin"></i>
             </button>
           </div>
@@ -123,8 +123,8 @@
 </mat-sidenav-container>
 
 <mat-menu #multiSelectActionMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item *ngIf="dbEntityMarkerService.getSelectedStoreIds().length > 0" disabled>
-    {{getSelectedStoreIds().length}}&nbsp;Stores
+  <button mat-menu-item *ngIf="selectedStoreIds.size > 0" disabled>
+    {{selectedStoreIds.size}}&nbsp;Stores
   </button>
   <button mat-menu-item (click)="openDownloadDialog()" *ngIf="!userIsGuest()">
     <i class="fas fa-download"></i>&nbsp;&nbsp;Download Latest Data
@@ -147,25 +147,25 @@
 </mat-menu>
 
 <mat-menu #drawingToolsMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="mapService.setDrawingModeToClick()">
+  <button mat-menu-item (click)="setDrawingModeToClick()">
     <i class="far fa-hand-pointer"></i>&nbsp;Click
   </button>
-  <button mat-menu-item (click)="mapService.setDrawingModeToRectangle()">
+  <button mat-menu-item (click)="setDrawingModeToRectangle()">
     <i class="far fa-square"></i>&nbsp;Rectangle
   </button>
-  <button mat-menu-item (click)="mapService.setDrawingModeToCircle()">
+  <button mat-menu-item (click)="setDrawingModeToCircle()">
     <i class="far fa-circle"></i>&nbsp;Circle
   </button>
-  <button mat-menu-item (click)="mapService.setDrawingModeToPolygon()">
+  <button mat-menu-item (click)="setDrawingModeToPolygon()">
     <i class="far fa-star"></i>&nbsp;Polygon
   </button>
 </mat-menu>
 
 <mat-menu #multiSelectModeMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item (click)="dbEntityMarkerService.deselecting = false">
+  <button mat-menu-item (click)="deselecting = false">
     <i class="fas fa-plus-circle"></i>&nbsp;Select
   </button>
-  <button mat-menu-item (click)="dbEntityMarkerService.deselecting = true">
+  <button mat-menu-item (click)="deselecting = true">
     <i class="fas fa-minus-circle"></i>&nbsp;Deselect
   </button>
 </mat-menu>
@@ -192,19 +192,19 @@
   <button mat-menu-item (click)="enableMultiSelect()">
     <i class="fas fa-hand-pointer"></i>&nbsp;Enable Multi-select
   </button>
-  <button mat-menu-item (click)="openDownloadDialog()" [disabled]="entitySelectionService.storeIds.size < 1"
+  <button mat-menu-item (click)="openDownloadDialog()" [disabled]="selectedStoreIds.size < 1"
           *ngIf="!userIsGuest()">
-    <i class="fas fa-download"></i>&nbsp;Download Latest ({{entitySelectionService.storeIds.size}})
+    <i class="fas fa-download"></i>&nbsp;Download Latest ({{selectedStoreIds.size}})
   </button>
   <button mat-menu-item [mat-menu-trigger-for]="geolocationSubMenu">
     <i class="fas fa-crosshairs"></i>&nbsp;Geolocation
   </button>
-  <button mat-menu-item *ngIf="!casingDashboardService.getSelectedProject()"
-          (click)="casingDashboardService.openProjectSelectionDialog()">
+  <button mat-menu-item *ngIf="!getSelectedProject()"
+          (click)="openProjectSelectionDialog()">
     <i class="fas fa-folder"></i>&nbsp;Select Project
   </button>
-  <button mat-menu-item *ngIf="casingDashboardService.getSelectedProject()" [mat-menu-trigger-for]="projectSubMenu">
-    {{casingDashboardService.getSelectedProject().projectName}}
+  <button mat-menu-item *ngIf="getSelectedProject()" [mat-menu-trigger-for]="projectSubMenu">
+    {{getSelectedProject().projectName}}
   </button>
 </mat-menu>
 
@@ -218,37 +218,37 @@
 </mat-menu>
 
 <mat-menu #projectSubMenu="matMenu">
-  <div *ngIf="casingDashboardService.getSelectedProject()">
-    <button mat-menu-item (click)="casingDashboardService.openProjectSelectionDialog()">
+  <div *ngIf="getSelectedProject()">
+    <button mat-menu-item (click)="openProjectSelectionDialog()">
       <i class="fas fa-folder"></i>&nbsp;Change Project
     </button>
     <button mat-menu-item
-            *ngIf="!casingDashboardService.getSelectedProject().hasBoundary && !projectBoundaryService.isShowingBoundary()"
+            *ngIf="!getSelectedProject().hasBoundary && !isShowingBoundary()"
             (click)="enableProjectBoundaryEditing()">
       Create Boundary
     </button>
-    <div *ngIf="casingDashboardService.getSelectedProject().hasBoundary">
+    <div *ngIf="getSelectedProject().hasBoundary">
       <button mat-menu-item (click)="selectAllInBoundary()">
         Select All In Boundary
       </button>
       <button mat-menu-item (click)="enableProjectBoundaryEditing()">
         Edit Boundary
       </button>
-      <button mat-menu-item *ngIf="projectBoundaryService.isShowingBoundary()"
-              (click)="projectBoundaryService.hideProjectBoundaries()">
+      <button mat-menu-item *ngIf="isShowingBoundary()"
+              (click)="hideProjectBoundaries()">
         Hide Boundary
       </button>
-      <button mat-menu-item *ngIf="!projectBoundaryService.isShowingBoundary()" (click)="showBoundary()">
+      <button mat-menu-item *ngIf="!isShowingBoundary()" (click)="showBoundary()">
         Show Boundary
       </button>
     </div>
   </div>
 </mat-menu>
 
-<i title="Map is Loading" *ngIf="dbEntityMarkerService.gettingLocations && !filterSideNavIsOpen" id="loadingSpinner"
+<i title="Map is Loading" *ngIf="gettingLocations && !filterSideNavIsOpen" id="loadingSpinner"
    class="fas fa-spinner fa-pulse fa-2x"></i>
 <button *ngIf="!controls.updateOnBoundsChange &&
-               !dbEntityMarkerService.gettingLocations && !filterSideNavIsOpen" mat-raised-button id="refresh"
+               !gettingLocations && !filterSideNavIsOpen" mat-raised-button id="refresh"
         (click)="getEntitiesInBounds()" color="primary">
   <i class="fas fa-sync"></i>
 </button>

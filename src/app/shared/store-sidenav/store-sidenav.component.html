@@ -1,9 +1,9 @@
 <div class="store-sidenav">
   <div class="sidenav-content" *ngIf="isPage(null)" style="padding:0 10px;">
-    <h1 mat-dialog-title>Organize Stores</h1>
-    <button mat-flat-button (click)="setPage(pages.STORESONMAP)">Stores On The Map</button>
-    <button mat-flat-button (click)="setPage(pages.MYLISTS)">Manage My Lists</button>
-    <button mat-flat-button (click)="setPage(pages.SEARCH)" disabled>Search For Stores</button>
+    <h1 mat-dialog-title>Store Lists</h1>
+    <button mat-raised-button color="primary" (click)="setPage(pages.STORESONMAP)">Stores On The Map</button>
+    <button mat-raised-button color="primary" (click)="setPage(pages.MYLISTS)">Manage My Lists</button>
+    <button mat-raised-button color="primary" (click)="setPage(pages.SEARCH)" disabled>Search For Stores</button>
   </div>
   <!-- STORES ON MAP -->
   <div class="sidenav-content" *ngIf="isPage(pages.STORESONMAP)">

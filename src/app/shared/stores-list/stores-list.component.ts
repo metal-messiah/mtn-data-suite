@@ -3,8 +3,10 @@ import { StoreMarker } from 'app/models/store-marker';
 import { SortDirection, SortType, StoreSidenavService } from '../store-sidenav/store-sidenav.service';
 import { SiteMarker } from 'app/models/site-marker';
 import { SiteService } from 'app/core/services/site.service';
-import { Site } from 'app/models/full/site';
 import { DbEntityMarkerService } from '../../core/services/db-entity-marker.service';
+import { MapService } from '../../core/services/map.service';
+import { EntitySelectionService } from '../../core/services/entity-selection.service';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'mds-stores-list',
@@ -13,26 +15,32 @@ import { DbEntityMarkerService } from '../../core/services/db-entity-marker.serv
 })
 export class StoresListComponent implements OnInit {
 
-  @ViewChild('listOfStores', { static: false }) listOfStores;
+  @ViewChild('virtualScroll', {static: false}) virtualScroll: CdkVirtualScrollViewport;
 
   constructor(
     private storeSidenavService: StoreSidenavService,
     private dbEntityMarkerService: DbEntityMarkerService,
+    private mapService: MapService,
+    private selectionService: EntitySelectionService,
     private siteService: SiteService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.storeSidenavService.updateItems(this.dbEntityMarkerService.getVisibleSiteMarkers());
+    this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(() => {
+      this.storeSidenavService.updateItems(this.dbEntityMarkerService.getVisibleSiteMarkers())
+    });
 
-    this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(v => this.storeSidenavService.updateItems(v));
+    this.selectionService.singleSelect$.subscribe(selection => this.scrollToStore(selection.storeId));
+  }
 
-    this.dbEntityMarkerService.selectionSet$
-      .subscribe((selectionSet: { selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number }) => {
-        this.storeSidenavService.setMapSelections(selectionSet);
-        if (selectionSet.scrollTo) {
-          this.scrollToElem(selectionSet.scrollTo);
-        }
-      });
+  siteIsSelected(siteId: number) {
+    return this.selectionService.siteIds.has(siteId);
+  }
+
+  storeIsSelected(storeId: number) {
+    return this.selectionService.storeIds.has(storeId);
   }
 
   get sortType() {
@@ -47,16 +55,8 @@ export class StoresListComponent implements OnInit {
     return this.storeSidenavService.fetching;
   }
 
-  get renderer() {
-    return this.storeSidenavService.renderer;
-  }
-
   get sortGroups() {
     return this.storeSidenavService.sortGroups;
-  }
-
-  getItemIndex(i: number) {
-    return `render_${i}`;
   }
 
   setSortOptions(sortType?: SortType, sortDirection?: SortDirection) {
@@ -83,34 +83,29 @@ export class StoresListComponent implements OnInit {
     return address + this.siteService.getFormattedPrincipality(siteMarker);
   }
 
-  getIdForElem(site: SiteMarker, store: StoreMarker): string {
-    return store.isEmpty ? `empty_${site.id}` : `${store.id}`;
-  }
-
-  shouldHighlight(store: StoreMarker) {
-    return this.storeSidenavService.getMapSelections().selectedStoreIds.has(store.id)
-  }
-
-  select(siteMarker: SiteMarker, storeMarker: StoreMarker) {
-    this.storeSidenavService.select(siteMarker, storeMarker);
+  // Causes selectionSet$ to emit - which will then affect the state
+  select(siteMarker: SiteMarker, storeMarker?: StoreMarker) {
+    // If store is provided, select it, otherwise select the site
+    if (storeMarker) {
+      this.selectionService.singleSelect({siteId: siteMarker.id, storeId: storeMarker.id});
+    } else if (siteMarker) {
+      this.selectionService.singleSelect({siteId: siteMarker.id, storeId: null})
+    }
   }
 
   showOnMap(site: SiteMarker) {
-    this.storeSidenavService.showOnMap(site);
-  }
-
-  getValidStores(siteMarker: SiteMarker) {
-    return siteMarker.stores.filter(store => !store.hidden);
+    this.mapService.setCenter({
+      lat: site.latitude,
+      lng: site.longitude
+    });
   }
 
   get siteMarkers() {
     return this.storeSidenavService.siteMarkers;
   }
 
-  private scrollToElem(id) {
-    const elem = document.getElementById(`${id}`);
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+  private scrollToStore(storeId: number) {
+    const index = this.siteMarkers.findIndex(sm => sm.stores.find(st => st.id === storeId) !== null);
+    this.virtualScroll.scrollToIndex(index);
   }
 }

@@ -11,6 +11,8 @@ import { StoreMarker } from 'app/models/store-marker';
 import { SiteMarker } from 'app/models/site-marker';
 import { SiteService } from 'app/core/services/site.service';
 import { Site } from 'app/models/full/site';
+import { DbEntityMarkerService } from '../../../core/services/db-entity-marker.service';
+import { EntitySelectionService } from '../../../core/services/entity-selection.service';
 
 @Component({
   selector: 'mds-storelist-stores-list',
@@ -32,16 +34,14 @@ export class StorelistStoresListComponent implements OnInit {
     private listManagerService: ListManagerService,
     private storeListService: StoreListService,
     protected dialog: MatDialog,
+    private dbMarkerEntityService: DbEntityMarkerService,
     private mapService: MapService,
     private storeSidenavService: StoreSidenavService,
+    private selectionService: EntitySelectionService,
     private siteService: SiteService
   ) { }
 
   ngOnInit() {
-    this.storeSidenavService.sort$.subscribe(() => {
-      this.storeSidenavService.sortItems(this.items);
-      this.setRenderer();
-    });
   }
 
   get fetching() {
@@ -92,7 +92,10 @@ export class StorelistStoresListComponent implements OnInit {
   }
 
   showOnMap(site: SiteMarker) {
-    this.storeSidenavService.showOnMap(site);
+    this.mapService.setCenter({
+      lat: site.latitude,
+      lng: site.longitude
+    });
   }
 
   getItemIndex(i: number) {
@@ -101,7 +104,7 @@ export class StorelistStoresListComponent implements OnInit {
 
 
   select(siteMarker: SiteMarker, storeMarker: StoreMarker) {
-    this.storeSidenavService.select(siteMarker, storeMarker);
+    this.selectionService.singleSelect({siteId: siteMarker.id, storeId: storeMarker.id});
   }
 
   scrollToElem(id) {
@@ -180,6 +183,6 @@ export class StorelistStoresListComponent implements OnInit {
   }
 
   shouldHighlight(store: StoreMarker) {
-    return this.storeSidenavService.getMapSelections().selectedStoreIds.has(store.id)
+    return this.selectionService.storeIds.has(store.id);
   }
 }

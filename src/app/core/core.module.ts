@@ -50,7 +50,6 @@ import { DbEntityMarkerService } from './services/db-entity-marker.service';
     ExtractionService,
     GeocoderService,
     GroupService,
-    MapService,
     NavigatorService,
     PermissionService,
     ProjectService,
@@ -73,8 +72,7 @@ import { DbEntityMarkerService } from './services/db-entity-marker.service';
     StorageService,
     SourceUpdatableService,
     BannerSourceService,
-    StoreListService,
-    DbEntityMarkerService
+    StoreListService
   ]
 })
 export class CoreModule {

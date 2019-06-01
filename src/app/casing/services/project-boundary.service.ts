@@ -5,8 +5,8 @@ import { SimplifiedProject } from '../../models/simplified/simplified-project';
 import { Boundary } from '../../models/full/boundary';
 import { ProjectBoundary } from '../../models/project-boundary';
 import { ProjectService } from '../../core/services/project.service';
-import { MapService } from '../../core/services/map.service';
 import { CasingDashboardService } from '../casing-dashboard/casing-dashboard.service';
+import { MapService } from '../../core/services/map.service';
 
 /*
   Consumers of this service can:
@@ -29,46 +29,36 @@ export class ProjectBoundaryService {
   projectBoundary: ProjectBoundary;
 
   constructor(private projectService: ProjectService,
-              private mapService: MapService,
               private casingDashboardService: CasingDashboardService) {
   }
 
-  showProjectBoundaries() {
+  showProjectBoundaries(map: google.maps.Map) {
     return this.projectService.getBoundaryForProject(this.casingDashboardService.getSelectedProject().id)
       .pipe(tap((boundary: Boundary) => {
         if (boundary == null) {
-          this.projectBoundary = new ProjectBoundary(this.mapService.getMap());
+          this.projectBoundary = new ProjectBoundary(map);
           this.projectBoundary.setEditable(false);
         } else {
-          this.projectBoundary = new ProjectBoundary(this.mapService.getMap(), JSON.parse(boundary.geojson));
+          this.projectBoundary = new ProjectBoundary(map, JSON.parse(boundary.geojson));
         }
       }));
   }
 
-  hideProjectBoundaries() {
-    this.cancelProjectBoundaryEditing();
+  hideProjectBoundaries(mapService: MapService) {
+    this.cancelProjectBoundaryEditing(mapService);
     if (this.projectBoundary) {
       this.projectBoundary.removeFromMap();
       this.projectBoundary = null;
     }
   }
 
-  enableProjectBoundaryEditing() {
-    this.mapService.setDrawingModeToClick();
-    if (!this.projectBoundary) {
-      this.showProjectBoundaries().subscribe(() => this.setUpProjectEditing());
-    } else {
-      this.setUpProjectEditing();
-    }
-  }
-
-  cancelProjectBoundaryEditing() {
+  cancelProjectBoundaryEditing(mapService: MapService) {
     // If a boundary exists with shapes, make it non-editable, and reset it's shapes
     if (this.projectBoundary) {
       if (this.projectBoundary.geojson) {
         this.projectBoundary.resetFromGeoJson();
         if (this.projectBoundary.isEditable()) {
-          this.deactivateEditingMode();
+          this.deactivateEditingMode(mapService);
         }
       } else {
         this.projectBoundary.removeFromMap();
@@ -77,14 +67,14 @@ export class ProjectBoundaryService {
     }
   }
 
-  saveProjectBoundaries() {
+  saveProjectBoundaries(mapService: MapService) {
     if (this.projectBoundary.hasShapes()) {
       const geojson = this.projectBoundary.toGeoJson();
       const boundary = new Boundary({geojson: geojson});
       return this.projectService.saveBoundaryForProject(this.casingDashboardService.getSelectedProject().id, boundary)
         .pipe(tap((project: SimplifiedProject) => {
           this.casingDashboardService.setSelectedProject(project);
-          this.deactivateEditingMode();
+          this.deactivateEditingMode(mapService);
           this.projectBoundary.setGeoJson(JSON.parse(geojson));
         }));
     } else {
@@ -92,7 +82,7 @@ export class ProjectBoundaryService {
       return this.projectService.deleteBoundaryForProject(this.casingDashboardService.getSelectedProject().id)
         .pipe(tap((project: SimplifiedProject) => {
           this.casingDashboardService.setSelectedProject(project);
-          this.deactivateEditingMode();
+          this.deactivateEditingMode(mapService);
           this.projectBoundary.removeFromMap();
           this.projectBoundary = null;
         }));
@@ -100,7 +90,6 @@ export class ProjectBoundaryService {
   }
 
   enableProjectShapeDeletion() {
-    this.mapService.setDrawingModeToClick();
     this.deletingProjectShapes = true;
     this.projectBoundary.enableDeletion();
   }
@@ -118,18 +107,9 @@ export class ProjectBoundaryService {
     this.projectBoundary.zoomToBounds();
   }
 
-  private setUpProjectEditing() {
-    if (!this.projectBoundary.isEditable()) {
-      this.projectBoundary.setEditable(true);
-      this.mapService.activateDrawingTools()
-        .subscribe(shape => this.projectBoundary.addShape(shape));
-      this.projectBoundary.setEditable(true);
-    }
-  }
-
-  private deactivateEditingMode() {
+  private deactivateEditingMode(mapService: MapService) {
+    mapService.deactivateDrawingTools();
     this.projectBoundary.setEditable(false);
-    this.mapService.deactivateDrawingTools();
     this.deletingProjectShapes = false;
   }
 

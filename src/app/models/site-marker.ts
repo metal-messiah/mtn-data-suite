@@ -13,7 +13,7 @@ export class SiteMarker implements Entity {
   backfilledNonGrocery: boolean;
   stores: StoreMarker[];
   updatedDate: Date;
-  isEmpty: boolean;
+  empty: boolean;
   address: string;
   city: string;
   state: string;

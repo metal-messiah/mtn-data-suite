@@ -26,6 +26,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   imports: [
@@ -57,7 +58,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatToolbarModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
-    MatSortModule
+    MatSortModule,
+    ScrollingModule
   ],
   exports: [
     MatAutocompleteModule,
@@ -88,7 +90,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatToolbarModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
-    MatSortModule
+    MatSortModule,
+    ScrollingModule
   ]
 })
 export class CustomMaterialModule {

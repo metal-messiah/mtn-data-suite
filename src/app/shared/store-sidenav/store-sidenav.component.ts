@@ -1,9 +1,20 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { StoreSidenavService } from './store-sidenav.service';
-import { CasingDashboardMode } from 'app/casing/casing-dashboard/casing-dashboard.component';
 import { ListManagerService } from '../list-manager/list-manager.service';
 import { Pages as ListManagerPages } from '../list-manager/list-manager-pages';
-import { Pages as StoreSidenavPages } from './store-sidenav-pages';
+import { StoreSidenavViews as StoreSidenavPages } from './store-sidenav-pages';
+import { map } from 'rxjs/operators';
+import { SimplifiedStore } from '../../models/simplified/simplified-store';
+import { Coordinates } from '../../models/coordinates';
+import { SimplifiedSite } from '../../models/simplified/simplified-site';
+import { forkJoin } from 'rxjs';
+import { MapService } from '../../core/services/map.service';
+import { SiteService } from '../../core/services/site.service';
+import { StoreService } from '../../core/services/store.service';
+import { CasingDashboardMode } from '../../casing/enums/casing-dashboard-mode';
+import { DbEntityMarkerService } from '../../core/services/db-entity-marker.service';
+import { EntitySelectionService } from '../../core/services/entity-selection.service';
+import { CasingDashboardService } from '../../casing/casing-dashboard/casing-dashboard.service';
 
 @Component({
   selector: 'mds-store-sidenav',
@@ -17,6 +28,12 @@ export class StoreSidenavComponent implements OnInit {
   @Input() expanded: boolean;
 
   constructor(private storeSidenavService: StoreSidenavService,
+              private mapService: MapService,
+              private siteService: SiteService,
+              private storeService: StoreService,
+              private casingDashboardService: CasingDashboardService,
+              private selectionService: EntitySelectionService,
+              private dbEntityMarkerService: DbEntityMarkerService,
               private listManagerService: ListManagerService) {
   }
 
@@ -24,11 +41,11 @@ export class StoreSidenavComponent implements OnInit {
   }
 
   isPage(page: StoreSidenavPages) {
-    return (this.storeSidenavService.currentPage === page);
+    return (this.storeSidenavService.currentView === page);
   }
 
   setPage(page: StoreSidenavPages) {
-    this.storeSidenavService.setPage(page);
+    this.storeSidenavService.setView(page);
   }
 
   get fetching() {
@@ -36,24 +53,40 @@ export class StoreSidenavComponent implements OnInit {
   }
 
   getSelectedStoresCount(): number {
-    return this.storeSidenavService.getMapSelections().selectedStoreIds.size;
+    return this.selectionService.storeIds.size;
   }
 
   zoomToSelection() {
-    this.storeSidenavService.zoomToSelectionSet();
+    const requests = [];
+    if (this.selectionService.storeIds.size) {
+      requests.push(this.storeService.getAllByIds(Array.from(this.selectionService.storeIds))
+        .pipe(map((stores: SimplifiedStore[]) =>
+          stores.map((s: SimplifiedStore) => new Coordinates(s.site.latitude, s.site.longitude)))));
+    }
+    if (this.selectionService.siteIds.size) {
+      requests.push(this.siteService.getAllByIds(Array.from(this.selectionService.siteIds))
+        .pipe(map((sites: SimplifiedSite[]) =>
+          sites.map((s: SimplifiedSite) => new Coordinates(s.latitude, s.longitude)))));
+    }
+
+    forkJoin(requests).subscribe(results => {
+      const points = [].concat(...results);
+      this.mapService.fitToPoints(points);
+    });
   }
 
   isMultiSelect() {
-    return this.storeSidenavService.getSelectedDashboardMode() === CasingDashboardMode.MULTI_SELECT;
+    return this.casingDashboardService.getSelectedDashboardMode() === CasingDashboardMode.MULTI_SELECT;
   }
 
   selectAllVisible() {
-    this.storeSidenavService.selectAllVisible();
+    const visibleStoreIds = this.storeSidenavService.getVisibleStoreIds();
+    this.selectionService.selectByIds({siteIds: [], storeIds: visibleStoreIds});
   }
 
   selectAllFromList() {
     const {selectedStoreList} = this.listManagerService;
-    this.storeSidenavService.selectAllByIds(selectedStoreList.storeIds);
+    this.selectionService.selectByIds({siteIds: [], storeIds: selectedStoreList.storeIds});
   }
 
   isInListOfStoresView() {
@@ -79,7 +112,7 @@ export class StoreSidenavComponent implements OnInit {
         this.setPage(null);
         break;
       case ListManagerPages.VIEWSTORES:
-        this.listManagerService.setPage(ListManagerPages.LISTMANAGER);
+        this.listManagerService.setView(ListManagerPages.LISTMANAGER);
         // this.listManagerService.setSelectedStoreList(null, ListManagerPages.LISTMANAGER)
         break;
     }

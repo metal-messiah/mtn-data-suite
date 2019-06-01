@@ -15,29 +15,23 @@ import { CasingDashboardService } from '../../casing/casing-dashboard/casing-das
 import { SiteMarkerService } from '../site-marker.service';
 import { StoreIconUtil } from '../../utils/StoreIconUtil';
 import { MarkerType } from '../functionalEnums/MarkerType';
-
-import * as _ from 'lodash';
 import { StoreStatusOptions } from '../functionalEnums/StoreStatusOptions';
 import { StorageService } from './storage.service';
 import { Control, ControlStorageKeys } from 'app/models/control';
 import { DbEntityMarkerControls } from '../../models/db-entity-marker-controls';
+import { EntitySelectionService } from './entity-selection.service';
 
 @Injectable()
 export class DbEntityMarkerService {
 
   gettingLocations = false;
-  multiSelect = false;
-  deselecting = false;
   controls: DbEntityMarkerControls;
 
-  readonly visibleMarkersChanged$ = new Subject<SiteMarker[]>();
+  readonly visibleMarkersChanged$ = new Subject<void>();
   readonly markerTypeOptions = ['Pin', 'Logo', 'Validation', 'Cased for Project'];
-  readonly selectionSet$ = new Subject<{ selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number }>();
 
   readonly SAVED_CONTROLS_STORAGE_KEY = ControlStorageKeys.savedDbEntityMarkerServiceControls;
   readonly ACTIVE_CONTROLS_STORAGE_KEY = ControlStorageKeys.dbEntityMarkerServiceControls;
-
-  private selectionSetPrev: { selectedSiteIds: Set<number>, selectedStoreIds: Set<number>, scrollTo: number };
 
   private readonly clickListener$ = new Subject<{ storeId: number, siteId: number, marker: google.maps.Marker }>();
 
@@ -48,14 +42,14 @@ export class DbEntityMarkerService {
   private selectedMarkers = new Set<google.maps.Marker>();
 
   private storeIdsCasedForProject = new Set<number>();
-  private selectedSiteIds = new Set<number>();
-  private selectedStoreIds = new Set<number>();
 
   private prevUpdate: Date;
   private prevBounds: { north: number, south: number, east: number, west: number };
   private prevSubscription;
 
   private visibleMarkers = [];
+
+  private selectionService: EntitySelectionService;
 
   constructor(private authService: AuthService,
               private errorService: ErrorService,
@@ -66,34 +60,6 @@ export class DbEntityMarkerService {
               private storageService: StorageService) {
 
     this.initControls();
-
-    this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker }) => {
-      // If not in multi-select mode, deselect previously selected markers
-      if (!this.multiSelect) {
-        this.selectedSiteIds.clear();
-        this.selectedStoreIds.clear();
-        this.selectedMarkers.forEach(marker => this.refreshMarkerOptions(marker));
-        this.selectedMarkers.clear();
-      }
-
-      // Add to selected Ids
-      if (selection.storeId) {
-        if (this.deselecting) {
-          this.selectedStoreIds.delete(selection.storeId);
-        } else {
-          this.selectedStoreIds.add(selection.storeId);
-        }
-      } else {
-        if (this.deselecting) {
-          this.selectedSiteIds.delete(selection.siteId);
-        } else {
-          this.selectedSiteIds.add(selection.siteId);
-        }
-      }
-
-      // Refresh marker's options
-      this.refreshMarkerOptions(selection.marker);
-    });
   }
 
   /**************************************
@@ -103,9 +69,19 @@ export class DbEntityMarkerService {
   /**
    * Initializes the map. Must be called before other public methods will work.
    */
-  initMap(gmap: google.maps.Map, clickListener) {
+  initMap(gmap: google.maps.Map, clickListener, selectionService) {
+    // Selection
+    this.selectionService = selectionService;
+    this.selectionService.selectionUpdated$.subscribe(() => this.refreshMarkers());
+
     this.gmap = gmap;
+
+    // Click Listener - component subscription
     this.clickListener$.subscribe(clickListener);
+    // Click Listener - self subscription
+    this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker }) => {
+      this.selectionService.singleSelect(selection);
+    });
 
     this.clusterer = new MarkerClusterer(this.gmap, [],
       {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
@@ -204,52 +180,34 @@ export class DbEntityMarkerService {
     }
   }
 
-  clearSelection() {
-    this.verifyMapInitialized();
-
-    this.selectedSiteIds.clear();
-    this.selectedStoreIds.clear();
-    this.refreshMarkers();
-  }
-
-  selectStores(storeIds: number[]) {
-    this.selectByIds({siteIds: [], storeIds});
-  }
-
-  selectSites(siteIds: number[]) {
-    this.selectByIds({siteIds, storeIds: []});
-  }
-
-  selectInRadius(latitude: number, longitude: number, radiusMeters: number) {
+  getAllIncludedWithinRadius(latitude: number, longitude: number, radiusMeters: number) {
     this.verifyMapInitialized();
 
     this.gettingLocations = true;
-    this.siteMarkerService.getSiteMarkersInRadius(latitude, longitude, radiusMeters)
+    return this.siteMarkerService.getSiteMarkersInRadius(latitude, longitude, radiusMeters)
       .pipe(finalize(() => this.gettingLocations = false))
       .pipe(reduce((prev, curr) => prev.concat(curr)))
-      .subscribe((siteMarkers: SiteMarker[]) => this.selectByIds(this.getSelectionIds(siteMarkers)));
+      .pipe(map((siteMarkers: SiteMarker[]) => this.getIncludedIds(siteMarkers)));
   }
 
-  selectInGeoJson(geoJson: string) {
+  getAllIncludedWithinGeoJson(geoJson: string) {
     this.verifyMapInitialized();
 
     this.gettingLocations = true;
-    this.siteMarkerService.getSiteMarkersInGeoJson(geoJson)
+    return this.siteMarkerService.getSiteMarkersInGeoJson(geoJson)
       .pipe(finalize(() => this.gettingLocations = false))
       .pipe(reduce((prev, curr) => prev.concat(curr)))
-      .subscribe((siteMarkers: SiteMarker[]) => this.selectByIds(this.getSelectionIds(siteMarkers)));
-  }
-
-  getSelectedStoreIds() {
-    return Array.from(this.selectedStoreIds);
+      .pipe(map((siteMarkers: SiteMarker[]) => this.getIncludedIds(siteMarkers)));
   }
 
   getVisibleSiteMarkers() {
-    return this.siteMarkerCache.map(s => s.siteMarker);
-  }
-
-  getVisibleMarkers() {
-    return this.visibleMarkers;
+    return this.siteMarkerCache.map(s => {
+      const sm = new SiteMarker(s.siteMarker);
+      sm.stores = sm.stores.filter(st => this.shouldIncludeStoreMarker(st, sm));
+      return sm;
+    }).filter(s => {
+      return (s.empty && this.controls.showEmptySites) || s.stores.length > 0
+    });
   }
 
   saveControlsAs(name: string) {
@@ -277,33 +235,7 @@ export class DbEntityMarkerService {
     this.refreshMarkers();
   }
 
-  broadcastSelections() {
-    if (!this.selectionSetPrev) {
-      this.selectionSetPrev = {
-        selectedSiteIds: new Set(this.selectedSiteIds),
-        selectedStoreIds: new Set(this.selectedStoreIds),
-        scrollTo: this.getScrollTo()
-      };
-      this.selectionSet$.next(this.selectionSetPrev);
-    } else {
-      const prevSelectedSiteIds = this.selectionSetPrev.selectedSiteIds;
-      const prevSelectedStoreIds = this.selectionSetPrev.selectedStoreIds;
-      if (!_.isEqual(prevSelectedSiteIds, this.selectedSiteIds) || !_.isEqual(prevSelectedStoreIds, this.selectedStoreIds)) {
-        this.selectionSetPrev = {
-          selectedSiteIds: new Set(this.selectedSiteIds),
-          selectedStoreIds: new Set(this.selectedStoreIds),
-          scrollTo: this.getScrollTo()
-        };
-        this.selectionSet$.next(this.selectionSetPrev);
-      }
-    }
-  }
-
-  getScrollTo() {
-    return Array.from(this.selectedStoreIds).pop() || null;
-  }
-
-  includeStore(storeMarker: StoreMarker, siteMarker?: SiteMarker) {
+  private shouldIncludeStoreMarker(storeMarker: StoreMarker, siteMarker?: SiteMarker) {
 
     if (!storeMarker) {
       return false;
@@ -345,7 +277,7 @@ export class DbEntityMarkerService {
     return !(this.controls.assignment && siteMarker.assigneeId !== this.controls.assignment.id);
   }
 
-  includeSite(siteMarker: SiteMarker) {
+  private shouldIncludeSiteMarker(siteMarker: SiteMarker) {
 
     if (this.controls.assignment && (siteMarker && siteMarker.assigneeId !== this.controls.assignment.id)) {
       return false;
@@ -382,34 +314,19 @@ export class DbEntityMarkerService {
     }
   }
 
-  private selectByIds(ids: { siteIds: number[], storeIds: number[] }) {
-    if (this.deselecting) {
-      ids.siteIds.forEach(id => this.selectedSiteIds.delete(id));
-      ids.storeIds.forEach(id => this.selectedStoreIds.delete(id));
-    } else {
-      ids.siteIds.forEach(id => this.selectedSiteIds.add(id));
-      ids.storeIds.forEach(id => this.selectedStoreIds.add(id));
-    }
-    this.refreshMarkers();
-  }
-
-  private getSelectionIds(siteMarkers: SiteMarker[]) {
+  /**
+   * Gets site and store ids for those that are not filtered out by the controls
+   * @param siteMarkers
+   */
+  private getIncludedIds(siteMarkers: SiteMarker[]) {
     const siteIds = [];
     const storeIds = [];
 
     siteMarkers.forEach(siteMarker => {
-      if (siteMarker.stores && siteMarker.stores.length > 0) {
-        siteMarker.stores.forEach(storeMarker => {
-          // If not updating with bound changes, only select visible markers
-          if (this.includeStore(storeMarker) && (this.controls.updateOnBoundsChange ||
-            this.visibleMarkers.find(vm => vm.store && vm.store.id === storeMarker.id))) {
-            storeIds.push(storeMarker.id);
-          }
-        })
+      if (siteMarker.stores) {
+        siteMarker.stores.filter(st => this.shouldIncludeStoreMarker(st)).forEach(st => storeIds.push(st.id));
       }
-
-      if (this.includeSite(siteMarker) && (this.controls.updateOnBoundsChange ||
-        this.visibleMarkers.findIndex(vm => vm.site && vm.site.id === siteMarker.id) !== -1)) {
+      if (this.shouldIncludeSiteMarker(siteMarker)) {
         siteIds.push(siteMarker.id);
       }
     });
@@ -434,17 +351,15 @@ export class DbEntityMarkerService {
     const site = marker['site'];
     let selected = false;
     if (store) {
-      selected = this.selectedStoreIds.has(store.id);
+      selected = this.selectionService.storeIds.has(store.id);
       marker.setOptions(this.getMarkerOptionsForStore(store, site, selected));
     } else if (site) {
-      selected = this.selectedSiteIds.has(site.id);
+      selected = this.selectionService.siteIds.has(site.id);
       marker.setOptions(this.getMarkerOptionsForSite(site, selected));
     }
     if (selected) {
       this.selectedMarkers.add(marker);
     }
-    this.broadcastSelections();
-    // Do nothing for non-store non-site markers (like historical count marker)
   }
 
   private showHideMarkersInBounds() {
@@ -455,9 +370,9 @@ export class DbEntityMarkerService {
     const filteredGMarkers = markers.reduce((prev, curr) => prev.concat(curr), [])
       .filter(marker => {
           if (marker['store']) {
-            return this.includeStore(marker['store'], marker['site']);
+            return this.shouldIncludeStoreMarker(marker['store'], marker['site']);
           } else if (marker['site']) {
-            return this.includeSite(marker['site']);
+            return this.shouldIncludeSiteMarker(marker['site']);
           }
           return true;
         }
@@ -473,7 +388,7 @@ export class DbEntityMarkerService {
     this.visibleMarkers = filteredGMarkers;
 
     this.showMarkers(this.visibleMarkers);
-    this.visibleMarkersChanged$.next(this.getVisibleSiteMarkers());
+    this.visibleMarkersChanged$.next();
   }
 
   private showMarkers(markers: google.maps.Marker[]) {
@@ -561,7 +476,7 @@ export class DbEntityMarkerService {
     marker['site'] = site;
     marker.addListener('click', () => this.clickListener$.next({storeId: null, siteId: site.id, marker: marker}));
 
-    if (this.selectedSiteIds.has(site.id)) {
+    if (this.selectionService.siteIds.has(site.id)) {
       this.selectedMarkers.add(marker);
     }
     return marker;
@@ -574,7 +489,7 @@ export class DbEntityMarkerService {
     marker['site'] = site;
     marker.addListener('click', () => this.clickListener$.next({storeId: store.id, siteId: site.id, marker: marker}));
 
-    if (this.selectedStoreIds.has(store.id)) {
+    if (this.selectionService.storeIds.has(store.id)) {
       this.selectedMarkers.add(marker);
     }
     return marker;

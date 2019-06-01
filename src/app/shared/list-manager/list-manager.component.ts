@@ -141,7 +141,7 @@ export class ListManagerComponent implements OnDestroy {
   }
 
   setPage(page: Pages) {
-    this.listManagerService.setPage(page);
+    this.listManagerService.setView(page);
   }
 
   clearStores() {
@@ -149,6 +149,6 @@ export class ListManagerComponent implements OnDestroy {
   }
 
   closeListManager() {
-    this.storeSidenavService.setPage(null);
+    this.storeSidenavService.setView(null);
   }
 }
