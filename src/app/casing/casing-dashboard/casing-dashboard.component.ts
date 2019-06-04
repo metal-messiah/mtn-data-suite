@@ -50,8 +50,8 @@ import { ListManagerService } from '../../shared/list-manager/list-manager.servi
 import { SimplifiedStoreList } from '../../models/simplified/simplified-store-list';
 import { StoreSidenavService } from '../../shared/store-sidenav/store-sidenav.service';
 
-import { Pages as ListManagerViews } from '../../shared/list-manager/list-manager-pages';
-import { StoreSidenavViews as StoreSidenavViews } from '../../shared/store-sidenav/store-sidenav-pages';
+import { ListManagerViews } from '../../shared/list-manager/list-manager-views';
+import { StoreSidenavViews } from '../../shared/store-sidenav/store-sidenav-views';
 import {
   AddRemoveStoresListDialogComponent,
   AddRemoveType
@@ -59,6 +59,7 @@ import {
 import { BannerService } from 'app/core/services/banner.service';
 import { CasingDashboardMode } from '../enums/casing-dashboard-mode';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
+import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 
 @Component({
   selector: 'mds-casing-dashboard',
@@ -103,8 +104,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   movingSiteId: number;
 
-  isMobile: boolean;
-  isTooNarrow: boolean;
+  layoutIsSmall = false;
 
   highlightTab = false;
 
@@ -127,6 +127,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
               private storageService: StorageService,
               private listManagerService: ListManagerService,
               private selectionService: EntitySelectionService,
+              private breakpointObserver: BreakpointObserver,
               private storeSidenavService: StoreSidenavService) {
   }
 
@@ -141,26 +142,21 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.isMobile = this.checkMobile();
-    this.isTooNarrow = this.checkTooNarrow();
+    this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.HandsetPortrait]).subscribe((state: BreakpointState) => {
+      this.layoutIsSmall = state.matches;
+    });
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach((s: Subscription) => s.unsubscribe());
-    // this.dbEntityMarkerService.onDestroy();
+  }
+
+  getStoreListSidenavMode() {
+    return this.layoutIsSmall ? 'over' : 'side';
   }
 
   get controls() {
     return this.dbEntityMarkerService.controls;
-  }
-
-  checkMobile() {
-    return (typeof window.screen.orientation !== 'undefined') || (navigator.userAgent.indexOf('IEMobile') !== -1);
-  }
-
-  checkTooNarrow() {
-    const body: HTMLElement = document.querySelector('body');
-    return body.offsetWidth < 740;
   }
 
   private onSelection(selection: { storeId: number, siteId: number} ) {
@@ -709,7 +705,7 @@ Geo-location
   addToList() {
     if (this.selectionService.storeIds.size > 0) {
       const data = {type: AddRemoveType.ADD, storeIds: Array.from(this.selectionService.storeIds)};
-      this.dialog.open(AddRemoveStoresListDialogComponent, {data: data});
+      this.dialog.open(AddRemoveStoresListDialogComponent, {data: data, disableClose: true});
     }
   }
 
@@ -736,7 +732,7 @@ Geo-location
   removeFromList() {
     if (this.selectionService.storeIds.size > 0) {
       const data = {type: AddRemoveType.REMOVE, storeIds: Array.from(this.selectionService.storeIds)};
-      this.dialog.open(AddRemoveStoresListDialogComponent, {data: data});
+      this.dialog.open(AddRemoveStoresListDialogComponent, {data: data, disableClose: true});
     }
   }
 

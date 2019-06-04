@@ -2,10 +2,9 @@ import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { SimplifiedStore } from 'app/models/simplified/simplified-store';
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
 import { ListManagerService } from './list-manager.service';
-import { Pages } from './list-manager-pages';
+import { ListManagerViews } from './list-manager-views';
 import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { StoreSidenavService } from '../store-sidenav/store-sidenav.service';
 
 @Component({
   selector: 'mds-list-manager',
@@ -25,14 +24,13 @@ export class ListManagerComponent implements OnDestroy {
 
   subscriptions: Subscription[] = [];
 
-  pages = Pages;
-  page: Pages;
+  views = ListManagerViews;
+  view: ListManagerViews;
 
   @ViewChild('selectionList', { static: false }) selectionList: any;
 
   constructor(private listManagerService: ListManagerService,
-              private snackBar: MatSnackBar,
-              private storeSidenavService: StoreSidenavService) {
+              private snackBar: MatSnackBar) {
     this.listManagerService.setStores([]);
     this.createSubscriptions();
   }
@@ -81,8 +79,8 @@ export class ListManagerComponent implements OnDestroy {
     );
 
     this.subscriptions.push(
-      this.listManagerService.page$.subscribe((page: Pages) => {
-        this.page = page;
+      this.listManagerService.page$.subscribe((page: ListManagerViews) => {
+        this.view = page;
       })
     );
 
@@ -93,8 +91,12 @@ export class ListManagerComponent implements OnDestroy {
     );
   }
 
-  isPage(page: Pages) {
-    return this.page === page;
+  isView(page: ListManagerViews) {
+    return this.view === page;
+  }
+
+  setView(page: ListManagerViews) {
+    this.listManagerService.setView(page);
   }
 
   scrollIntoView(targetList: string, storeListId: number): void {
@@ -136,19 +138,4 @@ export class ListManagerComponent implements OnDestroy {
     return this.shouldDisableNewListButton(newListName);
   }
 
-  addToList() {
-    this.listManagerService.addToList(this.selectionList.selectedOptions.selected);
-  }
-
-  setPage(page: Pages) {
-    this.listManagerService.setView(page);
-  }
-
-  clearStores() {
-    this.listManagerService.setStores([]);
-  }
-
-  closeListManager() {
-    this.storeSidenavService.setView(null);
-  }
 }

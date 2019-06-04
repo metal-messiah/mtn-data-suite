@@ -1,4 +1,4 @@
-export enum Pages {
+export enum ListManagerViews {
     LISTMANAGER,
     ADDSTORES,
     VIEWSTORES,

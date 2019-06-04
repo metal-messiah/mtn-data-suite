@@ -185,14 +185,14 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
   addToList() {
     const storeIds = [this.infoCardItem.selection.storeId];
     if (storeIds.length) {
-      this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.ADD, storeIds } });
+      this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.ADD, storeIds }, disableClose: true });
     }
   }
 
   removeFromList() {
     const storeIds = [this.infoCardItem.selection.storeId];
     if (storeIds.length) {
-      this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.REMOVE, storeIds } });
+      this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.REMOVE, storeIds }, disableClose: true });
     }
   }
 

@@ -1,7 +1,7 @@
 <div class="sort-toolbar">
   <mat-form-field>
     <mat-label>Sort Results</mat-label>
-    <mat-select [(value)]="sortType" #sortTypeSelect (selectionChange)="setSortOptions(sortTypeSelect.value, null)">
+    <mat-select [(value)]="sortType" #sortTypeSelect (selectionChange)="sortStores()">
       <mat-optgroup *ngFor="let group of sortGroups" [label]="group.name">
         <mat-option *ngFor="let key of group.keys" [value]="key">
           {{key}}
@@ -11,8 +11,7 @@
   </mat-form-field>
   <mat-form-field style="min-width: 150px;">
     <mat-label>Order</mat-label>
-    <mat-select #sortDirectionSelect [(value)]="sortDirection"
-                (selectionChange)="setSortOptions(null, sortDirectionSelect.value)">
+    <mat-select #sortDirectionSelect [(value)]="sortDirection" (selectionChange)="sortStores()">
       <mat-option [value]="0">
         <i class="fas fa-sort-amount-up"></i> Ascending
       </mat-option>
@@ -33,19 +32,20 @@
         <i (click)="showOnMap(siteMarker)" title="Center On Map" class="fas fa-map-marked-alt show-on-map-button"></i>
       </div>
       <div class="store-info">
-        <div class="store store-info-item" *ngIf="siteMarker.empty" (click)="select(siteMarker)"
-             [ngClass]="{'highlighted': siteIsSelected(siteMarker.id)}">
+        <div class="store store-info-item" *ngIf="siteMarker.empty"
+             (click)="select(siteMarker)" [ngClass]="{'highlighted': siteIsSelected(siteMarker.id)}">
           <div class="store-descriptions">
             <div class="store-name">Empty Site (No Active Store)</div>
           </div>
         </div>
-        <div *ngFor="let storeMarker of siteMarker.stores" class="store store-info-item"
+        <div class="store store-info-item" *ngFor="let storeMarker of siteMarker.stores"
              (click)="select(siteMarker, storeMarker)" [ngClass]="{'highlighted': storeIsSelected(storeMarker.id)}">
           <div class="store-descriptions">
             <div class="store-name">{{storeMarker.storeName}}</div>
             <div class="store-subtext">{{getStoreSubtext(siteMarker, storeMarker)}}</div>
           </div>
-          <img class="store-logo" *ngIf="storeMarker.logoFileName" [src]="getLogoPath(storeMarker.logoFileName)"/>
+          <img *ngIf="!canDelete && storeMarker.logoFileName" class="store-logo" [src]="getLogoPath(storeMarker.logoFileName)"/>
+          <i *ngIf="canDelete" (click)="removeStoreFromList(store)" title="Remove From List" class="fas fa-trash show-on-map-button"></i>
         </div>
       </div>
     </div>

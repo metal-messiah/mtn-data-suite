@@ -1,47 +1,26 @@
 <h2 mat-dialog-title>{{getAddOrRemoveTitle()}}</h2>
-<div mat-dialog-content>
-  <!-- FETCHING -->
-  <mat-progress-bar mode="indeterminate" *ngIf="fetching"></mat-progress-bar>
+<form id="addRemoveForm" mat-dialog-content>
 
-  <!-- INPUT FOR NEW LISTS -->
-  <mat-form-field *ngIf="stores.length && !fetching && type === 0" style="width: 100%;">
-    <input #newListName matInput type="text" [placeholder]="getNewListNamePlaceholder(newListName.value)"
-      [ngClass]="{'red': getNewListNamePlaceholderColor(newListName.value)}">
-    <button [disabled]="shouldDisableNewListButton(newListName.value)" matSuffix mat-flat-button
-      (click)="createNewList(newListName)">Create New List</button>
-  </mat-form-field>
+  <div>
+    <button mat-raised-button color="primary">Create New List</button>
+  </div>
 
-
-  <mat-selection-list #selectionList class="included">
-    <!-- FOR REMOVAL OF STORE FROM LIST(S) -->
-    <!-- LIST OF LISTS (THAT STORE IS MEMBER OF) -->
-    <div *ngIf="stores.length && includedStoreLists.length && !fetching && type === 1">
-      <mat-list-option [id]="'included_' + storeList.id" [value]="storeList"
-        *ngFor="let storeList of includedStoreLists">
-        <h3 matLine><b>{{storeList.storeListName}}</b></h3>
-        <p matLine>
-          <span>{{storeList.storeCount | number}} Stores</span>
-      </mat-list-option>
-    </div>
-
-    <!-- FOR ADDING STORE TO LIST(S) -->
-    <!-- LIST OF EXISTING LISTS (THAT STORE ISN'T PART OF) -->
-    <div *ngIf="stores.length && excludedStoreLists.length && !fetching && type === 0">
-      <mat-list-option [id]="'excluded_' + storeList.id" [value]="storeList"
-        *ngFor="let storeList of excludedStoreLists">
-        <h3 matLine><b>{{storeList.storeListName}}</b></h3>
-        <p matLine>
-          <span>{{storeList.storeCount | number}} Stores</span>
-      </mat-list-option>
-    </div>
+  <mat-selection-list [(ngModel)]="selectedListIds" name="selectionList">
+    <mat-list-item *ngIf="fetching">
+      <i class="fas fa-spinner fa-pulse fa-2x"></i>
+    </mat-list-item>
+    <mat-list-option *ngFor="let storeList of storeLists" [value]="storeList.id">
+      <h3 matLine><b>{{storeList.storeListName}}</b></h3>
+      <p matLine></p>
+      <span>{{storeList.storeCount | number}} Stores</span>
+    </mat-list-option>
   </mat-selection-list>
-
-</div>
+</form>
 
 <mat-dialog-actions>
-  <button type="button" mat-raised-button color="primary" mat-dialog-close>
-    Cancel
+  <button type="button" mat-raised-button color="primary" mat-dialog-close>Cancel</button>
+  <button type="submit" form="addRemoveForm" *ngIf="selectedListIds.length > 0" mat-raised-button color="accent"
+          (click)="submit()">
+    {{getSaveButtonText()}}
   </button>
-  <button *ngIf="selectionList.selectedOptions.selected.length" type="button" mat-raised-button color="accent"
-    (click)="modifyList()" mat-dialog-close>{{getSaveButtonText()}}</button>
 </mat-dialog-actions>

@@ -1,12 +1,16 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { StoreMarker } from 'app/models/store-marker';
-import { SortDirection, SortType, StoreSidenavService } from '../store-sidenav/store-sidenav.service';
+import { StoreSidenavService } from '../store-sidenav/store-sidenav.service';
 import { SiteMarker } from 'app/models/site-marker';
 import { SiteService } from 'app/core/services/site.service';
 import { DbEntityMarkerService } from '../../core/services/db-entity-marker.service';
 import { MapService } from '../../core/services/map.service';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import { StoreList } from '../../models/full/store-list';
+import { ListManagerService } from '../list-manager/list-manager.service';
+import { StoreListService } from '../../core/services/store-list.service';
+import { SimplifiedStore } from '../../models/simplified/simplified-store';
 
 @Component({
   selector: 'mds-stores-list',
@@ -15,6 +19,10 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 })
 export class StoresListComponent implements OnInit {
 
+  canDelete = false;
+
+  @Input() selectedStoreListId?: number;
+
   @ViewChild('virtualScroll', {static: false}) virtualScroll: CdkVirtualScrollViewport;
 
   constructor(
@@ -22,15 +30,26 @@ export class StoresListComponent implements OnInit {
     private dbEntityMarkerService: DbEntityMarkerService,
     private mapService: MapService,
     private selectionService: EntitySelectionService,
-    private siteService: SiteService
+    private siteService: SiteService,
+    private listManagerService: ListManagerService,
+    private storeListService: StoreListService
   ) {
   }
 
   ngOnInit() {
-    this.storeSidenavService.updateItems(this.dbEntityMarkerService.getVisibleSiteMarkers());
-    this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(() => {
-      this.storeSidenavService.updateItems(this.dbEntityMarkerService.getVisibleSiteMarkers())
-    });
+    // If a storeList is provided, used that for the siteMarkers, else use what is on the map
+    if (this.selectedStoreListId) {
+      this.canDelete = true;
+      this.storeListService.getOneById(this.selectedStoreListId).subscribe(storeList => {
+          const siteMarkers = this.getSiteMarkersForStoreList(storeList);
+          this.storeSidenavService.updateSiteMarkers(siteMarkers);
+        });
+    } else {
+      this.storeSidenavService.updateSiteMarkers(this.dbEntityMarkerService.getVisibleSiteMarkers());
+      this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(() => {
+        this.storeSidenavService.updateSiteMarkers(this.dbEntityMarkerService.getVisibleSiteMarkers())
+      });
+    }
 
     this.selectionService.singleSelect$.subscribe(selection => this.scrollToStore(selection.storeId));
   }
@@ -43,6 +62,10 @@ export class StoresListComponent implements OnInit {
     return this.selectionService.storeIds.has(storeId);
   }
 
+  get siteMarkers() {
+    return this.storeSidenavService.siteMarkers;
+  }
+
   get sortType() {
     return this.storeSidenavService.sortType;
   }
@@ -51,16 +74,16 @@ export class StoresListComponent implements OnInit {
     return this.storeSidenavService.sortDirection;
   }
 
+  sortStores() {
+    this.storeSidenavService.sortSiteMarkers()
+  }
+
   get fetching() {
     return this.storeSidenavService.fetching;
   }
 
   get sortGroups() {
     return this.storeSidenavService.sortGroups;
-  }
-
-  setSortOptions(sortType?: SortType, sortDirection?: SortDirection) {
-    this.storeSidenavService.setSortOptions(sortType, sortDirection)
   }
 
   getStoreSubtext(site: SiteMarker, store: StoreMarker) {
@@ -100,12 +123,32 @@ export class StoresListComponent implements OnInit {
     });
   }
 
-  get siteMarkers() {
-    return this.storeSidenavService.siteMarkers;
-  }
-
   private scrollToStore(storeId: number) {
     const index = this.siteMarkers.findIndex(sm => sm.stores.find(st => st.id === storeId) !== null);
     this.virtualScroll.scrollToIndex(index);
+  }
+
+  /**
+   * Groups all stores of the same site into the same siteMarker object, since store lists only contain stores
+   */
+  private getSiteMarkersForStoreList(storeList: StoreList): SiteMarker[] {
+    const siteMarkers = {};
+    storeList.stores.forEach((store: SimplifiedStore) => {
+      if (!siteMarkers[store.site.id]) {
+        const sm = new SiteMarker(store.site);
+        sm.stores = [];
+        siteMarkers[store.site.id] = sm;
+      }
+      siteMarkers[store.site.id].stores.push(new StoreMarker(store));
+    });
+    return Object.keys(siteMarkers).map(siteId => siteMarkers[siteId]);
+  }
+
+  removeStoreFromList(storeMarker: StoreMarker) {
+    const store = new SimplifiedStore(storeMarker);
+    this.storeListService.removeStoresFromStoreList(this.selectedStoreListId, [store.id]).subscribe(storeList => {
+      const siteMarkers = this.getSiteMarkersForStoreList(storeList);
+      this.storeSidenavService.updateSiteMarkers(siteMarkers);
+    });
   }
 }

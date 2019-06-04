@@ -16,6 +16,7 @@ import { SimplifiedStoreList } from '../../../models/simplified/simplified-store
 import { StoreListService } from '../../../core/services/store-list.service';
 import { ListManagerService } from '../../../shared/list-manager/list-manager.service';
 import { StoreSidenavService } from '../../../shared/store-sidenav/store-sidenav.service';
+import { StoreListSearchType } from '../../../core/functionalEnums/StoreListSearchType';
 
 @Component({
   selector: 'mds-db-entity-controls',
@@ -210,8 +211,8 @@ export class DbEntityControlsComponent implements OnInit {
   }
 
   setStoreListOptions() {
-    this.listManagerService.getStoreLists().subscribe((storeLists: SimplifiedStoreList[]) => {
-      this.storeListOptions = storeLists;
+    this.storeListService.getStoreLists({searchType: StoreListSearchType.ANY}).subscribe(page => {
+      this.storeListOptions = page.content;
     });
   }
 

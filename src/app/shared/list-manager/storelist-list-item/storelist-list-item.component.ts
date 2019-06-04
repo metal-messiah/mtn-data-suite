@@ -5,10 +5,7 @@ import { SimplifiedStore } from 'app/models/simplified/simplified-store';
 import { ConfirmDialogComponent } from 'app/shared/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Pages } from '../list-manager-pages';
-import { UserProfileSelectComponent } from 'app/shared/user-profile-select/user-profile-select.component';
-import { UserProfile } from 'app/models/full/user-profile';
-import { SimplifiedUserProfile } from 'app/models/simplified/simplified-user-profile';
+import { ListManagerViews } from '../list-manager-views';
 import { TextInputDialogComponent } from 'app/shared/text-input-dialog/text-input-dialog.component';
 import { DbEntityMarkerService } from 'app/core/services/db-entity-marker.service';
 import { StoreService } from 'app/core/services/store.service';
@@ -39,25 +36,8 @@ export class StorelistListItemComponent {
   ) {
   }
 
-  // TODO Implement list subscription
-  // getSubscribeButtonText(storeList: SimplifiedStoreList): string {
-  //   if (this.listManagerService.userIsSubscribedToStoreList(storeList)) {
-  //     return 'Unsubscribe From List';
-  //   } else {
-  //     return 'Subscribe to List';
-  //   }
-  // }
-  //
-  // toggleSubscribe(storeList: SimplifiedStoreList) {
-  //   this.listManagerService.toggleSubscribe(storeList);
-  // }
-  //
-  // viewSubscribers(storeList: SimplifiedStoreList) {
-  //   this.listManagerService.setSelectedStoreList(storeList, Pages.VIEWSUBSCRIBERS);
-  // }
-
   viewStores(storeList: SimplifiedStoreList) {
-    this.listManagerService.setSelectedStoreList(storeList, Pages.VIEWSTORES);
+    this.listManagerService.setSelectedStoreList(storeList, ListManagerViews.VIEWSTORES);
   }
 
   deleteList(storeList: SimplifiedStoreList): void {
@@ -75,11 +55,6 @@ export class StorelistListItemComponent {
         this.listManagerService.deleteList(storeList);
       }
     });
-  }
-
-  share(storeList: SimplifiedStoreList) {
-    this.dialog.open(UserProfileSelectComponent).afterClosed()
-      .subscribe((user: UserProfile) => this.listManagerService.subscribe(new SimplifiedUserProfile(user), storeList))
   }
 
   storeListIsCurrentFilter(storeList: SimplifiedStoreList) {

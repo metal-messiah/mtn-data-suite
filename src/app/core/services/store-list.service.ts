@@ -21,37 +21,32 @@ export class StoreListService extends CrudService<StoreList> {
     return new StoreList(entityObj);
   }
 
-  getStoreLists(
-    subscriberIds?: number[],
-    createdById?: number,
-    includingStoreIds?: number[],
-    excludingStoreIds?: number[],
-    searchType?: StoreListSearchType,
-    pageNumber?: number
+  getStoreLists(options: {
+                  includingStoreIds?: number[],
+                  excludingStoreIds?: number[],
+                  searchType?: StoreListSearchType,
+                  pageNumber?: number,
+                  size?: number
+                }
   ): Observable<Pageable<SimplifiedStoreList>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams();
 
-    if (subscriberIds) {
-      params = params.set('subscriber-ids', subscriberIds.join(','));
+    if (options.includingStoreIds) {
+      params = params.set('including-store-ids', options.includingStoreIds.join(','));
     }
-    if (createdById) {
-      params = params.set('created-by-id', createdById.toString());
+    if (options.excludingStoreIds) {
+      params = params.set('excluding-store-ids', options.excludingStoreIds.join(','));
     }
-    if (includingStoreIds) {
-      params = params.set('including-store-ids', includingStoreIds.join(','));
+    if (options.searchType) {
+      params = params.set('search-type', options.searchType.toString());
     }
-    if (excludingStoreIds) {
-      params = params.set('excluding-store-ids', excludingStoreIds.join(','));
+    if (options.pageNumber) {
+      params = params.set('page', options.pageNumber.toLocaleString());
     }
-    if (searchType) {
-      params = params.set('search-type', searchType.toString());
-    }
-    if (pageNumber != null) {
-      params = params.set('page', pageNumber.toLocaleString());
-    }
+    const size = options.size ? String(options.size) : '100';
+    params = params.set('size', size);
 
-    params = params.set('size', '100');
     return this.http
       .get<Pageable<SimplifiedStoreList>>(url, {headers: this.rest.getHeaders(), params: params})
       .pipe(
@@ -62,21 +57,15 @@ export class StoreListService extends CrudService<StoreList> {
       );
   }
 
-  addStoresToStoreList(storeListId: number, storeIds: number[]): Observable<SimplifiedStoreList> {
+  addStoresToStoreList(storeListId: number, storeIds: number[]): Observable<StoreList> {
     const url = `${this.rest.getHost()}${this.endpoint}/${storeListId}/add-stores`;
-    return this.http.put<SimplifiedStoreList>(url, storeIds, {headers: this.rest.getHeaders()}).pipe(
-      map((data) => {
-        return new SimplifiedStoreList(data);
-      })
-    );
+    return this.http.put<StoreList>(url, storeIds, {headers: this.rest.getHeaders()})
+      .pipe(map(data => new StoreList(data)));
   }
 
-  removeStoresFromStoreList(storeListId: number, storeIds: number[]): Observable<SimplifiedStoreList> {
+  removeStoresFromStoreList(storeListId: number, storeIds: number[]): Observable<StoreList> {
     const url = `${this.rest.getHost()}${this.endpoint}/${storeListId}/remove-stores`;
-    return this.http.put<SimplifiedStoreList>(url, storeIds, {headers: this.rest.getHeaders()}).pipe(
-      map((data) => {
-        return new SimplifiedStoreList(data);
-      })
-    );
+    return this.http.put<StoreList>(url, storeIds, {headers: this.rest.getHeaders()})
+      .pipe(map(data => new StoreList(data)));
   }
 }

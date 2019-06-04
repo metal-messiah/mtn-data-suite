@@ -7,7 +7,6 @@ import { CasingProjectsComponent } from './casing-projects/casing-projects.compo
 import { SelectProjectComponent } from './select-project/select-project.component';
 import { ProjectSummaryComponent } from './project-summary/project-summary.component';
 import { ProjectDetailComponent } from './project-detail/project-detail.component';
-import { SiteListComponent } from './site-list/site-list.component';
 import { CasingDashboardService } from './casing-dashboard/casing-dashboard.service';
 import { SiteDetailComponent } from './site-detail/site-detail.component';
 import { SiteOverviewComponent } from './site-overview/site-overview.component';
@@ -61,7 +60,6 @@ import { DbEntityControlsComponent } from './casing-dashboard/db-entity-controls
     SelectProjectComponent,
     ShoppingCenterDetailComponent,
     SiteDetailComponent,
-    SiteListComponent,
     SiteOverviewComponent,
     StoreCasingDetailComponent,
     StoreCasingsComponent,

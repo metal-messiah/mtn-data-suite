@@ -1,4 +1,7 @@
 <mat-sidenav-container id="casing-dash-container">
+  <mat-sidenav id="left-sidenav" [mode]="getStoreListSidenavMode()" [(opened)]="showStoreLists" position="start">
+    <router-outlet></router-outlet>
+  </mat-sidenav>
   <mat-sidenav mode="over" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end"
                (closedStart)="controlSideMenuClosed()">
     <mds-db-entity-controls (viewStoreList)="openSidenavDirectlyToSelectedListStores($event)"
@@ -7,10 +10,12 @@
   <mat-sidenav-content>
     <div class="box">
       <div class="center-content">
-        <mds-store-sidenav id="store-sidenav" [expanded]="showStoreLists"
-                           [ngClass]="{'sidenav-hide': !showStoreLists, 'sidenav-show':showStoreLists, 'adjusted-height': (infoCard && isTooNarrow && showStoreLists), 'highlighted': highlightTab}"
-                           (click)="handleSidenavClick($event)">
-        </mds-store-sidenav>
+        <button id="open-close" mat-icon-button (click)="showStoreLists = !showStoreLists">
+          <i class="fas fa-2x" [ngClass]="showStoreLists ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
+        </button>
+        <!--<div id="store-sidenav" (click)="handleSidenavClick($event)"-->
+             <!--[ngClass]="{'sidenav-hide': !showStoreLists, 'sidenav-show':showStoreLists, 'adjusted-height': (infoCard && isTooNarrow && showStoreLists), 'highlighted': highlightTab}">-->
+        <!--</div>-->
         <mds-map #casingMap class="row content" (ready)="onMapReady()"></mds-map>
       </div>
       <mds-info-card id="infoCardElement" *ngIf="infoCard"

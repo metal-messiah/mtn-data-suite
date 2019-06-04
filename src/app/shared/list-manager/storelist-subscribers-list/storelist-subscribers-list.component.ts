@@ -20,7 +20,6 @@ export class StorelistSubscribersListComponent implements OnChanges {
   }
 
   unsubscribe(subscriber: SimplifiedUserProfile) {
-    this.listManagerService.unsubscribe(subscriber, this.storeList);
   }
 
 }
