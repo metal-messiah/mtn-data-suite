@@ -9,6 +9,7 @@
 .control-toolbar {
   height: 48px;
   justify-content: space-between;
+  background: #799daf;
 }
 
 .mat-expansion-panel-spacing {

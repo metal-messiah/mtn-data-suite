@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'mds-sitenav-user-lists',
+  selector: 'mds-sidenav-user-lists',
   templateUrl: './sidenav-user-lists.component.html',
   styleUrls: ['./sidenav-user-lists.component.css']
 })

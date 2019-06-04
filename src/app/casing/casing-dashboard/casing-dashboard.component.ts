@@ -151,16 +151,15 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach((s: Subscription) => s.unsubscribe());
   }
 
-  getStoreListSidenavMode() {
-    return this.layoutIsSmall ? 'over' : 'side';
-  }
-
   get controls() {
     return this.dbEntityMarkerService.controls;
   }
 
   private onSelection(selection: { storeId: number, siteId: number} ) {
     if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
+      if (this.layoutIsSmall) {
+        this.showStoreLists = false;
+      }
       this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,
         this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
     } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
@@ -733,21 +732,6 @@ Geo-location
     if (this.selectionService.storeIds.size > 0) {
       const data = {type: AddRemoveType.REMOVE, storeIds: Array.from(this.selectionService.storeIds)};
       this.dialog.open(AddRemoveStoresListDialogComponent, {data: data, disableClose: true});
-    }
-  }
-
-  toggleStoreLists() {
-    this.showStoreLists = !this.showStoreLists;
-    this.storageService.set(this.storeListsStorageKey, this.showStoreLists);
-  }
-
-  handleSidenavClick(e: MouseEvent) {
-    const sidenavWidth = document.querySelector('#store-sidenav')['offsetWidth'];
-    const mouseX = e.x;
-
-    // check if they are clicking the tab (::after)
-    if (mouseX > sidenavWidth) {
-      this.toggleStoreLists();
     }
   }
 

@@ -1,19 +1,13 @@
-<button (click)="goBack()">Back</button>
-<!-- STORES ON MAP -->
-<!--<div class="sidenav-content" *ngIf="isView(pages.STORESONMAP)">-->
-  <!--<i (click)="setView(null)" title="Go Back" class="fas fa-arrow-alt-circle-left fa-2x go-back-button"></i>-->
-  <!--<i (click)="selectAllVisible()" title="Select All" *ngIf="isMultiSelect()"-->
-     <!--class="fas fa-check-square fa-2x select-all-button top-right-button">-->
-  <!--</i>-->
-  <!--<h1 mat-dialog-title>Stores-->
-    <!--<span *ngIf="fetching">-->
-        <!--<i class="fas fa-spinner fa-pulse" aria-hidden="true"> </i>-->
-      <!--</span>-->
-    <!--<br/>-->
-    <!--<span *ngIf="getSelectedStoresCount()" title="Zoom to Selected Stores" (click)="zoomToSelection()"-->
-          <!--class="selected-stores">-->
-        <!--{{getSelectedStoresCount() | number}} Selected Store{{getSelectedStoresCount() === 1 ? '' : 's'}}-->
-      <!--</span>-->
-  <!--</h1>-->
-  <!--<mds-stores-list></mds-stores-list>-->
-<!--</div>-->
+<mat-toolbar class="toolbar" color="primary">
+  <div>
+    <i (click)="goBack()" title="Go Back" class="fas fa-chevron-left"></i>
+  </div>
+  <h1>Stores</h1>
+  <div>
+    <i (click)="selectAllVisible()" title="Select All" *ngIf="isMultiSelect()" class="fas fa-check-square fa-2x select-all-button"></i>
+  </div>
+</mat-toolbar>
+<div *ngIf="getSelectedStoresCount() > 1" title="Zoom to Selected Stores" (click)="zoomToSelection()" class="selected-stores">
+  Zoom to Selected Stores ({{getSelectedStoresCount()}})
+</div>
+<mds-stores-list></mds-stores-list>

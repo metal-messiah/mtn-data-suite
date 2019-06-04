@@ -50,37 +50,11 @@ export class StoreSidenavComponent implements OnInit {
     return this.storeSidenavService.fetching;
   }
 
-  getSelectedStoresCount(): number {
-    return this.selectionService.storeIds.size;
-  }
 
-  zoomToSelection() {
-    const requests = [];
-    if (this.selectionService.storeIds.size) {
-      requests.push(this.storeService.getAllByIds(Array.from(this.selectionService.storeIds))
-        .pipe(map((stores: SimplifiedStore[]) =>
-          stores.map((s: SimplifiedStore) => new Coordinates(s.site.latitude, s.site.longitude)))));
-    }
-    if (this.selectionService.siteIds.size) {
-      requests.push(this.siteService.getAllByIds(Array.from(this.selectionService.siteIds))
-        .pipe(map((sites: SimplifiedSite[]) =>
-          sites.map((s: SimplifiedSite) => new Coordinates(s.latitude, s.longitude)))));
-    }
 
-    forkJoin(requests).subscribe(results => {
-      const points = [].concat(...results);
-      this.mapService.fitToPoints(points);
-    });
-  }
 
-  isMultiSelect() {
-    return this.casingDashboardService.getSelectedDashboardMode() === CasingDashboardMode.MULTI_SELECT;
-  }
 
-  selectAllVisible() {
-    const visibleStoreIds = this.storeSidenavService.getVisibleStoreIds();
-    this.selectionService.selectByIds({siteIds: [], storeIds: visibleStoreIds});
-  }
+
 
   selectAllFromList() {
     const {selectedStoreList} = this.listManagerService;

@@ -1,3 +1,13 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+mat-sidenav-container {
+  flex: 1;
+}
+
 [matPrefix] {
   margin-right: 8px;
 }
@@ -37,14 +47,6 @@ i:hover {
 
 mat-slider {
   width: 90%;
-}
-
-#casing-dash-container {
-  height: 100%;
-}
-
-.box {
-  height: 100%;
 }
 
 form {
@@ -99,73 +101,14 @@ mat-slider {
   margin: 0 20px;
 }
 
-.center-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-mds-store-sidenav {
-  height: 100%;
-  position: relative;
-  transition: all 0.5s ease-in-out;
-
-  /* padding: 0 10px; */
-  background: white;
-}
-
-.sidenav-show {
+#store-list-sidenav {
   width: 400px;
 }
 
-.sidenav-hide {
-  width: 0;
-}
-
-@media (max-width: 740px) {
-  mds-store-sidenav {
-    position: absolute;
-    z-index: 9999;
-    height: calc(100vh - 129px);
-    left: 0;
-    top: 0;
-  }
-
-  .sidenav-show {
-    width: calc(100% - 35px);
-
-  }
-}
-
 @media (max-width: 600px) {
-  mds-store-sidenav {
-    height: calc(100vh - 112px);
+  #store-list-sidenav {
+    width: 90%;
+    max-width: 400px;
   }
 }
 
-.invisible {
-  opacity: 0.25;
-}
-
-.adjusted-height {
-  height: calc(100% - 250px);
-  padding-bottom: 10px;
-}
-
-#open-close {
-  position: absolute;
-  z-index: 999999999;
-  left: 0;
-  background: white;
-  width: 30px;
-  justify-content: center;
-  display: flex;
-  height: 50px;
-  align-items: center;
-  border-radius: 0 5px 5px 0;
-  cursor: pointer;
-  border: 1px solid #d8d8d8;
-  border-left: none;
-  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
-}

@@ -9,7 +9,7 @@
       </mat-optgroup>
     </mat-select>
   </mat-form-field>
-  <mat-form-field style="min-width: 150px;">
+  <mat-form-field>
     <mat-label>Order</mat-label>
     <mat-select #sortDirectionSelect [(value)]="sortDirection" (selectionChange)="sortStores()">
       <mat-option [value]="0">
@@ -22,31 +22,31 @@
   </mat-form-field>
 </div>
 <cdk-virtual-scroll-viewport #virtualScroll itemSize="20" class="list-of-items">
-  <div *cdkVirtualFor="let siteMarker of siteMarkers" class="site-wrapper">
-    <div class="site">
-      <div class="site-info">
-        <div>
-          <div>{{getAddressLabel(siteMarker)}}</div>
-          <div>{{getFormattedIntersection(siteMarker)}}</div>
-        </div>
-        <i (click)="showOnMap(siteMarker)" title="Center On Map" class="fas fa-map-marked-alt show-on-map-button"></i>
+  <div *cdkVirtualFor="let siteMarker of siteMarkers" class="site">
+    <div class="site-info">
+      <div>
+        <div>{{getAddressLabel(siteMarker)}}</div>
+        <div>{{getFormattedIntersection(siteMarker)}}</div>
       </div>
-      <div class="store-info">
-        <div class="store store-info-item" *ngIf="siteMarker.empty"
-             (click)="select(siteMarker)" [ngClass]="{'highlighted': siteIsSelected(siteMarker.id)}">
-          <div class="store-descriptions">
-            <div class="store-name">Empty Site (No Active Store)</div>
-          </div>
+      <i (click)="showOnMap(siteMarker)" title="Center On Map" class="fas fa-map-marked-alt show-on-map-button"></i>
+    </div>
+    <div class="store-info">
+      <div class="store store-info-item" *ngIf="siteMarker.empty"
+           (click)="select(siteMarker)" [ngClass]="{'highlighted': siteIsSelected(siteMarker.id)}">
+        <div class="store-descriptions">
+          <div class="store-name">Empty Site (No Active Store)</div>
         </div>
-        <div class="store store-info-item" *ngFor="let storeMarker of siteMarker.stores"
-             (click)="select(siteMarker, storeMarker)" [ngClass]="{'highlighted': storeIsSelected(storeMarker.id)}">
-          <div class="store-descriptions">
-            <div class="store-name">{{storeMarker.storeName}}</div>
-            <div class="store-subtext">{{getStoreSubtext(siteMarker, storeMarker)}}</div>
-          </div>
-          <img *ngIf="!canDelete && storeMarker.logoFileName" class="store-logo" [src]="getLogoPath(storeMarker.logoFileName)"/>
-          <i *ngIf="canDelete" (click)="removeStoreFromList(store)" title="Remove From List" class="fas fa-trash show-on-map-button"></i>
+      </div>
+      <div class="store store-info-item" *ngFor="let storeMarker of siteMarker.stores"
+           (click)="select(siteMarker, storeMarker)" [ngClass]="{'highlighted': storeIsSelected(storeMarker.id)}">
+        <div class="store-descriptions">
+          <div class="store-name">{{storeMarker.storeName}}</div>
+          <div class="store-subtext">{{getStoreSubtext(siteMarker, storeMarker)}}</div>
         </div>
+        <img *ngIf="!canDelete && storeMarker.logoFileName" class="store-logo"
+             [src]="getLogoPath(storeMarker.logoFileName)"/>
+        <i *ngIf="canDelete" (click)="removeStoreFromList(store)" title="Remove From List"
+           class="fas fa-trash show-on-map-button"></i>
       </div>
     </div>
   </div>

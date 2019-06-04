@@ -28,17 +28,8 @@
   /* border-radius: 10px; */
 }
 
-i {
-  font-family: "Font Awesome 5 Free" !important;
-}
-
 .fa-ban {
   color: tomato;
-}
-
-i:hover {
-  color: orange !important;
-  cursor: pointer;
 }
 
 .mat-dialog-title {
@@ -78,18 +69,6 @@ i:hover {
 
 mds-list-manager {
   width: 100%;
-}
-
-.go-back-button {
-  position: absolute;
-  left: 15px;
-  top: 10px;
-  color: #607d8b;
-}
-
-.go-back-button:hover {
-  color: orange;
-  cursor: pointer;
 }
 
 .top-right-button {

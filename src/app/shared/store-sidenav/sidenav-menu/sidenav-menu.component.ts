@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'mds-sitenav-menu',
+  selector: 'mds-sidenav-menu',
   templateUrl: './sidenav-menu.component.html',
   styleUrls: ['./sidenav-menu.component.css']
 })

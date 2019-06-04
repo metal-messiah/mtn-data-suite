@@ -14,9 +14,7 @@
     </button>
   </div>
 </mat-toolbar>
-<div class="dashboard-content">
-  <router-outlet></router-outlet>
-</div>
+<router-outlet></router-outlet>
 
 <mat-menu #projectMenu="matMenu">
   <button mat-menu-item (click)="casingDashboardService.openProjectSelectionDialog()">Change Selected Project
