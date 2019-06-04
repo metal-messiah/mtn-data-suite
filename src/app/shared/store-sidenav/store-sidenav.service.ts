@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { StoreSidenavViews } from './store-sidenav-pages';
+import { StoreSidenavViews } from './store-sidenav-views';
 import { StorageService } from 'app/core/services/storage.service';
 import { SiteMarker } from 'app/models/site-marker';
 import { StoreMarker } from 'app/models/store-marker';
@@ -27,7 +27,7 @@ export enum SortDirection {
 @Injectable()
 export class StoreSidenavService {
 
-  private readonly SIDENAV_PAGE_STORAGE_KEY = 'currentPage';
+  private readonly SIDENAV_VIEW_STORAGE_KEY = 'currentPage';
   private readonly SORT_TYPE_STORAGE_KEY = 'storesListSortType';
   private readonly SORT_DIRECTION_STORAGE_KEY = 'storesListSortDirection';
 
@@ -64,55 +64,47 @@ export class StoreSidenavService {
   }
 
   getSettings() {
-    this.storageService.getOne(this.SIDENAV_PAGE_STORAGE_KEY).subscribe(currentPage => {
-      if (currentPage) {
-        this.currentView = currentPage;
+    this.storageService.getOne(this.SIDENAV_VIEW_STORAGE_KEY).subscribe(currentView => {
+      if (currentView) {
+        this.currentView = currentView;
       }
     });
 
     const getSortType = this.storageService.getOne(this.SORT_TYPE_STORAGE_KEY);
     const getSortDirection = this.storageService.getOne(this.SORT_DIRECTION_STORAGE_KEY);
     forkJoin([getSortType, getSortDirection]).subscribe(sortOptions => {
-      const sortType = sortOptions[0] as SortType;
-      const sortDirection = sortOptions[1] as SortDirection;
-      this.setSortOptions(sortType, sortDirection);
+      this.sortType = sortOptions[0] as SortType;
+      this.sortDirection = sortOptions[1] as SortDirection;
+      this.sortSiteMarkers();
     });
   }
 
   setView(view: StoreSidenavViews) {
     this.currentView = view;
-    this.storageService.set(this.SIDENAV_PAGE_STORAGE_KEY, this.currentView)
+    this.storageService.set(this.SIDENAV_VIEW_STORAGE_KEY, this.currentView)
   }
 
   ////// ITEMS /////
-  updateItems(siteMarkers: SiteMarker[]) {
-    this.sortItems(siteMarkers);
+  updateSiteMarkers(siteMarkers: SiteMarker[]) {
     this.siteMarkers = siteMarkers;
+    this.sortSiteMarkers();
   }
 
   /////// SORTING ////
-
-  setSortOptions(sortType?: SortType, sortDirection?: SortDirection) {
-    this.sortType = sortType !== null ? sortType : this.sortType;
-    this.sortDirection = sortDirection !== null ? sortDirection : this.sortDirection;
-
+  sortSiteMarkers(): void {
     this.storageService.set(this.SORT_TYPE_STORAGE_KEY, this.sortType);
     this.storageService.set(this.SORT_DIRECTION_STORAGE_KEY, this.sortDirection);
 
-    this.sortItems(this.siteMarkers);
-  }
-
-  sortItems(siteMarkers: SiteMarker[]): void {
     switch (this.sortType) {
       case SortType.STORE_NAME:
-        siteMarkers.sort((itemA, itemB) => {
+        this.siteMarkers.sort((itemA, itemB) => {
           // try to sort ALPHABETICALLY by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
           const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
           return storeA && storeB ? storeA.storeName.localeCompare(storeB.storeName) : 0;
         });
         break;
       case SortType.ASSIGNEE_NAME:
-        siteMarkers.sort((itemA, itemB) => {
+        this.siteMarkers.sort((itemA, itemB) => {
           if (itemA.assigneeName) {
             if (itemB.assigneeName) {
               return itemA.assigneeName.localeCompare(itemB.assigneeName);
@@ -125,19 +117,19 @@ export class StoreSidenavService {
         });
         break;
       case SortType.BACK_FILLED_NON_GROCERY:
-        siteMarkers.sort((itemA, itemB) => {
+        this.siteMarkers.sort((itemA, itemB) => {
           return itemA.backfilledNonGrocery === itemB.backfilledNonGrocery ? 0 : itemA.backfilledNonGrocery ? -1 : 1;
         });
         break;
       case SortType.CREATED_DATE:
-        siteMarkers.sort((itemA, itemB) => {
+        this.siteMarkers.sort((itemA, itemB) => {
           // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
           const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
           return storeA.createdDate.getTime() - storeB.createdDate.getTime();
         });
         break;
       case SortType.FLOAT:
-        siteMarkers.sort((itemA, itemB) => {
+        this.siteMarkers.sort((itemA, itemB) => {
           // try to sort by FLOAT using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
           const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
 
@@ -148,20 +140,20 @@ export class StoreSidenavService {
         });
         break;
       case SortType.LATITUDE:
-        siteMarkers.sort((itemA, itemB) => itemA.latitude - itemB.latitude);
+        this.siteMarkers.sort((itemA, itemB) => itemA.latitude - itemB.latitude);
         break;
       case SortType.LONGITUDE:
-        siteMarkers.sort((itemA, itemB) => itemA.longitude - itemB.longitude);
+        this.siteMarkers.sort((itemA, itemB) => itemA.longitude - itemB.longitude);
         break;
       case SortType.STORE_TYPE:
-        siteMarkers.sort((itemA, itemB) => {
+        this.siteMarkers.sort((itemA, itemB) => {
           // try to sort STORE TYPE by ACTIVE store, if NO ACTIVE stores, use the first available store in array...
           const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
           return storeA && storeB ? storeA.storeType.localeCompare(storeB.storeType) : 0;
         });
         break;
       case SortType.VALIDATED_DATE:
-        siteMarkers.sort((itemA, itemB) => {
+        this.siteMarkers.sort((itemA, itemB) => {
           // try to sort by CREATED DATE using the ACTIVE store... if NO ACTIVE stores, use the first available store in array...
           const {storeA, storeB} = this.getStoresForSort(itemA, itemB);
           return storeA && storeB ? storeA.validatedDate.getTime() - storeB.validatedDate.getTime() : 0;
@@ -170,7 +162,7 @@ export class StoreSidenavService {
     }
 
     if (this.sortDirection === SortDirection.DESC) {
-      siteMarkers.reverse();
+      this.siteMarkers.reverse();
     }
   }
 

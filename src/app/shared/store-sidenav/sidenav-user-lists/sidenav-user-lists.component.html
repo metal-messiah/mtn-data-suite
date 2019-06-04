@@ -1,0 +1,22 @@
+<div class="sidenav-content" *ngIf="isView(pages.MYLISTS)">
+  <i (click)="listManagerGoBack()" title="Go Back" class="fas fa-arrow-alt-circle-left fa-2x go-back-button"></i>
+  <i (click)="selectAllFromList()" title="Select All" class="fas fa-check-square fa-2x top-right-button"
+     *ngIf="isMultiSelect() && isInListOfStoresView()"></i>
+  <i (click)="filterMap()" title="Use List As Map Filter" class="fas fa-filter fa-2x top-right-button"
+     *ngIf="!storeListIsCurrentFilter() && !isMultiSelect() && isInListOfStoresView()"></i>
+  <i (click)="clearMapFilter()" title="Clear Map Filter" class="fa-stack top-right-button"
+     *ngIf="storeListIsCurrentFilter() && !isMultiSelect() && isInListOfStoresView()">
+    <i class="fas fa-filter fa-stack-1x"></i>
+    <i class="fas fa-ban fa-stack-2x" style="color:Tomato"></i>
+  </i>
+  <!-- CONTENT -->
+  <h1 mat-dialog-title>{{getListViewText()}}
+    <br/>
+    <span *ngIf="getSelectedStoresCount()" title="Zoom to Selected Stores" (click)="zoomToSelection()"
+          class="selected-stores">
+        {{getSelectedStoresCount() | number}} Selected Store{{getSelectedStoresCount() === 1 ? '' : 's'}}
+      </span>
+  </h1>
+
+  <mds-list-manager></mds-list-manager>
+</div>

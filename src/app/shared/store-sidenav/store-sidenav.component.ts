@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { StoreSidenavService } from './store-sidenav.service';
 import { ListManagerService } from '../list-manager/list-manager.service';
-import { Pages as ListManagerPages } from '../list-manager/list-manager-pages';
-import { StoreSidenavViews as StoreSidenavPages } from './store-sidenav-pages';
+import { ListManagerViews } from '../list-manager/list-manager-views';
+import { StoreSidenavViews } from './store-sidenav-views';
 import { map } from 'rxjs/operators';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
 import { Coordinates } from '../../models/coordinates';
@@ -23,9 +23,7 @@ import { CasingDashboardService } from '../../casing/casing-dashboard/casing-das
 })
 export class StoreSidenavComponent implements OnInit {
 
-  pages = StoreSidenavPages;
-
-  @Input() expanded: boolean;
+  pages = StoreSidenavViews;
 
   constructor(private storeSidenavService: StoreSidenavService,
               private mapService: MapService,
@@ -40,12 +38,12 @@ export class StoreSidenavComponent implements OnInit {
   ngOnInit() {
   }
 
-  isPage(page: StoreSidenavPages) {
-    return (this.storeSidenavService.currentView === page);
+  isView(view: StoreSidenavViews) {
+    return (this.storeSidenavService.currentView === view);
   }
 
-  setPage(page: StoreSidenavPages) {
-    this.storeSidenavService.setView(page);
+  setView(view: StoreSidenavViews) {
+    this.storeSidenavService.setView(view);
   }
 
   get fetching() {
@@ -90,13 +88,13 @@ export class StoreSidenavComponent implements OnInit {
   }
 
   isInListOfStoresView() {
-    return this.listManagerService.page === ListManagerPages.VIEWSTORES;
+    return this.listManagerService.view === ListManagerViews.VIEWSTORES;
   }
 
-  getListPageText(): string {
+  getListViewText(): string {
     let output = '';
-    switch (this.listManagerService.page) {
-      case ListManagerPages.VIEWSTORES:
+    switch (this.listManagerService.view) {
+      case ListManagerViews.VIEWSTORES:
         const {selectedStoreList} = this.listManagerService;
         output = `${selectedStoreList.storeCount.toLocaleString()} Stores in ${this.listManagerService.selectedStoreList.storeListName}`;
         break;
@@ -107,12 +105,12 @@ export class StoreSidenavComponent implements OnInit {
   }
 
   listManagerGoBack() {
-    switch (this.listManagerService.page) {
-      case ListManagerPages.LISTMANAGER:
-        this.setPage(null);
+    switch (this.listManagerService.view) {
+      case ListManagerViews.LISTMANAGER:
+        this.setView(null);
         break;
-      case ListManagerPages.VIEWSTORES:
-        this.listManagerService.setView(ListManagerPages.LISTMANAGER);
+      case ListManagerViews.VIEWSTORES:
+        this.listManagerService.setView(ListManagerViews.LISTMANAGER);
         // this.listManagerService.setSelectedStoreList(null, ListManagerPages.LISTMANAGER)
         break;
     }

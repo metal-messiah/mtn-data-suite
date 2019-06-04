@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SiteListComponent } from './site-list.component';
+import { SidenavUserListsComponent } from './sidenav-user-lists.component';
 
-describe('SiteListComponent', () => {
-  let component: SiteListComponent;
-  let fixture: ComponentFixture<SiteListComponent>;
+describe('SitenavUserListsComponent', () => {
+  let component: SidenavUserListsComponent;
+  let fixture: ComponentFixture<SidenavUserListsComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SiteListComponent ]
+      declarations: [ SidenavUserListsComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SiteListComponent);
+    fixture = TestBed.createComponent(SidenavUserListsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
