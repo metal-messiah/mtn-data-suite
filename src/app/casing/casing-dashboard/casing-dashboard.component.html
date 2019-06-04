@@ -2,7 +2,8 @@
   <mat-sidenav id="store-list-sidenav" [mode]="layoutIsSmall ? 'over' : 'side'" [(opened)]="showStoreLists">
     <router-outlet></router-outlet>
   </mat-sidenav>
-  <mat-sidenav [mode]="layoutIsSmall ? 'over' : 'side'" [(opened)]="filterSideNavIsOpen" class="casing-side-nav" position="end"
+  <mat-sidenav [mode]="layoutIsSmall ? 'over' : 'side'" [(opened)]="filterSideNavIsOpen" class="casing-side-nav"
+               position="end"
                (closedStart)="controlSideMenuClosed()">
     <mds-db-entity-controls (viewStoreList)="openSidenavDirectlyToSelectedListStores($event)"
                             (apply)="layoutIsSmall ? filterSideNavIsOpen = false : controlSideMenuClosed()"></mds-db-entity-controls>
@@ -11,10 +12,6 @@
     <mds-map #casingMap class="row content" (ready)="onMapReady()"></mds-map>
   </mat-sidenav-content>
 </mat-sidenav-container>
-<mds-info-card id="infoCardElement" *ngIf="infoCard"
-               [ngClass]="{'infoCardContainer':true, 'right': showStoreLists}" [infoCard]="infoCard"
-               [disabled]="selectedDashboardMode !== casingDashboardMode.DEFAULT">
-</mds-info-card>
 <div class="row footer">
   <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.FOLLOWING" color="primary"
                class="flex-space-between">
@@ -245,10 +242,14 @@
   </div>
 </mat-menu>
 
-<i title="Map is Loading" *ngIf="gettingLocations && !filterSideNavIsOpen" id="loadingSpinner"
-   class="fas fa-spinner fa-pulse fa-2x"></i>
-<button *ngIf="!controls.updateOnBoundsChange &&
-               !gettingLocations && !filterSideNavIsOpen" mat-raised-button id="refresh"
-        (click)="getEntitiesInBounds()" color="primary">
-  <i class="fas fa-sync"></i>
+<button [ngClass]="{hidden: controls.updateOnBoundsChange && !gettingLocations}"
+        mat-raised-button id="refresh" (click)="getEntitiesInBounds()" color="primary"
+        [disabled]="gettingLocations">
+  <i class="fas fa-sync" [ngClass]="{'fa-spin': gettingLocations}"></i>
 </button>
+
+<div id="info-card-wrapper" [ngClass]="{hidden: !infoCard}">
+  <mds-info-card *ngIf="infoCard" [infoCard]="infoCard"
+                 [disabled]="selectedDashboardMode !== casingDashboardMode.DEFAULT">
+  </mds-info-card>
+</div>

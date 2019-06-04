@@ -106,8 +106,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   layoutIsSmall = false;
 
-  highlightTab = false;
-
   constructor(private mapService: MapService,
               private dbEntityMarkerService: DbEntityMarkerService,
               private geocoderService: GeocoderService,
@@ -160,14 +158,19 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       if (this.layoutIsSmall) {
         this.showStoreLists = false;
       }
-      this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,
-        this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
+      this.ngZone.run(() => {
+        this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,
+          this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
+      })
     } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
       this.onDuplicateSiteSelected(selection.siteId);
     }
   }
 
   onMapReady() {
+    this.mapService.addControl(document.getElementById('refresh'));
+    this.mapService.addControl(document.getElementById('info-card-wrapper'), google.maps.ControlPosition.LEFT_BOTTOM);
+
     this.selectionService.singleSelect$.subscribe(selection => this.onSelection(selection));
     this.dbEntityMarkerService.initMap(this.mapService.getMap(), selection => this.onSelection(selection), this.selectionService);
 

@@ -16,29 +16,6 @@ mds-map {
   height: inherit;
 }
 
-i:hover {
-  color: orange;
-  cursor: pointer;
-}
-
-/* .infoCardContainer {
-  position: absolute;
-  pointer-events: all;
-  max-width: 300px;
-  left: 5px;
-  bottom: 60px;
-} */
-
-.infoCardContainer {
-  position: absolute;
-  pointer-events: all;
-  width: 300px;
-  bottom: 81px;
-  z-index: 9999;
-  transition: all 0.5s ease-in-out;
-  padding-left: 5px;
-}
-
 @media (min-width: 600px) {
   .infoCardContainer.right {
     left: calc(100% - 375px);
@@ -74,26 +51,12 @@ mat-sidenav {
   outline: 1px solid slategrey !important;
 }
 
-#loadingSpinner, #refresh {
-  position: absolute;
-  bottom: 250px;
-  right: 15px;
-  /*pointer-events: none;*/
-  z-index: 100;
-  color: orange;
-}
-
-@media (max-width: 600px) {
-  #loadingSpinner, #refresh {
-    bottom: 240px;
-  }
-}
-
 #refresh {
   min-width: unset;
   padding: unset;
   width: 40px;
   height: 40px;
+  margin-right: 10px;
 }
 
 mat-slider {
@@ -110,5 +73,13 @@ mat-slider {
     width: 90%;
     max-width: 400px;
   }
+}
+
+#info-card-wrapper {
+  margin-left: 6px;
+}
+
+.hidden {
+  visibility: hidden;
 }
 

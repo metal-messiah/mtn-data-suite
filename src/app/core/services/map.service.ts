@@ -76,8 +76,8 @@ export class MapService {
     this.dataPointFeatures = [];
   }
 
-  addControl(control: HTMLElement) {
-    this.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(control);
+  addControl(control: HTMLElement, position: google.maps.ControlPosition = google.maps.ControlPosition.RIGHT_BOTTOM) {
+    this.map.controls[position].push(control);
   }
 
   initialize(element: HTMLElement) {
