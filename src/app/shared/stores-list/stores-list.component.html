@@ -1,7 +1,7 @@
 <div class="sort-toolbar">
   <mat-form-field>
     <mat-label>Sort Results</mat-label>
-    <mat-select [(value)]="sortType" #sortTypeSelect (selectionChange)="sortStores()">
+    <mat-select [value]="sortType" #sortTypeSelect (selectionChange)="setSortType($event)">
       <mat-optgroup *ngFor="let group of sortGroups" [label]="group.name">
         <mat-option *ngFor="let key of group.keys" [value]="key">
           {{key}}
@@ -9,45 +9,45 @@
       </mat-optgroup>
     </mat-select>
   </mat-form-field>
-  <mat-form-field>
-    <mat-label>Order</mat-label>
-    <mat-select #sortDirectionSelect [(value)]="sortDirection" (selectionChange)="sortStores()">
-      <mat-option [value]="0">
-        <i class="fas fa-sort-amount-up"></i> Ascending
-      </mat-option>
-      <mat-option [value]="1">
-        <i class="fas fa-sort-amount-down"></i> Descending
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+  <button mat-icon-button (click)="toggleSortDirection()">
+    <i class="fas fa-2x"
+       [ngClass]="sortDirection === SortDirection.DESC ? 'fa-sort-alpha-up' : 'fa-sort-alpha-down'"></i>
+  </button>
 </div>
-<cdk-virtual-scroll-viewport #virtualScroll itemSize="20" class="list-of-items">
-  <div *cdkVirtualFor="let siteMarker of siteMarkers" class="site">
+<div>
+  <mat-radio-group id="store-type-radio-group" (change)="storeTypeChanged($event)" [(ngModel)]="storeType">
+    <mat-radio-button *ngFor="let storeType of STORE_TYPES" [value]="storeType">{{storeType}}</mat-radio-button>
+  </mat-radio-group>
+</div>
+<cdk-virtual-scroll-viewport #virtualScroll itemSize="85" class="list-of-items">
+  <div *cdkVirtualFor="let siteListItem of siteListItems" class="site">
     <div class="site-info">
       <div>
-        <div>{{getAddressLabel(siteMarker)}}</div>
-        <div>{{getFormattedIntersection(siteMarker)}}</div>
+        <div>{{siteListItem.address}}</div>
+        <div>{{siteListItem.intersection}}&nbsp;</div>
       </div>
-      <i (click)="showOnMap(siteMarker)" title="Center On Map" class="fas fa-map-marked-alt show-on-map-button"></i>
+      <i (click)="showOnMap(siteListItem)" title="Center On Map" class="fas fa-map-marked-alt show-on-map-button"></i>
     </div>
+    <div class="sort-subtext">{{getSortByText(siteListItem)}}</div>
     <div class="store-info">
-      <div class="store store-info-item" *ngIf="siteMarker.empty"
-           (click)="select(siteMarker)" [ngClass]="{'highlighted': siteIsSelected(siteMarker.id)}">
+      <div class="store store-info-item" *ngIf="siteListItem.empty"
+           (click)="selectSite(siteListItem.siteId)" [ngClass]="{'highlighted': siteIsSelected(siteListItem.id)}">
         <div class="store-descriptions">
           <div class="store-name">Empty Site (No Active Store)</div>
         </div>
       </div>
-      <div class="store store-info-item" *ngFor="let storeMarker of siteMarker.stores"
-           (click)="select(siteMarker, storeMarker)" [ngClass]="{'highlighted': storeIsSelected(storeMarker.id)}">
-        <div class="store-descriptions">
-          <div class="store-name">{{storeMarker.storeName}}</div>
-          <div class="store-subtext">{{getStoreSubtext(siteMarker, storeMarker)}}</div>
+      <ng-container *ngFor="let store of [getStoreForSort(siteListItem)]">
+        <div class="store store-info-item" (click)="selectStore(siteListItem.siteId, store.id)"
+             [ngClass]="{'highlighted': storeIsSelected(store.id)}">
+          <div class="store-descriptions">
+            <div class="store-name">{{store.storeName}}</div>
+          </div>
+          <img *ngIf="!canDelete && store.logoFileName" class="store-logo"
+               [src]="getLogoPath(store.logoFileName)"/>
+          <i *ngIf="canDelete" (click)="removeStoreFromList(store)" title="Remove From List"
+             class="fas fa-trash show-on-map-button"></i>
         </div>
-        <img *ngIf="!canDelete && storeMarker.logoFileName" class="store-logo"
-             [src]="getLogoPath(storeMarker.logoFileName)"/>
-        <i *ngIf="canDelete" (click)="removeStoreFromList(store)" title="Remove From List"
-           class="fas fa-trash show-on-map-button"></i>
-      </div>
+      </ng-container>
     </div>
   </div>
 </cdk-virtual-scroll-viewport>

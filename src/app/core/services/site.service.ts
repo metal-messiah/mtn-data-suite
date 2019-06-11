@@ -10,6 +10,7 @@ import { Coordinates } from '../../models/coordinates';
 import { Store } from '../../models/full/store';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
+import { SiteUtil } from '../../utils/SiteUtil';
 
 @Injectable()
 export class SiteService extends CrudService<Site> {
@@ -68,43 +69,11 @@ export class SiteService extends CrudService<Site> {
   }
 
   getFormattedIntersection(site): string {
-    let intersection = '';
-    if (site.quad !== null) {
-      intersection += site.quad;
-      if (site.intersectionStreetPrimary !== null || site.intersectionStreetSecondary !== null) {
-        intersection += ' of ';
-      }
-    }
-    if (site.intersectionStreetPrimary !== null) {
-      intersection += site.intersectionStreetPrimary;
-      if (site.intersectionStreetSecondary !== null) {
-        intersection += ' & ';
-      }
-    }
-    if (site.intersectionStreetSecondary !== null) {
-      intersection += site.intersectionStreetSecondary;
-    }
-    return intersection;
+    return SiteUtil.getFormattedIntersection(site);
   }
 
   getFormattedPrincipality(site): string {
-    let principality = '';
-    if (site.city !== null) {
-      principality += site.city;
-      if (site.state !== null) {
-        principality += ', ';
-      }
-    }
-    if (site.state !== null) {
-      principality += site.state;
-    }
-    if (site.postalCode !== null) {
-      if (principality.length > 0) {
-        principality += ' ';
-      }
-      principality += site.postalCode;
-    }
-    return principality;
+    return SiteUtil.getFormattedPrincipality(site);
   }
 
   getCoordinates(site: Site | SimplifiedSite): Coordinates {

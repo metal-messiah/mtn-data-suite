@@ -739,18 +739,19 @@ Geo-location
   }
 
   openSidenavDirectlyToSelectedListStores(storeList: SimplifiedStoreList) {
-    if (storeList.id !== -1) {
-      this.storeSidenavService.setView(StoreSidenavViews.MYLISTS);
-      this.listManagerService.setSelectedStoreList(storeList);
-      setTimeout(() => {
-        this.listManagerService.setView(ListManagerViews.VIEWSTORES);
-      }, 100)
-    } else {
-      this.storeSidenavService.setView(StoreSidenavViews.STORESONMAP);
-    }
-
-    this.showStoreLists = true;
-    this.filterSideNavIsOpen = false;
+    // TODO implement
+    // if (storeList.id !== -1) {
+    //   this.storeSidenavService.setView(StoreSidenavViews.MYLISTS);
+    //   this.listManagerService.setSelectedStoreList(storeList);
+    //   setTimeout(() => {
+    //     this.listManagerService.setView(ListManagerViews.VIEWSTORES);
+    //   }, 100)
+    // } else {
+    //   this.storeSidenavService.setView(StoreSidenavViews.STORESONMAP);
+    // }
+    //
+    // this.showStoreLists = true;
+    // this.filterSideNavIsOpen = false;
   }
 
 }

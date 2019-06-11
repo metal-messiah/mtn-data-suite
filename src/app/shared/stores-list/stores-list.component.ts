@@ -1,6 +1,5 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
 import { StoreMarker } from 'app/models/store-marker';
-import { StoreSidenavService } from '../store-sidenav/store-sidenav.service';
 import { SiteMarker } from 'app/models/site-marker';
 import { SiteService } from 'app/core/services/site.service';
 import { DbEntityMarkerService } from '../../core/services/db-entity-marker.service';
@@ -11,47 +10,136 @@ import { StoreList } from '../../models/full/store-list';
 import { ListManagerService } from '../list-manager/list-manager.service';
 import { StoreListService } from '../../core/services/store-list.service';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
+import { SortDirection } from '../../core/functionalEnums/sort-direction';
+import { Coordinates } from '../../models/coordinates';
+import { StorageService } from '../../core/services/storage.service';
+import { forkJoin } from 'rxjs';
+import { SiteUtil } from '../../utils/SiteUtil';
+import { SortType } from '../../core/functionalEnums/site-list-sort-type';
+import { MatRadioChange, MatSelectChange } from '@angular/material';
+import { DateUtil } from '../../utils/date-util';
+import * as _ from 'lodash';
+
+class SiteListItem {
+  siteId: number;
+  address: string;
+  intersection: string;
+  coords: Coordinates;
+  backfilledNonGrocery: boolean;
+  empty: boolean;
+  assigneeName: string;
+  activeStore: StoreMarker;
+  historicalStores: StoreMarker[] = [];
+  futureStores: StoreMarker[] = [];
+
+  constructor(siteMarker: SiteMarker) {
+    this.siteId = siteMarker.id;
+    this.address = this.getAddressLabel(siteMarker);
+    this.intersection = this.getFormattedIntersection(siteMarker);
+    this.coords = new Coordinates(siteMarker.latitude, siteMarker.longitude);
+    this.backfilledNonGrocery = siteMarker.backfilledNonGrocery;
+    this.empty = siteMarker.empty;
+    this.assigneeName = siteMarker.assigneeName;
+
+    siteMarker.stores.forEach(store => {
+      if (store.storeType === 'HISTORICAL') {
+        this.historicalStores.push(store);
+      } else if (store.storeType === 'FUTURE') {
+        this.futureStores.push(store);
+      } else if (store.storeType === 'ACTIVE') {
+        this.activeStore = store;
+      }
+    })
+  }
+
+  private getAddressLabel(siteMarker: SiteMarker) {
+    let address = siteMarker.address;
+    if (address) {
+      address += ', ';
+    }
+    return address + SiteUtil.getFormattedPrincipality(siteMarker);
+  }
+
+  private getFormattedIntersection(site: SiteMarker) {
+    return SiteUtil.getFormattedIntersection(site);
+  }
+}
 
 @Component({
   selector: 'mds-stores-list',
   templateUrl: './stores-list.component.html',
   styleUrls: ['./stores-list.component.css']
 })
-export class StoresListComponent implements OnInit {
+export class StoresListComponent implements OnInit, OnChanges {
+
+  private readonly SORT_TYPE_STORAGE_KEY = 'storesListSortType';
+  private readonly SORT_DIRECTION_STORAGE_KEY = 'storesListSortDirection';
+  private readonly STORE_TYPES = ['Historical', 'Active', 'Future'];
+
+  readonly sortGroups = [
+    {
+      name: 'Store', keys: [
+        SortType.STORE_NAME,
+        SortType.FLOAT,
+        SortType.CREATED_DATE,
+        SortType.VALIDATED_DATE
+      ]
+    }, {
+      name: 'Site', keys: [
+        SortType.LATITUDE,
+        SortType.LONGITUDE,
+        SortType.ASSIGNEE_NAME,
+        SortType.BACK_FILLED_NON_GROCERY
+      ]
+    }
+  ];
+
+  fetching = false;
 
   canDelete = false;
+  SortDirection = SortDirection;
+  siteListItems: SiteListItem[];
 
-  @Input() selectedStoreListId?: number;
+  storeType = 'Active';
+  sortType: SortType = SortType.STORE_NAME;
+  sortDirection: SortDirection = SortDirection.ASC;
+
+  @Input() siteMarkers = [];
 
   @ViewChild('virtualScroll', {static: false}) virtualScroll: CdkVirtualScrollViewport;
 
   constructor(
-    private storeSidenavService: StoreSidenavService,
     private dbEntityMarkerService: DbEntityMarkerService,
     private mapService: MapService,
     private selectionService: EntitySelectionService,
     private siteService: SiteService,
     private listManagerService: ListManagerService,
-    private storeListService: StoreListService
+    private storeListService: StoreListService,
+    private storageService: StorageService
   ) {
   }
 
   ngOnInit() {
-    // If a storeList is provided, used that for the siteMarkers, else use what is on the map
-    if (this.selectedStoreListId) {
-      this.canDelete = true;
-      this.storeListService.getOneById(this.selectedStoreListId).subscribe(storeList => {
-          const siteMarkers = this.getSiteMarkersForStoreList(storeList);
-          this.storeSidenavService.updateSiteMarkers(siteMarkers);
-        });
-    } else {
-      this.storeSidenavService.updateSiteMarkers(this.dbEntityMarkerService.getVisibleSiteMarkers());
-      this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(() => {
-        this.storeSidenavService.updateSiteMarkers(this.dbEntityMarkerService.getVisibleSiteMarkers())
-      });
-    }
+    this.getSettings();
+    this.selectionService.singleSelect$.subscribe(selection => {
+      const index = this.siteListItems.findIndex(sm => sm.siteId === selection.siteId);
+      this.virtualScroll.scrollToIndex(index);
+    });
+  }
 
-    this.selectionService.singleSelect$.subscribe(selection => this.scrollToStore(selection.storeId));
+  ngOnChanges() {
+    this.siteListItems = this.siteMarkers.map(siteMarker => new SiteListItem(siteMarker));
+    this.sortSiteList();
+  }
+
+  private getSettings() {
+    const getSortType = this.storageService.getOne(this.SORT_TYPE_STORAGE_KEY);
+    const getSortDirection = this.storageService.getOne(this.SORT_DIRECTION_STORAGE_KEY);
+    forkJoin([getSortType, getSortDirection]).subscribe(sortOptions => {
+      this.sortType = sortOptions[0] as SortType;
+      this.sortDirection = sortOptions[1] as SortDirection;
+      this.sortSiteList();
+    });
   }
 
   siteIsSelected(siteId: number) {
@@ -62,93 +150,153 @@ export class StoresListComponent implements OnInit {
     return this.selectionService.storeIds.has(storeId);
   }
 
-  get siteMarkers() {
-    return this.storeSidenavService.siteMarkers;
+  storeTypeChanged(event: MatRadioChange) {
+    this.storeType = event.value;
+    this.sortSiteList();
   }
 
-  get sortType() {
-    return this.storeSidenavService.sortType;
+  toggleSortDirection() {
+    if (this.sortDirection === SortDirection.ASC) {
+      this.sortDirection = SortDirection.DESC;
+    } else {
+      this.sortDirection = SortDirection.ASC;
+    }
+    this.storageService.set(this.SORT_DIRECTION_STORAGE_KEY, this.sortDirection);
+    this.sortSiteList();
   }
 
-  get sortDirection() {
-    return this.storeSidenavService.sortDirection;
+  setSortType(event: MatSelectChange) {
+    this.sortType = event.value;
+    this.storageService.set(this.SORT_TYPE_STORAGE_KEY, this.sortType);
+    this.sortSiteList();
   }
 
-  sortStores() {
-    this.storeSidenavService.sortSiteMarkers()
+  getStoreForSort(siteA: SiteListItem) {
+    if (this.storeType === 'Active') {
+      return siteA.activeStore;
+    } else if (this.storeType === 'Historical') {
+      return _.maxBy(siteA.historicalStores, (st: StoreMarker) => st.createdDate);
+    } else if (this.storeType === 'Future') {
+      return _.maxBy(siteA.futureStores, (st: StoreMarker) => st.createdDate);
+    }
+    return null;
   }
 
-  get fetching() {
-    return this.storeSidenavService.fetching;
+  private sortSiteList(): void {
+    console.log('Sorting list');
+    this.siteListItems.sort((itemA, itemB) => {
+        switch (this.sortType) {
+          case SortType.STORE_NAME:
+          case SortType.VALIDATED_DATE:
+          case SortType.CREATED_DATE:
+          case SortType.FLOAT:
+            const storeA = this.getStoreForSort(itemA);
+            const storeB = this.getStoreForSort(itemB);
+            if (storeA && !storeB) {
+              return 1;
+            } else if (storeB && !storeA) {
+              return -1;
+            }
+            switch (this.sortType) {
+              case SortType.STORE_NAME:
+                return storeA.storeName.localeCompare(storeB.storeName);
+              case SortType.VALIDATED_DATE:
+                return DateUtil.compareDates(storeA.validatedDate, storeB.validatedDate);
+              case SortType.CREATED_DATE:
+                return DateUtil.compareDates(storeA.createdDate, storeB.createdDate);
+              case SortType.FLOAT:
+                return storeA.float === storeB.float ? 0 : storeA.float ? 1 : -1;
+              default:
+                return 0;
+            }
+
+          case SortType.ASSIGNEE_NAME:
+            return itemA.assigneeName.localeCompare(itemB.assigneeName);
+          case SortType.BACK_FILLED_NON_GROCERY:
+            return itemA.backfilledNonGrocery === itemB.backfilledNonGrocery ? 0 : itemA.backfilledNonGrocery ? -1 : 1;
+          case SortType.LATITUDE:
+            return itemA.coords.lat - itemB.coords.lat;
+          case SortType.LONGITUDE:
+            return itemA.coords.lng - itemB.coords.lng;
+          default:
+            return 0;
+        }
+      }
+    );
+
+    if (this.sortDirection === SortDirection.DESC) {
+      this.siteListItems.reverse();
+    }
+
+    // Must re-assign in order for CDK-Virtural-Scroll to update
+    this.siteListItems = Object.assign([], this.siteListItems);
   }
 
-  get sortGroups() {
-    return this.storeSidenavService.sortGroups;
-  }
-
-  getStoreSubtext(site: SiteMarker, store: StoreMarker) {
-    return this.storeSidenavService.getStoreSubtext(site, store);
-  }
-
-  getFormattedIntersection(site: SiteMarker) {
-    return this.siteService.getFormattedIntersection(site);
+  getSortByText(siteListItem: SiteListItem) {
+    const text = this.sortType.toString() + ': ';
+    const store = this.getStoreForSort(siteListItem);
+    switch (this.sortType) {
+      case SortType.ASSIGNEE_NAME:
+        return siteListItem.assigneeName ? `${text}${siteListItem.assigneeName}` : 'Not Assigned';
+      case SortType.BACK_FILLED_NON_GROCERY:
+        return text + `${siteListItem.backfilledNonGrocery}`;
+      case SortType.CREATED_DATE:
+        return text + `${new Date(store.createdDate).toLocaleDateString()}`;
+      case SortType.FLOAT:
+        return text + `${store.float ? store.float : 'False'}`;
+      case SortType.LATITUDE:
+        return text + `${siteListItem.coords.lat}`;
+      case SortType.LONGITUDE:
+        return text + `${siteListItem.coords.lng}`;
+      case SortType.VALIDATED_DATE:
+        if (store.validatedDate) {
+          return text + `${new Date(store.validatedDate).toLocaleDateString()}`;
+        } else {
+          return 'Store not validated';
+        }
+      default:
+        return 'Sorting on: ' + this.sortType.toString();
+    }
   }
 
   getLogoPath(fileName: string) {
     return `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${fileName}`;
   }
 
-  getAddressLabel(siteMarker: SiteMarker) {
-    let address = siteMarker.address;
-    if (address) {
-      address += ', ';
-    }
-    return address + this.siteService.getFormattedPrincipality(siteMarker);
+  selectSite(siteId: number) {
+    this.selectionService.singleSelect({siteId: siteId, storeId: null})
   }
 
-  // Causes selectionSet$ to emit - which will then affect the state
-  select(siteMarker: SiteMarker, storeMarker?: StoreMarker) {
-    // If store is provided, select it, otherwise select the site
-    if (storeMarker) {
-      this.selectionService.singleSelect({siteId: siteMarker.id, storeId: storeMarker.id});
-    } else if (siteMarker) {
-      this.selectionService.singleSelect({siteId: siteMarker.id, storeId: null})
-    }
+  selectStore(siteId: number, storeId: number) {
+    this.selectionService.singleSelect({siteId: siteId, storeId: storeId})
   }
 
-  showOnMap(site: SiteMarker) {
-    this.mapService.setCenter({
-      lat: site.latitude,
-      lng: site.longitude
-    });
-  }
-
-  private scrollToStore(storeId: number) {
-    const index = this.siteMarkers.findIndex(sm => sm.stores.find(st => st.id === storeId) !== null);
-    this.virtualScroll.scrollToIndex(index);
+  showOnMap(listItem) {
+    this.mapService.setCenter(listItem.coords);
   }
 
   /**
    * Groups all stores of the same site into the same siteMarker object, since store lists only contain stores
    */
-  private getSiteMarkersForStoreList(storeList: StoreList): SiteMarker[] {
+  private transformStoresForListView(storeList: StoreList): SiteMarker[] {
     const siteMarkers = {};
     storeList.stores.forEach((store: SimplifiedStore) => {
-      if (!siteMarkers[store.site.id]) {
-        const sm = new SiteMarker(store.site);
-        sm.stores = [];
-        siteMarkers[store.site.id] = sm;
+      let siteMarker = siteMarkers[store.site.id];
+      if (!siteMarker) {
+        siteMarker = new SiteMarker(store.site);
+        siteMarker.stores = [];
+        siteMarkers[store.site.id] = siteMarker;
       }
-      siteMarkers[store.site.id].stores.push(new StoreMarker(store));
+      siteMarker.stores.push(new StoreMarker(store));
     });
     return Object.keys(siteMarkers).map(siteId => siteMarkers[siteId]);
   }
 
   removeStoreFromList(storeMarker: StoreMarker) {
-    const store = new SimplifiedStore(storeMarker);
-    this.storeListService.removeStoresFromStoreList(this.selectedStoreListId, [store.id]).subscribe(storeList => {
-      const siteMarkers = this.getSiteMarkersForStoreList(storeList);
-      this.storeSidenavService.updateSiteMarkers(siteMarkers);
-    });
+    // const store = new SimplifiedStore(storeMarker);
+    // this.storeListService.removeStoresFromStoreList(this.selectedStoreListId, [store.id]).subscribe(storeList => {
+    //   const siteMarkers = this.transformStoresForListView(storeList);
+    //   this.storeSidenavService.updateSiteMarkers(siteMarkers);
+    // });
   }
 }

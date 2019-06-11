@@ -2,12 +2,14 @@
   <div>
     <i (click)="goBack()" title="Go Back" class="fas fa-chevron-left"></i>
   </div>
-  <h1>Stores</h1>
+  <h1>Stores On Map</h1>
   <div>
-    <i (click)="selectAllVisible()" title="Select All" *ngIf="isMultiSelect()" class="fas fa-check-square fa-2x select-all-button"></i>
+    <i (click)="selectAllVisible()" title="Select All" *ngIf="isMultiSelect()"
+       class="fas fa-check-square select-all-button"></i>
   </div>
 </mat-toolbar>
-<div *ngIf="getSelectedStoresCount() > 1" title="Zoom to Selected Stores" (click)="zoomToSelection()" class="selected-stores">
+<button mat-flat-button *ngIf="getSelectedStoresCount() > 1" title="Zoom to Selected Stores"
+        (click)="zoomToSelection()" class="selected-stores">
   Zoom to Selected Stores ({{getSelectedStoresCount()}})
-</div>
-<mds-stores-list></mds-stores-list>
+</button>
+<mds-stores-list [siteMarkers]="siteMarkers"></mds-stores-list>

@@ -13,10 +13,19 @@
   flex: 1;
 }
 
-.toolbar:last-child {
+.toolbar > *:last-child {
   text-align: right;
 }
 
 h1 {
   text-align: center;
+}
+
+.select-all-button:hover {
+  color: orange;
+  cursor: pointer;
+}
+
+.selected-stores {
+  margin: 5px auto;
 }

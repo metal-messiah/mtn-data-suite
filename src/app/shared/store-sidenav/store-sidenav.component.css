@@ -78,20 +78,7 @@ mds-list-manager {
   color: #607d8b;
 }
 
-.select-all-button:hover {
-  color: orange;
-  cursor: pointer;
-}
 
-.selected-stores {
-  font-size: small;
-  font-style: italic;
-  cursor: pointer;
-}
-
-.selected-stores:hover {
-  color: orange;
-}
 
 @media (max-width: 600px) {
   .sidenav-content {
