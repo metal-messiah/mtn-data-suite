@@ -31,7 +31,7 @@
   height: 85px;
   display: flex;
   flex-direction: column;
-  margin: 0 10px 10px;
+  margin: 8px;
   padding: 10px;
   position: relative;
   background: #efefef;
@@ -51,7 +51,7 @@
 
 .list-of-items {
   width: 100%;
-  flex: 1;
+  height: 100%;
 }
 
 .store-info {
@@ -93,6 +93,7 @@
 
 .sort-subtext {
   font-size: small;
+  padding-top: 3px;
 }
 
 .menu-icon-button:hover {
@@ -113,4 +114,31 @@
   display: flex;
   justify-content: space-around;
   padding: 8px 0;
+}
+
+::ng-deep #store-type-tabs .mat-tab-label {
+  min-width: unset !important;
+  padding: 0 8px !important;
+  flex: 1 !important;
+}
+
+mat-tab-group {
+  flex: 1;
+}
+
+::ng-deep #store-type-tabs .mat-tab-body-wrapper {
+  flex: 1;
+}
+
+.intersection,
+.address {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 230px;
+  height: 15px;
+}
+
+.list-of-items .cdk-virtual-content-wrapper {
+  width: 100%;
 }

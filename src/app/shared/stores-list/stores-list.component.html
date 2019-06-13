@@ -14,40 +14,72 @@
        [ngClass]="sortDirection === SortDirection.DESC ? 'fa-sort-alpha-up' : 'fa-sort-alpha-down'"></i>
   </button>
 </div>
-<div>
-  <mat-radio-group id="store-type-radio-group" (change)="storeTypeChanged($event)" [(ngModel)]="storeType">
-    <mat-radio-button *ngFor="let storeType of STORE_TYPES" [value]="storeType">{{storeType}}</mat-radio-button>
-  </mat-radio-group>
-</div>
-<cdk-virtual-scroll-viewport #virtualScroll itemSize="85" class="list-of-items">
-  <div *cdkVirtualFor="let siteListItem of siteListItems" class="site">
-    <div class="site-info">
-      <div>
-        <div>{{siteListItem.address}}</div>
-        <div>{{siteListItem.intersection}}&nbsp;</div>
+<mat-tab-group id="store-type-tabs" #tabGroup [(selectedIndex)]="selectedTabIndex">
+  <mat-tab label="Empty">
+    <ng-template matTabContent>
+      <div *ngIf="emptySites.length === 0" style="text-align: center; margin-top: 10px;">
+        No Sites to Show
       </div>
-      <i (click)="showOnMap(siteListItem)" title="Center On Map" class="fas fa-map-marked-alt show-on-map-button"></i>
-    </div>
-    <div class="sort-subtext">{{getSortByText(siteListItem)}}</div>
-    <div class="store-info">
-      <div class="store store-info-item" *ngIf="siteListItem.empty"
-           (click)="selectSite(siteListItem.siteId)" [ngClass]="{'highlighted': siteIsSelected(siteListItem.id)}">
-        <div class="store-descriptions">
-          <div class="store-name">Empty Site (No Active Store)</div>
-        </div>
-      </div>
-      <ng-container *ngFor="let store of [getStoreForSort(siteListItem)]">
-        <div class="store store-info-item" (click)="selectStore(siteListItem.siteId, store.id)"
-             [ngClass]="{'highlighted': storeIsSelected(store.id)}">
-          <div class="store-descriptions">
-            <div class="store-name">{{store.storeName}}</div>
+      <cdk-virtual-scroll-viewport *ngIf="emptySites.length > 0" #virtualScroll itemSize="85" class="list-of-items">
+        <ng-container *cdkVirtualFor="let siteListItem of emptySites">
+          <div class="site">
+            <div class="site-info">
+              <div>
+                <div class="address">{{siteListItem.address}}</div>
+                <div class="intersection">{{siteListItem.intersection}}</div>
+              </div>
+              <i (click)="showOnMap(siteListItem)" title="Center On Map"
+                 class="fas fa-map-marked-alt show-on-map-button"></i>
+            </div>
+            <div class="sort-subtext">{{getSortByText(siteListItem)}}</div>
+            <div class="store-info">
+              <div class="store store-info-item" (click)="selectSite(siteListItem.siteId)"
+                   [ngClass]="{'highlighted': siteIsSelected(siteListItem.siteId)}">
+                <div class="store-descriptions">
+                  <div class="store-name">Empty Site</div>
+                </div>
+                <i *ngIf="canDelete" (click)="removeSiteFromList(siteListItem)" title="Remove From List"
+                   class="fas fa-trash show-on-map-button"></i>
+              </div>
+            </div>
           </div>
-          <img *ngIf="!canDelete && store.logoFileName" class="store-logo"
-               [src]="getLogoPath(store.logoFileName)"/>
-          <i *ngIf="canDelete" (click)="removeStoreFromList(store)" title="Remove From List"
-             class="fas fa-trash show-on-map-button"></i>
-        </div>
-      </ng-container>
-    </div>
-  </div>
-</cdk-virtual-scroll-viewport>
+        </ng-container>
+      </cdk-virtual-scroll-viewport>
+    </ng-template>
+  </mat-tab>
+  <mat-tab *ngFor="let storeTab of storeTabs" [label]="storeTab.tabTitle">
+    <ng-template matTabContent>
+      <div *ngIf="storeTab.getStores().length === 0" style="text-align: center; margin-top: 10px;">
+        No Stores to Show
+      </div>
+      <cdk-virtual-scroll-viewport *ngIf="storeTab.getStores().length > 0" #virtualScroll itemSize="85" class="list-of-items">
+        <ng-container *cdkVirtualFor="let siteListItem of storeTab.getStores()">
+          <div class="site">
+            <div class="site-info">
+              <div>
+                <div class="address">{{siteListItem.address}}</div>
+                <div class="intersection">{{siteListItem.intersection}}</div>
+              </div>
+              <i (click)="showOnMap(siteListItem)" title="Center On Map"
+                 class="fas fa-map-marked-alt show-on-map-button"></i>
+            </div>
+            <div class="sort-subtext">{{getSortByText(siteListItem)}}</div>
+            <div class="store-info">
+              <div class="store store-info-item" (click)="selectStore(siteListItem.siteId, siteListItem.store.id)"
+                   [ngClass]="{'highlighted': storeIsSelected(siteListItem.store.id)}">
+                <div class="store-descriptions">
+                  <div class="store-name">{{siteListItem.store.storeName}}</div>
+                </div>
+                <img *ngIf="!canDelete && siteListItem.store.logoFileName" class="store-logo"
+                     [src]="getLogoPath(siteListItem.store.logoFileName)"/>
+                <i *ngIf="canDelete" (click)="removeStoreFromList(siteListItem.store)" title="Remove From List"
+                   class="fas fa-trash show-on-map-button"></i>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </cdk-virtual-scroll-viewport>
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>
+

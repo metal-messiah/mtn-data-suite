@@ -1,3 +1,7 @@
+:host {
+  max-width: 300px;
+}
+
 .mat-card {
   padding: 10px;
 }
@@ -9,15 +13,23 @@
 }
 
 .mat-card-subtitle {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 .mat-card-content {
-  margin-bottom: 0px;
+  margin-bottom: 0;
   padding: 0 8px;
   font-size: small;
 }
 
 .mat-card > .mat-card-actions:last-child {
   margin-bottom: -8px;
+}
+
+.intersection,
+.address {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  height: 15px;
 }
