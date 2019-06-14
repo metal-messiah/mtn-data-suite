@@ -256,11 +256,11 @@ export class StoresListComponent implements OnInit, OnChanges {
       // If the tab is already selected
       if (tabIndex === this.selectedTabIndex) {
         // Don't wait to scroll
-        this.virtualScroll.scrollToIndex(siteIndex);
+        this.virtualScroll.scrollToIndex(siteIndex, 'smooth');
       } else {
         this.selectedTabIndex = tabIndex;
         // Must wait to scroll until after tab is loaded
-        setTimeout(() => this.virtualScroll.scrollToIndex(siteIndex), 800);
+        setTimeout(() => this.virtualScroll.scrollToIndex(siteIndex, 'smooth'), 800);
       }
     } else {
       console.log('Site not found');
