@@ -94,6 +94,8 @@
 .sort-subtext {
   font-size: small;
   padding-top: 3px;
+  padding-left: 5px;
+  min-height: 15px;
 }
 
 .menu-icon-button:hover {

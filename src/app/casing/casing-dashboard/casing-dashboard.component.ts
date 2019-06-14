@@ -49,9 +49,6 @@ import { StorageService } from '../../core/services/storage.service';
 import { ListManagerService } from '../../shared/list-manager/list-manager.service';
 import { SimplifiedStoreList } from '../../models/simplified/simplified-store-list';
 import { StoreSidenavService } from '../../shared/store-sidenav/store-sidenav.service';
-
-import { ListManagerViews } from '../../shared/list-manager/list-manager-views';
-import { StoreSidenavViews } from '../../shared/store-sidenav/store-sidenav-views';
 import {
   AddRemoveStoresListDialogComponent,
   AddRemoveType
@@ -65,7 +62,7 @@ import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/l
   selector: 'mds-casing-dashboard',
   templateUrl: './casing-dashboard.component.html',
   styleUrls: ['./casing-dashboard.component.css'],
-  providers: [MapService, DbEntityMarkerService, ListManagerService, EntitySelectionService]
+  providers: [MapService, DbEntityMarkerService, ListManagerService, EntitySelectionService, StoreSidenavService]
 })
 export class CasingDashboardComponent implements OnInit, OnDestroy {
 
@@ -77,12 +74,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   // Flags
   filterSideNavIsOpen = false;
   updating = false;
-  markCasedStores = false;
   savingBoundary = false;
-
-  // sidenav
-  showStoreLists: boolean;
-  storeListsStorageKey = 'showStoreLists';
 
   // Modes
   selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
@@ -130,19 +122,17 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.markCasedStores = (localStorage.getItem('markCasedStores') === 'true');
+    // Watch screen size - set flag if small
+    this.subscriptions.push(this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.HandsetPortrait])
+      .subscribe((state: BreakpointState) => this.layoutIsSmall = state.matches));
+  }
 
-    this.storageService.getOne(this.storeListsStorageKey).subscribe((shouldShow) => {
-      if (shouldShow === undefined) {
-        this.storageService.set(this.storeListsStorageKey, false).subscribe((resp: boolean) => this.showStoreLists = resp)
-      } else {
-        this.showStoreLists = shouldShow;
-      }
-    });
+  get showStoreLists() {
+    return this.storeSidenavService.showing;
+  }
 
-    this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.HandsetPortrait]).subscribe((state: BreakpointState) => {
-      this.layoutIsSmall = state.matches;
-    });
+  setShowStoreLists(showing: boolean) {
+    this.storeSidenavService.setShowing(showing);
   }
 
   ngOnDestroy() {
@@ -153,10 +143,10 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     return this.dbEntityMarkerService.controls;
   }
 
-  private onSelection(selection: { storeId: number, siteId: number} ) {
+  private onSelection(selection: { storeId: number, siteId: number }) {
     if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
       if (this.layoutIsSmall) {
-        this.showStoreLists = false;
+        this.storeSidenavService.setShowing(false);
       }
       this.ngZone.run(() => {
         this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,

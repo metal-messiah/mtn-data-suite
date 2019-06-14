@@ -1,5 +1,6 @@
 <mat-sidenav-container>
-  <mat-sidenav id="store-list-sidenav" [mode]="layoutIsSmall ? 'over' : 'side'" [(opened)]="showStoreLists">
+  <mat-sidenav id="store-list-sidenav" [mode]="layoutIsSmall ? 'over' : 'side'" [opened]="showStoreLists"
+  (openedChange)="setShowStoreLists($event)">
     <router-outlet></router-outlet>
   </mat-sidenav>
   <mat-sidenav [mode]="layoutIsSmall ? 'over' : 'side'" [(opened)]="filterSideNavIsOpen" class="casing-side-nav"
@@ -102,7 +103,7 @@
 
   <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" color="primary"
                class="flex-space-between">
-    <button mat-mini-fab color="primary" (click)="showStoreLists = !showStoreLists">
+    <button mat-mini-fab color="primary" (click)="setShowStoreLists(!showStoreLists)">
       <i class="fas fa-chevron-right" *ngIf="!showStoreLists"></i>
       <i class="fas fa-chevron-left" *ngIf="showStoreLists"></i>
     </button>
