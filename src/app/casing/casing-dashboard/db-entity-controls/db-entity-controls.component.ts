@@ -119,7 +119,7 @@ export class DbEntityControlsComponent implements OnInit {
       showActive,
       showHistorical,
       showFuture,
-      showEmptySites,
+      showVacantSites,
       showSitesBackfilledByNonGrocery,
       showFloat
     } = this.dbEntityMarkerService.controls;
@@ -128,7 +128,7 @@ export class DbEntityControlsComponent implements OnInit {
       showActive ? 'Active' : '',
       showHistorical ? 'Historical' : '',
       showFuture ? 'Future' : '',
-      showEmptySites ? 'Empty Sites' : '',
+      showVacantSites ? 'Vacant Sites' : '',
       showSitesBackfilledByNonGrocery ? 'Backfilled' : '',
       showFloat ? 'Float' : ''
     ];

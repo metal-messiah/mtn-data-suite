@@ -205,9 +205,7 @@ export class DbEntityMarkerService {
       const sm = new SiteMarker(s.siteMarker);
       sm.stores = sm.stores.filter(st => this.shouldIncludeStoreMarker(st, sm));
       return sm;
-    }).filter(s => {
-      return (s.empty && this.controls.showEmptySites) || s.stores.length > 0
-    });
+    }).filter(s => (s.vacant && this.controls.showVacantSites) || s.stores.length > 0);
   }
 
   saveControlsAs(name: string) {
@@ -287,9 +285,9 @@ export class DbEntityMarkerService {
       return this.controls.showSitesBackfilledByNonGrocery;
     }
 
-    const siteIsEmpty = siteMarker.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
-    // If site is empty, don't include if filtering by banner or dataset, or if showEmptySites isn't checked
-    return !(siteIsEmpty && (this.controls.banners.length > 0 || this.controls.storeList || !this.controls.showEmptySites));
+    const siteIsVacant = siteMarker.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
+    // If site is vacant, don't include if filtering by banner or dataset, or if showVacantSites isn't checked
+    return !(siteIsVacant && (this.controls.banners.length > 0 || this.controls.storeList || !this.controls.showVacantSites));
   }
 
   /**************************************
@@ -439,7 +437,7 @@ export class DbEntityMarkerService {
       const active = site.stores.filter(store => store.storeType === 'ACTIVE');
       const future = site.stores.filter(store => store.storeType === 'FUTURE');
 
-      // ACTIVE - If there isn't an active store, and the user wants to see empty sites
+      // ACTIVE - If there isn't an active store, and the user wants to see vacant sites
       if (active.length === 0) {
         markers.push(this.createSiteMarker(site));
       } else {

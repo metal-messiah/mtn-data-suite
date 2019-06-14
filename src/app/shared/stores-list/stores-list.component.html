@@ -15,13 +15,16 @@
   </button>
 </div>
 <mat-tab-group id="store-type-tabs" #tabGroup [(selectedIndex)]="selectedTabIndex">
-  <mat-tab label="Empty">
+  <mat-tab label="Vacant">
     <ng-template matTabContent>
-      <div *ngIf="emptySites.length === 0" style="text-align: center; margin-top: 10px;">
+      <div *ngIf="vacantSites.length === 0" style="text-align: center; margin-top: 10px;">
         No Sites to Show
       </div>
-      <cdk-virtual-scroll-viewport *ngIf="emptySites.length > 0" #virtualScroll itemSize="85" class="list-of-items">
-        <ng-container *cdkVirtualFor="let siteListItem of emptySites">
+      <div *ngIf="multiSelecting && vacantSites.length > 0" class="select-all">
+        <mat-checkbox (change)="selectAllInList(vacantSites, $event)">Select All</mat-checkbox>
+      </div>
+      <cdk-virtual-scroll-viewport *ngIf="vacantSites.length > 0" #virtualScroll itemSize="85" class="list-of-items">
+        <ng-container *cdkVirtualFor="let siteListItem of vacantSites">
           <div class="site">
             <div class="site-info">
               <div>
@@ -36,7 +39,7 @@
               <div class="store store-info-item" (click)="selectSite(siteListItem.siteId)"
                    [ngClass]="{'highlighted': siteIsSelected(siteListItem.siteId)}">
                 <div class="store-descriptions">
-                  <div class="store-name">Empty Site</div>
+                  <div class="store-name">Vacant Site</div>
                 </div>
                 <i *ngIf="canDelete" (click)="removeSiteFromList(siteListItem)" title="Remove From List"
                    class="fas fa-trash show-on-map-button"></i>
@@ -51,6 +54,9 @@
     <ng-template matTabContent>
       <div *ngIf="storeTab.getStores().length === 0" style="text-align: center; margin-top: 10px;">
         No Stores to Show
+      </div>
+      <div *ngIf="multiSelecting && storeTab.getStores().length > 0" class="select-all">
+        <mat-checkbox (change)="selectAllInList(storeTab.getStores(), $event)">Select All</mat-checkbox>
       </div>
       <cdk-virtual-scroll-viewport *ngIf="storeTab.getStores().length > 0" #virtualScroll itemSize="85" class="list-of-items">
         <ng-container *cdkVirtualFor="let siteListItem of storeTab.getStores()">

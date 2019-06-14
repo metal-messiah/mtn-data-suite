@@ -132,6 +132,11 @@ mat-tab-group {
   flex: 1;
 }
 
+::ng-deep #store-type-tabs .mat-tab-body-content {
+  display: flex;
+  flex-direction: column;
+}
+
 .intersection,
 .address {
   text-overflow: ellipsis;
@@ -143,4 +148,9 @@ mat-tab-group {
 
 .list-of-items .cdk-virtual-content-wrapper {
   width: 100%;
+}
+
+.select-all {
+  text-align: center;
+  margin-top: 8px;
 }

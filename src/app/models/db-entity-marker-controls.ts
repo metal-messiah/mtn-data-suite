@@ -8,7 +8,7 @@ export class DbEntityMarkerControls {
   showActive: boolean;
   showHistorical: boolean;
   showFuture: boolean;
-  showEmptySites: boolean;
+  showVacantSites: boolean;
   showSitesBackfilledByNonGrocery: boolean;
   showFloat: boolean;
   cluster: boolean;
@@ -56,7 +56,7 @@ export class DbEntityMarkerControls {
     this.showActive = true;
     this.showHistorical = true;
     this.showFuture = true;
-    this.showEmptySites = true;
+    this.showVacantSites = true;
     this.showSitesBackfilledByNonGrocery = false;
     this.showFloat = false;
     // STATUS

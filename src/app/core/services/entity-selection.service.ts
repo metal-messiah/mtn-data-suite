@@ -10,16 +10,20 @@ export class EntitySelectionService {
   readonly singleSelect$ = new Subject<{storeId: number, siteId: number}>();
   readonly selectionUpdated$ = new Subject<void>();
 
-  // Only for Empty sites since they have no store sto select
+  // Only for Vacant sites since they have no store sto select
   readonly siteIds = new Set<number>();
   readonly storeIds = new Set<number>();
 
-  selectByIds(ids: { siteIds: number[], storeIds: number[] }) {
+  selectByIds(ids: { siteIds: number[], storeIds: number[] }, deselect?: boolean) {
     // If not in multi-select mode, deselect previously selected markers
     if (!this.multiSelect) {
       this.clearAll();
     }
-    if (this.deselecting) {
+
+    // Only use the service's deselecting flag if not specified by the client
+    const doDeselect = deselect !== undefined ? deselect : this.deselecting;
+
+    if (doDeselect) {
       ids.siteIds.forEach(id => this.siteIds.delete(id));
       ids.storeIds.forEach(id => this.storeIds.delete(id));
     } else {

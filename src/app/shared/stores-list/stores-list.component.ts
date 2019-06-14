@@ -14,7 +14,7 @@ import { StorageService } from '../../core/services/storage.service';
 import { forkJoin } from 'rxjs';
 import { SiteUtil } from '../../utils/SiteUtil';
 import { SortType } from '../../core/functionalEnums/site-list-sort-type';
-import { MatSelectChange, MatTabGroup } from '@angular/material';
+import { MatCheckboxChange, MatSelectChange, MatTabGroup } from '@angular/material';
 import * as _ from 'lodash';
 import { tap } from 'rxjs/operators';
 import { DateUtil } from '../../utils/date-util';
@@ -25,7 +25,7 @@ class SiteListItem {
   intersection: string;
   coords: Coordinates;
   backfilledNonGrocery: boolean;
-  empty: boolean;
+  vacant: boolean;
   assigneeName: string;
   store: StoreMarker;
 
@@ -35,7 +35,7 @@ class SiteListItem {
     this.intersection = this.getFormattedIntersection(siteMarker);
     this.coords = new Coordinates(siteMarker.latitude, siteMarker.longitude);
     this.backfilledNonGrocery = siteMarker.backfilledNonGrocery;
-    this.empty = siteMarker.empty;
+    this.vacant = siteMarker.vacant;
     this.assigneeName = siteMarker.assigneeName;
     if (storeMarker) {
       this.store = storeMarker;
@@ -167,7 +167,7 @@ export class StoresListComponent implements OnInit, OnChanges {
   sortType: SortType = SortType.STORE_NAME;
   sortDirection: SortDirection = SortDirection.ASC;
 
-  emptySites = [];
+  vacantSites = [];
   historicalStores = [];
   activeStores = [];
   futureStores = [];
@@ -195,16 +195,15 @@ export class StoresListComponent implements OnInit, OnChanges {
     this.selectionService.singleSelect$.subscribe(selection => this.onSelection(selection));
   }
 
-
   ngOnChanges() {
-    this.emptySites = [];
+    this.vacantSites = [];
     this.historicalStores = [];
     this.activeStores = [];
     this.futureStores = [];
     this.siteMarkers.forEach((siteMarker: SiteMarker) => {
-      if (siteMarker.empty && this.dbEntityMarkerService.controls.showEmptySites &&
+      if (siteMarker.vacant && this.dbEntityMarkerService.controls.showVacantSites &&
         (this.dbEntityMarkerService.controls.showSitesBackfilledByNonGrocery || !siteMarker.backfilledNonGrocery)) {
-        this.emptySites.push(new SiteListItem(siteMarker));
+        this.vacantSites.push(new SiteListItem(siteMarker));
       }
       const groupedStores = _.groupBy(siteMarker.stores, (st) => st.storeType);
       if (groupedStores['ACTIVE']) {
@@ -244,7 +243,7 @@ export class StoresListComponent implements OnInit, OnChanges {
         }
       }
     } else {
-      this.setTab(0, selection.siteId, this.emptySites);
+      this.setTab(0, selection.siteId, this.vacantSites);
     }
   }
 
@@ -282,6 +281,20 @@ export class StoresListComponent implements OnInit, OnChanges {
     forkJoin([getSortType, getSortDirection]).subscribe(() => this.sortSiteLists());
   }
 
+  get multiSelecting() {
+    return this.selectionService.multiSelect;
+  }
+
+  selectAllInList(storeList: SiteListItem[], change: MatCheckboxChange) {
+    if (storeList === this.vacantSites) {
+      const siteIds = storeList.map(si => si.siteId);
+      this.selectionService.selectByIds({siteIds: siteIds, storeIds: []}, !change.checked);
+    } else {
+      const storeIds = storeList.map(si => si.store.id);
+      this.selectionService.selectByIds({siteIds: [], storeIds: storeIds}, !change.checked);
+    }
+  }
+
   siteIsSelected(siteId: number) {
     return this.selectionService.siteIds.has(siteId);
   }
@@ -307,7 +320,7 @@ export class StoresListComponent implements OnInit, OnChanges {
   }
 
   private sortSiteLists(): void {
-    this.emptySites = this.getSortedStoreList(this.emptySites);
+    this.vacantSites = this.getSortedStoreList(this.vacantSites);
     this.historicalStores = this.getSortedStoreList(this.historicalStores);
     this.activeStores = this.getSortedStoreList(this.activeStores);
     this.futureStores = this.getSortedStoreList(this.futureStores);
@@ -378,6 +391,6 @@ export class StoresListComponent implements OnInit, OnChanges {
   }
 
   removeSiteFromList(siteListItem: SiteListItem) {
-    // TODO Decide if users can add empty sites to storeLists
+    // TODO Decide if users can add vacant sites to storeLists
   }
 }
