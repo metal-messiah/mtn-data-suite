@@ -221,6 +221,7 @@ export class StoreListUIService {
   }
 
   setSiteMarkers(siteMarkers: SiteMarker[], controls: DbEntityMarkerControls) {
+    this._siteMarkers = siteMarkers;
     this.vacantSites = [];
     this._historicalStores = [];
     this._activeStores = [];
