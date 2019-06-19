@@ -1,6 +1,6 @@
 <mat-sidenav-container>
   <mat-sidenav id="store-list-sidenav" [mode]="layoutIsSmall ? 'over' : 'side'" [opened]="showStoreLists"
-  (openedChange)="setShowStoreLists($event)">
+               (openedChange)="setShowStoreLists($event)">
     <router-outlet></router-outlet>
   </mat-sidenav>
   <mat-sidenav [mode]="layoutIsSmall ? 'over' : 'side'" [(opened)]="filterSideNavIsOpen" class="casing-side-nav"
@@ -36,28 +36,24 @@
   </mat-toolbar>
   <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.MULTI_SELECT" color="primary"
                class="flex-space-between">
-    <div>
-      <button mat-raised-button color="warn" (click)="cancelMultiSelect()">Cancel</button>
-    </div>
-    <div>
-      <button mat-mini-fab [mat-menu-trigger-for]="drawingToolsMenu" color="primary">
-        <i *ngIf="drawingModeIs('pointer')" class="far fa-hand-pointer"></i>
-        <i *ngIf="drawingModeIs('circle')" class="far fa-circle"></i>
-        <i *ngIf="drawingModeIs('rectangle')" class="far fa-square"></i>
-        <i *ngIf="drawingModeIs('polygon')" class="far fa-star"></i>
-      </button>
-    </div>
-    <div>
-      <button mat-mini-fab [mat-menu-trigger-for]="multiSelectModeMenu" color="primary">
-        <i *ngIf="!deselecting" class="fas fa-plus"></i>
-        <i *ngIf="deselecting" class="fas fa-minus"></i>
-      </button>
-    </div>
-    <div>
-      <button mat-raised-button color="accent" [mat-menu-trigger-for]="multiSelectActionMenu">
-        Actions
-      </button>
-    </div>
+    <button mat-raised-button color="warn" (click)="cancelMultiSelect()">Cancel</button>
+    <button mat-mini-fab [mat-menu-trigger-for]="drawingToolsMenu" color="primary">
+      <i *ngIf="drawingModeIs('pointer')" class="far fa-hand-pointer"></i>
+      <i *ngIf="drawingModeIs('circle')" class="far fa-circle"></i>
+      <i *ngIf="drawingModeIs('rectangle')" class="far fa-square"></i>
+      <i *ngIf="drawingModeIs('polygon')" class="far fa-star"></i>
+    </button>
+    <button mat-mini-fab [mat-menu-trigger-for]="multiSelectModeMenu" color="primary">
+      <i *ngIf="!deselecting" class="fas fa-plus"></i>
+      <i *ngIf="deselecting" class="fas fa-minus"></i>
+    </button>
+    <button [disabled]="getSelectionCount() === 0"
+            mat-raised-button color="accent"
+            [matBadge]="getSelectionCount() || null"
+            matBadgeColor="warn"
+            [mat-menu-trigger-for]="multiSelectActionMenu">
+      Actions
+    </button>
   </mat-toolbar>
   <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.EDIT_PROJECT_BOUNDARY" color="primary"
                class="flex-space-between">
@@ -119,11 +115,8 @@
   </mat-toolbar>
 </div>
 
-
 <mat-menu #multiSelectActionMenu="matMenu" [overlapTrigger]="false">
-  <button mat-menu-item *ngIf="selectedStoreIds.size > 0" disabled>
-    {{selectedStoreIds.size}}&nbsp;Stores
-  </button>
+  <button mat-menu-item (click)="clearSelection()">Clear Selection</button>
   <button mat-menu-item (click)="openDownloadDialog()" *ngIf="!userIsGuest()">
     <i class="fas fa-download"></i>&nbsp;&nbsp;Download Latest Data
   </button>
