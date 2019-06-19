@@ -27,6 +27,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatBadgeModule } from '@angular/material';
 
 @NgModule({
   imports: [
@@ -59,6 +60,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     MatProgressSpinnerModule,
     MatProgressBarModule,
     MatSortModule,
+    MatBadgeModule,
     ScrollingModule
   ],
   exports: [
@@ -91,6 +93,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     MatProgressSpinnerModule,
     MatProgressBarModule,
     MatSortModule,
+    MatBadgeModule,
     ScrollingModule
   ]
 })

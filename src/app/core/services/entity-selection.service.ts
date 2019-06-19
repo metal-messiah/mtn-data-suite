@@ -4,15 +4,27 @@ import { Subject } from 'rxjs';
 @Injectable()
 export class EntitySelectionService {
 
-  multiSelect = false;
+  private multiSelect = false;
   deselecting = false;
 
+  readonly multiSelectChanged$ = new Subject<boolean>();
   readonly singleSelect$ = new Subject<{storeId: number, siteId: number}>();
   readonly selectionUpdated$ = new Subject<void>();
 
   // Only for Vacant sites since they have no store sto select
   readonly siteIds = new Set<number>();
   readonly storeIds = new Set<number>();
+
+  isMultiSelecting() {
+    return this.multiSelect;
+  }
+
+  setMultiSelect(value: boolean) {
+    this.multiSelect = value;
+    this.deselecting = false;
+    this.clearSelection();
+    this.multiSelectChanged$.next(this.multiSelect);
+  }
 
   selectByIds(ids: { siteIds: number[], storeIds: number[] }, deselect?: boolean) {
     // If not in multi-select mode, deselect previously selected markers

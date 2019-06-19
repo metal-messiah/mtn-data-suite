@@ -20,6 +20,7 @@ import { StorageService } from './storage.service';
 import { Control, ControlStorageKeys } from 'app/models/control';
 import { DbEntityMarkerControls } from '../../models/db-entity-marker-controls';
 import { EntitySelectionService } from './entity-selection.service';
+import { SimplifiedStoreList } from '../../models/simplified/simplified-store-list';
 
 @Injectable()
 export class DbEntityMarkerService {
@@ -542,6 +543,11 @@ export class DbEntityMarkerService {
       labelClass: StoreIconUtil.getStoreLabelClass(store, selected, showLogo, showCased, showFullLabel),
       labelInBackground: false
     };
+  }
+
+  setStoreListFilter(storeList: SimplifiedStoreList) {
+    this.controls.storeList = storeList;
+    this.refreshMarkers();
   }
 
 }

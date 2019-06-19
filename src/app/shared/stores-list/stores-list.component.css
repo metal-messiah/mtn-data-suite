@@ -28,7 +28,7 @@
 }
 
 .site {
-  height: 85px;
+  height: 78px;
   display: flex;
   flex-direction: column;
   margin: 8px;
@@ -73,7 +73,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 5px 0;
   border-radius: 5px;
   padding: 5px;
 }

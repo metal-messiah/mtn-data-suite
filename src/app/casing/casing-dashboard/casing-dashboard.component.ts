@@ -46,9 +46,7 @@ import { DbEntityInfoCardItem } from '../db-entity-info-card-item';
 import { InfoCardItem } from '../info-card-item';
 import { GoogleInfoCardItem } from '../google-info-card-item';
 import { StorageService } from '../../core/services/storage.service';
-import { ListManagerService } from '../../shared/list-manager/list-manager.service';
 import { SimplifiedStoreList } from '../../models/simplified/simplified-store-list';
-import { StoreSidenavService } from '../../shared/store-sidenav/store-sidenav.service';
 import {
   AddRemoveStoresListDialogComponent,
   AddRemoveType
@@ -62,7 +60,7 @@ import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/l
   selector: 'mds-casing-dashboard',
   templateUrl: './casing-dashboard.component.html',
   styleUrls: ['./casing-dashboard.component.css'],
-  providers: [MapService, DbEntityMarkerService, ListManagerService, EntitySelectionService, StoreSidenavService]
+  providers: [MapService, DbEntityMarkerService, EntitySelectionService]
 })
 export class CasingDashboardComponent implements OnInit, OnDestroy {
 
@@ -115,24 +113,30 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
               private errorService: ErrorService,
               private projectBoundaryService: ProjectBoundaryService,
               private storageService: StorageService,
-              private listManagerService: ListManagerService,
               private selectionService: EntitySelectionService,
-              private breakpointObserver: BreakpointObserver,
-              private storeSidenavService: StoreSidenavService) {
+              private breakpointObserver: BreakpointObserver) {
   }
 
   ngOnInit() {
     // Watch screen size - set flag if small
     this.subscriptions.push(this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.HandsetPortrait])
       .subscribe((state: BreakpointState) => this.layoutIsSmall = state.matches));
+
+    this.subscriptions.push(this.selectionService.multiSelectChanged$.subscribe(multiSelect => {
+      if (multiSelect) {
+        this.onMultiSelectEnabled()
+      } else {
+        this.onMultiSelectDisabled()
+      }
+    }))
   }
 
   get showStoreLists() {
-    return this.storeSidenavService.showing;
+    return this.casingDashboardService.showingStoreListSidenav;
   }
 
   setShowStoreLists(showing: boolean) {
-    this.storeSidenavService.setShowing(showing);
+    this.casingDashboardService.setShowingStoreListSidenav(showing);
   }
 
   ngOnDestroy() {
@@ -146,7 +150,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   private onSelection(selection: { storeId: number, siteId: number }) {
     if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
       if (this.layoutIsSmall) {
-        this.storeSidenavService.setShowing(false);
+        this.casingDashboardService.setShowingStoreListSidenav(false);
       }
       this.ngZone.run(() => {
         this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,
@@ -392,10 +396,12 @@ Geo-location
    * Multi-select
    ****************/
   enableMultiSelect(): void {
+    this.selectionService.setMultiSelect(true);
+  }
+
+  private onMultiSelectEnabled() {
     this.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
     this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-    this.selectionService.clearSelection();
-    this.selectionService.multiSelect = true;
     // Activate Map Drawing Tools and listen for completed Shapes
     this.mapService.activateDrawingTools().subscribe(shape => {
       const geoJson = GeometryUtil.getGeoJsonFromShape(shape);
@@ -414,11 +420,12 @@ Geo-location
   }
 
   cancelMultiSelect(): void {
+    this.selectionService.setMultiSelect(false);
+  }
+
+  private onMultiSelectDisabled() {
     this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
     this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-    this.selectionService.clearSelection();
-    this.selectionService.multiSelect = false;
-    this.selectionService.deselecting = false;
     this.mapService.deactivateDrawingTools();
   }
 

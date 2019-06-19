@@ -9,20 +9,17 @@ import { forkJoin } from 'rxjs';
 import { StoreService } from '../../../core/services/store.service';
 import { SiteService } from '../../../core/services/site.service';
 import { MapService } from '../../../core/services/map.service';
-import { CasingDashboardMode } from '../../../casing/enums/casing-dashboard-mode';
 import { CasingDashboardService } from '../../../casing/casing-dashboard/casing-dashboard.service';
-import { StoreSidenavService } from '../store-sidenav.service';
+import { StoreListUIService } from '../store-list-u-i.service';
 import { DbEntityMarkerService } from '../../../core/services/db-entity-marker.service';
-import { SiteMarker } from '../../../models/site-marker';
 
 @Component({
   selector: 'mds-sidenav-stores-on-map',
   templateUrl: './sidenav-stores-on-map.component.html',
-  styleUrls: ['./sidenav-stores-on-map.component.css']
+  styleUrls: ['./sidenav-stores-on-map.component.css'],
+  providers: [StoreListUIService]
 })
 export class SidenavStoresOnMapComponent implements OnInit {
-
-  siteMarkers: SiteMarker[] = [];
 
   constructor(private router: Router,
               private storeService: StoreService,
@@ -30,33 +27,30 @@ export class SidenavStoresOnMapComponent implements OnInit {
               private mapService: MapService,
               private dbEntityMarkerService: DbEntityMarkerService,
               private casingDashboardService: CasingDashboardService,
-              private storeSidenavService: StoreSidenavService,
+              private storeListUIService: StoreListUIService,
               private selectionService: EntitySelectionService) { }
 
   ngOnInit() {
-    this.siteMarkers = this.dbEntityMarkerService.getVisibleSiteMarkers();
+    this.storeListUIService.setSiteMarkers(this.dbEntityMarkerService.getVisibleSiteMarkers(), this.dbEntityMarkerService.controls);
     this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(() => {
-      this.siteMarkers = this.dbEntityMarkerService.getVisibleSiteMarkers();
+      this.storeListUIService.setSiteMarkers(this.dbEntityMarkerService.getVisibleSiteMarkers(), this.dbEntityMarkerService.controls);
     });
-    console.log('inited');
   }
 
   goBack() {
     this.router.navigate(['casing'], {skipLocationChange: true});
   }
 
-  isMultiSelect() {
-    return this.casingDashboardService.getSelectedDashboardMode() === CasingDashboardMode.MULTI_SELECT;
-  }
-
-  selectAllVisible() {
-    // TODO implement
-    // const visibleStoreIds = this.storeSidenavService.getVisibleStoreIds();
-    // this.selectionService.selectByIds({siteIds: [], storeIds: visibleStoreIds});
-  }
-
   getSelectedStoresCount(): number {
     return this.selectionService.storeIds.size;
+  }
+
+  enableMultiSelect() {
+    this.selectionService.setMultiSelect(true);
+  }
+
+  isMultiSelecting() {
+    return this.selectionService.isMultiSelecting();
   }
 
   zoomToSelection() {

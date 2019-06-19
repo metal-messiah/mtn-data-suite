@@ -14,9 +14,6 @@ import { BannerService } from '../../../core/services/banner.service';
 import { SimpleSelectDialogComponent } from '../../../shared/simple-select-dialog/simple-select-dialog.component';
 import { SimplifiedStoreList } from '../../../models/simplified/simplified-store-list';
 import { StoreListService } from '../../../core/services/store-list.service';
-import { ListManagerService } from '../../../shared/list-manager/list-manager.service';
-import { StoreSidenavService } from '../../../shared/store-sidenav/store-sidenav.service';
-import { StoreListSearchType } from '../../../core/functionalEnums/StoreListSearchType';
 
 @Component({
   selector: 'mds-db-entity-controls',
@@ -34,14 +31,11 @@ export class DbEntityControlsComponent implements OnInit {
               private mapService: MapService,
               private bannerService: BannerService,
               private storeListService: StoreListService,
-              private listManagerService: ListManagerService,
-              private storeSidenavService: StoreSidenavService,
               private dialog: MatDialog) {
   }
 
   ngOnInit() {
     this.setStoreListOptions();
-    this.listManagerService.listsAreDirty$.subscribe(() => this.setStoreListOptions());
   }
 
   get controls() {
@@ -211,9 +205,8 @@ export class DbEntityControlsComponent implements OnInit {
   }
 
   setStoreListOptions() {
-    this.storeListService.getStoreLists({searchType: StoreListSearchType.ANY}).subscribe(page => {
-      this.storeListOptions = page.content;
-    });
+    // Get all store lists (that the user has permissions to see)
+    this.storeListService.getStoreLists({}).subscribe(page => this.storeListOptions = page.content);
   }
 
   viewList(storeList: SimplifiedStoreList) {

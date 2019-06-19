@@ -1,0 +1,86 @@
+<mat-toolbar class="toolbar" color="primary">
+  <div>
+    <button mat-icon-button (click)="goBack()" title="Go Back">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+  </div>
+  <h1 *ngIf="!storeList">Stores In List</h1>
+  <h1 *ngIf="storeList">{{storeList.storeListName}}</h1>
+  <div>
+    <button *ngIf="saving" mat-icon-button>
+      <i class="fas fa-spinner fa-pulse"></i>
+    </button>
+    <button *ngIf="!saving"
+            mat-icon-button
+            title="More menu"
+            id="more-menu-button"
+            [matBadge]="getSelectedStoresCount() || null"
+            matBadgeColor="accent"
+            [mat-menu-trigger-for]="storeListMenu">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+  </div>
+</mat-toolbar>
+<mds-stores-list [showVacancies]="true"></mds-stores-list>
+
+<mat-menu #storeListMenu="matMenu" id="store-list-menu">
+  <button mat-menu-item [disabled]="isMultiSelecting()" (click)="enableMultiSelect()">
+    <i class="fas fa-hand-pointer"></i>
+    <span>Enable multi-select</span>
+  </button>
+  <button mat-menu-item
+          [mat-menu-trigger-for]="selectedSubMenu"
+          [disabled]="getSelectedStoresCount() < 1"
+          title="Selected stores options"
+          class="selected-stores">
+    <div class="fa-stack">
+      <i class="far fa-circle fa-stack-2x"></i>
+      <span class="fa-stack-1x">{{getSelectedStoresCount()}}</span>
+    </div>
+    <span>Selected</span>
+  </button>
+  <button mat-menu-item (click)="zoomToList()">
+    <i class="fas fa-map-marked-alt"></i>
+    <span>Zoom to Extent</span>
+  </button>
+  <button *ngIf="!storeListIsCurrentFilter()" mat-menu-item (click)="setStoreListAsFilter()">
+    <i class="fas fa-filter"></i>
+    <span>Use List as Map Filter</span>
+  </button>
+  <button *ngIf="storeListIsCurrentFilter()" mat-menu-item (click)="removeStoreListAsFilter()">
+    <i style="margin-left: -8px;" class="fa-stack">
+      <i class="fas fa-filter fa-stack-1x"></i>
+      <i class="fas fa-ban fa-stack-2x" style="color:Tomato"></i>
+    </i>
+    <span>Remove as Map Filter</span>
+  </button>
+  <button mat-menu-item (click)="renameList()">
+    <i class="fas fa-edit"></i>
+    <span>Rename List</span>
+  </button>
+  <button class="menu-item-warn" mat-menu-item (click)="deleteList()">
+    <i class="fas fa-trash"></i>
+    <span>Delete List</span>
+  </button>
+</mat-menu>
+
+<mat-menu #selectedSubMenu="matMenu" id="selected-sub-menu">
+  <button mat-menu-item
+          title="Zoom to Selected Stores"
+          (click)="zoomToSelection()"
+          class="selected-stores">
+    <i class="fas fa-search-location"></i>
+    <span>Fit to view</span>
+  </button>
+  <button [disabled]="selectedStoreIdsInList().length === 0" mat-menu-item title="Remove selected from list"
+          (click)="removeSelectedFromList()">
+    <i class="fas fa-trash"></i>
+    <span>Remove {{selectedStoreIdsInList().length}} from list</span>
+  </button>
+  <button [disabled]="selectedStoreIdsNotInList().length === 0" mat-menu-item title="Add selected to list"
+          (click)="addSelectedToList()">
+    <i class="fas fa-plus"></i>
+    <span>Add {{selectedStoreIdsNotInList().length}} to list</span>
+  </button>
+
+</mat-menu>

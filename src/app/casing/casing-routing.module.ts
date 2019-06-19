@@ -16,6 +16,7 @@ import { StoreCasingDetailComponent } from './store-casing-detail/store-casing-d
 import { SidenavMenuComponent } from '../shared/store-sidenav/sidenav-menu/sidenav-menu.component';
 import { SidenavStoresOnMapComponent } from '../shared/store-sidenav/sidenav-stores-on-map/sidenav-stores-on-map.component';
 import { SidenavUserListsComponent } from '../shared/store-sidenav/sidenav-user-lists/sidenav-user-lists.component';
+import { SidenavStoresInListComponent } from '../shared/store-sidenav/sidenav-stores-in-list/sidenav-stores-in-list.component';
 
 const routes: Routes = [
   {
@@ -29,7 +30,8 @@ const routes: Routes = [
         children: [
           {path: '', component: SidenavMenuComponent},
           {path: 'mapStores', component: SidenavStoresOnMapComponent},
-          {path: 'myStoreLists', component: SidenavUserListsComponent},
+          {path: 'listStores/:listId', component: SidenavStoresInListComponent},
+          {path: 'my-store-lists', component: SidenavUserListsComponent},
         ]
       },
       {path: 'site/:siteId', component: SiteOverviewComponent},

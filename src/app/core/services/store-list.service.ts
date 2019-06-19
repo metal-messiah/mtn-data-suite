@@ -3,15 +3,19 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { RestService } from './rest.service';
 import { CrudService } from '../../interfaces/crud-service';
 import { Pageable } from '../../models/pageable';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/internal/operators';
+import { Observable, Subject } from 'rxjs';
+import { concatMap, map, tap } from 'rxjs/internal/operators';
 import { StoreList } from 'app/models/full/store-list';
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
 import { StoreListSearchType } from '../functionalEnums/StoreListSearchType';
+import { SiteMarker } from '../../models/site-marker';
 
 @Injectable()
 export class StoreListService extends CrudService<StoreList> {
+
   protected endpoint = '/api/store-list';
+
+  storeListUpdated$ = new Subject<StoreList>();
 
   constructor(protected http: HttpClient, protected rest: RestService) {
     super(http, rest);
@@ -19,6 +23,17 @@ export class StoreListService extends CrudService<StoreList> {
 
   protected createEntityFromObj(entityObj): StoreList {
     return new StoreList(entityObj);
+  }
+
+  update(updatedEntity: StoreList): Observable<StoreList> {
+    return super.update(updatedEntity).pipe(tap(storeList => this.storeListUpdated$.next(storeList)));
+  }
+
+  getSiteMarkersForStoreList(storeListId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + storeListId + '/marker-data';
+    return this.http
+      .get<SiteMarker[]>(url, {headers: this.rest.getHeaders()})
+      .pipe(map(siteMarkers => siteMarkers.map(sm => new SiteMarker(sm))));
   }
 
   getStoreLists(options: {
@@ -60,12 +75,20 @@ export class StoreListService extends CrudService<StoreList> {
   addStoresToStoreList(storeListId: number, storeIds: number[]): Observable<StoreList> {
     const url = `${this.rest.getHost()}${this.endpoint}/${storeListId}/add-stores`;
     return this.http.put<StoreList>(url, storeIds, {headers: this.rest.getHeaders()})
-      .pipe(map(data => new StoreList(data)));
+      .pipe(map(data => new StoreList(data)), tap(storeList => this.storeListUpdated$.next(storeList)));
   }
 
   removeStoresFromStoreList(storeListId: number, storeIds: number[]): Observable<StoreList> {
     const url = `${this.rest.getHost()}${this.endpoint}/${storeListId}/remove-stores`;
     return this.http.put<StoreList>(url, storeIds, {headers: this.rest.getHeaders()})
-      .pipe(map(data => new StoreList(data)));
+      .pipe(map(data => new StoreList(data)), tap(storeList => this.storeListUpdated$.next(storeList)));
+  }
+
+  renameList(storeListId: number, newListName: string) {
+    return this.getOneById(storeListId)
+      .pipe(concatMap((sl: StoreList) => {
+        sl.storeListName = newListName;
+        return this.update(sl)
+      }));
   }
 }
