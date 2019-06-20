@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { StoreService } from '../../../core/services/store.service';
 import { SiteService } from '../../../core/services/site.service';
 import { MapService } from '../../../core/services/map.service';
@@ -16,6 +16,7 @@ import { MatDialog, MatSnackBar } from '@angular/material';
 import { TextInputDialogComponent } from '../../text-input-dialog/text-input-dialog.component';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 import { StorageService } from '../../../core/services/storage.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'mds-sidenav-stores-in-list',
@@ -23,7 +24,7 @@ import { StorageService } from '../../../core/services/storage.service';
   styleUrls: ['./sidenav-stores-in-list.component.css'],
   providers: [StoreListUIService]
 })
-export class SidenavStoresInListComponent implements OnInit {
+export class SidenavStoresInListComponent implements OnInit, OnDestroy {
 
   private saving = false;
 
@@ -31,6 +32,8 @@ export class SidenavStoresInListComponent implements OnInit {
   private listId;
 
   private storeIds: Set<number>;
+
+  routeListener: Subscription;
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -48,6 +51,16 @@ export class SidenavStoresInListComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.initializeList();
+
+    this.routeListener = this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.initializeList();
+      }
+    });
+  }
+
+  private initializeList() {
     // Get the list Id
     this.listId = parseInt(this.route.snapshot.paramMap.get('listId'), 10);
 
@@ -75,6 +88,10 @@ export class SidenavStoresInListComponent implements OnInit {
         })
       });
     });
+  }
+
+  ngOnDestroy() {
+    this.routeListener.unsubscribe();
   }
 
   private updateListUIElements() {
@@ -210,7 +227,7 @@ export class SidenavStoresInListComponent implements OnInit {
     this.saving = true;
     this.storeService.getAllByIds(Array.from(this.selectionService.storeIds))
       .subscribe((stores: SimplifiedStore[]) => {
-        const points = stores.map((s: SimplifiedStore) => new Coordinates(s.site.latitude, s.site.longitude))
+        const points = stores.map((s: SimplifiedStore) => new Coordinates(s.site.latitude, s.site.longitude));
         this.mapService.fitToPoints(points);
       }, err => this.errorService.handleServerError('Failed to get coordinates for selection!', err,
         () => console.log(err), () => this.zoomToSelection()))

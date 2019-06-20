@@ -753,19 +753,13 @@ Geo-location
   }
 
   openSidenavDirectlyToSelectedListStores(storeList: SimplifiedStoreList) {
-    // TODO implement
-    // if (storeList.id !== -1) {
-    //   this.storeSidenavService.setView(StoreSidenavViews.MYLISTS);
-    //   this.listManagerService.setSelectedStoreList(storeList);
-    //   setTimeout(() => {
-    //     this.listManagerService.setView(ListManagerViews.VIEWSTORES);
-    //   }, 100)
-    // } else {
-    //   this.storeSidenavService.setView(StoreSidenavViews.STORESONMAP);
-    // }
-    //
-    // this.showStoreLists = true;
-    // this.filterSideNavIsOpen = false;
+    this.casingDashboardService.setShowingStoreListSidenav(true);
+    if (this.layoutIsSmall) {
+      this.filterSideNavIsOpen = false;
+    }
+    this.router.navigate(['casing', 'list-stores', storeList.id], {skipLocationChange: true}).then(() => {
+      this.ngZone.run(() => {})
+    });
   }
 
 }
