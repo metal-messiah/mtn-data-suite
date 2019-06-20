@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { StorageService } from '../../../core/services/storage.service';
 
 @Component({
   selector: 'mds-sidenav-menu',
@@ -8,9 +9,11 @@ import { Router } from '@angular/router';
 })
 export class SidenavMenuComponent implements OnInit {
 
-  constructor(private router: Router) { }
+  constructor(private router: Router,
+              private storageService: StorageService) { }
 
   ngOnInit() {
+    this.storageService.removeOne('casing-dashboard-store-list-view');
   }
 
   navigateTo(endpoint: string) {

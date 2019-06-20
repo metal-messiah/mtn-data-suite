@@ -13,6 +13,7 @@ import { TextInputDialogComponent } from '../../text-input-dialog/text-input-dia
 import { StoreList } from '../../../models/full/store-list';
 import { SimplifiedStore } from '../../../models/simplified/simplified-store';
 import { Coordinates } from '../../../models/coordinates';
+import { StorageService } from '../../../core/services/storage.service';
 
 @Component({
   selector: 'mds-sidenav-user-lists',
@@ -33,10 +34,12 @@ export class SidenavUserListsComponent implements OnInit {
               private mapService: MapService,
               private errorService: ErrorService,
               private snackBar: MatSnackBar,
+              private storageService: StorageService,
               private dialog: MatDialog) {
   }
 
   ngOnInit() {
+    this.storageService.set('casing-dashboard-store-list-view', 'my-store-lists');
     this.getUserStoreLists();
   }
 
@@ -53,7 +56,7 @@ export class SidenavUserListsComponent implements OnInit {
   }
 
   goToStoreList(storeList: SimplifiedStoreList) {
-    this.router.navigate(['casing', 'listStores', storeList.id], {skipLocationChange: true});
+    this.router.navigate(['casing', 'list-stores', storeList.id], {skipLocationChange: true});
   }
 
   deleteList(storeList: SimplifiedStoreList): void {

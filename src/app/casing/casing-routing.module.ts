@@ -29,8 +29,8 @@ const routes: Routes = [
         component: CasingDashboardComponent,
         children: [
           {path: '', component: SidenavMenuComponent},
-          {path: 'mapStores', component: SidenavStoresOnMapComponent},
-          {path: 'listStores/:listId', component: SidenavStoresInListComponent},
+          {path: 'map-stores', component: SidenavStoresOnMapComponent},
+          {path: 'list-stores/:listId', component: SidenavStoresInListComponent},
           {path: 'my-store-lists', component: SidenavUserListsComponent},
         ]
       },

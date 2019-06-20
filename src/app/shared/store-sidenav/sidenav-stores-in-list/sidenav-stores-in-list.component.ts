@@ -5,11 +5,9 @@ import { SiteService } from '../../../core/services/site.service';
 import { MapService } from '../../../core/services/map.service';
 import { StoreListUIService } from '../store-list-u-i.service';
 import { EntitySelectionService } from '../../../core/services/entity-selection.service';
-import { finalize, map, tap } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 import { SimplifiedStore } from '../../../models/simplified/simplified-store';
 import { Coordinates } from '../../../models/coordinates';
-import { SimplifiedSite } from '../../../models/simplified/simplified-site';
-import { forkJoin } from 'rxjs';
 import { StoreListService } from '../../../core/services/store-list.service';
 import { DbEntityMarkerService } from '../../../core/services/db-entity-marker.service';
 import { ErrorService } from '../../../core/services/error.service';
@@ -17,6 +15,7 @@ import { SimplifiedStoreList } from '../../../models/simplified/simplified-store
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { TextInputDialogComponent } from '../../text-input-dialog/text-input-dialog.component';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
+import { StorageService } from '../../../core/services/storage.service';
 
 @Component({
   selector: 'mds-sidenav-stores-in-list',
@@ -44,12 +43,15 @@ export class SidenavStoresInListComponent implements OnInit {
               private dialog: MatDialog,
               private dbEntityMarkerService: DbEntityMarkerService,
               private storeListUIService: StoreListUIService,
+              private storageService: StorageService,
               private selectionService: EntitySelectionService) {
   }
 
   ngOnInit() {
     // Get the list Id
     this.listId = parseInt(this.route.snapshot.paramMap.get('listId'), 10);
+
+    this.storageService.set('casing-dashboard-store-list-view', 'list-stores/' + this.listId);
 
     // Get the list
     this.storeListService.getOneById(this.listId).subscribe(storeList => {

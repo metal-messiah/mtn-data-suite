@@ -12,6 +12,7 @@ import { MapService } from '../../../core/services/map.service';
 import { CasingDashboardService } from '../../../casing/casing-dashboard/casing-dashboard.service';
 import { StoreListUIService } from '../store-list-u-i.service';
 import { DbEntityMarkerService } from '../../../core/services/db-entity-marker.service';
+import { StorageService } from '../../../core/services/storage.service';
 
 @Component({
   selector: 'mds-sidenav-stores-on-map',
@@ -28,9 +29,11 @@ export class SidenavStoresOnMapComponent implements OnInit {
               private dbEntityMarkerService: DbEntityMarkerService,
               private casingDashboardService: CasingDashboardService,
               private storeListUIService: StoreListUIService,
+              private storageService: StorageService,
               private selectionService: EntitySelectionService) { }
 
   ngOnInit() {
+    this.storageService.set('casing-dashboard-store-list-view', 'map-stores');
     this.storeListUIService.setSiteMarkers(this.dbEntityMarkerService.getVisibleSiteMarkers(), this.dbEntityMarkerService.controls);
     this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(() => {
       this.storeListUIService.setSiteMarkers(this.dbEntityMarkerService.getVisibleSiteMarkers(), this.dbEntityMarkerService.controls);

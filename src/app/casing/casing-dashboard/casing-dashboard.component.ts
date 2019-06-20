@@ -1,7 +1,7 @@
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { of, Subject, Subscription } from 'rxjs';
 import { debounce, debounceTime, delay, finalize } from 'rxjs/internal/operators';
@@ -106,6 +106,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
               private bannerService: BannerService,
               private snackBar: MatSnackBar,
               private ngZone: NgZone,
+              private router: Router,
               private route: ActivatedRoute,
               private navigatorService: NavigatorService,
               private dialog: MatDialog,
@@ -118,6 +119,13 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // Navigate to correct store-list sidenav view
+    this.storageService.getOne('casing-dashboard-store-list-view').subscribe(value => {
+      if (value) {
+        this.router.navigate(['casing', ...value.split('/')], {skipLocationChange: true});
+      }
+    });
+
     // Watch screen size - set flag if small
     this.subscriptions.push(this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.HandsetPortrait])
       .subscribe((state: BreakpointState) => this.layoutIsSmall = state.matches));
@@ -128,7 +136,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       } else {
         this.onMultiSelectDisabled()
       }
-    }))
+    }));
   }
 
   get showStoreLists() {
