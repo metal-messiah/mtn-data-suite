@@ -1,14 +1,13 @@
 <div *ngIf="!site">
   <i class="fas fa-spinner fa-pulse"></i>
 </div>
-<mat-card *ngIf="site">
+<mat-card id="db-location-info-card" *ngIf="site">
   <mat-card-header>
     <mat-card-title>
-      <strong>
-          <span *ngIf="store">{{store.storeName}}<span
-            *ngIf="store.storeNumber">&nbsp;{{store.storeNumber}}</span></span>
-        <span *ngIf="!store">Empty Site</span>
-      </strong>
+      <ng-container *ngIf="store">{{store.storeName}}
+        <ng-container *ngIf="store.storeNumber">&nbsp;({{store.storeNumber}})</ng-container>
+      </ng-container>
+      <ng-container *ngIf="!store">Empty Site</ng-container>
     </mat-card-title>
     <mat-card-subtitle *ngIf="store && store.currentStoreStatus != null">
       <span *ngIf="store.currentStoreStatus">{{store.currentStoreStatus.status}}</span>
@@ -21,9 +20,9 @@
     </mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
-    <div class="intersection">{{siteService.getFormattedIntersection(site)}}</div>
+    <div class="intersection" *ngIf="getFormattedIntersection(site)">{{getFormattedIntersection(site)}}</div>
     <div class="address">{{site.address1}}</div>
-    <div>{{siteService.getFormattedPrincipality(site)}}</div>
+    <div>{{getFormattedPrincipality(site)}}</div>
   </mat-card-content>
   <mat-card-actions>
     <button mat-button [disabled]="disabled" [mat-menu-trigger-for]="markerMoreMenu">
