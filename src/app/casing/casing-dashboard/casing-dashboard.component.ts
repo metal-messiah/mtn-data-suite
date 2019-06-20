@@ -768,26 +768,4 @@ Geo-location
     // this.filterSideNavIsOpen = false;
   }
 
-  getDrawingToolIcon() {
-    if (this.drawingModeIs('circle')) {
-      return 'fa-circle';
-    } else if (this.drawingModeIs('pointer')) {
-      return 'fa-hand-pointer';
-    } else if (this.drawingModeIs('rectangle')) {
-      return 'fa-square';
-    } else if (this.drawingModeIs('polygon')) {
-      return 'fa-star';
-    } else {
-      return null;
-    }
-  }
-
-  getSelectionModeIcon() {
-    if (this.deselecting) {
-      return 'fa-minus-circle';
-    } else {
-      return 'fa-plus-circle';
-    }
-  }
-
 }
