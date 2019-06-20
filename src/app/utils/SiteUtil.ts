@@ -22,19 +22,19 @@ export class SiteUtil {
 
   static getFormattedIntersection(site): string {
     let intersection = '';
-    if (site.quad !== null) {
+    if (site.quad && site.quad !== 'NONE') {
       intersection += site.quad;
-      if (site.intersectionStreetPrimary !== null || site.intersectionStreetSecondary !== null) {
+      if (site.intersectionStreetPrimary || site.intersectionStreetSecondary) {
         intersection += ' of ';
       }
     }
-    if (site.intersectionStreetPrimary !== null) {
+    if (site.intersectionStreetPrimary) {
       intersection += site.intersectionStreetPrimary;
-      if (site.intersectionStreetSecondary !== null) {
+      if (site.intersectionStreetSecondary) {
         intersection += ' & ';
       }
     }
-    if (site.intersectionStreetSecondary !== null) {
+    if (site.intersectionStreetSecondary) {
       intersection += site.intersectionStreetSecondary;
     }
     return intersection;
