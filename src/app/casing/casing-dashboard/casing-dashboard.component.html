@@ -91,12 +91,9 @@
     <span>Drag Pin</span>
     <button mat-raised-button color="accent" (click)="editNewLocation()">Create</button>
   </mat-toolbar>
-
-  <!--Duplicate Selection-->
   <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DUPLICATE_SELECTION" color="primary"
                class="flex-space-between">
   </mat-toolbar>
-
   <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" color="primary"
                class="flex-space-between">
     <button mat-mini-fab color="primary" (click)="setShowStoreLists(!showStoreLists)">
@@ -236,7 +233,7 @@
   </div>
 </mat-menu>
 
-<button [ngClass]="{hidden: controls.updateOnBoundsChange && !gettingLocations}"
+<button style="position:absolute;" [ngClass]="{hidden: controls.updateOnBoundsChange && !gettingLocations}"
         mat-raised-button id="refresh" (click)="getEntitiesInBounds()" color="primary"
         [disabled]="gettingLocations">
   <i class="fas fa-sync" [ngClass]="{'fa-spin': gettingLocations}"></i>

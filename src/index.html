@@ -14,10 +14,22 @@
   <meta name="theme-color" content="#f48c5b">
 
   <link rel="manifest" href="/manifest.json">
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ&libraries=geometry,drawing,places"></script>
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ&libraries=geometry,drawing,places"></script>
   <script src="https://media-library.cloudinary.com/global/all.js"></script>
 </head>
 <body>
-  <mds-root class="mat-app-background">Loading...</mds-root>
+<mds-root class="mat-app-background">
+  <div style="height: 100%; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-around;">
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center">
+      <img src="assets/images/icons/icon-310x310.png">
+    </div>
+    <div
+      style="width: 100%; display: flex; justify-content: space-between; margin: 10px; padding: 0 10px; box-sizing: border-box;">
+      <div>Loading...</div>
+      <button onclick="location.reload()">Refresh</button>
+    </div>
+  </div>
+</mds-root>
 </body>
 </html>

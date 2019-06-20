@@ -76,6 +76,7 @@ mat-slider {
 }
 
 #info-card-wrapper {
+  position: absolute;
   max-width: 300px;
   margin-left: 6px;
 }
