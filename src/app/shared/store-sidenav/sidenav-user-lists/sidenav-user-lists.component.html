@@ -18,21 +18,20 @@
   <div *ngFor="let storeList of storeLists" class="list-item"
        [ngClass]="{'current-filter': storeListIsCurrentFilter(storeList)}">
     <div style="display: flex; flex-direction: column; flex: 1;">
-      <div>
+      <div style="display: flex;">
         <span class="list-name">{{storeList.storeListName}}</span>
-        <i [title]="'Only Showing Stores in ' + storeList.storeListName"
-           *ngIf="storeListIsCurrentFilter(storeList)" class="fas fa-filter" style="color: #607d8b"></i>
+        <div><i [title]="'Only Showing Stores in ' + storeList.storeListName"
+           *ngIf="storeListIsCurrentFilter(storeList)" class="fas fa-filter" style="color: #607d8b"></i></div>
       </div>
       <div class="mat-caption">Created By {{storeList.createdBy.name}}</div>
     </div>
-    <!--<div>({{storeList.storeCount | number}})</div>-->
 
-    <!-- OPTIONS MENU FOR EACH STORELIST -->
     <div>
       <button class="badged-button" mat-icon-button (click)="goToStoreList(storeList)"
-              [matBadge]="storeList.storeCount" matBadgeColor="accent">
+              [matBadge]="storeList.storeCount">
         <i class="fas fa-list-ul"></i>
       </button>
+      <!-- OPTIONS MENU FOR EACH STORELIST -->
       <button class='menu-icon-button' mat-icon-button [mat-menu-trigger-for]="siteMenu">
         <i class="site-menu fas fa-ellipsis-v"></i>
       </button>

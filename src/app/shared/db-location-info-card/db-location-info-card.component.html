@@ -54,6 +54,22 @@
   <button mat-menu-item (click)="setFloating(false)" *ngIf="store && store.floating">
     <i class="far fa-life-ring"></i>&nbsp;Unmark as Float
   </button>
+  <button mat-menu-item (click)="validateStore()" *ngIf="store && !store.validatedDate">
+    <i class="fas fa-certificate"></i>&nbsp;Validate
+  </button>
+  <button mat-menu-item (click)="invalidateStore()" *ngIf="store && store.validatedDate">
+    <i class="fas fa-times"></i>
+    &nbsp;Invalidate&nbsp;({{store.validatedDate.getMonth()+1}}/{{store.validatedDate.getFullYear()%1000}})
+  </button>
+  <button mat-menu-item [mat-menu-trigger-for]="assignmentMenu">
+    <i class="fas fa-user"></i>&nbsp;&nbsp;Assignment
+  </button>
+  <button mat-menu-item [mat-menu-trigger-for]="storeListMenu">
+    <i class="fas fa-list-ul"></i>&nbsp;&nbsp;Store Lists
+  </button>
+</mat-menu>
+
+<mat-menu #assignmentMenu="matMenu">
   <button mat-menu-item (click)="assignToUser(null)" *ngIf="site && site.assignee">
     <i class="fas fa-ban"></i>&nbsp;Unassign
   </button>
@@ -63,13 +79,9 @@
   <button mat-menu-item (click)="openAssignmentDialog()">
     <i class="fas fa-user"></i>&nbsp;Assign to Analyst
   </button>
-  <button mat-menu-item (click)="validateStore()" *ngIf="store && !store.validatedDate">
-    <i class="fas fa-certificate"></i>&nbsp;Validate
-  </button>
-  <button mat-menu-item (click)="invalidateStore()" *ngIf="store && store.validatedDate">
-    <i
-      class="fas fa-times"></i>&nbsp;Invalidate&nbsp;({{store.validatedDate.getMonth()+1}}/{{store.validatedDate.getFullYear()%1000}})
-  </button>
+</mat-menu>
+
+<mat-menu #storeListMenu="matMenu">
   <button mat-menu-item (click)="addToList()">
     <i class="fas fa-plus-circle"></i>&nbsp;&nbsp;Add to List
   </button>

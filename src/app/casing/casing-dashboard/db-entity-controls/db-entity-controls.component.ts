@@ -38,6 +38,14 @@ export class DbEntityControlsComponent implements OnInit {
     this.setStoreListOptions();
   }
 
+  get markerTypeOptions() {
+    return this.dbEntityMarkerService.markerTypeOptions;
+  }
+
+  get zoom() {
+    return this.mapService.getZoom();
+  }
+
   get controls() {
     return this.dbEntityMarkerService.controls;
   }
@@ -68,11 +76,11 @@ export class DbEntityControlsComponent implements OnInit {
       }
     };
     this.dialog.open(SimpleSelectDialogComponent, config).afterClosed()
-      .subscribe(storeList => this.dbEntityMarkerService.controls.storeList = storeList);
+      .subscribe(storeList => this.dbEntityMarkerService.setStoreListFilter(storeList));
   }
 
   clearStoreList() {
-    this.dbEntityMarkerService.controls.storeList = null;
+    this.dbEntityMarkerService.setStoreListFilter(null);
   }
 
   saveFilter() {
@@ -89,6 +97,7 @@ export class DbEntityControlsComponent implements OnInit {
       .subscribe((control: Control) => {
         if (control) {
           this.dbEntityMarkerService.controls = control.control;
+          this.dbEntityMarkerService.onControlsUpdated();
         }
       })
   }

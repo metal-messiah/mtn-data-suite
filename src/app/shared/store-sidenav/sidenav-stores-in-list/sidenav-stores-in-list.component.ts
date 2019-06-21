@@ -26,9 +26,9 @@ import { Subscription } from 'rxjs';
 })
 export class SidenavStoresInListComponent implements OnInit, OnDestroy {
 
-  private saving = false;
+  saving = false;
 
-  private storeList;
+  storeList;
   private listId;
 
   private storeIds: Set<number>;
@@ -145,14 +145,14 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
     if (!this.storeIds) {
       return [];
     }
-    return [...this.selectionService.storeIds].filter(storeId => this.storeIds.has(storeId));
+    return Array.from(this.selectionService.storeIds).filter(storeId => this.storeIds.has(storeId));
   }
 
   selectedStoreIdsNotInList() {
     if (!this.storeIds) {
-      return [...this.selectionService.storeIds];
+      return Array.from(this.selectionService.storeIds);
     }
-    return [...this.selectionService.storeIds].filter(storeId => !this.storeIds.has(storeId));
+    return Array.from(this.selectionService.storeIds).filter(storeId => !this.storeIds.has(storeId));
   }
 
   removeSelectedFromList() {

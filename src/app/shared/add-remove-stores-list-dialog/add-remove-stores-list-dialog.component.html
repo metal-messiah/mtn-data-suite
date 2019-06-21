@@ -1,26 +1,33 @@
-<h2 mat-dialog-title>{{getAddOrRemoveTitle()}}</h2>
+<h2 mat-dialog-title style="text-align: center;">
+  Select Store Lists
+</h2>
 <form id="addRemoveForm" mat-dialog-content>
 
-  <div>
-    <button mat-raised-button color="primary">Create New List</button>
+  <button *ngIf="type === AddRemoveType.ADD" style="width: 100%; margin-bottom: 10px"
+          mat-raised-button color="primary" (click)="createNewList()">
+    Create New List
+  </button>
+
+  <div class="loading" *ngIf="fetching">
+    <i class="fas fa-spinner fa-pulse fa-2x"></i>
   </div>
 
   <mat-selection-list [(ngModel)]="selectedListIds" name="selectionList">
-    <mat-list-item *ngIf="fetching">
-      <i class="fas fa-spinner fa-pulse fa-2x"></i>
-    </mat-list-item>
     <mat-list-option *ngFor="let storeList of storeLists" [value]="storeList.id">
-      <h3 matLine><b>{{storeList.storeListName}}</b></h3>
-      <p matLine></p>
-      <span>{{storeList.storeCount | number}} Stores</span>
+      <div style="display: flex; justify-content: space-between; max-width: 200px;">
+        <span style="max-width: 160px; overflow: hidden; text-overflow: ellipsis;">
+          {{storeList.storeListName}}
+        </span>
+        <span>({{storeList.storeCount}})</span>
+      </div>
     </mat-list-option>
   </mat-selection-list>
 </form>
 
-<mat-dialog-actions>
+<mat-dialog-actions style="justify-content: space-between;">
   <button type="button" mat-raised-button color="primary" mat-dialog-close>Cancel</button>
-  <button type="submit" form="addRemoveForm" *ngIf="selectedListIds.length > 0" mat-raised-button color="accent"
+  <button type="submit" form="addRemoveForm" [disabled]="selectedListIds.length === 0" mat-raised-button color="accent"
           (click)="submit()">
-    {{getSaveButtonText()}}
+    {{type}}
   </button>
 </mat-dialog-actions>

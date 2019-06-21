@@ -221,6 +221,7 @@ export class DbEntityMarkerService {
 
   resetControls() {
     this.controls = new DbEntityMarkerControls();
+    this.onControlsUpdated();
   }
 
   onControlsUpdated() {

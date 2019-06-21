@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SimplifiedStoreList } from '../../../models/simplified/simplified-store-list';
 import { StoreListService } from '../../../core/services/store-list.service';
@@ -14,18 +14,21 @@ import { StoreList } from '../../../models/full/store-list';
 import { SimplifiedStore } from '../../../models/simplified/simplified-store';
 import { Coordinates } from '../../../models/coordinates';
 import { StorageService } from '../../../core/services/storage.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'mds-sidenav-user-lists',
   templateUrl: './sidenav-user-lists.component.html',
   styleUrls: ['./sidenav-user-lists.component.css']
 })
-export class SidenavUserListsComponent implements OnInit {
+export class SidenavUserListsComponent implements OnInit, OnDestroy {
 
   storeLists: SimplifiedStoreList[];
 
   fetching = false;
   saving = false;
+
+  listChangeListener: Subscription;
 
   constructor(private router: Router,
               private storeListService: StoreListService,
@@ -41,6 +44,11 @@ export class SidenavUserListsComponent implements OnInit {
   ngOnInit() {
     this.storageService.set('casing-dashboard-store-list-view', 'my-store-lists');
     this.getUserStoreLists();
+    this.listChangeListener = this.storeListService.storeListUpdated$.subscribe(() => this.getUserStoreLists());
+  }
+
+  ngOnDestroy() {
+    this.listChangeListener.unsubscribe();
   }
 
   goBack() {
@@ -99,7 +107,7 @@ export class SidenavUserListsComponent implements OnInit {
     this.saving = false;
     this.storeListService.create(newStoreList)
       .pipe(finalize(() => this.saving = false))
-      .subscribe((storeList: StoreList) => {
+      .subscribe(() => {
         this.snackBar.open('Successfully created new list', null, {duration: 2000});
         this.getUserStoreLists();
       }, err => this.errorService.handleServerError('Failed to create new list!', err,

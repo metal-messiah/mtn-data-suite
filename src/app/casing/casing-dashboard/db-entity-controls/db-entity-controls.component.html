@@ -133,7 +133,7 @@
       </mat-expansion-panel-header>
       <mat-form-field class="control-selector" floatLabel="never">
         <mat-select [(ngModel)]="controls.markerType">
-          <mat-option *ngFor="let markerType of dbEntityMarkerService.markerTypeOptions" [value]="markerType">
+          <mat-option *ngFor="let markerType of markerTypeOptions" [value]="markerType">
             {{markerType}}
           </mat-option>
         </mat-select>
@@ -173,7 +173,7 @@
           </mat-slider>
         </div>
         <mat-divider></mat-divider>
-        <h3 mat-subheader>(Current Zoom: {{mapService.getZoom()}})</h3>
+        <h3 mat-subheader>(Current Zoom: {{zoom}})</h3>
       </div>
     </mat-expansion-panel>
   </mat-accordion>
