@@ -20,21 +20,17 @@ import { StorageService } from './storage.service';
 import { Control, ControlStorageKeys } from 'app/models/control';
 import { DbEntityMarkerControls } from '../../models/db-entity-marker-controls';
 import { EntitySelectionService } from './entity-selection.service';
-import { SimplifiedStoreList } from '../../models/simplified/simplified-store-list';
+import { SimplifiedBanner } from '../../models/simplified/simplified-banner';
 
 @Injectable()
 export class DbEntityMarkerService {
 
-  gettingLocations = false;
-  controls: DbEntityMarkerControls;
-
-  readonly visibleMarkersChanged$ = new Subject<void>();
-  readonly markerTypeOptions = ['Pin', 'Logo', 'Validation', 'Cased for Project'];
-
-  readonly SAVED_CONTROLS_STORAGE_KEY = ControlStorageKeys.savedDbEntityMarkerServiceControls;
-  readonly ACTIVE_CONTROLS_STORAGE_KEY = ControlStorageKeys.dbEntityMarkerServiceControls;
+  private readonly SAVED_CONTROLS_STORAGE_KEY = ControlStorageKeys.savedDbEntityMarkerServiceControls;
+  private readonly ACTIVE_CONTROLS_STORAGE_KEY = ControlStorageKeys.dbEntityMarkerServiceControls;
 
   private readonly clickListener$ = new Subject<{ storeId: number, siteId: number, marker: google.maps.Marker }>();
+
+  private _controls: DbEntityMarkerControls;
 
   private gmap: google.maps.Map;
   private clusterer: MarkerClusterer;
@@ -51,6 +47,10 @@ export class DbEntityMarkerService {
   private visibleMarkers = [];
 
   private selectionService: EntitySelectionService;
+
+  gettingLocations = false;
+  readonly visibleMarkersChanged$ = new Subject<void>();
+  readonly markerTypeOptions = ['Pin', 'Logo', 'Validation', 'Cased for Project'];
 
   constructor(private authService: AuthService,
               private errorService: ErrorService,
@@ -87,7 +87,7 @@ export class DbEntityMarkerService {
     this.clusterer = new MarkerClusterer(this.gmap, [],
       {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 
-    if (!this.controls.updateOnBoundsChange) {
+    if (!this._controls.updateOnBoundsChange) {
       const siteMarkersJson = localStorage.getItem('siteMarkers');
       if (siteMarkersJson) {
         JSON.parse(siteMarkersJson).forEach(sm => this.getMarkersForSite(new SiteMarker(sm)));
@@ -123,13 +123,13 @@ export class DbEntityMarkerService {
         this.removeOutOfBoundsMarkers(bounds);
         siteMarkers.forEach(sm => this.getMarkersForSite(sm));
 
-        if (!this.controls.updateOnBoundsChange) {
+        if (!this._controls.updateOnBoundsChange) {
           localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
         }
       }))
     );
 
-    if (this.controls.markerType === MarkerType.CASED_FOR_PROJECT) {
+    if (this._controls.markerType === MarkerType.CASED_FOR_PROJECT) {
       const selectedProject = this.casingDashboardService.getSelectedProject();
       if (selectedProject) {
         requests.push(this.projectService.getAllCasedStoreIds(selectedProject.id)
@@ -161,7 +161,7 @@ export class DbEntityMarkerService {
 
     // If no call has been made yet, get rather than refresh
     if (this.prevUpdate) {
-      if (this.controls.markerType === MarkerType.CASED_FOR_PROJECT) {
+      if (this._controls.markerType === MarkerType.CASED_FOR_PROJECT) {
         const selectedProject = this.casingDashboardService.getSelectedProject();
         if (selectedProject) {
           this.gettingLocations = true;
@@ -206,7 +206,7 @@ export class DbEntityMarkerService {
       const sm = new SiteMarker(s.siteMarker);
       sm.stores = sm.stores.filter(st => this.shouldIncludeStoreMarker(st, sm));
       return sm;
-    }).filter(s => (s.vacant && this.controls.showVacantSites) || s.stores.length > 0);
+    }).filter(s => (s.vacant && this._controls.showVacantSites) || s.stores.length > 0);
   }
 
   saveControlsAs(name: string) {
@@ -214,21 +214,21 @@ export class DbEntityMarkerService {
       if (!savedControls) {
         savedControls = {};
       }
-      savedControls[name] = new Control(name, new Date(), this.controls);
+      savedControls[name] = new Control(name, new Date(), this._controls);
       this.storageService.set(this.SAVED_CONTROLS_STORAGE_KEY, savedControls);
     });
   }
 
   resetControls() {
-    this.controls = new DbEntityMarkerControls();
+    this._controls = new DbEntityMarkerControls();
     this.onControlsUpdated();
   }
 
-  onControlsUpdated() {
-    this.storageService.set(this.ACTIVE_CONTROLS_STORAGE_KEY, this.controls);
+  private onControlsUpdated() {
+    this.storageService.set(this.ACTIVE_CONTROLS_STORAGE_KEY, this._controls);
 
     // If user turns off auto refresh = re-pull the locations in view in order to preserve them
-    if (!this.controls.updateOnBoundsChange) {
+    if (!this._controls.updateOnBoundsChange) {
       localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
     }
 
@@ -242,54 +242,54 @@ export class DbEntityMarkerService {
     }
 
     // TYPES FILTERS
-    if ((!this.controls.showActive && (storeMarker.storeType === 'ACTIVE')) ||
-      (!this.controls.showHistorical && (storeMarker.storeType === 'HISTORICAL')) ||
-      (!this.controls.showFuture && (storeMarker.storeType === 'FUTURE')) ||
-      (!this.controls.showFloat && (storeMarker.float))) {
+    if ((!this._controls.showActive && (storeMarker.storeType === 'ACTIVE')) ||
+      (!this._controls.showHistorical && (storeMarker.storeType === 'HISTORICAL')) ||
+      (!this._controls.showFuture && (storeMarker.storeType === 'FUTURE')) ||
+      (!this._controls.showFloat && (storeMarker.float))) {
       return false;
     }
 
     // DATASET FILTER
-    if (this.controls.storeList && this.controls.storeList.storeIds && !this.controls.storeList.storeIds.includes(storeMarker.id)) {
+    if (this._controls.storeList && this._controls.storeList.storeIds && !this._controls.storeList.storeIds.includes(storeMarker.id)) {
       return false;
     }
 
     // STATUS FILTER
-    if ((!this.controls.showClosed && storeMarker.status === StoreStatusOptions.CLOSED) ||
-      (!this.controls.showDeadDeal && storeMarker.status === StoreStatusOptions.DEAD_DEAL) ||
-      (!this.controls.showNewUnderConstruction && storeMarker.status === StoreStatusOptions.NEW_UNDER_CONSTRUCTION) ||
-      (!this.controls.showOpen && storeMarker.status === StoreStatusOptions.OPEN) ||
-      (!this.controls.showPlanned && storeMarker.status === StoreStatusOptions.PLANNED) ||
-      (!this.controls.showProposed && storeMarker.status === StoreStatusOptions.PROPOSED) ||
-      (!this.controls.showRemodel && storeMarker.status === StoreStatusOptions.REMODEL) ||
-      (!this.controls.showRumored && storeMarker.status === StoreStatusOptions.RUMORED) ||
-      (!this.controls.showStrongRumor && storeMarker.status === StoreStatusOptions.STRONG_RUMOR) ||
-      (!this.controls.showTemporarilyClosed && storeMarker.status === StoreStatusOptions.TEMPORARILY_CLOSED)) {
+    if ((!this._controls.showClosed && storeMarker.status === StoreStatusOptions.CLOSED) ||
+      (!this._controls.showDeadDeal && storeMarker.status === StoreStatusOptions.DEAD_DEAL) ||
+      (!this._controls.showNewUnderConstruction && storeMarker.status === StoreStatusOptions.NEW_UNDER_CONSTRUCTION) ||
+      (!this._controls.showOpen && storeMarker.status === StoreStatusOptions.OPEN) ||
+      (!this._controls.showPlanned && storeMarker.status === StoreStatusOptions.PLANNED) ||
+      (!this._controls.showProposed && storeMarker.status === StoreStatusOptions.PROPOSED) ||
+      (!this._controls.showRemodel && storeMarker.status === StoreStatusOptions.REMODEL) ||
+      (!this._controls.showRumored && storeMarker.status === StoreStatusOptions.RUMORED) ||
+      (!this._controls.showStrongRumor && storeMarker.status === StoreStatusOptions.STRONG_RUMOR) ||
+      (!this._controls.showTemporarilyClosed && storeMarker.status === StoreStatusOptions.TEMPORARILY_CLOSED)) {
       return false;
     }
 
     // BANNER FILTER
-    if (this.controls.banners.length && !this.controls.banners.find(b => b.id === storeMarker.bannerId)) {
+    if (this._controls.banners.length && !this._controls.banners.find(b => b.id === storeMarker.bannerId)) {
       return false;
     }
 
     // ASSIGNMENT FILTER
-    return !(this.controls.assignment && siteMarker.assigneeId !== this.controls.assignment.id);
+    return !(this._controls.assignment && siteMarker.assigneeId !== this._controls.assignment.id);
   }
 
   private shouldIncludeSiteMarker(siteMarker: SiteMarker) {
 
-    if (this.controls.assignment && (siteMarker && siteMarker.assigneeId !== this.controls.assignment.id)) {
+    if (this._controls.assignment && (siteMarker && siteMarker.assigneeId !== this._controls.assignment.id)) {
       return false;
     }
 
     if (siteMarker.backfilledNonGrocery) {
-      return this.controls.showSitesBackfilledByNonGrocery;
+      return this._controls.showSitesBackfilledByNonGrocery;
     }
 
     const siteIsVacant = siteMarker.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
     // If site is vacant, don't include if filtering by banner or dataset, or if showVacantSites isn't checked
-    return !(siteIsVacant && (this.controls.banners.length > 0 || this.controls.storeList || !this.controls.showVacantSites));
+    return !(siteIsVacant && (this._controls.banners.length > 0 || this._controls.storeList || !this._controls.showVacantSites));
   }
 
   /**************************************
@@ -336,11 +336,11 @@ export class DbEntityMarkerService {
 
   private initControls() {
     // Immediately set default controls
-    this.controls = new DbEntityMarkerControls();
+    this._controls = new DbEntityMarkerControls();
     // If any saved controls were found, replace default controls;
     this.storageService.getOne(this.ACTIVE_CONTROLS_STORAGE_KEY).subscribe(storedControls => {
       if (storedControls) {
-        this.controls = new DbEntityMarkerControls(storedControls);
+        this._controls = new DbEntityMarkerControls(storedControls);
       }
     });
 
@@ -393,7 +393,7 @@ export class DbEntityMarkerService {
 
   private showMarkers(markers: google.maps.Marker[]) {
     // Show the now visible markers
-    if (this.controls.cluster && this.gmap.getZoom() <= this.controls.clusterZoomLevel) {
+    if (this._controls.cluster && this.gmap.getZoom() <= this._controls.clusterZoomLevel) {
       this.clusterer.addMarkers(markers);
     } else {
       this.clusterer.clearMarkers();
@@ -519,11 +519,11 @@ export class DbEntityMarkerService {
   }
 
   private getMarkerOptionsForStore(store: StoreMarker, site: SiteMarker, selected: boolean) {
-    const markerType = this.controls.markerType;
+    const markerType = this._controls.markerType;
     const showLogo = markerType === MarkerType.LOGO && store.logoFileName != null;
     const showCased = markerType === MarkerType.CASED_FOR_PROJECT && this.storeIdsCasedForProject.has(store.id);
     const showValidated = markerType === MarkerType.VALIDATION && store.validatedDate != null;
-    const showFullLabel = this.gmap.getZoom() >= this.controls.fullLabelMinZoomLevel;
+    const showFullLabel = this.gmap.getZoom() >= this._controls.fullLabelMinZoomLevel;
     const assignedToUser = site.assigneeId === this.authService.sessionUser.id;
     const assignedToOther = !assignedToUser && site.assigneeId != null;
 
@@ -546,9 +546,29 @@ export class DbEntityMarkerService {
     };
   }
 
-  setStoreListFilter(storeList: SimplifiedStoreList) {
-    this.controls.storeList = storeList;
-    this.refreshMarkers();
+  addBannerFilter(banner: SimplifiedBanner) {
+    this._controls.addBanner(banner);
+    this.onControlsUpdated();
+  }
+
+  removeBannerFilter(banner: SimplifiedBanner) {
+    this._controls.removeBanner(banner);
+    this.onControlsUpdated();
+  }
+
+  get controls() {
+    return new Proxy(this._controls, {
+      set: (obj, prop, value) => {
+        obj[prop] = value;
+        this.onControlsUpdated();
+        return true;
+      }
+    });
+  }
+
+  setControls(controls: DbEntityMarkerControls) {
+    this._controls = controls;
+    this.onControlsUpdated();
   }
 
 }

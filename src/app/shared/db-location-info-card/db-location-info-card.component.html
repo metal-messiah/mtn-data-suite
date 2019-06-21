@@ -7,7 +7,7 @@
       <ng-container *ngIf="store">{{store.storeName}}
         <ng-container *ngIf="store.storeNumber">&nbsp;({{store.storeNumber}})</ng-container>
       </ng-container>
-      <ng-container *ngIf="!store">Empty Site</ng-container>
+      <ng-container *ngIf="!store">Vacant Site</ng-container>
     </mat-card-title>
     <mat-card-subtitle *ngIf="store && store.currentStoreStatus != null">
       <span *ngIf="store.currentStoreStatus">{{store.currentStoreStatus.status}}</span>

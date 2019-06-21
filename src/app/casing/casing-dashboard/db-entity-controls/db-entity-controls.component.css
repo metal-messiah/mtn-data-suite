@@ -3,7 +3,6 @@
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
-  overflow-y: hidden;
 }
 
 .control-toolbar {
@@ -91,4 +90,8 @@ mat-panel-description {
 *::-webkit-scrollbar-thumb {
   background-color: orange !important;
   outline: 1px solid slategrey !important;
+}
+
+mat-slider {
+  width: 100%;
 }

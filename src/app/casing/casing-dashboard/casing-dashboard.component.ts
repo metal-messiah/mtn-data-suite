@@ -429,7 +429,7 @@ Geo-location
   }
 
   getSelectionCount() {
-    return this.selectionService.storeIds.size + this.selectionService.siteIds.size;
+    return this.selectionService.storeIds.size;
   }
 
   clearSelection() {
@@ -549,10 +549,6 @@ Geo-location
       }, err => this.errorService.handleServerError('Failed to update sites!', err,
         () => console.log(err),
         () => this.assign(userId)));
-  }
-
-  controlSideMenuClosed() {
-    this.dbEntityMarkerService.onControlsUpdated();
   }
 
   isShowingBoundary() {

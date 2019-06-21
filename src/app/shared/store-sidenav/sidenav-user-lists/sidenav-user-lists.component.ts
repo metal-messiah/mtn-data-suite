@@ -137,7 +137,7 @@ export class SidenavUserListsComponent implements OnInit, OnDestroy {
   }
 
   setStoreListAsFilter(storeList: SimplifiedStoreList) {
-    this.dbEntityMarkerService.setStoreListFilter(storeList);
+    this.dbEntityMarkerService.controls.storeList = storeList;
   }
 
   zoomToList(storeList: SimplifiedStoreList) {

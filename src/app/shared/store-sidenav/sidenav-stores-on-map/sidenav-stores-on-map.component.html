@@ -6,16 +6,29 @@
   </div>
   <h1>Stores On Map</h1>
   <div>
-    <button mat-raised-button *ngIf="!isMultiSelecting()" (click)="enableMultiSelect()">
-      Multi&nbsp;<i class="fas fa-hand-pointer"></i>
-    </button>
-    <button mat-raised-button color="accent"
-            *ngIf="isMultiSelecting()"
-            title="Zoom to Selected Stores"
-            (click)="zoomToSelection()"
-            class="selected-stores">
-      <i class="fas fa-search-location fa-2x"></i>&nbsp;{{getSelectedStoresCount()}}
+    <button mat-icon-button
+            title="More menu"
+            id="more-menu-button"
+            [matBadge]="getSelectedStoresCount() || null"
+            matBadgeColor="accent"
+            matBadgeSize="small"
+            [mat-menu-trigger-for]="storeListMenu">
+      <i class="fas fa-ellipsis-v"></i>
     </button>
   </div>
 </mat-toolbar>
 <mds-stores-list></mds-stores-list>
+
+<mat-menu #storeListMenu="matMenu" id="store-list-menu">
+  <button mat-menu-item [disabled]="isMultiSelecting()" (click)="enableMultiSelect()">
+    <i class="fas fa-hand-pointer"></i>&nbsp;&nbsp;
+    <span>Enable multi-select</span>
+  </button>
+  <button mat-menu-item [disabled]="getSelectedStoresCount() === 0"
+          title="Zoom to Selected Stores"
+          (click)="zoomToSelection()"
+          class="selected-stores">
+    <i class="fas fa-search-location"></i>&nbsp;&nbsp;
+    <span>Zoom to Selection</span>
+  </button>
+</mat-menu>

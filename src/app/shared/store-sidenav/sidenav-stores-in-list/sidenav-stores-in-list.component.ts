@@ -81,7 +81,7 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
             this.storeList = updatedList;
             this.storeIds = new Set(this.storeList.stores.map(st => st.id));
             if (this.storeListIsCurrentFilter()) {
-              this.dbEntityMarkerService.setStoreListFilter(new SimplifiedStoreList(this.storeList));
+              this.dbEntityMarkerService.controls.storeList = new SimplifiedStoreList(this.storeList);
             }
             this.updateListUIElements().subscribe();
           }
@@ -200,11 +200,11 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
   }
 
   setStoreListAsFilter() {
-    this.dbEntityMarkerService.setStoreListFilter(new SimplifiedStoreList(this.storeList));
+    this.dbEntityMarkerService.controls.storeList = new SimplifiedStoreList(this.storeList);
   }
 
   removeStoreListAsFilter() {
-    this.dbEntityMarkerService.setStoreListFilter(null);
+    this.dbEntityMarkerService.controls.storeList = null;
   }
 
   goBack() {

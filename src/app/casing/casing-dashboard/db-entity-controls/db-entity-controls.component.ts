@@ -23,7 +23,6 @@ import { StoreListService } from '../../../core/services/store-list.service';
 export class DbEntityControlsComponent implements OnInit {
 
   @Output() viewStoreList = new EventEmitter<SimplifiedStoreList>();
-  @Output() apply = new EventEmitter();
 
   storeListOptions: SimplifiedStoreList[] = [];
 
@@ -51,7 +50,7 @@ export class DbEntityControlsComponent implements OnInit {
   }
 
   clearBanner(banner: SimplifiedBanner) {
-    this.dbEntityMarkerService.controls.removeBanner(banner);
+    this.dbEntityMarkerService.removeBannerFilter(banner);
   }
 
   selectAssignee() {
@@ -76,11 +75,11 @@ export class DbEntityControlsComponent implements OnInit {
       }
     };
     this.dialog.open(SimpleSelectDialogComponent, config).afterClosed()
-      .subscribe(storeList => this.dbEntityMarkerService.setStoreListFilter(storeList));
+      .subscribe(storeList => this.dbEntityMarkerService.controls.storeList = storeList);
   }
 
   clearStoreList() {
-    this.dbEntityMarkerService.setStoreListFilter(null);
+    this.dbEntityMarkerService.controls.storeList = null;
   }
 
   saveFilter() {
@@ -96,8 +95,7 @@ export class DbEntityControlsComponent implements OnInit {
     this.dialog.open(StoredControlsSelectionDialogComponent).afterClosed()
       .subscribe((control: Control) => {
         if (control) {
-          this.dbEntityMarkerService.controls = control.control;
-          this.dbEntityMarkerService.onControlsUpdated();
+          this.dbEntityMarkerService.setControls(control.control);
         }
       })
   }
@@ -204,7 +202,7 @@ export class DbEntityControlsComponent implements OnInit {
     const config = {maxWidth: '90%'};
     this.dialog.open(SelectBannerComponent, config).afterClosed().subscribe(selectedBanner => {
       if (selectedBanner && selectedBanner.bannerName) {
-        this.dbEntityMarkerService.controls.addBanner(selectedBanner);
+        this.dbEntityMarkerService.addBannerFilter(selectedBanner);
       }
     });
   }
@@ -220,9 +218,5 @@ export class DbEntityControlsComponent implements OnInit {
 
   viewList(storeList: SimplifiedStoreList) {
     this.viewStoreList.emit(storeList);
-  }
-
-  applyControls() {
-    this.apply.emit();
   }
 }
