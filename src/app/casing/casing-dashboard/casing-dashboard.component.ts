@@ -74,9 +74,6 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   updating = false;
   savingBoundary = false;
 
-  // Modes
-  selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
-
   // Enums for template
   casingDashboardMode = CasingDashboardMode;
 
@@ -155,8 +152,12 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     return this.dbEntityMarkerService.controls;
   }
 
+  get selectedDashboardMode() {
+    return this.casingDashboardService.selectedDashboardMode;
+  }
+
   private onSelection(selection: { storeId: number, siteId: number }) {
-    if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
+    if (this.casingDashboardService.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
       if (this.layoutIsSmall) {
         this.casingDashboardService.setShowingStoreListSidenav(false);
       }
@@ -164,7 +165,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,
           this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
       })
-    } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
+    } else if (this.casingDashboardService.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
       this.onDuplicateSiteSelected(selection.siteId);
     }
     this.ngZone.run(() => {});
@@ -181,8 +182,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(this.initiateDuplicateSelection$.subscribe(siteId => {
       // Change the mode (should disables all other user interactions that might conflict)
-      this.selectedDashboardMode = CasingDashboardMode.DUPLICATE_SELECTION;
-      this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+      this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DUPLICATE_SELECTION;
 
       // Save the first site's ID so you can use it later
       this.selectedSiteId = siteId;
@@ -191,16 +191,12 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       const ref = this.snackBar.open(`Select another site to merge with this one`, 'Cancel');
 
       // If user clicks cancel, close snackbar and return to default mode
-      ref.onAction().subscribe(() => {
-        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-        this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-      });
+      ref.onAction().subscribe(() => this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT);
     }));
 
     this.subscriptions.push(this.initiateSiteMove$.subscribe((site: SimplifiedSite) => {
       this.movingSiteId = site.id;
-      this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
-      this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+      this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
       // Create new site layer
       this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, {lat: site.latitude, lng: site.longitude});
     }));
@@ -216,8 +212,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.mapService.mapClick$.subscribe(() => this.infoCard = null));
 
     this.subscriptions.push(this.casingDashboardService.projectChanged$.subscribe(() => {
-      this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-      this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+      this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
       this.projectBoundaryService.hideProjectBoundaries(this.mapService);
       this.getEntitiesInBounds();
     }));
@@ -252,15 +247,13 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   initSiteCreation(): void {
-    this.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
     // Create new Layer for new Location
     this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, this.mapService.getCenter());
   }
 
   cancelSiteCreation(): void {
-    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
     // Remove layer from map
     this.draggableSiteLayer.removeFromMap();
     // Delete new Location layer
@@ -323,8 +316,7 @@ Geo-location
   }
 
   activateFollowMe(): void {
-    this.selectedDashboardMode = CasingDashboardMode.FOLLOWING;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.FOLLOWING;
     this.followMeLayer = new FollowMeLayer(this.mapService, this.mapService.getCenter());
     this.navigatorService.watchPosition({maximumAge: 2000}).subscribe(
       position => {
@@ -350,8 +342,7 @@ Geo-location
   }
 
   deactivateFollowMe(): void {
-    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
 
     this.navigatorService.cancelWatch();
     this.followMeLayer.removeFromMap();
@@ -367,8 +358,7 @@ Geo-location
    */
   cancelMove() {
     this.movingSiteId = null;
-    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
     // Remove layer from map
     this.draggableSiteLayer.removeFromMap();
     // Delete new Location layer
@@ -390,8 +380,7 @@ Geo-location
           this.draggableSiteLayer.removeFromMap()
         }))
         .subscribe(() => {
-          this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-          this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+          this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
           this.snackBar.open('Successfully created new Site', null, {duration: 1500});
           this.getEntitiesInBounds();
         }, err => this.errorService.handleServerError('Failed to update new Site location!', err,
@@ -409,8 +398,7 @@ Geo-location
   }
 
   private onMultiSelectEnabled() {
-    this.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
     // Activate Map Drawing Tools and listen for completed Shapes
     this.mapService.activateDrawingTools().subscribe(shape => {
       const geoJson = GeometryUtil.getGeoJsonFromShape(shape);
@@ -441,8 +429,7 @@ Geo-location
   }
 
   private onMultiSelectDisabled() {
-    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
     this.mapService.deactivateDrawingTools();
   }
 
@@ -564,8 +551,7 @@ Geo-location
     this.projectBoundaryService.saveProjectBoundaries(this.mapService)
       .pipe(finalize(() => this.savingBoundary = false))
       .subscribe(() => {
-          this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-          this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+          this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
         },
         err => this.errorService.handleServerError('Failed to save project boundary!', err,
           () => console.log(err),
@@ -573,8 +559,7 @@ Geo-location
   }
 
   cancelProjectBoundaryEditing() {
-    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
     this.projectBoundaryService.cancelProjectBoundaryEditing(this.mapService);
   }
 
@@ -604,11 +589,10 @@ Geo-location
   }
 
   enableProjectBoundaryEditing() {
-    this.selectedDashboardMode = CasingDashboardMode.EDIT_PROJECT_BOUNDARY;
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.EDIT_PROJECT_BOUNDARY;
 
     this.mapService.setDrawingModeToClick();
 
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
     if (!this.projectBoundaryService.projectBoundary) {
       this.projectBoundaryService.showProjectBoundaries(this.mapService.getMap()).subscribe(() => this.setUpProjectEditing());
     } else {
@@ -679,16 +663,12 @@ Geo-location
       const ref = this.snackBar.open(message, 'Cancel');
 
       // If user clicks cancel, close snackbar and return to default mode
-      ref.onAction().subscribe(() => {
-        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-        this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-      });
+      ref.onAction().subscribe(() => this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT);
     } else {
       // If the user successfully selects a different site
 
       // Change the mode back to default (for when they are done)
-      this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-      this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+      this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
 
       // Dismiss the instructions
       this.snackBar.dismiss();

@@ -17,7 +17,7 @@ export class CasingDashboardService {
 
   private selectedProject: SimplifiedProject;
 
-  private selectedDashboardMode = CasingDashboardMode.DEFAULT;
+  selectedDashboardMode = CasingDashboardMode.DEFAULT;
 
   projectChanged$ = new Subject<SimplifiedProject>();
 
@@ -81,11 +81,4 @@ export class CasingDashboardService {
     return this.selectedProject;
   }
 
-  setSelectedDashboardMode(selectedDashboardMode: any) {
-    this.selectedDashboardMode = selectedDashboardMode;
-  }
-
-  getSelectedDashboardMode() {
-    return this.selectedDashboardMode;
-  }
 }
