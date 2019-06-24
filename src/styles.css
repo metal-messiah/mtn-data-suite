@@ -157,3 +157,16 @@ fieldset {
 .db-marker-image-label-future-selected {
   box-shadow: 0 0 0 3px #ffe448;
 }
+
+*::-webkit-scrollbar {
+  width: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: orange;
+  outline: 1px solid slategrey;
+}
