@@ -13,10 +13,10 @@
   <mat-expansion-panel>
     <mat-expansion-panel-header>
       <mat-panel-title>
-        Dataset
+        Store List
       </mat-panel-title>
       <mat-panel-description>
-        {{getActiveDatasetName()}}
+        {{getActiveStoreListFilterName()}}
       </mat-panel-description>
     </mat-expansion-panel-header>
 
@@ -36,7 +36,7 @@
     </div>
   </mat-expansion-panel>
 
-  <mat-expansion-panel [expanded]="true">
+  <mat-expansion-panel>
     <mat-expansion-panel-header>
       <mat-panel-title>
         Type
@@ -153,26 +153,15 @@
         <mat-checkbox [(ngModel)]="controls.updateOnBoundsChange">Update as Map Moves</mat-checkbox>
         <mat-checkbox [(ngModel)]="controls.cluster">Cluster Stores</mat-checkbox>
       </div>
-      <div *ngIf="controls.cluster">
-        <h3 mat-subheader>Cluster when zoom <= {{controls.clusterZoomLevel}}</h3>
-        <mat-slider [max]="21" [min]="0" [(ngModel)]="controls.clusterZoomLevel"
-                    [thumbLabel]="true">
-        </mat-slider>
-      </div>
-      <mat-divider></mat-divider>
-      <div>
-        <h3 mat-subheader>Pull when zoom >= {{controls.minPullZoomLevel}}
-        </h3>
-        <mat-slider [max]="21" [min]="7" [thumbLabel]="true" [(ngModel)]="controls.minPullZoomLevel"></mat-slider>
-      </div>
-      <mat-divider></mat-divider>
-      <div>
-        <h3 mat-subheader>Full Label when zoom >= {{controls.fullLabelMinZoomLevel}}</h3>
-        <mat-slider [max]="21" [min]="0" [thumbLabel]="true" [(ngModel)]="controls.fullLabelMinZoomLevel">
-        </mat-slider>
-      </div>
-      <mat-divider></mat-divider>
-      <h3 mat-subheader>(Current Zoom: {{zoom}})</h3>
+      <div style="margin: 8px; font-style: oblique; text-align: center;">(Current Zoom: {{zoom}})</div>
+      <div class="control-label">Cluster when zoom <= {{controls.clusterZoomLevel}}</div>
+      <mat-slider [max]="21" [min]="0" [thumbLabel]="true" [(ngModel)]="controls.clusterZoomLevel"
+                  [disabled]="!controls.cluster"></mat-slider>
+      <div class="control-label">Pull when zoom >= {{controls.minPullZoomLevel}}</div>
+      <mat-slider [max]="21" [min]="7" [thumbLabel]="true" [(ngModel)]="controls.minPullZoomLevel"></mat-slider>
+      <div class="control-label">Full Label when zoom >= {{controls.fullLabelMinZoomLevel}}</div>
+      <mat-slider [max]="21" [min]="0" [thumbLabel]="true" [(ngModel)]="controls.fullLabelMinZoomLevel">
+      </mat-slider>
     </div>
   </mat-expansion-panel>
 </mat-accordion>

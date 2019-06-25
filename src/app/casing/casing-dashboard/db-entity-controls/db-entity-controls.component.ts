@@ -137,9 +137,9 @@ export class DbEntityControlsComponent implements OnInit {
     return labels.filter(l => l).join(', ') || 'Exclude All Types';
   }
 
-  getActiveDatasetName() {
-    const dataset = this.dbEntityMarkerService.controls.storeList;
-    return dataset ? dataset.storeListName : 'All Stores';
+  getActiveStoreListFilterName() {
+    const storeList = this.dbEntityMarkerService.controls.storeList;
+    return storeList ? storeList.storeListName : 'All Stores';
   }
 
   getActiveMarkerTypeName() {

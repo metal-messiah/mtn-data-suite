@@ -82,3 +82,9 @@ mat-panel-description {
 mat-slider {
   width: 100%;
 }
+
+.control-label {
+  margin-bottom: 16px;
+  text-align: center;
+  font-weight: bold;
+}

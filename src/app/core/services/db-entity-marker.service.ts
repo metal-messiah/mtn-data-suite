@@ -251,7 +251,7 @@ export class DbEntityMarkerService {
       return false;
     }
 
-    // DATASET FILTER
+    // Store List FILTER
     if (this._controls.storeList && this._controls.storeList.storeIds && !this._controls.storeList.storeIds.includes(storeMarker.id)) {
       return false;
     }
@@ -290,7 +290,7 @@ export class DbEntityMarkerService {
     }
 
     const siteIsVacant = siteMarker.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
-    // If site is vacant, don't include if filtering by banner or dataset, or if showVacantSites isn't checked
+    // If site is vacant, don't include if filtering by banner or store list, or if showVacantSites isn't checked
     return !(siteIsVacant && (this._controls.banners.length > 0 || this._controls.storeList || !this._controls.showVacantSites));
   }
 

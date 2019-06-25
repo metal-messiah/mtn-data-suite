@@ -50,7 +50,7 @@ export class DbEntityMarkerControls {
 
   private reset() {
     //// FILTERS ////
-    // DATASET
+    // Store List
     this.storeList = null;
     // TYPE
     this.showActive = true;
