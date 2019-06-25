@@ -6,16 +6,44 @@ html, body, .viewport {
   display: flex;
 }
 
-mds-root {
+#mds-root {
   width: 100%;
+  height: 100%;
+}
+
+#splash-screen {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+
+#splash-screen-logo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center
+}
+
+#splash-screen-bottom {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin: 10px;
+  padding: 0 10px;
+  box-sizing: border-box;
 }
 
 .flex-space-between {
   justify-content: space-between;
 }
+
 .flex-space-around {
   justify-content: space-around;
 }
+
 .flex-justify-end {
   justify-content: flex-end;
 }
@@ -29,7 +57,7 @@ mds-root {
 }
 
 mat-form-field {
-  width:400px;
+  width: 400px;
   max-width: 100%;
 }
 
@@ -81,7 +109,7 @@ fieldset {
 
 .mds-card {
   margin: 10px 6px 6px 6px;
-  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.3);
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .3);
 }
 
 .mds-card .header {

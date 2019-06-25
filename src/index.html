@@ -19,13 +19,12 @@
   <script src="https://media-library.cloudinary.com/global/all.js"></script>
 </head>
 <body>
-<mds-root class="mat-app-background">
-  <div style="height: 100%; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-around;">
-    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center">
+<mds-root id="mds-root">
+  <div id="splash-screen">
+    <div id="splash-screen-logo">
       <img src="assets/images/icons/icon-310x310.png">
     </div>
-    <div
-      style="width: 100%; display: flex; justify-content: space-between; margin: 10px; padding: 0 10px; box-sizing: border-box;">
+    <div id="splash-screen-bottom">
       <div>Loading...</div>
       <button onclick="location.reload()">Refresh</button>
     </div>
