@@ -33,7 +33,7 @@ export class SidenavStoresOnMapComponent implements OnInit {
               private selectionService: EntitySelectionService) { }
 
   ngOnInit() {
-    this.storageService.set('casing-dashboard-store-list-view', 'map-stores');
+    this.storageService.set('casing-dashboard-store-list-view', 'map-stores').subscribe();
     this.storeListUIService.setSiteMarkers(this.dbEntityMarkerService.getVisibleSiteMarkers(), this.dbEntityMarkerService.controls);
     this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(() => {
       this.storeListUIService.setSiteMarkers(this.dbEntityMarkerService.getVisibleSiteMarkers(), this.dbEntityMarkerService.controls);

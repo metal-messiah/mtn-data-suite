@@ -64,7 +64,7 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
     // Get the list Id
     this.listId = parseInt(this.route.snapshot.paramMap.get('listId'), 10);
 
-    this.storageService.set('casing-dashboard-store-list-view', 'list-stores/' + this.listId);
+    this.storageService.set('casing-dashboard-store-list-view', 'list-stores/' + this.listId).subscribe();
 
     // Get the list
     this.storeListService.getOneById(this.listId).subscribe(storeList => {

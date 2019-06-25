@@ -14,7 +14,6 @@ import { SiteService } from './services/site.service';
 import { ProjectService } from './services/project.service';
 import { GeocoderService } from './services/geocoder.service';
 import { NavigatorService } from './services/navigator.service';
-import { MapService } from './services/map.service';
 import { StoreService } from './services/store.service';
 import { ShoppingCenterService } from './services/shopping-center.service';
 import { ShoppingCenterCasingService } from './services/shopping-center-casing.service';
@@ -34,7 +33,6 @@ import { StorageService } from './services/storage.service';
 import { SourceUpdatableService } from './services/source-updatable.service';
 import { BannerSourceService } from './services/banner-source.service';
 import { StoreListService } from './services/store-list.service';
-import { DbEntityMarkerService } from './services/db-entity-marker.service';
 
 @NgModule({
   imports: [CommonModule],

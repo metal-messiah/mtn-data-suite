@@ -3,8 +3,9 @@
 import { Injectable } from '@angular/core';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
-import { Observable, of, Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { StorageService } from './storage.service';
 
 /*
   The MapService should
@@ -15,7 +16,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
  */
 @Injectable()
 export class MapService {
+
+  readonly ST_MAP_PERSPECTIVE = 'mapPerspective';
+
   private map: google.maps.Map;
+
   boundsChanged$: Subject<{ east; north; south; west }>;
   mapClick$: Subject<Coordinates>;
 
@@ -72,7 +77,8 @@ export class MapService {
     return map.getProjection().fromPointToLatLng(worldPoint);
   }
 
-  constructor(private snackBar: MatSnackBar) {
+  constructor(private snackBar: MatSnackBar,
+              private storageService: StorageService) {
     this.dataPointFeatures = [];
   }
 
@@ -102,9 +108,7 @@ export class MapService {
       }
     });
     this.map.addListener('maptypeid_changed', () => this.savePerspective());
-    this.map.addListener('click', event =>
-      this.mapClick$.next(event.latLng.toJSON())
-    );
+    this.map.addListener('click', event => this.mapClick$.next(event.latLng.toJSON()));
 
     // Setup Drawing Manager
     this.drawingManager = new google.maps.drawing.DrawingManager();
@@ -137,7 +141,7 @@ export class MapService {
   }
 
   private loadPerspective() {
-    of(localStorage.getItem('mapPerspective')).subscribe(perspective => {
+    this.storageService.getOne(this.ST_MAP_PERSPECTIVE).subscribe(perspective => {
       if (perspective != null) {
         perspective = JSON.parse(perspective);
         this.map.setCenter(perspective['center']);
@@ -148,12 +152,7 @@ export class MapService {
   }
 
   savePerspective() {
-    of(
-      localStorage.setItem(
-        'mapPerspective',
-        JSON.stringify(this.getPerspective())
-      )
-    ).subscribe();
+    this.storageService.set(this.ST_MAP_PERSPECTIVE, JSON.stringify(this.getPerspective())).subscribe();
   }
 
   drawingModeIs(mode: string) {

@@ -67,9 +67,9 @@ export class CasingDashboardService {
     const prevProject = this.selectedProject;
     this.selectedProject = project;
     if (project) {
-      this.storageService.set(this.SELECTED_PROJECT_KEY, JSON.stringify(project));
+      this.storageService.set(this.SELECTED_PROJECT_KEY, JSON.stringify(project)).subscribe();
     } else {
-      this.storageService.removeOne(this.SELECTED_PROJECT_KEY);
+      this.storageService.removeOne(this.SELECTED_PROJECT_KEY).subscribe();
     }
     // If there was no previous project OR if the selected project is not the same as previous
     if (!prevProject || (this.selectedProject && prevProject.id !== this.selectedProject.id)) {

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Pageable } from '../../models/pageable';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ResourceQuota } from '../../models/resource-quota';
 import { CrudService } from '../../interfaces/crud-service';

@@ -13,7 +13,7 @@ export class SidenavMenuComponent implements OnInit {
               private storageService: StorageService) { }
 
   ngOnInit() {
-    this.storageService.removeOne('casing-dashboard-store-list-view');
+    this.storageService.removeOne('casing-dashboard-store-list-view').subscribe();
   }
 
   navigateTo(endpoint: string) {

@@ -131,7 +131,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       if (multiSelect) {
         this.onMultiSelectEnabled()
       } else {
-        this.onMultiSelectDisabled()
+        this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        this.mapService.deactivateDrawingTools();
       }
     }));
   }
@@ -393,10 +394,12 @@ Geo-location
   /****************
    * Multi-select
    ****************/
+  // Selection Service now handles the flags and will emit an event which triggers UI changes in this and other components
   enableMultiSelect(): void {
     this.selectionService.setMultiSelect(true);
   }
 
+  // Called when selection service emits selection event
   private onMultiSelectEnabled() {
     this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
     // Activate Map Drawing Tools and listen for completed Shapes
@@ -426,11 +429,6 @@ Geo-location
 
   cancelMultiSelect(): void {
     this.selectionService.setMultiSelect(false);
-  }
-
-  private onMultiSelectDisabled() {
-    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.mapService.deactivateDrawingTools();
   }
 
   openDatabaseSearch() {

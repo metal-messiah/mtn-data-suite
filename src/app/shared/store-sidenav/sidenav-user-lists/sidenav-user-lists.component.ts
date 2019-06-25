@@ -42,7 +42,7 @@ export class SidenavUserListsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.storageService.set('casing-dashboard-store-list-view', 'my-store-lists');
+    this.storageService.set('casing-dashboard-store-list-view', 'my-store-lists').subscribe();
     this.getUserStoreLists();
     this.listChangeListener = this.storeListService.storeListUpdated$.subscribe(() => this.getUserStoreLists());
   }

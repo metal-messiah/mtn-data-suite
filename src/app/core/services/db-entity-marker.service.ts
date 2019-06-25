@@ -25,6 +25,7 @@ import { SimplifiedBanner } from '../../models/simplified/simplified-banner';
 @Injectable()
 export class DbEntityMarkerService {
 
+  private readonly ST_SITE_MARKERS = 'siteMarkers';
   private readonly SAVED_CONTROLS_STORAGE_KEY = ControlStorageKeys.savedDbEntityMarkerServiceControls;
   private readonly ACTIVE_CONTROLS_STORAGE_KEY = ControlStorageKeys.dbEntityMarkerServiceControls;
 
@@ -88,11 +89,12 @@ export class DbEntityMarkerService {
       {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 
     if (!this._controls.updateOnBoundsChange) {
-      const siteMarkersJson = localStorage.getItem('siteMarkers');
-      if (siteMarkersJson) {
-        JSON.parse(siteMarkersJson).forEach(sm => this.getMarkersForSite(new SiteMarker(sm)));
-        this.showHideMarkersInBounds();
-      }
+      this.storageService.getOne(this.ST_SITE_MARKERS).subscribe(siteMarkersJson => {
+        if (siteMarkersJson) {
+          JSON.parse(siteMarkersJson).forEach(sm => this.getMarkersForSite(new SiteMarker(sm)));
+          this.showHideMarkersInBounds();
+        }
+      });
     }
   }
 
@@ -124,7 +126,7 @@ export class DbEntityMarkerService {
         siteMarkers.forEach(sm => this.getMarkersForSite(sm));
 
         if (!this._controls.updateOnBoundsChange) {
-          localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
+          this.storageService.set(this.ST_SITE_MARKERS, JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker))).subscribe();
         }
       }))
     );
@@ -215,7 +217,7 @@ export class DbEntityMarkerService {
         savedControls = {};
       }
       savedControls[name] = new Control(name, new Date(), this._controls);
-      this.storageService.set(this.SAVED_CONTROLS_STORAGE_KEY, savedControls);
+      this.storageService.set(this.SAVED_CONTROLS_STORAGE_KEY, savedControls).subscribe();
     });
   }
 
@@ -225,11 +227,11 @@ export class DbEntityMarkerService {
   }
 
   private onControlsUpdated() {
-    this.storageService.set(this.ACTIVE_CONTROLS_STORAGE_KEY, this._controls);
+    this.storageService.set(this.ACTIVE_CONTROLS_STORAGE_KEY, this._controls).subscribe();
 
     // If user turns off auto refresh = re-pull the locations in view in order to preserve them
     if (!this._controls.updateOnBoundsChange) {
-      localStorage.setItem('siteMarkers', JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker)));
+      this.storageService.set(this.ST_SITE_MARKERS, JSON.stringify(this.siteMarkerCache.map(sm => sm.siteMarker))).subscribe();
     }
 
     this.refreshMarkers();

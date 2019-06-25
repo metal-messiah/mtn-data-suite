@@ -202,7 +202,7 @@ export class StoreListUIService {
 
   setSortType(sortType: SortType) {
     this.sortType = sortType;
-    this.storageService.set(this.SORT_TYPE_STORAGE_KEY, this.sortType);
+    this.storageService.set(this.SORT_TYPE_STORAGE_KEY, this.sortType).subscribe();
     this.sortSiteLists();
   }
 
@@ -212,7 +212,7 @@ export class StoreListUIService {
     } else {
       this.sortDirection = SortDirection.ASC;
     }
-    this.storageService.set(this.SORT_DIRECTION_STORAGE_KEY, this.sortDirection);
+    this.storageService.set(this.SORT_DIRECTION_STORAGE_KEY, this.sortDirection).subscribe();
     this.sortSiteLists();
   }
 

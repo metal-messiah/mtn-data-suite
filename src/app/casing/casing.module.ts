@@ -101,7 +101,7 @@ import { DbEntityControlsComponent } from './casing-dashboard/db-entity-controls
     DbLocationInfoCardComponent,
     GoogleInfoCardComponent
   ],
-  providers: [CasingDashboardService, StorageService]
+  providers: [CasingDashboardService]
 })
 export class CasingModule {
 }

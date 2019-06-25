@@ -8,10 +8,18 @@ import { RestService } from './rest.service';
 import { UserProfile } from '../../models/full/user-profile';
 import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { StorageService } from './storage.service';
 
 @Injectable()
 export class AuthService {
+
+  private readonly ST_SESSION_USER = 'session_user';
+  private readonly ST_ACCESS_TOKEN = 'access_token';
+  private readonly ST_ID_TOKEN = 'id_token';
+  private readonly ST_EXPIRATION_TIME = 'expiration_time';
+  private readonly ST_LATEST_PATH = 'latest_path';
 
   sessionUser: UserProfile;
   accessToken: string;
@@ -28,53 +36,62 @@ export class AuthService {
     scope: 'openid email profile'
   });
 
-  constructor(public router: Router,
+  constructor(private router: Router,
               private location: Location,
               private http: HttpClient,
               private rest: RestService,
+              private storageService: StorageService,
               private dialog: MatDialog) {
-    const storedSessionUser = localStorage.getItem('session_user');
-    const storedAccessToken = localStorage.getItem('access_token');
-    const storedIdToken = localStorage.getItem('id_token');
-    const storedTokenExpirationTime = localStorage.getItem('expiration_time');
-    const storedLatestPath = localStorage.getItem('latest_path');
-    if (storedSessionUser != null) {
-      this.sessionUser = JSON.parse(storedSessionUser);
-    }
-    if (storedAccessToken != null) {
-      this.accessToken = storedAccessToken;
-    }
-    if (storedIdToken != null) {
-      this.idToken = storedIdToken;
-    }
-    if (storedTokenExpirationTime != null) {
-      this.tokenExpirationTime = JSON.parse(storedTokenExpirationTime);
-    }
-    if (storedLatestPath != null) {
-      this.latestPath = storedLatestPath;
-    }
+    this.getValuesFromStorage();
   }
 
-  public signIn(): void {
-    // localStorage.clear();
-    localStorage.setItem('latest_path', this.location.path());
+  private getValuesFromStorage() {
+    this.storageService.getOne(this.ST_SESSION_USER).subscribe(storedSessionUser => {
+      if (storedSessionUser) {
+        this.sessionUser = JSON.parse(storedSessionUser);
+      }
+    });
+    this.storageService.getOne(this.ST_ACCESS_TOKEN).subscribe(storedAccessToken => {
+      if (storedAccessToken) {
+        this.rest.setAccessToken(storedAccessToken);
+        this.accessToken = storedAccessToken;
+      }
+    });
+    this.storageService.getOne(this.ST_ID_TOKEN).subscribe(storedIdToken => {
+      if (storedIdToken) {
+        this.idToken = storedIdToken;
+      }
+    });
+    this.storageService.getOne(this.ST_EXPIRATION_TIME).subscribe(storedTokenExpirationTime => {
+      if (storedTokenExpirationTime) {
+        this.tokenExpirationTime = JSON.parse(storedTokenExpirationTime);
+      }
+    });
+    this.storageService.getOne(this.ST_LATEST_PATH).subscribe(storedLatestPath => {
+      if (storedLatestPath) {
+        this.latestPath = storedLatestPath;
+      }
+    });
+  }
+
+  signIn(): void {
+    this.storageService.set(this.ST_LATEST_PATH, this.location.path()).subscribe();
     this.auth0.authorize();
   }
 
-  public handleAuthentication(): void {
+  handleAuthentication(): void {
     this.auth0.parseHash((err, authResult) => {
       if (authResult && authResult.accessToken && authResult.idToken) {
         window.location.hash = '';
-        this.setSession(authResult);
-        this.getUserProfile().subscribe(
-          userProfile => {
-            this.sessionUser = userProfile;
-            localStorage.setItem('session_user', JSON.stringify(userProfile));
-            this.router.navigate([localStorage.getItem('latest_path')]);
-          },
-          error => this.onError(error)
-        );
-
+        this.saveSession(authResult).subscribe(() => {
+          this.getUserProfile().subscribe(userProfile => {
+              this.sessionUser = userProfile;
+              this.storageService.set(this.ST_SESSION_USER, JSON.stringify(userProfile)).subscribe();
+              this.storageService.getOne(this.ST_LATEST_PATH).subscribe(latestPath => this.router.navigate([latestPath]));
+            },
+            error => this.onError(error)
+          );
+        });
       } else if (err) {
         this.onError(err);
       }
@@ -107,29 +124,38 @@ export class AuthService {
     return this.http.get<UserProfile>(url, {headers: this.rest.getHeaders()});
   }
 
-  private setSession(authResult): void {
+  private saveSession(authResult): Observable<any> {
     // Set the time that the access token will expire at
     const expirationTime = (authResult.expiresIn * 1000) + new Date().getTime();
     const expirationDate = new Date();
     expirationDate.setTime(expirationTime);
     console.log(`Session expires at ${expirationDate}`);
-    localStorage.setItem('access_token', authResult.accessToken);
-    localStorage.setItem('id_token', authResult.idToken);
-    localStorage.setItem('expiration_time', JSON.stringify(expirationTime));
+    this.rest.setAccessToken(authResult.accessToken);
+    const saveAccessToken = this.storageService.set(this.ST_ACCESS_TOKEN, authResult.accessToken);
+    const saveIdToken = this.storageService.set(this.ST_ID_TOKEN, authResult.idToken);
+    const saveExpirationTime = this.storageService.set(this.ST_EXPIRATION_TIME, JSON.stringify(expirationTime));
+    return forkJoin([saveAccessToken, saveIdToken, saveExpirationTime]);
   }
 
-  public logout(): void {
-    // Remove tokens and expiry time from localStorage
-    localStorage.clear();
-    // Go back to the home route
+  logout(): void {
+    this.storageService.removeOne(this.ST_SESSION_USER).subscribe();
+    this.storageService.removeOne(this.ST_ACCESS_TOKEN).subscribe();
+    this.storageService.removeOne(this.ST_ID_TOKEN).subscribe();
+    this.storageService.removeOne(this.ST_EXPIRATION_TIME).subscribe();
+    this.storageService.removeOne(this.ST_LATEST_PATH).subscribe();
     this.router.navigate(['/']);
+    location.reload();
   }
 
-  public isAuthenticated(): boolean {
-    // Check whether the current time is past the
-    // access token's expiry time
-    const expiresAt = JSON.parse(localStorage.getItem('expiration_time'));
-    return new Date().getTime() < expiresAt;
+  isAuthenticated(): Observable<boolean> {
+    // Check whether the current time is past the access token's expiry time
+    return this.storageService.getOne(this.ST_EXPIRATION_TIME).pipe(map(expirationTime => {
+      if (expirationTime) {
+        return new Date().getTime() < expirationTime;
+      } else {
+        return false;
+      }
+    }));
   }
 
 }

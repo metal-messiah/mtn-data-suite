@@ -28,7 +28,7 @@ export class StoredControlsSelectionDialogComponent {
 
   delete(control: Control) {
     delete this.originalSavedControlsObject[control.name];
-    this.storageService.set(ControlStorageKeys.savedDbEntityMarkerServiceControls, this.originalSavedControlsObject);
+    this.storageService.set(ControlStorageKeys.savedDbEntityMarkerServiceControls, this.originalSavedControlsObject).subscribe();
     this.setControlItems(this.originalSavedControlsObject);
   }
 
