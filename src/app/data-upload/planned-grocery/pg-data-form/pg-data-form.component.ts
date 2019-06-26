@@ -29,17 +29,17 @@ export class PgDataFormComponent implements OnChanges {
 
   saving = false;
 
-  dbStatuses = [
-    { displayName: 'Rumored', pgStatusId: -1, rank: 0 },
-    { displayName: 'Strong Rumor', pgStatusId: -1, rank: 0 },
-    { displayName: 'Dead Deal', pgStatusId: 99, rank: 1 },
-    { displayName: 'Proposed', pgStatusId: 2, rank: 1 },
-    { displayName: 'Planned', pgStatusId: 3, rank: 1 },
-    { displayName: 'New Under Construction', pgStatusId: 1, rank: 1 },
-    { displayName: 'Open', pgStatusId: 0, rank: 2 },
-    { displayName: 'Remodel', pgStatusId: -1, rank: 2 },
-    { displayName: 'Temporarily Closed', pgStatusId: -1, rank: 2 },
-    { displayName: 'Closed', pgStatusId: -1, rank: 3 }
+  private readonly dbStatuses = [
+    {displayName: 'Rumored', pgStatusId: -1, rank: 0},
+    {displayName: 'Strong Rumor', pgStatusId: -1, rank: 0},
+    {displayName: 'Dead Deal', pgStatusId: 99, rank: 1},
+    {displayName: 'Proposed', pgStatusId: 2, rank: 1},
+    {displayName: 'Planned', pgStatusId: 3, rank: 1},
+    {displayName: 'New Under Construction', pgStatusId: 1, rank: 1},
+    {displayName: 'Open', pgStatusId: 0, rank: 2},
+    {displayName: 'Remodel', pgStatusId: -1, rank: 2},
+    {displayName: 'Temporarily Closed', pgStatusId: -1, rank: 2},
+    {displayName: 'Closed', pgStatusId: -1, rank: 3}
   ];
   currentStatus: { displayName: string, pgStatusId: number, rank: number };
   pgStatus: { displayName: string, pgStatusId: number, rank: number };
@@ -48,11 +48,11 @@ export class PgDataFormComponent implements OnChanges {
   form: FormGroup;
 
   constructor(private pgService: PlannedGroceryService,
-    private errorService: ErrorService,
-    private fb: FormBuilder,
-    private dialog: MatDialog,
-    private sourceUpdatableService: SourceUpdatableService,
-    private snackBar: MatSnackBar) {
+              private errorService: ErrorService,
+              private fb: FormBuilder,
+              private dialog: MatDialog,
+              private sourceUpdatableService: SourceUpdatableService,
+              private snackBar: MatSnackBar) {
     this.createForm();
   }
 
@@ -120,15 +120,15 @@ export class PgDataFormComponent implements OnChanges {
 
   private getCurrentStatus(): { displayName: string, pgStatusId: number, rank: number } {
     if (!this.sourceUpdatable.storeStatuses || this.sourceUpdatable.storeStatuses.length < 1) {
-      return { displayName: 'NONE', pgStatusId: -1, rank: -1 };
+      return {displayName: 'NONE', pgStatusId: -1, rank: -1};
     }
     const pgEditedDateMs = this.pgFeature.attributes.EditDate;
     const relevantStatuses = this.sourceUpdatable.storeStatuses.filter(status => status.statusStartDate.getTime() <= pgEditedDateMs);
     const currentStatus = _.maxBy(relevantStatuses, 'statusStartDate');
     if (currentStatus) {
-      return _.find(this.dbStatuses, { displayName: currentStatus.status });
+      return _.find(this.dbStatuses, {displayName: currentStatus.status});
     } else {
-      return { displayName: 'NONE', pgStatusId: -1, rank: -1 };
+      return {displayName: 'NONE', pgStatusId: -1, rank: -1};
     }
   }
 
@@ -166,10 +166,10 @@ export class PgDataFormComponent implements OnChanges {
       .pipe(finalize(() => this.saving = false))
       .subscribe(
         result => {
-          this.snackBar.open(`Successfully updated record`, 'View', { duration: 4000 })
+          this.snackBar.open(`Successfully updated record`, 'View', {duration: 4000})
             .onAction().subscribe(() => {
-              window.open(location.origin + '/casing?store-id=' + result.id, '_blank');
-            });
+            window.open(location.origin + '/casing?store-id=' + result.id, '_blank');
+          });
 
           this.completedEvent.emit();
         },

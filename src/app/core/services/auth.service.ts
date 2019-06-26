@@ -133,18 +133,21 @@ export class AuthService {
     this.rest.setAccessToken(authResult.accessToken);
     const saveAccessToken = this.storageService.set(this.ST_ACCESS_TOKEN, authResult.accessToken);
     const saveIdToken = this.storageService.set(this.ST_ID_TOKEN, authResult.idToken);
-    const saveExpirationTime = this.storageService.set(this.ST_EXPIRATION_TIME, JSON.stringify(expirationTime));
+    const saveExpirationTime = this.storageService.set(this.ST_EXPIRATION_TIME, expirationTime);
     return forkJoin([saveAccessToken, saveIdToken, saveExpirationTime]);
   }
 
   logout(): void {
-    this.storageService.removeOne(this.ST_SESSION_USER).subscribe();
-    this.storageService.removeOne(this.ST_ACCESS_TOKEN).subscribe();
-    this.storageService.removeOne(this.ST_ID_TOKEN).subscribe();
-    this.storageService.removeOne(this.ST_EXPIRATION_TIME).subscribe();
-    this.storageService.removeOne(this.ST_LATEST_PATH).subscribe();
-    this.router.navigate(['/']);
-    location.reload();
+    const tasks = [];
+    tasks.push(this.storageService.removeOne(this.ST_SESSION_USER));
+    tasks.push(this.storageService.removeOne(this.ST_ACCESS_TOKEN));
+    tasks.push(this.storageService.removeOne(this.ST_ID_TOKEN));
+    tasks.push(this.storageService.removeOne(this.ST_EXPIRATION_TIME));
+    tasks.push(this.storageService.removeOne(this.ST_LATEST_PATH));
+    forkJoin(tasks).subscribe(() => {
+      this.router.navigate(['/']);
+      location.reload();
+    });
   }
 
   isAuthenticated(): Observable<boolean> {

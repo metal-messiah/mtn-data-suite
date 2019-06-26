@@ -28,14 +28,14 @@ export class SiteService extends CrudService<Site> {
   getAllByIds(ids: number[]) {
     const url = this.rest.getHost() + this.endpoint;
     const params = new HttpParams().set('ids', ids.toString());
-    return this.http.get<Site[]>(url, { headers: this.rest.getHeaders(), params: params })
+    return this.http.get<Site[]>(url, {headers: this.rest.getHeaders(), params: params})
       .pipe(map(sites => sites.map(site => new SimplifiedSite(site))));
   }
 
 
   addNewStore(siteId: number, store: Store) {
     const url = this.rest.getHost() + this.endpoint + '/' + siteId + '/store';
-    return this.http.post<Store>(url, store, { headers: this.rest.getHeaders() })
+    return this.http.post<Store>(url, store, {headers: this.rest.getHeaders()})
       .pipe(map((savedStore) => new Store(savedStore)));
   }
 
@@ -45,7 +45,7 @@ export class SiteService extends CrudService<Site> {
     _.forEach(bounds, function (value, key) {
       params = params.set(key, value);
     });
-    return this.http.get<Coordinates[]>(url, { headers: this.rest.getHeaders(), params: params })
+    return this.http.get<Coordinates[]>(url, {headers: this.rest.getHeaders(), params: params})
   }
 
   assignSitesToUser(siteIds: number[], userId: number) {
@@ -54,7 +54,7 @@ export class SiteService extends CrudService<Site> {
     if (userId != null) {
       params = params.set('user-id', String(userId));
     }
-    return this.http.post<SimplifiedSite[]>(url, siteIds, { headers: this.rest.getHeaders(), params: params })
+    return this.http.post<SimplifiedSite[]>(url, siteIds, {headers: this.rest.getHeaders(), params: params})
       .pipe(map(sites => sites.map(site => new SimplifiedSite(site))));
   }
 
@@ -64,7 +64,7 @@ export class SiteService extends CrudService<Site> {
     if (userId != null) {
       params = params.set('user-id', String(userId));
     }
-    return this.http.post<Site>(url, null, { headers: this.rest.getHeaders(), params: params })
+    return this.http.post<Site>(url, null, {headers: this.rest.getHeaders(), params: params})
       .pipe(map(s => new Site(s)));
   }
 
@@ -77,7 +77,7 @@ export class SiteService extends CrudService<Site> {
   }
 
   getCoordinates(site: Site | SimplifiedSite): Coordinates {
-    return { lat: site.latitude, lng: site.longitude };
+    return {lat: site.latitude, lng: site.longitude};
   }
 
   mergeSites(mergedSite: Site, siteIds: number[]) {
@@ -86,7 +86,7 @@ export class SiteService extends CrudService<Site> {
       mergedSite: mergedSite,
       siteIds: siteIds
     };
-    return this.http.post<SimplifiedSite>(url, body, { headers: this.rest.getHeaders() })
+    return this.http.post<SimplifiedSite>(url, body, {headers: this.rest.getHeaders()})
   }
 
 }

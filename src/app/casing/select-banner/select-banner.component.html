@@ -8,7 +8,7 @@
         <mat-form-field floatLabel="never" id="searchField">
           <i matPrefix class="fas fa-search"></i>
           <input matInput autofocus type="search" #bannerSearchBox placeholder="Banner Name" [disabled]="loading"
-            [(ngModel)]="bannerQuery" name="bannerQuery" />
+                 [(ngModel)]="bannerQuery" name="bannerQuery"/>
         </mat-form-field>
       </div>
       <mat-progress-bar id="loadingProgressBar" mode="indeterminate" *ngIf="loading"></mat-progress-bar>
