@@ -14,10 +14,21 @@
   <meta name="theme-color" content="#f48c5b">
 
   <link rel="manifest" href="/manifest.json">
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ&libraries=geometry,drawing,places"></script>
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ&libraries=geometry,drawing,places"></script>
   <script src="https://media-library.cloudinary.com/global/all.js"></script>
 </head>
 <body>
-  <mds-root class="mat-app-background">Loading...</mds-root>
+<mds-root id="mds-root">
+  <div id="splash-screen">
+    <div id="splash-screen-logo">
+      <img src="assets/images/icons/icon-310x310.png">
+    </div>
+    <div id="splash-screen-bottom">
+      <div>Loading...</div>
+      <button onclick="location.reload()">Refresh</button>
+    </div>
+  </div>
+</mds-root>
 </body>
 </html>

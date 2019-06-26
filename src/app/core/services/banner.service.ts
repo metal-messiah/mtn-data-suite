@@ -15,6 +15,7 @@ export class BannerService extends CrudService<Banner> {
   constructor(protected http: HttpClient, protected rest: RestService) {
     super(http, rest);
   }
+
   public getAllByQuery(query: string, pageNumber?: number): Observable<Pageable<SimplifiedBanner>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams().set('sort', 'bannerName');
@@ -31,7 +32,7 @@ export class BannerService extends CrudService<Banner> {
     return new Banner(entityObj);
   }
 
-  getBannerImageSrc(banner: Banner) {
+  getBannerImageSrc(banner: Banner | SimplifiedBanner) {
     return `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_40,w_100/${banner.logoFileName}`;
   }
 

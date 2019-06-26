@@ -1,0 +1,43 @@
+:host {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  height: 48px;
+  background: #799daf;
+}
+
+.toolbar > * {
+  flex: 1;
+}
+
+.toolbar > *:last-child {
+  text-align: right;
+}
+
+h1 {
+  text-align: center;
+}
+
+.select-all-button:hover {
+  color: orange;
+  cursor: pointer;
+}
+
+button.mat-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 220px;
+}
+
+button.mat-menu-item > span {
+  text-align: center;
+  flex: 1;
+}
+
+#more-menu-button > span.mat-badge-content {
+  top: 0 !important;
+}

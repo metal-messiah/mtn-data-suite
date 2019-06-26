@@ -1,6 +1,8 @@
 // UTILITIES
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Sort, MatSidenav, MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSidenav } from '@angular/material/sidenav';
+import { Sort } from '@angular/material/sort';
 import { Router } from '@angular/router';
 
 // SERVICES
@@ -42,7 +44,7 @@ export class ChainXyTableComponent implements OnInit {
 
   bannerImages = {};
 
-  @ViewChild('sidenav') sidenav: MatSidenav;
+  @ViewChild('sidenav', { static: true }) sidenav: MatSidenav;
 
   constructor(
     private router: Router,

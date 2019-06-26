@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatStepper } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatStepper } from '@angular/material/stepper';
 import { FormGroup, FormBuilder } from '@angular/forms';
 
 import { SimplifiedCompany } from 'app/models/simplified/simplified-company';
@@ -46,7 +47,7 @@ export class AssignFieldsDialogComponent implements OnInit {
   volumeDate = null;
   volumeType: string = null;
 
-  @ViewChild('stepper') stepper: MatStepper;
+  @ViewChild('stepper', {static: true}) stepper: MatStepper;
 
   MatDialog;
 
@@ -160,7 +161,6 @@ export class AssignFieldsDialogComponent implements OnInit {
       this.bannerService.getOneById(bannerId).subscribe(
         (b: Banner) => {
           this.form.value.banner = b;
-          console.log(this.form.value);
         },
         () => this.getBannersFromCompany(attempts + 1) // failsafe
       );

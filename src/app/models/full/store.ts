@@ -8,9 +8,9 @@ import { SimplifiedStoreStatus } from '../simplified/simplified-store-status';
 import { SimplifiedStoreSurvey } from '../simplified/simplified-store-survey';
 import { SimplifiedUserProfile } from '../simplified/simplified-user-profile';
 import { DateUtil } from '../../utils/date-util';
+import { SimplifiedStoreList } from '../simplified/simplified-store-list';
 
 export class Store extends AuditingEntity {
-
   storeName: string;
   storeNumber: string;
   storeType: string;
@@ -40,6 +40,8 @@ export class Store extends AuditingEntity {
   storeVolumes: SimplifiedStoreVolume[];
   storeStatuses: SimplifiedStoreStatus[];
 
+  storeLists: SimplifiedStoreList[];
+
   constructor(obj) {
     super(obj);
     Object.assign(this, obj);
@@ -57,37 +59,40 @@ export class Store extends AuditingEntity {
     }
     if (obj.storeCasings != null) {
       this.storeCasings = obj.storeCasings
-        .map(casing => new SimplifiedStoreCasing(casing))
+        .map((casing) => new SimplifiedStoreCasing(casing))
         .sort((a: SimplifiedStoreCasing, b: SimplifiedStoreCasing) => {
           return new Date(b.casingDate).getTime() - new Date(a.casingDate).getTime();
         });
     }
     if (obj.models != null) {
       this.models = obj.models
-        .map(model => new SimplifiedStoreModel(model))
+        .map((model) => new SimplifiedStoreModel(model))
         .sort((a: SimplifiedStoreModel, b: SimplifiedStoreModel) => {
           return b.modelDate.getTime() - a.modelDate.getTime();
-      });
+        });
     }
     if (obj.storeVolumes != null) {
       this.storeVolumes = obj.storeVolumes
-        .map(volume => new SimplifiedStoreVolume(volume))
+        .map((volume) => new SimplifiedStoreVolume(volume))
         .sort((a: SimplifiedStoreVolume, b: SimplifiedStoreVolume) => {
           return b.volumeDate.getTime() - a.volumeDate.getTime();
         });
     }
     if (obj.storeStatuses != null) {
       this.storeStatuses = obj.storeStatuses
-        .map(status => new SimplifiedStoreStatus(status))
+        .map((status) => new SimplifiedStoreStatus(status))
         .sort((a: SimplifiedStoreStatus, b: SimplifiedStoreStatus) => {
           return b.statusStartDate.getTime() - a.statusStartDate.getTime();
         });
+    }
+    if (obj.storeLists != null) {
+      this.storeLists = obj.storeLists.map((status) => new SimplifiedStoreList(status));
     }
     if (obj.validatedBy) {
       this.validatedBy = new SimplifiedUserProfile(obj.validatedBy);
     }
     if (obj.validatedDate) {
-      this.validatedDate = DateUtil.getDate(obj.validatedDate)
+      this.validatedDate = DateUtil.getDate(obj.validatedDate);
     }
   }
 }

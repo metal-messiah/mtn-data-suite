@@ -16,7 +16,7 @@
     <mat-divider></mat-divider>
     <div class="row content">
       <mat-list>
-        <div *ngFor="let banner of banners" >
+        <div *ngFor="let banner of banners">
           <mat-list-item (click)="selectBanner(banner)" class="banner-list-item">
             <img *ngIf="banner.logoFileName" [src]="getBannerImageSrc(banner)" [alt]="banner.bannerName">
             <h3 matLine>{{banner.bannerName}}</h3>
@@ -32,5 +32,4 @@
 </div>
 <div mat-dialog-actions class="flex-space-around">
   <button mat-raised-button mat-dialog-close>Cancel</button>
-  <button mat-raised-button mat-dialog-close="remove" color="primary">Remove Banner</button>
 </div>

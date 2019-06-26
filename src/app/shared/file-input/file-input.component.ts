@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { MatSnackBar, MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import * as XLSX from 'xlsx';
 import { WorkBook, WorkSheet } from 'xlsx';
 import { TabSelectDialogComponent } from './tab-select-dialog/tab-select-dialog.component';
@@ -7,7 +8,7 @@ import { TabSelectDialogComponent } from './tab-select-dialog/tab-select-dialog.
 @Component({
     selector: 'mds-file-input',
     templateUrl: './file-input.component.html',
-    styleUrls: [ './file-input.component.css' ]
+    styleUrls: ['./file-input.component.css']
 })
 export class FileInputComponent implements OnInit {
     @Input() fileTypes = '*'; // file_extension|audio/*|video/*|image/*|media_type
@@ -25,33 +26,26 @@ export class FileInputComponent implements OnInit {
         this.fileReader = new FileReader();
     }
 
-    ngOnInit() {}
+    ngOnInit() { }
 
     resetFile() {
         this.file = null;
     }
 
     readFile(event) {
-        // console.log(this.outputType);
-
         this.resetFile();
-
         const files = event.target.files;
 
         if (files && files.length === 1) {
             // only want 1 file at a time!
-
             this.file = files[0];
             this.fileReader.onload = () => {
-                // console.log(this.fileReader.result);
                 if (this.fileReader.result) {
                     if (this.file.name.includes('.xls')) {
                         const wb: XLSX.WorkBook = XLSX.read(this.fileReader.result, {
                             type: 'binary'
                         });
-
                         const sheetNames = Object.keys(wb.Sheets);
-
                         const dialogRef = this.dialog.open(TabSelectDialogComponent, { data: { sheetNames } });
                         dialogRef.afterClosed().subscribe((selectedSheet) => {
                             Object.keys(wb.Sheets).forEach((key: string, i: number) => {

@@ -1,0 +1,91 @@
+<div class="sort-toolbar">
+  <mat-form-field>
+    <mat-label>Sort Results</mat-label>
+    <mat-select [value]="sortType" #sortTypeSelect (selectionChange)="setSortType($event)">
+      <mat-optgroup *ngFor="let group of sortGroups" [label]="group.name">
+        <mat-option *ngFor="let key of group.keys" [value]="key">
+          {{key}}
+        </mat-option>
+      </mat-optgroup>
+    </mat-select>
+  </mat-form-field>
+  <button mat-icon-button (click)="toggleSortDirection()">
+    <i class="fas fa-2x"
+       [ngClass]="sortDirection === SortDirection.DESC ? 'fa-sort-alpha-up' : 'fa-sort-alpha-down'"></i>
+  </button>
+</div>
+<mat-tab-group id="store-type-tabs" #tabGroup [(selectedIndex)]="selectedTabIndex">
+  <mat-tab label="Vacant" *ngIf="showVacancies">
+    <ng-template matTabContent>
+      <div *ngIf="vacantSites.length === 0" style="text-align: center; margin-top: 10px;">
+        No Sites to Show
+      </div>
+      <div *ngIf="multiSelecting && vacantSites.length > 0" class="select-all">
+        <mat-checkbox (change)="selectAllInList(vacantSites, $event)">Select All</mat-checkbox>
+      </div>
+      <cdk-virtual-scroll-viewport *ngIf="vacantSites.length > 0" #virtualScroll itemSize="85" class="list-of-items">
+        <ng-container *cdkVirtualFor="let siteListItem of vacantSites">
+          <div class="site">
+            <div class="site-info">
+              <div>
+                <div class="address">{{siteListItem.address}}</div>
+                <div class="intersection">{{siteListItem.intersection}}</div>
+              </div>
+              <button mat-icon-button class="show-on-map-button" (click)="showOnMap(siteListItem)" title="Center On Map">
+                <i class="fas fa-map-marked-alt"></i>
+              </button>
+            </div>
+            <div class="sort-subtext">{{getSortByText(siteListItem)}}</div>
+            <div class="store-info">
+              <div class="store store-info-item" (click)="selectSite(siteListItem.siteId)"
+                   [ngClass]="{'highlighted': siteIsSelected(siteListItem.siteId)}">
+                <div class="store-descriptions">
+                  <div class="store-name">Vacant Site</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </cdk-virtual-scroll-viewport>
+    </ng-template>
+  </mat-tab>
+  <mat-tab *ngFor="let storeTab of storeTabs" [label]="storeTab.tabTitle">
+    <ng-template matTabContent>
+      <div *ngIf="storeTab.getStores().length === 0" style="text-align: center; margin-top: 10px;">
+        No Stores to Show
+      </div>
+      <div *ngIf="multiSelecting && storeTab.getStores().length > 0" class="select-all">
+        <mat-checkbox (change)="selectAllInList(storeTab.getStores(), $event)">Select All</mat-checkbox>
+      </div>
+      <cdk-virtual-scroll-viewport *ngIf="storeTab.getStores().length > 0" #virtualScroll itemSize="78"
+                                   class="list-of-items">
+        <ng-container *cdkVirtualFor="let siteListItem of storeTab.getStores()">
+          <div class="site">
+            <div class="site-info">
+              <div>
+                <div class="address">{{siteListItem.address}}</div>
+                <div class="intersection">{{siteListItem.intersection}}</div>
+              </div>
+              <button mat-icon-button class="show-on-map-button" (click)="showOnMap(siteListItem)"
+                      title="Center On Map">
+                <i class="fas fa-map-marked-alt"></i>
+              </button>
+            </div>
+            <div class="sort-subtext">{{getSortByText(siteListItem)}}</div>
+            <div class="store-info">
+              <div class="store store-info-item" (click)="selectStore(siteListItem.siteId, siteListItem.store.id)"
+                   [ngClass]="{'highlighted': storeIsSelected(siteListItem.store.id)}">
+                <div class="store-descriptions">
+                  <div class="store-name">{{siteListItem.store.storeName}}</div>
+                </div>
+                <img *ngIf="siteListItem.store.logoFileName" class="store-logo"
+                     [src]="getLogoPath(siteListItem.store.logoFileName)"/>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </cdk-virtual-scroll-viewport>
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>
+

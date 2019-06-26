@@ -22,9 +22,24 @@ import { TabSelectDialogComponent } from './file-input/tab-select-dialog/tab-sel
 import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
 import { GoogleInfoCardComponent } from './google-info-card/google-info-card.component';
 import { FuzzySearchComponent } from './fuzzy-search/fuzzy-search.component';
+import { StoresListComponent } from './stores-list/stores-list.component';
+import { AddRemoveStoresListDialogComponent } from './add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
+import { TextInputDialogComponent } from './text-input-dialog/text-input-dialog.component';
+import { StoredControlsSelectionDialogComponent } from './stored-controls-selection-dialog/stored-controls-selection-dialog.component';
+import { SimpleSelectDialogComponent } from './simple-select-dialog/simple-select-dialog.component';
+import { SidenavMenuComponent } from './store-sidenav/sidenav-menu/sidenav-menu.component';
+import { SidenavStoresOnMapComponent } from './store-sidenav/sidenav-stores-on-map/sidenav-stores-on-map.component';
+import { SidenavUserListsComponent } from './store-sidenav/sidenav-user-lists/sidenav-user-lists.component';
+import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-list/sidenav-stores-in-list.component';
 
 @NgModule({
-  imports: [CommonModule, CustomMaterialModule, RouterModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    CustomMaterialModule,
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule
+  ],
   declarations: [
     AppInfoDialogComponent,
     CallbackComponent,
@@ -35,6 +50,7 @@ import { FuzzySearchComponent } from './fuzzy-search/fuzzy-search.component';
     ErrorDialogComponent,
     FileInputComponent,
     FuzzySearchComponent,
+    FuzzySearchComponent,
     GoogleInfoCardComponent,
     LogoMenuComponent,
     MapComponent,
@@ -42,7 +58,16 @@ import { FuzzySearchComponent } from './fuzzy-search/fuzzy-search.component';
     PathNotFoundComponent,
     TabSelectDialogComponent,
     ThousandsCurrencyPipe,
-    UserProfileSelectComponent
+    UserProfileSelectComponent,
+    StoresListComponent,
+    AddRemoveStoresListDialogComponent,
+    TextInputDialogComponent,
+    StoredControlsSelectionDialogComponent,
+    SimpleSelectDialogComponent,
+    SidenavMenuComponent,
+    SidenavStoresOnMapComponent,
+    SidenavUserListsComponent,
+    SidenavStoresInListComponent
   ],
   providers: [
     BreakpointObserver,
@@ -56,7 +81,11 @@ import { FuzzySearchComponent } from './fuzzy-search/fuzzy-search.component';
     ErrorDialogComponent,
     NewProjectNameComponent,
     TabSelectDialogComponent,
-    UserProfileSelectComponent
+    UserProfileSelectComponent,
+    AddRemoveStoresListDialogComponent,
+    TextInputDialogComponent,
+    StoredControlsSelectionDialogComponent,
+    SimpleSelectDialogComponent
   ],
   exports: [
     CallbackComponent,
@@ -74,7 +103,10 @@ import { FuzzySearchComponent } from './fuzzy-search/fuzzy-search.component';
     MapComponent,
     PathNotFoundComponent,
     ReactiveFormsModule,
-    ThousandsCurrencyPipe
+    ThousandsCurrencyPipe,
+    CustomMaterialModule,
+    StoresListComponent,
+    AddRemoveStoresListDialogComponent
   ]
 })
 export class SharedModule {

@@ -4,8 +4,6 @@ import { StoreListItem } from '../../models/store-list-item';
 import { ReportBuilderService } from '../services/report-builder.service';
 
 import * as _ from 'lodash';
-import { map, tap } from 'rxjs/operators';
-import { forkJoin } from 'rxjs';
 
 export class JsonToTablesUtil {
 

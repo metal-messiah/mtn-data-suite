@@ -3,7 +3,8 @@ import { FormControl, Validators } from '@angular/forms';
 import { Project } from '../../models/full/project';
 import { finalize } from 'rxjs/internal/operators';
 import { ProjectService } from '../../core/services/project.service';
-import { MatDialogRef, MatSnackBar } from '@angular/material';
+import { MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ErrorService } from '../../core/services/error.service';
 
 @Component({

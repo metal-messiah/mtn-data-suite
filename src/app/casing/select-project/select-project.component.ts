@@ -3,7 +3,8 @@ import { ProjectService } from '../../core/services/project.service';
 import { Project } from '../../models/full/project';
 import { Pageable } from '../../models/pageable';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatSnackBar } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent } from 'rxjs';
 import { finalize } from 'rxjs/internal/operators';
 import { Router } from '@angular/router';
@@ -32,7 +33,7 @@ export class SelectProjectComponent implements OnInit {
   gettingProject = false;
   loading = false;
 
-  @ViewChild('projectSearchBox') projectSearchBoxElement: ElementRef;
+  @ViewChild('projectSearchBox', { static: true }) projectSearchBoxElement: ElementRef;
 
   constructor(public dialogRef: MatDialogRef<SelectProjectComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
@@ -90,7 +91,6 @@ export class SelectProjectComponent implements OnInit {
   }
 
   editProject(project: Project): void {
-    // TODO Navigate to edit project page
     this.dialogRef.close();
     this.router.navigate(['casing/project', project.id]);
   }

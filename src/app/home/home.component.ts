@@ -9,25 +9,32 @@ import { environment } from '../../environments/environment';
 })
 export class HomeComponent implements OnInit {
 
-  constructor(public auth: AuthService) { }
+  isAuthenticated = false;
+
+  constructor(private auth: AuthService) {
+  }
 
   ngOnInit() {
     console.log(environment.VERSION);
+    this.auth.isAuthenticated().subscribe(authenticated => this.isAuthenticated = authenticated);
+  }
+
+  signIn() {
+    this.auth.signIn();
   }
 
   userIsAdmin(): boolean {
-    const role = this.auth.sessionUser.role;
-    if (role != null) {
-      return role.displayName.toLowerCase().includes('admin');
+    if (this.auth.sessionUser && this.auth.sessionUser.role) {
+      return this.auth.sessionUser.role.displayName.toLowerCase().includes('admin');
+    } else {
+      return false;
     }
-    return false;
   }
 
   // If Admin or group includes words 'support' or 'analyst'
   userCanExtract(): boolean {
-    const group = this.auth.sessionUser.group;
-    if (group != null) {
-      const groupName = group.displayName.toLowerCase();
+    if (this.auth.sessionUser && this.auth.sessionUser.group) {
+      const groupName = this.auth.sessionUser.group.displayName.toLowerCase();
       return groupName.includes('support') || groupName.includes('analyst') || this.userIsAdmin();
     }
     return this.userIsAdmin();
@@ -35,9 +42,8 @@ export class HomeComponent implements OnInit {
 
   // If Admin or group includes words 'support' or 'analyst'
   userCanUpload(): boolean {
-    const group = this.auth.sessionUser.group;
-    if (group != null) {
-      const groupName = group.displayName.toLowerCase();
+    if (this.auth.sessionUser && this.auth.sessionUser.group) {
+      const groupName = this.auth.sessionUser.group.displayName.toLowerCase();
       return groupName.includes('support') || this.userIsAdmin();
     }
     return this.userIsAdmin();
@@ -45,9 +51,8 @@ export class HomeComponent implements OnInit {
 
   // If Admin or group includes word 'support'
   userIsSupport(): boolean {
-    const group = this.auth.sessionUser.group;
-    if (group != null) {
-      return group.displayName.toLowerCase().includes('support') || this.userIsAdmin();
+    if (this.auth.sessionUser && this.auth.sessionUser.group) {
+      return this.auth.sessionUser.group.displayName.toLowerCase().includes('support') || this.userIsAdmin();
     }
     return this.userIsAdmin();
   }
@@ -59,9 +64,8 @@ export class HomeComponent implements OnInit {
 
   // For now, only allow admins to see broker stuff
   userIsBroker(): boolean {
-    const role = this.auth.sessionUser.role;
-    if (role != null) {
-      return role.displayName.toLowerCase().includes('admin');
+    if (this.auth.sessionUser && this.auth.sessionUser.role) {
+      return this.auth.sessionUser.role.displayName.toLowerCase().includes('admin');
     }
     return false;
   }

@@ -7,7 +7,8 @@ import { SourceUpdatable } from '../../../models/source-updatable';
 import { PlannedGroceryService } from '../planned-grocery-service.service';
 import { ErrorService } from '../../../core/services/error.service';
 import { SimplifiedStoreStatus } from '../../../models/simplified/simplified-store-status';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { QuadDialogComponent } from '../../../casing/quad-dialog/quad-dialog.component';
 import { SourceUpdatableService } from '../../../core/services/source-updatable.service';
 import { SimplifiedStoreSource } from '../../../models/simplified/simplified-store-source';
@@ -28,7 +29,7 @@ export class PgDataFormComponent implements OnChanges {
 
   saving = false;
 
-  dbStatuses = [
+  private readonly dbStatuses = [
     {displayName: 'Rumored', pgStatusId: -1, rank: 0},
     {displayName: 'Strong Rumor', pgStatusId: -1, rank: 0},
     {displayName: 'Dead Deal', pgStatusId: 99, rank: 1},
@@ -59,7 +60,6 @@ export class PgDataFormComponent implements OnChanges {
     if (!(this.pgFeature && this.sourceUpdatable && this.storeSource)) {
       this.cancelEvent.emit();
     } else {
-      console.log(this.pgFeature);
       if (!this.sourceUpdatable.siteId) {
         this.sourceUpdatable.latitude = this.pgFeature.geometry.y;
         this.sourceUpdatable.longitude = this.pgFeature.geometry.x;
