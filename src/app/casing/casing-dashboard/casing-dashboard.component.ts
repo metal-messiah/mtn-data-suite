@@ -442,7 +442,7 @@ Geo-location
   }
 
   openGoogleSearch() {
-    const googleSearchDialog = this.dialog.open(GoogleSearchComponent);
+    const googleSearchDialog = this.dialog.open(GoogleSearchComponent, {data: {mapService: this.mapService}});
     googleSearchDialog.afterClosed().subscribe(result => {
       if (result != null) {
         // Create google point layer

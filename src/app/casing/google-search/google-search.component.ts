@@ -1,8 +1,9 @@
-import { Component, NgZone } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject, NgZone } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { GooglePlace } from '../../models/google-place';
 import { MapService } from '../../core/services/map.service';
 import { finalize } from 'rxjs/operators';
+import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'mds-search',
@@ -17,9 +18,17 @@ export class GoogleSearchComponent {
   searching = false;
   limitToView = false;
 
-  constructor(public dialogRef: MatDialogRef<GoogleSearchComponent>,
-              private mapService: MapService,
+  mapService: MapService;
+
+  constructor(private dialogRef: MatDialogRef<GoogleSearchComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: { mapService: MapService },
               private ngZone: NgZone) {
+    if (!data || !data.mapService) {
+      console.error('mapService must be provided by caller of GoogleSearchComponent!');
+      this.dialogRef.close();
+    } else {
+      this.mapService = data.mapService;
+    }
   }
 
   closeDialog() {
