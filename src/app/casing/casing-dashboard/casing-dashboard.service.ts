@@ -29,7 +29,7 @@ export class CasingDashboardService {
   private getPersistedState() {
     this.storageService.getOne(this.SELECTED_PROJECT_KEY).subscribe(selectedProject => {
       if (selectedProject) {
-        this.selectedProject = selectedProject;
+        this.selectedProject = new SimplifiedProject(JSON.parse(selectedProject));
       }
     });
 
