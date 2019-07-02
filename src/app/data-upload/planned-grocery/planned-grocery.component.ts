@@ -33,7 +33,7 @@ import { SimplifiedStoreSource } from '../../models/simplified/simplified-store-
   selector: 'mds-planned-grocery',
   templateUrl: './planned-grocery.component.html',
   styleUrls: ['./planned-grocery.component.css'],
-  providers: [PlannedGroceryService]
+  providers: [PlannedGroceryService, MapService]
 })
 export class PlannedGroceryComponent implements OnInit {
   PLANNED_GROCERY_SOURCE_NAME = 'Planned Grocery';
