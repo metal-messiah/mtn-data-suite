@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material';
 import { SwUpdate } from '@angular/service-worker';
 
 @Injectable({
@@ -28,7 +28,7 @@ export class UpdateService {
         console.log('Checked for update', response);
       });
     } else {
-      this.snackbar.open('Service Worker Not Active', null, {duration: 2000});
+      this.snackbar.open('Service Worker Not Active', null, {duration: 2000, verticalPosition: 'top'});
     }
   }
 }

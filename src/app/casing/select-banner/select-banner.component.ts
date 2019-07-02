@@ -1,5 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ErrorService } from '../../core/services/error.service';
 import { fromEvent } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, map, switchMap } from 'rxjs/operators';
@@ -21,11 +21,12 @@ export class SelectBannerComponent implements OnInit {
 
   loading = false;
 
-  @ViewChild('bannerSearchBox', { static: true }) bannerSearchBoxElement: ElementRef;
+  @ViewChild('bannerSearchBox', {static: true}) bannerSearchBoxElement: ElementRef;
 
   constructor(public dialogRef: MatDialogRef<SelectBannerComponent>,
-    private errorService: ErrorService,
-    private bannerService: BannerService) {
+              private errorService: ErrorService,
+              private bannerService: BannerService,
+              @Inject(MAT_DIALOG_DATA) public data: any) {
   }
 
   ngOnInit() {
@@ -50,7 +51,8 @@ export class SelectBannerComponent implements OnInit {
     this.bannerService.getAllByQuery(this.bannerQuery, ++this.pageNumber)
       .pipe(finalize(() => this.loading = false))
       .subscribe((pageable: Pageable<SimplifiedBanner>) => this.update(pageable, false),
-        err => console.log(err));
+        err => this.errorService.handleServerError('Failed to get more banners!', err,
+          () => console.error(err), () => this.loadMore()));
   }
 
   getBanners(): void {
@@ -59,16 +61,24 @@ export class SelectBannerComponent implements OnInit {
       .pipe(finalize(() => this.loading = false))
       .subscribe(
         (pageable: Pageable<SimplifiedBanner>) => this.update(pageable, true),
-        err => console.log(err)
+        err => this.errorService.handleServerError('Failed to get banners!', err,
+          () => console.error(err), () => this.loadMore())
       );
   }
 
-  getBannerImageSrc(banner) {
+  getBannerImageSrc(banner: SimplifiedBanner) {
     return this.bannerService.getBannerImageSrc(banner);
+  }
+
+  getBannerCompanyName(banner: SimplifiedBanner): string {
+    return banner.companyName !== banner.bannerName ? banner.companyName : ''
+  }
+
+  getBannerParentCompanyName(banner: SimplifiedBanner): string {
+    return banner.companyName !== banner.parentCompanyName ? banner.parentCompanyName : ''
   }
 
   selectBanner(banner: SimplifiedBanner) {
     this.dialogRef.close(banner);
   }
-
 }
