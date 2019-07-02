@@ -46,7 +46,7 @@ export enum LoadType {
   selector: 'mds-chain-xy-map',
   templateUrl: './chain-xy-map.component.html',
   styleUrls: ['./chain-xy-map.component.css'],
-  providers: []
+  providers: [MapService]
 })
 export class ChainXyMapComponent implements OnInit {
   // Mapping
