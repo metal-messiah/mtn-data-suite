@@ -1,6 +1,7 @@
 import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { MatSnackBar, MatStepper } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatStepper } from '@angular/material/stepper';
 import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
 import * as _ from 'lodash';
 
@@ -74,7 +75,7 @@ export class PlannedGroceryComponent implements OnInit {
     99: {pg: 'Dead Deal', db: 'Dead Deal'}
   };
 
-  @ViewChild('stepper') stepper: MatStepper;
+  @ViewChild('stepper', { static: true }) stepper: MatStepper;
 
   constructor(
     private sourceService: StoreSourceService,

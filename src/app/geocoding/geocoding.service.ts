@@ -7,8 +7,7 @@ import { ResourceQuotaService } from '../core/services/resource-quota.service';
 import { ErrorService } from '../core/services/error.service';
 
 import { saveAs } from 'file-saver';
-import { Pageable } from '../models/pageable';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root'
@@ -122,7 +121,8 @@ export class GeocodingService {
                 );
               });
           } else {
-            this.errorService.handleServerError(`Failed to retrieve geocoder quota information`, err, () => { });
+            this.errorService.handleServerError(`Failed to retrieve geocoder quota information`, err, () => {
+            });
           }
         }
       );
@@ -145,15 +145,8 @@ export class GeocodingService {
             this.resourceQuota$.next(this.newestResourceQuota);
           });
         return this.length <= 20000;
-      } else if (
-        this.newestResourceQuota.queryCount + this.length <=
-        this.newestResourceQuota.quotaLimit
-      ) {
-        // Combining remaining queries and the length of the CSV does not exceed the limit
-        return true;
       } else {
-        // Quota already exceeded or exceeded by file
-        return false;
+        return (this.newestResourceQuota.queryCount + this.length) <= this.newestResourceQuota.quotaLimit;
       }
     } else {
       this.errorService.handleServerError(
@@ -274,7 +267,7 @@ export class GeocodingService {
       // append the new data to the csv row string
       this.allRows[
         factoredIdx
-      ] += `,${latitude},${longitude},${geotype},${matchedAddress}`;
+        ] += `,${latitude},${longitude},${geotype},${matchedAddress}`;
 
       // tally of successful geocodes for status bar / updating the ResourceQuota object at the end
       this.successes++;

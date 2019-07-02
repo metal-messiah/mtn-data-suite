@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SiteService } from '../../core/services/site.service';
 import { Site } from '../../models/full/site';
 import { finalize } from 'rxjs/operators';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ErrorService } from '../../core/services/error.service';
 import { forkJoin } from 'rxjs';
 

@@ -4,9 +4,9 @@
     <input #textInput type="text" matInput [placeholder]="placeholder">
   </mat-form-field>
 </form>
-<div mat-dialog-actions>
+<div mat-dialog-actions style="justify-content: space-between;">
   <button type="button" mat-raised-button [mat-dialog-close]="null" color="primary">Cancel</button>
-  <button type="submit" form="text-form" (click)="submit(textInput.value)" mat-raised-button color="warn">
+  <button type="submit" form="text-form" (click)="submit(textInput.value)" mat-raised-button color="accent">
     Submit
   </button>
 </div>

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
 
 import shajs from 'sha.js';
+
 declare var cloudinary: any;
 
 @Component({

@@ -1,5 +1,5 @@
-import { Feature, FeatureCollection, GeoJSON, Point, Polygon } from 'geojson';
 import { GeometryUtil } from '../utils/geometry-util';
+import { Feature, GeoJSON, Point, Polygon } from 'geojson';
 
 export class ProjectBoundary {
 

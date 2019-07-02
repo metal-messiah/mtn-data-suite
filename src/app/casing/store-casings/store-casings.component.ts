@@ -7,7 +7,8 @@ import { CasingDashboardService } from '../casing-dashboard/casing-dashboard.ser
 import { StoreCasing } from '../../models/full/store-casing';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
 import { SelectProjectComponent } from '../select-project/select-project.component';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ErrorService } from '../../core/services/error.service';
 import { StoreCasingService } from '../../core/services/store-casing.service';
 import { finalize } from 'rxjs/internal/operators';

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Pageable } from '../../models/pageable';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ResourceQuota } from '../../models/resource-quota';
 import { CrudService } from '../../interfaces/crud-service';
@@ -14,13 +13,14 @@ export class ResourceQuotaService extends CrudService<ResourceQuota> {
   constructor(protected http: HttpClient, protected rest: RestService) {
     super(http, rest);
   }
+
   public getNewest(name: string): Observable<ResourceQuota> {
     const url = this.rest.getHost() + this.endpoint + '/newest';
     let params = new HttpParams();
     if (name != null && name.length > 0) {
       params = params.set('name', name);
     }
-    return this.http.get<ResourceQuota>(url, { headers: this.rest.getHeaders(), params: params });
+    return this.http.get<ResourceQuota>(url, {headers: this.rest.getHeaders(), params: params});
   }
 
   createNewResourceQuota(name) {

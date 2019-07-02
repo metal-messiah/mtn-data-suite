@@ -22,18 +22,15 @@ import { TabSelectDialogComponent } from './file-input/tab-select-dialog/tab-sel
 import { ThousandsCurrencyPipe } from './pipes/thousands-currency.pipe';
 import { GoogleInfoCardComponent } from './google-info-card/google-info-card.component';
 import { FuzzySearchComponent } from './fuzzy-search/fuzzy-search.component';
-import { ListManagerModule } from './list-manager/list-manager.module';
-import { ListManagerService } from './list-manager/list-manager.service';
-import { ListManagerComponent } from './list-manager/list-manager.component';
-import { StorelistListItemComponent } from './list-manager/storelist-list-item/storelist-list-item.component';
-import { StorelistSubscribersListComponent } from './list-manager/storelist-subscribers-list/storelist-subscribers-list.component';
-import { StorelistStoresListComponent } from './list-manager/storelist-stores-list/storelist-stores-list.component';
 import { StoresListComponent } from './stores-list/stores-list.component';
-import { StoreSidenavComponent } from './store-sidenav/store-sidenav.component';
-import { StoreSidenavService } from './store-sidenav/store-sidenav.service';
 import { AddRemoveStoresListDialogComponent } from './add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
 import { TextInputDialogComponent } from './text-input-dialog/text-input-dialog.component';
 import { StoredControlsSelectionDialogComponent } from './stored-controls-selection-dialog/stored-controls-selection-dialog.component';
+import { SimpleSelectDialogComponent } from './simple-select-dialog/simple-select-dialog.component';
+import { SidenavMenuComponent } from './store-sidenav/sidenav-menu/sidenav-menu.component';
+import { SidenavStoresOnMapComponent } from './store-sidenav/sidenav-stores-on-map/sidenav-stores-on-map.component';
+import { SidenavUserListsComponent } from './store-sidenav/sidenav-user-lists/sidenav-user-lists.component';
+import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-list/sidenav-stores-in-list.component';
 
 @NgModule({
   imports: [
@@ -41,8 +38,7 @@ import { StoredControlsSelectionDialogComponent } from './stored-controls-select
     CustomMaterialModule,
     RouterModule,
     FormsModule,
-    ReactiveFormsModule,
-    ListManagerModule
+    ReactiveFormsModule
   ],
   declarations: [
     AppInfoDialogComponent,
@@ -56,42 +52,40 @@ import { StoredControlsSelectionDialogComponent } from './stored-controls-select
     FuzzySearchComponent,
     FuzzySearchComponent,
     GoogleInfoCardComponent,
-    ListManagerComponent,
     LogoMenuComponent,
     MapComponent,
     NewProjectNameComponent,
     PathNotFoundComponent,
-    StorelistListItemComponent,
-    StorelistStoresListComponent,
-    StorelistSubscribersListComponent,
     TabSelectDialogComponent,
     ThousandsCurrencyPipe,
     UserProfileSelectComponent,
     StoresListComponent,
-    StoreSidenavComponent,
     AddRemoveStoresListDialogComponent,
     TextInputDialogComponent,
-    StoredControlsSelectionDialogComponent
+    StoredControlsSelectionDialogComponent,
+    SimpleSelectDialogComponent,
+    SidenavMenuComponent,
+    SidenavStoresOnMapComponent,
+    SidenavUserListsComponent,
+    SidenavStoresInListComponent
   ],
   providers: [
     BreakpointObserver,
     DatePipe,
-    MediaMatcher,
-    ListManagerService,
-    StoreSidenavService
+    MediaMatcher
   ],
   entryComponents: [
     AppInfoDialogComponent,
     ConfirmDialogComponent,
     DataFieldInfoDialogComponent,
     ErrorDialogComponent,
-    ListManagerComponent,
     NewProjectNameComponent,
     TabSelectDialogComponent,
     UserProfileSelectComponent,
     AddRemoveStoresListDialogComponent,
     TextInputDialogComponent,
-    StoredControlsSelectionDialogComponent
+    StoredControlsSelectionDialogComponent,
+    SimpleSelectDialogComponent
   ],
   exports: [
     CallbackComponent,
@@ -105,19 +99,13 @@ import { StoredControlsSelectionDialogComponent } from './stored-controls-select
     FormsModule,
     FuzzySearchComponent,
     HttpClientModule,
-    ListManagerModule,
     LogoMenuComponent,
     MapComponent,
     PathNotFoundComponent,
     ReactiveFormsModule,
     ThousandsCurrencyPipe,
     CustomMaterialModule,
-    ListManagerComponent,
-    StorelistListItemComponent,
-    StorelistSubscribersListComponent,
-    StorelistStoresListComponent,
     StoresListComponent,
-    StoreSidenavComponent,
     AddRemoveStoresListDialogComponent
   ]
 })

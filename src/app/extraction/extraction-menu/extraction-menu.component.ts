@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SelectProjectComponent } from '../../casing/select-project/select-project.component';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'mds-extraction-menu',

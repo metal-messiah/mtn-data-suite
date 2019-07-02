@@ -1,6 +1,8 @@
 // UTILITIES
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Sort, MatSidenav, MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSidenav } from '@angular/material/sidenav';
+import { Sort } from '@angular/material/sort';
 import { Router } from '@angular/router';
 
 // SERVICES
@@ -16,6 +18,7 @@ import { BannerSource } from 'app/models/full/banner-source';
 import { Banner } from 'app/models/full/banner';
 import { Pageable } from 'app/models/pageable';
 import { SimplifiedBannerSource } from 'app/models/simplified/simplified-banner-source';
+import { SimplifiedBanner } from '../../../models/simplified/simplified-banner';
 
 export enum statuses {
   COMPLETE = 'COMPLETE',
@@ -42,7 +45,7 @@ export class ChainXyTableComponent implements OnInit {
 
   bannerImages = {};
 
-  @ViewChild('sidenav') sidenav: MatSidenav;
+  @ViewChild('sidenav', {static: true}) sidenav: MatSidenav;
 
   constructor(
     private router: Router,
@@ -100,14 +103,8 @@ export class ChainXyTableComponent implements OnInit {
   updateBanner(bannerId: number, bannerSource: SimplifiedBannerSource) {
     this.saving = true;
     this.bannerService.getOneById(bannerId).subscribe((banner: Banner) => {
-      const {bannerName, id, logoFileName} = banner;
-
       this.bannerSourceService.getOneById(bannerSource.id).subscribe((fullBannerSource: BannerSource) => {
-        bannerSource.banner = {
-          bannerName,
-          id,
-          logoFileName
-        };
+        bannerSource.banner = new SimplifiedBanner(banner);
         fullBannerSource.banner = bannerSource.banner;
         this.bannerSourceService.update(fullBannerSource).subscribe(
           (resp) => {
@@ -121,7 +118,7 @@ export class ChainXyTableComponent implements OnInit {
 
   removeBanner() {
     this.saving = true;
-    // remove the banner on the bannerSourceService
+    // TODO remove the banner on the bannerSourceService
   }
 
   fileExists(urlToFile, id, strictCheck) {

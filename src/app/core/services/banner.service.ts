@@ -15,6 +15,7 @@ export class BannerService extends CrudService<Banner> {
   constructor(protected http: HttpClient, protected rest: RestService) {
     super(http, rest);
   }
+
   public getAllByQuery(query: string, pageNumber?: number): Observable<Pageable<SimplifiedBanner>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams().set('sort', 'bannerName');
@@ -24,7 +25,7 @@ export class BannerService extends CrudService<Banner> {
     if (pageNumber != null) {
       params = params.set('page', pageNumber.toLocaleString());
     }
-    return this.http.get<Pageable<SimplifiedBanner>>(url, { headers: this.rest.getHeaders(), params: params });
+    return this.http.get<Pageable<SimplifiedBanner>>(url, {headers: this.rest.getHeaders(), params: params});
   }
 
   protected createEntityFromObj(entityObj): Banner {

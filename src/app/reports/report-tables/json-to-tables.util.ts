@@ -7,10 +7,6 @@ import * as _ from 'lodash';
 
 export class JsonToTablesUtil {
 
-  data;
-
-  mapImageUrl: string;
-
   readonly tableData: ReportData;
   readonly reportMetaData;
   readonly siteEvaluationNarrative;
@@ -29,7 +25,12 @@ export class JsonToTablesUtil {
 
   private readonly maxSovCount = 20;
 
+  private rbs: ReportBuilderService;
+
+  readonly tableNames = ['projections', 'currentSummary', 'projectedSummary', 'sovData', 'ratings'];
+
   constructor(rbs: ReportBuilderService) {
+    this.rbs = rbs;
     this.reportMetaData = rbs.getReportMetaData();
     this.tableData = rbs.getReportTableData();
     this.siteEvaluationNarrative = rbs.getSiteEvaluationNarrative();
@@ -66,6 +67,7 @@ export class JsonToTablesUtil {
     this.sovStores = tableStores
     // sort by target, then by contribution to site
       .sort(sortByContribution)
+      .filter(st => st['contributionToSite'] > 500 || st.mapKey === this.targetStore.mapKey)
       // only return the max at most
       .slice(0, this.maxSovCount);
 
@@ -78,23 +80,23 @@ export class JsonToTablesUtil {
 
     // create an array with calculated properties added
     this.sovStores.forEach(store => {
-        const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store);
+      const {storeBeforeSiteOpen, storeAfterSiteOpen} = this.getSovBeforeAndAfterStores(store);
 
-        store['closing'] = !storeAfterSiteOpen.futureSales;
-        store['currentSales'] = storeBeforeSiteOpen.currentSales;
-        store['futureSales'] = storeBeforeSiteOpen.futureSales;
-        store['resultingVolume'] = store.mapKey === this.targetStore.mapKey ? storeAfterSiteOpen.futureSales
-          : store['futureSales'] - store['contributionToSite'];
+      store['closing'] = !storeAfterSiteOpen.futureSales;
+      store['currentSales'] = storeBeforeSiteOpen.currentSales;
+      store['futureSales'] = storeBeforeSiteOpen.futureSales;
+      store['resultingVolume'] = store.mapKey === this.targetStore.mapKey ? storeAfterSiteOpen.futureSales
+        : store['futureSales'] - store['contributionToSite'];
 
-        store['distance'] =
-          MapService.getDistanceBetween(
-            {lat: store.latitude, lng: store.longitude},
-            {
-              lat: this.targetStore.latitude,
-              lng: this.targetStore.longitude
-            }
-          ) * 0.000621371;
-      });
+      store['distance'] =
+        MapService.getDistanceBetween(
+          {lat: store.latitude, lng: store.longitude},
+          {
+            lat: this.targetStore.latitude,
+            lng: this.targetStore.longitude
+          }
+        ) * 0.000621371;
+    });
     this.sovStores.sort(sortByContribution);
 
     // If it isn't included in SOV, then it belongs in the overflow.
@@ -126,8 +128,6 @@ export class JsonToTablesUtil {
     });
     this.projectedWeeklyStores = partitionedProjected[0];
     this.projectedWeeklyStoresOverflow = partitionedProjected[1];
-
-    this.data = this.getReportData();
   }
 
   getReportData() {
@@ -144,8 +144,8 @@ export class JsonToTablesUtil {
       marketShareData: this.tableData.marketShareBySector,
       sovMapDataHeaders: ['mapKey', 'latitude', 'longitude', 'category', 'currentSales', 'firstYearEndingSales', 'contributionToSite',
         'contributionToSitePerc', 'resultingVolume'],
-      sovMapData: this.getSovMapData()
-    }
+      sovMapData: this.getSovMapData(),
+    };
   }
 
   getMapUrl(basemap: string, zoom: number) {
@@ -231,7 +231,8 @@ export class JsonToTablesUtil {
         pwta: store.PWTA,
         fitPower: store.effectivePower,
         category: store.category,
-        isSite: store.mapKey === this.targetStore.mapKey
+        isSite: store.mapKey === this.targetStore.mapKey,
+        scenario: store.scenario
       }
     })
   }

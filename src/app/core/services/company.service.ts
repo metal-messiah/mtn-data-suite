@@ -5,7 +5,7 @@ import { Company } from '../../models/full/company';
 import { CrudService } from '../../interfaces/crud-service';
 import { RestService } from './rest.service';
 import { SimplifiedCompany } from '../../models/simplified/simplified-company';
-import { Observable } from 'rxjs/index';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class CompanyService extends CrudService<Company> {

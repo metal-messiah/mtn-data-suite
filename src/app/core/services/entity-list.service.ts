@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-component';
 import { ErrorService } from './error.service';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { AuditingEntity } from '../../models/auditing-entity';
 import { finalize } from 'rxjs/internal/operators';

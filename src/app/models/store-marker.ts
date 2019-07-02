@@ -11,10 +11,8 @@ export class StoreMarker implements Entity {
   createdDate: Date;
   logoFileName: string;
   bannerId: number;
-  isEmpty: boolean;
   status: string;
   statusStartDate: Date;
-  hidden: boolean = false;
 
   constructor(obj) {
     Object.assign(this, obj);
