@@ -3,7 +3,9 @@
 import { Injectable } from '@angular/core';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
-import { Observable, of, Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { StorageService } from './storage.service';
 
 /*
   The MapService should
@@ -14,7 +16,11 @@ import { Observable, of, Subject } from 'rxjs';
  */
 @Injectable()
 export class MapService {
+
+  readonly ST_MAP_PERSPECTIVE = 'mapPerspective';
+
   private map: google.maps.Map;
+
   boundsChanged$: Subject<{ east; north; south; west }>;
   mapClick$: Subject<Coordinates>;
 
@@ -71,12 +77,13 @@ export class MapService {
     return map.getProjection().fromPointToLatLng(worldPoint);
   }
 
-  constructor() {
+  constructor(private snackBar: MatSnackBar,
+              private storageService: StorageService) {
     this.dataPointFeatures = [];
   }
 
-  addControl(control: HTMLElement) {
-    this.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(control);
+  addControl(control: HTMLElement, position: google.maps.ControlPosition = google.maps.ControlPosition.RIGHT_BOTTOM) {
+    this.map.controls[position].push(control);
   }
 
   initialize(element: HTMLElement) {
@@ -101,9 +108,7 @@ export class MapService {
       }
     });
     this.map.addListener('maptypeid_changed', () => this.savePerspective());
-    this.map.addListener('click', event =>
-      this.mapClick$.next(event.latLng.toJSON())
-    );
+    this.map.addListener('click', event => this.mapClick$.next(event.latLng.toJSON()));
 
     // Setup Drawing Manager
     this.drawingManager = new google.maps.drawing.DrawingManager();
@@ -136,7 +141,7 @@ export class MapService {
   }
 
   private loadPerspective() {
-    of(localStorage.getItem('mapPerspective')).subscribe(perspective => {
+    this.storageService.getOne(this.ST_MAP_PERSPECTIVE).subscribe(perspective => {
       if (perspective != null) {
         perspective = JSON.parse(perspective);
         this.map.setCenter(perspective['center']);
@@ -147,12 +152,7 @@ export class MapService {
   }
 
   savePerspective() {
-    of(
-      localStorage.setItem(
-        'mapPerspective',
-        JSON.stringify(this.getPerspective())
-      )
-    ).subscribe();
+    this.storageService.set(this.ST_MAP_PERSPECTIVE, JSON.stringify(this.getPerspective())).subscribe();
   }
 
   drawingModeIs(mode: string) {
@@ -392,11 +392,38 @@ export class MapService {
     });
   }
 
-  getBoundsOfPoints(points: { lat: number, lng: number }[]): google.maps.LatLngBounds {
+  fitToPoints(points: Coordinates[], label?: string) {
     const bounds = new google.maps.LatLngBounds();
     points.forEach(pt => bounds.extend(pt));
-    return bounds;
+    this.map.fitBounds(bounds);
+
+    if (label) {
+      this.snackBar.open(label, null, {duration: 2000});
+    }
+
+    const rectangle = new google.maps.Rectangle({
+      strokeColor: 'orange',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: null,
+      fillOpacity: 0.35,
+      map: this.map,
+      bounds: bounds
+    });
+
+    this.fade(rectangle, 0.35);
   }
+
+  private fade(rect: google.maps.Rectangle, fillOpacity: number) {
+    const strokeOpacity = (fillOpacity + 0.45) / 2;
+    rect.setOptions({fillOpacity, strokeOpacity});
+    const newOpacity = fillOpacity - 0.01;
+    if (newOpacity >= 0) {
+      setTimeout(() => this.fade(rect, newOpacity), 50);
+    } else {
+      rect.setMap(null);
+    }
+  };
 
   getMap() {
     return this.map;

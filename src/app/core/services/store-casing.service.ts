@@ -4,8 +4,6 @@ import { HttpClient } from '@angular/common/http';
 import { CrudService } from '../../interfaces/crud-service';
 import { StoreCasing } from '../../models/full/store-casing';
 import { SimplifiedStoreVolume } from '../../models/simplified/simplified-store-volume';
-import { SimplifiedProject } from '../../models/simplified/simplified-project';
-import { Project } from '../../models/full/project';
 import { StoreVolume } from '../../models/full/store-volume';
 import { map } from 'rxjs/internal/operators';
 

@@ -10,6 +10,7 @@ import { Coordinates } from '../../models/coordinates';
 import { Store } from '../../models/full/store';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
+import { SiteUtil } from '../../utils/SiteUtil';
 
 @Injectable()
 export class SiteService extends CrudService<Site> {
@@ -27,14 +28,14 @@ export class SiteService extends CrudService<Site> {
   getAllByIds(ids: number[]) {
     const url = this.rest.getHost() + this.endpoint;
     const params = new HttpParams().set('ids', ids.toString());
-    return this.http.get<Site[]>(url, { headers: this.rest.getHeaders(), params: params })
+    return this.http.get<Site[]>(url, {headers: this.rest.getHeaders(), params: params})
       .pipe(map(sites => sites.map(site => new SimplifiedSite(site))));
   }
 
 
   addNewStore(siteId: number, store: Store) {
     const url = this.rest.getHost() + this.endpoint + '/' + siteId + '/store';
-    return this.http.post<Store>(url, store, { headers: this.rest.getHeaders() })
+    return this.http.post<Store>(url, store, {headers: this.rest.getHeaders()})
       .pipe(map((savedStore) => new Store(savedStore)));
   }
 
@@ -44,7 +45,7 @@ export class SiteService extends CrudService<Site> {
     _.forEach(bounds, function (value, key) {
       params = params.set(key, value);
     });
-    return this.http.get<Coordinates[]>(url, { headers: this.rest.getHeaders(), params: params })
+    return this.http.get<Coordinates[]>(url, {headers: this.rest.getHeaders(), params: params})
   }
 
   assignSitesToUser(siteIds: number[], userId: number) {
@@ -53,62 +54,30 @@ export class SiteService extends CrudService<Site> {
     if (userId != null) {
       params = params.set('user-id', String(userId));
     }
-    return this.http.post<SimplifiedSite[]>(url, siteIds, { headers: this.rest.getHeaders(), params: params })
+    return this.http.post<SimplifiedSite[]>(url, siteIds, {headers: this.rest.getHeaders(), params: params})
       .pipe(map(sites => sites.map(site => new SimplifiedSite(site))));
   }
 
-  assignSiteToUser(site: Site, userId: number) {
-    const url = this.rest.getHost() + this.endpoint + '/' + site.id + '/assign-to-user';
+  assignSiteToUser(siteId: number, userId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + siteId + '/assign-to-user';
     let params = new HttpParams();
     if (userId != null) {
       params = params.set('user-id', String(userId));
     }
-    return this.http.post<Site>(url, null, { headers: this.rest.getHeaders(), params: params })
+    return this.http.post<Site>(url, null, {headers: this.rest.getHeaders(), params: params})
       .pipe(map(s => new Site(s)));
   }
 
-  getFormattedIntersection(site: Site | SimplifiedSite): string {
-    let intersection = '';
-    if (site.quad !== null) {
-      intersection += site.quad;
-      if (site.intersectionStreetPrimary !== null || site.intersectionStreetSecondary !== null) {
-        intersection += ' of ';
-      }
-    }
-    if (site.intersectionStreetPrimary !== null) {
-      intersection += site.intersectionStreetPrimary;
-      if (site.intersectionStreetSecondary !== null) {
-        intersection += ' & ';
-      }
-    }
-    if (site.intersectionStreetSecondary !== null) {
-      intersection += site.intersectionStreetSecondary;
-    }
-    return intersection;
+  getFormattedIntersection(site): string {
+    return SiteUtil.getFormattedIntersection(site);
   }
 
-  getFormattedPrincipality(site: Site | SimplifiedSite): string {
-    let principality = '';
-    if (site.city !== null) {
-      principality += site.city;
-      if (site.state !== null) {
-        principality += ', ';
-      }
-    }
-    if (site.state !== null) {
-      principality += site.state;
-    }
-    if (site.postalCode !== null) {
-      if (principality.length > 0) {
-        principality += ' ';
-      }
-      principality += site.postalCode;
-    }
-    return principality;
+  getFormattedPrincipality(site): string {
+    return SiteUtil.getFormattedPrincipality(site);
   }
 
   getCoordinates(site: Site | SimplifiedSite): Coordinates {
-    return { lat: site.latitude, lng: site.longitude };
+    return {lat: site.latitude, lng: site.longitude};
   }
 
   mergeSites(mergedSite: Site, siteIds: number[]) {
@@ -117,7 +86,7 @@ export class SiteService extends CrudService<Site> {
       mergedSite: mergedSite,
       siteIds: siteIds
     };
-    return this.http.post<SimplifiedSite>(url, body, { headers: this.rest.getHeaders() })
+    return this.http.post<SimplifiedSite>(url, body, {headers: this.rest.getHeaders()})
   }
 
 }

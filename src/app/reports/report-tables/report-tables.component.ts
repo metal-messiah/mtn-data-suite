@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { saveAs } from 'file-saver';
 import { ReportBuilderService } from '../services/report-builder.service';
 import { JsonToTablesUtil } from './json-to-tables.util';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { delay } from 'rxjs/operators';
+import { delay, map, tap } from 'rxjs/operators';
 import { ErrorService } from '../../core/services/error.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'mds-report-tables',
@@ -16,11 +18,13 @@ import { ErrorService } from '../../core/services/error.service';
 })
 export class ReportTablesComponent implements OnInit {
 
-  util;
+  util: JsonToTablesUtil;
   reportData;
 
   googleMapsBasemap = 'hybrid';
   zoom = 15;
+
+  pdfs = {};
 
   constructor(public snackBar: MatSnackBar,
               public rbs: ReportBuilderService,
@@ -37,10 +41,43 @@ export class ReportTablesComponent implements OnInit {
         this.router.navigate(['reports']);
       }, 10)
     } else {
+      document.getElementById('reports-content-wrapper').scrollTop = 0;
+
       this.util = new JsonToTablesUtil(this.rbs);
       this.reportData = this.util.getReportData();
-      document.getElementById('reports-content-wrapper').scrollTop = 0;
+      this.getPdfData()
     }
+  }
+
+  getPdfData() {
+    const requests = [];
+    this.tableNames.forEach(tableName => {
+      requests.push(this.rbs.getPdf(tableName, this.reportData[tableName]).pipe(tap(response => {
+        this.pdfs[tableName] = {
+          data: response,
+          zoom: tableName === 'ratings' ? 0.2 : 0.7,
+          originalSize: false,
+          autoResize: true,
+          fitToPage: false
+        }
+      })))
+    });
+
+    forkJoin(requests).subscribe(() => {},
+      err => this.errorService.handleServerError('Failed to get table preview!', err,
+        () => console.log(err)));
+  }
+
+  get tableNames() {
+    return this.util.tableNames;
+  }
+
+  zoomIn(tableName: string) {
+    this.reportData.pdfs[tableName].zoom += 0.1;
+  }
+
+  zoomOut(tableName: string) {
+    this.reportData.pdfs[tableName].zoom -= 0.1;
   }
 
   startBuildingReport() {

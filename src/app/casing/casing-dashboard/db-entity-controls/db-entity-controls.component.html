@@ -1,0 +1,169 @@
+<mat-accordion [multi]="true">
+  <mat-toolbar color="primary" class="control-toolbar">
+    <h2>Filters</h2>
+    <span>
+            <button mat-icon-button title="Save Filter" (click)="saveFilter()"><i class="fas fa-save"></i></button>
+            <button mat-icon-button title="Load Filter" (click)="loadFilter()"><i class="fas fa-upload"></i></button>
+            <button mat-icon-button title="Reset To Default" (click)="resetFilters()">
+              <i class="fas fa-times-circle"></i>
+            </button>
+          </span>
+  </mat-toolbar>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Store List
+      </mat-panel-title>
+      <mat-panel-description>
+        {{getActiveStoreListFilterName()}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div class="meta-data">
+      <button *ngIf="!controls.storeList" mat-raised-button color="primary" (click)="selectStoreList()">
+        Select Store List
+      </button>
+      <ng-container *ngIf="controls.storeList">
+        <div>
+          <span (click)="selectStoreList()">{{controls.storeList.storeListName}}</span>&nbsp;
+          <i class="fas fa-times-circle" (click)="clearStoreList()"></i>
+        </div>
+        <button (click)="viewList(controls.storeList)" mat-raised-button color="primary">
+          <i class="fas fa-list"></i> View List of Stores
+        </button>
+      </ng-container>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Type
+      </mat-panel-title>
+      <mat-panel-description>
+        {{getActiveTypeNames()}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <div class="checklist">
+      <mat-checkbox [(ngModel)]="controls.showActive">Active</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showFuture">Future</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showHistorical">Historical</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showVacantSites">Vacant Sites</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showSitesBackfilledByNonGrocery">Backfilled Sites</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showFloat">Float Stores</mat-checkbox>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Status
+      </mat-panel-title>
+      <mat-panel-description>
+        {{getActiveStatusNames()}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <div class="checklist">
+      <mat-checkbox [(ngModel)]="controls.showClosed">Closed</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showDeadDeal">Dead Deal</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showNewUnderConstruction">Under Construction</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showOpen">Open</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showPlanned">Planned</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showProposed">Proposed</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showRemodel">Remodel</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showRumored">Rumored</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showStrongRumor">Strong Rumor</mat-checkbox>
+      <mat-checkbox [(ngModel)]="controls.showTemporarilyClosed">Temporarily Closed</mat-checkbox>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Banner
+      </mat-panel-title>
+      <mat-panel-description>
+        {{getActiveBannerName() || 'Any Banner'}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <div class="meta-data">
+      <button id="add-banner-button" mat-raised-button color="primary" (click)="selectBanner()">
+        <i class="fas fa-plus-circle"></i>&nbsp;Add Banner
+      </button>
+      <div *ngFor="let banner of filterBanners">
+        <span>{{banner.bannerName}}</span>
+        <img #image class="banner-logo" [title]="getActiveBannerName()"
+             [src]="getBannerImageSrc(banner)" (error)="image.hidden = true"/>
+        <i class="fas fa-times-circle" (click)="clearBanner(banner)"></i>
+      </div>
+    </div>
+
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Assignment
+      </mat-panel-title>
+      <mat-panel-description>
+        {{getActiveAssignmentName() || 'Any User'}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <div class="meta-data">
+      <button *ngIf="!getActiveAssignmentName()" mat-raised-button color="primary" (click)="selectAssignee()">Select
+        User
+      </button>
+      <ng-container *ngIf="getActiveAssignmentName()">
+        <span (click)="selectAssignee()">{{getActiveAssignmentName()}}</span>&nbsp;
+        <i class="fas fa-times-circle" (click)="clearAssignment()"></i>
+      </ng-container>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-toolbar color="primary" class="control-toolbar">Controls</mat-toolbar>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Marker Type
+      </mat-panel-title>
+      <mat-panel-description>
+        {{getActiveMarkerTypeName()}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <mat-form-field class="control-selector" floatLabel="never">
+      <mat-select [(ngModel)]="controls.markerType">
+        <mat-option *ngFor="let markerType of markerTypeOptions" [value]="markerType">
+          {{markerType}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Map Options
+      </mat-panel-title>
+      <mat-panel-description>
+        {{getActiveControlNames()}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <div>
+      <div class="checklist">
+        <mat-checkbox [(ngModel)]="controls.updateOnBoundsChange">Update as Map Moves</mat-checkbox>
+        <mat-checkbox [(ngModel)]="controls.cluster">Cluster Stores</mat-checkbox>
+      </div>
+      <div style="margin: 8px; font-style: oblique; text-align: center;">(Current Zoom: {{zoom}})</div>
+      <div class="control-label">Cluster when zoom <= {{controls.clusterZoomLevel}}</div>
+      <mat-slider [max]="21" [min]="0" [thumbLabel]="true" [(ngModel)]="controls.clusterZoomLevel"
+                  [disabled]="!controls.cluster"></mat-slider>
+      <div class="control-label">Pull when zoom >= {{controls.minPullZoomLevel}}</div>
+      <mat-slider [max]="21" [min]="7" [thumbLabel]="true" [(ngModel)]="controls.minPullZoomLevel"></mat-slider>
+      <div class="control-label">Full Label when zoom >= {{controls.fullLabelMinZoomLevel}}</div>
+      <mat-slider [max]="21" [min]="0" [thumbLabel]="true" [(ngModel)]="controls.fullLabelMinZoomLevel">
+      </mat-slider>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>

@@ -39,4 +39,17 @@ export class DateUtil {
     return date.toISOString();
   }
 
+  /**
+   * Handles null values
+   * @param date1
+   * @param date2
+   * returns 0, 1, or -1 for use in sorting
+   */
+  static compareDates(date1: Date, date2: Date): number {
+    if (date1 && date2) {
+      return date1.getTime() - date2.getTime();
+    }
+    return !date1 && !date2 ? 0 : date1 ? -1 : 1;
+  }
+
 }

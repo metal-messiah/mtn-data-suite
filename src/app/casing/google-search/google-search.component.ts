@@ -1,8 +1,7 @@
-import { Component, NgZone, ViewChild, OnInit, AfterViewInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material';
+import { AfterViewInit, Component, Inject, NgZone, ViewChild } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { GooglePlace } from '../../models/google-place';
 import { MapService } from '../../core/services/map.service';
-
 
 @Component({
   selector: 'mds-search',
@@ -16,11 +15,20 @@ export class GoogleSearchComponent implements AfterViewInit {
   autocompleteResult: google.maps.places.PlaceResult = null;
   autocompleteValidate = '';
 
-  @ViewChild('searchInput') searchInput: any;
+  @ViewChild('searchInput', {static: true}) searchInput: any;
 
-  constructor(public dialogRef: MatDialogRef<GoogleSearchComponent>,
-    private mapService: MapService,
-    private ngZone: NgZone) { }
+  mapService: MapService;
+
+  constructor(private dialogRef: MatDialogRef<GoogleSearchComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: { mapService: MapService },
+              private ngZone: NgZone) {
+    if (!data || !data.mapService) {
+      console.error('mapService must be provided by caller of GoogleSearchComponent!');
+      this.dialogRef.close();
+    } else {
+      this.mapService = data.mapService;
+    }
+  }
 
   ngAfterViewInit() {
     this.initAutocomplete();
@@ -38,7 +46,7 @@ export class GoogleSearchComponent implements AfterViewInit {
         this.autocompleteResult = new GooglePlace(place);
         this.autocompleteValidate = this.searchQuery; // for checking if input has changed vs autocomplete
 
-        // google autocomplete selection event doesnt re-paint the DOM, force it here...
+        // google autocomplete selection event doesn't re-paint the DOM, force it here...
         this.ngZone.run(() => { });
       }
     })

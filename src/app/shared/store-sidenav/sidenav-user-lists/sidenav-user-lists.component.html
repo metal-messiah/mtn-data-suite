@@ -1,0 +1,71 @@
+<mat-toolbar class="toolbar" color="primary">
+  <div>
+    <button mat-icon-button (click)="goBack()" title="Go Back">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+  </div>
+  <h1>Store Lists</h1>
+  <div></div>
+</mat-toolbar>
+
+<button style="margin: 10px 25px;" type="button" mat-raised-button color="primary" (click)="createNewList()">
+  Create New List
+</button>
+<div *ngIf="fetching" style="text-align: center; width: 100%; margin-top: 10px;">
+  <i class="fas fa-spinner fa-2x fa-pulse"></i>
+</div>
+<mat-list *ngIf="storeLists && !fetching">
+  <div *ngFor="let storeList of storeLists" class="list-item"
+       [ngClass]="{'current-filter': storeListIsCurrentFilter(storeList)}">
+    <div style="display: flex; flex-direction: column; flex: 1;">
+      <div style="display: flex;">
+        <span class="list-name">{{storeList.storeListName}}</span>
+        <div><i [title]="'Only Showing Stores in ' + storeList.storeListName"
+           *ngIf="storeListIsCurrentFilter(storeList)" class="fas fa-filter" style="color: #607d8b"></i></div>
+      </div>
+      <div class="mat-caption">Created By {{storeList.createdBy.name}}</div>
+    </div>
+
+    <div>
+      <button class="badged-button" mat-icon-button (click)="goToStoreList(storeList)"
+              [matBadge]="storeList.storeCount">
+        <i class="fas fa-list-ul"></i>
+      </button>
+      <!-- OPTIONS MENU FOR EACH STORELIST -->
+      <button class='menu-icon-button' mat-icon-button [mat-menu-trigger-for]="siteMenu">
+        <i class="site-menu fas fa-ellipsis-v"></i>
+      </button>
+    </div>
+
+    <mat-menu #siteMenu="matMenu">
+      <button mat-menu-item (click)="zoomToList(storeList)">
+        <i class="fas fa-map-marked-alt"></i>
+        <span>Zoom to Extent</span>
+      </button>
+      <button mat-menu-item (click)="goToStoreList(storeList)">
+        <i class="fas fa-list-ul"></i>
+        <span>View Stores</span>
+      </button>
+      <button *ngIf="!storeListIsCurrentFilter(storeList)" mat-menu-item (click)="setStoreListAsFilter(storeList)">
+        <i class="fas fa-filter"></i>
+        <span>Filter Map</span>
+      </button>
+      <button *ngIf="storeListIsCurrentFilter(storeList)" mat-menu-item (click)="setStoreListAsFilter(null)">
+        <i style="margin-left: -8px;" class="fa-stack">
+          <i class="fas fa-filter fa-stack-1x"></i>
+          <i class="fas fa-ban fa-stack-2x" style="color:Tomato"></i>
+        </i>
+        <span>Remove Filter</span>
+      </button>
+      <button mat-menu-item (click)="renameList(storeList)">
+        <i class="fas fa-edit"></i>
+        <span>Rename List</span>
+      </button>
+      <button class="menu-item-warn" mat-menu-item (click)="deleteList(storeList)">
+        <i class="fas fa-trash-alt"></i>
+        <span>Delete List</span>
+      </button>
+    </mat-menu>
+
+  </div>
+</mat-list>

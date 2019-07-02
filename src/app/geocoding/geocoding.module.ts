@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from '../shared/shared.module';
 import { GeocodingRoutingModule } from './geocoding-routing.module';
 import { GeocodingComponent } from './geocoding.component';
-import { MatDialogModule } from '@angular/material';
+import { MatDialogModule } from '@angular/material/dialog';
 import { ResourceQuotaService } from '../core/services/resource-quota.service';
 
 @NgModule({

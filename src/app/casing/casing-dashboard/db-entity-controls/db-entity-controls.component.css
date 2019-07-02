@@ -1,0 +1,82 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.control-toolbar {
+  height: 48px;
+  justify-content: space-between;
+  background: #799daf;
+}
+
+.mat-expansion-panel-spacing {
+  margin: 0;
+}
+
+.control-selector {
+  width: 200px;
+  margin: 0 10%;
+}
+
+.checklist {
+  padding-left: 30px
+}
+
+.checklist mat-checkbox {
+  display: block;
+  margin-bottom: 8px;
+}
+
+mat-panel-title {
+  align-items: center;
+}
+
+mat-panel-description {
+  font-size: x-small;
+  font-style: italic;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+  white-space: pre-wrap;
+}
+
+.meta-data {
+  text-align: center;
+}
+
+.meta-data > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0 0 5px 0;
+}
+
+.meta-data > div:hover {
+  background: #efefef;
+  color: black;
+}
+
+.banner-logo {
+  height: auto;
+  max-width: 50%;
+  max-height: 30px;
+}
+
+#add-banner-button {
+  margin-bottom: 15px;
+}
+
+mat-slider {
+  width: 100%;
+}
+
+.control-label {
+  margin-bottom: 16px;
+  text-align: center;
+  font-weight: bold;
+}

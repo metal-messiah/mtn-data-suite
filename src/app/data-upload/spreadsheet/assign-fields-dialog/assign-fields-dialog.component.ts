@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatStepper } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatStepper } from '@angular/material/stepper';
 import { FormGroup, FormBuilder } from '@angular/forms';
 
 import { SimplifiedCompany } from 'app/models/simplified/simplified-company';
@@ -46,7 +47,7 @@ export class AssignFieldsDialogComponent implements OnInit {
   volumeDate = null;
   volumeType: string = null;
 
-  @ViewChild('stepper') stepper: MatStepper;
+  @ViewChild('stepper', {static: true}) stepper: MatStepper;
 
   MatDialog;
 
@@ -134,7 +135,7 @@ export class AssignFieldsDialogComponent implements OnInit {
       if (attempts < 3) {
         this.companyService.getOneById(companyId).subscribe(
           (company: Company) => {
-            const { banners } = company;
+            const {banners} = company;
             attempts = 0;
 
             this.bannerFetches = banners.length;
@@ -201,13 +202,13 @@ export class AssignFieldsDialogComponent implements OnInit {
   mapUpdateItemsToForm() {
     // place update items in form
     this.form.value.updateFields = this.updateItems.map((i) => {
-      return { file: i.selectedFileField, store: i.selectedStoreField };
+      return {file: i.selectedFileField, store: i.selectedStoreField};
     });
   }
 
   mapInsertItemsToForm() {
     this.form.value.insertFields = this.insertItems.map((i) => {
-      return { file: i.selectedFileField, store: i.selectedStoreField };
+      return {file: i.selectedFileField, store: i.selectedStoreField};
     });
   }
 
@@ -246,7 +247,7 @@ export class AssignFieldsDialogComponent implements OnInit {
 
   formIsValid(): boolean {
     const step = this.stepper.selectedIndex;
-    const { controls, value } = this.form;
+    const {controls, value} = this.form;
     if (step === 0) {
       return controls.name.valid && ((value.lat && value.lng) || (value.company && value.storeNumber));
     }

@@ -1,15 +1,15 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { StoreSidenavService } from './store-sidenav.service';
+import { StoreListUIService } from './store-list-u-i.service';
 
 describe('StoreSidenavService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [StoreSidenavService]
+      providers: [StoreListUIService]
     });
   });
 
-  it('should be created', inject([StoreSidenavService], (service: StoreSidenavService) => {
+  it('should be created', inject([StoreListUIService], (service: StoreListUIService) => {
     expect(service).toBeTruthy();
   }));
 });
