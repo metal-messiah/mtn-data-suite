@@ -67,16 +67,8 @@ mat-panel-description {
   max-height: 30px;
 }
 
-.add-banner-button {
-  text-align: center;
-  justify-content: center !important;
-  font-style: italic;
-  font-weight: bold;
-  background: #607d8b;
-  padding: 10px;
-  border-radius: 5px;
-  margin: 0 0 15px 0;
-  color: white;
+#add-banner-button {
+  margin-bottom: 15px;
 }
 
 mat-slider {

@@ -2,6 +2,8 @@ import { Mappable } from '../interfaces/mappable';
 import { Subject } from 'rxjs';
 import { MapService } from '../core/services/map.service';
 
+import * as MarkerWithLabel from '@google/markerwithlabel';
+
 /*
   The Map Point Layer should represent a list of Mappables on a map.
   - Mappables is not added to or reduced, but rather replaced (managed externally)
@@ -26,9 +28,11 @@ export class MapPointLayer<T extends Mappable> {
   }
 
   protected createMarkerFromMappable(mappable: T) {
-    const marker = new google.maps.Marker({
-      position: mappable.getCoordinates()
-    });
+    const marker = mappable.hasOwnProperty('options') ?
+      new MarkerWithLabel({ position: mappable.getCoordinates() }) :
+      new google.maps.Marker({
+        position: mappable.getCoordinates()
+      });
     marker.addListener('click', () => this.markerClick$.next(mappable));
     marker.addListener('drag', () => this.markerDrag$.next(mappable));
     marker.addListener('dragend', () => this.markerDragEnd$.next(mappable));
@@ -44,6 +48,10 @@ export class MapPointLayer<T extends Mappable> {
     if (marker != null) {
       this.setMarkerOptions(marker);
     }
+  }
+
+  getMarkersCount(): number {
+    return this.markers.length;
   }
 
   refreshOptions(): void {
@@ -112,7 +120,11 @@ export class MapPointLayer<T extends Mappable> {
   protected setMarkerOptions(marker: google.maps.Marker): void {
     const mappable: Mappable = marker.get('mappable');
     marker.setDraggable(mappable.isDraggable());
-    marker.setIcon(mappable.getIcon());
-    marker.setLabel(mappable.getLabel());
+    if (mappable.hasOwnProperty('options')) {
+      marker.setOptions(mappable['getOptions']());
+    } else {
+      marker.setIcon(mappable.getIcon());
+      marker.setLabel(mappable.getLabel());
+    }
   }
 }

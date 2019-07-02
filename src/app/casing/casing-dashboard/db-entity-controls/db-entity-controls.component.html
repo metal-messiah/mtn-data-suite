@@ -88,7 +88,9 @@
       </mat-panel-description>
     </mat-expansion-panel-header>
     <div class="meta-data">
-      <div (click)="selectBanner()" class="add-banner-button"><i class="fas fa-plus-circle"></i>&nbsp;Add Banner</div>
+      <button id="add-banner-button" mat-raised-button color="primary" (click)="selectBanner()">
+        <i class="fas fa-plus-circle"></i>&nbsp;Add Banner
+      </button>
       <div *ngFor="let banner of filterBanners">
         <span>{{banner.bannerName}}</span>
         <img #image class="banner-logo" [title]="getActiveBannerName()"
