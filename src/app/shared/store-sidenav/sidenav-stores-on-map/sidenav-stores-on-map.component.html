@@ -1,0 +1,34 @@
+<mat-toolbar class="toolbar" color="primary">
+  <div>
+    <button mat-icon-button (click)="goBack()" title="Go Back">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+  </div>
+  <h1>Stores On Map</h1>
+  <div>
+    <button mat-icon-button
+            title="More menu"
+            id="more-menu-button"
+            [matBadge]="getSelectedStoresCount() || null"
+            matBadgeColor="accent"
+            matBadgeSize="small"
+            [mat-menu-trigger-for]="storeListMenu">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+  </div>
+</mat-toolbar>
+<mds-stores-list></mds-stores-list>
+
+<mat-menu #storeListMenu="matMenu" id="store-list-menu">
+  <button mat-menu-item [disabled]="isMultiSelecting()" (click)="enableMultiSelect()">
+    <i class="fas fa-hand-pointer"></i>&nbsp;&nbsp;
+    <span>Enable multi-select</span>
+  </button>
+  <button mat-menu-item [disabled]="getSelectedStoresCount() === 0"
+          title="Zoom to Selected Stores"
+          (click)="zoomToSelection()"
+          class="selected-stores">
+    <i class="fas fa-search-location"></i>&nbsp;&nbsp;
+    <span>Zoom to Selection</span>
+  </button>
+</mat-menu>

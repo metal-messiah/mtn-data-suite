@@ -18,7 +18,7 @@ export class ExtractionService {
     params = params.set('field-set-id', String(fieldSetId));
     const headers = new HttpHeaders({
       'Content-Type': 'text/csv',
-      'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+      'Authorization': 'Bearer ' + this.rest.getAccessToken()
     });
     return this.http.get(url, {headers: headers, params: params, responseType: 'blob'})
   }
@@ -29,7 +29,7 @@ export class ExtractionService {
     params = params.set('field-set-id', String(fieldSetId));
     const headers = new HttpHeaders({
       'Content-Type': 'text/csv',
-      'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+      'Authorization': 'Bearer ' + this.rest.getAccessToken()
     });
     return this.http.get(url, {headers: headers, params: params, responseType: 'blob'})
 

@@ -1,11 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { saveAs } from 'file-saver';
-import shajs from 'sha.js';
-import { CloudinaryAsset } from 'app/shared/cloudinary/cloudinary.component';
-
-declare var cloudinary: any;
+import { CloudinaryAsset, CloudinaryComponent } from 'app/shared/cloudinary/cloudinary.component';
 
 @Component({
   selector: 'mds-images',
@@ -14,12 +11,9 @@ declare var cloudinary: any;
 })
 export class ImagesComponent implements OnInit {
   cloudName = 'mtnra';
-  timeStamp = Math.floor(Date.now() / 1000);
   username = 'jordan@mtnra.com';
   apiSecret = 'wClRfg43OFsvwhg33QMnowZ0Skc';
   apiKey = '515812459374857';
-
-  config: object;
 
   selectedFiles: CloudinaryAsset[] = [];
   copiedId: string;
@@ -34,7 +28,7 @@ export class ImagesComponent implements OnInit {
   identifierTargets: object = {};
   identifierIdx: number;
 
-  showCloudinary = false;
+  @ViewChild('cloudinary', {static: true}) cloudinaryInstance: CloudinaryComponent;
 
   constructor(private snackBar: MatSnackBar) {
     this.fileReader = new FileReader();
@@ -68,35 +62,9 @@ export class ImagesComponent implements OnInit {
     target.disabled = true;
   }
 
-  handleAssets(assets) {
-    this.setSelectedFiles(assets);
-    this.showCloudinary = false;
-  }
-
   openCloudinary() {
     this.selectedFiles = [];
-    this.showCloudinary = true;
-    if (!this.cloudinaryIsShowing()) {
-      setTimeout(() => {
-        this.setCloudinaryElementVisibility('visible');
-      }, 500)
-    }
-  }
-
-  cloudinaryIsShowing() {
-    const cloudinaryElem = document.querySelector('div>iframe');
-    let isShowing = false;
-    if (cloudinaryElem) {
-      isShowing = cloudinaryElem.parentElement.style.visibility === 'visible';
-    }
-    return isShowing;
-  }
-
-  setCloudinaryElementVisibility(visibility) {
-    const cloudinaryElem = document.querySelector('div>iframe');
-    if (cloudinaryElem) {
-      cloudinaryElem.parentElement.style.visibility = visibility
-    }
+    this.cloudinaryInstance.show();
   }
 
   readCsv(event) {

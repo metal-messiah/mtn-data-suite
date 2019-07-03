@@ -1,17 +1,19 @@
-import { Component, Inject, ViewChild } from '@angular/core';
-import { ListManagerService } from '../list-manager/list-manager.service';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { SimplifiedStoreList } from '../../models/simplified/simplified-store-list';
-import { SimplifiedStore } from '../../models/simplified/simplified-store';
-import { StoreService } from '../../core/services/store.service';
-
-import * as _ from 'lodash';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { StoreListService } from 'app/core/services/store-list.service';
-import { StoreList } from 'app/models/full/store-list';
+import { forkJoin } from 'rxjs';
+import { MatSnackBar } from '@angular/material';
+import { AuthService } from '../../core/services/auth.service';
+import { StoreListSearchType } from '../../core/functionalEnums/StoreListSearchType';
+import { finalize } from 'rxjs/operators';
+import { ErrorService } from '../../core/services/error.service';
+import { TextInputDialogComponent } from '../text-input-dialog/text-input-dialog.component';
+import { StoreList } from '../../models/full/store-list';
 
 export enum AddRemoveType {
-  ADD,
-  REMOVE
+  ADD = 'Add',
+  REMOVE = 'Remove'
 }
 
 @Component({
@@ -19,142 +21,101 @@ export enum AddRemoveType {
   templateUrl: './add-remove-stores-list-dialog.component.html',
   styleUrls: ['./add-remove-stores-list-dialog.component.css']
 })
-export class AddRemoveStoresListDialogComponent {
+export class AddRemoveStoresListDialogComponent implements OnInit {
 
+  AddRemoveType = AddRemoveType;
   type: AddRemoveType;
   storeIds: number[];
 
-  stores: SimplifiedStore[] = [];
+  selectedListIds = [];
+  storeLists: SimplifiedStoreList[] = [];
 
-  allStoreLists: SimplifiedStoreList[] = [];
-  includedStoreLists: SimplifiedStoreList[] = [];
-  excludedStoreLists: SimplifiedStoreList[] = [];
+  fetching = false;
+  saving = false;
 
-  fetching = true;
-
-  @ViewChild('selectionList') selectionList: any = {
-    selectedOptions: { selected: [] }
+  @ViewChild('selectionList', {static: true}) selectionList: any = {
+    selectedOptions: {selected: []}
   };
 
-  constructor(private listManagerService: ListManagerService,
-    private storeService: StoreService,
-    private storeListService: StoreListService,
-    private dialogRef: MatDialogRef<AddRemoveStoresListDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor(private storeListService: StoreListService,
+              private snackBar: MatSnackBar,
+              private authService: AuthService,
+              private errorService: ErrorService,
+              private dialog: MatDialog,
+              private dialogRef: MatDialogRef<AddRemoveStoresListDialogComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: any) {
     this.type = data.type;
     this.storeIds = data.storeIds;
-
-    this.storeService.getAllByIds(this.storeIds).subscribe((stores: SimplifiedStore[]) => {
-      this.stores = stores;
-
-      this.listManagerService.getStoreLists().subscribe((storeLists: SimplifiedStoreList[]) => {
-        this.filterLists(storeLists);
-      })
-    });
-
-    dialogRef.disableClose = true;
   }
 
-  getStoresText() {
-    return this.storeIds.length > 1 ? 'Stores' : 'Store';
+  ngOnInit() {
+    this.getLists();
   }
 
-  getListsText(targetListsCount) {
-    return targetListsCount > 1 ? 'Lists' : 'List'
-  }
-
-  getAddOrRemoveTitle() {
-    const storesText = this.getStoresText();
-    return this.type === AddRemoveType.ADD ?
-      `Add Selected ${storesText} To Lists` :
-      `Remove Selected ${storesText} From Lists`;
-  }
-
-  getSaveButtonText() {
-    const targetListsCount = this.selectionList.selectedOptions.selected.length;
-    const storesText = this.getStoresText();
-    const listsText = this.getListsText(targetListsCount);
-    return this.type === AddRemoveType.ADD ?
-      `Add Selected ${storesText} To ${targetListsCount} ${listsText}` :
-      `Remove Selected ${storesText} From ${targetListsCount} ${listsText}`;
-  }
-
-  createNewList(listNameInput) {
-    const listName = listNameInput.value;
-
-    if (listName) {
-      this.fetching = true;
-      const newStoreList: StoreList = new StoreList({ storeListName: listName });
-      this.storeListService.create(newStoreList).subscribe(() => {
-        this.listManagerService.getStoreLists().subscribe((storeLists: SimplifiedStoreList[]) => {
-          this.filterLists(storeLists);
-        });
-      })
-    }
-    listNameInput.value = '';
-  }
-
-  shouldDisableNewListButton(newListName: string) {
-    return this.allStoreLists.filter(
-      (sl: SimplifiedStoreList) => sl.storeListName.toLowerCase() === newListName.toLowerCase()
-    ).length > 0;
-  }
-
-  getNewListNamePlaceholder(newListName: string) {
-    if (this.shouldDisableNewListButton(newListName)) {
-      return 'List Name Already Exists!'
-    }
-    return 'New List Name'
-  }
-
-  getNewListNamePlaceholderColor(newListName: string) {
-    return this.shouldDisableNewListButton(newListName);
-  }
-
-  filterLists(allStoreLists: SimplifiedStoreList[]) {
-    this.allStoreLists = allStoreLists;
-    this.includedStoreLists = allStoreLists.filter((storeList: SimplifiedStoreList) => {
-      if (this.stores.length) {
-        const storeIds = this.stores.map((store: SimplifiedStore) => store.id);
-        const storeListStoreIds = storeList.storeIds;
-        const hasMatches = _.intersectionWith(storeIds, storeListStoreIds, _.isEqual);
-        return hasMatches.length;
-      } else {
-        return false
-      }
-    });
-    this.excludedStoreLists = allStoreLists.filter((storeList: SimplifiedStoreList) => {
-      if (this.stores.length) {
-        const storeIds = this.stores.map((store: SimplifiedStore) => store.id);
-        const storeListStoreIds = storeList.storeIds;
-        const hasMatches = _.intersectionWith(storeIds, storeListStoreIds, _.isEqual);
-        return hasMatches.length === 0;
-      } else {
-        return false
-      }
-    });
-
-    this.sortStoreListsAlphabetically();
-  }
-
-  sortStoreListsAlphabetically() {
-    const targets = [this.allStoreLists, this.includedStoreLists, this.excludedStoreLists];
-    targets.forEach((storeList: SimplifiedStoreList[]) => {
-      storeList.sort((a: SimplifiedStoreList, b: SimplifiedStoreList) => {
-        const text1 = a.storeListName.toUpperCase();
-        const text2 = b.storeListName.toUpperCase();
-        return text1 < text2 ? -1 : text1 > text2 ? 1 : 0;
-      });
-    });
-
-    this.fetching = false;
-  }
-
-  modifyList() {
-    if (this.type === AddRemoveType.ADD) {
-      this.listManagerService.addToList(this.selectionList.selectedOptions.selected, null, this.stores);
+  private getLists() {
+    this.fetching = true;
+    const options = {
+      searchType: StoreListSearchType.ANY
+    };
+    if (this.data.type === AddRemoveType.REMOVE) {
+      options['includingStoreIds'] = this.storeIds;
     } else {
-      this.listManagerService.removeFromList(this.selectionList.selectedOptions.selected.map(sel => sel.value), this.stores);
+      options['excludingStoreIds'] = this.storeIds;
+    }
+    this.storeListService.getStoreLists(options)
+      .pipe(finalize(() => this.fetching = false))
+      .subscribe(page => {
+          this.storeLists = page.content;
+          if (this.storeLists.length === 0) {
+            if (this.type === AddRemoveType.ADD) {
+              this.snackBar.open('Store already belongs to every list!', null, {duration: 2000});
+            } else {
+              this.snackBar.open('Store isn\'t in any list!', null, {duration: 2000});
+            }
+            this.dialogRef.close();
+          }
+        },
+        err => this.errorService.handleServerError('Failed to get store lists!', err,
+          () => console.log(err), () => this.getLists()));
+  }
+
+  createNewList() {
+    this.dialog.open(TextInputDialogComponent, {data: {title: 'New List', placeholder: 'New List Name'}})
+      .afterClosed()
+      .subscribe((text: string) => {
+        if (text) {
+          const newStoreList = new StoreList({storeListName: text});
+          this.saveNewList(newStoreList);
+        }
+      });
+  }
+
+  private saveNewList(newStoreList: StoreList) {
+    this.saving = false;
+    this.storeListService.create(newStoreList)
+      .pipe(finalize(() => this.saving = false))
+      .subscribe((storeList: StoreList) => {
+        this.snackBar.open('Successfully created new list', null, {duration: 2000});
+        this.storeLists.push(new SimplifiedStoreList(storeList));
+        this.storeLists.sort((a, b) => a.storeListName.localeCompare(b.storeListName));
+      }, err => this.errorService.handleServerError('Failed to create new list!', err,
+        () => console.log(err),
+        () => this.saveNewList(newStoreList)))
+  }
+
+  submit() {
+    if (this.type === AddRemoveType.ADD) {
+      const obs = this.selectedListIds.map(listId => this.storeListService.addStoresToStoreList(listId, this.storeIds));
+      forkJoin(obs).subscribe(() => {
+        this.snackBar.open('Successfully added stores to selected lists', null, {duration: 2000});
+        this.dialogRef.close()
+      });
+    } else {
+      const obs = this.selectedListIds.map(listId => this.storeListService.removeStoresFromStoreList(listId, this.storeIds));
+      forkJoin(obs).subscribe(() => {
+        this.snackBar.open('Successfully removed stores from selected lists', null, {duration: 2000});
+        this.dialogRef.close()
+      });
     }
   }
 

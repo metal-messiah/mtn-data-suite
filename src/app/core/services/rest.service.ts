@@ -1,9 +1,12 @@
-import {Injectable} from '@angular/core';
-import {HttpHeaders} from '@angular/common/http';
-import {environment} from '../../../environments/environment';
+import { Injectable } from '@angular/core';
+import { HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Injectable()
 export class RestService {
+
+  private accessToken: string;
+  private headers: HttpHeaders;
 
   constructor() {
   }
@@ -21,10 +24,19 @@ export class RestService {
   }
 
   public getHeaders(): HttpHeaders {
-    return new HttpHeaders({
+    return this.headers;
+  }
+
+  setAccessToken(accessToken: string) {
+    this.accessToken = accessToken;
+    this.headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+      'Authorization': 'Bearer ' + accessToken
     });
+  }
+
+  getAccessToken() {
+    return this.accessToken;
   }
 
 }

@@ -3,14 +3,19 @@ import { SiteService } from '../../core/services/site.service';
 import { ErrorService } from '../../core/services/error.service';
 import { StoreService } from '../../core/services/store.service';
 import { Router } from '@angular/router';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../core/services/auth.service';
 import { UserProfile } from '../../models/full/user-profile';
 import { UserProfileSelectComponent } from '../user-profile-select/user-profile-select.component';
 import { Store } from '../../models/full/store';
 import { Site } from '../../models/full/site';
 import { DbEntityInfoCardItem } from '../../casing/db-entity-info-card-item';
-import { AddRemoveStoresListDialogComponent, AddRemoveType } from '../add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
+import {
+  AddRemoveStoresListDialogComponent,
+  AddRemoveType
+} from '../add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
+import { SimplifiedSite } from '../../models/simplified/simplified-site';
 
 @Component({
   selector: 'mds-db-location-info-card',
@@ -22,37 +27,41 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
   @Input() infoCardItem: DbEntityInfoCardItem;
   @Input() disabled: boolean;
 
-  site: Site;
+  site: SimplifiedSite;
   store: Store;
 
-  constructor(public siteService: SiteService,
-    private storeService: StoreService,
-    private errorService: ErrorService,
-    private router: Router,
-    private snackBar: MatSnackBar,
-    private authService: AuthService,
-    private dialog: MatDialog) {
+  constructor(private siteService: SiteService,
+              private storeService: StoreService,
+              private errorService: ErrorService,
+              private router: Router,
+              private snackBar: MatSnackBar,
+              private authService: AuthService,
+              private dialog: MatDialog) {
   }
 
   ngOnInit() {
-    this.getSite();
+    this.initData();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     this.site = null;
     this.store = null;
-    this.getSite();
+    this.initData();
   }
 
-  private getSite() {
-    this.siteService.getOneById(this.infoCardItem.selection.siteId).subscribe((site: Site) => this.initSite(site));
-  }
-
-  private initSite(site: Site) {
-    this.site = site;
+  private initData() {
     if (this.infoCardItem.selection.storeId) {
-      this.initStore(site.stores.find(store => store.id === this.infoCardItem.selection.storeId));
+      this.storeService.getOneById(this.infoCardItem.selection.storeId).subscribe((store: Store) => {
+        this.initStore(store);
+        this.initSite(store.site);
+      })
+    } else if (this.infoCardItem.selection.siteId) {
+      this.siteService.getOneById(this.infoCardItem.selection.siteId).subscribe((site: Site) => this.initSite(new SimplifiedSite(site)));
     }
+  }
+
+  private initSite(site: SimplifiedSite) {
+    this.site = site;
   }
 
   private initStore(store: Store) {
@@ -87,10 +96,10 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
   }
 
   private assign(userId: number) {
-    return this.siteService.assignSiteToUser(this.site, userId)
+    return this.siteService.assignSiteToUser(this.site.id, userId)
       .subscribe((site: Site) => {
-        this.initSite(site);
-        this.snackBar.open('Successfully assigned Site', null, { duration: 1000 });
+        this.initSite(new SimplifiedSite(site));
+        this.snackBar.open('Successfully assigned Site', null, {duration: 1000});
         this.infoCardItem.refreshSite$.next(site.id);
       }, err => this.errorService.handleServerError('Failed to update site', err,
         () => console.log('Cancelled'),
@@ -119,21 +128,22 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
     selBox.select();
     document.execCommand('copy');
     document.body.removeChild(selBox);
-    this.snackBar.open(`${val} copied to clipboard`, null, { duration: 1000 });
+    this.snackBar.open(`${val} copied to clipboard`, null, {duration: 1000});
   }
 
   setDuplicateFlag(isDuplicate: boolean) {
-    // Get full site
-    this.site.duplicate = isDuplicate;
-    return this.siteService.update(this.site)
-      .subscribe((site: Site) => {
-        this.initSite(site);
-        this.snackBar.open('Successfully updated Site', null, { duration: 1000 });
-        this.infoCardItem.refreshSite$.next(this.site.id);
-      }, err => this.errorService.handleServerError('Failed to update Site!', err,
-        () => this.site.duplicate = !isDuplicate,
-        () => this.setDuplicateFlag(isDuplicate)
-      ));
+    this.siteService.getOneById(this.site.id).subscribe(fullSite => {
+      fullSite.duplicate = isDuplicate;
+      return this.siteService.update(fullSite)
+        .subscribe((site: Site) => {
+          this.initSite(new SimplifiedSite(site));
+          this.snackBar.open('Successfully updated Site', null, {duration: 1000});
+          this.infoCardItem.refreshSite$.next(this.site.id);
+        }, err => this.errorService.handleServerError('Failed to update Site!', err,
+          () => this.site.duplicate = !isDuplicate,
+          () => this.setDuplicateFlag(isDuplicate)
+        ));
+    });
   }
 
   setFloating(floating: boolean) {
@@ -142,7 +152,7 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
       .subscribe((store: Store) => {
         this.initStore(store);
         this.infoCardItem.refreshSite$.next(this.site.id);
-        this.snackBar.open(`Updated Store`, null, { duration: 2000 });
+        this.snackBar.open(`Updated Store`, null, {duration: 2000});
       }, err => this.errorService.handleServerError('Failed to update store', err,
         () => this.store.floating = !floating,
         () => this.setFloating(floating)));
@@ -151,10 +161,10 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
   validateStore() {
     this.storeService.validateStore(this.store.id)
       .subscribe((store: Store) => {
-        this.initStore(store);
-        this.snackBar.open(`Validated Store`, null, { duration: 2000 });
-        this.infoCardItem.refreshSite$.next(this.site.id);
-      },
+          this.initStore(store);
+          this.snackBar.open(`Validated Store`, null, {duration: 2000});
+          this.infoCardItem.refreshSite$.next(this.site.id);
+        },
         err => this.errorService.handleServerError('Failed to validate store', err,
           () => console.log('cancelled'),
           () => this.validateStore()))
@@ -163,10 +173,10 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
   invalidateStore() {
     this.storeService.invalidateStore(this.store.id)
       .subscribe((store: Store) => {
-        this.initStore(store);
-        this.snackBar.open(`Invalidated Store`, null, { duration: 2000 });
-        this.infoCardItem.refreshSite$.next(this.site.id);
-      },
+          this.initStore(store);
+          this.snackBar.open(`Invalidated Store`, null, {duration: 2000});
+          this.infoCardItem.refreshSite$.next(this.site.id);
+        },
         err => this.errorService.handleServerError('Failed to invalidate store', err,
           () => console.log('cancelled'),
           () => this.validateStore()))
@@ -175,15 +185,23 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
   addToList() {
     const storeIds = [this.infoCardItem.selection.storeId];
     if (storeIds.length) {
-      this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.ADD, storeIds } });
+      this.dialog.open(AddRemoveStoresListDialogComponent, {data: {type: AddRemoveType.ADD, storeIds}, disableClose: true});
     }
   }
 
   removeFromList() {
     const storeIds = [this.infoCardItem.selection.storeId];
     if (storeIds.length) {
-      this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.REMOVE, storeIds } });
+      this.dialog.open(AddRemoveStoresListDialogComponent, {data: {type: AddRemoveType.REMOVE, storeIds}, disableClose: true});
     }
+  }
+
+  getFormattedIntersection(site) {
+    return this.siteService.getFormattedIntersection(site);
+  }
+
+  getFormattedPrincipality(site) {
+    return this.siteService.getFormattedPrincipality(site);
   }
 
 }

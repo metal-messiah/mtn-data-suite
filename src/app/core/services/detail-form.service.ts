@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DetailFormComponent } from '../../interfaces/detail-form-component';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ErrorService } from './error.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { AuditingEntity } from '../../models/auditing-entity';

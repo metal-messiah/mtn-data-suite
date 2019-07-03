@@ -1,3 +1,13 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+mat-sidenav-container {
+  flex: 1;
+}
+
 [matPrefix] {
   margin-right: 8px;
 }
@@ -6,45 +16,8 @@ mds-map {
   height: inherit;
 }
 
-i:hover{
-  color: orange;
-  cursor:pointer;
-}
-
-/* .infoCardContainer {
-  position: absolute;
-  pointer-events: all;
-  max-width: 300px;
-  left: 5px;
-  bottom: 60px;
-} */
-
-.infoCardContainer {
-  position: absolute;
-  pointer-events: all;
-  width: 300px;
-  bottom: 81px;
-  z-index: 9999;
-  transition: all 0.5s ease-in-out;
-  padding-left: 5px;
-}
-
-@media (min-width: 600px) {
-  .infoCardContainer.right {
-    left: calc(100% - 375px);
-  }
-}
-
 mat-slider {
   width: 90%;
-}
-
-#casing-dash-container {
-  height: 100%;
-}
-
-.box {
-  height: 100%;
 }
 
 form {
@@ -55,129 +28,16 @@ form {
   max-width: 300px;
 }
 
-.add-banner-button{
-  text-align: center; 
-  justify-content: center !important;
-  font-style: italic;
-  font-weight: bold;
-  background: #607d8b;
-  padding: 10px;
-  border-radius: 5px;
-  margin: 0 0 15px 0;
-  color: white;
-}
-mat-expansion-panel-header{
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-.meta-data {
-  text-align: center;
-}
-.meta-data > div{
-  display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 0 0 5px 0;
-}
-.meta-data > div:hover{
-  background: #efefef;
-  color: black;
-}
-
-.banner-logo {
-  height: auto;
-  max-width: 50%;
-  max-height: 30px;
-}
-
-.checklist {
-  display: flex;
-  flex-direction: column;
-  padding-left: 30px
-}
-
-.checklist mat-checkbox {
-  margin-bottom: 8px;
-}
-
 mat-sidenav {
   min-width: 250px;
 }
 
-*::-webkit-scrollbar {
-  width: 5px !important;
-}
-
-*::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3) !important;
-}
-
-*::-webkit-scrollbar-thumb {
-  background-color: orange !important;
-  outline: 1px solid slategrey !important;
-}
-
-#loadingSpinner, #refresh {
-  position: absolute;
-  bottom: 250px;
-  right: 15px;
-  /*pointer-events: none;*/
-  z-index: 100;
-  color: orange;
-}
-
-.accordion-header-text{
-  font-size: large;
-  background: #607d8b; 
-  color: white;
-  display:flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.accordion-header-text> div{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 75px;
-}
-
-.mat-expansion-panel-spacing{
-  margin: 0;
-}
-
-mat-panel-title{
-  align-items: center;
-}
-
-mat-panel-description{
-  font-size: x-small;
-  font-style: italic;
-  align-items: center;
-  justify-content: flex-end;
-  text-align: right;
-  white-space: pre-wrap;
-}
-
-@media (max-width: 600px) {
-  #loadingSpinner, #refresh {
-    bottom: 240px;
-  }
-}
 #refresh {
   min-width: unset;
   padding: unset;
   width: 40px;
   height: 40px;
-}
-
-.control-selector {
-  width: 200px;
-  margin: 0 10%;
+  margin-right: 10px;
 }
 
 mat-slider {
@@ -185,88 +45,23 @@ mat-slider {
   margin: 0 20px;
 }
 
-.center-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-mds-store-sidenav {
-  height: 100%;
-  position: relative;
-  transition: all 0.5s ease-in-out;
-
-  /* padding: 0 10px; */
-  background: white;
-}
-
-mds-store-sidenav::after {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f054";
-  position: absolute;
-  right: -20px;
-  top: calc(50% - 25px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999999;
-  width: 20px;
-  height: 50px;
-  background: white;
-  border-radius: 0 5px 5px 0;
-  cursor: pointer;
-}
-
-mds-store-sidenav.sidenav-show::after {
-  content: "\f053";
-}
-
-.sidenav-show {
+#store-list-sidenav {
   width: 400px;
 }
 
-.sidenav-hide {
-  width: 0;
-}
-
-@media (max-width: 740px) {
-  mds-store-sidenav {
-    position: absolute;
-    z-index: 9999;
-    height: calc(100vh - 129px);
-    left: 0;
-    top: 0;
-  }
-
-  .sidenav-show {
-    width: calc(100% - 35px);
-
-  }
-}
-
 @media (max-width: 600px) {
-  mds-store-sidenav {
-    height: calc(100vh - 112px);
+  #store-list-sidenav {
+    width: 90%;
+    max-width: 400px;
   }
 }
 
-.invisible {
-  opacity: 0.25;
+#info-card-wrapper {
+  position: absolute;
+  max-width: 300px;
+  margin-left: 6px;
 }
 
-.adjusted-height {
-  height: calc(100% - 250px);
-  padding-bottom: 10px;
-}
-
-#dataset-header {
-  display: flex;
-  justify-content: space-between;
-}
-
-h3 > i:hover {
-  cursor: pointer;
-  color: orange;
+.hidden {
+  visibility: hidden;
 }

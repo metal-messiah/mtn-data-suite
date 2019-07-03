@@ -1,7 +1,8 @@
 // UTILITIES //
 import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatSnackBar, MatStepper } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatStepper } from '@angular/material/stepper';
 import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
 import * as _ from 'lodash';
 import { WordSimilarity } from '../../../utils/word-similarity';
@@ -45,7 +46,7 @@ export enum LoadType {
   selector: 'mds-chain-xy-map',
   templateUrl: './chain-xy-map.component.html',
   styleUrls: ['./chain-xy-map.component.css'],
-  providers: []
+  providers: [MapService]
 })
 export class ChainXyMapComponent implements OnInit {
   // Mapping
@@ -102,7 +103,7 @@ export class ChainXyMapComponent implements OnInit {
   // Reference Values
   storeTypes: string[] = ['ACTIVE', 'FUTURE', 'HISTORICAL'];
 
-  @ViewChild('stepper') stepper: MatStepper;
+  @ViewChild('stepper', { static: true }) stepper: MatStepper;
 
   constructor(
     private sourceService: StoreSourceService,

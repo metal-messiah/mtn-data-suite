@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ExtractionFieldSet } from '../../models/full/extraction-field-set';
 import { ExtractionService } from '../../core/services/extraction.service';
 import { finalize } from 'rxjs/operators';

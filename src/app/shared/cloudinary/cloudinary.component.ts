@@ -31,7 +31,7 @@ export interface CloudinaryConfig {
   timestamp: number;
   max_files: number;
   multiple: boolean;
-};
+}
 
 @Component({
   selector: 'mds-cloudinary',
@@ -48,37 +48,33 @@ export class CloudinaryComponent implements OnInit {
 
   @Output() assets = new EventEmitter<CloudinaryAsset[]>();
 
-  timeStamp = Math.floor(Date.now() / 1000);
-  cloudinaryConfig: CloudinaryConfig;
-
-  mediaLibrary: any;
+  private cloudinaryInstance: any;
 
   constructor() { }
 
   ngOnInit() {
-    const signature = `cloud_name=${this.cloudName}&timestamp=${this.timeStamp}&username=${this.username}${this
+    const timeStamp = Math.floor(Date.now() / 1000);
+
+    const signature = `cloud_name=${this.cloudName}&timestamp=${timeStamp}&username=${this.username}${this
       .apiSecret}`;
     const encodedSignature = shajs('sha256').update(signature).digest('hex');
 
-    this.cloudinaryConfig = {
+    const cloudinaryConfig = {
       signature: encodedSignature,
       cloud_name: this.cloudName,
       api_key: this.apiKey,
       username: this.username,
-      timestamp: this.timeStamp,
+      timestamp: timeStamp,
       max_files: this.maxFiles,
       multiple: this.multiple
     };
 
-    this.openCloudinary();
+    this.cloudinaryInstance = cloudinary.createMediaLibrary(cloudinaryConfig, {
+      insertHandler: (data) => this.assets.emit(data.assets.map(a => new CloudinaryAsset(a)))
+    });
   }
 
-  openCloudinary() {
-    cloudinary.openMediaLibrary(this.cloudinaryConfig, {
-      insertHandler: (data) => {
-        // do nothing for now
-        this.assets.emit(data.assets.map(a => new CloudinaryAsset(a)));
-      }
-    });
+  show() {
+    this.cloudinaryInstance.show();
   }
 }

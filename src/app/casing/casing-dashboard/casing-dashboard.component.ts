@@ -1,6 +1,7 @@
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { MatDialog, MatSnackBar } from '@angular/material';
-import { ActivatedRoute, Params } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { of, Subject, Subscription } from 'rxjs';
 import { debounce, debounceTime, delay, finalize } from 'rxjs/internal/operators';
@@ -8,7 +9,6 @@ import { debounce, debounceTime, delay, finalize } from 'rxjs/internal/operators
 import { AuthService } from '../../core/services/auth.service';
 import { CasingDashboardService } from './casing-dashboard.service';
 import { DbEntityMarkerService } from '../../core/services/db-entity-marker.service';
-import { EntitySelectionService } from '../../core/services/entity-selection.service';
 import { ErrorService } from '../../core/services/error.service';
 import { GeocoderService } from '../../core/services/geocoder.service';
 import { MapService } from '../../core/services/map.service';
@@ -46,39 +46,21 @@ import { DbEntityInfoCardItem } from '../db-entity-info-card-item';
 import { InfoCardItem } from '../info-card-item';
 import { GoogleInfoCardItem } from '../google-info-card-item';
 import { StorageService } from '../../core/services/storage.service';
-import { SiteMarker } from '../../models/site-marker';
-import { StoreMarker } from '../../models/store-marker';
-
-import * as _ from 'lodash';
-import { ListManagerService } from '../../shared/list-manager/list-manager.service';
 import { SimplifiedStoreList } from '../../models/simplified/simplified-store-list';
-import { StoreSidenavService } from '../../shared/store-sidenav/store-sidenav.service';
-
-import { Pages as ListManagerPages } from '../../shared/list-manager/list-manager-pages';
-import { Pages as StoreSidenavPages } from '../../shared/store-sidenav/store-sidenav-pages';
 import {
   AddRemoveStoresListDialogComponent,
   AddRemoveType
 } from 'app/shared/add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
-import { StoreStatusOptions } from 'app/core/functionalEnums/StoreStatusOptions';
-import { ConfirmDialogComponent } from 'app/shared/confirm-dialog/confirm-dialog.component';
-import { SelectBannerComponent } from '../select-banner/select-banner.component';
 import { BannerService } from 'app/core/services/banner.service';
-import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
-import { TextInputDialogComponent } from 'app/shared/text-input-dialog/text-input-dialog.component';
-import { FileInputComponent } from 'app/shared/file-input/file-input.component';
-import { ControlStorageKeys, Control } from 'app/models/control';
-import { StoredControlsSelectionDialogComponent } from 'app/shared/stored-controls-selection-dialog/stored-controls-selection-dialog.component';
-
-export enum CasingDashboardMode {
-  DEFAULT, FOLLOWING, MOVING_MAPPABLE, CREATING_NEW, MULTI_SELECT, EDIT_PROJECT_BOUNDARY, DUPLICATE_SELECTION
-}
+import { CasingDashboardMode } from '../enums/casing-dashboard-mode';
+import { EntitySelectionService } from '../../core/services/entity-selection.service';
+import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 
 @Component({
   selector: 'mds-casing-dashboard',
   templateUrl: './casing-dashboard.component.html',
   styleUrls: ['./casing-dashboard.component.css'],
-  providers: []
+  providers: [MapService, DbEntityMarkerService, EntitySelectionService]
 })
 export class CasingDashboardComponent implements OnInit, OnDestroy {
 
@@ -90,15 +72,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   // Flags
   filterSideNavIsOpen = false;
   updating = false;
-  markCasedStores = false;
   savingBoundary = false;
-
-  // sidenav
-  showStoreLists: boolean;
-  storeListsStorageKey = 'showStoreLists';
-
-  // Modes
-  selectedDashboardMode: CasingDashboardMode = CasingDashboardMode.DEFAULT;
 
   // Enums for template
   casingDashboardMode = CasingDashboardMode;
@@ -112,121 +86,104 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   infoCard: InfoCardItem;
   initiateDuplicateSelection$ = new Subject<number>();
-  initiateSiteMove$ = new Subject<Site>();
+  initiateSiteMove$ = new Subject<SimplifiedSite>();
   siteUpdated$ = new Subject<number>();
 
-  movingSite: Site;
+  movingSiteId: number;
 
-  visibleStoresCount = 0;
+  layoutIsSmall = false;
 
-  isMobile: boolean;
-  isTooNarrow: boolean;
-
-  highlightTab = false;
-
-
-  storeListOptions: SimplifiedStoreList[] = [];
-
-  constructor(public mapService: MapService,
-    public dbEntityMarkerService: DbEntityMarkerService,
-    public geocoderService: GeocoderService,
-    public casingDashboardService: CasingDashboardService,
-    private siteService: SiteService,
-    private storeService: StoreService,
-    private projectService: ProjectService,
-    private bannerService: BannerService,
-    private snackBar: MatSnackBar,
-    private ngZone: NgZone,
-    private route: ActivatedRoute,
-    private navigatorService: NavigatorService,
-    private dialog: MatDialog,
-    private authService: AuthService,
-    private errorService: ErrorService,
-    public entitySelectionService: EntitySelectionService,
-    public projectBoundaryService: ProjectBoundaryService,
-    private storageService: StorageService,
-    private listManagerService: ListManagerService,
-    private storeSidenavService: StoreSidenavService) {
+  constructor(private mapService: MapService,
+              private dbEntityMarkerService: DbEntityMarkerService,
+              private geocoderService: GeocoderService,
+              private casingDashboardService: CasingDashboardService,
+              private siteService: SiteService,
+              private storeService: StoreService,
+              private projectService: ProjectService,
+              private bannerService: BannerService,
+              private snackBar: MatSnackBar,
+              private ngZone: NgZone,
+              private router: Router,
+              private route: ActivatedRoute,
+              private navigatorService: NavigatorService,
+              private dialog: MatDialog,
+              private authService: AuthService,
+              private errorService: ErrorService,
+              private projectBoundaryService: ProjectBoundaryService,
+              private storageService: StorageService,
+              private selectionService: EntitySelectionService,
+              private breakpointObserver: BreakpointObserver) {
   }
 
   ngOnInit() {
-    this.markCasedStores = (localStorage.getItem('markCasedStores') === 'true');
-
-    this.storageService.getOne(this.storeListsStorageKey).subscribe((shouldShow) => {
-      if (shouldShow === undefined) {
-        this.storageService.set(this.storeListsStorageKey, false).subscribe((resp: boolean) => {
-          this.showStoreLists = resp;
-        })
-      } else {
-        this.showStoreLists = shouldShow;
+    // Navigate to correct store-list sidenav view
+    this.storageService.getOne('casing-dashboard-store-list-view').subscribe(value => {
+      if (value) {
+        this.router.navigate(['casing', ...value.split('/')], {skipLocationChange: true});
       }
     });
 
-    this.dbEntityMarkerService.visibleMarkersChanged$.subscribe((vm) => {
-      this.visibleStoresCount = _.uniqBy(vm.map(m => new SiteMarker(m['site'])), 'id').length;
-    });
+    // Watch screen size - set flag if small
+    this.subscriptions.push(this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.HandsetPortrait])
+      .subscribe((state: BreakpointState) => this.layoutIsSmall = state.matches));
 
-    this.isMobile = this.checkMobile();
-    this.isTooNarrow = this.checkTooNarrow();
+    this.subscriptions.push(this.selectionService.multiSelectChanged$.subscribe(multiSelect => {
+      if (multiSelect) {
+        this.onMultiSelectEnabled()
+      } else {
+        this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        this.mapService.deactivateDrawingTools();
+      }
+    }));
+  }
 
-    this.setStoreListOptions();
+  get showStoreLists() {
+    return this.casingDashboardService.showingStoreListSidenav;
+  }
 
-    this.listManagerService.listsAreDirty$.subscribe(() => {
-      this.setStoreListOptions();
-    });
-
+  setShowStoreLists(showing: boolean) {
+    this.casingDashboardService.setShowingStoreListSidenav(showing);
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach((s: Subscription) => s.unsubscribe());
-    // this.dbEntityMarkerService.onDestroy();
   }
 
-
-  compareFn(o1: SimplifiedStoreList, o2: SimplifiedStoreList): boolean {
-    return o1 && o2 ? o1.id === o2.id : o1 === o2;
+  get controls() {
+    return this.dbEntityMarkerService.controls;
   }
 
-  checkMobile() {
-    return (typeof window.orientation !== 'undefined') || (navigator.userAgent.indexOf('IEMobile') !== -1);
+  get selectedDashboardMode() {
+    return this.casingDashboardService.selectedDashboardMode;
   }
 
-  checkTooNarrow() {
-    const body: HTMLElement = document.querySelector('body');
-    return body.offsetWidth < 740;
+  private onSelection(selection: { storeId: number, siteId: number }) {
+    if (this.casingDashboardService.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
+      if (this.layoutIsSmall) {
+        this.casingDashboardService.setShowingStoreListSidenav(false);
+      }
+      this.ngZone.run(() => {
+        this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,
+          this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
+      })
+    } else if (this.casingDashboardService.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
+      this.onDuplicateSiteSelected(selection.siteId);
+    }
+    this.ngZone.run(() => {});
   }
 
   onMapReady() {
-    this.dbEntityMarkerService.initMap(this.mapService.getMap(), selection => {
-      if (this.selectedDashboardMode === CasingDashboardMode.DEFAULT) {
-        if (this.casingDashboardService.getShouldOpenInfoCard()) {
-          this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,
-            this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
-        }
-      } else if (this.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
-        this.onDuplicateSiteSelected(selection.siteId);
-      }
-    });
+    this.mapService.addControl(document.getElementById('refresh'));
+    this.mapService.addControl(document.getElementById('info-card-wrapper'), google.maps.ControlPosition.LEFT_BOTTOM);
+
+    this.selectionService.singleSelect$.subscribe(selection => this.onSelection(selection));
+    this.dbEntityMarkerService.initMap(this.mapService.getMap(), selection => this.onSelection(selection), this.selectionService);
 
     console.log(`Map is ready`);
 
-
-    this.subscriptions.push(this.casingDashboardService.programmaticSelectionChanged$.subscribe(
-      (selection: { siteMarker: SiteMarker, storeMarker: StoreMarker }) => {
-        this.isMobile = this.checkMobile();
-        this.isTooNarrow = this.checkTooNarrow();
-
-        if (this.isTooNarrow) {
-          this.toggleStoreLists();
-        }
-
-        this.openInfoCardFromSidenav(selection.siteMarker, selection.storeMarker);
-      }));
-
     this.subscriptions.push(this.initiateDuplicateSelection$.subscribe(siteId => {
       // Change the mode (should disables all other user interactions that might conflict)
-      this.selectedDashboardMode = CasingDashboardMode.DUPLICATE_SELECTION;
-      this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+      this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DUPLICATE_SELECTION;
 
       // Save the first site's ID so you can use it later
       this.selectedSiteId = siteId;
@@ -235,24 +192,20 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       const ref = this.snackBar.open(`Select another site to merge with this one`, 'Cancel');
 
       // If user clicks cancel, close snackbar and return to default mode
-      ref.onAction().subscribe(() => {
-        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-        this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-      });
+      ref.onAction().subscribe(() => this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT);
     }));
 
-    this.subscriptions.push(this.initiateSiteMove$.subscribe((site: Site) => {
-      this.movingSite = site;
-      this.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
-      this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.subscriptions.push(this.initiateSiteMove$.subscribe((site: SimplifiedSite) => {
+      this.movingSiteId = site.id;
+      this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.MOVING_MAPPABLE;
       // Create new site layer
-      this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, { lat: site.latitude, lng: site.longitude });
+      this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, {lat: site.latitude, lng: site.longitude});
     }));
 
     this.subscriptions.push(this.siteUpdated$.subscribe(() => this.getEntitiesInBounds()));
 
     this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe(() => {
-      if (this.dbEntityMarkerService.controls.get('updateOnBoundsChange').value) {
+      if (this.dbEntityMarkerService.controls.updateOnBoundsChange) {
         this.getEntitiesInBounds()
       }
     }));
@@ -260,9 +213,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.mapService.mapClick$.subscribe(() => this.infoCard = null));
 
     this.subscriptions.push(this.casingDashboardService.projectChanged$.subscribe(() => {
-      this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-      this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-      this.projectBoundaryService.hideProjectBoundaries();
+      this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+      this.projectBoundaryService.hideProjectBoundaries(this.mapService);
       this.getEntitiesInBounds();
     }));
 
@@ -278,24 +230,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
     // Check Project boundary service to see if boundary should be showing, if so, show it anew
     if (this.projectBoundaryService.isShowingBoundary()) {
-      this.projectBoundaryService.showProjectBoundaries().subscribe();
-    }
-  }
-
-  openInfoCardFromSidenav(siteMarker: SiteMarker, storeMarker: StoreMarker) {
-    if (this.casingDashboardService.getShouldOpenInfoCard()) {
-      this.dbEntityMarkerService.clearSelection();
-      if (storeMarker.id) {
-        this.dbEntityMarkerService.selectStores([storeMarker.id]);
-      }
-      if (siteMarker && siteMarker.id && storeMarker.isEmpty) {
-        this.dbEntityMarkerService.selectSites([siteMarker.id]);
-      }
-      this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, {
-        storeId: storeMarker.id,
-        siteId: siteMarker ? siteMarker.id : null
-      },
-        this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
+      this.projectBoundaryService.showProjectBoundaries(this.mapService.getMap()).subscribe();
     }
   }
 
@@ -305,23 +240,21 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   getEntitiesInBounds(): void {
-    if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.get('minPullZoomLevel').value) {
+    if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.minPullZoomLevel) {
       this.dbEntityMarkerService.getMarkersInMapView();
     } else {
-      this.snackBar.open('Zoom in or change Pull zoom limit', null, { duration: 3000 })
+      this.snackBar.open('Zoom in or change Pull zoom limit', null, {duration: 2000, verticalPosition: 'top'})
     }
   }
 
   initSiteCreation(): void {
-    this.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.CREATING_NEW;
     // Create new Layer for new Location
     this.draggableSiteLayer = new DraggableSiteLayer(this.mapService, this.mapService.getCenter());
   }
 
   cancelSiteCreation(): void {
-    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
     // Remove layer from map
     this.draggableSiteLayer.removeFromMap();
     // Delete new Location layer
@@ -354,7 +287,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       this.siteService.create(site)
         .pipe(finalize(() => this.cancelSiteCreation()))
         .subscribe(() => {
-          this.snackBar.open('Successfully created new Site', null, { duration: 1500 });
+          this.snackBar.open('Successfully created new Site', null, {duration: 1500});
           this.getEntitiesInBounds();
         }, err => {
           snackBarRef2.dismiss();
@@ -384,10 +317,9 @@ Geo-location
   }
 
   activateFollowMe(): void {
-    this.selectedDashboardMode = CasingDashboardMode.FOLLOWING;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.FOLLOWING;
     this.followMeLayer = new FollowMeLayer(this.mapService, this.mapService.getCenter());
-    this.navigatorService.watchPosition({ maximumAge: 2000 }).subscribe(
+    this.navigatorService.watchPosition({maximumAge: 2000}).subscribe(
       position => {
         this.followMeLayer.updatePosition(position);
         this.mapService.setCenter(position);
@@ -411,8 +343,7 @@ Geo-location
   }
 
   deactivateFollowMe(): void {
-    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
 
     this.navigatorService.cancelWatch();
     this.followMeLayer.removeFromMap();
@@ -427,9 +358,8 @@ Geo-location
    * Called to reset the state if user cancels moving a store
    */
   cancelMove() {
-    this.movingSite = null;
-    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+    this.movingSiteId = null;
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
     // Remove layer from map
     this.draggableSiteLayer.removeFromMap();
     // Delete new Location layer
@@ -440,33 +370,38 @@ Geo-location
    * After user moves pin and clicks save, siteService is used to update the coordinates
    */
   saveMove() {
-    const coordinates = this.draggableSiteLayer.getCoordinatesOfDraggableMarker();
-    this.movingSite.latitude = coordinates.lat;
-    this.movingSite.longitude = coordinates.lng;
-    // Get new coordinates
-    this.siteService.update(this.movingSite)
-      .pipe(finalize(() => {
-        this.movingSite = null;
-        this.draggableSiteLayer.removeFromMap()
-      }))
-      .subscribe(() => {
-        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-        this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-        this.snackBar.open('Successfully created new Site', null, { duration: 1500 });
-        this.getEntitiesInBounds();
-      }, err => this.errorService.handleServerError('Failed to update new Site location!', err,
-        () => console.log('Cancel'),
-        () => this.saveMove()));
+    this.siteService.getOneById(this.movingSiteId).subscribe(site => {
+      const coordinates = this.draggableSiteLayer.getCoordinatesOfDraggableMarker();
+      site.latitude = coordinates.lat;
+      site.longitude = coordinates.lng;
+      // Get new coordinates
+      this.siteService.update(site)
+        .pipe(finalize(() => {
+          this.movingSiteId = null;
+          this.draggableSiteLayer.removeFromMap()
+        }))
+        .subscribe(() => {
+          this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+          this.snackBar.open('Successfully created new Site', null, {duration: 1500});
+          this.getEntitiesInBounds();
+        }, err => this.errorService.handleServerError('Failed to update new Site location!', err,
+          () => console.log('Cancel'),
+          () => this.saveMove()));
+    })
+
   }
 
-  /*
-Multi-select
- */
+  /****************
+   * Multi-select
+   ****************/
+  // Selection Service now handles the flags and will emit an event which triggers UI changes in this and other components
   enableMultiSelect(): void {
-    this.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-    this.dbEntityMarkerService.clearSelection();
-    this.dbEntityMarkerService.multiSelect = true;
+    this.selectionService.setMultiSelect(true);
+  }
+
+  // Called when selection service emits selection event
+  private onMultiSelectEnabled() {
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.MULTI_SELECT;
     // Activate Map Drawing Tools and listen for completed Shapes
     this.mapService.activateDrawingTools().subscribe(shape => {
       const geoJson = GeometryUtil.getGeoJsonFromShape(shape);
@@ -474,21 +409,26 @@ Multi-select
         const longitude = geoJson.geometry.coordinates[0];
         const latitude = geoJson.geometry.coordinates[1];
         const radiusMeters = geoJson.properties.radius;
-        this.dbEntityMarkerService.selectInRadius(latitude, longitude, radiusMeters);
+        this.dbEntityMarkerService.getAllIncludedWithinRadius(latitude, longitude, radiusMeters)
+          .subscribe(ids => this.selectionService.selectByIds(ids));
       } else {
-        this.dbEntityMarkerService.selectInGeoJson(JSON.stringify(geoJson));
+        this.dbEntityMarkerService.getAllIncludedWithinGeoJson(JSON.stringify(geoJson))
+          .subscribe(ids => this.selectionService.selectByIds(ids));
       }
       this.mapService.clearDrawings();
     });
   }
 
+  getSelectionCount() {
+    return this.selectionService.storeIds.size;
+  }
+
+  clearSelection() {
+    this.selectionService.clearSelection();
+  }
+
   cancelMultiSelect(): void {
-    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-    this.dbEntityMarkerService.clearSelection();
-    this.dbEntityMarkerService.multiSelect = false;
-    this.dbEntityMarkerService.deselecting = false;
-    this.mapService.deactivateDrawingTools();
+    this.selectionService.setMultiSelect(false);
   }
 
   openDatabaseSearch() {
@@ -502,16 +442,14 @@ Multi-select
   }
 
   openGoogleSearch() {
-    const googleSearchDialog = this.dialog.open(GoogleSearchComponent);
+    const googleSearchDialog = this.dialog.open(GoogleSearchComponent, {data: {mapService: this.mapService}});
     googleSearchDialog.afterClosed().subscribe(result => {
       if (result != null) {
         // Create google point layer
         if (this.googlePlacesLayer == null) {
           this.googlePlacesLayer = new GooglePlaceLayer(this.mapService);
           this.googlePlacesLayer.markerClick$.subscribe((googlePlace: GooglePlace) => {
-            if (this.casingDashboardService.getShouldOpenInfoCard()) {
-              this.infoCard = new GoogleInfoCardItem(GoogleInfoCardComponent, googlePlace);
-            }
+            this.infoCard = new GoogleInfoCardItem(GoogleInfoCardComponent, googlePlace);
           });
         }
 
@@ -539,15 +477,18 @@ Multi-select
           this.googlePlacesLayer.setGooglePlaces(searchResults);
         });
       } else {
-        const message = `No Google results found for '${query}'`;
-        this.snackBar.open(message, null, { duration: 2000 });
+        this.warnNoResults(query);
       }
     }, err => {
       if (err === 'ZERO_RESULTS') {
-        const message = `No Google results found for '${query}'`;
-        this.snackBar.open(message, null, { duration: 2000 });
+        this.warnNoResults(query);
       }
     });
+  }
+
+  private warnNoResults(query: string) {
+    const message = `No Google results found for '${query}'`;
+    this.ngZone.run(() => this.snackBar.open(message, null, { duration: 2000 }));
   }
 
   clearGoogleSearch() {
@@ -583,9 +524,9 @@ Multi-select
     });
   }
 
-  /*
-Assigning
- */
+  /***************
+   * Assigning
+   ***************/
   openAssignmentDialog() {
     this.dialog.open(UserProfileSelectComponent).afterClosed()
       .subscribe(user => {
@@ -605,72 +546,121 @@ Assigning
 
   private assign(userId: number) {
     this.updating = true;
-    this.storeService.assignToUser(this.dbEntityMarkerService.getSelectedStoreIds(), userId)
+    this.storeService.assignToUser(Array.from(this.selectionService.storeIds), userId)
       .pipe(finalize(() => this.updating = false))
       .subscribe((sites: SimplifiedSite[]) => {
         const message = `Successfully updated ${sites.length} Sites`;
-        this.snackBar.open(message, null, { duration: 2000 });
+        this.snackBar.open(message, null, {duration: 2000});
         this.getEntitiesInBounds();
       }, err => this.errorService.handleServerError('Failed to update sites!', err,
         () => console.log(err),
         () => this.assign(userId)));
   }
 
-  controlSideMenuClosed() {
-    this.dbEntityMarkerService.refreshMarkers();
+  isShowingBoundary() {
+    return this.projectBoundaryService.isShowingBoundary();
+  }
+
+  hideProjectBoundaries() {
+    return this.projectBoundaryService.hideProjectBoundaries(this.mapService);
   }
 
   saveProjectBoundary() {
     this.savingBoundary = true;
-    this.projectBoundaryService.saveProjectBoundaries()
+    this.projectBoundaryService.saveProjectBoundaries(this.mapService)
       .pipe(finalize(() => this.savingBoundary = false))
       .subscribe(() => {
-        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-        this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-      },
+          this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+        },
         err => this.errorService.handleServerError('Failed to save project boundary!', err,
           () => console.log(err),
           () => this.saveProjectBoundary()))
   }
 
   cancelProjectBoundaryEditing() {
-    this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-    this.projectBoundaryService.cancelProjectBoundaryEditing();
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
+    this.projectBoundaryService.cancelProjectBoundaryEditing(this.mapService);
+  }
+
+  setDrawingModeToClick() {
+    this.mapService.setDrawingModeToClick();
+  }
+
+  setDrawingModeToRectangle() {
+    this.mapService.setDrawingModeToRectangle();
+  }
+
+  setDrawingModeToCircle() {
+    this.mapService.setDrawingModeToCircle();
+  }
+
+  setDrawingModeToPolygon() {
+    this.mapService.setDrawingModeToPolygon();
+  }
+
+  enableProjectShapeDeletion() {
+    this.mapService.setDrawingModeToClick();
+    this.projectBoundaryService.enableProjectShapeDeletion();
+  }
+
+  disableProjectShapeDeletion() {
+    this.projectBoundaryService.disableProjectShapeDeletion();
   }
 
   enableProjectBoundaryEditing() {
-    this.selectedDashboardMode = CasingDashboardMode.EDIT_PROJECT_BOUNDARY;
-    this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-    this.projectBoundaryService.enableProjectBoundaryEditing();
+    this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.EDIT_PROJECT_BOUNDARY;
+
+    this.mapService.setDrawingModeToClick();
+
+    if (!this.projectBoundaryService.projectBoundary) {
+      this.projectBoundaryService.showProjectBoundaries(this.mapService.getMap()).subscribe(() => this.setUpProjectEditing());
+    } else {
+      this.setUpProjectEditing();
+    }
     this.projectBoundaryService.zoomToProjectBoundary();
   }
 
+  private setUpProjectEditing() {
+    const boundary = this.projectBoundaryService.projectBoundary;
+    if (!boundary.isEditable()) {
+      this.mapService.activateDrawingTools().subscribe(shape => boundary.addShape(shape));
+      boundary.setEditable(true);
+    }
+  }
+
   showBoundary() {
-    this.projectBoundaryService.showProjectBoundaries().subscribe(() => {
+    this.projectBoundaryService.showProjectBoundaries(this.mapService.getMap()).subscribe(() => {
       this.projectBoundaryService.zoomToProjectBoundary();
     });
   }
 
   selectAllInBoundary() {
-    this.dbEntityMarkerService.clearSelection();
+    this.selectionService.clearSelection();
     if (this.projectBoundaryService.isShowingBoundary()) {
       const geoJsonString = JSON.stringify(this.projectBoundaryService.projectBoundary.geojson);
-      this.dbEntityMarkerService.selectInGeoJson(geoJsonString);
+      this.dbEntityMarkerService.getAllIncludedWithinGeoJson(geoJsonString).subscribe(ids => this.selectionService.selectByIds(ids));
     } else {
-      this.projectBoundaryService.showProjectBoundaries().subscribe(boundary => {
+      this.projectBoundaryService.showProjectBoundaries(this.mapService.getMap()).subscribe(boundary => {
         if (boundary != null) {
-          this.dbEntityMarkerService.selectInGeoJson(boundary.geojson);
+          this.dbEntityMarkerService.getAllIncludedWithinGeoJson(boundary.geojson).subscribe(ids => this.selectionService.selectByIds(ids));
           this.projectBoundaryService.zoomToProjectBoundary();
         } else {
-          this.snackBar.open('No Boundary for Project', null, { duration: 2000, verticalPosition: 'top' });
+          this.snackBar.open('No Boundary for Project', null, {duration: 2000, verticalPosition: 'top'});
         }
       });
     }
   }
 
+  getSelectedProject() {
+    return this.casingDashboardService.getSelectedProject();
+  }
+
+  openProjectSelectionDialog() {
+    return this.casingDashboardService.openProjectSelectionDialog();
+  }
+
   openDownloadDialog() {
-    const config = { data: { selectedStoreIds: this.dbEntityMarkerService.getSelectedStoreIds() }, maxWidth: '90%' };
+    const config = {data: {selectedStoreIds: Array.from(this.selectionService.storeIds)}, maxWidth: '90%'};
     const downloadDialog = this.dialog.open(DownloadDialogComponent, config);
     downloadDialog.afterClosed().subscribe(project => {
       if (project) {
@@ -692,16 +682,12 @@ Assigning
       const ref = this.snackBar.open(message, 'Cancel');
 
       // If user clicks cancel, close snackbar and return to default mode
-      ref.onAction().subscribe(() => {
-        this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-        this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
-      });
+      ref.onAction().subscribe(() => this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT);
     } else {
       // If the user successfully selects a different site
 
       // Change the mode back to default (for when they are done)
-      this.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-      this.casingDashboardService.setSelectedDashboardMode(this.selectedDashboardMode);
+      this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
 
       // Dismiss the instructions
       this.snackBar.dismiss();
@@ -711,248 +697,64 @@ Assigning
         maxWidth: '90%',
         minWidth: '300px',
         disableClose: true,
-        data: { duplicateSiteId: duplicateSiteId, selectedSiteId: this.selectedSiteId }
+        data: {duplicateSiteId: duplicateSiteId, selectedSiteId: this.selectedSiteId}
       });
 
       // When the user completes or cancels merging the sites, refresh the locations on the screen
       siteMergeDialog.afterClosed().subscribe(() => {
         this.dbEntityMarkerService.removeMarkerForSite(duplicateSiteId);
-        this.dbEntityMarkerService.clearSelection();
+        this.selectionService.clearSelection();
         this.getEntitiesInBounds();
       });
     }
   }
 
-  getSelectedStoreIds() {
-    return this.dbEntityMarkerService.getSelectedStoreIds();
+  get selectedStoreIds() {
+    return this.selectionService.storeIds;
   }
 
   addToList() {
-    const selectedIds = this.getSelectedStoreIds();
-    if (selectedIds.length > 0) {
-      const addRemoveDialogRef = this.dialog.open(AddRemoveStoresListDialogComponent, {
-        data: {
-          type: AddRemoveType.ADD,
-          storeIds: selectedIds
-        }
-      });
-      addRemoveDialogRef.afterClosed().subscribe(() => {
-      });
+    if (this.selectionService.storeIds.size > 0) {
+      const data = {type: AddRemoveType.ADD, storeIds: Array.from(this.selectionService.storeIds)};
+      this.dialog.open(AddRemoveStoresListDialogComponent, {data: data, disableClose: true});
     }
+  }
+
+  drawingModeIs(drawingMode: string) {
+    return this.mapService.drawingModeIs(drawingMode);
+  }
+
+  get deletingProjectShapes() {
+    return this.projectBoundaryService.deletingProjectShapes;
+  }
+
+  set deselecting(tf: boolean) {
+    this.selectionService.deselecting = tf;
+  }
+
+  get deselecting() {
+    return this.selectionService.deselecting;
+  }
+
+  get gettingLocations() {
+    return this.dbEntityMarkerService.gettingLocations;
   }
 
   removeFromList() {
-    const selectedIds = this.getSelectedStoreIds();
-    if (selectedIds.length > 0) {
-      this.dialog.open(AddRemoveStoresListDialogComponent, { data: { type: AddRemoveType.REMOVE, storeIds: selectedIds } });
+    if (this.selectionService.storeIds.size > 0) {
+      const data = {type: AddRemoveType.REMOVE, storeIds: Array.from(this.selectionService.storeIds)};
+      this.dialog.open(AddRemoveStoresListDialogComponent, {data: data, disableClose: true});
     }
-  }
-
-  toggleStoreLists() {
-    this.showStoreLists = !this.showStoreLists;
-    this.storageService.set(this.storeListsStorageKey, this.showStoreLists);
-  }
-
-  handleSidenavClick(e: MouseEvent) {
-    const sidenavWidth = document.querySelector('#store-sidenav')['offsetWidth'];
-    const mouseX = e.x;
-
-    // check if they are clicking the tab (::after)
-    if (mouseX > sidenavWidth) {
-      this.toggleStoreLists();
-    }
-  }
-
-  getActiveStoreListName() {
-    const activeStoreList = this.listManagerService.getSelectedStoreList();
-    return activeStoreList ? activeStoreList.storeListName : '';
-  }
-
-  getVisibleMarkersCount() {
-    return this.visibleStoresCount;
   }
 
   openSidenavDirectlyToSelectedListStores(storeList: SimplifiedStoreList) {
-    if (storeList.id !== -1) {
-      this.storeSidenavService.setPage(StoreSidenavPages.MYLISTS);
-      this.listManagerService.setSelectedStoreList(new SimplifiedStoreList(storeList));
-      setTimeout(() => {
-        this.listManagerService.setPage(ListManagerPages.VIEWSTORES);
-      }, 100)
-    } else {
-      this.storeSidenavService.setPage(StoreSidenavPages.STORESONMAP);
+    this.casingDashboardService.setShowingStoreListSidenav(true);
+    if (this.layoutIsSmall) {
+      this.filterSideNavIsOpen = false;
     }
-
-    this.showStoreLists = true;
-    this.filterSideNavIsOpen = false;
-  }
-
-  setStoreListOptions() {
-    this.listManagerService.getStoreLists().subscribe((storeLists: SimplifiedStoreList[]) => {
-      this.storeListOptions = [this.dbEntityMarkerService.allStoresOption].concat(storeLists);
+    this.router.navigate(['casing', 'list-stores', storeList.id], {skipLocationChange: true}).then(() => {
+      this.ngZone.run(() => {})
     });
   }
-
-  resetFilters() {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Reset All Filters',
-        question: `Reset All Filters and Options to Default Values?`,
-        options: ['Confirm']
-      }
-    });
-    dialogRef.afterClosed().subscribe((result: string) => {
-      if (result === 'Confirm') {
-        this.dbEntityMarkerService.setAllControls(null);
-      }
-    });
-  }
-
-  getActiveTypeNames() {
-    const { showActive,
-      showHistorical,
-      showFuture,
-      showEmptySites,
-      showSitesBackfilledByNonGrocery,
-      showFloat } = this.dbEntityMarkerService.controls.controls;
-
-    const labels = [
-      showActive.value ? 'Active' : '',
-      showHistorical.value ? 'Historical' : '',
-      showFuture.value ? 'Future' : '',
-      showEmptySites.value ? 'Empty Sites' : '',
-      showSitesBackfilledByNonGrocery.value ? 'Backfilled' : '',
-      showFloat.value ? 'Float' : ''
-    ];
-
-    return labels.filter(l => l).join(', ') || 'Exclude All Types';
-  }
-
-  getActiveDatasetName() {
-    return this.dbEntityMarkerService.controls.get('dataset').value.storeListName;
-  }
-
-  getActiveMarkerTypeName() {
-    return this.dbEntityMarkerService.controls.get('markerType').value;
-  }
-
-  getActiveControlNames() {
-    const {
-      updateOnBoundsChange,
-      cluster,
-      fullLabelMinZoomLevel
-    } = this.dbEntityMarkerService.controls.controls;
-
-    const labels = [
-      updateOnBoundsChange.value ? `Updating` : `NOT Updating`,
-      cluster.value ? `Clustering` : '',
-      fullLabelMinZoomLevel.value <= this.mapService.getZoom() ? `Labeling` : ''
-    ];
-
-    return labels.filter(l => l).join(', ');
-  }
-
-  getActiveStatusNames() {
-    const {
-      showClosed, showDeadDeal, showNewUnderConstruction, showOpen, showPlanned,
-      showProposed, showRemodel, showRumored, showStrongRumor, showTemporarilyClosed
-    } = this.dbEntityMarkerService.controls.controls;
-
-    const labels = [
-      showClosed.value ? StoreStatusOptions.CLOSED : '',
-      showDeadDeal.value ? StoreStatusOptions.DEAD_DEAL : '',
-      showNewUnderConstruction.value ? StoreStatusOptions.NEW_UNDER_CONSTRUCTION : '',
-      showOpen.value ? StoreStatusOptions.OPEN : '',
-      showPlanned.value ? StoreStatusOptions.PLANNED : '',
-      showProposed.value ? StoreStatusOptions.PROPOSED : '',
-      showRemodel.value ? StoreStatusOptions.REMODEL : '',
-      showRumored.value ? StoreStatusOptions.RUMORED : '',
-      showStrongRumor.value ? StoreStatusOptions.STRONG_RUMOR : '',
-      showTemporarilyClosed.value ? StoreStatusOptions.TEMPORARILY_CLOSED : ''
-    ];
-
-    return labels.filter(l => l).join(', ') || 'Exclude All Statuses';
-  }
-
-  getActiveBannerName() {
-    const { banner } = this.dbEntityMarkerService.controls.controls;
-    return banner.value && banner.value.length ? banner.value.map(b => b.bannerName).join(', ') : null;
-  }
-
-  getActiveAssignmentName() {
-    const { assignment } = this.dbEntityMarkerService.controls.controls;
-    return assignment.value ? `${assignment.value.firstName} ${assignment.value.lastName}` : null;
-  }
-
-  getActiveBanners(): SimplifiedBanner[] {
-    return this.dbEntityMarkerService.controls.get('banner').value;
-  }
-
-  selectBanner(banner?: SimplifiedBanner) {
-    const config = { data: { remove: false }, maxWidth: '90%' };
-    const dialog = this.dialog.open(SelectBannerComponent, config);
-    dialog.afterClosed().subscribe((result) => {
-      const activeBanners: SimplifiedBanner[] = this.getActiveBanners() || [];
-      if (result && result.bannerName) {
-        if (banner) {
-          const idx = activeBanners.findIndex(b => b.id === banner.id);
-          activeBanners[idx] = result;
-        } else {
-          activeBanners.push(result);
-        }
-        this.dbEntityMarkerService.controls.get('banner').setValue(activeBanners);
-      }
-    });
-  }
-
-  getBannerImageSrc(banner: SimplifiedBanner) {
-    return banner ? this.bannerService.getBannerImageSrc(banner) : null;
-  }
-
-  clearBanner(banner: SimplifiedBanner) {
-    const activeBanners = this.getActiveBanners().filter(b => b.id !== banner.id);
-    this.dbEntityMarkerService.controls.get('banner').setValue(activeBanners);
-  }
-
-  selectAssignment() {
-    this.dialog.open(UserProfileSelectComponent).afterClosed()
-      .subscribe(user => {
-        if (user != null) {
-          this.dbEntityMarkerService.controls.get('assignment').setValue(user);
-        }
-      });
-  }
-
-  clearAssignment() {
-    this.dbEntityMarkerService.controls.get('assignment').setValue(null);
-  }
-
-  saveFilter() {
-    const dialogRef = this.dialog.open(TextInputDialogComponent, { data: { title: 'Filter Name', placeholder: 'Filter Name' } });
-    dialogRef.afterClosed().subscribe(async (name: string) => {
-      if (name) {
-
-        let savedControls = await this.storageService.getOne(ControlStorageKeys.savedDbEntityMarkerServiceControls).toPromise();
-        const activeControl = this.dbEntityMarkerService.controls.value;
-        if (!savedControls) {
-          savedControls = {};
-        }
-        savedControls[name] = new Control(name, new Date(), activeControl);
-
-        this.dbEntityMarkerService.saveControlsToStorage(savedControls);
-      }
-    })
-  }
-
-  loadFilter(event) {
-    const dialogRef = this.dialog.open(StoredControlsSelectionDialogComponent);
-    dialogRef.afterClosed().subscribe((control: Control) => {
-      if (control) {
-        this.dbEntityMarkerService.loadControlsFromJson(control.control);
-      }
-    })
-  }
-
-
 
 }

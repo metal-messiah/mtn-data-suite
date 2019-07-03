@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { StorageService } from 'app/core/services/storage.service';
 import { ControlStorageKeys, Control } from 'app/models/control';
 
@@ -28,7 +28,7 @@ export class StoredControlsSelectionDialogComponent {
 
   delete(control: Control) {
     delete this.originalSavedControlsObject[control.name];
-    this.storageService.set(ControlStorageKeys.savedDbEntityMarkerServiceControls, this.originalSavedControlsObject);
+    this.storageService.set(ControlStorageKeys.savedDbEntityMarkerServiceControls, this.originalSavedControlsObject).subscribe();
     this.setControlItems(this.originalSavedControlsObject);
   }
 
