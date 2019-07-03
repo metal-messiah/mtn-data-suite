@@ -33,6 +33,7 @@ import { StorageService } from './services/storage.service';
 import { SourceUpdatableService } from './services/source-updatable.service';
 import { BannerSourceService } from './services/banner-source.service';
 import { StoreListService } from './services/store-list.service';
+import { CloudinaryService } from './services/cloudinary.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -41,6 +42,7 @@ import { StoreListService } from './services/store-list.service';
     AuthService,
     AuthGuard,
     BannerService,
+    CloudinaryService,
     CompanyService,
     DetailFormService,
     EntityListService,

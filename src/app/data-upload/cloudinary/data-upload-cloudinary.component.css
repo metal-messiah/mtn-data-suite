@@ -1,17 +1,7 @@
-.flex-container{
+:host {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
     width: 50vw;
     margin: 0 auto;
-}
-
-mat-hint{
-    color: orange !important;
-    font-weight: bold;
-}
-
-img{
-    width:60px; /* you can use % */
-    height: auto;
 }

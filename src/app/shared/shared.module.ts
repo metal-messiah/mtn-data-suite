@@ -26,7 +26,6 @@ import { StoresListComponent } from './stores-list/stores-list.component';
 import { AddRemoveStoresListDialogComponent } from './add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
 import { TextInputDialogComponent } from './text-input-dialog/text-input-dialog.component';
 import { StoredControlsSelectionDialogComponent } from './stored-controls-selection-dialog/stored-controls-selection-dialog.component';
-import { CloudinaryComponent } from './cloudinary/cloudinary.component';
 import { SimpleSelectDialogComponent } from './simple-select-dialog/simple-select-dialog.component';
 import { SidenavMenuComponent } from './store-sidenav/sidenav-menu/sidenav-menu.component';
 import { SidenavStoresOnMapComponent } from './store-sidenav/sidenav-stores-on-map/sidenav-stores-on-map.component';
@@ -64,7 +63,6 @@ import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-
     AddRemoveStoresListDialogComponent,
     TextInputDialogComponent,
     StoredControlsSelectionDialogComponent,
-    CloudinaryComponent,
     SimpleSelectDialogComponent,
     SidenavMenuComponent,
     SidenavStoresOnMapComponent,
@@ -87,7 +85,6 @@ import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-
     AddRemoveStoresListDialogComponent,
     TextInputDialogComponent,
     StoredControlsSelectionDialogComponent,
-    CloudinaryComponent,
     SimpleSelectDialogComponent
   ],
   exports: [
@@ -109,7 +106,6 @@ import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-
     ThousandsCurrencyPipe,
     CustomMaterialModule,
     StoresListComponent,
-    CloudinaryComponent,
     AddRemoveStoresListDialogComponent
   ]
 })

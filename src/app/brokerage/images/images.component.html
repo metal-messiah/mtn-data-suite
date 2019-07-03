@@ -1,38 +1,37 @@
-<div class='flex-container'>
-  <div style="text-align: center;">
-    <button style="margin:25px;" mat-flat-button color="primary" (click)="openCloudinary()"><i class="fas fa-images"></i>
-      Reconnect to Cloudinary
-    </button>
-    <mds-cloudinary #cloudinary [cloudName]="cloudName" [username]="username" [apiSecret]="apiSecret" [apiKey]="apiKey"
-      [maxFiles]="maxFiles" (assets)="setSelectedFiles($event)"></mds-cloudinary>
-    <button style="margin:25px;" mat-flat-button color="warn" (click)="fileInput.click()"><i class="fas fa-file"></i>
-      {{file ? file.name : 'Load File'}}
-    </button>
-    <button mat-flat-button color="warn" *ngIf="file && selectedFiles && identifier"
-      (click)="exportNewCsv()">Export</button>
-    <input #fileInput type="file" (change)="readCsv($event)" accept=".csv" hidden>
-    <br>
-    <mat-form-field *ngIf="csvAsString">
-      <mat-select placeholder="Identifier" (selectionChange)="identifierChange($event)">
-        <mat-option [value]="field" *ngFor="let field of csvFields">{{field}}</mat-option>
+<div style="margin: 25px 0">
+  <button mat-raised-button color="primary" (click)="openCloudinary()"><i class="fas fa-images"></i>
+    Reconnect to Cloudinary
+  </button>
+  <button style="margin: 0 25px" mat-raised-button color="warn" (click)="fileInput.click()">
+    <i class="fas fa-file"></i>&nbsp;{{file ? file.name : 'Load File'}}
+  </button>
+  <!--Stores loaded files-->
+  <input #fileInput type="file" (change)="readCsv($event)" accept=".csv" hidden>
+  <button mat-raised-button color="warn" [disabled]="!file || !selectedFiles || !identifier" (click)="exportNewCsv()">
+    Export
+  </button>
+</div>
+<div>
+  <mat-form-field *ngIf="csvAsString">
+    <mat-select placeholder="Identifier" (selectionChange)="identifierChange($event)">
+      <mat-option [value]="field" *ngFor="let field of csvFields">{{field}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+<div>
+  <h3 *ngIf="selectedFiles.length > 0">Selected Images</h3>
+  <div class='flex-container' *ngFor="let file of selectedFiles">
+    <img [src]="file.url">
+    <mat-form-field (click)="copyToClipboard(file.public_id)">
+      <input disabled matInput type="text" [value]="getValue(file)" [id]="file.public_id">
+      <mat-hint *ngIf="file.public_id === copiedId">Copied to Clipboard</mat-hint>
+    </mat-form-field>
+    <mat-form-field *ngIf="getIdentifierTargetNames().length">
+      <mat-select placeholder="Target" (selectionChange)="targetChange($event, getValue(file))">
+        <mat-option [disabled]="targetIsTaken(target)" [value]="target"
+                    *ngFor="let target of getIdentifierTargetNames()">{{target}}
+        </mat-option>
       </mat-select>
     </mat-form-field>
-    <h3 *ngIf="selectedFiles.length">Selected Images
-    </h3>
-    <div class='flex-container' *ngFor="let file of selectedFiles">
-      <img [src]="file.url">
-      <mat-form-field (click)="copyToClipboard(file.public_id)">
-        <input disabled matInput type="text" [value]="getValue(file)" [id]="file.public_id">
-        <mat-hint *ngIf="file.public_id === copiedId">Copied to Clipboard</mat-hint>
-      </mat-form-field>
-      <mat-form-field *ngIf="getIdentifierTargetNames().length">
-        <mat-select placeholder="Target" (selectionChange)="targetChange($event, getValue(file))">
-          <mat-option [disabled]="targetIsTaken(target)" [value]="target"
-            *ngFor="let target of getIdentifierTargetNames()">{{target}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <!-- <button mat-flat-button color="primary" (click)="copyToClipboard(file.public_id)"><i class="fas fa-clipboard"></i>
-        Copy</button> -->
-    </div>
   </div>
 </div>

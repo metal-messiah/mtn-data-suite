@@ -1,8 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { saveAs } from 'file-saver';
-import { CloudinaryAsset, CloudinaryComponent } from 'app/shared/cloudinary/cloudinary.component';
+import { CloudinaryAsset } from '../../shared/cloudinary/CloudinaryAsset';
+import { CloudinaryService } from '../../core/services/cloudinary.service';
 
 @Component({
   selector: 'mds-images',
@@ -10,10 +11,13 @@ import { CloudinaryAsset, CloudinaryComponent } from 'app/shared/cloudinary/clou
   styleUrls: ['./images.component.css']
 })
 export class ImagesComponent implements OnInit {
-  cloudName = 'mtnra';
-  username = 'jordan@mtnra.com';
-  apiSecret = 'wClRfg43OFsvwhg33QMnowZ0Skc';
-  apiKey = '515812459374857';
+  private cloudinaryParams = {
+    cloudName: 'mtnra',
+    username: 'jordan@mtnra.com',
+    apiSecret: 'wClRfg43OFsvwhg33QMnowZ0Skc',
+    apiKey: '515812459374857',
+    multiple: true
+  };
 
   selectedFiles: CloudinaryAsset[] = [];
   copiedId: string;
@@ -28,19 +32,15 @@ export class ImagesComponent implements OnInit {
   identifierTargets: object = {};
   identifierIdx: number;
 
-  @ViewChild('cloudinary', {static: true}) cloudinaryInstance: CloudinaryComponent;
-
-  constructor(private snackBar: MatSnackBar) {
+  constructor(private snackBar: MatSnackBar,
+              private cloudinaryService: CloudinaryService) {
     this.fileReader = new FileReader();
     this.fileReader.onload = event => this.handleFileContents(event); // desired file content
-    this.fileReader.onerror = error =>
-      this.snackBar.open(error.toString(), null, {
-        duration: 2000
-      });
-
+    this.fileReader.onerror = error => this.snackBar.open(error.toString(), null, {duration: 2000});
   }
 
   ngOnInit() {
+    this.cloudinaryService.initialize(this.cloudinaryParams, (assets) => this.setSelectedFiles(assets));
     this.openCloudinary();
   }
 
@@ -64,11 +64,11 @@ export class ImagesComponent implements OnInit {
 
   openCloudinary() {
     this.selectedFiles = [];
-    this.cloudinaryInstance.show();
+    this.cloudinaryService.show();
   }
 
   readCsv(event) {
-    const { files } = event.target;
+    const {files} = event.target;
     if (files && files.length === 1) {
       // only want 1 file at a time!
       this.file = files[0];
@@ -82,7 +82,7 @@ export class ImagesComponent implements OnInit {
       }
     } else {
       // notify about file constraints
-      this.snackBar.open('1 file at a time please', null, { duration: 2000 });
+      this.snackBar.open('1 file at a time please', null, {duration: 2000});
     }
   }
 
@@ -152,10 +152,10 @@ export class ImagesComponent implements OnInit {
     saveAs(
       new Blob([output]),
       `${
-      this.file
-        ? this.file.name.split('.')[0] + '_logos'
-        : 'export_logos'
-      }.csv`
+        this.file
+          ? this.file.name.split('.')[0] + '_logos'
+          : 'export_logos'
+        }.csv`
     );
   }
 

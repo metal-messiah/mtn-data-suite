@@ -1,51 +1,36 @@
 import { Component, OnInit } from '@angular/core';
+import { CloudinaryService } from '../../core/services/cloudinary.service';
 
 @Component({
-    selector: 'mds-data-upload-cloudinary',
-    templateUrl: './data-upload-cloudinary.component.html',
-    styleUrls: ['./data-upload-cloudinary.component.css']
+  selector: 'mds-data-upload-cloudinary',
+  templateUrl: './data-upload-cloudinary.component.html',
+  styleUrls: ['./data-upload-cloudinary.component.css']
 })
 export class DataUploadCloudinaryComponent implements OnInit {
-    showCloudinary = false;
-    cloudName = 'mtn-retail-advisors';
-    username = 'tyler@mtnra.com';
-    apiSecret = 'OGQKRd95GxzMrn5d7_D6FOd7lXs';
-    apiKey = '713598197624775';
-    maxFiles = 100;
 
-    constructor() { }
+  private cloudinaryParams = {
+    cloudName: 'mtn-retail-advisors',
+    username: 'tyler@mtnra.com',
+    apiSecret: 'OGQKRd95GxzMrn5d7_D6FOd7lXs',
+    apiKey: '713598197624775',
+    multiple: true,
+    maxFiles: 100
+  };
 
-    ngOnInit() {
-        this.openCloudinary();
-    }
+  constructor(private cloudinaryService: CloudinaryService) {
+  }
 
-    handleAssets(assets) {
-        console.log(assets);
-        this.showCloudinary = false;
-    }
+  ngOnInit() {
+    this.cloudinaryService.initialize(this.cloudinaryParams, (assets) => this.handleAssets(assets));
+    this.openCloudinary();
+  }
 
-    openCloudinary() {
-        this.showCloudinary = true;
-        if (!this.cloudinaryIsShowing()) {
-            setTimeout(() => {
-                this.setCloudinaryElementVisibility('visible');
-            }, 500)
-        }
-    }
+  handleAssets(assets) {
+    console.log(assets);
+    // Do nothing for now
+  }
 
-    cloudinaryIsShowing() {
-        const cloudinaryElem = document.querySelector('div>iframe');
-        let isShowing = false;
-        if (cloudinaryElem) {
-            isShowing = cloudinaryElem.parentElement.style.visibility === 'visible';
-        }
-        return isShowing;
-    }
-
-    setCloudinaryElementVisibility(visibility) {
-        const cloudinaryElem = document.querySelector('div>iframe');
-        if (cloudinaryElem) {
-            cloudinaryElem.parentElement.style.visibility = visibility
-        }
-    }
+  openCloudinary() {
+    this.cloudinaryService.show();
+  }
 }

@@ -6,9 +6,10 @@ import { debounceTime, distinctUntilChanged, finalize, map, mergeMap, switchMap 
 import { Pageable } from '../../models/pageable';
 import { BannerService } from '../../core/services/banner.service';
 import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
-import { CloudinaryAsset, CloudinaryComponent } from 'app/shared/cloudinary/cloudinary.component';
 import { Banner } from 'app/models/full/banner';
 import { AuthService } from 'app/core/services/auth.service';
+import { CloudinaryService } from '../../core/services/cloudinary.service';
+import { CloudinaryAsset } from '../../shared/cloudinary/CloudinaryAsset';
 
 @Component({
   selector: 'mds-select-banner',
@@ -27,19 +28,23 @@ export class SelectBannerComponent implements OnInit {
   // LOGO - CLOUDINARY PROPS
   userCanChangeLogo: boolean;
   changeLogoBanner: SimplifiedBanner = null;
-  cloudName = 'mtn-retail-advisors';
-  username = 'tyler@mtnra.com';
-  apiSecret = 'OGQKRd95GxzMrn5d7_D6FOd7lXs';
-  apiKey = '713598197624775';
-  maxFiles = 1;
+
+  private cloudinaryParams = {
+    cloudName: 'mtn-retail-advisors',
+    username: 'tyler@mtnra.com',
+    apiSecret: 'OGQKRd95GxzMrn5d7_D6FOd7lXs',
+    apiKey: '713598197624775',
+    multiple: true,
+    maxFiles: 1
+  };
 
   @ViewChild('bannerSearchBox', {static: true}) bannerSearchBoxElement: ElementRef;
-  @ViewChild('cloudinary', {static: true}) cloudinaryInstance: CloudinaryComponent;
 
   constructor(private dialogRef: MatDialogRef<SelectBannerComponent>,
               private errorService: ErrorService,
               private bannerService: BannerService,
               private authService: AuthService,
+              private cloudinaryService: CloudinaryService,
               private snackBar: MatSnackBar) {
     const allowedRoles = [1, 2];
     this.userCanChangeLogo = allowedRoles.includes(this.authService.sessionUser.role.id);
@@ -54,6 +59,8 @@ export class SelectBannerComponent implements OnInit {
       distinctUntilChanged(),
       switchMap((value: any) => this.bannerService.getAllByQuery(value))
     ).subscribe((pageable: Pageable<SimplifiedBanner>) => this.update(pageable, true));
+
+    this.cloudinaryService.initialize(this.cloudinaryParams, (assets) => this.handleAssets(assets));
   }
 
   private update(pageable: Pageable<SimplifiedBanner>, clear: boolean) {
@@ -103,7 +110,7 @@ export class SelectBannerComponent implements OnInit {
 
   changeLogo(banner: SimplifiedBanner) {
     this.changeLogoBanner = banner;
-    this.cloudinaryInstance.show();
+    this.cloudinaryService.show();
   }
 
   handleAssets(assets: CloudinaryAsset[]) {
