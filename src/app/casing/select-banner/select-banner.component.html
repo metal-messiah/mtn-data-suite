@@ -14,7 +14,7 @@
   </div>
   <mat-list>
     <div *ngFor="let banner of banners">
-      <div (click)="selectBanner(banner)" class="banner-list-item">
+      <div (click)="selectBanner(banner, $event)" class="banner-list-item">
         <div class="names">
           <div>{{banner.bannerName}}</div>
           <div *ngIf="getBannerCompanyName(banner)" title="Company" class="company-name" matLine>
@@ -29,6 +29,17 @@
         <div style="margin-left: 5px;">
           <img class="logo-img" *ngIf="banner.logoFileName" [src]="getBannerImageSrc(banner)" [alt]="banner.bannerName">
         </div>
+        <!-- OPTIONS MENU FOR EACH BANNER -->
+        <button id='menu-icon-button' class='menu-icon-button'
+                mat-icon-button color="primary" [mat-menu-trigger-for]="bannerMenu">
+          <i id="menu-icon-button-icon" class="banner-menu fas fa-ellipsis-v"></i>
+        </button>
+        <mat-menu #bannerMenu="matMenu">
+          <button mat-menu-item (click)="changeLogo(banner)">
+            <i class="fas fa-image"></i>
+            <span>&nbsp;Change Logo</span>
+          </button>
+        </mat-menu>
       </div>
       <mat-divider></mat-divider>
     </div>

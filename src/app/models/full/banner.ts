@@ -4,7 +4,7 @@ import { Company } from './company';
 export class Banner extends AuditingEntity {
 
   bannerName: string;
-  isHistorical: boolean;
+  historical: boolean;
   defaultStoreFit: string;
   defaultSalesArea: number;
   logoFileName: string;

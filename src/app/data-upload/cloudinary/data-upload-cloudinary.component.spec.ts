@@ -1,21 +1,21 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CloudinaryComponent } from './cloudinary.component';
+import { DataUploadCloudinaryComponent } from './data-upload-cloudinary.component';
 
-describe('CloudinaryComponent', () => {
-    let component: CloudinaryComponent;
-    let fixture: ComponentFixture<CloudinaryComponent>;
+describe('DataUploadCloudinaryComponent', () => {
+    let component: DataUploadCloudinaryComponent;
+    let fixture: ComponentFixture<DataUploadCloudinaryComponent>;
 
     beforeEach(
         async(() => {
             TestBed.configureTestingModule({
-                declarations: [ CloudinaryComponent ]
+                declarations: [DataUploadCloudinaryComponent]
             }).compileComponents();
         })
     );
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(CloudinaryComponent);
+        fixture = TestBed.createComponent(DataUploadCloudinaryComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

@@ -10,20 +10,20 @@ import { SpreadsheetComponent } from './spreadsheet/spreadsheet.component';
 import { ChainXyComponent } from './chain-xy/chain-xy.component';
 import { ChainXyTableComponent } from './chain-xy/chain-xy-table/chain-xy-table.component';
 import { ChainXyMapComponent } from './chain-xy/chain-xy-map/chain-xy-map.component';
-import { CloudinaryComponent } from './cloudinary/cloudinary.component';
+import { DataUploadCloudinaryComponent } from './cloudinary/data-upload-cloudinary.component';
 import { MatchingComponent } from './matching/matching.component';
 
 const routes: Routes = [
     {
         path: 'data-upload',
         component: DataUploadComponent,
-        canActivate: [ AuthGuard ],
+        canActivate: [AuthGuard],
         children: [
             { path: '', component: OptionsMenuComponent },
             { path: 'planned-grocery', component: PlannedGroceryComponent },
             { path: 'matching', component: MatchingComponent },
             { path: 'spreadsheet', component: SpreadsheetComponent },
-            { path: 'cloudinary', component: CloudinaryComponent },
+            { path: 'cloudinary', component: DataUploadCloudinaryComponent },
             {
                 path: 'chain-xy',
                 component: ChainXyComponent,
@@ -38,7 +38,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    imports: [ RouterModule.forChild(routes) ],
-    exports: [ RouterModule ]
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule]
 })
-export class DataUploadRoutingModule {}
+export class DataUploadRoutingModule { }

@@ -87,7 +87,7 @@ export class ChainXyTableComponent implements OnInit {
 
   selectBanner(bannerSource: SimplifiedBannerSource) {
     this.selectingBanner = bannerSource.id;
-    const dialog = this.dialog.open(SelectBannerComponent, {maxWidth: '90%'});
+    const dialog = this.dialog.open(SelectBannerComponent, { maxWidth: '90%' });
     dialog.afterClosed().subscribe((result) => {
       this.selectingBanner = null;
       if (result && result.bannerName) {
@@ -100,7 +100,7 @@ export class ChainXyTableComponent implements OnInit {
     });
   }
 
-  updateBanner(bannerId: number, bannerSource: SimplifiedBannerSource) {
+  updateBanner(bannerId: number, bannerSource) {
     this.saving = true;
     this.bannerService.getOneById(bannerId).subscribe((banner: Banner) => {
       this.bannerSourceService.getOneById(bannerSource.id).subscribe((fullBannerSource: BannerSource) => {
@@ -159,24 +159,6 @@ export class ChainXyTableComponent implements OnInit {
     }
     this.bannerImages[banner.id].url = imgSource;
     return imgSource;
-  }
-
-  getSelectedBannerSourceVal(key) {
-    const val = this.selectedBannerSource[key];
-    switch (key) {
-      case 'banner':
-        return `${val.bannerName} (${this.selectedBannerSource.storeSourceCount} Stores)`;
-      case 'updatedDate':
-      case 'sourceCreatedDate':
-      case 'sourceEditedDate':
-      case 'validatedDate':
-        return new Date(val).toLocaleString();
-      case 'createdBy':
-      case 'updatedBy':
-      // do nothing for now
-      default:
-        return val;
-    }
   }
 
   toggleSidenav(sbs: SimplifiedBannerSource) {
