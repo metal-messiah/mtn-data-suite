@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 import shajs from 'sha.js';
 import { CloudinaryAsset } from '../../shared/cloudinary/CloudinaryAsset';
