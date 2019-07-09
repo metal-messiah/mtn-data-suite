@@ -1,297 +1,114 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { DatePipe, Location } from '@angular/common';
+import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import * as _ from 'lodash';
 
 import { Role } from '../../models/full/role';
-import { Permission } from '../../models/full/permission';
-import { UserProfile } from '../../models/full/user-profile';
-import { DetailFormComponent } from '../../interfaces/detail-form-component';
 
 import { ErrorService } from '../../core/services/error.service';
 import { RoleService } from '../../core/services/role.service';
-import { PermissionService } from '../../core/services/permission.service';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
 import { DetailFormService } from '../../core/services/detail-form.service';
 import { finalize } from 'rxjs/internal/operators';
 import { Observable } from 'rxjs';
+import { MatDialog, MatSnackBar } from '@angular/material';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'mds-role-detail',
   templateUrl: './role-detail.component.html',
-  styleUrls: ['./role-detail.component.css']
+  styleUrls: ['./role-detail.component.css', '../detail-view.css']
 })
-export class RoleDetailComponent implements OnInit, CanComponentDeactivate, DetailFormComponent<Role> {
+export class RoleDetailComponent implements OnInit, CanComponentDeactivate {
 
   roleForm: FormGroup;
 
   role: Role;
 
-  permissions: Permission[];
-  actions: string[] = [];
-  subjects: string[] = [];
-
-  abbreviate = false;
-
   isSaving = false;
   isLoading = false;
 
   constructor(private roleService: RoleService,
-              private permissionService: PermissionService,
               private route: ActivatedRoute,
-              private router: Router,
               private _location: Location,
-              private errorService: ErrorService,
               private fb: FormBuilder,
-              private datePipe: DatePipe,
-              private breakpointObserver: BreakpointObserver,
-              private detailFormService: DetailFormService<Role>) {
-    breakpointObserver.observe([
-      Breakpoints.HandsetPortrait
-    ]).subscribe(result => {
-      this.abbreviate = result.matches;
-    });
+              private errorService: ErrorService,
+              private dialog: MatDialog,
+              private snackBar: MatSnackBar,
+              private detailFormService: DetailFormService) {
   }
 
   ngOnInit() {
     this.createForm();
-
-    this.isLoading = true;
-
-    this.permissionService.getPermissions()
-      .pipe(finalize(() => this.isLoading = false))
-      .subscribe(
-        pageable => {
-          this.parsePermissions(pageable['content']);
-          this.detailFormService.retrieveObj(this);
-        },
-        err => this.errorService.handleServerError('Failed to retrieve permissions!', err,
-          () => this.goBack())
-      );
+    this.getData();
   }
 
-  // Implementations for DetailFormComponent
-  createForm() {
-    this.roleForm = this.fb.group({
-      displayName: ['', Validators.required],
-      description: '',
-      createdBy: '',
-      createdDate: '',
-      updatedBy: '',
-      updatedDate: '',
-      members: this.fb.array([]),
-      allSelected: true
-    });
-    this.setDisabledFields();
-  }
-
-  setDisabledFields(): void {
-    this.roleForm.get('createdBy').disable();
-    this.roleForm.get('createdDate').disable();
-    this.roleForm.get('updatedBy').disable();
-    this.roleForm.get('updatedDate').disable();
-  }
-
-  getForm(): FormGroup {
-    return this.roleForm;
-  }
-
-  getNewObj(): Role {
-    return new Role({});
-  }
-
-  getObj(): Role {
-    return this.role;
-  }
-
-  getEntityService(): RoleService {
-    return this.roleService;
-  }
-
-  getRoute(): ActivatedRoute {
-    return this.route;
-  }
-
-  getSavableObj(): Role {
-    const formModel = this.roleForm.value;
-
-    const selectedPermissions = _.filter(this.permissions, permission => {
-      return permission['control'].value === true;
-    });
-    const permissionsDeepCopy: Permission[] = selectedPermissions.map(
-      (permission: Permission) => {
-        const p = Object.assign({}, permission);
-        p['control'] = undefined;
-        return p;
-      }
-    );
-
-    // deep copy of members
-    const membersDeepCopy: UserProfile[] = formModel.members.map(
-      (member: UserProfile) => Object.assign({}, member)
-    );
-
-    return new Role({
-      id: this.role.id,
-      displayName: formModel.displayName,
-      description: formModel.description,
-      members: membersDeepCopy,
-      permissions: permissionsDeepCopy,
-      createdBy: this.role.createdBy,
-      createdDate: this.role.createdDate,
-      updatedBy: this.role.updatedBy,
-      updatedDate: this.role.updatedDate,
-      version: this.role.version
-    });
-  }
-
-  getTypeName(): string {
-    return 'role';
-  }
-
-  goBack() {
-    this._location.back();
-  };
-
-  onObjectChange(): void {
-    this.roleForm.reset({
-      displayName: this.role.displayName,
-      description: this.role.description
-    });
-
-    const memberFGs = this.role.members.map(member => this.fb.group(member));
-    const memberFormArray = this.fb.array(memberFGs);
-    this.roleForm.setControl('members', memberFormArray);
-
-    if (this.role.id !== undefined) {
-      this.roleForm.patchValue({
-        createdBy: this.role.createdBy.email,
-        createdDate: this.datePipe.transform(this.role.createdDate, 'medium'),
-        updatedBy: this.role.updatedBy.email,
-        updatedDate: this.datePipe.transform(this.role.updatedDate, 'medium'),
-      });
-    }
-
-    this.role.permissions.forEach(permission => {
-      this.roleForm.get(`permissions.${permission.subject}.${permission.action}`).setValue(true);
-    });
-
-    this.subjects.forEach(subject =>  this.updateSubjectControls(subject));
-    this.actions.forEach(action => this.updateActionControls(action));
-
-    this.updateAllSelected();
-  }
-
-  setObj(obj: Role) {
-    this.role = obj;
-    this.onObjectChange();
-  }
-
-  // Delegated functions
   saveRole() {
-    this.detailFormService.save(this);
+    const savable = Object.assign({}, this.role);
+    Object.keys(this.roleForm.controls).forEach(key => {
+      if (this.roleForm.get(key).dirty) {
+        savable[key] = this.roleForm.get(key).value;
+      }
+    });
+
+    const request = savable.id ? this.roleService.update(savable) : this.roleService.create(savable);
+
+    this.isSaving = true;
+    request.pipe(finalize(() => this.isSaving = false))
+      .subscribe(role => {
+        this.snackBar.open('Successfully saved role', null, {duration: 2000});
+        this.roleForm.reset(role);
+        this._location.back();
+      }, err => this.errorService.handleServerError('Failed to save role!', err,
+        () => console.log(err), () => this.saveRole()));
+  }
+
+  deleteRole() {
+    const data = {
+      title: 'Warning!',
+      question: 'This action can only be undone by a DB Administrator. Are you sure you want to delete this role?'
+    };
+    this.dialog.open(ConfirmDialogComponent, {data: data}).afterClosed().subscribe(result => {
+      if (result) {
+        this.isSaving = true;
+        this.roleService.delete(this.role.id)
+          .pipe(finalize(() => this.isSaving = false))
+          .subscribe(() => {
+            this.snackBar.open('Successfully deleted role', null, {duration: 2000});
+            this.roleForm.reset({});
+            this._location.back();
+          });
+      }
+    });
   }
 
   canDeactivate(): Observable<boolean> | boolean {
-    return this.detailFormService.canDeactivate(this);
+    return this.detailFormService.canDeactivate(this.roleForm);
   }
 
-  // Functions Specific for Role Detail
-  getPermission(subject: string, action: string) {
-    return this.roleForm.get(`permissions.${subject}.${action}`);
-  }
-
-  selectAllPermissions() {
-    const val = this.roleForm.get('allSelected').value;
-    _.forEach(this.permissions, permission => {
-      permission['control'].setValue(val);
-    });
-
-    _.forEach(this.actions, action => {
-      this.roleForm.get(`actions.${action}`).setValue(val);
-    });
-    _.forEach(this.subjects, subject => {
-      this.roleForm.get(`subjects.${subject}`).setValue(val);
+  private createForm() {
+    this.roleForm = this.fb.group({
+      displayName: ['', Validators.required],
+      description: ''
     });
   }
 
-  toggleAction(action: string) {
-    const actionPermissions = _.filter(this.permissions, {action: action});
-    _.forEach(actionPermissions, permission => {
-      permission['control'].setValue(this.roleForm.get(`actions.${action}`).value);
-    });
-    _.forEach(this.subjects, subject => {
-      this.updateSubjectControls(subject);
-    });
-    this.updateAllSelected();
-  }
+  private getData() {
+    const idString = this.route.snapshot.paramMap.get('id');
+    if (idString) {
+      const id = parseInt(idString, 10);
 
-  toggleSubject(subject: string) {
-    const subjectPermissions = _.filter(this.permissions, {subject: subject});
-    _.forEach(subjectPermissions, permission => {
-      permission['control'].setValue(this.roleForm.get(`subjects.${subject}`).value);
-    });
-    _.forEach(this.actions, action => {
-      this.updateActionControls(action);
-    });
-    this.updateAllSelected();
-  }
-
-  updateAllControls(subject, action) {
-    this.updateSubjectControls(subject);
-    this.updateActionControls(action);
-    this.updateAllSelected();
-  }
-
-  private parsePermissions(permissions: Permission[]): void {
-    this.permissions = permissions;
-    const permissionControls = this.fb.group({});
-
-    this.subjects = _.chain(permissions).map('subject').uniq().sort().value();
-    const subjectControls = this.fb.group({});
-    this.roleForm.addControl('subjects', subjectControls);
-    _.forEach(this.subjects, subject => {
-      subjectControls.addControl(subject, this.fb.control(false));
-      permissionControls.addControl(subject, this.fb.group({}));
-    });
-
-    this.actions = _.chain(permissions).map('action').uniq().sort().value();
-    const actionControls = this.fb.group({});
-    this.roleForm.addControl('actions', actionControls);
-    _.forEach(this.actions, action => {
-      actionControls.addControl(action, this.fb.control(false));
-    });
-
-    this.roleForm.addControl('permissions', permissionControls);
-    _.forEach(permissions, permission => {
-      const permissionControl = this.fb.control(false);
-      permission['control'] = permissionControl;
-      (permissionControls.get(permission.subject) as FormGroup).addControl(permission.action, permissionControl);
-    });
-  }
-
-  private updateActionControls(action) {
-    const actionPermissions = _.filter(this.permissions, {action: action});
-    const every = _.every(actionPermissions, permission => {
-      return permission['control'].value;
-    });
-    this.roleForm.get(`actions.${action}`).setValue(every);
-  }
-
-  private updateAllSelected() {
-    const every = _.every(this.permissions, permission => {
-      return permission['control'].value;
-    });
-    this.roleForm.patchValue({'allSelected': every});
-  }
-
-  private updateSubjectControls(subject) {
-    const subjectPermissions = _.filter(this.permissions, {subject: subject});
-    this.roleForm.get(`subjects.${subject}`).setValue(_.every(subjectPermissions, permission => {
-      return permission['control'].value;
-    }));
+      this.isLoading = true;
+      this.roleService.getOneById(id)
+        .pipe(finalize(() => this.isLoading = false))
+        .subscribe(role => {
+          this.role = role;
+          this.roleForm.reset(this.role);
+        }, err => this.errorService.handleServerError('Failed to get role!', err,
+          () => this._location.back(), () => this.getData()));
+    } else {
+      this.role = new Role({});
+    }
   }
 
 }

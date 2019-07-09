@@ -1,11 +1,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AdminComponent } from './admin.component';
-import { AdministrationModule } from '../administration.module';
-import { ActivatedRouteStub } from '../../../testing/activated-route-stub';
+import { AdministrationModule } from './administration.module';
+import { ActivatedRouteStub } from '../../testing/activated-route-stub';
 import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService } from '../core/services/auth.service';
 
 describe('AdminComponent', () => {
   let component: AdminComponent;

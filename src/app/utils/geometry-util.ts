@@ -1,11 +1,10 @@
 import { Feature, Polygon } from 'geojson';
-import { Coordinates } from '../models/coordinates';
 import MVCArray = google.maps.MVCArray;
 import LatLng = google.maps.LatLng;
 
 export class GeometryUtil {
 
-  static getGeoJsonFromShape(shape: {type: google.maps.drawing.OverlayType, overlay}) {
+  static getGeoJsonFromShape(shape: { type: google.maps.drawing.OverlayType, overlay }) {
     if (shape.type === google.maps.drawing.OverlayType.POLYGON) {
       return GeometryUtil.googlePolygonToGeoJsonFeature(shape.overlay);
     } else if (shape.type === google.maps.drawing.OverlayType.CIRCLE) {
@@ -76,18 +75,18 @@ export class GeometryUtil {
   static geoJsonPolygonToGooglePolygon(polygon: Polygon): google.maps.Polygon {
     const paths = [];
     polygon.coordinates.forEach((ring) => {
-      const path: Coordinates[] = [];
+      const path: LatLng[] = [];
       ring.forEach(coordinates => {
         const lng = coordinates[0];
         const lat = coordinates[1];
         if (path.length > 0) {
           const prevCoord = path[path.length - 1];
-          if (prevCoord.lat !== lat || prevCoord.lng !== lng) {
-            path.push({lat: lat, lng: lng})
+          if (prevCoord.lat() !== lat || prevCoord.lng() !== lng) {
+            path.push(new LatLng(lat, lng));
           }
           // else skip (eliminates duplicate points
         } else {
-          path.push({lat: lat, lng: lng})
+          path.push(new LatLng(lat, lng))
         }
       });
       paths.push(path);

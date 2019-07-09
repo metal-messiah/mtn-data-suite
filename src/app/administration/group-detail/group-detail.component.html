@@ -1,55 +1,45 @@
-<form class="box" [formGroup]="groupForm" novalidate>
-  <mat-toolbar class="row header flex-space-between">
-    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    <span id="title">Group Details</span>
-    <div>
-      <button type="button" mat-icon-button color="warn" *ngIf="groupForm.invalid">
-        <i class="fas fa-exclamation-triangle fa-2x"></i>
-      </button>
-      <button type="submit" mat-mini-fab color="accent" (click)="saveGroup()"
-              [disabled]="groupForm.pristine || groupForm.invalid || isSaving">
-        <i *ngIf="!isSaving" class="fas fa-save"></i>
-        <i *ngIf="isSaving" class="fas fa-spinner fa-pulse"></i>
-      </button>
-    </div>
-  </mat-toolbar>
-  <div class="row content" *ngIf="group">
-    <div class="list-wrapper">
-      <div *ngIf="isLoading" style="text-align: center">
-        <i class="fas fa-spinner fa-3x fa-pulse" aria-hidden="true"> </i>
-      </div>
-      <mat-list>
-        <mat-list-item>
-          <mat-form-field>
-            <input matInput placeholder="Display Name" formControlName="displayName" required>
-          </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-form-field>
-            <input matInput placeholder="Description" formControlName="description">
-          </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-form-field *ngIf="group.id !== undefined">
-            <input matInput placeholder="Created By" formControlName="createdBy">
-          </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-form-field *ngIf="group.id !== undefined">
-            <input matInput placeholder="Created Date" formControlName="createdDate">
-          </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-form-field *ngIf="group.id !== undefined">
-            <input matInput placeholder="Updated By" formControlName="updatedBy">
-          </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-form-field *ngIf="group.id !== undefined">
-            <input matInput placeholder="Updated Date" formControlName="updatedDate">
-          </mat-form-field>
-        </mat-list-item>
-      </mat-list>
-    </div>
+<mds-sub-title-bar subTitle="Group Details">
+  <i class="fas fa-users"></i>
+  <button title="Form Invalid" type="button" mat-icon-button color="warn" *ngIf="groupForm.invalid">
+    <i class="fas fa-exclamation-triangle fa-2x"></i>
+  </button>
+  <button title="Save Group" type="submit" form="group-form" mat-mini-fab color="accent" (click)="saveGroup()"
+          [disabled]="groupForm.pristine || groupForm.invalid || isSaving">
+    <i class="fas fa-save"></i>
+  </button>
+</mds-sub-title-bar>
+
+<div id="content-wrapper">
+  <div *ngIf="isLoading" style="text-align: center; margin-top: 15px;">
+    <i class="fas fa-spinner fa-3x fa-pulse" aria-hidden="true"></i>
   </div>
-</form>
+  <div id="form-wrapper">
+    <form id="group-form" [formGroup]="groupForm" *ngIf="group">
+      <mat-form-field>
+        <input matInput placeholder="Display Name" formControlName="displayName" required>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Description" formControlName="description">
+      </mat-form-field>
+      <ng-container *ngIf="group.id">
+        <mat-form-field>
+          <input matInput disabled placeholder="Created By" [value]="group.createdBy.email">
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput disabled placeholder="Created Date" [value]="group.createdDate">
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput disabled placeholder="Updated By" [value]="group.updatedBy.email">
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput disabled placeholder="Updated Date" [value]="group.updatedDate">
+        </mat-form-field>
+        <div>
+          <button mat-button color="warn" title="Delete Group" (click)="deleteGroup()">
+            Delete Group
+          </button>
+        </div>
+      </ng-container>
+    </form>
+  </div>
+</div>

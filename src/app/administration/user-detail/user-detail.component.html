@@ -1,75 +1,48 @@
-<form class="box" [formGroup]="userProfileForm" novalidate>
-  <mat-toolbar class="row header flex-space-between">
-    <button type="button" mat-icon-button (click)="goBack()"><i class="fasfa-arrow-left"></i></button>
-    <span id="title">User Details</span>
-    <div>
-      <button type="button" mat-icon-button color="warn" *ngIf="userProfileForm.invalid">
+<mds-sub-title-bar subTitle="User Details">
+  <i class="fas fa-user"></i>
+  <button title="Form Invalid" type="button" mat-icon-button color="warn" *ngIf="userProfileForm.invalid">
         <i class="fas fa-exclamation-triangle fa-2x"></i>
       </button>
-      <button type="submit" mat-mini-fab color="accent" (click)="saveUser()"
+  <button title="Save User" type="submit" form="user-profile-form" mat-mini-fab color="accent" (click)="saveUser()"
               [disabled]="userProfileForm.pristine || userProfileForm.invalid || isSaving">
         <i class="fas fa-save"></i>
       </button>
-    </div>
-  </mat-toolbar>
-  <div class="row content" *ngIf="userProfile">
-    <div class="list-wrapper">
-      <div *ngIf="isLoading" style="text-align: center">
+</mds-sub-title-bar>
+
+<div id="content-wrapper">
+  <div *ngIf="isLoading" style="text-align: center; margin-top: 15px;">
         <i class="fas fa-spinner fa-3x fa-pulse" aria-hidden="true"> </i>
       </div>
-      <mat-list>
-        <mat-list-item>
+  <div id="form-wrapper">
+    <form id="user-profile-form" [formGroup]="userProfileForm" *ngIf="userProfile">
           <mat-form-field>
             <input matInput placeholder="Email" formControlName="email" required>
           </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
           <mat-form-field>
             <input matInput placeholder="First Name" formControlName="firstName">
           </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
           <mat-form-field>
             <input matInput placeholder="Last Name" formControlName="lastName">
           </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
+      <ng-container *ngIf="userProfile.id">
           <mat-form-field>
-            <mat-select placeholder="Select a Role" [compareWith]="compareIds" formControlName="role">
-              <mat-option>None</mat-option>
-              <mat-option *ngFor="let role of roles" [value]="role">{{role.displayName}}</mat-option>
-            </mat-select>
+          <input matInput disabled placeholder="Created By" [value]="userProfile.createdBy.email">
           </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
           <mat-form-field>
-            <mat-select placeholder="Select a Group" [compareWith]="compareIds" formControlName="group">
-              <mat-option>None</mat-option>
-              <mat-option *ngFor="let group of groups" [value]="group">{{group.displayName}}</mat-option>
-            </mat-select>
+          <input matInput disabled placeholder="Created Date" [value]="userProfile.createdDate">
           </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-form-field *ngIf="userProfile.id !== undefined">
-            <input matInput placeholder="Created By" formControlName="createdBy">
+        <mat-form-field>
+          <input matInput disabled placeholder="Updated By" [value]="userProfile.updatedBy.email">
           </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-form-field *ngIf="userProfile.id !== undefined">
-            <input matInput placeholder="Created Date" formControlName="createdDate">
+        <mat-form-field>
+          <input matInput disabled placeholder="Updated Date" [value]="userProfile.updatedDate">
           </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-form-field *ngIf="userProfile.id !== undefined">
-            <input matInput placeholder="Updated By" formControlName="updatedBy">
-          </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-form-field *ngIf="userProfile.id !== undefined">
-            <input matInput placeholder="Updated Date" formControlName="updatedDate">
-          </mat-form-field>
-        </mat-list-item>
-      </mat-list>
+        <div>
+          <button mat-button color="warn" title="Delete User" (click)="deleteUser()">
+            Delete User
+          </button>
     </div>
+      </ng-container>
+    </form>
   </div>
-</form>
+</div>
