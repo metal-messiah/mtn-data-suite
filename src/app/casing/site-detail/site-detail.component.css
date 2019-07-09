@@ -2,15 +2,15 @@
   overflow: hidden;
 }
 
+.content-wrapper {
+  padding: 0 10px;
+}
+
 .checklist {
   display: flex;
   flex-direction: column;
   padding-left: 16px;
-}
-
-.content {
-  padding-left: 16px;
-  padding-right: 16px;
+  margin-bottom: 15px;
 }
 
 #quad-button-wrapper {

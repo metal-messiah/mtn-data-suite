@@ -1,21 +1,19 @@
-<div class="box">
-  <mat-toolbar class="row header flex-space-between">
-    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    <span id="title">Site Details</span>
-    <div>
+<mds-sub-title-bar subTitle="Store Details">
       <button type="button" mat-icon-button color="warn" *ngIf="form.invalid">
         <i class="fas fa-exclamation-triangle fa-2x"></i>
       </button>
-      <button type="submit" mat-mini-fab color="accent" (click)="saveForm()"
-              [disabled]="form.pristine || form.invalid">
-        <i class="fas fa-save"></i>
+  <button type="submit" mat-mini-fab color="accent" (click)="saveForm()" form="site-form"
+          [disabled]="form.pristine || form.invalid || saving">
+    <i *ngIf="!saving" class="fas fa-save"></i>
+    <i *ngIf="saving" class="fas fa-spinner fa-pulse"></i>
       </button>
+</mds-sub-title-bar>
+
+<div class="content-wrapper">
+  <div *ngIf="loading" style="text-align: center">
+    <i class="fas fa-spinner fa-pulse fa-2x"></i>
     </div>
-  </mat-toolbar>
-  <mat-divider></mat-divider>
-  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-  <div class="row content" *ngIf="!loading">
-    <div class="list-wrapper" [formGroup]="form">
+  <form id="site-form" *ngIf="site" [formGroup]="form">
       <mat-form-field>
         <mat-select placeholder="Position In Center" formControlName="positionInCenter">
           <mat-option>Clear Selection</mat-option>
@@ -75,6 +73,6 @@
           Site has been back-filled with non-grocery
         </mat-checkbox>
       </div>
-    </div>
-  </div>
+    <mds-auditing-entity-fields *ngIf="site.id" [entity]="site"></mds-auditing-entity-fields>
+  </form>
 </div>
