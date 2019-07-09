@@ -8,6 +8,9 @@ declare var cloudinary: any;
 @Injectable()
 export class CloudinaryService {
 
+  private readonly DEFAULT_HEIGHT_LIMIT = 40;
+  private readonly DEFAULT_WIDTH_LIMIT = 100;
+
   private cloudinaryInstance: any;
   private currentApiKey: string;
 
@@ -42,5 +45,11 @@ export class CloudinaryService {
 
   show() {
     this.cloudinaryInstance.show();
+  }
+
+  getUrlForLogoFileName(logoFileName: string, heightLimit?: number, widthLimit?: number): string {
+    const h = heightLimit ? heightLimit : this.DEFAULT_HEIGHT_LIMIT;
+    const w = widthLimit ? widthLimit : this.DEFAULT_WIDTH_LIMIT;
+    return `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_${h},w_${w}/${logoFileName}`;
   }
 }

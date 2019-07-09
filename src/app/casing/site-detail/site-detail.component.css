@@ -1,11 +1,3 @@
-:host {
-  overflow: hidden;
-}
-
-.content-wrapper {
-  padding: 0 10px;
-}
-
 .checklist {
   display: flex;
   flex-direction: column;
