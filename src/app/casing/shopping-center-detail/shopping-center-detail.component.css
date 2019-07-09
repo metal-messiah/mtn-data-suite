@@ -2,7 +2,6 @@
   overflow: hidden;
 }
 
-.content {
-  margin-left: 16px;
-  margin-right: 16px;
+.content-wrapper {
+  padding: 0 16px;
 }

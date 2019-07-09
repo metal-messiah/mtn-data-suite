@@ -1,33 +1,31 @@
-<div class="box">
-  <mat-toolbar class="row header flex-space-between">
-    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    <span id="title">SC Details</span>
-    <div>
-      <button type="button" mat-icon-button color="warn" *ngIf="form.invalid">
-        <i class="fas fa-exclamation-triangle fa-2x"></i>
-      </button>
-      <button type="submit" mat-mini-fab color="accent" (click)="saveForm()"
-              [disabled]="form.pristine || form.invalid">
-        <i class="fas fa-save"></i>
-      </button>
-    </div>
-  </mat-toolbar>
-  <mat-divider></mat-divider>
-  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-  <div class="row content" *ngIf="!loading">
-    <div class="list-wrapper" [formGroup]="form">
-      <mat-form-field>
-        <input matInput type="text" placeholder="Shopping Center Name" formControlName="name">
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput type="text" placeholder="Shopping Center Owner" formControlName="owner">
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder="Center Type" formControlName="centerType">
-          <mat-option>Clear Selection</mat-option>
-          <mat-option *ngFor="let centerType of centerTypes" [value]="centerType">{{centerType}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
+<mds-sub-title-bar subTitle="SC Details">
+  <button type="button" mat-icon-button color="warn" *ngIf="form.invalid">
+    <i class="fas fa-exclamation-triangle fa-2x"></i>
+  </button>
+  <button type="submit" mat-mini-fab color="accent" (click)="saveForm()" form="sc-form"
+          [disabled]="form.pristine || form.invalid || saving">
+    <i *ngIf="!saving" class="fas fa-save"></i>
+    <i *ngIf="saving" class="fas fa-spinner fa-pulse"></i>
+  </button>
+</mds-sub-title-bar>
+
+<div class="content-wrapper">
+  <div *ngIf="loading" style="text-align: center">
+    <i class="fas fa-spinner fa-pulse fa-2x"></i>
   </div>
+  <form id="sc-form" *ngIf="shoppingCenter" [formGroup]="form">
+    <mat-form-field>
+      <input matInput type="text" placeholder="Shopping Center Name" formControlName="name">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput type="text" placeholder="Shopping Center Owner" formControlName="owner">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-select placeholder="Center Type" formControlName="centerType">
+        <mat-option>Clear Selection</mat-option>
+        <mat-option *ngFor="let centerType of centerTypes" [value]="centerType">{{centerType}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mds-auditing-entity-fields *ngIf="shoppingCenter.id" [entity]="shoppingCenter"></mds-auditing-entity-fields>
+  </form>
 </div>
