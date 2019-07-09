@@ -7,3 +7,21 @@
   overflow: auto;
   max-height: 300px;
 }
+
+.mat-dialog-content{
+  padding: 30px;
+}
+
+i.top{
+  margin-top: -8px;
+}
+
+i.right{
+  margin-left: 6px; 
+  margin-top: 4px;
+}
+
+.left{
+  margin-left: -6px; 
+  margin-top: 4px;
+}

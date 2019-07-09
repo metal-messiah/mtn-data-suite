@@ -243,7 +243,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.minPullZoomLevel) {
       this.dbEntityMarkerService.getMarkersInMapView();
     } else {
-      this.snackBar.open('Zoom in or change Pull zoom limit', null, {duration: 3000})
+      this.snackBar.open('Zoom in or change Pull zoom limit', null, {duration: 2000, verticalPosition: 'top'})
     }
   }
 
@@ -472,10 +472,23 @@ Geo-location
 
   getGoogleLocationsInView(query: string, bounds?: any) {
     this.mapService.searchFor(query, bounds).subscribe((searchResults: GooglePlace[]) => {
-      this.ngZone.run(() => {
-        this.googlePlacesLayer.setGooglePlaces(searchResults);
-      });
+      if (searchResults.length) {
+        this.ngZone.run(() => {
+          this.googlePlacesLayer.setGooglePlaces(searchResults);
+        });
+      } else {
+        this.warnNoResults(query);
+      }
+    }, err => {
+      if (err === 'ZERO_RESULTS') {
+        this.warnNoResults(query);
+      }
     });
+  }
+
+  private warnNoResults(query: string) {
+    const message = `No Google results found for '${query}'`;
+    this.ngZone.run(() => this.snackBar.open(message, null, { duration: 2000 }));
   }
 
   clearGoogleSearch() {
@@ -485,6 +498,14 @@ Geo-location
     }
     this.googlePlacesLayer.removeFromMap();
     this.googlePlacesLayer = null;
+  }
+
+  countSearchPoints(): string {
+    if (this.googlePlacesLayer) {
+      const markerCount = this.googlePlacesLayer.getMarkersCount();
+      return markerCount ? markerCount.toLocaleString() : null;
+    }
+    return null;
   }
 
   openLatLngSearch() {

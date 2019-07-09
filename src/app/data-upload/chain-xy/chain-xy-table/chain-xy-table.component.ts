@@ -18,6 +18,7 @@ import { BannerSource } from 'app/models/full/banner-source';
 import { Banner } from 'app/models/full/banner';
 import { Pageable } from 'app/models/pageable';
 import { SimplifiedBannerSource } from 'app/models/simplified/simplified-banner-source';
+import { SimplifiedBanner } from '../../../models/simplified/simplified-banner';
 
 export enum statuses {
   COMPLETE = 'COMPLETE',
@@ -44,7 +45,7 @@ export class ChainXyTableComponent implements OnInit {
 
   bannerImages = {};
 
-  @ViewChild('sidenav', { static: true }) sidenav: MatSidenav;
+  @ViewChild('sidenav', {static: true}) sidenav: MatSidenav;
 
   constructor(
     private router: Router,
@@ -86,7 +87,7 @@ export class ChainXyTableComponent implements OnInit {
 
   selectBanner(bannerSource: SimplifiedBannerSource) {
     this.selectingBanner = bannerSource.id;
-    const dialog = this.dialog.open(SelectBannerComponent, {maxWidth: '90%'});
+    const dialog = this.dialog.open(SelectBannerComponent, { maxWidth: '90%' });
     dialog.afterClosed().subscribe((result) => {
       this.selectingBanner = null;
       if (result && result.bannerName) {
@@ -99,17 +100,11 @@ export class ChainXyTableComponent implements OnInit {
     });
   }
 
-  updateBanner(bannerId: number, bannerSource: SimplifiedBannerSource) {
+  updateBanner(bannerId: number, bannerSource) {
     this.saving = true;
     this.bannerService.getOneById(bannerId).subscribe((banner: Banner) => {
-      const {bannerName, id, logoFileName} = banner;
-
       this.bannerSourceService.getOneById(bannerSource.id).subscribe((fullBannerSource: BannerSource) => {
-        bannerSource.banner = {
-          bannerName,
-          id,
-          logoFileName
-        };
+        bannerSource.banner = new SimplifiedBanner(banner);
         fullBannerSource.banner = bannerSource.banner;
         this.bannerSourceService.update(fullBannerSource).subscribe(
           (resp) => {
@@ -123,7 +118,7 @@ export class ChainXyTableComponent implements OnInit {
 
   removeBanner() {
     this.saving = true;
-    // remove the banner on the bannerSourceService
+    // TODO remove the banner on the bannerSourceService
   }
 
   fileExists(urlToFile, id, strictCheck) {
@@ -164,24 +159,6 @@ export class ChainXyTableComponent implements OnInit {
     }
     this.bannerImages[banner.id].url = imgSource;
     return imgSource;
-  }
-
-  getSelectedBannerSourceVal(key) {
-    const val = this.selectedBannerSource[key];
-    switch (key) {
-      case 'banner':
-        return `${val.bannerName} (${this.selectedBannerSource.storeSourceCount} Stores)`;
-      case 'updatedDate':
-      case 'sourceCreatedDate':
-      case 'sourceEditedDate':
-      case 'validatedDate':
-        return new Date(val).toLocaleString();
-      case 'createdBy':
-      case 'updatedBy':
-      // do nothing for now
-      default:
-        return val;
-    }
   }
 
   toggleSidenav(sbs: SimplifiedBannerSource) {
