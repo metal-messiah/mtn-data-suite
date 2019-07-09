@@ -4,7 +4,7 @@ import { StoreCasingDetailService } from '../store-casing-detail.service';
 @Component({
   selector: 'mds-flow',
   templateUrl: './flow.component.html',
-  styleUrls: ['./flow.component.css']
+  styleUrls: ['./flow.component.css', '../casing-defaults.css']
 })
 export class FlowComponent implements OnInit {
 

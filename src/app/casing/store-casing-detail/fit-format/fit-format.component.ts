@@ -4,7 +4,7 @@ import { StoreCasingDetailService } from '../store-casing-detail.service';
 @Component({
   selector: 'mds-fit-format',
   templateUrl: './fit-format.component.html',
-  styleUrls: ['./fit-format.component.css']
+  styleUrls: ['./fit-format.component.css', '../casing-defaults.css']
 })
 export class FitFormatComponent implements OnInit {
 

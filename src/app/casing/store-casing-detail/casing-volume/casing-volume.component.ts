@@ -8,7 +8,7 @@ import { StoreVolume } from '../../../models/full/store-volume';
 @Component({
   selector: 'mds-casing-volume',
   templateUrl: './casing-volume.component.html',
-  styleUrls: ['./casing-volume.component.css']
+  styleUrls: ['./casing-volume.component.css', '../casing-defaults.css']
 })
 export class CasingVolumeComponent implements OnInit {
 
@@ -45,7 +45,7 @@ export class CasingVolumeComponent implements OnInit {
   showExistingVolumes() {
     const volumesDialog = this.dialog.open(StoreVolumesSelectionComponent, {
       data: {storeId: this.service.store.id},
-      maxWidth: '90%'
+      maxWidth: '300px'
     });
     volumesDialog.afterClosed().subscribe(result => {
       if (result != null && result !== '') {

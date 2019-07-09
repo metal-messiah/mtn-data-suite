@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material';
 @Component({
   selector: 'mds-area',
   templateUrl: './area.component.html',
-  styleUrls: ['./area.component.css']
+  styleUrls: ['./area.component.css', '../casing-defaults.css']
 })
 export class AreaComponent implements OnInit {
 

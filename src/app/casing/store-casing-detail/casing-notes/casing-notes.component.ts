@@ -4,7 +4,7 @@ import { StoreCasingDetailService } from '../store-casing-detail.service';
 @Component({
   selector: 'mds-casing-notes',
   templateUrl: './casing-notes.component.html',
-  styleUrls: ['./casing-notes.component.css']
+  styleUrls: ['./casing-notes.component.css', '../casing-defaults.css']
 })
 export class CasingNotesComponent implements OnInit {
 

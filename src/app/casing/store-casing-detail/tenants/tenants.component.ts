@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material';
 @Component({
   selector: 'mds-tenants',
   templateUrl: './tenants.component.html',
-  styleUrls: ['./tenants.component.css']
+  styleUrls: ['./tenants.component.css', '../casing-defaults.css']
 })
 export class TenantsComponent implements OnInit {
 
@@ -14,6 +14,10 @@ export class TenantsComponent implements OnInit {
               private dialog: MatDialog) { }
 
   ngOnInit() {
+  }
+
+  get conditions() {
+    return this.service.conditions;
   }
 
   get shoppingCenterSurveyForm() {

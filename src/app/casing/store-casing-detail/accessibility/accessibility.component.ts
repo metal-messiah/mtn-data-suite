@@ -6,7 +6,7 @@ import { StoreCasingDetailService } from '../store-casing-detail.service';
 @Component({
   selector: 'mds-accessibility',
   templateUrl: './accessibility.component.html',
-  styleUrls: ['./accessibility.component.css']
+  styleUrls: ['./accessibility.component.css', '../casing-defaults.css']
 })
 export class AccessibilityComponent implements OnInit {
 

@@ -35,7 +35,6 @@ export class SiteOverviewComponent implements OnInit {
 
   constructor(private _location: Location,
               private casingProjectService: CasingProjectService,
-              private casingDashboardService: CasingDashboardService,
               private router: Router,
               private route: ActivatedRoute,
               private dialog: MatDialog,

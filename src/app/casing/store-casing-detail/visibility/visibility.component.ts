@@ -4,7 +4,7 @@ import { StoreCasingDetailService } from '../store-casing-detail.service';
 @Component({
   selector: 'mds-visibility',
   templateUrl: './visibility.component.html',
-  styleUrls: ['./visibility.component.css']
+  styleUrls: ['./visibility.component.css', '../casing-defaults.css']
 })
 export class VisibilityComponent implements OnInit {
 

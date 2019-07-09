@@ -4,7 +4,7 @@ import { StoreCasingDetailService } from '../store-casing-detail.service';
 @Component({
   selector: 'mds-store-status',
   templateUrl: './store-status.component.html',
-  styleUrls: ['./store-status.component.css']
+  styleUrls: ['./store-status.component.css', '../casing-defaults.css']
 })
 export class StoreStatusComponent implements OnInit {
 

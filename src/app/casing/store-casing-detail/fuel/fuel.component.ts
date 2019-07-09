@@ -4,7 +4,7 @@ import { StoreCasingDetailService } from '../store-casing-detail.service';
 @Component({
   selector: 'mds-fuel',
   templateUrl: './fuel.component.html',
-  styleUrls: ['./fuel.component.css']
+  styleUrls: ['./fuel.component.css', '../casing-defaults.css']
 })
 export class FuelComponent implements OnInit {
 

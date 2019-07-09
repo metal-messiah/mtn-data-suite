@@ -4,7 +4,7 @@ import { StoreCasingDetailService } from '../store-casing-detail.service';
 @Component({
   selector: 'mds-seasonality',
   templateUrl: './seasonality.component.html',
-  styleUrls: ['./seasonality.component.css']
+  styleUrls: ['./seasonality.component.css', '../casing-defaults.css']
 })
 export class SeasonalityComponent implements OnInit {
 

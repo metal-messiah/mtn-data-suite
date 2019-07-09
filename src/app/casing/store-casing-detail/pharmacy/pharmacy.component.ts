@@ -4,7 +4,7 @@ import { StoreCasingDetailService } from '../store-casing-detail.service';
 @Component({
   selector: 'mds-pharmacy',
   templateUrl: './pharmacy.component.html',
-  styleUrls: ['./pharmacy.component.css']
+  styleUrls: ['./pharmacy.component.css', '../casing-defaults.css']
 })
 export class PharmacyComponent implements OnInit {
 

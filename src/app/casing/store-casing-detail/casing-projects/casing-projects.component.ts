@@ -1,19 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { SelectProjectComponent } from '../../select-project/select-project.component';
 import { SimplifiedProject } from '../../../models/simplified/simplified-project';
-import { CasingDashboardService } from '../../casing-dashboard/casing-dashboard.service';
 import { StoreCasingDetailService } from '../store-casing-detail.service';
 import { MatDialog } from '@angular/material';
 
 @Component({
   selector: 'mds-casing-projects',
   templateUrl: './casing-projects.component.html',
-  styleUrls: ['./casing-projects.component.css']
+  styleUrls: ['./casing-projects.component.css', '../casing-defaults.css']
 })
 export class CasingProjectsComponent implements OnInit {
 
-  constructor(private casingDashboardService: CasingDashboardService,
-              private service: StoreCasingDetailService,
+  constructor(private service: StoreCasingDetailService,
               private dialog: MatDialog) { }
 
   ngOnInit() {

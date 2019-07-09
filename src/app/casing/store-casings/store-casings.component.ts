@@ -3,7 +3,6 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StoreService } from '../../core/services/store.service';
 import { SimplifiedStoreCasing } from '../../models/simplified/simplified-store-casing';
-import { CasingDashboardService } from '../casing-dashboard/casing-dashboard.service';
 import { StoreCasing } from '../../models/full/store-casing';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
 import { SelectProjectComponent } from '../select-project/select-project.component';
@@ -35,7 +34,6 @@ export class StoreCasingsComponent implements OnInit, OnDestroy {
   constructor(private storeService: StoreService,
               private casingProjectService: CasingProjectService,
               private storeCasingService: StoreCasingService,
-              private casingDashboardService: CasingDashboardService,
               private dialog: MatDialog,
               private errorService: ErrorService,
               private router: Router,
