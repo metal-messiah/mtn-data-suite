@@ -1,18 +1,16 @@
-a {
-  cursor: pointer;
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
-mat-card {
-  width: 150px;
+#home-header {
+  justify-content: center;
 }
 
 .sign-in-button-container {
-  margin-top: 150px;
+  flex: 1;
   display: flex;
   justify-content: center;
-  align-content: center;
-}
-
-.font-size-large {
-  font-size: large;
+  align-items: center;
 }

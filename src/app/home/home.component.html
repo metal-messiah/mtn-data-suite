@@ -1,71 +1,11 @@
-<mat-toolbar color="primary" class="flex-space-between">
-  <mds-logo-menu [showHome]="false"></mds-logo-menu>
-  <span>MTN App Suite</span>
-  <div></div>
-</mat-toolbar>
-<div class="box">
-  <mat-toolbar class="row header flex-justify-center">
-    <span><i class="fas fa-home"></i>&nbsp;Home</span>
-  </mat-toolbar>
-  <div class="row content">
-    <div class="list-wrapper">
-      <div class="sign-in-button-container" *ngIf="!isAuthenticated">
-        <button mat-raised-button color="primary" (click)="signIn()" class="font-size-large">
-          <i class="fas fa-sign-in-alt"></i>&nbsp;Sign in
-        </button>
-      </div>
-      <mat-nav-list *ngIf="isAuthenticated">
-        <mat-divider></mat-divider>
-        <div *ngIf="userIsAdmin()">
-          <mat-list-item routerLink="/admin">
-            <div mat-list-icon><i class="fas fa-key"></i></div>
-            <h3 mat-line>Administration</h3>
-          </mat-list-item>
-          <mat-divider></mat-divider>
-        </div>
-        <div>
-          <mat-list-item routerLink="/casing">
-            <div mat-list-icon><i class="fas fa-briefcase"></i></div>
-            <h3 mat-line>Casing</h3>
-          </mat-list-item>
-          <mat-divider></mat-divider>
-        </div>
-        <div *ngIf="userCanUpload()">
-          <mat-list-item routerLink="/data-upload">
-            <div mat-list-icon><i class="fas fa-upload"></i></div>
-            <h3 mat-line>Data Upload</h3>
-          </mat-list-item>
-          <mat-divider></mat-divider>
-        </div>
-        <div *ngIf="userCanExtract()">
-          <mat-list-item routerLink="/extraction">
-            <div mat-list-icon><i class="fas fa-download"></i></div>
-            <h3 mat-line>Data Extraction</h3>
-          </mat-list-item>
-          <mat-divider></mat-divider>
-        </div>
-        <div *ngIf="userCanReport()">
-          <mat-list-item routerLink="/reports">
-            <div mat-list-icon><i class="fas fa-newspaper"></i></div>
-            <h3 mat-line>Reports</h3>
-          </mat-list-item>
-          <mat-divider></mat-divider>
-        </div>
-        <div *ngIf="userIsBroker()">
-          <mat-list-item routerLink="/brokerage">
-            <div mat-list-icon><i class="fas fa-building"></i></div>
-            <h3 mat-line>Brokerage</h3>
-          </mat-list-item>
-          <mat-divider></mat-divider>
-        </div>
-        <div>
-          <mat-list-item routerLink="/geocoding">
-            <div mat-list-icon><i class="fas fa-globe-americas"></i></div>
-            <h3 mat-line>Geocoding</h3>
-          </mat-list-item>
-          <mat-divider></mat-divider>
-        </div>
-      </mat-nav-list>
-    </div>
+<mds-sub-title-bar subTitle="Home">
+  <i class="fas fa-home"></i>
+</mds-sub-title-bar>
+<div class="sign-in-button-container" *ngIf="!isAuthenticated">
+  <div>
+    <button mat-raised-button color="accent" (click)="signIn()">
+      <i class="fas fa-sign-in-alt"></i>&nbsp;<strong>Sign in</strong>
+    </button>
   </div>
 </div>
+<mds-menu-list *ngIf="isAuthenticated" [menuItems]="getMenuItems()"></mds-menu-list>

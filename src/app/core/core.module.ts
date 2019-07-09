@@ -23,7 +23,6 @@ import { ShoppingCenterSurveyService } from './services/shopping-center-survey.s
 import { ShoppingCenterTenantService } from './services/shopping-center-tenant.service';
 import { ShoppingCenterAccessService } from './services/shopping-center-access.service';
 import { StoreSurveyService } from './services/store-survey.service';
-import { RoutingStateService } from './services/routing-state.service';
 import { BannerService } from './services/banner.service';
 import { StoreSourceService } from './services/store-source.service';
 import { EntitySelectionService } from './services/entity-selection.service';
@@ -55,7 +54,6 @@ import { CloudinaryService } from './services/cloudinary.service';
     ProjectService,
     RestService,
     RoleService,
-    RoutingStateService,
     ShoppingCenterAccessService,
     ShoppingCenterCasingService,
     ShoppingCenterService,

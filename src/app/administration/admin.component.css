@@ -1,9 +1,4 @@
-.dashboard-content {
-  height: calc(100% - 64px);
-}
-
-@media (max-width: 600px) {
-  .dashboard-content {
-    height: calc(100% - 56px);
-  }
+:host {
+  flex: 1;
+  overflow-y: hidden;
 }
