@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Location } from '@angular/common';
 
 @Component({
@@ -6,15 +6,12 @@ import { Location } from '@angular/common';
   templateUrl: './sub-title-bar.component.html',
   styleUrls: ['./sub-title-bar.component.css']
 })
-export class SubTitleBarComponent implements OnInit {
+export class SubTitleBarComponent {
 
   @Input() subTitle: string;
   @Input() hideBackButton: boolean;
 
   constructor(private _location: Location) { }
-
-  ngOnInit() {
-  }
 
   goBack() {
     this._location.back();

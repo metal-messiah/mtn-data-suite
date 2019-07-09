@@ -1,0 +1,10 @@
+<form [formGroup]="storeCasingForm">
+  <mat-form-field>
+    <mat-select placeholder="Store Status" formControlName="storeStatus">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let statusOption of storeStatusOptions" [value]="statusOption">
+        {{statusOption}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</form>

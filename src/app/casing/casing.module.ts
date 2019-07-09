@@ -3,11 +3,10 @@ import { CasingDashboardComponent } from './casing-dashboard/casing-dashboard.co
 import { CasingComponent } from './casing.component';
 import { SharedModule } from '../shared/shared.module';
 import { CasingRoutingModule } from './casing-routing.module';
-import { CasingProjectsComponent } from './casing-projects/casing-projects.component';
+import { CasingProjectsComponent } from './store-casing-detail/casing-projects/casing-projects.component';
 import { SelectProjectComponent } from './select-project/select-project.component';
 import { ProjectSummaryComponent } from './project-summary/project-summary.component';
 import { ProjectDetailComponent } from './project-detail/project-detail.component';
-import { CasingDashboardService } from './casing-dashboard/casing-dashboard.service';
 import { SiteDetailComponent } from './site-detail/site-detail.component';
 import { SiteOverviewComponent } from './site-overview/site-overview.component';
 import { LatLngSearchComponent } from './lat-lng-search/lat-lng-search.component';
@@ -36,72 +35,108 @@ import { InfoCardDirective } from './info-card.directive';
 import { InfoCardComponent } from './info-card/info-card.component';
 import { DbLocationInfoCardComponent } from '../shared/db-location-info-card/db-location-info-card.component';
 import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-card.component';
-import { StorageService } from 'app/core/services/storage.service';
 import { DbEntityControlsComponent } from './casing-dashboard/db-entity-controls/db-entity-controls.component';
+import { CasingDateComponent } from './store-casing-detail/casing-date/casing-date.component';
+import { VisibilityComponent } from './store-casing-detail/visibility/visibility.component';
+import { AccessibilityComponent } from './store-casing-detail/accessibility/accessibility.component';
+import { FlowComponent } from './store-casing-detail/flow/flow.component';
+import { StoreParkingComponent } from './store-casing-detail/store-parking/store-parking.component';
+import { TenantsComponent } from './store-casing-detail/tenants/tenants.component';
+import { FuelComponent } from './store-casing-detail/fuel/fuel.component';
+import { StoreStatusComponent } from './store-casing-detail/store-status/store-status.component';
+import { FitFormatComponent } from './store-casing-detail/fit-format/fit-format.component';
+import { HoursComponent } from './store-casing-detail/hours/hours.component';
+import { StoreConditionComponent } from './store-casing-detail/store-condition/store-condition.component';
+import { PharmacyComponent } from './store-casing-detail/pharmacy/pharmacy.component';
+import { RegistersComponent } from './store-casing-detail/registers/registers.component';
+import { DepartmentsComponent } from './store-casing-detail/departments/departments.component';
+import { AreaComponent } from './store-casing-detail/area/area.component';
+import { CasingVolumeComponent } from './store-casing-detail/casing-volume/casing-volume.component';
+import { SeasonalityComponent } from './store-casing-detail/seasonality/seasonality.component';
+import { CasingNotesComponent } from './store-casing-detail/casing-notes/casing-notes.component';
+import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing-entity-fields.component';
 
 @NgModule({
   imports: [
-    SharedModule,
-    CasingRoutingModule
+    CasingRoutingModule,
+    SharedModule
   ],
   declarations: [
+    AccessibilityComponent,
     AccessListDialogComponent,
     AreaCalculatorComponent,
+    AreaComponent,
+    AuditingEntityFieldsComponent,
     CasingComponent,
     CasingDashboardComponent,
+    CasingDateComponent,
+    CasingNotesComponent,
     CasingProjectsComponent,
+    CasingVolumeComponent,
     DatabaseSearchComponent,
+    DbEntityControlsComponent,
+    DepartmentsComponent,
+    DownloadDialogComponent,
+    FitFormatComponent,
+    FlowComponent,
+    FuelComponent,
     GoogleSearchComponent,
+    HoursComponent,
+    InfoCardComponent,
+    InfoCardDirective,
     LatLngSearchComponent,
     NewStoreStatusComponent,
+    NewStoreVolumeComponent,
+    PharmacyComponent,
     ProjectDetailComponent,
     ProjectSummaryComponent,
     QuadDialogComponent,
+    RegistersComponent,
+    SeasonalityComponent,
+    SelectBannerComponent,
     SelectProjectComponent,
     ShoppingCenterDetailComponent,
     SiteDetailComponent,
+    SiteMergeDialogComponent,
     SiteOverviewComponent,
+    StoreAttrSelectionDialogComponent,
     StoreCasingDetailComponent,
     StoreCasingsComponent,
+    StoreConditionComponent,
     StoreDetailComponent,
+    StoreParkingComponent,
+    StoreSelectionDialogComponent,
+    StoreStatusComponent,
     StoreStatusesDialogComponent,
     StoreSummaryCardComponent,
     StoreVolumeDialogComponent,
     StoreVolumesSelectionComponent,
     TenantListDialogComponent,
-    NewStoreVolumeComponent,
-    DownloadDialogComponent,
-    SiteMergeDialogComponent,
-    StoreSelectionDialogComponent,
-    StoreAttrSelectionDialogComponent,
-    SelectBannerComponent,
-    InfoCardDirective,
-    InfoCardComponent,
-    DbEntityControlsComponent
+    TenantsComponent,
+    VisibilityComponent
   ],
   entryComponents: [
     AccessListDialogComponent,
     AreaCalculatorComponent,
     DatabaseSearchComponent,
+    DbLocationInfoCardComponent,
+    DownloadDialogComponent,
+    GoogleInfoCardComponent,
     GoogleSearchComponent,
     LatLngSearchComponent,
+    NewStoreStatusComponent,
+    NewStoreVolumeComponent,
     QuadDialogComponent,
+    SelectBannerComponent,
     SelectProjectComponent,
+    SiteMergeDialogComponent,
+    StoreAttrSelectionDialogComponent,
+    StoreSelectionDialogComponent,
     StoreStatusesDialogComponent,
     StoreVolumeDialogComponent,
     StoreVolumesSelectionComponent,
-    TenantListDialogComponent,
-    NewStoreStatusComponent,
-    NewStoreVolumeComponent,
-    DownloadDialogComponent,
-    SiteMergeDialogComponent,
-    StoreSelectionDialogComponent,
-    StoreAttrSelectionDialogComponent,
-    SelectBannerComponent,
-    DbLocationInfoCardComponent,
-    GoogleInfoCardComponent
-  ],
-  providers: [CasingDashboardService]
+    TenantListDialogComponent
+  ]
 })
 export class CasingModule {
 }

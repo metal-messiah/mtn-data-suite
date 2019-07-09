@@ -4,7 +4,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from '../core/services/auth.guard';
 import { CasingDashboardComponent } from './casing-dashboard/casing-dashboard.component';
 import { CasingComponent } from './casing.component';
-import { CasingProjectsComponent } from './casing-projects/casing-projects.component';
 import { CanDeactivateGuard } from '../core/services/can-deactivate.guard';
 import { ProjectDetailComponent } from './project-detail/project-detail.component';
 import { SiteDetailComponent } from './site-detail/site-detail.component';
@@ -40,7 +39,6 @@ const routes: Routes = [
       {path: 'store/:storeId/store-casings', component: StoreCasingsComponent},
       {path: 'store/:storeId/store-casings/:storeCasingId', component: StoreCasingDetailComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'shopping-center/:shoppingCenterId', component: ShoppingCenterDetailComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'projects', component: CasingProjectsComponent},
       {path: 'project/:projectId', component: ProjectDetailComponent, canDeactivate: [CanDeactivateGuard]}
     ]
   }

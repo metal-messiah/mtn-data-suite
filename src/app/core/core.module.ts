@@ -33,6 +33,7 @@ import { SourceUpdatableService } from './services/source-updatable.service';
 import { BannerSourceService } from './services/banner-source.service';
 import { StoreListService } from './services/store-list.service';
 import { CloudinaryService } from './services/cloudinary.service';
+import { RoutingStateService } from './services/routing-state.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -54,6 +55,7 @@ import { CloudinaryService } from './services/cloudinary.service';
     ProjectService,
     RestService,
     RoleService,
+    RoutingStateService,
     ShoppingCenterAccessService,
     ShoppingCenterCasingService,
     ShoppingCenterService,

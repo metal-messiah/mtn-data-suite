@@ -21,6 +21,7 @@ import { Control, ControlStorageKeys } from 'app/models/control';
 import { DbEntityMarkerControls } from '../../models/db-entity-marker-controls';
 import { EntitySelectionService } from './entity-selection.service';
 import { SimplifiedBanner } from '../../models/simplified/simplified-banner';
+import { CasingProjectService } from '../../casing/casing-project.service';
 
 @Injectable()
 export class DbEntityMarkerService {
@@ -48,6 +49,7 @@ export class DbEntityMarkerService {
   private visibleMarkers = [];
 
   private selectionService: EntitySelectionService;
+  private casingProjectService: CasingProjectService;
 
   gettingLocations = false;
   readonly visibleMarkersChanged$ = new Subject<void>();
@@ -71,7 +73,12 @@ export class DbEntityMarkerService {
   /**
    * Initializes the map. Must be called before other public methods will work.
    */
-  initMap(gmap: google.maps.Map, clickListener, selectionService) {
+  initMap(gmap: google.maps.Map, clickListener,
+          selectionService: EntitySelectionService,
+          casingProjectService: CasingProjectService) {
+    // CasingProject service
+    this.casingProjectService = casingProjectService;
+
     // Selection
     this.selectionService = selectionService;
     this.selectionService.selectionUpdated$.subscribe(() => this.refreshMarkers());
@@ -132,7 +139,7 @@ export class DbEntityMarkerService {
     );
 
     if (this._controls.markerType === MarkerType.CASED_FOR_PROJECT) {
-      const selectedProject = this.casingDashboardService.getSelectedProject();
+      const selectedProject = this.casingProjectService.getSelectedProject();
       if (selectedProject) {
         requests.push(this.projectService.getAllCasedStoreIds(selectedProject.id)
           .pipe(tap((storeIds: number[]) => {
@@ -164,7 +171,7 @@ export class DbEntityMarkerService {
     // If no call has been made yet, get rather than refresh
     if (this.prevUpdate) {
       if (this._controls.markerType === MarkerType.CASED_FOR_PROJECT) {
-        const selectedProject = this.casingDashboardService.getSelectedProject();
+        const selectedProject = this.casingProjectService.getSelectedProject();
         if (selectedProject) {
           this.gettingLocations = true;
           this.projectService.getAllCasedStoreIds(selectedProject.id)

@@ -1,0 +1,25 @@
+<form [formGroup]="storeSurveyForm">
+  <div class="checklist">
+    <mat-checkbox formControlName="visibilityHillDepressionBlocksView">
+      Hill/Depression blocks view of store
+    </mat-checkbox>
+    <mat-checkbox formControlName="visibilityTreesBlockView">
+      Trees block view of store
+    </mat-checkbox>
+    <mat-checkbox formControlName="visibilityOutparcelsBlockView">
+      Outparcels block view of store
+    </mat-checkbox>
+    <mat-checkbox formControlName="visibilitySignOnMain">
+      Store has sign on major cross-street
+    </mat-checkbox>
+    <mat-checkbox formControlName="visibilityStoreFacesMainRoad">
+      Store faces major cross-street
+    </mat-checkbox>
+  </div>
+  <mat-form-field>
+    <mat-select placeholder="Visibility Rating" formControlName="visibilityRating">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</form>

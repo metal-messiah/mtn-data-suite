@@ -1,10 +1,20 @@
-.mat-action-row {
-  justify-content: space-between;
+#project-button {
+  max-width: 150px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
-.single-item-row {
-  width: 100%;
+#store-name-header {
+  text-align: center;
+  font: 500 22px/38px Roboto, "Helvetica Neue", sans-serif;
+}
+
+#new-casing-button-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 12px;
+  margin: 12px 0;
+}
+
+.mat-action-row {
+  justify-content: space-between;
 }

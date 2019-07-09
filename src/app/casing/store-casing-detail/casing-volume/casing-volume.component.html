@@ -1,0 +1,162 @@
+<mat-progress-bar mode="indeterminate" *ngIf="savingVolume"></mat-progress-bar>
+<div *ngIf="storeCasing.storeVolume == null && !savingVolume">
+  <div class="button-in-row">
+    <button type="button" mat-raised-button color="accent" [disabled]="savingVolume"
+            (click)="createNewVolume()"><i class="fas fa-plus-circle"></i>&nbsp;Create New Volume
+    </button>
+  </div>
+  <div class="button-in-row">
+    <button type="button" mat-raised-button color="accent" [disabled]="savingVolume"
+            (click)="showExistingVolumes()"><i class="fas fa-history"></i>&nbsp;View/Copy Previous Volumes
+    </button>
+  </div>
+</div>
+<div [formGroup]="storeVolumeForm" *ngIf="!savingVolume && storeCasing.storeVolume != null">
+  <mat-form-field>
+    <mat-select placeholder="Volume Type" formControlName="volumeType" required>
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let volumeTypeOption of volumeTypeOptions" [value]="volumeTypeOption">
+        {{volumeTypeOption}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <div *ngIf="storeVolumeForm.get('volumeType').value === 'ESTIMATE'">
+    <table id="volume-table">
+      <tr>
+        <td>
+          <mat-form-field>
+            <input matInput type="number" autocomplete="off" placeholder="Meat Volume"
+                   formControlName="volumeMeat">
+            <span matPrefix>$&nbsp;</span>
+          </mat-form-field>
+        </td>
+        <td>
+          <mat-form-field>
+            <input matInput type="number" autocomplete="off" placeholder="% of Total"
+                   formControlName="volumePercentMeat">
+            <span matSuffix>%</span>
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <mat-form-field>
+            <input matInput type="number" autocomplete="off" placeholder="Produce Volume"
+                   formControlName="volumeProduce">
+            <span matPrefix>$&nbsp;</span>
+          </mat-form-field>
+        </td>
+        <td>
+          <mat-form-field>
+            <input matInput type="number" autocomplete="off" placeholder="% of Total"
+                   formControlName="volumePercentProduce">
+            <span matSuffix>%</span>
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <mat-form-field>
+            <input matInput type="number" autocomplete="off" placeholder="Grocery Volume"
+                   formControlName="volumeGrocery">
+            <span matPrefix>$&nbsp;</span>
+          </mat-form-field>
+        </td>
+        <td>
+          <mat-form-field>
+            <input matInput type="number" autocomplete="off" placeholder="% of Total"
+                   formControlName="volumePercentGrocery">
+            <span matSuffix>%</span>
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <mat-form-field>
+            <input matInput type="number" autocomplete="off" placeholder="Non-Food Volume"
+                   formControlName="volumeNonFood">
+            <span matPrefix>$&nbsp;</span>
+          </mat-form-field>
+        </td>
+        <td>
+          <mat-form-field>
+            <input matInput type="number" autocomplete="off" placeholder="% of Total"
+                   formControlName="volumePercentNonFood">
+            <span matSuffix>%</span>
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <mat-form-field>
+            <input matInput type="number" autocomplete="off" placeholder="Other Volume"
+                   formControlName="volumeOther">
+            <span matPrefix>$&nbsp;</span>
+          </mat-form-field>
+        </td>
+        <td>
+          <mat-form-field>
+            <input matInput type="number" autocomplete="off" placeholder="% of Total"
+                   formControlName="volumePercentOther">
+            <span matSuffix>%</span>
+          </mat-form-field>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div class="flex flex-space-between">
+    <mat-form-field class="example-full-width">
+      <input matInput type="number" autocomplete="off" placeholder="Total Weekly Grocery Volume"
+             formControlName="volumeTotal" required>
+      <span matPrefix>$&nbsp;</span>
+      <mat-hint>ALWAYS Slack</mat-hint>
+      <mat-error *ngIf="storeVolumeForm.get('volumeTotal').invalid">Min: $10k, Max: $10M
+      </mat-error>
+    </mat-form-field>
+    <button type="button" mat-mini-fab color="primary" [mat-menu-trigger-for]="volumeMore">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+  </div>
+  <mat-form-field *ngIf="storeVolumeForm.get('volumeType').value === 'ESTIMATE'">
+    <mat-select placeholder="Volume Confidence" formControlName="volumeConfidence">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let confidenceLevel of confidenceLevels" [value]="confidenceLevel">
+        {{confidenceLevel}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput [matDatepicker]="picker1" placeholder="Volume Date" formControlName="volumeDate">
+    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+    <mat-datepicker #picker1></mat-datepicker>
+    <mat-error *ngIf="storeVolumeForm.get('volumeDate').invalid">Required</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="Total Weekly Box Volume"
+           formControlName="volumeBoxTotal">
+    <span matPrefix>$&nbsp;</span>
+    <mat-error *ngIf="storeVolumeForm.get('volumeBoxTotal').invalid">Min: $10k, Max: $10M</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <textarea placeholder="Volume Notes" formControlName="volumeNote" matInput></textarea>
+  </mat-form-field>
+</div>
+<mat-action-row *ngIf="storeCasing.storeVolume != null || removingVolume">
+  <button type="button" mat-button color="primary" (click)="removeVolume()"
+          *ngIf="storeCasing.storeVolume != null && !removingVolume">Remove Volume
+  </button>
+  <mat-progress-bar mode="indeterminate" *ngIf="removingVolume"></mat-progress-bar>
+</mat-action-row>
+
+
+<mat-menu #volumeMore="matMenu" [overlapTrigger]="false">
+  <button type="button" mat-menu-item (click)="calculateDepartmentVolumesFromTotal()">
+    Calculate Depts. from Total
+  </button>
+  <button type="button" mat-menu-item (click)="calculateTotalVolumeFromDepartments()">
+    Calculate Total from Depts.
+  </button>
+  <button type="button" mat-menu-item (click)="showExistingVolumes()">
+    <i class="fas fa-clock"></i>&nbsp;&nbsp;See All Store Volumes
+  </button>
+</mat-menu>

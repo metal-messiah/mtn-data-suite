@@ -1,0 +1,45 @@
+<mat-form-field [formGroup]="shoppingCenterCasingForm">
+  <mat-select placeholder="Store Building Rating" formControlName="ratingBuildings">
+    <mat-option>Clear Selection</mat-option>
+    <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+  </mat-select>
+</mat-form-field>
+
+<ng-container [formGroup]="storeCasingForm">
+  <mat-form-field>
+    <mat-select placeholder="Ceiling" formControlName="conditionCeiling">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-select placeholder="Checkstands" formControlName="conditionCheckstands">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-select placeholder="Floors" formControlName="conditionFloors">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-select placeholder="Frozen/Refrigerated" formControlName="conditionFrozenRefrigerated">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-select placeholder="Shelving & Gondolas" formControlName="conditionShelvingGondolas">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-select placeholder="Walls" formControlName="conditionWalls">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</ng-container>

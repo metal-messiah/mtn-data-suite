@@ -1,38 +1,21 @@
-#action-button-container {
+:host {
+  flex: 1;
+  overflow-y: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
-#action-button-container button {
-  margin-top: 5px;
-  margin-bottom: 5px;
+.content-wrapper {
+  overflow-y: auto;
 }
 
-.list-wrapper mat-expansion-panel {
-  margin: 8px 5px;
+.content-wrapper > div {
+  max-width: 500px;
+  margin: 10px auto;
 }
 
 .centered {
   margin: 0 auto;
-}
-
-.spacer {
-  flex: 1 1 auto;
-}
-
-.filling-toolbar {
-  width: auto;
-  margin: 0 -24px;
-}
-
-::ng-deep .mat-tab-label {
-  flex-basis: 0;
-  flex-grow: 1;
-}
-
-.widened {
-  margin: 0 -8px;
 }
 
 .simple-card {

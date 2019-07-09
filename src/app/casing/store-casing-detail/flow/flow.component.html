@@ -1,0 +1,13 @@
+<form [formGroup]="shoppingCenterSurveyForm">
+  <div class="checklist">
+    <mat-checkbox formControlName="flowHasOneWayAisles">
+      Has One Way Aisles
+    </mat-checkbox>
+  </div>
+  <mat-form-field>
+    <mat-select placeholder="Flow Rating" formControlName="flowRating">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</form>

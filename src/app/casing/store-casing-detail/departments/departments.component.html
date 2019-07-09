@@ -1,0 +1,6 @@
+<form [formGroup]="storeSurveyForm">
+  <mat-checkbox *ngFor="let departmentControl of departmentControls"
+                [formControlName]="departmentControl.name">
+    {{departmentControl.title}}
+  </mat-checkbox>
+</form>
