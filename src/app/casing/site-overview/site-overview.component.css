@@ -18,6 +18,24 @@
   margin: 0 auto;
 }
 
+.spacer {
+  flex: 1 1 auto;
+}
+
+.filling-toolbar {
+  width: auto;
+  margin: 0 -24px;
+}
+
+::ng-deep .mat-tab-label {
+  flex-basis: 0;
+  flex-grow: 1;
+}
+
+.widened {
+  margin: 0 -8px;
+}
+
 .simple-card {
   margin: 4px;
   padding: 12px;
