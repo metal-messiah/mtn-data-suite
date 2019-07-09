@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReportBuilderService } from '../services/report-builder.service';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { JsonToTablesUtil } from '../report-tables/json-to-tables.util';
 import { AuthService } from '../../core/services/auth.service';

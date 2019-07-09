@@ -1,6 +1,8 @@
 import { Component, Inject, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
-import { MAT_DIALOG_DATA, MatDialogRef, MatExpansionPanel, MatSnackBar } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatExpansionPanel } from '@angular/material/expansion';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ShoppingCenterAccess } from '../../models/full/shopping-center-access';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ShoppingCenterSurveyService } from '../../core/services/shopping-center-survey.service';

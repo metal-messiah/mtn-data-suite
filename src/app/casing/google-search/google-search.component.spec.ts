@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GoogleSearchComponent } from './google-search.component';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MapService } from '../../core/services/map.service';
 import { SharedModule } from '../../shared/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';

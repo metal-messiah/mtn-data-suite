@@ -1,6 +1,0 @@
-export enum Pages {
-    LISTMANAGER,
-    ADDSTORES,
-    VIEWSTORES,
-    VIEWSUBSCRIBERS
-}

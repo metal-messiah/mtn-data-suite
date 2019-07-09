@@ -3,10 +3,10 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SelectProjectComponent } from './select-project.component';
 import { CasingModule } from '../casing.module';
 import { SharedModule } from '../../shared/shared.module';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ProjectService } from '../../core/services/project.service';
-import { of } from 'rxjs/observable/of';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { of } from 'rxjs';
 
 describe('SelectProjectComponent', () => {
   let component: SelectProjectComponent;

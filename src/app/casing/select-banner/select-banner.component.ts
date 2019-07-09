@@ -1,22 +1,22 @@
-import { Component, ElementRef, OnInit, ViewChild, Inject, OnDestroy } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { MatDialogRef, MatSnackBar } from '@angular/material';
 import { ErrorService } from '../../core/services/error.service';
 import { fromEvent } from 'rxjs';
-import { debounceTime, distinctUntilChanged, finalize, map, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, finalize, map, mergeMap, switchMap } from 'rxjs/operators';
 import { Pageable } from '../../models/pageable';
 import { BannerService } from '../../core/services/banner.service';
-import { CompanyService } from 'app/core/services/company.service';
 import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
-import { CloudinaryAsset } from 'app/shared/cloudinary/cloudinary.component';
 import { Banner } from 'app/models/full/banner';
 import { AuthService } from 'app/core/services/auth.service';
+import { CloudinaryService } from '../../core/services/cloudinary.service';
+import { CloudinaryAsset } from '../../shared/cloudinary/CloudinaryAsset';
 
 @Component({
   selector: 'mds-select-banner',
   templateUrl: './select-banner.component.html',
   styleUrls: ['./select-banner.component.css']
 })
-export class SelectBannerComponent implements OnInit, OnDestroy {
+export class SelectBannerComponent implements OnInit {
 
   banners: SimplifiedBanner[] = [];
   totalPages = 0;
@@ -24,64 +24,58 @@ export class SelectBannerComponent implements OnInit, OnDestroy {
   bannerQuery: string;
 
   loading = false;
-  remove = true;
 
   // LOGO - CLOUDINARY PROPS
   userCanChangeLogo: boolean;
   changeLogoBanner: SimplifiedBanner = null;
-  showCloudinary = false;
-  cloudName = 'mtn-retail-advisors';
-  username = 'tyler@mtnra.com';
-  apiSecret = 'OGQKRd95GxzMrn5d7_D6FOd7lXs';
-  apiKey = '713598197624775';
-  maxFiles = 1;
 
-  checks = 0;
-  checker;
+  private cloudinaryParams = {
+    cloudName: 'mtn-retail-advisors',
+    username: 'tyler@mtnra.com',
+    apiSecret: 'OGQKRd95GxzMrn5d7_D6FOd7lXs',
+    apiKey: '713598197624775',
+    multiple: true,
+    maxFiles: 1
+  };
 
-  @ViewChild('bannerSearchBox') bannerSearchBoxElement: ElementRef;
+  @ViewChild('bannerSearchBox', {static: true}) bannerSearchBoxElement: ElementRef;
 
-  constructor(public dialogRef: MatDialogRef<SelectBannerComponent>,
-    private errorService: ErrorService,
-    private bannerService: BannerService,
-    private companyService: CompanyService,
-    private authService: AuthService,
-    @Inject(MAT_DIALOG_DATA) public data: any) {
-    this.remove = data.remove !== undefined ? data.remove : this.remove;
-
+  constructor(private dialogRef: MatDialogRef<SelectBannerComponent>,
+              private errorService: ErrorService,
+              private bannerService: BannerService,
+              private authService: AuthService,
+              private cloudinaryService: CloudinaryService,
+              private snackBar: MatSnackBar) {
     const allowedRoles = [1, 2];
     this.userCanChangeLogo = allowedRoles.includes(this.authService.sessionUser.role.id);
   }
 
   ngOnInit() {
-    // have no event saying that the widget was hidden, poll and check
-    // this.checker = setInterval(() => {
-    //   this.checkStatus();
-    // }, 2500);
-
-
     this.getBanners();
 
-    const typeAhead = fromEvent(this.bannerSearchBoxElement.nativeElement, 'input').pipe(
+    fromEvent(this.bannerSearchBoxElement.nativeElement, 'input').pipe(
       map((e: KeyboardEvent) => e.target['value']),
       debounceTime(300),
       distinctUntilChanged(),
       switchMap((value: any) => this.bannerService.getAllByQuery(value))
-    );
+    ).subscribe((pageable: Pageable<SimplifiedBanner>) => this.update(pageable, true));
 
-    typeAhead.subscribe((pageable: Pageable<SimplifiedBanner>) => this.update(pageable, true));
+    this.cloudinaryService.initialize(this.cloudinaryParams, (assets) => this.handleAssets(assets));
   }
 
-  ngOnDestroy() {
-    console.log('destroy')
-    clearInterval(this.checker);
+  private update(pageable: Pageable<SimplifiedBanner>, clear: boolean) {
+    this.banners = clear ? pageable.content : this.banners.concat(pageable.content);
+    this.totalPages = pageable.totalPages;
+    this.pageNumber = pageable.number;
   }
 
   loadMore(): void {
     this.loading = true;
     this.bannerService.getAllByQuery(this.bannerQuery, ++this.pageNumber)
       .pipe(finalize(() => this.loading = false))
-      .subscribe((pageable: Pageable<SimplifiedBanner>) => this.update(pageable, false));
+      .subscribe((pageable: Pageable<SimplifiedBanner>) => this.update(pageable, false),
+        err => this.errorService.handleServerError('Failed to get more banners!', err,
+          () => console.error(err), () => this.loadMore()));
   }
 
   getBanners(): void {
@@ -89,18 +83,10 @@ export class SelectBannerComponent implements OnInit, OnDestroy {
     this.bannerService.getAllByQuery(this.bannerQuery)
       .pipe(finalize(() => this.loading = false))
       .subscribe(
-        (pageable: Pageable<SimplifiedBanner>) => {
-
-          this.update(pageable, true)
-        },
-        err => console.log(err)
+        (pageable: Pageable<SimplifiedBanner>) => this.update(pageable, true),
+        err => this.errorService.handleServerError('Failed to get banners!', err,
+          () => console.error(err), () => this.loadMore())
       );
-  }
-
-  private update(pageable: Pageable<SimplifiedBanner>, clear: boolean) {
-    this.banners = clear ? pageable.content : this.banners.concat(pageable.content);
-    this.totalPages = pageable.totalPages;
-    this.pageNumber = pageable.number;
   }
 
   getBannerImageSrc(banner: SimplifiedBanner) {
@@ -124,64 +110,32 @@ export class SelectBannerComponent implements OnInit, OnDestroy {
 
   changeLogo(banner: SimplifiedBanner) {
     this.changeLogoBanner = banner;
-    this.showCloudinary = true;
+    this.cloudinaryService.show();
   }
 
-  async handleAssets(assets: CloudinaryAsset[]) {
-    if (assets.length === 1 && this.changeLogoBanner) {
-      const { public_id, format } = assets[0];
-      const fullBanner: Banner = await this.bannerService.getOneById(this.changeLogoBanner.id).toPromise();
-      fullBanner.logoFileName = `${public_id}.${format}`;
-
-      const updatedBanner = await this.bannerService.update(new Banner(fullBanner)).toPromise();
-      const existingIdx = this.banners.findIndex(b => b.id === updatedBanner.id);
-      if (existingIdx >= 0) {
-        this.banners[existingIdx].logoFileName = updatedBanner.logoFileName;
-      }
-      console.log(updatedBanner)
-    }
-
-    this.showCloudinary = false;
-    this.changeLogoBanner = null;
-  }
-
-  checkStatus() {
-    if (!this.cloudinaryIsShowing() && this.showCloudinary) {
-      if (this.checks > 3) {
-        this.showCloudinary = false;
-        this.checks = 0;
-      } else {
-        this.checks++;
-      }
+  handleAssets(assets: CloudinaryAsset[]) {
+    if (assets.length > 1) {
+      this.snackBar.open('Please choose just one banner!', null, {duration: 2000});
+    } else if (assets.length === 1 && this.changeLogoBanner) {
+      const {public_id, format} = assets[0];
+      this.bannerService.getOneById(this.changeLogoBanner.id)
+        .pipe(finalize(() => {
+          this.changeLogoBanner = null;
+        }))
+        .pipe(mergeMap((fullBanner: Banner) => {
+          fullBanner.logoFileName = `${public_id}.${format}`;
+          return this.bannerService.update(fullBanner);
+        }))
+        .subscribe(updatedBanner => {
+          const existingIdx = this.banners.findIndex(b => b.id === updatedBanner.id);
+          if (existingIdx >= 0) {
+            this.banners[existingIdx].logoFileName = updatedBanner.logoFileName;
+          }
+        }, err => this.errorService.handleServerError('Failed to update banner logo!', err,
+          () => console.error(err), () => this.handleAssets(assets)));
+    } else {
+      this.changeLogoBanner = null;
     }
   }
 
-  openCloudinary() {
-    this.showCloudinary = true;
-    if (!this.cloudinaryIsShowing()) {
-      setTimeout(() => {
-        this.setCloudinaryElementVisibility('visible');
-      }, 500)
-    }
-  }
-
-  cloudinaryIsShowing() {
-    const cloudinaryElem = document.querySelector('div>iframe');
-    let isShowing = false;
-    if (cloudinaryElem) {
-      isShowing = cloudinaryElem.parentElement.style.visibility === 'visible';
-    }
-    return isShowing;
-  }
-
-  setCloudinaryElementVisibility(visibility) {
-    const cloudinaryElem = document.querySelector('div>iframe');
-    if (cloudinaryElem) {
-      cloudinaryElem.parentElement.style.visibility = visibility
-    }
-  }
-
-  cloudinaryIsActive(banner: SimplifiedBanner) {
-    return this.showCloudinary && banner.id === this.changeLogoBanner.id;
-  }
 }

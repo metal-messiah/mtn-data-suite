@@ -11,7 +11,7 @@ export class InfoCardComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() infoCard: InfoCardItem;
   @Input() disabled: boolean;
-  @ViewChild(InfoCardDirective) infoCardHost: InfoCardDirective;
+  @ViewChild(InfoCardDirective, { static: true }) infoCardHost: InfoCardDirective;
 
   private componentRef;
 
