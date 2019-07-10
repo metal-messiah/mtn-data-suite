@@ -4,7 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from '../core/services/auth.guard';
 
 import { DataUploadComponent } from './data-upload.component';
-import { OptionsMenuComponent } from './options-menu/options-menu.component';
+import { DataUploadMenuComponent } from './data-upload-menu/data-upload-menu.component';
 import { PlannedGroceryComponent } from './planned-grocery/planned-grocery.component';
 import { SpreadsheetComponent } from './spreadsheet/spreadsheet.component';
 import { ChainXyComponent } from './chain-xy/chain-xy.component';
@@ -19,7 +19,7 @@ const routes: Routes = [
         component: DataUploadComponent,
         canActivate: [AuthGuard],
         children: [
-            { path: '', component: OptionsMenuComponent },
+            { path: '', component: DataUploadMenuComponent },
             { path: 'planned-grocery', component: PlannedGroceryComponent },
             { path: 'matching', component: MatchingComponent },
             { path: 'spreadsheet', component: SpreadsheetComponent },

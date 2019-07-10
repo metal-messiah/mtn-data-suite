@@ -1,14 +1,5 @@
-.title-bar {
-  width: 100%;
-  display: flex;
-  align-items: center;
-}
-
-.center {
-  flex: 0;
-}
-
-.left,
-.right {
+:host {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
