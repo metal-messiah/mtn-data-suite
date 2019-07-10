@@ -1,4 +1,4 @@
-import { Coordinates } from './coordinates';
+import { LatLng } from './latLng';
 import { SimplifiedStore } from './simplified/simplified-store';
 import { CompanyService } from 'app/core/services/company.service';
 import { Type } from '@angular/compiler/src/core';
@@ -8,7 +8,7 @@ import { FieldMappingItem } from 'app/data-upload/spreadsheet/assign-fields-dial
 
 export class SpreadsheetRecord {
     readonly uniqueId: any;
-    readonly coordinates: Coordinates;
+    readonly coordinates: LatLng;
     readonly displayName: string;
 
     matchedStore: SimplifiedStore;

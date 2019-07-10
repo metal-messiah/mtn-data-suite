@@ -4,7 +4,7 @@
   - Emits marker click events
   - Can be added to and removed from map
  */
-import { Coordinates } from './coordinates';
+import { LatLng } from './latLng';
 import { Color } from '../core/functionalEnums/Color';
 
 export class MapDataLayer {
@@ -13,7 +13,7 @@ export class MapDataLayer {
   pointFeatures: google.maps.Data.Feature[] = [];
   boundaryFeatures: google.maps.Data.Feature[] = [];
   selectedIds: Set<number>;
-  coordinateList: Coordinates[];
+  coordinateList: LatLng[];
 
   constructor(map: google.maps.Map, userId: number, selectedIdSet: Set<number>) {
     this.map = map;
@@ -39,7 +39,7 @@ export class MapDataLayer {
     this.selectedIds = selectedIdSet;
   }
 
-  setDataPoints(coordinateList: Coordinates[]) {
+  setDataPoints(coordinateList: LatLng[]) {
     this.coordinateList = coordinateList;
     this.clearDataPoints();
     coordinateList.forEach(coordinates => {

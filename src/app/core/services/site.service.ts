@@ -6,7 +6,7 @@ import { RestService } from './rest.service';
 import { CrudService } from '../../interfaces/crud-service';
 import { Site } from '../../models/full/site';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
-import { Coordinates } from '../../models/coordinates';
+import { LatLng } from '../../models/latLng';
 import { Store } from '../../models/full/store';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
@@ -39,13 +39,13 @@ export class SiteService extends CrudService<Site> {
       .pipe(map((savedStore) => new Store(savedStore)));
   }
 
-  getSitePointsInBounds(bounds: any): Observable<Coordinates[]> {
+  getSitePointsInBounds(bounds: any): Observable<LatLng[]> {
     const url = this.rest.getHost() + this.endpoint + '/points';
     let params = new HttpParams();
     _.forEach(bounds, function (value, key) {
       params = params.set(key, value);
     });
-    return this.http.get<Coordinates[]>(url, {headers: this.rest.getHeaders(), params: params})
+    return this.http.get<LatLng[]>(url, {headers: this.rest.getHeaders(), params: params})
   }
 
   assignSitesToUser(siteIds: number[], userId: number) {
@@ -76,7 +76,7 @@ export class SiteService extends CrudService<Site> {
     return SiteUtil.getFormattedPrincipality(site);
   }
 
-  getCoordinates(site: Site | SimplifiedSite): Coordinates {
+  getCoordinates(site: Site | SimplifiedSite): LatLng {
     return {lat: site.latitude, lng: site.longitude};
   }
 

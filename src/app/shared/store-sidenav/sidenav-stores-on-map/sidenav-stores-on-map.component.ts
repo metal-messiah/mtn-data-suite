@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { EntitySelectionService } from '../../../core/services/entity-selection.service';
 import { map } from 'rxjs/operators';
 import { SimplifiedStore } from '../../../models/simplified/simplified-store';
-import { Coordinates } from '../../../models/coordinates';
+import { LatLng } from '../../../models/latLng';
 import { SimplifiedSite } from '../../../models/simplified/simplified-site';
 import { forkJoin } from 'rxjs';
 import { StoreService } from '../../../core/services/store.service';
@@ -61,12 +61,12 @@ export class SidenavStoresOnMapComponent implements OnInit {
     if (this.selectionService.storeIds.size) {
       requests.push(this.storeService.getAllByIds(Array.from(this.selectionService.storeIds))
         .pipe(map((stores: SimplifiedStore[]) =>
-          stores.map((s: SimplifiedStore) => new Coordinates(s.site.latitude, s.site.longitude)))));
+          stores.map((s: SimplifiedStore) => new LatLng(s.site.latitude, s.site.longitude)))));
     }
     if (this.selectionService.siteIds.size) {
       requests.push(this.siteService.getAllByIds(Array.from(this.selectionService.siteIds))
         .pipe(map((sites: SimplifiedSite[]) =>
-          sites.map((s: SimplifiedSite) => new Coordinates(s.latitude, s.longitude)))));
+          sites.map((s: SimplifiedSite) => new LatLng(s.latitude, s.longitude)))));
     }
 
     forkJoin(requests).subscribe(results => {

@@ -5,7 +5,7 @@ import { MatStepper } from '@angular/material/stepper';
 import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
 
 import { StoreMappable } from '../../models/store-mappable';
-import { Coordinates } from '../../models/coordinates';
+import { LatLng } from '../../models/latLng';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { EntityMapLayer } from '../../models/entity-map-layer';
 import { MapDataLayer } from '../../models/map-data-layer';
@@ -332,7 +332,7 @@ export class SpreadsheetComponent implements OnInit {
   }
 
   private getPointsInBounds(bounds): void {
-    this.siteService.getSitePointsInBounds(bounds).subscribe((sitePoints: Coordinates[]) => {
+    this.siteService.getSitePointsInBounds(bounds).subscribe((sitePoints: LatLng[]) => {
       if (sitePoints.length <= 1000) {
         this.mapDataLayer.setDataPoints(sitePoints);
         this.ngZone.run(() => {

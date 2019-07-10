@@ -1,6 +1,6 @@
 import { SimplifiedStore } from './simplified/simplified-store';
 import { MarkerType } from '../core/functionalEnums/MarkerType';
-import { Coordinates } from './coordinates';
+import { LatLng } from './latLng';
 import { EntityMappable } from '../interfaces/entity-mappable';
 import { MapService } from '../core/services/map.service';
 import { StoreIconProvider } from '../utils/StoreIconProvider';
@@ -35,7 +35,7 @@ export class StoreMappable implements EntityMappable {
     this.storeIconProvider = storeIconProvider;
   }
 
-  getCoordinates(): Coordinates {
+  getCoordinates(): LatLng {
     return {lat: this.store.site.latitude, lng: this.store.site.longitude};
   };
 

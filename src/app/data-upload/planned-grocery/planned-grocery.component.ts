@@ -17,7 +17,7 @@ import { WordSimilarity } from '../../utils/word-similarity';
 import { StoreMappable } from '../../models/store-mappable';
 import { PgMappable } from '../../models/pg-mappable';
 import { Pageable } from '../../models/pageable';
-import { Coordinates } from '../../models/coordinates';
+import { LatLng } from '../../models/latLng';
 import { PlannedGroceryLayer } from '../../models/planned-grocery-layer';
 import { EntityMapLayer } from '../../models/entity-map-layer';
 import { MapDataLayer } from '../../models/map-data-layer';
@@ -260,7 +260,7 @@ export class PlannedGroceryComponent implements OnInit {
   }
 
   private getPointsInBounds(bounds) {
-    this.siteService.getSitePointsInBounds(bounds).subscribe((sitePoints: Coordinates[]) => {
+    this.siteService.getSitePointsInBounds(bounds).subscribe((sitePoints: LatLng[]) => {
       if (sitePoints.length <= 1000) {
         this.mapDataLayer.setDataPoints(sitePoints);
         this.ngZone.run(() => {

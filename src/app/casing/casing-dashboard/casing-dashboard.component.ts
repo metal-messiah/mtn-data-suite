@@ -27,7 +27,7 @@ import { LatLngSearchComponent } from '../lat-lng-search/lat-lng-search.componen
 import { SiteMergeDialogComponent } from '../site-merge-dialog/site-merge-dialog.component';
 import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
 
-import { Coordinates } from '../../models/coordinates';
+import { LatLng } from '../../models/latLng';
 import { GooglePlace } from '../../models/google-place';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
@@ -516,7 +516,7 @@ Geo-location
 
   openLatLngSearch() {
     const latLngSearchDialog = this.dialog.open(LatLngSearchComponent);
-    latLngSearchDialog.afterClosed().subscribe((coordinates: Coordinates) => {
+    latLngSearchDialog.afterClosed().subscribe((coordinates: LatLng) => {
       console.log(coordinates);
       if (coordinates != null) {
         this.mapService.setCenter(coordinates);

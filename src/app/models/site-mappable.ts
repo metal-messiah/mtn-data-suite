@@ -1,7 +1,7 @@
 import { Color } from '../core/functionalEnums/Color';
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { MarkerShape } from '../core/functionalEnums/MarkerShape';
-import { Coordinates } from './coordinates';
+import { LatLng } from './latLng';
 import Icon = google.maps.Icon;
 import Symbol = google.maps.Symbol;
 import MarkerLabel = google.maps.MarkerLabel;
@@ -22,7 +22,7 @@ export class SiteMappable implements EntityMappable {
     this.isSelected = isSelected;
   }
 
-  getCoordinates(): Coordinates {
+  getCoordinates(): LatLng {
     return {lat: this.site.latitude, lng: this.site.longitude};
   };
 

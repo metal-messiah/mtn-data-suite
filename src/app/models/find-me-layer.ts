@@ -1,5 +1,5 @@
 import { MapPointLayer } from './map-point-layer';
-import { Coordinates } from './coordinates';
+import { LatLng } from './latLng';
 import { Mappable } from '../interfaces/mappable';
 import { Color } from '../core/functionalEnums/Color';
 import { MapService } from '../core/services/map.service';
@@ -8,7 +8,7 @@ export class FindMeLayer extends MapPointLayer<Mappable> {
 
   findMeMappable: Mappable;
 
-  constructor(mapService: MapService, coordinates: Coordinates) {
+  constructor(mapService: MapService, coordinates: LatLng) {
     super(mapService);
     this.findMeMappable = {
       getCoordinates: () => coordinates,

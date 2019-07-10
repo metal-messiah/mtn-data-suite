@@ -7,7 +7,7 @@ import { StoreListUIService } from '../store-list-u-i.service';
 import { EntitySelectionService } from '../../../core/services/entity-selection.service';
 import { finalize, tap } from 'rxjs/operators';
 import { SimplifiedStore } from '../../../models/simplified/simplified-store';
-import { Coordinates } from '../../../models/coordinates';
+import { LatLng } from '../../../models/latLng';
 import { StoreListService } from '../../../core/services/store-list.service';
 import { DbEntityMarkerService } from '../../../core/services/db-entity-marker.service';
 import { ErrorService } from '../../../core/services/error.service';
@@ -181,7 +181,7 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
       this.storeService.getAllByIds(this.storeList.stores.map(st => st.id))
         .pipe(finalize(() => this.saving = false))
         .subscribe((stores: SimplifiedStore[]) => {
-            const storeGeoms = stores.map((s: SimplifiedStore) => new Coordinates(s.site.latitude, s.site.longitude));
+            const storeGeoms = stores.map((s: SimplifiedStore) => new LatLng(s.site.latitude, s.site.longitude));
             this.mapService.fitToPoints(storeGeoms, this.storeList.storeListName);
           }, err => this.errorService.handleServerError('Failed to Zoom to List!', err,
           () => console.log(err),
@@ -227,7 +227,7 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
     this.saving = true;
     this.storeService.getAllByIds(Array.from(this.selectionService.storeIds))
       .subscribe((stores: SimplifiedStore[]) => {
-        const points = stores.map((s: SimplifiedStore) => new Coordinates(s.site.latitude, s.site.longitude));
+        const points = stores.map((s: SimplifiedStore) => new LatLng(s.site.latitude, s.site.longitude));
         this.mapService.fitToPoints(points);
       }, err => this.errorService.handleServerError('Failed to get coordinates for selection!', err,
         () => console.log(err), () => this.zoomToSelection()))

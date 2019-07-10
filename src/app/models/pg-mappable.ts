@@ -1,7 +1,7 @@
 import { Color } from '../core/functionalEnums/Color';
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { MarkerShape } from '../core/functionalEnums/MarkerShape';
-import { Coordinates } from './coordinates';
+import { LatLng } from './latLng';
 import Icon = google.maps.Icon;
 import Symbol = google.maps.Symbol;
 import MarkerLabel = google.maps.MarkerLabel;
@@ -11,7 +11,7 @@ export class PgMappable implements Mappable {
 
   public id: string;
   private feature: any;
-  private readonly coordinates: Coordinates;
+  private readonly coordinates: LatLng;
   private draggable: boolean;
   private defaultIcon: object = {
     path: MarkerShape.CIRCLE,
@@ -34,7 +34,7 @@ export class PgMappable implements Mappable {
     this.icon = Object.assign({}, this.defaultIcon);
   }
 
-  getCoordinates(): Coordinates {
+  getCoordinates(): LatLng {
     return this.coordinates;
   };
 

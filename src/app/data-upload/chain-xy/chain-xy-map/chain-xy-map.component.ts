@@ -21,7 +21,7 @@ import { EntitySelectionService } from '../../../core/services/entity-selection.
 // MODELS //
 import { StoreMappable } from '../../../models/store-mappable';
 import { Pageable } from '../../../models/pageable';
-import { Coordinates } from '../../../models/coordinates';
+import { LatLng } from '../../../models/latLng';
 import { EntityMapLayer } from '../../../models/entity-map-layer';
 import { MapDataLayer } from '../../../models/map-data-layer';
 import { SourceUpdatable } from '../../../models/source-updatable';
@@ -447,7 +447,7 @@ export class ChainXyMapComponent implements OnInit {
   }
 
   private getPointsInBounds(bounds) {
-    this.siteService.getSitePointsInBounds(bounds).subscribe((sitePoints: Coordinates[]) => {
+    this.siteService.getSitePointsInBounds(bounds).subscribe((sitePoints: LatLng[]) => {
       if (sitePoints.length <= 1000) {
         this.mapDataLayer.setDataPoints(sitePoints);
         this.ngZone.run(() => {

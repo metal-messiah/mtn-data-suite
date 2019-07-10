@@ -1,7 +1,7 @@
 import { Color } from '../core/functionalEnums/Color';
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { MarkerShape } from '../core/functionalEnums/MarkerShape';
-import { Coordinates } from './coordinates';
+import { LatLng } from './latLng';
 import Icon = google.maps.Icon;
 import Symbol = google.maps.Symbol;
 import MarkerLabel = google.maps.MarkerLabel;
@@ -11,14 +11,14 @@ import { SpreadsheetRecord } from './spreadsheet-record';
 export class SpreadsheetMappable implements Mappable {
     public id: string;
     public draggable = false;
-    private readonly coordinates: Coordinates;
+    private readonly coordinates: LatLng;
 
     constructor(record: SpreadsheetRecord) {
         this.id = record.uniqueId;
         this.coordinates = record.coordinates;
     }
 
-    getCoordinates(): Coordinates {
+    getCoordinates(): LatLng {
         return this.coordinates;
     }
 

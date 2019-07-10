@@ -1,5 +1,5 @@
 import { MapPointLayer } from './map-point-layer';
-import { Coordinates } from './coordinates';
+import { LatLng } from './latLng';
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { MapSelectionMode } from '../casing/enums/map-selection-mode';
 import { Entity } from './entity';
@@ -111,7 +111,7 @@ export class EntityMapLayer<T extends EntityMappable> extends MapPointLayer<Enti
     }
   }
 
-  getMovedEntityCoordinates(): Coordinates {
+  getMovedEntityCoordinates(): LatLng {
     return this.getCoordinatesOfMappableMarker(this.movingMappable);
   }
 
