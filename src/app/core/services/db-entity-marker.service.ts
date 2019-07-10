@@ -22,6 +22,7 @@ import { DbEntityMarkerControls } from '../../models/db-entity-marker-controls';
 import { EntitySelectionService } from './entity-selection.service';
 import { SimplifiedBanner } from '../../models/simplified/simplified-banner';
 import { CasingProjectService } from '../../casing/casing-project.service';
+import { CloudinaryService } from './cloudinary.service';
 
 @Injectable()
 export class DbEntityMarkerService {
@@ -61,7 +62,8 @@ export class DbEntityMarkerService {
               private siteMarkerService: SiteMarkerService,
               private projectService: ProjectService,
               private casingDashboardService: CasingDashboardService,
-              private storageService: StorageService) {
+              private storageService: StorageService,
+              private cloudinaryService: CloudinaryService) {
 
     this.initControls();
   }
@@ -548,7 +550,7 @@ export class DbEntityMarkerService {
         anchor: StoreIconUtil.getStoreIconAnchorPoint(store, showLogo, showCased),
         rotation: StoreIconUtil.getStoreIconRotation(store, showLogo, showCased)
       },
-      labelContent: StoreIconUtil.getStoreLabelContent(store, showLogo, showFullLabel),
+      labelContent: StoreIconUtil.getStoreLabelContent(store, showLogo, showFullLabel, this.cloudinaryService),
       labelAnchor: StoreIconUtil.getStoreLabelAnchor(store, showLogo, showCased, showFullLabel),
       labelClass: StoreIconUtil.getStoreLabelClass(store, selected, showLogo, showCased, showFullLabel),
       labelInBackground: false

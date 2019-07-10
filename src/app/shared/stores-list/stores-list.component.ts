@@ -6,6 +6,7 @@ import { MatCheckboxChange, MatSelectChange, MatTabGroup } from '@angular/materi
 import { StoreListUIService } from '../store-sidenav/store-list-u-i.service';
 import { SiteListItem } from './site-list-item';
 import { SortDirection } from '../../core/functionalEnums/sort-direction';
+import { CloudinaryService } from '../../core/services/cloudinary.service';
 
 @Component({
   selector: 'mds-stores-list',
@@ -26,7 +27,8 @@ export class StoresListComponent implements OnInit {
   constructor(
     private mapService: MapService,
     private selectionService: EntitySelectionService,
-    private storeListUIService: StoreListUIService
+    private storeListUIService: StoreListUIService,
+    private cloudinaryService: CloudinaryService
   ) {
   }
 
@@ -150,7 +152,7 @@ export class StoresListComponent implements OnInit {
   }
 
   getLogoPath(fileName: string) {
-    return `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${fileName}`;
+    return this.cloudinaryService.getUrlForLogoFileName(fileName, 20);
   }
 
   showOnMap(listItem) {
