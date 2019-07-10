@@ -1,5 +1,5 @@
 <mat-nav-list>
-  <mat-list-item *ngFor="let item of menuItems" (click)="navigateTo(item)">
+  <mat-list-item *ngFor="let item of menuItems" (click)="itemClicked(item)">
     <div mat-list-icon>
       <i [ngClass]="item.iconClasses"></i>
     </div>

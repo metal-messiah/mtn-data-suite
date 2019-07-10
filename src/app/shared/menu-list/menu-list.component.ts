@@ -12,7 +12,8 @@ export class MenuListComponent implements OnInit {
     routerLink: string,
     queryParams?: object,
     displayName: string,
-    iconClasses: string
+    iconClasses: string,
+    click?: () => any
   }[];
 
   constructor(private router: Router) { }
@@ -20,8 +21,12 @@ export class MenuListComponent implements OnInit {
   ngOnInit() {
   }
 
-  navigateTo(menuItem) {
-    this.router.navigate([menuItem.routerLink], {queryParams: menuItem.queryParams});
+  itemClicked(menuItem) {
+    if (menuItem.click) {
+      menuItem.click();
+    } else if (menuItem.routerLink) {
+      this.router.navigate([menuItem.routerLink], {queryParams: menuItem.queryParams});
+    }
   }
 
 }

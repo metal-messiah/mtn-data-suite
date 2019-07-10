@@ -12,6 +12,19 @@ export class ExtractionMenuComponent implements OnInit {
 
   selectedProject: SimplifiedProject;
 
+  menuItems = [
+    {
+      displayName: 'Extract by Project',
+      iconClasses: 'fas fa-folder',
+      routerLink: '/extraction/by-project'
+    },
+    {
+      displayName: 'Boundary File',
+      iconClasses: 'fas fa-file-download',
+      click: () => this.openProjectSelectionDialog()
+    }
+  ];
+
   constructor(private dialog: MatDialog) { }
 
   ngOnInit() {
