@@ -4,6 +4,7 @@
 }
 
 mat-nav-list {
+  width: fit-content;
   max-width: 300px;
   margin: 0 auto;
 }

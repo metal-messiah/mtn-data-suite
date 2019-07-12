@@ -1,19 +1,5 @@
-<div class="box">
-  <mat-toolbar class="row header flex-justify-center">
-    <span><i class="fas fa-building"></i>&nbsp;Brokerage</span>
-  </mat-toolbar>
-  <div class="row content">
-    <div class="list-wrapper">
-      <mat-nav-list>
-        <mat-divider></mat-divider>
-        <div>
-          <mat-list-item routerLink="./images">
-            <div mat-list-icon><i class="fas fa-images"></i></div>
-            <h3 mat-line>Images Repository</h3>
-          </mat-list-item>
-          <mat-divider></mat-divider>
-        </div>
-      </mat-nav-list>
-    </div>
-  </div>
-</div>
+<mds-sub-title-bar subTitle="Brokerage">
+  <i class="fas fa-building"></i>
+</mds-sub-title-bar>
+
+<mds-menu-list [menuItems]="menuOptions"></mds-menu-list>

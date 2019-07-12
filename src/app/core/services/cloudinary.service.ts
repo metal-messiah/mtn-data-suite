@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 
 import shajs from 'sha.js';
 import { CloudinaryAsset } from '../../shared/cloudinary/CloudinaryAsset';
@@ -13,14 +13,17 @@ export class CloudinaryService {
 
   private cloudinaryInstance: any;
   private currentApiKey: string;
+  private cloudName: string;
+
+  assetSelected$ = new EventEmitter<CloudinaryAsset>();
 
   constructor() { }
 
-  initialize(params: {cloudName: string, username: string, apiSecret: string, apiKey: string, multiple: boolean, maxFiles?: number},
-             assetCallback: (assets) => void) {
+  initialize(params: {cloudName: string, username: string, apiSecret: string, apiKey: string, multiple: boolean, maxFiles?: number}) {
     // Only recreate the instance if it is a different one
     if (!this.cloudinaryInstance || this.currentApiKey !== params.apiKey) {
       this.currentApiKey = params.apiKey;
+      this.cloudName = params.cloudName;
 
       const timeStamp = Math.floor(Date.now() / 1000);
 
@@ -38,7 +41,7 @@ export class CloudinaryService {
       };
 
       this.cloudinaryInstance = cloudinary.createMediaLibrary(cloudinaryConfig, {
-        insertHandler: (data) => assetCallback(data.assets.map(a => new CloudinaryAsset(a)))
+        insertHandler: (data) => this.assetSelected$.next(data.assets.map(a => new CloudinaryAsset(a)))
       });
     }
   }
@@ -50,6 +53,6 @@ export class CloudinaryService {
   getUrlForLogoFileName(logoFileName: string, heightLimit?: number, widthLimit?: number): string {
     const h = heightLimit ? heightLimit : this.DEFAULT_HEIGHT_LIMIT;
     const w = widthLimit ? widthLimit : this.DEFAULT_WIDTH_LIMIT;
-    return `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_${h},w_${w}/${logoFileName}`;
+    return `https://res.cloudinary.com/${this.cloudName}/image/upload/c_limit,h_${h},w_${w}/${logoFileName}`;
   }
 }

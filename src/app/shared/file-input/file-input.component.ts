@@ -1,8 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import * as XLSX from 'xlsx';
-import { WorkBook, WorkSheet } from 'xlsx';
 import { TabSelectDialogComponent } from './tab-select-dialog/tab-select-dialog.component';
 
 @Component({
@@ -17,7 +16,6 @@ export class FileInputComponent implements OnInit {
     @Input() buttonText = 'Upload File';
     @Output() fileChanged = new EventEmitter();
 
-    parseLogic;
     file: File;
     fileReader: FileReader;
     snackBar: MatSnackBar;

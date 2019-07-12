@@ -5,6 +5,10 @@ import { saveAs } from 'file-saver';
 import { CloudinaryAsset } from '../../shared/cloudinary/CloudinaryAsset';
 import { CloudinaryService } from '../../core/services/cloudinary.service';
 
+import * as papa from 'papaparse'
+import { ParseResult } from 'papaparse'
+import { ClipboardUtil } from '../../utils/clipboard-util';
+
 @Component({
   selector: 'mds-images',
   templateUrl: './images.component.html',
@@ -16,172 +20,79 @@ export class ImagesComponent implements OnInit {
     username: 'jordan@mtnra.com',
     apiSecret: 'wClRfg43OFsvwhg33QMnowZ0Skc',
     apiKey: '515812459374857',
-    multiple: true
+    multiple: false
   };
 
-  selectedFiles: CloudinaryAsset[] = [];
-  copiedId: string;
+  parsedFile: ParseResult;
+  originalFileName: string;
 
-  file: File;
-  fileReader: FileReader;
-  csvAsString: string;
-  csvFields: string[];
-  csvArray: any[];
+  headers: string[];
 
-  identifier: string;
-  identifierTargets: object = {};
-  identifierIdx: number;
+  chainIdentifyingHeader: string;
+  chainLogos: any = {};
 
   constructor(private snackBar: MatSnackBar,
               private cloudinaryService: CloudinaryService) {
-    this.fileReader = new FileReader();
-    this.fileReader.onload = event => this.handleFileContents(event); // desired file content
-    this.fileReader.onerror = error => this.snackBar.open(error.toString(), null, {duration: 2000});
   }
 
   ngOnInit() {
-    this.cloudinaryService.initialize(this.cloudinaryParams, (assets) => this.setSelectedFiles(assets));
-    this.openCloudinary();
-  }
-
-  getValue(item) {
-    return `${item.public_id}.${item.format}`;
-  }
-
-  copyToClipboard(id) {
-    const target: any = document.getElementById(id);
-
-    target.disabled = false;
-    /* Select the text field */
-    target.select();
-
-    /* Copy the text inside the text field */
-    document.execCommand('copy');
-    this.copiedId = id;
-    this.clearTextSelection();
-    target.disabled = true;
+    this.cloudinaryService.initialize(this.cloudinaryParams);
   }
 
   openCloudinary() {
-    this.selectedFiles = [];
+    const subscription = this.cloudinaryService.assetSelected$.subscribe((assets: CloudinaryAsset[]) => {
+      subscription.unsubscribe();
+      const filename = `${assets[0].public_id}.${assets[0].format}`;
+      ClipboardUtil.copyValueToClipboard(filename);
+      this.snackBar.open(`Filename copied to clipboard: ${filename}`, null, {duration: 2000});
+    });
     this.cloudinaryService.show();
   }
 
-  readCsv(event) {
-    const {files} = event.target;
-    if (files && files.length === 1) {
-      // only want 1 file at a time!
-      this.file = files[0];
-      if (this.file.name.includes('.csv')) {
-        // just double checking that it is a .csv file
-        this.fileReader.readAsText(this.file);
-      } else {
-        this.snackBar.open('Only valid .csv files are accepted', null, {
-          duration: 2000
-        });
-      }
-    } else {
-      // notify about file constraints
-      this.snackBar.open('1 file at a time please', null, {duration: 2000});
-    }
+  selectImageForChain(chain: string) {
+    const subscription = this.cloudinaryService.assetSelected$.subscribe((assets: CloudinaryAsset[]) => {
+      subscription.unsubscribe();
+      this.chainLogos[chain] = `${assets[0].public_id}.${assets[0].format}`;
+    });
+    this.cloudinaryService.show();
   }
 
-  handleFileContents(event) {
-    if (event.target.result) {
-      this.csvAsString = event.target.result;
-      this.csvArray = this.csvAsString.split('\r\n').map(row => row.split(','));
-
-      if (this.csvAsString) {
-        this.csvFields = this.getCSVHeaders();
-      }
-    }
+  getImgUrl(fileName: string) {
+    return this.cloudinaryService.getUrlForLogoFileName(fileName);
   }
 
-  getCSVHeaders() {
-    return this.csvAsString.split('\r\n')[0].split(',');
+  readCsv(fileObj) {
+    this.originalFileName = fileObj.file.name;
+    this.parsedFile = papa.parse(fileObj.fileOutput, {header: true, dynamicTyping: true, skipEmptyLines: true});
+    this.headers = this.parsedFile.meta.fields;
   }
 
-  identifierChange(event) {
-    this.identifier = event.value;
-    this.identifierTargets = {};
+  identifyingColumnChange(event) {
+    this.chainIdentifyingHeader = event.value;
+    this.chainLogos = {};
 
-    this.identifierIdx = this.csvFields.findIndex(f => f === this.identifier);
-    if (this.identifierIdx >= 0) {
-      this.csvAsString.split('\r\n').forEach((row, i) => {
-        if (i) {
-          // skip the header row
-          const idTarget = row.split(',')[this.identifierIdx];
-          if (idTarget) {
-            this.identifierTargets[idTarget] = '';
-          }
-        }
-      });
-    }
+    this.parsedFile.data.forEach(record => {
+      const value = record[this.chainIdentifyingHeader];
+      this.chainLogos[value] = null
+    });
   }
 
-  getIdentifierTargetNames() {
-    return Object.keys(this.identifierTargets);
-  }
-
-  targetChange(event, name) {
-    const prop = event.value;
-    this.identifierTargets[prop] = name;
-  }
-
-  targetIsTaken(target) {
-    return this.identifierTargets[target] !== '';
+  getChainNames() {
+    return Object.keys(this.chainLogos);
   }
 
   exportNewCsv() {
-    let output = '';
-    this.csvArray.forEach((row, i) => {
-      output += row.join(',');
-      if (!row.includes('logo') && i === 0) {
-        output += ',logo'
-      }
-      if (i !== 0) {
-        Object.keys(this.identifierTargets).forEach(key => {
-          if (key === row[this.identifierIdx]) {
-            output += ',' + this.identifierTargets[key]
-          }
-        })
-      }
-      output += '\r\n';
+    this.parsedFile.data.forEach(record => {
+      const chain = record[this.chainIdentifyingHeader];
+      record['logo'] = this.chainLogos[chain]
     });
 
+    const csv = papa.unparse(this.parsedFile.data);
+
     saveAs(
-      new Blob([output]),
-      `${
-        this.file
-          ? this.file.name.split('.')[0] + '_logos'
-          : 'export_logos'
-        }.csv`
+      new Blob([csv]),
+      `${this.originalFileName.split('.')[0] + '_logos'}.csv`
     );
   }
 
-  clearTextSelection() {
-    let sel;
-    if ((sel = document['selection']) && sel.empty) {
-      sel.empty();
-    } else {
-      if (window.getSelection) {
-        window.getSelection().removeAllRanges();
-      }
-      const activeEl: any = document.activeElement;
-      if (activeEl) {
-        const tagName = activeEl.nodeName.toLowerCase();
-        if (
-          tagName === 'textarea' ||
-          (tagName === 'input' && activeEl.type === 'text')
-        ) {
-          // Collapse the selection to the end
-          activeEl.selectionStart = activeEl.selectionEnd;
-        }
-      }
-    }
-  }
-
-  setSelectedFiles(files: CloudinaryAsset[]) {
-    this.selectedFiles = files;
-  }
 }

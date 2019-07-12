@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CloudinaryService } from '../../core/services/cloudinary.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'mds-data-upload-cloudinary',
   templateUrl: './data-upload-cloudinary.component.html',
   styleUrls: ['./data-upload-cloudinary.component.css']
 })
-export class DataUploadCloudinaryComponent implements OnInit {
+export class DataUploadCloudinaryComponent implements OnInit, OnDestroy {
 
+  private assetListener: Subscription;
   private cloudinaryParams = {
     cloudName: 'mtn-retail-advisors',
     username: 'tyler@mtnra.com',
@@ -21,8 +23,13 @@ export class DataUploadCloudinaryComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.cloudinaryService.initialize(this.cloudinaryParams, (assets) => this.handleAssets(assets));
+    this.cloudinaryService.initialize(this.cloudinaryParams);
+    this.assetListener = this.cloudinaryService.assetSelected$.subscribe(assets => this.handleAssets(assets));
     this.openCloudinary();
+  }
+
+  ngOnDestroy() {
+    this.assetListener.unsubscribe();
   }
 
   handleAssets(assets) {
