@@ -17,7 +17,8 @@ import { StoreService } from 'app/core/services/store.service';
 import { MapService } from 'app/core/services/map.service';
 
 // components
-import { MatDialog, MatSnackBar, MatDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { QuadDialogComponent } from '../../../casing/quad-dialog/quad-dialog.component';
 import { NewStoreStatusComponent } from 'app/casing/new-store-status/new-store-status.component';
 

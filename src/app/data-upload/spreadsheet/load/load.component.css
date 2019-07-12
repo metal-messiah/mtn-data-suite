@@ -2,11 +2,6 @@ h3 {
 	text-align: center;
 }
 
-::-webkit-scrollbar {
-	width: 0px; /* remove scrollbar space */
-	background: transparent; /* optional: just make scrollbar invisible */
-}
-
 mat-list {
 	padding: 25px 0;
 	max-height: 40vh;

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Pageable } from '../../models/pageable';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ResourceQuota } from '../../models/resource-quota';
 import { CrudService } from '../../interfaces/crud-service';
@@ -14,6 +13,7 @@ export class ResourceQuotaService extends CrudService<ResourceQuota> {
   constructor(protected http: HttpClient, protected rest: RestService) {
     super(http, rest);
   }
+
   public getNewest(name: string): Observable<ResourceQuota> {
     const url = this.rest.getHost() + this.endpoint + '/newest';
     let params = new HttpParams();
@@ -26,7 +26,6 @@ export class ResourceQuotaService extends CrudService<ResourceQuota> {
   createNewResourceQuota(name) {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    console.log(firstDay)
     const rq = new ResourceQuota({
       resourceName: name,
       periodStartDate: firstDay,

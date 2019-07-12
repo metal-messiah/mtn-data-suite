@@ -1,5 +1,5 @@
 <div class="narrative-wrapper">
-  <form *ngIf="rbs.siteEvaluationNarrativeForm && rbs.siteEvaluationRatingsForm" >
+  <form *ngIf="rbs.siteEvaluationNarrativeForm && rbs.siteEvaluationRatingsForm">
     <div [formGroup]="rbs.siteEvaluationNarrativeForm">
       <mat-form-field>
         <textarea matInput placeholder="Executive Summary" formControlName="executiveSummary"></textarea>
@@ -8,7 +8,7 @@
         <textarea matInput placeholder="Scenario" formControlName="scenario"></textarea>
       </mat-form-field>
       <mat-form-field>
-        <textarea matInput placeholder="Assumed Power" formControlName="assumedPower"></textarea>
+        <input type="number" matInput placeholder="Assumed Power" formControlName="assumedPower">
       </mat-form-field>
       <mat-form-field>
         <textarea matInput placeholder="Competitive Changes" formControlName="competitiveChanges"></textarea>
@@ -111,7 +111,7 @@
   </form>
   <div class='submit'>
     <button [color]="'primary'" type="button" mat-raised-button (click)="_location.back()"
-            style="margin:20px 20px 0 0;">Go Back
+      style="margin:20px 20px 0 0;">Go Back
     </button>
     <button [color]="'warn'" type="button" mat-raised-button (click)="next()" style="margin-top:20px;">Next</button>
   </div>

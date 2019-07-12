@@ -16,10 +16,7 @@ export class CasingComponent implements OnInit {
   }
 
   navigateToProjectSummary() {
-    // TODO
+    // TODO Implement Project Summary
   }
 
-  navigateToProjectDetail() {
-    // TODO
-  }
 }

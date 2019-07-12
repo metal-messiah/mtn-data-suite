@@ -1,3 +1,13 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+mat-sidenav-container {
+  flex: 1;
+}
+
 [matPrefix] {
   margin-right: 8px;
 }
@@ -6,31 +16,8 @@ mds-map {
   height: inherit;
 }
 
-.infoCardContainer {
-  position: absolute;
-  pointer-events: all;
-  max-width: 300px;
-  left: 5px;
-  bottom: 60px;
-}
-
-@media (min-width: 600px) {
-  .infoCardContainer {
-    bottom: 100px;
-    left: 10px;
-  }
-}
-
 mat-slider {
   width: 90%;
-}
-
-#casing-dash-container {
-  height: 100%;
-}
-
-.box {
-  height: 100%;
 }
 
 form {
@@ -41,32 +28,8 @@ form {
   max-width: 300px;
 }
 
-.checklist {
-  display: flex;
-  flex-direction: column;
-  padding-left: 30px
-}
-
-.checklist mat-checkbox {
-  margin-bottom: 8px;
-}
-
 mat-sidenav {
   min-width: 250px;
-}
-
-#loadingSpinner, #refresh {
-  position: absolute;
-  bottom: 250px;
-  right: 10px;
-  /*pointer-events: none;*/
-  z-index: 100;
-}
-
-@media (max-width: 600px) {
-  #loadingSpinner, #refresh {
-    bottom: 240px;
-  }
 }
 
 #refresh {
@@ -74,14 +37,31 @@ mat-sidenav {
   padding: unset;
   width: 40px;
   height: 40px;
-}
-
-#marker-type-selector {
-  max-width: 155px;
-  margin: 0 10%;
+  margin-right: 10px;
 }
 
 mat-slider {
   width: 210px;
   margin: 0 20px;
+}
+
+#store-list-sidenav {
+  width: 400px;
+}
+
+@media (max-width: 600px) {
+  #store-list-sidenav {
+    width: 90%;
+    max-width: 400px;
+  }
+}
+
+#info-card-wrapper {
+  position: absolute;
+  max-width: 300px;
+  margin-left: 6px;
+}
+
+.hidden {
+  visibility: hidden;
 }

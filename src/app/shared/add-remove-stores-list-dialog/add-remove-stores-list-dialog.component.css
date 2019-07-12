@@ -1,0 +1,29 @@
+mat-list-option {
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+mat-list-option:hover {
+  background: #999;
+}
+
+.loading {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+mat-selection-list {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+mat-list-option {
+  background: #efefef;
+  border-radius: 5px;
+  margin-bottom: 8px;
+}
+
+p.mat-caption {
+  font-size: x-small !important;
+}

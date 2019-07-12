@@ -1,0 +1,17 @@
+mat-list-item{
+    cursor:pointer;
+    background: #efefef;
+
+}
+
+mat-list-item:hover{
+    background: white;
+}
+
+i{
+    margin: 0 0 0 15px;
+}
+
+i:hover{
+    color: orange;
+}

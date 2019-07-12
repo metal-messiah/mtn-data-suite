@@ -7,7 +7,6 @@ import { CasingProjectsComponent } from './casing-projects/casing-projects.compo
 import { SelectProjectComponent } from './select-project/select-project.component';
 import { ProjectSummaryComponent } from './project-summary/project-summary.component';
 import { ProjectDetailComponent } from './project-detail/project-detail.component';
-import { SiteListComponent } from './site-list/site-list.component';
 import { CasingDashboardService } from './casing-dashboard/casing-dashboard.service';
 import { SiteDetailComponent } from './site-detail/site-detail.component';
 import { SiteOverviewComponent } from './site-overview/site-overview.component';
@@ -37,6 +36,8 @@ import { InfoCardDirective } from './info-card.directive';
 import { InfoCardComponent } from './info-card/info-card.component';
 import { DbLocationInfoCardComponent } from '../shared/db-location-info-card/db-location-info-card.component';
 import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-card.component';
+import { StorageService } from 'app/core/services/storage.service';
+import { DbEntityControlsComponent } from './casing-dashboard/db-entity-controls/db-entity-controls.component';
 
 @NgModule({
   imports: [
@@ -59,7 +60,6 @@ import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-
     SelectProjectComponent,
     ShoppingCenterDetailComponent,
     SiteDetailComponent,
-    SiteListComponent,
     SiteOverviewComponent,
     StoreCasingDetailComponent,
     StoreCasingsComponent,
@@ -76,12 +76,8 @@ import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-
     StoreAttrSelectionDialogComponent,
     SelectBannerComponent,
     InfoCardDirective,
-<<<<<<< HEAD
     InfoCardComponent,
-    StoreSidenavComponent
-=======
-    InfoCardComponent
->>>>>>> 98bb82db2ec346685aee530a64a1b23e7ea6a9f2
+    DbEntityControlsComponent
   ],
   entryComponents: [
     AccessListDialogComponent,
@@ -103,14 +99,9 @@ import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-
     StoreAttrSelectionDialogComponent,
     SelectBannerComponent,
     DbLocationInfoCardComponent,
-<<<<<<< HEAD
-    GoogleInfoCardComponent,
-    StoreSidenavComponent
-=======
     GoogleInfoCardComponent
->>>>>>> 98bb82db2ec346685aee530a64a1b23e7ea6a9f2
   ],
-  providers: [CasingDashboardService, StorageService]
+  providers: [CasingDashboardService]
 })
 export class CasingModule {
 }

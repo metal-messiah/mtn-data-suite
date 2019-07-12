@@ -7,8 +7,7 @@ import { ResourceQuotaService } from '../core/services/resource-quota.service';
 import { ErrorService } from '../core/services/error.service';
 
 import { saveAs } from 'file-saver';
-import { Pageable } from '../models/pageable';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root'
@@ -89,7 +88,7 @@ export class GeocodingService {
   getNewestResourceQuota() {
     this.resourceQuotaService.getNewest(this.resourceQuotaName)
       .subscribe(
-      (quota: ResourceQuota) => {
+        (quota: ResourceQuota) => {
           this.newestResourceQuota = quota;
           this.resourceQuota$.next(this.newestResourceQuota);
           this.snackBar.open(
@@ -102,37 +101,37 @@ export class GeocodingService {
               duration: 5000
             }
           );
-      },
-      err => {
-        if (err.status === 404) {
-          this.resourceQuotaService
-            .createNewResourceQuota(this.resourceQuotaName)
-            .subscribe((newRQ: ResourceQuota) => {
-              this.newestResourceQuota = newRQ;
-              this.resourceQuota$.next(this.newestResourceQuota);
-              this.snackBar.open(
-                `${(
-                  this.newestResourceQuota.quotaLimit -
-                  this.newestResourceQuota.queryCount
-                ).toLocaleString()} Geocodes Remaining This Month`,
-                null,
-                {
-                  duration: 5000
-                }
-              );
+        },
+        err => {
+          if (err.status === 404) {
+            this.resourceQuotaService
+              .createNewResourceQuota(this.resourceQuotaName)
+              .subscribe((newRQ: ResourceQuota) => {
+                this.newestResourceQuota = newRQ;
+                this.resourceQuota$.next(this.newestResourceQuota);
+                this.snackBar.open(
+                  `${(
+                    this.newestResourceQuota.quotaLimit -
+                    this.newestResourceQuota.queryCount
+                  ).toLocaleString()} Geocodes Remaining This Month`,
+                  null,
+                  {
+                    duration: 5000
+                  }
+                );
+              });
+          } else {
+            this.errorService.handleServerError(`Failed to retrieve geocoder quota information`, err, () => {
             });
-        } else {
-          this.errorService.handleServerError(`Failed to retrieve geocoder quota information`, err, () => {});
+          }
         }
-      }
-    );
+      );
   }
 
   shouldGeocode() {
     if (this.newestResourceQuota) {
       const rqStart = new Date(this.newestResourceQuota.periodStartDate);
       const now = new Date();
-      console.log(this.newestResourceQuota);
       if (
         rqStart.getMonth() < now.getMonth() ||
         rqStart.getFullYear() < now.getFullYear()
@@ -146,15 +145,8 @@ export class GeocodingService {
             this.resourceQuota$.next(this.newestResourceQuota);
           });
         return this.length <= 20000;
-      } else if (
-        this.newestResourceQuota.queryCount + this.length <=
-        this.newestResourceQuota.quotaLimit
-      ) {
-        // Combining remaining queries and the length of the CSV does not exceed the limit
-        return true;
       } else {
-        // Quota already exceeded or exceeded by file
-        return false;
+        return (this.newestResourceQuota.queryCount + this.length) <= this.newestResourceQuota.quotaLimit;
       }
     } else {
       this.errorService.handleServerError(
@@ -237,7 +229,6 @@ export class GeocodingService {
   }
 
   getPromises(save?: boolean) {
-    console.log(this.promises);
     Promise.all(this.promises).then((all: any) => {
       // this returns an array of promise responses
       all.forEach((res, i) => {
@@ -276,7 +267,7 @@ export class GeocodingService {
       // append the new data to the csv row string
       this.allRows[
         factoredIdx
-      ] += `,${latitude},${longitude},${geotype},${matchedAddress}`;
+        ] += `,${latitude},${longitude},${geotype},${matchedAddress}`;
 
       // tally of successful geocodes for status bar / updating the ResourceQuota object at the end
       this.successes++;

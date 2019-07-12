@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { AppInfoDialogComponent } from '../app-info-dialog/app-info-dialog.component';
 
 @Component({
@@ -10,12 +10,23 @@ import { AppInfoDialogComponent } from '../app-info-dialog/app-info-dialog.compo
 })
 export class LogoMenuComponent implements OnInit {
 
+  isAuthenticated = false;
+
   @Input() showHome = true;
 
-  constructor(public auth: AuthService,
+  constructor(private auth: AuthService,
               private dialog: MatDialog) { }
 
   ngOnInit() {
+    this.auth.isAuthenticated().subscribe(authenticated => this.isAuthenticated = authenticated);
+  }
+
+  logout() {
+    this.auth.logout();
+  }
+
+  signIn() {
+    this.auth.signIn();
   }
 
   openAppInfoDialog() {

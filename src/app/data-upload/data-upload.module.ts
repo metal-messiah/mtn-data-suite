@@ -16,11 +16,11 @@ import { ChainXyService } from './chain-xy/chain-xy.service';
 import { ChainXyTableComponent } from './chain-xy/chain-xy-table/chain-xy-table.component';
 import { ChainXyMapComponent } from './chain-xy/chain-xy-map/chain-xy-map.component';
 import { ChainXyDataFormComponent } from './chain-xy/chain-xy-map/chain-xy-data-form/chain-xy-data-form.component';
-import { CloudinaryComponent } from './cloudinary/cloudinary.component';
+import { DataUploadCloudinaryComponent } from './cloudinary/data-upload-cloudinary.component';
 import { MatchingComponent } from './matching/matching.component';
 
 @NgModule({
-    imports: [ SharedModule, DataUploadRoutingModule ],
+    imports: [SharedModule, DataUploadRoutingModule],
     declarations: [
         DataUploadComponent,
         OptionsMenuComponent,
@@ -35,10 +35,10 @@ import { MatchingComponent } from './matching/matching.component';
         ChainXyTableComponent,
         ChainXyMapComponent,
         ChainXyDataFormComponent,
-        CloudinaryComponent,
+        DataUploadCloudinaryComponent,
         MatchingComponent
     ],
-    entryComponents: [ AssignFieldsDialogComponent, LoadComponent, AutomatchDialogComponent ],
-    providers: [ SpreadsheetService, ChainXyService ]
+    entryComponents: [AssignFieldsDialogComponent, LoadComponent, AutomatchDialogComponent],
+    providers: [SpreadsheetService, ChainXyService]
 })
-export class DataUploadModule {}
+export class DataUploadModule { }

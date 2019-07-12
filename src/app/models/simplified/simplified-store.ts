@@ -6,7 +6,6 @@ import { SimplifiedUserProfile } from './simplified-user-profile';
 import { DateUtil } from '../../utils/date-util';
 
 export class SimplifiedStore implements Entity {
-
   id: number;
   storeName: string;
   storeNumber: string;
@@ -23,6 +22,8 @@ export class SimplifiedStore implements Entity {
   banner: SimplifiedBanner;
   latestStoreVolume: SimplifiedStoreVolume;
 
+  storeListCount: number;
+
   constructor(obj) {
     Object.assign(this, obj);
     if (obj.site) {
@@ -38,7 +39,7 @@ export class SimplifiedStore implements Entity {
       this.validatedBy = new SimplifiedUserProfile(obj.validatedBy);
     }
     if (obj.validatedDate) {
-      this.validatedDate = DateUtil.getDate(obj.validatedDate)
+      this.validatedDate = DateUtil.getDate(obj.validatedDate);
     }
   }
 }

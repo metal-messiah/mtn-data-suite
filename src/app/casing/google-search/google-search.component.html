@@ -5,32 +5,23 @@
   <div mat-dialog-content>
     <div id="search-bar">
       <mat-form-field class="example-full-width">
-        <input matInput placeholder="Search for something" [(ngModel)]="searchQuery">
+        <input matInput placeholder="Search for something" (input)="validate()" #searchInput [(ngModel)]="searchQuery">
       </mat-form-field>
       <div>
-        <button mat-mini-fab color="primary" type="submit" (click)="search()" [disabled]="searching">
-          <i class="fas fa-search" *ngIf="!searching"></i>
-          <i class="fas fa-spinner fa-pulse" *ngIf="searching"></i>
+        <button [matBadge]="getBadge()" [matBadgeColor]="getBadgeColor()" [matTooltip]="getSubmitButtonText()"
+          matTooltipPosition="above" mat-mini-fab color="primary" type="submit" (click)="submit()"
+          [disabled]="!isValidSearch()">
+          <i class="fa-stack" *ngIf="isValidSearch() && !autocompleteValidate">
+            <i class="top fas fa-map-marker-alt fa-stack-1x"></i>
+            <i class="left fas fa-map-marker-alt fa-stack-1x"></i>
+            <i class="right fas fa-map-marker-alt fa-stack-1x"></i>
+          </i>
+          <i class="fas fa-map-marker-alt" *ngIf="isValidSearch() && autocompleteValidate"></i>
+          <i class="fas fa-ban" *ngIf="!isValidSearch()"></i>
         </button>
       </div>
     </div>
-    <div class="checklist">
-      <mat-checkbox [(ngModel)]="limitToView">Limit To View</mat-checkbox>
-    </div>
-    <div id="search-results">
-      <mat-nav-list>
-        <mat-list-item *ngIf="searchError">{{searchError}}</mat-list-item>
-        <mat-list-item *ngFor="let place of places" (click)="goToStore(place)">
-          <h3 matLine>{{place.name}}</h3>
-          <p matLine>
-            {{place.formatted_address}}
-          </p>
-        </mat-list-item>
-      </mat-nav-list>
+    <div mat-dialog-actions>
+      <button mat-raised-button color="accent" type="button" (click)="closeDialog()">Cancel</button>
     </div>
   </div>
-  <div mat-dialog-actions>
-    <button mat-raised-button color="accent" type="button" [disabled]="searching" (click)="closeDialog()">Close</button>
-    <button mat-raised-button color="primary" type="button" [disabled]="searching" (click)="searchWithMap()">Search with Map</button>
-  </div>
-</div>

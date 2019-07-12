@@ -4,8 +4,6 @@ import { StoreListItem } from '../../models/store-list-item';
 import { ReportBuilderService } from '../services/report-builder.service';
 
 import * as _ from 'lodash';
-import { map, tap } from 'rxjs/operators';
-import { forkJoin } from 'rxjs';
 
 export class JsonToTablesUtil {
 
@@ -69,6 +67,7 @@ export class JsonToTablesUtil {
     this.sovStores = tableStores
     // sort by target, then by contribution to site
       .sort(sortByContribution)
+      .filter(st => st['contributionToSite'] > 500 || st.mapKey === this.targetStore.mapKey)
       // only return the max at most
       .slice(0, this.maxSovCount);
 

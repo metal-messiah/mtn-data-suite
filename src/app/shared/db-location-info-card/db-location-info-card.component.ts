@@ -3,13 +3,19 @@ import { SiteService } from '../../core/services/site.service';
 import { ErrorService } from '../../core/services/error.service';
 import { StoreService } from '../../core/services/store.service';
 import { Router } from '@angular/router';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../core/services/auth.service';
 import { UserProfile } from '../../models/full/user-profile';
 import { UserProfileSelectComponent } from '../user-profile-select/user-profile-select.component';
 import { Store } from '../../models/full/store';
 import { Site } from '../../models/full/site';
 import { DbEntityInfoCardItem } from '../../casing/db-entity-info-card-item';
+import {
+  AddRemoveStoresListDialogComponent,
+  AddRemoveType
+} from '../add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
+import { SimplifiedSite } from '../../models/simplified/simplified-site';
 
 @Component({
   selector: 'mds-db-location-info-card',
@@ -21,7 +27,7 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
   @Input() infoCardItem: DbEntityInfoCardItem;
   @Input() disabled: boolean;
 
-  site: Site;
+  site: SimplifiedSite;
   store: Store;
 
   constructor(private siteService: SiteService,
@@ -34,32 +40,38 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    this.getSite();
+    this.initData();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     this.site = null;
     this.store = null;
-    this.getSite();
+    this.initData();
   }
 
-  private getSite() {
-    this.siteService.getOneById(this.infoCardItem.selection.siteId).subscribe((site: Site) => this.initSite(site));
-  }
-
-  private initSite(site: Site) {
-    this.site = site;
+  private initData() {
     if (this.infoCardItem.selection.storeId) {
-      this.initStore(site.stores.find(store => store.id === this.infoCardItem.selection.storeId));
+      this.storeService.getOneById(this.infoCardItem.selection.storeId).subscribe((store: Store) => {
+        this.initStore(store);
+        this.initSite(store.site);
+      })
+    } else if (this.infoCardItem.selection.siteId) {
+      this.siteService.getOneById(this.infoCardItem.selection.siteId).subscribe((site: Site) => this.initSite(new SimplifiedSite(site)));
     }
+  }
+
+  private initSite(site: SimplifiedSite) {
+    this.site = site;
   }
 
   private initStore(store: Store) {
     // Select the store by ID
     this.store = store;
-    if (this.store.storeVolumes && this.store.storeVolumes.length > 0) {
-      // Get the store's latest volume
-      this.store['latestStoreVolume'] = this.store.storeVolumes.sort((a, b) => b.volumeDate.getTime() - a.volumeDate.getTime())[0];
+    if (this.store) {
+      if (this.store.storeVolumes && this.store.storeVolumes.length > 0) {
+        // Get the store's latest volume
+        this.store['latestStoreVolume'] = this.store.storeVolumes.sort((a, b) => b.volumeDate.getTime() - a.volumeDate.getTime())[0];
+      }
     }
   }
 
@@ -84,9 +96,9 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
   }
 
   private assign(userId: number) {
-    return this.siteService.assignSiteToUser(this.site, userId)
+    return this.siteService.assignSiteToUser(this.site.id, userId)
       .subscribe((site: Site) => {
-        this.initSite(site);
+        this.initSite(new SimplifiedSite(site));
         this.snackBar.open('Successfully assigned Site', null, {duration: 1000});
         this.infoCardItem.refreshSite$.next(site.id);
       }, err => this.errorService.handleServerError('Failed to update site', err,
@@ -120,17 +132,18 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
   }
 
   setDuplicateFlag(isDuplicate: boolean) {
-    // Get full site
-    this.site.duplicate = isDuplicate;
-    return this.siteService.update(this.site)
-      .subscribe((site: Site) => {
-        this.initSite(site);
-        this.snackBar.open('Successfully updated Site', null, {duration: 1000});
-        this.infoCardItem.refreshSite$.next(this.site.id);
-      }, err => this.errorService.handleServerError('Failed to update Site!', err,
-        () => this.site.duplicate = !isDuplicate,
-        () => this.setDuplicateFlag(isDuplicate)
-      ));
+    this.siteService.getOneById(this.site.id).subscribe(fullSite => {
+      fullSite.duplicate = isDuplicate;
+      return this.siteService.update(fullSite)
+        .subscribe((site: Site) => {
+          this.initSite(new SimplifiedSite(site));
+          this.snackBar.open('Successfully updated Site', null, {duration: 1000});
+          this.infoCardItem.refreshSite$.next(this.site.id);
+        }, err => this.errorService.handleServerError('Failed to update Site!', err,
+          () => this.site.duplicate = !isDuplicate,
+          () => this.setDuplicateFlag(isDuplicate)
+        ));
+    });
   }
 
   setFloating(floating: boolean) {
@@ -167,6 +180,28 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
         err => this.errorService.handleServerError('Failed to invalidate store', err,
           () => console.log('cancelled'),
           () => this.validateStore()))
+  }
+
+  addToList() {
+    const storeIds = [this.infoCardItem.selection.storeId];
+    if (storeIds.length) {
+      this.dialog.open(AddRemoveStoresListDialogComponent, {data: {type: AddRemoveType.ADD, storeIds}, disableClose: true});
+    }
+  }
+
+  removeFromList() {
+    const storeIds = [this.infoCardItem.selection.storeId];
+    if (storeIds.length) {
+      this.dialog.open(AddRemoveStoresListDialogComponent, {data: {type: AddRemoveType.REMOVE, storeIds}, disableClose: true});
+    }
+  }
+
+  getFormattedIntersection(site) {
+    return this.siteService.getFormattedIntersection(site);
+  }
+
+  getFormattedPrincipality(site) {
+    return this.siteService.getFormattedPrincipality(site);
   }
 
 }

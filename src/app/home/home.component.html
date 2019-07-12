@@ -9,12 +9,12 @@
   </mat-toolbar>
   <div class="row content">
     <div class="list-wrapper">
-      <div class="sign-in-button-container" *ngIf="!auth.isAuthenticated()">
-        <button mat-raised-button color="primary" (click)="auth.signIn()" class="font-size-large">
+      <div class="sign-in-button-container" *ngIf="!isAuthenticated">
+        <button mat-raised-button color="primary" (click)="signIn()" class="font-size-large">
           <i class="fas fa-sign-in-alt"></i>&nbsp;Sign in
         </button>
       </div>
-      <mat-nav-list *ngIf="auth.isAuthenticated()">
+      <mat-nav-list *ngIf="isAuthenticated">
         <mat-divider></mat-divider>
         <div *ngIf="userIsAdmin()">
           <mat-list-item routerLink="/admin">
@@ -62,14 +62,6 @@
           <mat-list-item routerLink="/geocoding">
             <div mat-list-icon><i class="fas fa-globe-americas"></i></div>
             <h3 mat-line>Geocoding</h3>
-          </mat-list-item>
-          <mat-divider></mat-divider>
-        </div>
-        <div *ngIf="userIsAdmin()">
-          <!-- TODO Add my profile-->
-          <mat-list-item>
-            <div mat-list-icon><i class="fas fa-user-circle"></i></div>
-            <h3 mat-line>My Profile</h3>
           </mat-list-item>
           <mat-divider></mat-divider>
         </div>

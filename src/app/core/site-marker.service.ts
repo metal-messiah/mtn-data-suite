@@ -20,8 +20,8 @@ export class SiteMarkerService {
               private rest: RestService) {
   }
 
-  getSiteMarkersForView(newBounds: {north: number, south: number, east: number, west: number},
-                        prevBounds?: {north: number, south: number, east: number, west: number},
+  getSiteMarkersForView(newBounds: { north: number, south: number, east: number, west: number },
+                        prevBounds?: { north: number, south: number, east: number, west: number },
                         updatedAt?: Date): Observable<SiteMarker[]> {
     if (prevBounds && updatedAt) {
       const url = this.rest.getHost() + this.endpoint;
@@ -36,7 +36,7 @@ export class SiteMarkerService {
     }
   }
 
-  private getSiteMarkersInBounds(bounds: {north: number, south: number, east: number, west: number}) {
+  private getSiteMarkersInBounds(bounds: { north: number, south: number, east: number, west: number }) {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams();
     _.forEach(bounds, (value, key) => params = params.set(key, String(value)));

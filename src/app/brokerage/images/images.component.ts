@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { saveAs } from 'file-saver';
-import shajs from 'sha.js';
-declare var cloudinary: any;
+import { CloudinaryAsset } from '../../shared/cloudinary/CloudinaryAsset';
+import { CloudinaryService } from '../../core/services/cloudinary.service';
 
 @Component({
   selector: 'mds-images',
@@ -11,23 +11,16 @@ declare var cloudinary: any;
   styleUrls: ['./images.component.css']
 })
 export class ImagesComponent implements OnInit {
-  cloudName = 'mtnra';
-  timeStamp = Math.floor(Date.now() / 1000);
-  username = 'jordan@mtnra.com';
-  apiSecret = 'wClRfg43OFsvwhg33QMnowZ0Skc';
-  apiKey = '515812459374857';
+  private cloudinaryParams = {
+    cloudName: 'mtnra',
+    username: 'jordan@mtnra.com',
+    apiSecret: 'wClRfg43OFsvwhg33QMnowZ0Skc',
+    apiKey: '515812459374857',
+    multiple: true
+  };
 
-  config: object;
-
-  signature: string;
-  encodedSignature: string;
-
-  mediaLibrary: any;
-
-  selectedFiles;
+  selectedFiles: CloudinaryAsset[] = [];
   copiedId: string;
-
-  initialized = false;
 
   file: File;
   fileReader: FileReader;
@@ -39,37 +32,17 @@ export class ImagesComponent implements OnInit {
   identifierTargets: object = {};
   identifierIdx: number;
 
-  constructor(private snackBar: MatSnackBar) {
+  constructor(private snackBar: MatSnackBar,
+              private cloudinaryService: CloudinaryService) {
     this.fileReader = new FileReader();
     this.fileReader.onload = event => this.handleFileContents(event); // desired file content
-    this.fileReader.onerror = error =>
-      this.snackBar.open(error.toString(), null, {
-        duration: 2000
-      });
-    // window['global'] = window;
-    this.signature = `cloud_name=${this.cloudName}&timestamp=${
-      this.timeStamp
-    }&username=${this.username}${this.apiSecret}`;
-
-    this.encodedSignature = shajs('sha256')
-      .update(this.signature)
-      .digest('hex');
-
-    this.config = {
-      signature: this.encodedSignature,
-      cloud_name: this.cloudName,
-      api_key: this.apiKey,
-      username: this.username,
-      timestamp: this.timeStamp,
-      max_files: 100
-    };
-
-    this.openCloudinary();
-
-    this.selectedFiles = [];
+    this.fileReader.onerror = error => this.snackBar.open(error.toString(), null, {duration: 2000});
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.cloudinaryService.initialize(this.cloudinaryParams, (assets) => this.setSelectedFiles(assets));
+    this.openCloudinary();
+  }
 
   getValue(item) {
     return `${item.public_id}.${item.format}`;
@@ -89,26 +62,13 @@ export class ImagesComponent implements OnInit {
     target.disabled = true;
   }
 
-  startOver() {
-    this.initialized = false;
-    this.selectedFiles = [];
-    this.openCloudinary();
-  }
-
   openCloudinary() {
-    this.mediaLibrary = cloudinary.openMediaLibrary(this.config, {
-      insertHandler: data => {
-        this.setSelectedFiles(data.assets);
-      }
-    });
-
-    setTimeout(() => {
-      this.initialized = true;
-    }, 5000);
+    this.selectedFiles = [];
+    this.cloudinaryService.show();
   }
 
   readCsv(event) {
-    const { files } = event.target;
+    const {files} = event.target;
     if (files && files.length === 1) {
       // only want 1 file at a time!
       this.file = files[0];
@@ -122,7 +82,7 @@ export class ImagesComponent implements OnInit {
       }
     } else {
       // notify about file constraints
-      this.snackBar.open('1 file at a time please', null, { duration: 2000 });
+      this.snackBar.open('1 file at a time please', null, {duration: 2000});
     }
   }
 
@@ -157,7 +117,6 @@ export class ImagesComponent implements OnInit {
         }
       });
     }
-    console.log(this.identifierTargets);
   }
 
   getIdentifierTargetNames() {
@@ -167,7 +126,6 @@ export class ImagesComponent implements OnInit {
   targetChange(event, name) {
     const prop = event.value;
     this.identifierTargets[prop] = name;
-    console.log(this.identifierTargets);
   }
 
   targetIsTaken(target) {
@@ -176,7 +134,7 @@ export class ImagesComponent implements OnInit {
 
   exportNewCsv() {
     let output = '';
-    this.csvArray.forEach( (row, i) => {
+    this.csvArray.forEach((row, i) => {
       output += row.join(',');
       if (!row.includes('logo') && i === 0) {
         output += ',logo'
@@ -184,21 +142,20 @@ export class ImagesComponent implements OnInit {
       if (i !== 0) {
         Object.keys(this.identifierTargets).forEach(key => {
           if (key === row[this.identifierIdx]) {
-            output += ',' + this.identifierTargets[key] 
+            output += ',' + this.identifierTargets[key]
           }
         })
       }
       output += '\r\n';
-    })
+    });
 
-    // console.log(output);
     saveAs(
       new Blob([output]),
       `${
         this.file
           ? this.file.name.split('.')[0] + '_logos'
           : 'export_logos'
-      }.csv`
+        }.csv`
     );
   }
 
@@ -224,12 +181,7 @@ export class ImagesComponent implements OnInit {
     }
   }
 
-  setSelectedFiles(files) {
-    console.log(files);
+  setSelectedFiles(files: CloudinaryAsset[]) {
     this.selectedFiles = files;
   }
-
-  // insertHandler(data) {
-  //   this.selectedFiles = data.assets;
-  // }
 }

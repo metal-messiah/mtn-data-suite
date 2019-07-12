@@ -3,7 +3,9 @@
 import { Injectable } from '@angular/core';
 import { GooglePlace } from '../../models/google-place';
 import { Coordinates } from '../../models/coordinates';
-import { Observable, Observer, of, Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { StorageService } from './storage.service';
 
 /*
   The MapService should
@@ -14,7 +16,11 @@ import { Observable, Observer, of, Subject } from 'rxjs';
  */
 @Injectable()
 export class MapService {
+
+  readonly ST_MAP_PERSPECTIVE = 'mapPerspective';
+
   private map: google.maps.Map;
+
   boundsChanged$: Subject<{ east; north; south; west }>;
   mapClick$: Subject<Coordinates>;
 
@@ -71,8 +77,13 @@ export class MapService {
     return map.getProjection().fromPointToLatLng(worldPoint);
   }
 
-  constructor() {
+  constructor(private snackBar: MatSnackBar,
+              private storageService: StorageService) {
     this.dataPointFeatures = [];
+  }
+
+  addControl(control: HTMLElement, position: google.maps.ControlPosition = google.maps.ControlPosition.RIGHT_BOTTOM) {
+    this.map.controls[position].push(control);
   }
 
   initialize(element: HTMLElement) {
@@ -97,9 +108,7 @@ export class MapService {
       }
     });
     this.map.addListener('maptypeid_changed', () => this.savePerspective());
-    this.map.addListener('click', event =>
-      this.mapClick$.next(event.latLng.toJSON())
-    );
+    this.map.addListener('click', event => this.mapClick$.next(event.latLng.toJSON()));
 
     // Setup Drawing Manager
     this.drawingManager = new google.maps.drawing.DrawingManager();
@@ -132,7 +141,7 @@ export class MapService {
   }
 
   private loadPerspective() {
-    of(localStorage.getItem('mapPerspective')).subscribe(perspective => {
+    this.storageService.getOne(this.ST_MAP_PERSPECTIVE).subscribe(perspective => {
       if (perspective != null) {
         perspective = JSON.parse(perspective);
         this.map.setCenter(perspective['center']);
@@ -143,12 +152,7 @@ export class MapService {
   }
 
   savePerspective() {
-    of(
-      localStorage.setItem(
-        'mapPerspective',
-        JSON.stringify(this.getPerspective())
-      )
-    ).subscribe();
+    this.storageService.set(this.ST_MAP_PERSPECTIVE, JSON.stringify(this.getPerspective())).subscribe();
   }
 
   drawingModeIs(mode: string) {
@@ -341,38 +345,36 @@ export class MapService {
     queryString: string,
     bounds?: google.maps.LatLngBoundsLiteral
   ): Observable<GooglePlace[]> {
-    return Observable.create((observer: Observer<any>) => {
-      const callback = (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-          observer.next(results.map(place => new GooglePlace(place)));
-        } else {
-          observer.error(status);
-        }
-        observer.complete();
-      };
+    const subject = new Subject<any>();
 
-      if (bounds == null) {
-        const fields = [
-          'formatted_address',
-          'geometry',
-          'icon',
-          'id',
-          'name',
-          'place_id'
-        ];
-
-        this.placesService.findPlaceFromQuery(
-          {fields: fields, query: queryString},
-          callback
-        );
+    const callback = (results, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK) {
+        subject.next(results.map(r => new GooglePlace(r)));
       } else {
-        const request = {
-          bounds: bounds,
-          name: queryString
-        };
-        this.placesService.nearbySearch(request, callback);
+        subject.error(status);
       }
-    });
+    };
+
+    if (bounds == null) {
+      const fields = [
+        'formatted_address',
+        'geometry',
+        'icon',
+        'id',
+        'name',
+        'place_id'
+      ];
+
+      this.placesService.findPlaceFromQuery({fields: fields, query: queryString}, callback);
+    } else {
+      const request = {
+        bounds: bounds,
+        name: queryString
+      };
+      this.placesService.nearbySearch(request, callback);
+    }
+
+    return subject;
   }
 
   getDetailedGooglePlace(requestPlace: GooglePlace) {
@@ -389,6 +391,39 @@ export class MapService {
       });
     });
   }
+
+  fitToPoints(points: Coordinates[], label?: string) {
+    const bounds = new google.maps.LatLngBounds();
+    points.forEach(pt => bounds.extend(pt));
+    this.map.fitBounds(bounds);
+
+    if (label) {
+      this.snackBar.open(label, null, {duration: 2000});
+    }
+
+    const rectangle = new google.maps.Rectangle({
+      strokeColor: 'orange',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: null,
+      fillOpacity: 0.35,
+      map: this.map,
+      bounds: bounds
+    });
+
+    this.fade(rectangle, 0.35);
+  }
+
+  private fade(rect: google.maps.Rectangle, fillOpacity: number) {
+    const strokeOpacity = (fillOpacity + 0.45) / 2;
+    rect.setOptions({fillOpacity, strokeOpacity});
+    const newOpacity = fillOpacity - 0.01;
+    if (newOpacity >= 0) {
+      setTimeout(() => this.fade(rect, newOpacity), 50);
+    } else {
+      rect.setMap(null);
+    }
+  };
 
   getMap() {
     return this.map;

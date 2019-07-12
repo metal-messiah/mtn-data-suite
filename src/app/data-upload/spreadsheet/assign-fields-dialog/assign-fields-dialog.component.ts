@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatStepper } from '@angular/material';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatStepper } from '@angular/material/stepper';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 import { SimplifiedCompany } from 'app/models/simplified/simplified-company';
 import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
@@ -11,7 +12,6 @@ import { FieldMappingItem } from './field-mapping-item';
 import { SpreadsheetService } from '../spreadsheet.service';
 import { CompanyService } from 'app/core/services/company.service';
 import { BannerService } from 'app/core/services/banner.service';
-import { StoreService } from 'app/core/services/store.service';
 
 @Component({
   selector: 'mds-assign-fields-dialog',
@@ -46,7 +46,7 @@ export class AssignFieldsDialogComponent implements OnInit {
   volumeDate = null;
   volumeType: string = null;
 
-  @ViewChild('stepper') stepper: MatStepper;
+  @ViewChild('stepper', {static: true}) stepper: MatStepper;
 
   MatDialog;
 
@@ -55,7 +55,6 @@ export class AssignFieldsDialogComponent implements OnInit {
     private fb: FormBuilder,
     private companyService: CompanyService,
     private bannerService: BannerService,
-    private storeService: StoreService,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     dialogRef.disableClose = true;
@@ -141,7 +140,7 @@ export class AssignFieldsDialogComponent implements OnInit {
             banners.forEach((banner) => {
               this.bannerService.getOneById(banner.id).subscribe(
                 (b: Banner) => {
-                  this.banners.push(b);
+                  this.banners.push(new SimplifiedBanner(b));
                 },
                 () => this.getBannersFromCompany(attempts + 1) // just a failsafe
               );
@@ -160,7 +159,6 @@ export class AssignFieldsDialogComponent implements OnInit {
       this.bannerService.getOneById(bannerId).subscribe(
         (b: Banner) => {
           this.form.value.banner = b;
-          console.log(this.form.value);
         },
         () => this.getBannersFromCompany(attempts + 1) // failsafe
       );

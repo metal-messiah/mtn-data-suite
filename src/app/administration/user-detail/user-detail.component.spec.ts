@@ -9,8 +9,8 @@ import { DetailFormService } from '../../core/services/detail-form.service';
 import { UserProfileService } from '../../core/services/user-profile.service';
 import { RoleService } from '../../core/services/role.service';
 import { ErrorService } from '../../core/services/error.service';
-import { of } from 'rxjs/observable/of';
 import { RouterTestingModule } from '@angular/router/testing';
+import { of } from 'rxjs';
 
 describe('UserDetailComponent', () => {
   let component: UserDetailComponent;
@@ -22,9 +22,6 @@ describe('UserDetailComponent', () => {
     const groupServiceSpy = jasmine.createSpyObj('GroupService', ['getAllGroups']);
     groupServiceSpy.getAllGroups.and.returnValue(of({content: []}));
     const detailFormService = jasmine.createSpyObj('DetailFormService', ['retrieveObj', 'save', 'canDeactivate']);
-    // TODO Mock return of retrieveObj
-    // TODO Mock return of create
-    // TODO Mock return of canDeactivate
     const errorServiceSpy = jasmine.createSpyObj('ErrorService', ['handleServerError']);
 
     TestBed.configureTestingModule({

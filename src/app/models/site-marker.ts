@@ -7,11 +7,20 @@ export class SiteMarker implements Entity {
   id: number;
   latitude: number;
   longitude: number;
-  assigneeId: number;
+  assigneeId: number = null;
+  assigneeName: string = null;
   duplicate: boolean;
   backfilledNonGrocery: boolean;
   stores: StoreMarker[];
   updatedDate: Date;
+  vacant: boolean;
+  address: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  quad: string;
+  intersectionStreetPrimary: string;
+  intersectionStreetSecondary: string;
 
   constructor(obj) {
     Object.assign(this, obj);
@@ -21,6 +30,11 @@ export class SiteMarker implements Entity {
 
     if (obj.stores) {
       this.stores = obj.stores.map(st => new StoreMarker(st));
+    }
+
+    if (obj.assignee) {
+      this.assigneeId = obj.assignee.id;
+      this.assigneeName = obj.assignee.name;
     }
   }
 

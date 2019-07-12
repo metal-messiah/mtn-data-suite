@@ -15,8 +15,6 @@ describe('UserProfilesComponent', () => {
 
   beforeEach(async(() => {
     const entityListServiceSpy = jasmine.createSpyObj('EntityListService', ['initialize', 'confirmDelete'])
-    // TODO Mock return of initialize
-    // TODO Mock return of confirmDelete
 
     TestBed.configureTestingModule({
       imports: [
