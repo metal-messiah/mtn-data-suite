@@ -16,6 +16,7 @@ import {
   AddRemoveType
 } from '../add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
 import { SimplifiedSite } from '../../models/simplified/simplified-site';
+import { ClipboardUtil } from '../../utils/clipboard-util';
 
 @Component({
   selector: 'mds-db-location-info-card',
@@ -116,18 +117,7 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
   }
 
   copyToClipboard(val) {
-    console.log('copying');
-    const selBox = document.createElement('textarea');
-    selBox.style.position = 'fixed';
-    selBox.style.left = '0';
-    selBox.style.top = '0';
-    selBox.style.opacity = '0';
-    selBox.value = val;
-    document.body.appendChild(selBox);
-    selBox.focus();
-    selBox.select();
-    document.execCommand('copy');
-    document.body.removeChild(selBox);
+    ClipboardUtil.copyValueToClipboard(val);
     this.snackBar.open(`${val} copied to clipboard`, null, {duration: 1000});
   }
 
