@@ -66,9 +66,9 @@ export class ReportBuilderService {
     });
     this.modelMetaDataForm = this.fb.group({
       analyst: `${this.authService.sessionUser.firstName} ${this.authService.sessionUser.lastName}`,
-      clientName: ['', [Validators.required]],
-      type: ['', [Validators.required]],
-      modelName: ['', [Validators.required]],
+      clientName: ['t', [Validators.required]],
+      type: ['t', [Validators.required]],
+      modelName: ['t', [Validators.required]],
       fieldResDate: new Date()
     });
   }

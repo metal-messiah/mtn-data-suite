@@ -1,6 +1,20 @@
-.wrapper {
-  margin: 40px auto;
-  width: fit-content;
+:host {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 16px;
+}
+
+#data-verification-table {
+  min-width: 1427px;
+  margin: 0 auto;
 }
 
 mat-form-field {

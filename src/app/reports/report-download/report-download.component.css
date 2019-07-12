@@ -12,7 +12,7 @@
   padding: 16px;
 }
 
-
-pdf-viewer {
-  display: block;
+p {
+  max-width: 400px;
+  margin: 0 auto;
 }

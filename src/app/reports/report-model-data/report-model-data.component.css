@@ -1,11 +1,29 @@
-.wrapper {
-  margin: 40px auto;
-  width: fit-content;
+:host {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.file-tip {
-  margin-left: 20px;
-  font-size: small;
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 16px;
+}
+
+#model-data-form {
+  display: flex;
+  flex-direction: column;
+  margin: 16px auto;
+}
+
+.mat-form-field {
+  width: 300px;
+}
+
+#file-button {
+  max-width: 300px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }

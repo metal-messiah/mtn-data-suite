@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { ReportBuilderService } from '../services/report-builder.service';
-import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -13,34 +12,38 @@ export class SiteEvaluationComponent implements OnInit {
 
   readonly ratingOptions = ['Excellent', 'Good', 'Average', 'Fair', 'Poor', 'TBD'];
 
-  constructor(public _location: Location,
-              private router: Router,
+  constructor(private router: Router,
               private snackBar: MatSnackBar,
-              public rbs: ReportBuilderService) {
+              private _rbs: ReportBuilderService,
+              private host: ElementRef) {
   }
 
   ngOnInit() {
-    if (!this.rbs.getReportTableData()) {
+    if (!this._rbs.getReportTableData()) {
       setTimeout(() => {
-        this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
+        this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 2000});
         this.router.navigate(['reports']);
       }, 10)
     } else {
       this.createForm();
-      document.getElementById('reports-content-wrapper').scrollTop = 0;
+      this.host.nativeElement.scrollTop = 0;
     }
+  }
+
+  get rbs() {
+    return this._rbs;
   }
 
   private createForm() {
     let cvRecord;
-    if (this.rbs.getReportTableData().currentVolumes) {
-      cvRecord = this.rbs.getReportTableData().currentVolumes.find(record => {
-        return record.mapKey === this.rbs.getReportTableData().selectedMapKey;
+    if (this._rbs.getReportTableData().currentVolumes) {
+      cvRecord = this._rbs.getReportTableData().currentVolumes.find(record => {
+        return record.mapKey === this._rbs.getReportTableData().selectedMapKey;
       });
     }
-    const sisterStoresAffected = this.rbs.getReportTableData().storeList
+    const sisterStoresAffected = this._rbs.getReportTableData().storeList
       .filter(store => {
-        return store.category === 'Company Store' && store.mapKey !== this.rbs.getReportTableData().selectedMapKey
+        return store.category === 'Company Store' && store.mapKey !== this._rbs.getReportTableData().selectedMapKey
       })
       .sort((a, b) => {
         if (a.storeName === b.storeName) {
@@ -53,10 +56,10 @@ export class SiteEvaluationComponent implements OnInit {
       .join('\r\n');
 
     if (cvRecord) {
-      this.rbs.siteEvaluationNarrativeForm.get('assumedPower').setValue(cvRecord.assumedPower);
+      this._rbs.siteEvaluationNarrativeForm.get('assumedPower').setValue(cvRecord.assumedPower);
     }
     if (sisterStoresAffected) {
-      this.rbs.siteEvaluationNarrativeForm.get('affectedSisterStores').setValue(sisterStoresAffected);
+      this._rbs.siteEvaluationNarrativeForm.get('affectedSisterStores').setValue(sisterStoresAffected);
     }
   }
 

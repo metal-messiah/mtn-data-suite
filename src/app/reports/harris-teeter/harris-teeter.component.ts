@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { ReportBuilderService } from '../services/report-builder.service';
-import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
@@ -8,6 +7,7 @@ import { JsonToTablesUtil } from '../report-tables/json-to-tables.util';
 import { AuthService } from '../../core/services/auth.service';
 import { ErrorService } from '../../core/services/error.service';
 import { saveAs } from 'file-saver';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'mds-harris-teeter',
@@ -15,6 +15,8 @@ import { saveAs } from 'file-saver';
   styleUrls: ['./harris-teeter.component.css']
 })
 export class HarrisTeeterComponent implements OnInit {
+
+  downloading = false;
 
   form: FormGroup;
   compChangeControls;
@@ -24,6 +26,12 @@ export class HarrisTeeterComponent implements OnInit {
   reportData;
 
   ratings = [
+    {placeholder: 'Visibility Rating', formControlName: 'visibilityRating'},
+    {placeholder: 'Ingress Rating', formControlName: 'ingressRating'},
+    {placeholder: 'Egress Rating', formControlName: 'egressRating'}
+  ];
+
+  ratingValues = [
     {value: 1, display: 'Poor'},
     {value: 2, display: 'Fair'},
     {value: 3, display: 'Average'},
@@ -32,20 +40,20 @@ export class HarrisTeeterComponent implements OnInit {
   ];
 
   constructor(private rbs: ReportBuilderService,
-              public _location: Location,
-              public router: Router,
+              private router: Router,
               private fb: FormBuilder,
               private errorService: ErrorService,
               private authService: AuthService,
-              private snackBar: MatSnackBar) {
+              private snackBar: MatSnackBar,
+              private host: ElementRef) {
   }
 
   ngOnInit() {
     if (!this.rbs.getReportTableData()) {
-      this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
+      this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 2000});
       this.router.navigate(['reports']);
     } else {
-      document.getElementById('reports-content-wrapper').scrollTop = 0;
+      this.host.nativeElement.scrollTop = 0;
       const util = new JsonToTablesUtil(this.rbs);
       this.reportData = util.getReportData();
       this.createForm();
@@ -62,9 +70,9 @@ export class HarrisTeeterComponent implements OnInit {
           fg.addControl('additionalText', this.fb.control(''));
           return fg;
         })),
-      visibilityRating: this.fb.control('3'),
-      ingressRating: this.fb.control('3'),
-      egressRating: this.fb.control('3'),
+      visibilityRating: this.fb.control(3),
+      ingressRating: this.fb.control(3),
+      egressRating: this.fb.control(3),
       state: this.fb.control(''),
     });
     this.compChangeControls = (this.form.get('compChanges') as FormArray).controls;
@@ -145,9 +153,13 @@ export class HarrisTeeterComponent implements OnInit {
       year3Ending: this.reportData.projections.thirdYearEndingSales
     }];
 
-    console.log(this.reportData);
+    this.downloading = true;
     this.rbs.getHTReport(this.reportData)
-      .subscribe(res => saveAs(res.body, `${metaData.modelName}.pdf`),
+      .pipe(finalize(() => this.downloading = false))
+      .subscribe(res => {
+          saveAs(res.body, `${metaData.modelName}.pdf`);
+          this.router.navigate(['reports/download']);
+        },
         err => {
           this.rbs.compilingReport = false;
           this.errorService.handleServerError('Failed get pdf', err, () => console.log(err))

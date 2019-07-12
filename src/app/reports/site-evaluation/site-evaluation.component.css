@@ -1,9 +1,21 @@
-.narrative-wrapper {
+:host {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  width: fit-content;
-  margin: 40px auto;
-  max-width: 500px;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 16px;
+}
+
+.content > div {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .select-group {
@@ -35,13 +47,6 @@ input{
   padding: 10px 0;
 }
 
-textarea {
-  height: 100px;
-  background: white;
-  border-radius: 5px 5px 0 0;
-  margin: 0;
-}
-
-mat-form-field {
-  width: 100%;
+#ratings {
+  width: 500px;
 }
