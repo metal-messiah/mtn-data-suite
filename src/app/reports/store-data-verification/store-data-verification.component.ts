@@ -14,7 +14,7 @@ import { Sort } from '@angular/material/sort';
 export class StoreDataVerificationComponent implements OnInit {
 
   dataVerificationForm: FormGroup;
-  categories: string[] = [
+  readonly categories: string[] = [
     'Company Store',
     'Existing Competition',
     'Proposed Competition',
