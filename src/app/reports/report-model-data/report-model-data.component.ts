@@ -14,7 +14,7 @@ import { StoreListItem } from '../../models/store-list-item';
 @Component({
   selector: 'mds-report-model-data',
   templateUrl: './report-model-data.component.html',
-  styleUrls: ['./report-model-data.component.css'],
+  styleUrls: ['./report-model-data.component.css', '../shared-report-style.css'],
   providers: [XlsToModelParserService]
 })
 export class ReportModelDataComponent implements OnInit {

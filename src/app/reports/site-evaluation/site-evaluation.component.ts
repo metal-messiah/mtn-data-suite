@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'mds-site-evaluation',
   templateUrl: './site-evaluation.component.html',
-  styleUrls: ['./site-evaluation.component.css']
+  styleUrls: ['./site-evaluation.component.css', '../shared-report-style.css']
 })
 export class SiteEvaluationComponent implements OnInit {
 

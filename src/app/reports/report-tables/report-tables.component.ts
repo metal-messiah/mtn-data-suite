@@ -12,7 +12,7 @@ import { forkJoin } from 'rxjs';
 @Component({
   selector: 'mds-report-tables',
   templateUrl: './report-tables.component.html',
-  styleUrls: ['./report-tables.component.css']
+  styleUrls: ['./report-tables.component.css', '../shared-report-style.css']
 })
 export class ReportTablesComponent implements OnInit {
 

@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'mds-download',
   templateUrl: './report-download.component.html',
-  styleUrls: ['./report-download.component.css']
+  styleUrls: ['./report-download.component.css', '../shared-report-style.css']
 })
 export class ReportDownloadComponent implements OnInit {
 

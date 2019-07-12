@@ -1,17 +1,3 @@
-:host {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: auto;
-  padding: 16px;
-}
-
 p {
   max-width: 400px;
   margin: 0 auto;

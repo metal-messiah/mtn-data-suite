@@ -9,7 +9,7 @@ import { Sort } from '@angular/material/sort';
 @Component({
   selector: 'mds-store-data-verification',
   templateUrl: './store-data-verification.component.html',
-  styleUrls: ['./store-data-verification.component.css']
+  styleUrls: ['./store-data-verification.component.css', '../shared-report-style.css']
 })
 export class StoreDataVerificationComponent implements OnInit {
 

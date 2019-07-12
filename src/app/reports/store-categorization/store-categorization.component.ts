@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'mds-store-categorization',
   templateUrl: './store-categorization.component.html',
-  styleUrls: ['./store-categorization.component.css']
+  styleUrls: ['./store-categorization.component.css', '../shared-report-style.css']
 })
 export class StoreCategorizationComponent implements OnInit {
 

@@ -12,7 +12,7 @@ import { finalize } from 'rxjs/operators';
 @Component({
   selector: 'mds-harris-teeter',
   templateUrl: './harris-teeter.component.html',
-  styleUrls: ['./harris-teeter.component.css']
+  styleUrls: ['./harris-teeter.component.css', '../shared-report-style.css']
 })
 export class HarrisTeeterComponent implements OnInit {
 
