@@ -1,7 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { GeocodingService } from './geocoding.service';
 import { ResourceQuota } from '../models/resource-quota';
+import { FormBuilder, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'mds-geocoding',
@@ -9,12 +11,12 @@ import { ResourceQuota } from '../models/resource-quota';
   styleUrls: ['./geocoding.component.css'],
   providers: [GeocodingService]
 })
-export class GeocodingComponent implements OnInit {
+export class GeocodingComponent implements OnInit, OnDestroy {
   canGeocode = false;
 
   output: string[][];
 
-  file: File;
+  inputFile: File;
   headerRow: string[];
 
   running = false;
@@ -23,45 +25,32 @@ export class GeocodingComponent implements OnInit {
 
   offset = 0; // ms -- used for smoothness in rendering the progress bar
 
-  newestResourceQuota: ResourceQuota;
+  quota: ResourceQuota;
 
-  status: {
-    done: number;
-    total: number;
-    successes: number;
-    failures: number;
-    rooftops: number;
-  } = {
-    done: 0,
-    total: 0,
-    successes: 0,
-    failures: 0,
-    rooftops: 0
-  };
+  status;
 
-  addressField: string = null;
-  cityField: string = null;
-  stateField: string = null;
-  zipField: string = null;
+  fieldForm: FormGroup;
 
-  constructor(private geocodingService: GeocodingService) {
+  private subscriptions: Subscription[];
+
+  constructor(private geocodingService: GeocodingService,
+              private fb: FormBuilder) {
+  }
+
+  ngOnInit() {
+    this.subscriptions = [];
+
     // used to trigger loading bar
-    this.geocodingService.running$.subscribe((data: boolean) => {
+    this.subscriptions.push(this.geocodingService.running$.subscribe((data: boolean) => {
       this.running = data;
       if (!data) {
         console.log('DONE RUNNING!');
         this.offset = 0;
       }
-    });
-
-    // Could be implemented for table previews
-    // this.geocodingService.output$.subscribe(
-    //   data => (this.output = data.map(row => row.split(",")))
-    // );
+    }));
 
     // used to update the progress bar status and caption
-    this.geocodingService.progress$.subscribe(
-      (data: {
+    this.subscriptions.push(this.geocodingService.progress$.subscribe((data: {
         done: number;
         total: number;
         successes: number;
@@ -77,60 +66,88 @@ export class GeocodingComponent implements OnInit {
           this.status.rooftops = data.rooftops;
         }, this.offset);
       }
-    );
+    ));
 
-    this.geocodingService.resourceQuota$.subscribe((rq: ResourceQuota) => {
-      this.newestResourceQuota = rq;
-    });
+    this.subscriptions.push(this.geocodingService.resourceQuota$.subscribe((rq: ResourceQuota) => this.quota = rq));
+
+    this.resetStatus();
+
+    this.buildForm();
   }
 
-  ngOnInit() {}
+  ngOnDestroy() {
+    this.subscriptions.forEach(s => s.unsubscribe());
+  }
 
-  resetFormValues() {
-    this.addressField = null;
-    this.cityField = null;
-    this.stateField = null;
-    this.zipField = null;
+  get address(): string {
+    return this.fieldForm.get('address').value;
+  }
+
+  get city(): string {
+    return this.fieldForm.get('city').value;
+  }
+
+  get state(): string {
+    return this.fieldForm.get('state').value;
+  }
+
+  get zip(): string {
+    return this.fieldForm.get('zip').value;
+  }
+
+  private resetStatus() {
+    this.status = {
+      done: 0,
+      total: 0,
+      successes: 0,
+      failures: 0,
+      rooftops: 0
+    };
+  }
+
+  private oneRequiredValidator: ValidatorFn = (control: FormGroup): ValidationErrors => {
+    const address = control.get('address').value;
+    const city = control.get('city').value;
+    const state = control.get('state').value;
+    const zip = control.get('zip').value;
+    return (address || city || state || zip) ? null : {'oneRequired': true};
+  };
+
+  private buildForm() {
+    this.fieldForm = this.fb.group({
+      address: null,
+      city: null,
+      state: null,
+      zip: null
+    }, {validators: this.oneRequiredValidator})
   }
 
   getStatus() {
     return (this.status.done / this.status.total) * 100;
   }
 
-  disableField(form, targetInput, optionValue) {
-    const inputs = ['addressField', 'cityField', 'stateField', 'zipField'];
-    const checks = inputs.filter(i => i !== targetInput);
-    let disable = false;
-    checks.forEach(input => {
-      if (form.value[input] === optionValue) {
-        disable = true;
-      }
-    });
-    return disable;
+  disableField(targetInput, columnHeader) {
+    const fields = ['address', 'city', 'state', 'zip'];
+    const otherFields = fields.filter(i => i !== targetInput);
+    // Returns true if any other field already has the column selected
+    return otherFields.some(field => this.fieldForm.get(field).value === columnHeader);
   }
 
-  validateForm(form) {
-    const { addressField, cityField, stateField, zipField } = form.value;
-    return addressField || cityField || stateField || zipField || false;
-  }
-
-  estimateQuality(form) {
-    const { addressField, cityField, stateField, zipField } = form.value;
-
+  estimateQuality() {
     if (
-      (addressField && cityField && stateField) ||
-      (addressField && zipField)
+      (this.address && this.city && this.state) ||
+      (this.address && this.zip)
     ) {
       return 'Rooftop';
-    } else if (zipField || (cityField && stateField)) {
+    } else if (this.zip || (this.city && this.state)) {
       return 'Centroid';
     } else {
       return 'Estimation';
     }
   }
 
-  getQualityColor(form) {
-    const label = this.estimateQuality(form);
+  getQualityColor() {
+    const label = this.estimateQuality();
     return label === 'Rooftop'
       ? 'green'
       : label === 'Centroid'
@@ -138,35 +155,33 @@ export class GeocodingComponent implements OnInit {
         : 'red';
   }
 
-  getQueryPreview(form) {
-    const { addressField, cityField, stateField, zipField } = form.value;
+  getQueryPreview() {
     return this.geocodingService.getQueryStringPreview(
-      this.file,
-      addressField,
-      cityField,
-      stateField,
-      zipField
+      this.inputFile,
+      this.address,
+      this.city,
+      this.state,
+      this.zip
     );
   }
 
   handleFile(file) {
-    this.resetFormValues();
-    this.geocodingService.reset();
-    this.file = file;
+    this.inputFile = file;
+
+    // TODO MDS-543 Refactor to use papaParse
     this.headerRow = this.geocodingService.getHeaderRowArray(file);
     this.length = this.geocodingService.getRowLength(file);
     this.canGeocode = this.geocodingService.shouldGeocode();
   }
 
-  submit(form) {
-    const { addressField, cityField, stateField, zipField } = form.value;
-
+  submit() {
+    // TODOD MDS-544 Should return an observable with status object being emitted
     this.geocodingService.handleFile(
-      this.file,
-      addressField,
-      cityField,
-      stateField,
-      zipField
+      this.inputFile,
+      this.address,
+      this.city,
+      this.state,
+      this.zip
     );
   }
 }

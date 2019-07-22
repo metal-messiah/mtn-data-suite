@@ -9,17 +9,15 @@ import { ErrorService } from '../core/services/error.service';
 import { saveAs } from 'file-saver';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class GeocodingService {
   allowed: number;
   file: File;
 
-  addressField: string;
-  cityField: string;
-  stateField: string;
-  zipField: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
 
   addressIdx: number;
   cityIdx: number;
@@ -34,7 +32,6 @@ export class GeocodingService {
   limit = 50;
 
   running$: Subject<boolean> = new Subject();
-  output$: Subject<string[]> = new Subject();
   progress$: Subject<object> = new Subject();
   resourceQuota$: Subject<ResourceQuota> = new Subject();
 
@@ -59,14 +56,14 @@ export class GeocodingService {
     this.reset();
   }
 
-  reset() {
+  private reset() {
     this.index = 1;
     this.allowed = null;
     this.file = null;
-    this.addressField = null;
-    this.cityField = null;
-    this.stateField = null;
-    this.zipField = null;
+    this.address = null;
+    this.city = null;
+    this.state = null;
+    this.zip = null;
 
     this.addressIdx = null;
     this.cityIdx = null;
@@ -98,7 +95,7 @@ export class GeocodingService {
             ).toLocaleString()} Geocodes Remaining This Month`,
             null,
             {
-              duration: 5000
+              duration: 2000
             }
           );
         },
@@ -116,7 +113,7 @@ export class GeocodingService {
                   ).toLocaleString()} Geocodes Remaining This Month`,
                   null,
                   {
-                    duration: 5000
+                    duration: 2000
                   }
                 );
               });
@@ -338,7 +335,7 @@ export class GeocodingService {
       .update(this.newestResourceQuota)
       .subscribe((rq: ResourceQuota) => {
         this.snackBar.open(`Geocoding Complete -- Compiling File`, null, {
-          duration: 5000
+          duration: 2000
         });
       });
   }
@@ -363,20 +360,20 @@ export class GeocodingService {
     return this.length;
   }
 
-  getQueryStringPreview(file, addressField, cityField, stateField, zipField) {
+  getQueryStringPreview(file, address, city, state, zip) {
     const allRows = this.getAllRows(file.fileOutput);
     const headerRow = allRows[0];
     // indices for finding the associated cell
-    const addressIdx = addressField
-      ? this.findField(addressField, headerRow)
+    const addressIdx = address
+      ? this.findField(address, headerRow)
       : null;
-    const cityIdx = cityField ? this.findField(cityField, headerRow) : null;
-    const stateIdx = stateField ? this.findField(stateField, headerRow) : null;
-    const zipIdx = zipField ? this.findField(zipField, headerRow) : null;
+    const cityIdx = city ? this.findField(city, headerRow) : null;
+    const stateIdx = state ? this.findField(state, headerRow) : null;
+    const zipIdx = zip ? this.findField(zip, headerRow) : null;
 
     const r = allRows[1].split(',').map(c => c.trim()); // current row
 
-    // get address parts from cells using mapped indicies
+    // get address parts from cells using mapped indices
     const addressString = [];
     if (addressIdx) {
       addressString.push(this.formatWebString(r[addressIdx]));
@@ -398,10 +395,10 @@ export class GeocodingService {
     this.running$.next(true); // trigger the loading bar in the template
 
     this.file = file.file; // file data
-    this.addressField = address; // input data
-    this.cityField = city; // input data
-    this.stateField = state; // input data
-    this.zipField = zip; // input data
+    this.address = address; // input data
+    this.city = city; // input data
+    this.state = state; // input data
+    this.zip = zip; // input data
 
     this.allRows = this.getAllRows(file.fileOutput); // array of row strings
     this.allRows[0] += ',lat,lng,geotype,matched_address'; // extra fields for output
@@ -409,12 +406,12 @@ export class GeocodingService {
     this.headerRow = this.allRows[0];
 
     // indices for finding the associated cell
-    this.addressIdx = this.addressField
-      ? this.findField(this.addressField)
+    this.addressIdx = this.address
+      ? this.findField(this.address)
       : null;
-    this.cityIdx = this.cityField ? this.findField(this.cityField) : null;
-    this.stateIdx = this.stateField ? this.findField(this.stateField) : null;
-    this.zipIdx = this.zipField ? this.findField(this.zipField) : null;
+    this.cityIdx = this.city ? this.findField(this.city) : null;
+    this.stateIdx = this.state ? this.findField(this.state) : null;
+    this.zipIdx = this.zip ? this.findField(this.zip) : null;
 
     this.getURL();
   }
