@@ -67,7 +67,7 @@ export class JsonToTablesUtil {
     this.sovStores = tableStores
     // sort by target, then by contribution to site
       .sort(sortByContribution)
-      .filter(st => st['contributionToSite'] > 500 || st.mapKey === this.targetStore.mapKey)
+      .filter(st => Math.abs(st['contributionToSite']) > 500 || st.mapKey === this.targetStore.mapKey)
       // only return the max at most
       .slice(0, this.maxSovCount);
 
