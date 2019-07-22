@@ -175,7 +175,7 @@ export class GeocodingComponent implements OnInit, OnDestroy {
   }
 
   submit() {
-    // TODOD MDS-544 Should return an observable with status object being emitted
+    // TODO MDS-544 Should return an observable with status object being emitted
     this.geocodingService.handleFile(
       this.inputFile,
       this.address,
