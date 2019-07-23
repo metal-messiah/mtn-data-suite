@@ -1,0 +1,66 @@
+<div style="min-height: 65px;">
+  <div *ngIf="gettingStoreSource()" style="height: 100%; display: flex; align-items: center;">
+    <i class="fas fa-spinner fa-pulse fa-2x" style="margin-left: 30px;"></i>
+  </div>
+  <div class='flex-container' *ngIf="!gettingStoreSource()">
+    <div *ngIf="getStoreSource()">
+      <a *ngIf="getStoreSource().sourceUrl" class='large-text' [href]="getStoreSource().sourceUrl" target="_blank">{{getStoreSource().sourceStoreName}}</a>
+      <div *ngIf="!getStoreSource().sourceUrl" class='large-text'>{{getStoreSource().sourceStoreName}}</div>
+      <div class="med-text" *ngIf="getStoreSource().bannerSource">
+        <strong>{{getStoreSource().bannerSource.sourceBannerName}}</strong>
+      </div>
+      <div class='med-text'>{{getStoreSourceAddressString()}}</div>
+      <div class='small-text'
+           *ngIf="getStoreSource().storeSourceData && getStoreSource().storeSourceData.storeStatus">
+        Status: {{getStoreSource().storeSourceData.storeStatus}}
+      </div>
+    </div>
+    <button *ngIf="showNoMatchButton" (click)="setNoMatch()" mat-raised-button color="accent" [disabled]="matching">No Match</button>
+    <button *ngIf="showNewSiteButton" (click)="createNewSite()" mat-raised-button color="primary">Create New Site
+    </button>
+  </div>
+</div>
+<div class='accent-bar large-text'>Match to Existing</div>
+<div class='results-table'>
+  <div class='loader' *ngIf="gettingDbResults() || !siteMarkers">
+    <i class="fas fa-spinner fa-pulse fa-2x"></i>
+  </div>
+  <div *ngIf="!gettingDbResults() && siteMarkers">
+    <div *ngFor="let site of siteMarkers" class="results-item">
+      <div class="results-header large-text flex-container">
+        <div *ngIf="showMatchShoppingCenterButton">
+          <button mat-icon-button [mat-menu-trigger-for]="siteMenu" class="site-menu">
+            <i class="fas fa-ellipsis-v"></i>
+          </button>
+          <mat-menu #siteMenu="matMenu">
+            <button (click)="createNewSiteForShoppingCenter(site.shoppingCenterId)" mat-menu-item>
+              Add Sister Shopping Center Site
+            </button>
+          </mat-menu>
+        </div>
+        <div *ngIf="site.distanceFrom != null" [style.color]="site.distanceFrom < 0.5 ? 'green': '#ff9802'"
+             class='site-distance'>
+          <i class="fas fa-arrow-circle-up" [style.transform]="site.heading"></i> {{site.distanceFrom.toFixed(2)}}
+          Miles
+        </div>
+        <div class='site-title'>{{getSiteAddressString(site)}}</div>
+        <button *ngIf="showNewStoreButton" (click)="createNewStoreForSite(site.id)" mat-raised-button
+                color="primary" class='add-store'>New Store
+        </button>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="results-each" *ngFor="let store of site.stores">
+        <div class="store-record">
+          <div class='store-attribute'>{{store.storeName}}</div>
+          <div class='hidden-xs store-attribute'>{{store.storeType}}</div>
+          <div class='hidden-xs store-attribute'>{{store.currentStoreStatus}}</div>
+          <button (click)="matchStore(store.id)" mat-raised-button color="primary" [disabled]="matching"
+                  [ngClass]="{'highlighted': isBestMatch(store.id)}">
+            <span *ngIf="matching !== store.id">Match</span>
+            <i *ngIf="matching === store.id" class="fas fa-spinner fa-pulse"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -27,7 +27,7 @@ import { MapDataLayer } from '../../../models/map-data-layer';
 import { SourceUpdatable } from '../../../models/source-updatable';
 import { StoreMapLayer } from '../../../models/store-map-layer';
 import { ChainXyLayer } from 'app/models/chain-xy-layer.';
-import { ChainXyMappable } from 'app/models/chain-xy-mappable';
+import { StoreSourceMappable } from 'app/models/store-source-mappable';
 import { BannerSource } from 'app/models/full/banner-source';
 import { ChainXy } from 'app/models/chain-xy';
 import { SimplifiedStoreSource } from '../../../models/simplified/simplified-store-source';
@@ -388,7 +388,7 @@ export class ChainXyMapComponent implements OnInit {
 
   onMapReady(event) {
     this.chainXyMapLayer = new ChainXyLayer(this.mapService);
-    this.chainXyMapLayer.markerDragEnd$.subscribe((draggedMarker: ChainXyMappable) => {
+    this.chainXyMapLayer.markerDragEnd$.subscribe((draggedMarker: StoreSourceMappable) => {
       const coords = this.chainXyMapLayer.getCoordinatesOfMappableMarker(draggedMarker);
       this.sourceUpdatable.longitude = coords.lng;
       this.sourceUpdatable.latitude = coords.lat;

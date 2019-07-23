@@ -1,16 +1,12 @@
 import { Color } from '../core/functionalEnums/Color';
-import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { MarkerShape } from '../core/functionalEnums/MarkerShape';
 import { LatLng } from './latLng';
+import { Mappable } from '../interfaces/mappable';
 import Icon = google.maps.Icon;
 import Symbol = google.maps.Symbol;
 import MarkerLabel = google.maps.MarkerLabel;
-import { Mappable } from '../interfaces/mappable';
-import { ChainXy } from './chain-xy';
 
-export class ChainXyMappable implements Mappable {
-    public id: string;
-    private feature: any;
+export class StoreSourceMappable implements Mappable {
     private readonly coordinates: LatLng;
     private draggable: boolean;
     private defaultIcon: object = {
@@ -26,12 +22,10 @@ export class ChainXyMappable implements Mappable {
     };
     private icon: object;
 
-    constructor(feature: ChainXy) {
-        this.feature = feature;
-        this.id = feature.Id;
-        this.coordinates = { lat: feature.Latitude, lng: feature.Longitude };
+    constructor(coords: LatLng) {
+        this.coordinates = coords;
         this.draggable = false;
-        this.icon = Object.assign({}, this.defaultIcon);
+        this.icon = this.defaultIcon;
     }
 
     getCoordinates(): LatLng {
@@ -46,11 +40,11 @@ export class ChainXyMappable implements Mappable {
         return this.draggable;
     }
 
-    getLabel(markerType?: MarkerType): string | MarkerLabel {
+    getLabel(): string | MarkerLabel {
         return null;
     }
 
-    getIcon(markerType?: MarkerType): string | Icon | Symbol {
+    getIcon(): string | Icon | Symbol {
         if (this.draggable) {
             return {
                 path: MarkerShape.FILLED,

@@ -1,7 +1,18 @@
-.wrapper{
+:host {
+  overflow-y: hidden;
   display: flex;
-  height: calc(100vh - 64px);
-  overflow: hidden;
+  flex-direction: column;
+  flex: 1;
+}
+
+.content-wrapper {
+  flex: 1;
+  display: flex;
+}
+
+#file-input {
+  height: 100%;
+  overflow-y: auto;
 }
 
 .hidden{
@@ -15,23 +26,14 @@
   position: relative;
 }
 
-.loader-message{
-  position: absolute;
-  top: 50%;
-  left: 50%;
-}
-
-.left-panel, .right-panel, .center-panel{
-  height: calc(100vh - 64px);
-}
-
 .left-panel{
   background: lightgray;
   flex: 1;
   max-width: 15vw;
   min-width: 200px;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
+  height: 100%;
   margin: 0;
 }
 
@@ -82,9 +84,8 @@
 }
 
 .center-panel{
-  min-width: 40vw;
-  width: 100%;
   background: lightblue;
+  flex: 1;
 }
 
 .right-panel{
@@ -93,6 +94,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow-y: hidden;
 }
 
 .flex-container{
@@ -145,10 +147,6 @@
   margin: 0 15px 0 0;
 }
 
-.secondary-row{
-  background-color: #edfaff;
-}
-
 .mat-menu-item{
   color:  black;
 }
@@ -183,7 +181,27 @@
   .hidden-sm{
     display: none;
   }
+
   .hidden-xs{
     display: none;
   }
+}
+
+#record-list {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#record-list > mat-list {
+  overflow-y: auto;
+}
+
+mds-store-source-location-match {
+  flex: 1;
+  overflow: hidden;
+}
+
+mds-file-input {
+  margin: 8px;
 }

@@ -150,6 +150,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.forEach((s: Subscription) => s.unsubscribe());
+    this.dbEntityMarkerService.destroy();
   }
 
   get controls() {
