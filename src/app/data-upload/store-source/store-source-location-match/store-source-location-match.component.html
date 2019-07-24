@@ -15,8 +15,11 @@
         Status: {{getStoreSource().storeSourceData.storeStatus}}
       </div>
     </div>
-    <button *ngIf="showNoMatchButton" (click)="setNoMatch()" mat-raised-button color="accent" [disabled]="matching">No Match</button>
-    <button *ngIf="showNewSiteButton" (click)="createNewSite()" mat-raised-button color="primary">Create New Site
+    <button *ngIf="showNoMatchButton" (click)="setNoMatch()" mat-raised-button color="primary" [disabled]="matching">
+      No Match
+    </button>
+    <button *ngIf="showNewSiteButton" (click)="createNewSite()" mat-raised-button color="primary" [disabled]="matching">
+      Create New Site
     </button>
   </div>
 </div>
@@ -45,7 +48,7 @@
         </div>
         <div class='site-title'>{{getSiteAddressString(site)}}</div>
         <button *ngIf="showNewStoreButton" (click)="createNewStoreForSite(site.id)" mat-raised-button
-                color="primary" class='add-store'>New Store
+                [disabled]="matching" color="primary" class='add-store'>New Store
         </button>
       </div>
       <mat-divider></mat-divider>
@@ -54,8 +57,8 @@
           <div class='store-attribute'>{{store.storeName}}</div>
           <div class='hidden-xs store-attribute'>{{store.storeType}}</div>
           <div class='hidden-xs store-attribute'>{{store.currentStoreStatus}}</div>
-          <button (click)="matchStore(store.id)" mat-raised-button color="primary" [disabled]="matching"
-                  [ngClass]="{'highlighted': isBestMatch(store.id)}">
+          <button (click)="matchStore(store.id)" mat-raised-button [disabled]="matching"
+                  [color]="isBestMatch(store.id) ? 'accent' : 'primary'">
             <span *ngIf="matching !== store.id">Match</span>
             <i *ngIf="matching === store.id" class="fas fa-spinner fa-pulse"></i>
           </button>

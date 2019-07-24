@@ -1,0 +1,7 @@
+<!-- If storeSource data doesn't have a value, no need for user to review it -->
+<mat-form-field [formGroup]="updatableForm">
+  <input matInput [type]="type" [placeholder]="displayName" [formControlName]="attrName">
+  <mat-hint align="end" [ngClass]="{difference: isDifferent(attrName)}" (click)="copy(attrName)" title="Copy value to input">
+    {{storeSource.storeSourceData[attrName]}}
+  </mat-hint>
+</mat-form-field>

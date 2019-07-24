@@ -1,0 +1,72 @@
+<div class='left-panel'>
+  <div id="paginator">
+    <div style="text-align: center; margin-top: 8px;">
+      <h4 style="margin: 10px; text-align:center;" *ngIf="storeSourceList.length > 0">
+          <span
+            *ngIf="!retrievingSources">{{(currentRecordIndex + 1) + (recordsPerPage * page.number) | number }}</span>
+        <i *ngIf="retrievingSources" class="fas fa-spinner fa-pulse"></i>
+        <span>&nbsp;/&nbsp;{{totalStoreSourceRecords | number}}</span>
+      </h4>
+    </div>
+    <div *ngIf="storeSourceList.length > 0" style="padding: 0 15px;">
+      <mat-form-field>
+        <mat-select placeholder="Records Per Page" (selectionChange)="getStoreSources()" [(value)]="recordsPerPage">
+          <mat-option *ngFor="let o of sizeOptions" [value]="o">{{o}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="checklist" id="store-source-filter">
+      <mat-checkbox [(ngModel)]="onlyShowNonValidated" (change)="filterChanged()">Only Show Non-Validated
+      </mat-checkbox>
+    </div>
+    <div class="flex-between" *ngIf="page && page.totalPages > 1">
+      <button title="Previous Page" [disabled]="page.first" (click)="prevPage()"><i
+        class="fas fa-step-backward"></i>
+      </button>
+      <button title="Go To Next Unvalidated Record" (click)="getStoreSources()"><i class="far fa-check-circle"></i>
+      </button>
+      <button title="Next Page" [disabled]="page.last" (click)="nextPage()"><i class="fas fa-step-forward"></i>
+      </button>
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+  <div *ngIf="storeSourceList.length === 0" style="text-align: center;">
+    <h4>No Records.</h4>
+    <h4>Clear filter to see validated records.</h4>
+  </div>
+  <mat-list *ngIf="storeSourceList.length > 0" class="store-source-list">
+    <mat-list-item [id]="i" *ngFor="let storeSource of storeSourceList; let i = index"
+                   class="store-source-item"
+                   [ngClass]="{highlighted: i === currentRecordIndex, muted: storeSource.validatedDate}"
+                   (click)="setCurrentRecord(i, storeSource.id, $event)">
+      <div>
+        <div class='list-item-header' *ngIf="storeSource.sourceStoreName">
+          {{storeSource.sourceStoreName}}
+        </div>
+        <div class='list-item-subheader' *ngIf="storeSource.sourceBannerName">>
+          {{storeSource.sourceBannerName}}
+        </div>
+        <div class="list-item-desc" *ngIf="storeSource.validatedDate">
+          Validated: {{storeSource.validatedDate | date}}
+        </div>
+        <div class="list-item-desc" *ngIf="!storeSource.validatedDate">Not Validated</div>
+      </div>
+    </mat-list-item>
+  </mat-list>
+</div>
+<mat-sidenav-container class="center-panel hidden-sm">
+  <mat-sidenav-content style="display: flex;">
+    <mds-map (ready)="onMapReady()"></mds-map>
+  </mat-sidenav-content>
+  <mat-sidenav [mode]="layoutIsSmall ? 'over' : 'side'" [(opened)]="controlSideNavIsOpen" class="control-side-nav"
+               position="end">
+    <mds-db-entity-controls (viewStoreList)="openSidenavDirectlyToSelectedListStores($event)"></mds-db-entity-controls>
+  </mat-sidenav>
+</mat-sidenav-container>
+<div class="right-panel">
+  <mds-store-source-location-match *ngIf="currentStoreSource"></mds-store-source-location-match>
+</div>
+
+<button id="controlsButton" mat-raised-button (click)="controlSideNavIsOpen = !controlSideNavIsOpen">
+  <i class="fas fa-sliders-h"></i>
+</button>

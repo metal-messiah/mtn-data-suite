@@ -84,6 +84,7 @@
 }
 
 .center-panel{
+  display: flex;
   background: lightblue;
   flex: 1;
 }

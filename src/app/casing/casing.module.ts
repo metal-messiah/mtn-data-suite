@@ -35,7 +35,6 @@ import { InfoCardDirective } from './info-card.directive';
 import { InfoCardComponent } from './info-card/info-card.component';
 import { DbLocationInfoCardComponent } from '../shared/db-location-info-card/db-location-info-card.component';
 import { GoogleInfoCardComponent } from '../shared/google-info-card/google-info-card.component';
-import { DbEntityControlsComponent } from './casing-dashboard/db-entity-controls/db-entity-controls.component';
 import { CasingDateComponent } from './store-casing-detail/casing-date/casing-date.component';
 import { VisibilityComponent } from './store-casing-detail/visibility/visibility.component';
 import { AccessibilityComponent } from './store-casing-detail/accessibility/accessibility.component';
@@ -74,7 +73,6 @@ import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing
     CasingProjectsComponent,
     CasingVolumeComponent,
     DatabaseSearchComponent,
-    DbEntityControlsComponent,
     DepartmentsComponent,
     DownloadDialogComponent,
     FitFormatComponent,

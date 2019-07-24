@@ -1,0 +1,12 @@
+.difference {
+  color: #de221d;
+}
+
+mat-hint {
+  cursor: pointer;
+}
+
+mat-form-field {
+  max-width: 400px;
+  display: block;
+}

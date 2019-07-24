@@ -34,6 +34,7 @@ import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-
 import { MenuListComponent } from './menu-list/menu-list.component';
 import { SubTitleBarComponent } from './sub-title-bar/sub-title-bar.component';
 import { ItemSelectionDialogComponent } from './item-selection/item-selection-dialog.component';
+import { DbEntityControlsComponent } from './db-entity-controls/db-entity-controls.component';
 
 @NgModule({
   imports: [
@@ -50,6 +51,7 @@ import { ItemSelectionDialogComponent } from './item-selection/item-selection-di
     ConfirmDialogComponent,
     DataFieldComponent,
     DataFieldInfoDialogComponent,
+    DbEntityControlsComponent,
     DbLocationInfoCardComponent,
     ErrorDialogComponent,
     FileInputComponent,
@@ -101,6 +103,7 @@ import { ItemSelectionDialogComponent } from './item-selection/item-selection-di
     DataFieldComponent,
     DataFieldInfoDialogComponent,
     DatePipe,
+    DbEntityControlsComponent,
     DbLocationInfoCardComponent,
     FileInputComponent,
     FormsModule,

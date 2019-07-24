@@ -80,3 +80,7 @@ mat-list {
   justify-content: center;
   margin: 3px;
 }
+
+.mat-dialog-actions {
+  justify-content: space-between;
+}

@@ -170,7 +170,7 @@ export class DbEntityMarkerService {
   /**
    * Updates the marker symbology without getting new data from web service. Most useful for updating based on controls
    */
-  private refreshMarkers() {
+  refreshMarkers() {
     this.verifyMapInitialized();
 
     // If no call has been made yet, get rather than refresh

@@ -1,0 +1,79 @@
+<h3 mat-dialog-title>Update Store From Source</h3>
+<div mat-dialog-content [formGroup]="form">
+  <div *ngIf="!form">
+    <i class="fas fa-spinner fa-pulse"></i>
+  </div>
+  <form *ngIf="form" [formGroup]="form">
+    <div id="map-container">
+      <mds-map (ready)="onMapReady()"></mds-map>
+    </div>
+    <mds-store-source-data-field attrName="address" displayName="Address" type="text" [storeSource]="storeSource"
+                                 [updatableForm]="form"></mds-store-source-data-field>
+
+    <div *ngIf="showIntersectionFields()">
+      <div class="flex flex-justify-center" id="quad-button-wrapper">
+        <button type="button" mat-raised-button color="primary" (click)="showQuadDialog()">Quad: {{quad}}
+        </button>
+      </div>
+      <mat-form-field>
+        <input matInput type="text" placeholder="Primary Intersection Street"
+               formControlName="intersectionStreetPrimary">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="text" placeholder="Secondary Intersection Street"
+               formControlName="intersectionStreetSecondary">
+      </mat-form-field>
+    </div>
+
+    <mds-store-source-data-field attrName="city" displayName="City" type="text" [storeSource]="storeSource"
+                                 [updatableForm]="form"></mds-store-source-data-field>
+    <mds-store-source-data-field attrName="county" displayName="County" type="text" [storeSource]="storeSource"
+                                 [updatableForm]="form"></mds-store-source-data-field>
+    <mds-store-source-data-field attrName="state" displayName="State" type="text" [storeSource]="storeSource"
+                                 [updatableForm]="form"></mds-store-source-data-field>
+    <mds-store-source-data-field attrName="postalCode" displayName="Postal Code" type="text"
+                                 [storeSource]="storeSource"
+                                 [updatableForm]="form"></mds-store-source-data-field>
+
+    <mat-form-field>
+      <input matInput type="text" placeholder="Store Name" formControlName="storeName">
+      <mat-hint align="end" (click)="copyStoreName()" title="Copy value to input"
+                [ngClass]="{difference: storeNameIsDifferent()}">{{storeSource.sourceStoreName}}
+      </mat-hint>
+    </mat-form-field>
+
+    <div id="banner-container">
+      <mat-form-field id="bannerInput" (click)="selectBanner()">
+        <input matInput readonly type="text" placeholder="Banner" [value]="getBannerName()">
+      </mat-form-field>
+      <ng-container *ngIf="sourceUpdatable.banner">
+        <img *ngIf="sourceUpdatable.banner.logoFileName" (click)="selectBanner()"
+             [src]="getUrlForLogoFileName()" [alt]="getBannerName()">
+      </ng-container>
+      <button *ngIf="!sourceUpdatable.banner" mat-raised-button color="primary" (click)="selectBanner()">
+        Set Banner
+      </button>
+    </div>
+
+    <mds-store-source-data-field attrName="areaTotal" displayName="Total Area" [storeSource]="storeSource"
+                                 type="number" [updatableForm]="form"></mds-store-source-data-field>
+
+    <mat-form-field>
+      <input matInput [matDatepicker]="dateOpenedPicker" placeholder="Date Opened" formControlName="dateOpened">
+      <mat-datepicker-toggle matSuffix [for]="dateOpenedPicker"></mat-datepicker-toggle>
+      <mat-datepicker #dateOpenedPicker></mat-datepicker>
+      <mat-hint align="end" *ngIf="hasOpeningDate()">{{getOpeningDate()}}</mat-hint>
+    </mat-form-field>
+  </form>
+</div>
+
+<div mat-dialog-actions>
+  <button mat-raised-button style="margin-right: 10px;" type="button" [mat-dialog-close]="null" [disabled]="saving">
+    Cancel
+  </button>
+  <button mat-raised-button color="accent" type="submit" (click)="submit()"
+          [disabled]="saving || form.invalid">
+    <span *ngIf="!saving">Submit</span>
+    <span *ngIf="saving"><i class="fas fa-spinner fa-pulse"></i></span>
+  </button>
+</div>
