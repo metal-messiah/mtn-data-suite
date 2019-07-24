@@ -18,7 +18,7 @@ export class LogoMenuComponent implements OnInit {
               private dialog: MatDialog) { }
 
   ngOnInit() {
-    this.auth.isAuthenticated().subscribe(authenticated => this.isAuthenticated = authenticated);
+    setTimeout(() => this.auth.isAuthenticated().subscribe(authenticated => this.isAuthenticated = authenticated), 500);
   }
 
   logout() {

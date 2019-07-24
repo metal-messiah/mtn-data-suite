@@ -24,7 +24,7 @@ export class CasingProjectService {
   private getPersistedState() {
     this.storageService.getOne(this.SELECTED_PROJECT_KEY).subscribe(selectedProject => {
       if (selectedProject) {
-        this.selectedProject = new SimplifiedProject(JSON.parse(selectedProject));
+        this.selectedProject = new SimplifiedProject(selectedProject);
       }
     });
   }
@@ -49,7 +49,7 @@ export class CasingProjectService {
     const prevProject = this.selectedProject;
     this.selectedProject = project;
     if (project) {
-      this.storageService.set(this.SELECTED_PROJECT_KEY, JSON.stringify(project)).subscribe();
+      this.storageService.set(this.SELECTED_PROJECT_KEY, project).subscribe();
     } else {
       this.storageService.removeOne(this.SELECTED_PROJECT_KEY).subscribe();
     }

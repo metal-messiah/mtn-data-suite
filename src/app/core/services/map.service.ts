@@ -17,7 +17,7 @@ import { StorageService } from './storage.service';
 @Injectable()
 export class MapService {
 
-  readonly ST_MAP_PERSPECTIVE = 'mapPerspective';
+  private readonly ST_MAP_PERSPECTIVE = 'mapPerspective';
 
   private map: google.maps.Map;
 
@@ -142,7 +142,7 @@ export class MapService {
 
   private loadPerspective() {
     this.storageService.getOne(this.ST_MAP_PERSPECTIVE).subscribe(perspective => {
-      if (perspective != null) {
+      if (perspective) {
         perspective = JSON.parse(perspective);
         this.map.setCenter(perspective['center']);
         this.map.setZoom(perspective['zoom']);

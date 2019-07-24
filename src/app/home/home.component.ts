@@ -16,7 +16,8 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     console.log(environment.VERSION);
-    this.auth.isAuthenticated().subscribe(authenticated => this.isAuthenticated = authenticated);
+    // The view is initialized before the Auth0 hash parser has time to set the authentication data
+    setTimeout(() => this.auth.isAuthenticated().subscribe(authenticated => this.isAuthenticated = authenticated), 500);
   }
 
   getMenuItems() {
