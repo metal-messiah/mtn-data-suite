@@ -20,7 +20,7 @@ import { DbEntityMarkerControls } from '../../models/db-entity-marker-controls';
 import { EntitySelectionService } from './entity-selection.service';
 import { SimplifiedBanner } from '../../models/simplified/simplified-banner';
 import { CasingProjectService } from '../../casing/casing-project.service';
-import { CloudinaryService } from './cloudinary.service';
+import { CloudinaryUtil } from '../../utils/cloudinary-util';
 
 @Injectable()
 export class DbEntityMarkerService {
@@ -54,12 +54,14 @@ export class DbEntityMarkerService {
   readonly visibleMarkersChanged$ = new Subject<void>();
   readonly markerTypeOptions = ['Pin', 'Logo', 'Validation', 'Cased for Project'];
 
+  private readonly cloudinaryUtil: CloudinaryUtil;
+
   constructor(private authService: AuthService,
               private errorService: ErrorService,
               private siteMarkerService: SiteMarkerService,
               private projectService: ProjectService,
-              private storageService: StorageService,
-              private cloudinaryService: CloudinaryService) {
+              private storageService: StorageService) {
+    this.cloudinaryUtil = new CloudinaryUtil();
   }
 
   /**************************************
@@ -557,7 +559,7 @@ export class DbEntityMarkerService {
         anchor: StoreIconUtil.getStoreIconAnchorPoint(store, showLogo, showCased),
         rotation: StoreIconUtil.getStoreIconRotation(store, showLogo, showCased)
       },
-      labelContent: StoreIconUtil.getStoreLabelContent(store, showLogo, showFullLabel, this.cloudinaryService),
+      labelContent: StoreIconUtil.getStoreLabelContent(store, showLogo, showFullLabel, this.cloudinaryUtil),
       labelAnchor: StoreIconUtil.getStoreLabelAnchor(store, showLogo, showCased, showFullLabel),
       labelClass: StoreIconUtil.getStoreLabelClass(store, selected, showLogo, showCased, showFullLabel),
       labelInBackground: false

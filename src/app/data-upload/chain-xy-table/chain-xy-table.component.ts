@@ -10,7 +10,7 @@ import { SelectBannerComponent } from 'app/casing/select-banner/select-banner.co
 import { Pageable } from 'app/models/pageable';
 import { BannerSourceSummary } from '../../models/full/banner-source-summary';
 import { ErrorService } from '../../core/services/error.service';
-import { CloudinaryService } from '../../core/services/cloudinary.service';
+import { CloudinaryUtil } from '../../utils/cloudinary-util';
 import { Location } from '@angular/common';
 import { MatDialog, MatSidenav, MatSnackBar, Sort } from '@angular/material';
 
@@ -27,15 +27,6 @@ export enum statuses {
 })
 export class ChainXyTableComponent implements OnInit {
 
-  private readonly cloudinaryParams = {
-    cloudName: 'mtn-retail-advisors',
-    username: 'tyler@mtnra.com',
-    apiSecret: 'OGQKRd95GxzMrn5d7_D6FOd7lXs',
-    apiKey: '713598197624775',
-    multiple: true,
-    maxFiles: 1
-  };
-
   bannerSourceSummaries: BannerSourceSummary[];
 
   selectedBannerSourceSummary: BannerSourceSummary;
@@ -51,9 +42,10 @@ export class ChainXyTableComponent implements OnInit {
 
   @ViewChild('sidenav', {static: false}) sidenav: MatSidenav;
 
+  private readonly cloudinaryUtil: CloudinaryUtil;
+
   constructor(
     private router: Router,
-    private cloudinaryService: CloudinaryService,
     private dialog: MatDialog,
     private bannerService: BannerService,
     private bannerSourceService: BannerSourceService,
@@ -61,6 +53,7 @@ export class ChainXyTableComponent implements OnInit {
     private errorService: ErrorService,
     private _location: Location
   ) {
+    this.cloudinaryUtil = new CloudinaryUtil();
   }
 
   goBack() {
@@ -68,12 +61,11 @@ export class ChainXyTableComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.cloudinaryService.initialize(this.cloudinaryParams);
     this.getBannerSourceSummaries();
   }
 
   getUrlForLogoFileName(fileName: string) {
-    return this.cloudinaryService.getUrlForLogoFileName(fileName);
+    return this.cloudinaryUtil.getUrlForLogoFileName(fileName);
   }
 
   getFilteredBannerSourceSummaries() {

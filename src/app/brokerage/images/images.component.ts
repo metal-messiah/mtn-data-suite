@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { saveAs } from 'file-saver';
 import { CloudinaryAsset } from '../../shared/cloudinary/CloudinaryAsset';
-import { CloudinaryService } from '../../core/services/cloudinary.service';
+import { CloudinaryUtil } from '../../utils/cloudinary-util';
 
 import * as papa from 'papaparse'
 import { ParseResult } from 'papaparse'
@@ -15,7 +15,7 @@ import { ClipboardUtil } from '../../utils/clipboard-util';
   styleUrls: ['./images.component.css']
 })
 export class ImagesComponent implements OnInit {
-  private cloudinaryParams = {
+  private readonly cloudinaryParams = {
     cloudName: 'mtnra',
     username: 'jordan@mtnra.com',
     apiSecret: 'wClRfg43OFsvwhg33QMnowZ0Skc',
@@ -31,34 +31,35 @@ export class ImagesComponent implements OnInit {
   chainIdentifyingHeader: string;
   chainLogos: any = {};
 
-  constructor(private snackBar: MatSnackBar,
-              private cloudinaryService: CloudinaryService) {
+  private readonly cloudinaryUtil: CloudinaryUtil;
+
+  constructor(private snackBar: MatSnackBar) {
+    this.cloudinaryUtil = new CloudinaryUtil(this.handleAssetSelection, this.cloudinaryParams);
   }
 
   ngOnInit() {
-    this.cloudinaryService.initialize(this.cloudinaryParams);
+  }
+
+  handleAssetSelection(assets: CloudinaryAsset[]) {
+    const filename = `${assets[0].public_id}.${assets[0].format}`;
+    ClipboardUtil.copyValueToClipboard(filename);
+    this.snackBar.open(`Filename copied to clipboard: ${filename}`, null, {duration: 2000});
   }
 
   openCloudinary() {
-    const subscription = this.cloudinaryService.assetSelected$.subscribe((assets: CloudinaryAsset[]) => {
-      subscription.unsubscribe();
-      const filename = `${assets[0].public_id}.${assets[0].format}`;
-      ClipboardUtil.copyValueToClipboard(filename);
-      this.snackBar.open(`Filename copied to clipboard: ${filename}`, null, {duration: 2000});
-    });
-    this.cloudinaryService.show();
+    this.cloudinaryUtil.show();
   }
 
   selectImageForChain(chain: string) {
-    const subscription = this.cloudinaryService.assetSelected$.subscribe((assets: CloudinaryAsset[]) => {
+    const subscription = this.cloudinaryUtil.assetSelected$.subscribe((assets: CloudinaryAsset[]) => {
       subscription.unsubscribe();
       this.chainLogos[chain] = `${assets[0].public_id}.${assets[0].format}`;
     });
-    this.cloudinaryService.show();
+    this.cloudinaryUtil.show();
   }
 
   getImgUrl(fileName: string) {
-    return this.cloudinaryService.getUrlForLogoFileName(fileName);
+    return this.cloudinaryUtil.getUrlForLogoFileName(fileName);
   }
 
   readCsv(fileObj) {

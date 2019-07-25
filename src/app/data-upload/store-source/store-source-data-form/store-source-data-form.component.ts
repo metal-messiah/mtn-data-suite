@@ -10,7 +10,7 @@ import { MapService } from '../../../core/services/map.service';
 import { StoreSourceLayer } from '../../../models/store-source-layer';
 import { StoreSourceMappable } from '../../../models/store-source-mappable';
 import { Subscription } from 'rxjs';
-import { CloudinaryService } from '../../../core/services/cloudinary.service';
+import { CloudinaryUtil } from '../../../utils/cloudinary-util';
 import { StoreSource } from '../../../models/full/store-source';
 import { SourceUpdatable } from '../../../models/source-updatable';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -24,15 +24,6 @@ import { SourceUpdatableService } from '../../../core/services/source-updatable.
 })
 export class StoreSourceDataFormComponent implements OnInit, OnDestroy {
 
-  private cloudinaryParams = {
-    cloudName: 'mtn-retail-advisors',
-    username: 'tyler@mtnra.com',
-    apiSecret: 'OGQKRd95GxzMrn5d7_D6FOd7lXs',
-    apiKey: '713598197624775',
-    multiple: true,
-    maxFiles: 1
-  };
-
   saving = false;
 
   storeSource: StoreSource;
@@ -44,10 +35,11 @@ export class StoreSourceDataFormComponent implements OnInit, OnDestroy {
 
   form: FormGroup;
 
+  private readonly cloudinaryUtil: CloudinaryUtil;
+
   constructor(
     private fb: FormBuilder,
     private sourceUpdatableService: SourceUpdatableService,
-    private cloudinaryService: CloudinaryService,
     private errorService: ErrorService,
     private dialog: MatDialog,
     private dialogRef: MatDialogRef<StoreSourceDataFormComponent>,
@@ -55,11 +47,10 @@ export class StoreSourceDataFormComponent implements OnInit, OnDestroy {
     private mapService: MapService,
     @Inject(MAT_DIALOG_DATA) public data: {storeSource: StoreSource, sourceUpdatable: SourceUpdatable}
   ) {
+    this.cloudinaryUtil = new CloudinaryUtil();
   }
 
   ngOnInit() {
-    this.cloudinaryService.initialize(this.cloudinaryParams);
-
     this.storeSource = this.data.storeSource;
     this.sourceUpdatable = this.data.sourceUpdatable;
 
@@ -120,7 +111,7 @@ export class StoreSourceDataFormComponent implements OnInit, OnDestroy {
 
   getUrlForLogoFileName() {
     const banner = this.sourceUpdatable.banner;
-    return banner.logoFileName ? this.cloudinaryService.getUrlForLogoFileName(banner.logoFileName) : null;
+    return banner.logoFileName ? this.cloudinaryUtil.getUrlForLogoFileName(banner.logoFileName) : null;
   }
 
   getBannerName() {

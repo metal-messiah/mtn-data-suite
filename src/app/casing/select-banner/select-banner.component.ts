@@ -1,14 +1,14 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MatSnackBar } from '@angular/material';
 import { ErrorService } from '../../core/services/error.service';
-import { fromEvent, Subscription } from 'rxjs';
+import { fromEvent } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, map, mergeMap, switchMap } from 'rxjs/operators';
 import { Pageable } from '../../models/pageable';
 import { BannerService } from '../../core/services/banner.service';
 import { SimplifiedBanner } from 'app/models/simplified/simplified-banner';
 import { Banner } from 'app/models/full/banner';
 import { AuthService } from 'app/core/services/auth.service';
-import { CloudinaryService } from '../../core/services/cloudinary.service';
+import { CloudinaryUtil } from '../../utils/cloudinary-util';
 import { CloudinaryAsset } from '../../shared/cloudinary/CloudinaryAsset';
 
 @Component({
@@ -16,7 +16,7 @@ import { CloudinaryAsset } from '../../shared/cloudinary/CloudinaryAsset';
   templateUrl: './select-banner.component.html',
   styleUrls: ['./select-banner.component.css']
 })
-export class SelectBannerComponent implements OnInit, OnDestroy {
+export class SelectBannerComponent implements OnInit {
 
   banners: SimplifiedBanner[] = [];
   totalPages = 0;
@@ -29,26 +29,18 @@ export class SelectBannerComponent implements OnInit, OnDestroy {
   userCanChangeLogo: boolean;
   changeLogoBanner: SimplifiedBanner = null;
 
-  private assetListener: Subscription;
-  private cloudinaryParams = {
-    cloudName: 'mtn-retail-advisors',
-    username: 'tyler@mtnra.com',
-    apiSecret: 'OGQKRd95GxzMrn5d7_D6FOd7lXs',
-    apiKey: '713598197624775',
-    multiple: true,
-    maxFiles: 1
-  };
-
   @ViewChild('bannerSearchBox', {static: true}) bannerSearchBoxElement: ElementRef;
+
+  private readonly cloudinaryUtil: CloudinaryUtil;
 
   constructor(private dialogRef: MatDialogRef<SelectBannerComponent>,
               private errorService: ErrorService,
               private bannerService: BannerService,
               private authService: AuthService,
-              private cloudinaryService: CloudinaryService,
               private snackBar: MatSnackBar) {
     const allowedRoles = [1, 2];
     this.userCanChangeLogo = allowedRoles.includes(this.authService.sessionUser.role.id);
+    this.cloudinaryUtil = new CloudinaryUtil(this.handleAssets);
   }
 
   ngOnInit() {
@@ -61,12 +53,6 @@ export class SelectBannerComponent implements OnInit, OnDestroy {
       switchMap((value: any) => this.bannerService.getAllByQuery(value))
     ).subscribe((pageable: Pageable<SimplifiedBanner>) => this.update(pageable, true));
 
-    this.cloudinaryService.initialize(this.cloudinaryParams);
-    this.assetListener = this.cloudinaryService.assetSelected$.subscribe(assets => this.handleAssets(assets));
-  }
-
-  ngOnDestroy() {
-    this.assetListener.unsubscribe();
   }
 
   private update(pageable: Pageable<SimplifiedBanner>, clear: boolean) {
@@ -96,7 +82,7 @@ export class SelectBannerComponent implements OnInit, OnDestroy {
   }
 
   getBannerImageSrc(banner: SimplifiedBanner) {
-    return this.bannerService.getBannerImageSrc(banner);
+    return this.cloudinaryUtil.getUrlForLogoFileName(banner.logoFileName);
   }
 
   getBannerCompanyName(banner: SimplifiedBanner): string {
@@ -116,7 +102,7 @@ export class SelectBannerComponent implements OnInit, OnDestroy {
 
   changeLogo(banner: SimplifiedBanner) {
     this.changeLogoBanner = banner;
-    this.cloudinaryService.show();
+    this.cloudinaryUtil.show();
   }
 
   handleAssets(assets: CloudinaryAsset[]) {

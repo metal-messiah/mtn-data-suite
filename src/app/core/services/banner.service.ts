@@ -6,7 +6,6 @@ import { CrudService } from '../../interfaces/crud-service';
 import { RestService } from './rest.service';
 import { SimplifiedBanner } from '../../models/simplified/simplified-banner';
 import { Observable } from 'rxjs';
-import { CloudinaryService } from './cloudinary.service';
 
 @Injectable()
 export class BannerService extends CrudService<Banner> {
@@ -14,8 +13,7 @@ export class BannerService extends CrudService<Banner> {
   protected endpoint = '/api/banner';
 
   constructor(protected http: HttpClient,
-              protected rest: RestService,
-              private cloudinaryService: CloudinaryService) {
+              protected rest: RestService) {
     super(http, rest);
   }
 
@@ -33,10 +31,6 @@ export class BannerService extends CrudService<Banner> {
 
   protected createEntityFromObj(entityObj): Banner {
     return new Banner(entityObj);
-  }
-
-  getBannerImageSrc(banner: Banner | SimplifiedBanner) {
-    return this.cloudinaryService.getUrlForLogoFileName(banner.logoFileName, 40, 100);
   }
 
 }

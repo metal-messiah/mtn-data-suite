@@ -32,7 +32,6 @@ import { StorageService } from './services/storage.service';
 import { SourceUpdatableService } from './services/source-updatable.service';
 import { BannerSourceService } from './services/banner-source.service';
 import { StoreListService } from './services/store-list.service';
-import { CloudinaryService } from './services/cloudinary.service';
 import { RoutingStateService } from './services/routing-state.service';
 
 @NgModule({
@@ -42,7 +41,6 @@ import { RoutingStateService } from './services/routing-state.service';
     AuthService,
     AuthGuard,
     BannerService,
-    CloudinaryService,
     CompanyService,
     DetailFormService,
     EntityListService,

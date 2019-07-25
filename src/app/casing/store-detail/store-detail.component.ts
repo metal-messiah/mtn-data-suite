@@ -13,7 +13,7 @@ import { Observable } from 'rxjs';
 import { SelectBannerComponent } from '../select-banner/select-banner.component';
 import { BannerService } from '../../core/services/banner.service';
 import { DetailFormService } from '../../core/services/detail-form.service';
-import { CloudinaryService } from '../../core/services/cloudinary.service';
+import { CloudinaryUtil } from '../../utils/cloudinary-util';
 
 @Component({
   selector: 'mds-store-detail',
@@ -37,8 +37,9 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
     'Natural/Gourmet Foods', 'Super Combo', 'Supercenter', 'Superette/Small Grocery', 'Supermarket', 'Superstore',
     'Trader Joe\'s', 'Warehouse'];
 
+  private readonly cloudinaryUtil: CloudinaryUtil;
+
   constructor(private storeService: StoreService,
-              private cloudinaryService: CloudinaryService,
               private detailFormService: DetailFormService,
               private bannerService: BannerService,
               private router: Router,
@@ -48,8 +49,8 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
               private dialog: MatDialog,
               private _location: Location,
               private fb: FormBuilder) {
+    this.cloudinaryUtil = new CloudinaryUtil();
   }
-
 
   ngOnInit() {
     this.createForm();
@@ -63,7 +64,7 @@ export class StoreDetailComponent implements OnInit, CanComponentDeactivate {
   }
 
   getUrlForLogoFileName(fileName: string) {
-    return this.cloudinaryService.getUrlForLogoFileName(fileName);
+    return this.cloudinaryUtil.getUrlForLogoFileName(fileName);
   }
 
   saveForm() {

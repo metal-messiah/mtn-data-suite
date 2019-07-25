@@ -10,10 +10,10 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 import { StoreStatusOptions } from '../../core/functionalEnums/StoreStatusOptions';
 import { SelectBannerComponent } from '../../casing/select-banner/select-banner.component';
 import { MapService } from '../../core/services/map.service';
-import { BannerService } from '../../core/services/banner.service';
 import { SimpleSelectDialogComponent } from '../simple-select-dialog/simple-select-dialog.component';
 import { SimplifiedStoreList } from '../../models/simplified/simplified-store-list';
 import { StoreListService } from '../../core/services/store-list.service';
+import { CloudinaryUtil } from '../../utils/cloudinary-util';
 
 @Component({
   selector: 'mds-db-entity-controls',
@@ -26,11 +26,13 @@ export class DbEntityControlsComponent implements OnInit {
 
   storeListOptions: SimplifiedStoreList[] = [];
 
+  private readonly cloudinaryUtil: CloudinaryUtil;
+
   constructor(private dbEntityMarkerService: DbEntityMarkerService,
               private mapService: MapService,
-              private bannerService: BannerService,
               private storeListService: StoreListService,
               private dialog: MatDialog) {
+    this.cloudinaryUtil = new CloudinaryUtil();
   }
 
   ngOnInit() {
@@ -208,7 +210,7 @@ export class DbEntityControlsComponent implements OnInit {
   }
 
   getBannerImageSrc(banner: SimplifiedBanner) {
-    return banner ? this.bannerService.getBannerImageSrc(banner) : null;
+    return banner ? this.cloudinaryUtil.getUrlForLogoFileName(banner.logoFileName) : null;
   }
 
   setStoreListOptions() {

@@ -1,25 +1,36 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter } from '@angular/core';
 
 import shajs from 'sha.js';
-import { CloudinaryAsset } from '../../shared/cloudinary/CloudinaryAsset';
+import { CloudinaryAsset } from '../shared/cloudinary/CloudinaryAsset';
 
 declare var cloudinary: any;
 
-@Injectable()
-export class CloudinaryService {
+export class CloudinaryUtil {
+
+  private readonly defaultCloudinaryParams = {
+    cloudName: 'mtn-retail-advisors',
+    username: 'tyler@mtnra.com',
+    apiSecret: 'OGQKRd95GxzMrn5d7_D6FOd7lXs',
+    apiKey: '713598197624775',
+    multiple: true,
+    maxFiles: 1
+  };
 
   private readonly DEFAULT_HEIGHT_LIMIT = 40;
   private readonly DEFAULT_WIDTH_LIMIT = 100;
 
-  private cloudinaryInstance: any;
-  private currentApiKey: string;
-  private cloudName: string;
+  private readonly cloudinaryInstance: any;
+  private readonly currentApiKey: string;
+  private readonly cloudName: string;
 
   assetSelected$ = new EventEmitter<CloudinaryAsset>();
 
-  constructor() { }
+  constructor(assetHandler?: (assets: CloudinaryAsset[]) => void,
+              params?: { cloudName: string, username: string, apiSecret: string, apiKey: string, multiple: boolean, maxFiles?: number }) {
+    if (!params) {
+      params = this.defaultCloudinaryParams;
+    }
 
-  initialize(params: {cloudName: string, username: string, apiSecret: string, apiKey: string, multiple: boolean, maxFiles?: number}) {
     // Only recreate the instance if it is a different one
     if (!this.cloudinaryInstance || this.currentApiKey !== params.apiKey) {
       this.currentApiKey = params.apiKey;
@@ -41,7 +52,11 @@ export class CloudinaryService {
       };
 
       this.cloudinaryInstance = cloudinary.createMediaLibrary(cloudinaryConfig, {
-        insertHandler: (data) => this.assetSelected$.next(data.assets.map(a => new CloudinaryAsset(a)))
+        insertHandler: (data) => {
+          if (assetHandler) {
+            assetHandler(data.assets.map(a => new CloudinaryAsset(a)));
+          }
+        }
       });
     }
   }
