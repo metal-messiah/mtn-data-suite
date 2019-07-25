@@ -223,6 +223,10 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
     return this.selectionService.isMultiSelecting();
   }
 
+  clearSelection() {
+    this.selectionService.clearSelection();
+  }
+
   zoomToSelection() {
     this.saving = true;
     this.storeService.getAllByIds(Array.from(this.selectionService.storeIds))
