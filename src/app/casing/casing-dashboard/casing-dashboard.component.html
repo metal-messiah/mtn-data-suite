@@ -257,3 +257,9 @@
                  [disabled]="selectedDashboardMode !== casingDashboardMode.DEFAULT">
   </mds-info-card>
 </div>
+
+<button id="openListView" mat-mini-fab color="primary" (click)="setShowStoreLists(!showStoreLists)"
+        [ngClass]="{hidden: selectedDashboardMode !== casingDashboardMode.MULTI_SELECT}">
+  <i class="fas fa-chevron-right" *ngIf="!showStoreLists"></i>
+  <i class="fas fa-chevron-left" *ngIf="showStoreLists"></i>
+</button>

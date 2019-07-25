@@ -179,6 +179,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   onMapReady() {
     this.mapService.addControl(document.getElementById('refresh'));
+    this.mapService.addControl(document.getElementById('openListView'), google.maps.ControlPosition.LEFT_BOTTOM);
     this.mapService.addControl(document.getElementById('info-card-wrapper'), google.maps.ControlPosition.LEFT_BOTTOM);
 
     this.selectionService.singleSelect$.subscribe((selection) => this.onSelection(selection));
