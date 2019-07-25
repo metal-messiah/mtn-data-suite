@@ -4,7 +4,9 @@
   </div>
   <div class='flex-container' *ngIf="!gettingStoreSource()">
     <div *ngIf="getStoreSource()">
-      <a *ngIf="getStoreSource().sourceUrl" class='large-text' [href]="getStoreSource().sourceUrl" target="_blank">{{getStoreSource().sourceStoreName}}</a>
+      <a *ngIf="getStoreSource().sourceUrl" class='large-text' [href]="getStoreSource().sourceUrl" target="_blank">
+        {{getStoreSource().sourceStoreName}}
+      </a>
       <div *ngIf="!getStoreSource().sourceUrl" class='large-text'>{{getStoreSource().sourceStoreName}}</div>
       <div class="med-text" *ngIf="getStoreSource().bannerSource">
         <strong>{{getStoreSource().bannerSource.sourceBannerName}}</strong>
@@ -15,20 +17,20 @@
         Status: {{getStoreSource().storeSourceData.storeStatus}}
       </div>
     </div>
-    <button *ngIf="showNoMatchButton" (click)="setNoMatch()" mat-raised-button color="primary" [disabled]="matching">
+    <button *ngIf="showNoMatchButton" (click)="setNoMatch()" mat-raised-button color="primary">
       No Match
     </button>
-    <button *ngIf="showNewSiteButton" (click)="createNewSite()" mat-raised-button color="primary" [disabled]="matching">
+    <button *ngIf="showNewSiteButton" (click)="createNewSite()" mat-raised-button color="primary">
       Create New Site
     </button>
   </div>
 </div>
 <div class='accent-bar large-text'>Match to Existing</div>
 <div class='results-table'>
-  <div class='loader' *ngIf="gettingDbResults() || !siteMarkers">
+  <div class='loader' *ngIf="!siteMarkers">
     <i class="fas fa-spinner fa-pulse fa-2x"></i>
   </div>
-  <div *ngIf="!gettingDbResults() && siteMarkers">
+  <div *ngIf="siteMarkers">
     <div *ngFor="let site of siteMarkers" class="results-item">
       <div class="results-header large-text flex-container">
         <div *ngIf="showMatchShoppingCenterButton">
@@ -48,7 +50,7 @@
         </div>
         <div class='site-title'>{{getSiteAddressString(site)}}</div>
         <button *ngIf="showNewStoreButton" (click)="createNewStoreForSite(site.id)" mat-raised-button
-                [disabled]="matching" color="primary" class='add-store'>New Store
+                color="primary" class='add-store'>New Store
         </button>
       </div>
       <mat-divider></mat-divider>
@@ -57,10 +59,9 @@
           <div class='store-attribute'>{{store.storeName}}</div>
           <div class='hidden-xs store-attribute'>{{store.storeType}}</div>
           <div class='hidden-xs store-attribute'>{{store.currentStoreStatus}}</div>
-          <button (click)="matchStore(store.id)" mat-raised-button [disabled]="matching"
+          <button (click)="matchStore(store.id)" mat-raised-button
                   [color]="isBestMatch(store.id) ? 'accent' : 'primary'">
-            <span *ngIf="matching !== store.id">Match</span>
-            <i *ngIf="matching === store.id" class="fas fa-spinner fa-pulse"></i>
+            Match
           </button>
         </div>
       </div>

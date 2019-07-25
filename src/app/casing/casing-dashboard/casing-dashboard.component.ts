@@ -181,9 +181,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.mapService.addControl(document.getElementById('refresh'));
     this.mapService.addControl(document.getElementById('info-card-wrapper'), google.maps.ControlPosition.LEFT_BOTTOM);
 
-    const selectListener = (selection) => this.onSelection(selection);
-    this.selectionService.singleSelect$.subscribe(selectListener);
-    this.dbEntityMarkerService.initMap(this.mapService.getMap(), selectListener, this.selectionService, this.casingProjectService);
+    this.selectionService.singleSelect$.subscribe((selection) => this.onSelection(selection));
+    this.dbEntityMarkerService.initMap(this.mapService.getMap(), this.selectionService, this.casingProjectService);
 
     console.log(`Map is ready`);
 

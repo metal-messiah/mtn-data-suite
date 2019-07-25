@@ -9,9 +9,7 @@ import { StoreMarker } from '../../models/store-marker';
 import { forkJoin, Subject } from 'rxjs';
 import { ErrorService } from './error.service';
 import { finalize, map, reduce, tap } from 'rxjs/operators';
-import { FormBuilder } from '@angular/forms';
 import { ProjectService } from './project.service';
-import { CasingDashboardService } from '../../casing/casing-dashboard/casing-dashboard.service';
 import { SiteMarkerService } from '../site-marker.service';
 import { StoreIconUtil } from '../../utils/StoreIconUtil';
 import { MarkerType } from '../functionalEnums/MarkerType';
@@ -62,7 +60,6 @@ export class DbEntityMarkerService {
               private projectService: ProjectService,
               private storageService: StorageService,
               private cloudinaryService: CloudinaryService) {
-
     this.initControls();
   }
 
@@ -74,9 +71,9 @@ export class DbEntityMarkerService {
    * Initializes the map. Must be called before other public methods will work.
    */
   initMap(gmap: google.maps.Map,
-          clickListener: (selection: {storeId: number, siteId: number, marker: google.maps.Marker}) => void,
           selectionService: EntitySelectionService,
-          casingProjectService: CasingProjectService) {
+          casingProjectService: CasingProjectService,
+          controls?: DbEntityMarkerControls) {
     // CasingProject service
     this.casingProjectService = casingProjectService;
 
@@ -86,8 +83,6 @@ export class DbEntityMarkerService {
 
     this.gmap = gmap;
 
-    // Click Listener - component subscription
-    this.clickListener$.subscribe(clickListener);
     // Click Listener - self subscription
     this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker }) => {
       this.selectionService.singleSelect(selection);
@@ -95,6 +90,10 @@ export class DbEntityMarkerService {
 
     this.clusterer = new MarkerClusterer(this.gmap, [],
       {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+
+    if (controls) {
+      this._controls = controls;
+    }
 
     if (!this._controls.updateOnBoundsChange) {
       this.storageService.getOne(this.ST_SITE_MARKERS).subscribe(siteMarkersJson => {

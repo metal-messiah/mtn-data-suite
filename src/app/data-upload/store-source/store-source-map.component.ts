@@ -23,6 +23,7 @@ import { Subscription } from 'rxjs';
 import { StoreSourceDataFormComponent } from './store-source-data-form/store-source-data-form.component';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
 import { CasingProjectService } from '../../casing/casing-project.service';
+import { DbEntityMarkerControls } from '../../models/db-entity-marker-controls';
 
 export enum PageEvent {
   PREV,
@@ -109,8 +110,36 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
   onMapReady() {
     this.mapService.addControl(document.getElementById('controlsButton'));
     this.infoWindow = new google.maps.InfoWindow({content: document.getElementById('infoWindow')});
-    this.dbEntityMarkerService.initMap(this.mapService.getMap(), selection => this.matchStore(selection.storeId),
-      this.selectionService, this.casingProjectService);
+
+    // Change controls specifically for source matching
+    const controls = new DbEntityMarkerControls({
+      showActive: true,
+      showHistorical: true,
+      showFuture: true,
+      showVacantSites: true,
+      showSitesBackfilledByNonGrocery: true,
+      showFloat: true,
+      cluster: false,
+      clusterZoomLevel: 13,
+      minPullZoomLevel: 10,
+      fullLabelMinZoomLevel: 10,
+      markerType: 'Pin',
+      updateOnBoundsChange: true,
+      storeList: null,
+      showClosed: true,
+      showDeadDeal: true,
+      showNewUnderConstruction: true,
+      showOpen: true,
+      showPlanned: true,
+      showProposed: true,
+      showRemodel: true,
+      showRumored: true,
+      showStrongRumor: true,
+      showTemporarilyClosed: true,
+      banners: [],
+      assignment: null
+    });
+    this.dbEntityMarkerService.initMap(this.mapService.getMap(), this.selectionService, this.casingProjectService, controls);
 
     this.storeSourceLayer = new StoreSourceLayer(this.mapService);
 
@@ -143,13 +172,13 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
     }
 
     if (!this.storeSourceList.length) {
-      // theres no records!
+      // there are no records!
       return '0';
     } else {
-      // theres already records
+      // there are already records
       const firstUnvalidatedIdx = this.storeSourceList.findIndex((r) => !r.validatedDate);
       if (firstUnvalidatedIdx === -1) {
-        // theres no unvalidated records on the current page of records!
+        // there are no unvalidated records on the current page of records!
 
         this.validatedPages[this.page.number] = true;
 
@@ -291,6 +320,13 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
   private initListeners() {
     const newSite = this.lms.createNewSite$.subscribe(() => this.createNewSite());
     const matchStore = this.lms.matchStore$.subscribe(storeId => this.matchStore(storeId));
+    const matchStoreFromMap = this.selectionService.singleSelect$.subscribe(selection => {
+      if (selection.storeId) {
+        this.matchStore(selection.storeId);
+      } else if (selection.siteId) {
+        this.createNewStoreForSite(selection.siteId);
+      }
+    });
     const newStore = this.lms.createNewStoreForSite$.subscribe(siteId => this.createNewStoreForSite(siteId));
     const newSiteForSc = this.lms.createNewSiteForShoppingCenter$.subscribe(siteId => this.createNewSiteForShoppingCenter(siteId));
     const markersChanged = this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(() => {
@@ -299,6 +335,7 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.push(newSite);
     this.subscriptions.push(matchStore);
+    this.subscriptions.push(matchStoreFromMap);
     this.subscriptions.push(newStore);
     this.subscriptions.push(newSiteForSc);
     this.subscriptions.push(markersChanged);
@@ -317,7 +354,14 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
   }
 
   private advance(sourceUpdatable: SourceUpdatable) {
-    this.dialog.open(StoreSourceDataFormComponent, {data: {sourceUpdatable: sourceUpdatable, storeSource: this.lms.storeSource}})
+    const config = {
+      data: {
+        sourceUpdatable: sourceUpdatable,
+        storeSource: this.lms.storeSource
+      },
+      disableClose: true
+    };
+    this.dialog.open(StoreSourceDataFormComponent, config)
       .afterClosed()
       .subscribe(result => {
         if (result && result.storeId) {

@@ -103,13 +103,13 @@ export class MatchingComponent implements OnInit, OnDestroy {
   onMapReady() {
     this.recordMapLayer = new StoreSourceLayer(this.mapService);
 
-    const listener = (selection) => {
+    this.selectionService.singleSelect$.subscribe((selection) => {
       if (selection.storeId) {
         this.matchStore(selection.storeId);
       }
-    };
+    });
 
-    this.dbEntityMarkerService.initMap(this.mapService.getMap(), listener, this.selectionService, this.casingProjectService);
+    this.dbEntityMarkerService.initMap(this.mapService.getMap(), this.selectionService, this.casingProjectService);
 
     const markersChangedListener = this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(() => {
       const siteMarkers = this.dbEntityMarkerService.getVisibleSiteMarkers();

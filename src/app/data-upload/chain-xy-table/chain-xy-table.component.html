@@ -1,105 +1,95 @@
-<div class="chain-xy-wrapper">
-  <mat-toolbar class="header-bar">
-    <div>
-      <button mat-icon-button (click)="goBack()">
-        <i class="fas fa-chevron-left"></i>
-      </button>
-    </div>
-    <div style="text-align: center;">
-      <img src="http://chainxy.com/wp-content/uploads/2017/10/chainXY-logo.png">
-    </div>
-    <div style="text-align: right;">
-      <button mat-raised-button color="accent"
-              [routerLink]="['../update']"
-              [queryParams]="{ 'source-name': 'ChainXY' }">All Records
-      </button>
-    </div>
-  </mat-toolbar>
-  <mat-sidenav-container>
-    <mat-sidenav class="side-nav" #sidenav position="end" [(opened)]="sideNavOpened">
-      <div *ngIf="selectedBannerSourceSummary">
-        <div class="metadata">
-          <table>
-            <tr *ngIf="selectedBannerSourceSummary.bannerId">
-              <td class="key">Banner</td>
-              <td class="val">{{selectedBannerSourceSummary.bannerName}}</td>
-            </tr>
-            <tr>
-              <td class="key">Matched</td>
-              <td class="val">{{selectedBannerSourceSummary.matchedStoreSources}} /
-                {{selectedBannerSourceSummary.totalStoreSources}} =
-                {{selectedBannerSourceSummary.matchedStoreSources/selectedBannerSourceSummary.totalStoreSources |
-                percent}}
-              </td>
-            </tr>
-            <tr>
-              <td class="key">Status</td>
-              <td class="val">{{selectedBannerSourceSummary.matchingStatus}}</td>
-            </tr>
-            <tr>
-              <td class="key">Source</td>
-              <td class="val"><a [href]="'http://'+selectedBannerSourceSummary.sourceUrl"
-                                 target="_blank">{{selectedBannerSourceSummary.sourceUrl}}</a>
-              </td>
-            </tr>
-          </table>
-          <button color="primary" mat-raised-button
-                  [routerLink]="['../update']"
-                  [queryParams]="{ 'banner-source-id': selectedBannerSourceSummary.id }">Update Stores
-          </button>
-        </div>
+<mds-sub-title-bar>
+  <img id="chain-xy-logo" class="center" src="http://chainxy.com/wp-content/uploads/2017/10/chainXY-logo.png">
+
+  <button mat-raised-button color="accent"
+          [routerLink]="['../update']"
+          [queryParams]="{ 'source-name': 'ChainXY' }">
+    All Records
+  </button>
+</mds-sub-title-bar>
+
+<mat-sidenav-container>
+  <mat-sidenav class="side-nav" #sidenav position="end" [(opened)]="sideNavOpened">
+    <div *ngIf="selectedBannerSourceSummary">
+      <div class="metadata">
+        <table>
+          <tr *ngIf="selectedBannerSourceSummary.bannerId">
+            <td class="key">Banner</td>
+            <td class="val">{{selectedBannerSourceSummary.bannerName}}</td>
+          </tr>
+          <tr>
+            <td class="key">Matched</td>
+            <td class="val">{{selectedBannerSourceSummary.matchedStoreSources}} /
+              {{selectedBannerSourceSummary.totalStoreSources}} =
+              {{selectedBannerSourceSummary.matchedStoreSources/selectedBannerSourceSummary.totalStoreSources |
+              percent}}
+            </td>
+          </tr>
+          <tr>
+            <td class="key">Status</td>
+            <td class="val">{{selectedBannerSourceSummary.matchingStatus}}</td>
+          </tr>
+          <tr>
+            <td class="key">Source</td>
+            <td class="val"><a [href]="'http://'+selectedBannerSourceSummary.sourceUrl"
+                               target="_blank">{{selectedBannerSourceSummary.sourceUrl}}</a>
+            </td>
+          </tr>
+        </table>
+        <button color="primary" mat-raised-button
+                [routerLink]="['../update']"
+                [queryParams]="{ 'banner-source-id': selectedBannerSourceSummary.id }">Update Stores
+        </button>
       </div>
-    </mat-sidenav>
-    <mat-sidenav-content>
-      <div style="height: 100%; overflow-y: hidden; display: flex; flex-direction: column;">
-        <div class="search-bar-wrapper">
-          <mds-fuzzy-search [data]="bannerSourceSummaries" [keys]="fuzzyKeys"
-                            (results)="handleFuzzySearch($event)"></mds-fuzzy-search>
-        </div>
-        <div class="table-wrapper">
-          <table cellspacing="0" class="chain-select-table" matSort (matSortChange)="sortData($event)">
-            <tr>
-              <th mat-sort-header="sourceBannerName">Chain</th>
-              <th mat-sort-header="matchingStatus">Status</th>
-              <th mat-sort-header="totalStoreSources">Store Count</th>
-              <th mat-sort-header="matchedStoreSources">Matched</th>
-              <th mat-sort-header="percentComplete">% Complete</th>
-              <th>Banner</th>
-            </tr>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div style="height: 100%; overflow-y: hidden; display: flex; flex-direction: column;">
+      <mds-fuzzy-search [data]="bannerSourceSummaries" [keys]="fuzzyKeys"
+                        (results)="handleFuzzySearch($event)"></mds-fuzzy-search>
+      <div class="table-wrapper">
+        <table cellspacing="0" class="chain-select-table" matSort (matSortChange)="sortData($event)">
+          <tr>
+            <th mat-sort-header="sourceBannerName">Chain</th>
+            <th mat-sort-header="matchingStatus">Status</th>
+            <th mat-sort-header="totalStoreSources">Store Count</th>
+            <th mat-sort-header="matchedStoreSources">Matched</th>
+            <th mat-sort-header="percentComplete">% Complete</th>
+            <th>Banner</th>
+          </tr>
 
-            <tr *ngIf="!bannerSourceSummaries">
-              <td colspan="6" style="text-align: center;">
-                <i class="fas fa-spinner fa-pulse fa-2x" style="margin: 10px"></i>
-              </td>
-            </tr>
+          <tr *ngIf="!bannerSourceSummaries">
+            <td colspan="6" style="text-align: center;">
+              <i class="fas fa-spinner fa-pulse fa-2x" style="margin: 10px"></i>
+            </td>
+          </tr>
 
-            <tr class="bs-row" *ngFor="let bss of getFilteredBannerSourceSummaries()"
-                (click)="openSideNav(bss)">
-              <td>{{bss.sourceBannerName}}</td>
-              <td [title]="bss.matchingStatus">
-                <i [ngClass]="getStatusClass(bss.matchingStatus)"></i>
-              </td>
-              <td>{{bss.totalStoreSources}}</td>
-              <td>{{bss.matchedStoreSources}}</td>
-              <td>{{bss.percentComplete | percent}}</td>
-              <td class="banner-meta-data">
-                <i *ngIf="bss.saving" class="fas fa-spinner fa-pulse"></i>
-                <div *ngIf="!bss.saving">
-                  <div *ngIf="bss.bannerId" style="height: 40px;">
-                    <img *ngIf="bss.logoFileName" class="banner-logo" [title]="bss.bannerName"
-                         [src]="cloudinaryService.getUrlForLogoFileName(bss.logoFileName)"
-                         (click)="selectBanner($event, bss)"/>
-                    <span *ngIf="!bss.logoFileName" (click)="selectBanner($event, bss)">{{bss.bannerName}}</span>
-                  </div>
-                  <button *ngIf="!bss.bannerId" class="select-banner-btn" mat-raised-button color="primary"
-                          (click)="selectBanner($event, bss)">Select Banner
-                  </button>
+          <tr class="bs-row" *ngFor="let bss of getFilteredBannerSourceSummaries()"
+              (click)="openSideNav(bss)">
+            <td>{{bss.sourceBannerName}}</td>
+            <td [title]="bss.matchingStatus">
+              <i [ngClass]="getStatusClass(bss.matchingStatus)"></i>
+            </td>
+            <td>{{bss.totalStoreSources}}</td>
+            <td>{{bss.matchedStoreSources}}</td>
+            <td>{{bss.percentComplete | percent}}</td>
+            <td class="banner-meta-data">
+              <i *ngIf="bss.saving" class="fas fa-spinner fa-pulse"></i>
+              <div *ngIf="!bss.saving">
+                <div *ngIf="bss.bannerId" style="height: 40px;">
+                  <img *ngIf="bss.logoFileName" class="banner-logo" [title]="bss.bannerName"
+                       [src]="getUrlForLogoFileName(bss.logoFileName)"
+                       (click)="selectBanner($event, bss)"/>
+                  <span *ngIf="!bss.logoFileName" (click)="selectBanner($event, bss)">{{bss.bannerName}}</span>
                 </div>
-              </td>
-            </tr>
-          </table>
-        </div>
+                <button *ngIf="!bss.bannerId" class="select-banner-btn" mat-raised-button color="primary"
+                        (click)="selectBanner($event, bss)">Select Banner
+                </button>
+              </div>
+            </td>
+          </tr>
+        </table>
       </div>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
-</div>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

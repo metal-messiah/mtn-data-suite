@@ -20,7 +20,7 @@ export class SourceLocationMatchingService {
   createNewSiteForShoppingCenter$ = new Subject<number>();
 
   storeSource: StoreSource;
-  siteMarkers: SiteMarker[];
+  _siteMarkers: SiteMarker[];
   bestMatch: { store: StoreMarker; score: number; distanceFrom: number };
 
   nextStoreSource: StoreSource;
@@ -53,14 +53,18 @@ export class SourceLocationMatchingService {
     this.matchStore$.next(storeId);
   }
 
+  get siteMarkers() {
+    return this._siteMarkers;
+  }
+
   setSiteMarkers(siteMarkers: SiteMarker[], minDistance: number = 0.05, maxWordSimilarityDiff: number = 4) {
     if (this.storeSource.storeSourceData) {
-      this.siteMarkers = this.calculateDistancesAndHeadings(siteMarkers)
+      this._siteMarkers = this.calculateDistancesAndHeadings(siteMarkers)
         .sort((a, b) => a['distanceFrom'] - b['distanceFrom']);
     } else {
-      this.siteMarkers = siteMarkers;
+      this._siteMarkers = siteMarkers;
     }
-    this.siteMarkers.forEach(sm => sm.stores.sort((a, b) => a.storeType.localeCompare(b.storeType)));
+    this._siteMarkers.forEach(sm => sm.stores.sort((a, b) => a.storeType.localeCompare(b.storeType)));
     this.bestMatch = this.getBestMatch(minDistance, maxWordSimilarityDiff, siteMarkers, this.storeSource);
   }
 

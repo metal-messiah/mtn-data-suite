@@ -1,30 +1,21 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SourceLocationMatchingService } from '../source-location-matching.service';
 import { AddressUtil } from '../../../utils/address-util';
 import { SiteMarker } from '../../../models/site-marker';
-import { DbEntityMarkerService } from '../../../core/services/db-entity-marker.service';
-import { EntitySelectionService } from '../../../core/services/entity-selection.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'mds-store-source-location-match',
   templateUrl: './store-source-location-match.component.html',
   styleUrls: ['./store-source-location-match.component.css']
 })
-export class StoreSourceLocationMatchComponent implements OnInit, OnDestroy {
-
-  matching = null;
+export class StoreSourceLocationMatchComponent implements OnInit {
 
   showNoMatchButton = false;
   showNewSiteButton = false;
   showNewStoreButton = false;
   showMatchShoppingCenterButton = false;
 
-  selectionListener: Subscription;
-
-  constructor(private lms: SourceLocationMatchingService,
-              private selectionService: EntitySelectionService,
-              private dbEntityMarkerService: DbEntityMarkerService) {
+  constructor(private lms: SourceLocationMatchingService) {
   }
 
   ngOnInit() {
@@ -32,18 +23,9 @@ export class StoreSourceLocationMatchComponent implements OnInit, OnDestroy {
     this.showNewSiteButton = this.lms.createNewSite$.observers.length > 0;
     this.showNewStoreButton = this.lms.createNewStoreForSite$.observers.length > 0;
     this.showMatchShoppingCenterButton = this.lms.createNewSiteForShoppingCenter$.observers.length > 0;
-
-    this.selectionListener = this.selectionService.singleSelect$.subscribe(selection => this.matchStore(selection.storeId));
-
-    this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(() => this.matching = null);
-  }
-
-  ngOnDestroy() {
-    this.selectionListener.unsubscribe();
   }
 
   matchStore(storeId: number) {
-    this.matching = storeId;
     this.lms.matchStore(storeId);
   }
 
@@ -69,10 +51,6 @@ export class StoreSourceLocationMatchComponent implements OnInit, OnDestroy {
 
   getStoreSource() {
     return this.lms.storeSource;
-  }
-
-  gettingDbResults() {
-    return this.dbEntityMarkerService.gettingLocations;
   }
 
   get siteMarkers() {

@@ -32,8 +32,7 @@
 .left-panel {
   background: lightgray;
   flex: 1;
-  max-width: 15vw;
-  min-width: 160px;
+  min-width: 230px;
   display: flex;
   flex-direction: column;
 }
@@ -137,7 +136,7 @@
 .checklist {
   display: flex;
   flex-direction: column;
-  padding-left: 30px
+  padding-left: 8px
 }
 
 #marker-type-selector {
@@ -151,7 +150,7 @@ mat-slider {
 }
 
 .store-source-list {
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #store-source-filter {

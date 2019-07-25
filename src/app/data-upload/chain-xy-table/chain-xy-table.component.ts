@@ -27,6 +27,15 @@ export enum statuses {
 })
 export class ChainXyTableComponent implements OnInit {
 
+  private readonly cloudinaryParams = {
+    cloudName: 'mtn-retail-advisors',
+    username: 'tyler@mtnra.com',
+    apiSecret: 'OGQKRd95GxzMrn5d7_D6FOd7lXs',
+    apiKey: '713598197624775',
+    multiple: true,
+    maxFiles: 1
+  };
+
   bannerSourceSummaries: BannerSourceSummary[];
 
   selectedBannerSourceSummary: BannerSourceSummary;
@@ -44,7 +53,7 @@ export class ChainXyTableComponent implements OnInit {
 
   constructor(
     private router: Router,
-    public cloudinaryService: CloudinaryService,
+    private cloudinaryService: CloudinaryService,
     private dialog: MatDialog,
     private bannerService: BannerService,
     private bannerSourceService: BannerSourceService,
@@ -59,9 +68,13 @@ export class ChainXyTableComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.cloudinaryService.initialize(this.cloudinaryParams);
     this.getBannerSourceSummaries();
   }
 
+  getUrlForLogoFileName(fileName: string) {
+    return this.cloudinaryService.getUrlForLogoFileName(fileName);
+  }
 
   getFilteredBannerSourceSummaries() {
     const records = this.fuzzyResults || this.bannerSourceSummaries;
