@@ -56,6 +56,10 @@ export class SidenavStoresOnMapComponent implements OnInit {
     return this.selectionService.isMultiSelecting();
   }
 
+  clearSelection() {
+    this.selectionService.clearSelection();
+  }
+
   zoomToSelection() {
     const requests = [];
     if (this.selectionService.storeIds.size) {
