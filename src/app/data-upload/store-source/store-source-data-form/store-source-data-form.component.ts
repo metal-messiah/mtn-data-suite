@@ -53,7 +53,7 @@ export class StoreSourceDataFormComponent implements OnInit, OnDestroy {
     private dialogRef: MatDialogRef<StoreSourceDataFormComponent>,
     private snackBar: MatSnackBar,
     private mapService: MapService,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: {storeSource: StoreSource, sourceUpdatable: SourceUpdatable}
   ) {
   }
 

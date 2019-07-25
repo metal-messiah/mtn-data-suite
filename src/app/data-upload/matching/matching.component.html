@@ -57,7 +57,7 @@
       </div>
       <mat-list>
         <mat-list-item *ngFor="let record of getRecords()"
-                       [ngClass]="{matched: (record.store && record.store.id > 0), noMatch: (record.store && record.store.id === 0), highlighted: getCurrentRecord() === record}"
+                       [ngClass]="{matched: (record.store && record.store.id > 0), noMatch: (record.store && record.store.id === 0), highlighted: storeSource === record}"
                        (click)="setCurrentRecord(record)">
           <span class="list-item-header">{{record.sourceStoreName}}</span>
         </mat-list-item>
@@ -67,8 +67,14 @@
   <div class="center-panel hidden-sm">
     <mds-map class="row content" (ready)="onMapReady()"></mds-map>
   </div>
-  <div class="right-panel" *ngIf="getCurrentRecord()">
-    <mds-store-source-location-match></mds-store-source-location-match>
+  <div class="right-panel" *ngIf="storeSource">
+    <mds-store-source-location-match [storeSource]="storeSource"
+                                     [siteMarkers]="siteMarkers"
+                                     [gettingStoreSource]="gettingStoreSource"
+                                     (onBestMatchFound)="onBestMatchFound($event)"
+                                     (onStoreMatched)="matchStore($event)"
+                                     (onNoMatch)="noMatch()">
+    </mds-store-source-location-match>
     <mat-divider></mat-divider>
     <div style="display: flex; justify-content: space-around; padding: 8px 0; min-height: 40px;">
       <button mat-raised-button type="button" color="accent" (click)="downloadMatchedData()">

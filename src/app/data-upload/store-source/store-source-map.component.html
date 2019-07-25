@@ -64,7 +64,15 @@
   </mat-sidenav>
 </mat-sidenav-container>
 <div class="right-panel">
-  <mds-store-source-location-match *ngIf="currentStoreSource"></mds-store-source-location-match>
+  <mds-store-source-location-match *ngIf="currentStoreSource"
+                                   [storeSource]="currentStoreSource"
+                                   [siteMarkers]="siteMarkers"
+                                   [gettingStoreSource]="gettingStoreSource"
+                                   (onCreateNewSite)="createNewSite()"
+                                   (onCreateNewStoreForSite)="createNewStoreForSite($event)"
+                                   (onCreateNewSiteForShoppingCenter)="createNewSiteForShoppingCenter($event)"
+                                   (onStoreMatched)="matchStore($event)">
+  </mds-store-source-location-match>
 </div>
 
 <button id="controlsButton" mat-raised-button (click)="controlSideNavIsOpen = !controlSideNavIsOpen">

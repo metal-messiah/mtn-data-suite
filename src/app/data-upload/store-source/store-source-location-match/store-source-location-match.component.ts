@@ -1,65 +1,67 @@
-import { Component, OnInit } from '@angular/core';
-import { SourceLocationMatchingService } from '../source-location-matching.service';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { AddressUtil } from '../../../utils/address-util';
 import { SiteMarker } from '../../../models/site-marker';
+import { StoreSource } from '../../../models/full/store-source';
+import { StoreMarker } from '../../../models/store-marker';
+import { MatchingUtil } from '../../../utils/matching-util';
 
 @Component({
   selector: 'mds-store-source-location-match',
   templateUrl: './store-source-location-match.component.html',
   styleUrls: ['./store-source-location-match.component.css']
 })
-export class StoreSourceLocationMatchComponent implements OnInit {
+export class StoreSourceLocationMatchComponent implements OnInit, OnChanges {
+
+  @Input() storeSource: StoreSource;
+  @Input() siteMarkers: SiteMarker[];
+
+  @Input() gettingStoreSource = false;
+
+  @Output() onBestMatchFound = new EventEmitter<{ store: StoreMarker; score: number; distanceFrom: number }>();
+  @Output() onStoreMatched = new EventEmitter<number>();
+  @Output() onNoMatch = new EventEmitter();
+  @Output() onCreateNewSite = new EventEmitter();
+  @Output() onCreateNewStoreForSite = new EventEmitter<number>();
+  @Output() onCreateNewSiteForShoppingCenter = new EventEmitter<number>();
+
+  @Input() minBestMatchDistance = 0.05;
+  @Input() maxWordSimilarityDiff = 4;
 
   showNoMatchButton = false;
   showNewSiteButton = false;
   showNewStoreButton = false;
   showMatchShoppingCenterButton = false;
 
-  constructor(private lms: SourceLocationMatchingService) {
+  bestMatch: { store: StoreMarker; score: number; distanceFrom: number };
+
+  constructor() {
   }
 
   ngOnInit() {
-    this.showNoMatchButton = this.lms.noMatch$.observers.length > 0;
-    this.showNewSiteButton = this.lms.createNewSite$.observers.length > 0;
-    this.showNewStoreButton = this.lms.createNewStoreForSite$.observers.length > 0;
-    this.showMatchShoppingCenterButton = this.lms.createNewSiteForShoppingCenter$.observers.length > 0;
+    this.showNoMatchButton = this.onNoMatch.observers.length > 0;
+    this.showNewSiteButton = this.onCreateNewSite.observers.length > 0;
+    this.showNewStoreButton = this.onCreateNewStoreForSite.observers.length > 0;
+    this.showMatchShoppingCenterButton = this.onCreateNewSiteForShoppingCenter.observers.length > 0;
   }
 
-  matchStore(storeId: number) {
-    this.lms.matchStore(storeId);
-  }
-
-  createNewSite() {
-    this.lms.createNewSite$.next();
-  }
-
-  createNewSiteForShoppingCenter(scId: number) {
-    this.lms.createNewSiteForShoppingCenter$.next(scId);
-  }
-
-  createNewStoreForSite(siteId: number) {
-    this.lms.createNewStoreForSite$.next(siteId);
-  }
-
-  setNoMatch() {
-    this.lms.noMatch$.next();
-  }
-
-  gettingStoreSource() {
-    return this.lms.gettingStoreSource;
-  }
-
-  getStoreSource() {
-    return this.lms.storeSource;
-  }
-
-  get siteMarkers() {
-    return this.lms.siteMarkers;
+  ngOnChanges(changes: SimpleChanges) {
+    // TODO filter for necessary changes (storeSource and SiteMarkers)
+    if (this.siteMarkers && this.storeSource) {
+      // If there is source data, set the siteMarkers with distance from source
+      if (this.storeSource.storeSourceData) {
+        this.siteMarkers = MatchingUtil.calculateDistancesAndHeadings(this.storeSource, this.siteMarkers)
+          .sort((a, b) => a['distanceFrom'] - b['distanceFrom']);
+      }
+      // Sort the stores in each site by type
+      this.siteMarkers.forEach(sm => sm.stores.sort((a, b) => a.storeType.localeCompare(b.storeType)));
+      // Determine the best match
+      this.bestMatch = MatchingUtil.getBestMatch(this.minBestMatchDistance, this.maxWordSimilarityDiff, this.siteMarkers, this.storeSource);
+      this.onBestMatchFound.emit(this.bestMatch);
+    }
   }
 
   getStoreSourceAddressString() {
-    const ss = this.lms.storeSource;
-    const sd = ss.storeSourceData;
+    const sd = this.storeSource.storeSourceData;
     if (sd) {
       return AddressUtil.getAddressString(sd.address, sd.city, sd.state, sd.postalCode);
     }
@@ -71,7 +73,7 @@ export class StoreSourceLocationMatchComponent implements OnInit {
   }
 
   isBestMatch(storeId: number) {
-    return this.lms.bestMatch && this.lms.bestMatch.store.id === storeId;
+    return this.bestMatch && this.bestMatch.store.id === storeId;
   }
 
 }

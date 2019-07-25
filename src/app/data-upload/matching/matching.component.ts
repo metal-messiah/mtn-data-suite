@@ -9,22 +9,25 @@ import { DbEntityMarkerService } from '../../core/services/db-entity-marker.serv
 import { of, Subscription } from 'rxjs';
 import { StoreSource } from '../../models/full/store-source';
 import { SimplifiedStore } from '../../models/simplified/simplified-store';
-import { SourceLocationMatchingService } from '../store-source/source-location-matching.service';
 import { StoreSourceLayer } from '../../models/store-source-layer';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
 import { CasingProjectService } from '../../casing/casing-project.service';
 import { StoreSourceData } from '../../models/simplified/store-source-data';
+import { SiteMarker } from '../../models/site-marker';
 
 @Component({
   selector: 'mds-matching',
   templateUrl: './matching.component.html',
   styleUrls: ['./matching.component.css'],
-  providers: [DbEntityMarkerService, SourceLocationMatchingService, MapService]
+  providers: [DbEntityMarkerService, MapService]
 })
 export class MatchingComponent implements OnInit, OnDestroy {
 
   // Mapping
   recordMapLayer: StoreSourceLayer;
+
+  storeSource: StoreSource;
+  siteMarkers: SiteMarker[];
 
   // StoreSource to-do list
   records: StoreSource[];
@@ -47,14 +50,12 @@ export class MatchingComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private dbEntityMarkerService: DbEntityMarkerService,
     private casingProjectService: CasingProjectService,
-    private lms: SourceLocationMatchingService,
     private selectionService: EntitySelectionService
   ) {
   }
 
   ngOnInit() {
     this.createControlsForm();
-    this.initListeners();
   }
 
   ngOnDestroy() {
@@ -62,32 +63,29 @@ export class MatchingComponent implements OnInit, OnDestroy {
     this.dbEntityMarkerService.destroy();
   }
 
-  getCurrentRecord() {
-    return this.lms.storeSource;
-  }
-
   noMatch() {
-    this.lms.storeSource.store = new SimplifiedStore({id: 0});
+    this.storeSource.store = new SimplifiedStore({id: 0});
     this.nextRecord();
   }
 
   matchStore(storeId: number) {
-    if (this.lms.storeSource) {
-      this.lms.storeSource.store = new SimplifiedStore({id: storeId});
+    if (this.storeSource) {
+      this.storeSource.store = new SimplifiedStore({id: storeId});
       this.nextRecord();
     }
   }
 
   nextRecord() {
     const records = this.getRecords();
-    const index = records.indexOf(this.lms.storeSource);
+    const index = records.indexOf(this.storeSource);
     if (index + 1 < records.length) {
       this.setCurrentRecord(records[index + 1]);
     }
   }
 
   setCurrentRecord(storeSource: StoreSource) {
-    this.lms.setStoreSource(storeSource);
+    this.storeSource = storeSource;
+    this.siteMarkers = null;
 
     const sd = storeSource.storeSourceData;
     if (sd) {
@@ -109,22 +107,14 @@ export class MatchingComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.dbEntityMarkerService.initMap(this.mapService.getMap(), this.selectionService, this.casingProjectService);
+    this.dbEntityMarkerService.initMap(this.mapService.getMap(), this.selectionService, this.casingProjectService, 'matching');
 
     const markersChangedListener = this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(() => {
-      const siteMarkers = this.dbEntityMarkerService.getVisibleSiteMarkers();
-      this.lms.setSiteMarkers(siteMarkers);
-      if (this.autoMatch) {
-        if (this.lms.bestMatch) {
-          this.matchStore(this.lms.bestMatch.store.id);
-        } else {
-          this.noMatch();
-        }
-      }
+      this.siteMarkers = this.dbEntityMarkerService.getVisibleSiteMarkers();
     });
 
     const boundsChangedListener = this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe(() => {
-      if (this.lms.storeSource && this.dbEntityMarkerService.controls.updateOnBoundsChange) {
+      if (this.storeSource && this.dbEntityMarkerService.controls.updateOnBoundsChange) {
         if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.minPullZoomLevel) {
           this.dbEntityMarkerService.getMarkersInMapView()
         } else {
@@ -137,6 +127,16 @@ export class MatchingComponent implements OnInit, OnDestroy {
     this.subscriptions.push(boundsChangedListener);
   }
 
+  onBestMatchFound(bestMatch) {
+    if (this.autoMatch) {
+      if (bestMatch) {
+        this.matchStore(bestMatch.store.id);
+      } else {
+        this.noMatch();
+      }
+    }
+  }
+
   private getDebounce() {
     return debounce(() => of(true)
       .pipe(delay(1000)));
@@ -144,7 +144,7 @@ export class MatchingComponent implements OnInit, OnDestroy {
 
   handleFile(fileObj) {
     this.records = null;
-    this.lms.setStoreSource(null);
+    this.storeSource = null;
 
     const results = papa.parse(fileObj.fileOutput, {header: true, dynamicTyping: true, skipEmptyLines: true});
     this.fileName = fileObj.file.name;
@@ -212,13 +212,6 @@ export class MatchingComponent implements OnInit, OnDestroy {
       (record.store && record.store.id === 0 && this.showNonMatches) ||
       (!record.store && this.showUnmatched)
     );
-  }
-
-  private initListeners() {
-    const matchStore = this.lms.matchStore$.subscribe(storeId => this.matchStore(storeId));
-    const noMatch = this.lms.noMatch$.subscribe(() => this.noMatch());
-    this.subscriptions.push(matchStore);
-    this.subscriptions.push(noMatch);
   }
 
   private createControlsForm() {

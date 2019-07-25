@@ -25,9 +25,9 @@ import { CloudinaryService } from './cloudinary.service';
 @Injectable()
 export class DbEntityMarkerService {
 
-  private readonly ST_SITE_MARKERS = 'siteMarkers';
+  private ST_SITE_MARKERS = 'siteMarkers';
+  private ACTIVE_CONTROLS_STORAGE_KEY = 'dbEntityMarkerServiceControls';
   private readonly SAVED_CONTROLS_STORAGE_KEY = ControlStorageKeys.savedDbEntityMarkerServiceControls;
-  private readonly ACTIVE_CONTROLS_STORAGE_KEY = ControlStorageKeys.dbEntityMarkerServiceControls;
 
   private readonly clickListener$ = new Subject<{ storeId: number, siteId: number, marker: google.maps.Marker }>();
 
@@ -60,7 +60,6 @@ export class DbEntityMarkerService {
               private projectService: ProjectService,
               private storageService: StorageService,
               private cloudinaryService: CloudinaryService) {
-    this.initControls();
   }
 
   /**************************************
@@ -73,7 +72,13 @@ export class DbEntityMarkerService {
   initMap(gmap: google.maps.Map,
           selectionService: EntitySelectionService,
           casingProjectService: CasingProjectService,
+          storageKeyPrefix: string,
           controls?: DbEntityMarkerControls) {
+
+    this.ST_SITE_MARKERS = storageKeyPrefix + '_' + this.ST_SITE_MARKERS;
+    this.ACTIVE_CONTROLS_STORAGE_KEY = storageKeyPrefix + '_' + this.ACTIVE_CONTROLS_STORAGE_KEY;
+    this.initControls();
+
     // CasingProject service
     this.casingProjectService = casingProjectService;
 
@@ -356,7 +361,6 @@ export class DbEntityMarkerService {
         this._controls = new DbEntityMarkerControls(storedControls);
       }
     });
-
   }
 
   private refreshMarkerOptions(marker: google.maps.Marker) {

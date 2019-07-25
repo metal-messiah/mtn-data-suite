@@ -2,7 +2,7 @@
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { MatDialog, MatSnackBar } from '@angular/material';
-import { debounceTime, finalize } from 'rxjs/internal/operators';
+import { debounceTime, finalize, tap } from 'rxjs/internal/operators';
 // SERVICES //
 import { StoreSourceService } from '../../core/services/store-source.service';
 import { MapService } from '../../core/services/map.service';
@@ -18,12 +18,12 @@ import { DbEntityMarkerService } from '../../core/services/db-entity-marker.serv
 import { BannerSourceService } from '../../core/services/banner-source.service';
 import { StoreSource } from '../../models/full/store-source';
 import { Location } from '@angular/common';
-import { SourceLocationMatchingService } from './source-location-matching.service';
-import { Subscription } from 'rxjs';
+import { of, Subscription } from 'rxjs';
 import { StoreSourceDataFormComponent } from './store-source-data-form/store-source-data-form.component';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
 import { CasingProjectService } from '../../casing/casing-project.service';
 import { DbEntityMarkerControls } from '../../models/db-entity-marker-controls';
+import { SiteMarker } from '../../models/site-marker';
 
 export enum PageEvent {
   PREV,
@@ -34,16 +34,23 @@ export enum PageEvent {
   selector: 'mds-store-source-map',
   templateUrl: './store-source-map.component.html',
   styleUrls: ['./store-source-map.component.css'],
-  providers: [DbEntityMarkerService, SourceLocationMatchingService, MapService]
+  providers: [DbEntityMarkerService, MapService]
 })
 export class StoreSourceMapComponent implements OnInit, OnDestroy {
+
+  private _nextStoreSource: StoreSource;
+
   // Route Query Params
   queryParams: ParamMap;
 
   // Mapping
   storeSourceLayer: StoreSourceLayer;
 
-  // StoreSource
+  // For Matching Component
+  currentStoreSource: StoreSource;
+  siteMarkers: SiteMarker[];
+
+  // StoreSources
   storeSourceList: SimplifiedStoreSource[] = [];
   currentRecordIndex = 0;
   totalStoreSourceRecords = 0;
@@ -51,6 +58,8 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
   // Flags
   retrievingSources = false;
   updatingStoreSource = false;
+
+  gettingStoreSource = false;
 
   gettingSourceUpdatable = false;
 
@@ -79,7 +88,6 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
 
   constructor(
     private storeSourceService: StoreSourceService,
-    private lms: SourceLocationMatchingService,
     private bannerSourceService: BannerSourceService,
     private mapService: MapService,
     private ngZone: NgZone,
@@ -139,7 +147,8 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
       banners: [],
       assignment: null
     });
-    this.dbEntityMarkerService.initMap(this.mapService.getMap(), this.selectionService, this.casingProjectService, controls);
+    this.dbEntityMarkerService.initMap(this.mapService.getMap(), this.selectionService, this.casingProjectService,
+      'store-source', controls);
 
     this.storeSourceLayer = new StoreSourceLayer(this.mapService);
 
@@ -149,10 +158,6 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
     this.subscriptions.push(boundsChangedListener);
 
     this.getStoreSources();
-  }
-
-  get currentStoreSource() {
-    return this.lms.storeSource;
   }
 
   get controls() {
@@ -230,8 +235,8 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
 
   createNewSite() {
     const sourceUpdatable = new SourceUpdatable();
-    sourceUpdatable.storeName = this.lms.storeSource.sourceStoreName;
-    const sd = this.lms.storeSource.storeSourceData;
+    sourceUpdatable.storeName = this.currentStoreSource.sourceStoreName;
+    const sd = this.currentStoreSource.storeSourceData;
     if (sd) {
       sourceUpdatable.address = sd.address;
       sourceUpdatable.city = sd.city;
@@ -257,7 +262,7 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
     this.sourceUpdatableService.getUpdatableByShoppingCenterId(scId)
       .pipe(finalize(() => (this.gettingSourceUpdatable = false)))
       .subscribe(sourceUpdatable => {
-        const sd = this.lms.storeSource.storeSourceData;
+        const sd = this.currentStoreSource.storeSourceData;
         if (sd && sd.latitude && sd.longitude) {
           sourceUpdatable.latitude = sd.latitude;
           sourceUpdatable.longitude = sd.longitude;
@@ -266,7 +271,7 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
           sourceUpdatable.latitude = mapCenter.lat;
           sourceUpdatable.longitude = mapCenter.lng;
         }
-        sourceUpdatable.storeName = this.lms.storeSource.sourceStoreName;
+        sourceUpdatable.storeName = this.currentStoreSource.sourceStoreName;
         this.advance(sourceUpdatable);
       });
   }
@@ -276,7 +281,7 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
     this.sourceUpdatableService.getUpdatableBySiteId(siteId)
       .pipe(finalize(() => (this.gettingSourceUpdatable = false)))
       .subscribe(sourceUpdatable => {
-        sourceUpdatable.storeName = this.lms.storeSource.sourceStoreName;
+        sourceUpdatable.storeName = this.currentStoreSource.sourceStoreName;
         this.advance(sourceUpdatable);
       });
   }
@@ -298,7 +303,7 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
         elem.scrollIntoView({behavior: 'smooth'});
       }
     }
-    this.lms.getStoreSource(storeSourceId).subscribe((storeSource: StoreSource) => {
+    this.getStoreSource(storeSourceId).subscribe((storeSource: StoreSource) => {
       const sd = storeSource.storeSourceData;
       if (sd) {
         const coords = {lat: sd.latitude, lng: sd.longitude};
@@ -312,14 +317,34 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
 
       if (this.storeSourceList.length > index + 1) {
         const nextStoreSource = this.storeSourceList[index + 1];
-        this.lms.fetchNextStoreSource(nextStoreSource.id);
+        this.fetchNextStoreSource(nextStoreSource.id);
       }
     });
   }
 
+  fetchNextStoreSource(storeSourceId: number) {
+    return this.storeSourceService.getOneById(storeSourceId)
+      .subscribe(storeSource => this._nextStoreSource = storeSource);
+  }
+
+  private getStoreSource(storeSourceId: number) {
+    // Retrieve Pre-fetched source
+    if (this._nextStoreSource && this._nextStoreSource.id === storeSourceId) {
+      this.currentStoreSource = this._nextStoreSource;
+      this.siteMarkers = null;
+      return of(this._nextStoreSource);
+    }
+
+    this.gettingStoreSource = true;
+    return this.storeSourceService.getOneById(storeSourceId)
+      .pipe(finalize(() => (this.gettingStoreSource = false)))
+      .pipe(tap((storeSource: StoreSource) => {
+        this.currentStoreSource = storeSource;
+        this.siteMarkers = null;
+      }));
+  }
+
   private initListeners() {
-    const newSite = this.lms.createNewSite$.subscribe(() => this.createNewSite());
-    const matchStore = this.lms.matchStore$.subscribe(storeId => this.matchStore(storeId));
     const matchStoreFromMap = this.selectionService.singleSelect$.subscribe(selection => {
       if (selection.storeId) {
         this.matchStore(selection.storeId);
@@ -327,24 +352,17 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
         this.createNewStoreForSite(selection.siteId);
       }
     });
-    const newStore = this.lms.createNewStoreForSite$.subscribe(siteId => this.createNewStoreForSite(siteId));
-    const newSiteForSc = this.lms.createNewSiteForShoppingCenter$.subscribe(siteId => this.createNewSiteForShoppingCenter(siteId));
     const markersChanged = this.dbEntityMarkerService.visibleMarkersChanged$.subscribe(() => {
-      const markers = this.dbEntityMarkerService.getVisibleSiteMarkers();
-      this.lms.setSiteMarkers(markers);
+      this.siteMarkers = this.dbEntityMarkerService.getVisibleSiteMarkers();
     });
-    this.subscriptions.push(newSite);
-    this.subscriptions.push(matchStore);
     this.subscriptions.push(matchStoreFromMap);
-    this.subscriptions.push(newStore);
-    this.subscriptions.push(newSiteForSc);
     this.subscriptions.push(markersChanged);
   }
 
   private setSourceStoreAndValidate(storeId: number) {
     this.updatingStoreSource = true;
     // Then set the store for the storeSource
-    this.storeSourceService.setStore(this.lms.storeSource.id, storeId, true)
+    this.storeSourceService.setStore(this.currentStoreSource.id, storeId, true)
       .pipe(finalize(() => (this.updatingStoreSource = false)))
       .subscribe(() => {
         this.getStoreSources();
@@ -357,7 +375,7 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
     const config = {
       data: {
         sourceUpdatable: sourceUpdatable,
-        storeSource: this.lms.storeSource
+        storeSource: this.currentStoreSource
       },
       disableClose: true
     };
@@ -371,8 +389,9 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
   }
 
   private onBoundsChanged() {
-    if (this.lms.storeSource && this.mapService.getMap()) {
+    if (this.currentStoreSource && this.mapService.getMap()) {
       if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.minPullZoomLevel) {
+        this.siteMarkers = null;
         this.dbEntityMarkerService.getMarkersInMapView();
       } else {
         this.snackBar.open('Zoom in or change Pull zoom limit', null, {duration: 3000});

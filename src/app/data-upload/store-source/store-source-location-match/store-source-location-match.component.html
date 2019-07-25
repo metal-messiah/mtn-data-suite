@@ -1,26 +1,26 @@
 <div style="min-height: 65px;">
-  <div *ngIf="gettingStoreSource()" style="height: 100%; display: flex; align-items: center;">
+  <div *ngIf="gettingStoreSource" style="height: 100%; display: flex; align-items: center;">
     <i class="fas fa-spinner fa-pulse fa-2x" style="margin-left: 30px;"></i>
   </div>
-  <div class='flex-container' *ngIf="!gettingStoreSource()">
-    <div *ngIf="getStoreSource()">
-      <a *ngIf="getStoreSource().sourceUrl" class='large-text' [href]="getStoreSource().sourceUrl" target="_blank">
-        {{getStoreSource().sourceStoreName}}
+  <div class='flex-container' *ngIf="!gettingStoreSource">
+    <div *ngIf="storeSource">
+      <a *ngIf="storeSource.sourceUrl" class='large-text' [href]="storeSource.sourceUrl" target="_blank">
+        {{storeSource.sourceStoreName}}
       </a>
-      <div *ngIf="!getStoreSource().sourceUrl" class='large-text'>{{getStoreSource().sourceStoreName}}</div>
-      <div class="med-text" *ngIf="getStoreSource().bannerSource">
-        <strong>{{getStoreSource().bannerSource.sourceBannerName}}</strong>
+      <div *ngIf="!storeSource.sourceUrl" class='large-text'>{{storeSource.sourceStoreName}}</div>
+      <div class="med-text" *ngIf="storeSource.bannerSource">
+        <strong>{{storeSource.bannerSource.sourceBannerName}}</strong>
       </div>
       <div class='med-text'>{{getStoreSourceAddressString()}}</div>
       <div class='small-text'
-           *ngIf="getStoreSource().storeSourceData && getStoreSource().storeSourceData.storeStatus">
-        Status: {{getStoreSource().storeSourceData.storeStatus}}
+           *ngIf="storeSource.storeSourceData && storeSource.storeSourceData.storeStatus">
+        Status: {{storeSource.storeSourceData.storeStatus}}
       </div>
     </div>
-    <button *ngIf="showNoMatchButton" (click)="setNoMatch()" mat-raised-button color="primary">
+    <button *ngIf="showNoMatchButton" (click)="onNoMatch.emit()" mat-raised-button color="primary">
       No Match
     </button>
-    <button *ngIf="showNewSiteButton" (click)="createNewSite()" mat-raised-button color="primary">
+    <button *ngIf="showNewSiteButton" (click)="onCreateNewSite.emit()" mat-raised-button color="primary">
       Create New Site
     </button>
   </div>
@@ -38,7 +38,7 @@
             <i class="fas fa-ellipsis-v"></i>
           </button>
           <mat-menu #siteMenu="matMenu">
-            <button (click)="createNewSiteForShoppingCenter(site.shoppingCenterId)" mat-menu-item>
+            <button (click)="onCreateNewSiteForShoppingCenter.emit(site.shoppingCenterId)" mat-menu-item>
               Add Sister Shopping Center Site
             </button>
           </mat-menu>
@@ -49,7 +49,7 @@
           Miles
         </div>
         <div class='site-title'>{{getSiteAddressString(site)}}</div>
-        <button *ngIf="showNewStoreButton" (click)="createNewStoreForSite(site.id)" mat-raised-button
+        <button *ngIf="showNewStoreButton" (click)="onCreateNewStoreForSite.emit(site.id)" mat-raised-button
                 color="primary" class='add-store'>New Store
         </button>
       </div>
@@ -59,7 +59,7 @@
           <div class='store-attribute'>{{store.storeName}}</div>
           <div class='hidden-xs store-attribute'>{{store.storeType}}</div>
           <div class='hidden-xs store-attribute'>{{store.currentStoreStatus}}</div>
-          <button (click)="matchStore(store.id)" mat-raised-button
+          <button (click)="onStoreMatched.emit(store.id)" mat-raised-button
                   [color]="isBestMatch(store.id) ? 'accent' : 'primary'">
             Match
           </button>
