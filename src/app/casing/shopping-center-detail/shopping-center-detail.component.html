@@ -26,6 +26,6 @@
         <mat-option *ngFor="let centerType of centerTypes" [value]="centerType">{{centerType}}</mat-option>
       </mat-select>
     </mat-form-field>
-    <mds-auditing-entity-fields *ngIf="shoppingCenter.id" [entity]="shoppingCenter"></mds-auditing-entity-fields>
+    <mds-auditing-entity-fields [entity]="shoppingCenter" *ngIf="shoppingCenter.id"></mds-auditing-entity-fields>
   </form>
 </div>

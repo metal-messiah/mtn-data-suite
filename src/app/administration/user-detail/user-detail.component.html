@@ -1,47 +1,36 @@
 <mds-sub-title-bar subTitle="User Details">
   <i class="fas fa-user"></i>
   <button title="Form Invalid" type="button" mat-icon-button color="warn" *ngIf="userProfileForm.invalid">
-        <i class="fas fa-exclamation-triangle fa-2x"></i>
-      </button>
+    <i class="fas fa-exclamation-triangle fa-2x"></i>
+  </button>
   <button title="Save User" type="submit" form="user-profile-form" mat-mini-fab color="accent" (click)="saveUser()"
-              [disabled]="userProfileForm.pristine || userProfileForm.invalid || isSaving">
-        <i class="fas fa-save"></i>
-      </button>
+          [disabled]="userProfileForm.pristine || userProfileForm.invalid || isSaving">
+    <i class="fas fa-save"></i>
+  </button>
 </mds-sub-title-bar>
 
 <div id="content-wrapper">
   <div *ngIf="isLoading" style="text-align: center; margin-top: 15px;">
-        <i class="fas fa-spinner fa-3x fa-pulse" aria-hidden="true"> </i>
-      </div>
+    <i class="fas fa-spinner fa-3x fa-pulse" aria-hidden="true"> </i>
+  </div>
   <div id="form-wrapper">
     <form id="user-profile-form" [formGroup]="userProfileForm" *ngIf="userProfile">
-          <mat-form-field>
-            <input matInput placeholder="Email" formControlName="email" required>
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput placeholder="First Name" formControlName="firstName">
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput placeholder="Last Name" formControlName="lastName">
-          </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Email" formControlName="email" required>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="First Name" formControlName="firstName">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Last Name" formControlName="lastName">
+      </mat-form-field>
       <ng-container *ngIf="userProfile.id">
-          <mat-form-field>
-          <input matInput disabled placeholder="Created By" [value]="userProfile.createdBy.email">
-          </mat-form-field>
-          <mat-form-field>
-          <input matInput disabled placeholder="Created Date" [value]="userProfile.createdDate">
-          </mat-form-field>
-        <mat-form-field>
-          <input matInput disabled placeholder="Updated By" [value]="userProfile.updatedBy.email">
-          </mat-form-field>
-        <mat-form-field>
-          <input matInput disabled placeholder="Updated Date" [value]="userProfile.updatedDate">
-          </mat-form-field>
+        <mds-auditing-entity-fields [entity]="userProfile"></mds-auditing-entity-fields>
         <div>
           <button mat-button color="warn" title="Delete User" (click)="deleteUser()">
             Delete User
           </button>
-    </div>
+        </div>
       </ng-container>
     </form>
   </div>

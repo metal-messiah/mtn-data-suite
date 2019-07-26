@@ -35,6 +35,7 @@ import { MenuListComponent } from './menu-list/menu-list.component';
 import { SubTitleBarComponent } from './sub-title-bar/sub-title-bar.component';
 import { ItemSelectionDialogComponent } from './item-selection/item-selection-dialog.component';
 import { DbEntityControlsComponent } from './db-entity-controls/db-entity-controls.component';
+import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing-entity-fields.component';
 
 @NgModule({
   imports: [
@@ -47,6 +48,7 @@ import { DbEntityControlsComponent } from './db-entity-controls/db-entity-contro
   declarations: [
     AddRemoveStoresListDialogComponent,
     AppInfoDialogComponent,
+    AuditingEntityFieldsComponent,
     CallbackComponent,
     ConfirmDialogComponent,
     DataFieldComponent,
@@ -97,6 +99,7 @@ import { DbEntityControlsComponent } from './db-entity-controls/db-entity-contro
   ],
   exports: [
     AddRemoveStoresListDialogComponent,
+    AuditingEntityFieldsComponent,
     CallbackComponent,
     CommonModule,
     CustomMaterialModule,

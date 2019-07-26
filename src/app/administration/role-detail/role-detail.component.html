@@ -4,41 +4,30 @@
     <i class="fas fa-exclamation-triangle fa-2x"></i>
   </button>
   <button title="Save Role" type="submit" form="role-form" mat-mini-fab color="accent" (click)="saveRole()"
-              [disabled]="roleForm.pristine || roleForm.invalid || isSaving">
+          [disabled]="roleForm.pristine || roleForm.invalid || isSaving">
     <i class="fas fa-save"></i>
-      </button>
+  </button>
 </mds-sub-title-bar>
 
 <div id="content-wrapper">
-      <div *ngIf="isLoading" style="text-align: center">
-        <i class="fas fa-spinner fa-3x fa-pulse" aria-hidden="true"> </i>
-      </div>
+  <div *ngIf="isLoading" style="text-align: center">
+    <i class="fas fa-spinner fa-3x fa-pulse" aria-hidden="true"> </i>
+  </div>
   <div id="form-wrapper">
     <form id="role-form" [formGroup]="roleForm" *ngIf="role">
-          <mat-form-field>
-            <input matInput type="text" placeholder="Display Name" formControlName="displayName" required>
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput type="text" placeholder="Description" formControlName="description">
-          </mat-form-field>
+      <mat-form-field>
+        <input matInput type="text" placeholder="Display Name" formControlName="displayName" required>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="text" placeholder="Description" formControlName="description">
+      </mat-form-field>
       <ng-container *ngIf="role.id">
-        <mat-form-field>
-          <input matInput disabled placeholder="Created By" [value]="role.createdBy.email">
-          </mat-form-field>
-        <mat-form-field>
-          <input matInput disabled placeholder="Created Date" [value]="role.createdDate">
-          </mat-form-field>
-        <mat-form-field>
-          <input matInput disabled placeholder="Updated By" [value]="role.updatedBy.email">
-          </mat-form-field>
-        <mat-form-field>
-          <input matInput disabled placeholder="Updated Date" [value]="role.updatedDate">
-          </mat-form-field>
+        <mds-auditing-entity-fields [entity]="role"></mds-auditing-entity-fields>
         <div>
           <button mat-button color="warn" title="Delete Role" (click)="deleteRole()">
             Delete Role
           </button>
-    </div>
+        </div>
       </ng-container>
     </form>
   </div>

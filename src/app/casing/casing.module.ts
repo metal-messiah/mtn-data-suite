@@ -53,7 +53,6 @@ import { AreaComponent } from './store-casing-detail/area/area.component';
 import { CasingVolumeComponent } from './store-casing-detail/casing-volume/casing-volume.component';
 import { SeasonalityComponent } from './store-casing-detail/seasonality/seasonality.component';
 import { CasingNotesComponent } from './store-casing-detail/casing-notes/casing-notes.component';
-import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing-entity-fields.component';
 
 @NgModule({
   imports: [
@@ -65,7 +64,6 @@ import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing
     AccessListDialogComponent,
     AreaCalculatorComponent,
     AreaComponent,
-    AuditingEntityFieldsComponent,
     CasingComponent,
     CasingDashboardComponent,
     CasingDateComponent,

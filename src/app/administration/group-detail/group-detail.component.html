@@ -22,18 +22,7 @@
         <input matInput placeholder="Description" formControlName="description">
       </mat-form-field>
       <ng-container *ngIf="group.id">
-        <mat-form-field>
-          <input matInput disabled placeholder="Created By" [value]="group.createdBy.email">
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput disabled placeholder="Created Date" [value]="group.createdDate">
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput disabled placeholder="Updated By" [value]="group.updatedBy.email">
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput disabled placeholder="Updated Date" [value]="group.updatedDate">
-        </mat-form-field>
+        <mds-auditing-entity-fields [entity]="group"></mds-auditing-entity-fields>
         <div>
           <button mat-button color="warn" title="Delete Group" (click)="deleteGroup()">
             Delete Group
