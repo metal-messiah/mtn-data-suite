@@ -1,54 +1,39 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-    selector: 'mds-options-menu',
-    templateUrl: './options-menu.component.html',
-    styleUrls: [ './options-menu.component.css' ]
+  selector: 'mds-options-menu',
+  templateUrl: './options-menu.component.html',
+  styleUrls: ['./options-menu.component.css']
 })
-export class OptionsMenuComponent implements OnInit {
-    options: object[];
+export class OptionsMenuComponent {
 
-    constructor() {
-        // disabled hides list-item if true
-        this.options = [
-            {
-              label: 'Match a Spreadsheet',
-              icon: 'fas fa-file-alt',
-              link: 'matching',
-              disabled: false
-            },
-            {
-                label: 'Upload a Spreadsheet',
-                icon: 'fas fa-file-alt',
-                link: 'spreadsheet',
-                disabled: true
-            },
-            {
-                label: 'Upload from Planned Grocery',
-                icon: 'fas fa-shopping-basket',
-                link: 'planned-grocery',
-                disabled: false
-            },
-            {
-                label: 'Upload from ChainXY',
-                icon: 'fas fa-link',
-                link: 'chain-xy',
-                disabled: false
-            },
-            {
-                label: 'Upload Commissary Data',
-                icon: 'fas fa-parachute-box',
-                link: 'commissary',
-                disabled: true
-            },
-            {
-                label: 'Cloudinary',
-                icon: 'fas fa-cloud',
-                link: 'cloudinary',
-                disabled: false
-            }
-        ];
-    }
+  constructor() {
+  }
 
-    ngOnInit() {}
+  getMenuItems() {
+    return [
+      {
+        routerLink: '/data-upload/matching',
+        iconClasses: 'fas fa-file-excel',
+        displayName: 'Match a spreadsheet'
+      },
+      {
+        routerLink: '/data-upload/update',
+        queryParams: {'source-name': 'Planned Grocery'},
+        iconClasses: 'fas fa-shopping-basket',
+        displayName: 'Planned Grocery'
+      },
+      {
+        routerLink: '/data-upload/chain-xy',
+        iconClasses: 'fas fa-link',
+        displayName: 'ChainXy'
+      },
+      {
+        routerLink: '/data-upload/cloudinary',
+        iconClasses: 'fas fa-cloud',
+        displayName: 'Cloudinary Logos'
+      }
+    ];
+  }
+
 }

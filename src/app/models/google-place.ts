@@ -1,5 +1,5 @@
 import { Mappable } from '../interfaces/mappable';
-import { Coordinates } from './coordinates';
+import { LatLng } from './latLng';
 import PlaceResult = google.maps.places.PlaceResult;
 import { MarkerType } from '../core/functionalEnums/MarkerType';
 import { Color } from '../core/functionalEnums/Color';
@@ -44,7 +44,7 @@ export class GooglePlace implements PlaceResult, Mappable {
     this.id = this.place_id;
   }
 
-  getCoordinates(): Coordinates {
+  getCoordinates(): LatLng {
     return this.geometry.location.toJSON();
   };
 

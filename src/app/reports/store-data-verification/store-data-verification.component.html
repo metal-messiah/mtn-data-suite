@@ -1,5 +1,7 @@
-<form *ngIf="dataVerificationForm" [formGroup]="dataVerificationForm" class="wrapper">
-  <table matSort (matSortChange)="sortData($event)" style="border-collapse: collapse;">
+<mds-sub-title-bar subTitle="3. Verify Correctness"></mds-sub-title-bar>
+
+<form *ngIf="dataVerificationForm" [formGroup]="dataVerificationForm" class="content">
+  <table id="data-verification-table" matSort (matSortChange)="sortData($event)" style="border-collapse: collapse;">
     <tr>
       <th mat-sort-header="mapKey">Map<br>Key</th>
       <th mat-sort-header="uniqueId">Store<br>ID</th>
@@ -16,7 +18,8 @@
       <th>Use TA<br>Change</th>
       <th style="width: 70px;">Force<br>Include</th>
     </tr>
-    <tr formArrayName="stores" *ngFor="let storeControl of dataVerificationForm.get('stores').controls; let i = index;"
+    <tr formArrayName="stores"
+        *ngFor="let storeControl of dataVerificationForm.get('stores').controls; let i = index;"
         [ngClass]="getRowColor(storeControl.value)">
       <td>{{storeControl.get('mapKey').value}}</td>
       <td>
@@ -48,16 +51,16 @@
       </td>
     </tr>
   </table>
-  <div>
-    <h3 *ngIf="dataVerificationForm.invalid" style="color: #ff4c3e;">All Total Areas are Required</h3>
-    <button color="primary" type="button" mat-raised-button (click)="_location.back()" style="margin-top:20px;">Go Back</button>
-    <button color="accent" type="button" mat-raised-button (click)="harrisTeeter()" [disabled]="dataVerificationForm.invalid" style="margin:20px 0 0 20px;">
-      Harris Teeter
-    </button>
-    <button color="warn" type="button" mat-raised-button (click)="next()" [disabled]="dataVerificationForm.invalid" style="margin:20px 0 0 20px;">
-      Next
-    </button>
-  </div>
 </form>
+
+<mds-sub-title-bar [subTitle]="dataVerificationForm.invalid ? 'All Total Areas are required!' : null">
+  <button color="primary" type="button" mat-raised-button (click)="harrisTeeter()"
+          class="left" [disabled]="dataVerificationForm.invalid">
+    Harris Teeter
+  </button>
+  <button color="accent" type="button" mat-raised-button (click)="next()" [disabled]="dataVerificationForm.invalid">
+    Next
+  </button>
+</mds-sub-title-bar>
 
 

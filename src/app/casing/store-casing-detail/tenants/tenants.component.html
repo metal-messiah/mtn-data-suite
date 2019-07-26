@@ -1,0 +1,35 @@
+<ng-container [formGroup]="shoppingCenterSurveyForm">
+  <div class="flex flex-justify-center">
+    <button type="button" mat-raised-button color="accent" (click)="openTenantDialog()">Tenant List
+    </button>
+  </div>
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="# Occupied"
+           formControlName="tenantOccupiedCount">
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="# Vacant"
+           formControlName="tenantVacantCount">
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="% Sqft Occupied"
+           formControlName="sqFtPercentOccupied">
+    <span matSuffix>%</span>
+    <mat-error>Must be between 0 and 100%</mat-error>
+  </mat-form-field>
+</ng-container>
+
+<ng-container [formGroup]="shoppingCenterCasingForm">
+  <mat-form-field>
+    <mat-select placeholder="Tenant Buildings Rating" formControlName="ratingTenantBuildings">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-select placeholder="Synergy Rating" formControlName="ratingSynergy">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</ng-container>

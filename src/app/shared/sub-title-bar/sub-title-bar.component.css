@@ -1,0 +1,19 @@
+mat-toolbar {
+  height: 48px;
+  background: #a5c0ce;
+}
+
+mat-toolbar > div {
+  flex: 1;
+}
+
+mat-toolbar > div:nth-child(2) {
+  display: flex;
+  justify-content: center;
+}
+
+mat-toolbar > div:last-child {
+  text-align: right;
+}
+
+

@@ -16,7 +16,66 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     console.log(environment.VERSION);
-    this.auth.isAuthenticated().subscribe(authenticated => this.isAuthenticated = authenticated);
+    // The view is initialized before the Auth0 hash parser has time to set the authentication data
+    setTimeout(() => this.auth.isAuthenticated().subscribe(authenticated => this.isAuthenticated = authenticated), 100);
+  }
+
+  getMenuItems() {
+    const menuItems = [];
+
+    if (this.userIsAdmin()) {
+      menuItems.push({
+        routerLink: '/admin',
+        iconClasses: 'fas fa-key',
+        displayName: 'Administration'
+      });
+    }
+
+    menuItems.push({
+      routerLink: '/casing',
+      iconClasses: 'fas fa-briefcase',
+      displayName: 'Casing'
+    });
+
+    if (this.userCanUpload()) {
+      menuItems.push({
+        routerLink: '/data-upload',
+        iconClasses: 'fas fa-upload',
+        displayName: 'Data Upload'
+      });
+    }
+
+    if (this.userCanExtract()) {
+      menuItems.push({
+        routerLink: '/extraction',
+        iconClasses: 'fas fa-download',
+        displayName: 'Data Extraction'
+      });
+    }
+
+    if (this.userCanReport()) {
+      menuItems.push({
+        routerLink: '/reports',
+        iconClasses: 'fas fa-newspaper',
+        displayName: 'Reports'
+      });
+    }
+
+    if (this.userIsBroker()) {
+      menuItems.push({
+        routerLink: '/brokerage',
+        iconClasses: 'fas fa-building',
+        displayName: 'Brokerage'
+      });
+    }
+
+    menuItems.push({
+      routerLink: '/geocoding',
+      iconClasses: 'fas fa-globe-americas',
+      displayName: 'Geocoding'
+    });
+
+    return menuItems;
   }
 
   signIn() {

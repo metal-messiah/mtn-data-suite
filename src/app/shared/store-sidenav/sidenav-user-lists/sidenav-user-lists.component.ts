@@ -12,7 +12,7 @@ import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.comp
 import { TextInputDialogComponent } from '../../text-input-dialog/text-input-dialog.component';
 import { StoreList } from '../../../models/full/store-list';
 import { SimplifiedStore } from '../../../models/simplified/simplified-store';
-import { Coordinates } from '../../../models/coordinates';
+import { LatLng } from '../../../models/latLng';
 import { StorageService } from '../../../core/services/storage.service';
 import { Subscription } from 'rxjs';
 
@@ -146,7 +146,7 @@ export class SidenavUserListsComponent implements OnInit, OnDestroy {
       this.storeService.getAllByIds(storeList.storeIds)
         .pipe(finalize(() => this.dbEntityMarkerService.gettingLocations = false))
         .subscribe((stores: SimplifiedStore[]) => {
-            const storeGeoms = stores.map((s: SimplifiedStore) => new Coordinates(s.site.latitude, s.site.longitude));
+            const storeGeoms = stores.map((s: SimplifiedStore) => new LatLng(s.site.latitude, s.site.longitude));
             this.mapService.fitToPoints(storeGeoms, storeList.storeListName);
           }, err => this.errorService.handleServerError('Failed to Zoom to List!', err,
           () => console.log(err),

@@ -26,7 +26,6 @@ export class DateUtil {
       const dayOfMonth = parseInt(dateMatch[3], 10);
       return new Date(year, month, dayOfMonth);
     }
-
   }
 
   static monthsBetween(d1: Date, d2: Date) {

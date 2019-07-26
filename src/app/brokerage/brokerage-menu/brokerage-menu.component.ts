@@ -7,6 +7,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class BrokerageMenuComponent implements OnInit {
 
+  readonly menuOptions = [
+    {
+      routerLink: '/brokerage/images',
+      iconClasses: 'fas fa-images',
+      displayName: 'Append Logos'
+    }
+  ];
+
   constructor() { }
 
   ngOnInit() {

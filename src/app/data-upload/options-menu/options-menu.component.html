@@ -1,12 +1,4 @@
-<div class="list-wrapper">
-  <mat-nav-list>
-    <mat-list-item *ngFor="let option of options" routerLink="/data-upload/{{option.link}}"
-                   [ngClass]="option.disabled ? 'hidden' : ''">
-      <div mat-list-icon>
-        <i class="{{option.icon}}"></i>
-      </div>
-      <h3 mat-line>{{option.label}}</h3>
-      <mat-divider></mat-divider>
-    </mat-list-item>
-  </mat-nav-list>
-</div>
+<mds-sub-title-bar subTitle="Data Upload">
+  <i class="fas fa-upload"></i>
+</mds-sub-title-bar>
+<mds-menu-list [menuItems]="getMenuItems()"></mds-menu-list>

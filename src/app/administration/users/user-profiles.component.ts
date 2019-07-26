@@ -1,87 +1,141 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserProfile } from '../../models/full/user-profile';
-import { BasicEntityListComponent } from '../../interfaces/basic-entity-list-component';
-import { EntityListService } from '../../core/services/entity-list.service';
 import { ErrorService } from '../../core/services/error.service';
 import { UserProfileService } from '../../core/services/user-profile.service';
 import { Pageable } from '../../models/pageable';
 import { Location } from '@angular/common';
 import { finalize } from 'rxjs/internal/operators';
+import { MatDialog, MatSnackBar, Sort } from '@angular/material';
+import { ItemSelectionDialogComponent } from '../../shared/item-selection/item-selection-dialog.component';
+import { GroupService } from '../../core/services/group.service';
+import { RoleService } from '../../core/services/role.service';
+import { CompareUtil } from '../../utils/compare-util';
 
 @Component({
   selector: 'mds-users',
   templateUrl: './user-profiles.component.html',
-  styleUrls: ['./user-profiles.component.css']
+  styleUrls: ['./user-profiles.component.css', '../list-view.css']
 })
-export class UserProfilesComponent implements OnInit, BasicEntityListComponent<UserProfile> {
+export class UserProfilesComponent implements OnInit {
 
   userProfiles: UserProfile[];
 
   isLoading = false;
-  isDeleting = false;
+  isSaving = false;
 
   latestPage: Pageable<UserProfile>;
 
   constructor(private userProfileService: UserProfileService,
               private router: Router,
+              private groupService: GroupService,
+              private roleService: RoleService,
+              private dialog: MatDialog,
+              private snackBar: MatSnackBar,
               private _location: Location,
-              private els: EntityListService<UserProfile>,
               private errorService: ErrorService) {
   }
 
   ngOnInit() {
-    this.els.initialize(this);
+    this.getUsers();
   }
 
-  loadEntities(): void {
+  getUsers(): void {
+    this.isLoading = true;
     this.userProfileService.getUserProfiles()
       .pipe(finalize(() => this.isLoading = false))
-      .subscribe(
-        page => {
+      .subscribe(page => {
           this.latestPage = page;
           this.userProfiles = page.content;
         },
         err => this.errorService.handleServerError(`Failed to retrieve User Profiles`, err,
           () => this.goBack(),
-          () => this.els.initialize(this))
+          () => this.getUsers())
       );
-  };
-
-  confirmDelete(userProfile: UserProfile) {
-    this.els.confirmDelete(this, userProfile);
   }
 
   goBack() {
     this._location.back();
-  };
-
-  getPluralTypeName(): string {
-    return 'user profiles';
   }
 
-  getEntityService(): UserProfileService {
-    return this.userProfileService;
+  sortData(sort: Sort) {
+    if (sort.active === 'group') {
+      this.userProfiles.sort((a, b) => {
+        const aName = a.group ? a.group.displayName : null;
+        const bName = b.group ? b.group.displayName : null;
+        return CompareUtil.compareStrings(aName, bName, sort.direction === 'desc');
+      });
+    } else if (sort.active === 'role') {
+      this.userProfiles.sort((a, b) => {
+        const aName = a.role ? a.role.displayName : null;
+        const bName = b.role ? b.role.displayName : null;
+        return CompareUtil.compareStrings(aName, bName, sort.direction === 'desc');
+      });
+    } else if (sort.direction !== '') {
+      this.userProfiles.sort((a, b) =>
+        CompareUtil.compareStrings(a[sort.active], b[sort.active], sort.direction === 'desc'));
+    } else {
+      this.userProfiles.sort((a, b) => a.id - b.id);
+    }
   }
 
-  getTypeName(): string {
-    return 'user profile';
+  selectRole($event, userProfile) {
+    $event.stopPropagation();
+
+    this.roleService.getAllRoles().subscribe(page => {
+      const data = {
+        prompt: 'Select Role',
+        items: page.content,
+        getDisplayText: role => role.displayName
+      };
+      this.dialog.open(ItemSelectionDialogComponent, {data: data}).afterClosed().subscribe(result => {
+        if (result) {
+          this.setUserRole(userProfile, result.itemId);
+        }
+      });
+    });
   }
 
-  sortCompare(a: UserProfile, b: UserProfile): number {
-    const getVal = (obj) => obj.firstName ? obj.firstName : obj.lastName ? obj.lastName : obj.email;
-    return getVal(a).localeCompare(getVal(b));
+  selectGroup($event, userProfile) {
+    $event.stopPropagation();
+    this.groupService.getAllGroups().subscribe(page => {
+      const data = {
+        prompt: 'Select Group',
+        items: page.content,
+        getDisplayText: group => group.displayName
+      };
+      this.dialog.open(ItemSelectionDialogComponent, {data: data}).afterClosed().subscribe(result => {
+        if (result) {
+          this.setUserGroup(userProfile, result.itemId);
+        }
+      });
+    });
   }
 
-  loadMore(): void {
-    this.isLoading = true;
-    this.userProfileService.getUserProfiles(this.latestPage.number + 1)
-      .pipe(finalize(() => this.isLoading = false))
-      .subscribe((page: Pageable<UserProfile>) => {
-        this.latestPage = page;
-        this.userProfiles = this.userProfiles.concat(page.content);
-      }, error => this.errorService.handleServerError('Failed to get Users', error,
-        () => this.goBack(),
-        () => this.loadMore()));
+  private setUserRole(userProfile: UserProfile, roleId: number) {
+    this.isSaving = true;
+    this.userProfileService.setUserRole(userProfile.id, roleId)
+      .pipe(finalize(() => this.isSaving = false))
+      .subscribe(up => {
+          userProfile.role = up.role;
+          this.snackBar.open('Successfully updated users role', null, {duration: 2000});
+        },
+        error1 => this.errorService.handleServerError('Failed to set user\'s role!', error1, null,
+          () => this.setUserGroup(userProfile, roleId)));
+
   }
+
+  private setUserGroup(userProfile: UserProfile, groupId: number) {
+    this.isSaving = true;
+    this.userProfileService.setUserGroup(userProfile.id, groupId)
+      .pipe(finalize(() => this.isSaving = false))
+      .subscribe(up => {
+          userProfile.group = up.group;
+          this.snackBar.open('Successfully updated users group', null, {duration: 2000});
+        },
+        error1 => this.errorService.handleServerError('Failed to set user\'s group!', error1, null,
+          () => this.setUserGroup(userProfile, groupId)));
+
+  }
+
 }

@@ -32,6 +32,7 @@ import { MatBadgeModule, MatTooltipModule } from '@angular/material';
 @NgModule({
   imports: [
     MatAutocompleteModule,
+    MatBadgeModule,
     MatButtonModule,
     MatButtonToggleModule,
     MatCardModule,
@@ -53,19 +54,17 @@ import { MatBadgeModule, MatTooltipModule } from '@angular/material';
     MatSliderModule,
     MatSlideToggleModule,
     MatSnackBarModule,
+    MatSortModule,
     MatStepperModule,
     MatTableModule,
     MatTabsModule,
     MatToolbarModule,
-    MatProgressSpinnerModule,
-    MatProgressBarModule,
-    MatSortModule,
-    MatBadgeModule,
     MatTooltipModule,
     ScrollingModule
   ],
   exports: [
     MatAutocompleteModule,
+    MatBadgeModule,
     MatButtonModule,
     MatButtonToggleModule,
     MatCardModule,
@@ -87,15 +86,14 @@ import { MatBadgeModule, MatTooltipModule } from '@angular/material';
     MatSliderModule,
     MatSlideToggleModule,
     MatSnackBarModule,
+    MatSortModule,
     MatStepperModule,
     MatTableModule,
     MatTabsModule,
     MatToolbarModule,
+    MatTooltipModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
-    MatSortModule,
-    MatBadgeModule,
-    MatTooltipModule,
     ScrollingModule
   ]
 })

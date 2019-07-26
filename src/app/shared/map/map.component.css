@@ -1,3 +1,4 @@
-#map {
+:host {
+  flex: 1;
   height: 100%;
 }

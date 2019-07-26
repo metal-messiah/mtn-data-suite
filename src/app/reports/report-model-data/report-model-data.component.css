@@ -1,11 +1,15 @@
-.wrapper {
-  margin: 40px auto;
-  width: fit-content;
+#model-data-form {
   display: flex;
   flex-direction: column;
+  margin: 16px auto;
 }
 
-.file-tip {
-  margin-left: 20px;
-  font-size: small;
+.mat-form-field {
+  width: 300px;
+}
+
+#file-button {
+  max-width: 300px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }

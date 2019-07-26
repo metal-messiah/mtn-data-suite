@@ -1,13 +1,12 @@
 <h3 mat-dialog-title>Select Sheet</h3>
 <mat-dialog-content>
   <mat-list>
-    <mat-list-item (click)="select(sheet)" [ngClass]="{'selected': selectedSheet === sheet, 'sheet':true}" *ngFor="let sheet of sheetNames">
+    <mat-list-item (click)="select(sheet)" class="sheet" *ngFor="let sheet of sheetNames">
       {{sheet}}
     </mat-list-item>
   </mat-list>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button color="primary" mat-flat-button (click)="close()">Cancel</button>
-  <button [disabled]="!selectedSheet" color="warn" mat-flat-button (click)="proceed();">Proceed</button>
+  <button mat-button mat-dialog-close>Cancel</button>
 </mat-dialog-actions>
 

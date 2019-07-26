@@ -1,0 +1,25 @@
+<form [formGroup]="storeSurveyForm">
+  <div class="flex flex-justify-center" style="margin-bottom: 10px">
+    <button type="button" mat-raised-button color="accent" (click)="openAccessDialog()">Accesses</button>
+  </div>
+  <div class="checklist">
+    <mat-checkbox formControlName="accessibilityFarthestFromEntrance">
+      Farthest from entrance
+    </mat-checkbox>
+    <mat-checkbox formControlName="accessibilityMainIntersectionHasTrafficLight">
+      Main intersection has traffic light
+    </mat-checkbox>
+    <mat-checkbox formControlName="accessibilityMultipleRetailersBeforeSite">
+      Multiple other retailers before store
+    </mat-checkbox>
+    <mat-checkbox formControlName="accessibilitySetBackTwiceParkingLength">
+      Set back 2x the length of parking lot
+    </mat-checkbox>
+  </div>
+  <mat-form-field>
+    <mat-select placeholder="Accessibility Rating" formControlName="accessibilityRating">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</form>

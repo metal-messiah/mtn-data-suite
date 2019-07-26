@@ -3,42 +3,32 @@ import { SharedModule } from '../shared/shared.module';
 import { DataUploadRoutingModule } from './data-upload-routing.module';
 import { DataUploadComponent } from './data-upload.component';
 import { OptionsMenuComponent } from './options-menu/options-menu.component';
-import { PlannedGroceryComponent } from './planned-grocery/planned-grocery.component';
-import { SpreadsheetComponent } from './spreadsheet/spreadsheet.component';
-import { PgDataFormComponent } from './planned-grocery/pg-data-form/pg-data-form.component';
-import { AssignFieldsDialogComponent } from './spreadsheet/assign-fields-dialog/assign-fields-dialog.component';
-import { SpreadsheetDataFormComponent } from './spreadsheet/spreadsheet-data-form/spreadsheet-data-form.component';
-import { LoadComponent } from './spreadsheet/load/load.component';
-import { SpreadsheetService } from './spreadsheet/spreadsheet.service';
-import { AutomatchDialogComponent } from './spreadsheet/automatch-dialog/automatch-dialog.component';
-import { ChainXyComponent } from './chain-xy/chain-xy.component';
-import { ChainXyService } from './chain-xy/chain-xy.service';
-import { ChainXyTableComponent } from './chain-xy/chain-xy-table/chain-xy-table.component';
-import { ChainXyMapComponent } from './chain-xy/chain-xy-map/chain-xy-map.component';
-import { ChainXyDataFormComponent } from './chain-xy/chain-xy-map/chain-xy-data-form/chain-xy-data-form.component';
 import { DataUploadCloudinaryComponent } from './cloudinary/data-upload-cloudinary.component';
 import { MatchingComponent } from './matching/matching.component';
+import { StoreSourceLocationMatchComponent } from './store-source/store-source-location-match/store-source-location-match.component';
+import { StoreSourceMapComponent } from './store-source/store-source-map.component';
+import { StoreSourceDataFieldComponent } from './store-source/store-source-data-field/store-source-data-field.component';
+import { StoreSourceDataFormComponent } from './store-source/store-source-data-form/store-source-data-form.component';
+import { ChainXyTableComponent } from './chain-xy-table/chain-xy-table.component';
 
 @NgModule({
-    imports: [SharedModule, DataUploadRoutingModule],
-    declarations: [
-        DataUploadComponent,
-        OptionsMenuComponent,
-        PlannedGroceryComponent,
-        SpreadsheetComponent,
-        PgDataFormComponent,
-        SpreadsheetDataFormComponent,
-        AssignFieldsDialogComponent,
-        LoadComponent,
-        AutomatchDialogComponent,
-        ChainXyComponent,
-        ChainXyTableComponent,
-        ChainXyMapComponent,
-        ChainXyDataFormComponent,
-        DataUploadCloudinaryComponent,
-        MatchingComponent
-    ],
-    entryComponents: [AssignFieldsDialogComponent, LoadComponent, AutomatchDialogComponent],
-    providers: [SpreadsheetService, ChainXyService]
+  imports: [SharedModule, DataUploadRoutingModule],
+  declarations: [
+    DataUploadComponent,
+    OptionsMenuComponent,
+    ChainXyTableComponent,
+    StoreSourceMapComponent,
+    StoreSourceDataFormComponent,
+    DataUploadCloudinaryComponent,
+    StoreSourceMapComponent,
+    StoreSourceDataFormComponent,
+    MatchingComponent,
+    StoreSourceDataFieldComponent,
+    StoreSourceLocationMatchComponent
+  ],
+  entryComponents: [
+    StoreSourceDataFormComponent
+  ]
 })
-export class DataUploadModule { }
+export class DataUploadModule {
+}

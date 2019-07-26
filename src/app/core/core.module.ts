@@ -23,7 +23,6 @@ import { ShoppingCenterSurveyService } from './services/shopping-center-survey.s
 import { ShoppingCenterTenantService } from './services/shopping-center-tenant.service';
 import { ShoppingCenterAccessService } from './services/shopping-center-access.service';
 import { StoreSurveyService } from './services/store-survey.service';
-import { RoutingStateService } from './services/routing-state.service';
 import { BannerService } from './services/banner.service';
 import { StoreSourceService } from './services/store-source.service';
 import { EntitySelectionService } from './services/entity-selection.service';
@@ -33,7 +32,7 @@ import { StorageService } from './services/storage.service';
 import { SourceUpdatableService } from './services/source-updatable.service';
 import { BannerSourceService } from './services/banner-source.service';
 import { StoreListService } from './services/store-list.service';
-import { CloudinaryService } from './services/cloudinary.service';
+import { RoutingStateService } from './services/routing-state.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -42,7 +41,6 @@ import { CloudinaryService } from './services/cloudinary.service';
     AuthService,
     AuthGuard,
     BannerService,
-    CloudinaryService,
     CompanyService,
     DetailFormService,
     EntityListService,

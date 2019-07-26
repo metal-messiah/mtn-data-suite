@@ -1,0 +1,32 @@
+<ng-container [formGroup]="storeSurveyForm">
+  <div class="checklist">
+    <mat-checkbox formControlName="parkingHasAngledSpaces">Has Angled Spaces</mat-checkbox>
+    <mat-checkbox formControlName="parkingHasParkingHog">Has Parking Hog</mat-checkbox>
+    <mat-checkbox formControlName="parkingIsPoorlyLit">Is poorly Lit</mat-checkbox>
+    <mat-checkbox formControlName="parkingOutparcelsInterfereWithParking">
+      Outparcels interfere with parking
+    </mat-checkbox>
+    <mat-checkbox formControlName="parkingDirectAccessToParking">
+      Direct access to parking
+    </mat-checkbox>
+    <mat-checkbox formControlName="parkingSmallParkingField">Small parking field</mat-checkbox>
+    <mat-checkbox formControlName="parkingHasTSpaces">Has T Spaces</mat-checkbox>
+  </div>
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="# Parking Spaces"
+           formControlName="parkingSpaceCount">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-select placeholder="Parking Rating" formControlName="parkingRating">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</ng-container>
+
+<mat-form-field [formGroup]="shoppingCenterCasingForm">
+  <mat-select placeholder="Lighting Rating" formControlName="ratingLighting">
+    <mat-option>Clear Selection</mat-option>
+    <mat-option *ngFor="let condition of conditions" [value]="condition">{{condition}}</mat-option>
+  </mat-select>
+</mat-form-field>

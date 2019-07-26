@@ -1,0 +1,18 @@
+<div *ngIf="storeCasing.projects != null" id="projects">
+  <mat-list>
+    <mat-list-item *ngFor="let project of storeCasing.projects">
+      <div class="project-item">
+        <div>{{project.projectName}}</div>
+        <button type="button" mat-button color="warn" (click)="removeProject(project)">Remove</button>
+      </div>
+    </mat-list-item>
+  </mat-list>
+</div>
+<mat-action-row>
+  <mat-progress-bar mode="indeterminate" *ngIf="loadingProject"></mat-progress-bar>
+  <button type="button" id="add-project-button" mat-raised-button color="primary"
+          (click)="showProjectSelection()"
+          *ngIf="!loadingProject">
+    Add Project
+  </button>
+</mat-action-row>

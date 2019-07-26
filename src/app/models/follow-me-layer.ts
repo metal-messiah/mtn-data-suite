@@ -1,5 +1,5 @@
 import { MapPointLayer } from './map-point-layer';
-import { Coordinates } from './coordinates';
+import { LatLng } from './latLng';
 import { Mappable } from '../interfaces/mappable';
 import { Color } from '../core/functionalEnums/Color';
 import { MapService } from '../core/services/map.service';
@@ -8,7 +8,7 @@ export class FollowMeLayer extends MapPointLayer<Mappable> {
 
   followMeMappable: Mappable;
 
-  constructor(mapService: MapService, coordinates: Coordinates) {
+  constructor(mapService: MapService, coordinates: LatLng) {
     super(mapService);
 
     this.followMeMappable = {
@@ -31,7 +31,7 @@ export class FollowMeLayer extends MapPointLayer<Mappable> {
     this.addToMap(this.mapService.getMap());
   }
 
-  updatePosition(coordinates: Coordinates) {
+  updatePosition(coordinates: LatLng) {
     this.getMarkerForMappable(this.followMeMappable).setPosition(coordinates);
   }
 }

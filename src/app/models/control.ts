@@ -1,7 +1,6 @@
 import { DbEntityMarkerControls } from './db-entity-marker-controls';
 
 export enum ControlStorageKeys {
-  dbEntityMarkerServiceControls = 'dbEntityMarkerServiceControls',
   savedDbEntityMarkerServiceControls = 'savedDbEntityMarkerServiceControls'
 }
 

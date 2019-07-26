@@ -1,6 +1,10 @@
-<div class='wrapper'>
-  <div class='left-panel'>
-    <div *ngIf="!records">
+<mds-sub-title-bar subTitle="Matching">
+  <i class="fas fa-file-excel"></i>
+</mds-sub-title-bar>
+
+<div class="content-wrapper">
+  <div class="left-panel">
+    <div *ngIf="!records" id="file-input">
       <mds-file-input (fileChanged)="handleFile($event)"></mds-file-input>
       <div *ngIf="fields" [formGroup]="fieldForm" style="padding: 10px">
         <mat-form-field>
@@ -35,82 +39,47 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-        <button mat-raised-button type="submit" color="primary" (click)="loadRecords()">Continue</button>
+        <div style="text-align: right;">
+          <button mat-raised-button type="submit" color="accent" (click)="loadRecords()">Continue</button>
+        </div>
       </div>
     </div>
-    <div *ngIf="records">
-      <mds-file-input (fileChanged)="handleFile($event)"></mds-file-input>
-      <mat-checkbox style="margin-left: 10px;" [(ngModel)]="autoMatch">Auto-match</mat-checkbox>
-      <mat-checkbox style="margin-left: 10px;" [(ngModel)]="showUnmatched">Show Unmatched</mat-checkbox>
-      <mat-checkbox style="margin-left: 10px;" [(ngModel)]="showMatched">Show Matched</mat-checkbox>
-      <mat-checkbox style="margin-left: 10px;" [(ngModel)]="showNonMatches">Show Non-matches</mat-checkbox>
-      <div>
-        {{getRecords().length}} / {{records.length}}
+    <div *ngIf="records" id="record-list">
+      <div id="control-wrapper">
+        <mds-file-input (fileChanged)="handleFile($event)"></mds-file-input>
+        <mat-checkbox style="margin-left: 10px;" [(ngModel)]="autoMatch">Auto-match</mat-checkbox>
+        <mat-checkbox style="margin-left: 10px;" [(ngModel)]="showUnmatched">Show Unmatched</mat-checkbox>
+        <mat-checkbox style="margin-left: 10px;" [(ngModel)]="showMatched">Show Matched</mat-checkbox>
+        <mat-checkbox style="margin-left: 10px;" [(ngModel)]="showNonMatches">Show Non-matches</mat-checkbox>
+        <div style="width: 100%; text-align: center;">
+          {{getRecords().length}} / {{records.length}}
+        </div>
       </div>
       <mat-list>
-        <mat-list-item *ngFor="let record of getRecords(); let i = index"
-                       [ngClass]="{matched: record.storeId > 0, noMatch: record.storeId === 0,highlighted: currentRecord === record}"
+        <mat-list-item *ngFor="let record of getRecords()"
+                       [ngClass]="getMatchedClass(record)"
                        (click)="setCurrentRecord(record)">
-            <span class='list-item-header'>{{record.storeName}}</span>
+          <span class="list-item-header">{{record.sourceStoreName}}</span>
         </mat-list-item>
       </mat-list>
     </div>
   </div>
   <div class="center-panel hidden-sm">
-    <mds-map class="row content" (ready)="onMapReady($event)"></mds-map>
+    <mds-map class="row content" (ready)="onMapReady()"></mds-map>
   </div>
-  <div class="right-panel" *ngIf="currentRecord">
-    <div style="overflow-y: auto;">
-      <div class='flex-container'>
-        <div class='large-text'>
-          {{currentRecord.storeName || ''}}
-        </div>
-        <button (click)="noMatch()" color="accent" mat-raised-button>No Match</button>
-      </div>
-      <div class='results-table'>
-        <div class='loader' *ngIf="gettingEntities">
-          <div>
-            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-            <br>
-            <div class='large-text'>
-              Fetching Stores From MTNRA Database
-            </div>
-          </div>
-        </div>
-        <div [ngClass]="i % 2 != 0 ? 'results-item secondary-row':'results-item'"
-             *ngFor="let site of currentDBResults; let i=index;">
-          <div class="results-header large-text flex-container">
-
-            <div *ngIf="site.distanceFrom != null" [style.color]="site.distanceFrom < 0.5 ? 'green': '#ff9802'"
-                 class='site-distance'>
-              <i class="fas fa-arrow-circle-up" [style.transform]="site.heading"></i> {{site.distanceFrom.toFixed(2)}}
-              Miles
-            </div>
-            <div class='site-title'>{{site.address1 + ", " + site.city + ", " + site.state }}</div>
-          </div>
-          <mat-divider></mat-divider>
-          <div (mouseenter)="siteHover(store, 'enter')" (mouseleave)="siteHover(store, 'leave')" class="results-each"
-               *ngFor="let store of site.stores">
-            <div class="flex-container">
-              <div class='store-attribute'>{{store.storeName}}</div>
-              <div class='hidden-xs store-attribute'>{{store.storeType}}</div>
-              <div class='hidden-xs store-attribute'>{{store.currentStoreStatus}}</div>
-              <button (click)="matchStore(store.id)" mat-raised-button color="primary"
-                      [ngClass]="{'highlighted': bestMatch && bestMatch.store.id == store.id && bestMatch.score <=4}">
-                Match
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div>
-      <mat-divider></mat-divider>
-      <div style="display: flex; justify-content: space-around; padding: 8px 0; min-height: 40px;">
-        <button mat-raised-button type="button" color="warn" (click)="downloadMatchedData()">
-          <i class="fas fa-download"></i>&nbsp;&nbsp;Download Matched Data
-        </button>
-      </div>
+  <div class="right-panel" *ngIf="storeSource">
+    <mds-store-source-location-match [storeSource]="storeSource"
+                                     [siteMarkers]="siteMarkers"
+                                     [gettingStoreSource]="gettingStoreSource"
+                                     (onBestMatchFound)="onBestMatchFound($event)"
+                                     (onStoreMatched)="matchStore($event)"
+                                     (onNoMatch)="noMatch()">
+    </mds-store-source-location-match>
+    <mat-divider></mat-divider>
+    <div style="display: flex; justify-content: space-around; padding: 8px 0; min-height: 40px;">
+      <button mat-raised-button type="button" color="accent" (click)="downloadMatchedData()">
+        <i class="fas fa-download"></i>&nbsp;&nbsp;Download Matched Data
+      </button>
     </div>
   </div>
 </div>

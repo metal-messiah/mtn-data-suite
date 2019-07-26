@@ -9,7 +9,7 @@ import { UserProfile } from '../../models/full/user-profile';
 import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { forkJoin, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 
 @Injectable()
@@ -48,7 +48,7 @@ export class AuthService {
   private getValuesFromStorage() {
     this.storageService.getOne(this.ST_SESSION_USER).subscribe(storedSessionUser => {
       if (storedSessionUser) {
-        this.sessionUser = JSON.parse(storedSessionUser);
+        this.sessionUser = new UserProfile(storedSessionUser);
       }
     });
     this.storageService.getOne(this.ST_ACCESS_TOKEN).subscribe(storedAccessToken => {
@@ -82,16 +82,20 @@ export class AuthService {
   handleAuthentication(): void {
     this.auth0.parseHash((err, authResult) => {
       if (authResult && authResult.accessToken && authResult.idToken) {
-        window.location.hash = '';
-        this.saveSession(authResult).subscribe(() => {
-          this.getUserProfile().subscribe(userProfile => {
-              this.sessionUser = userProfile;
-              this.storageService.set(this.ST_SESSION_USER, JSON.stringify(userProfile)).subscribe();
-              this.storageService.getOne(this.ST_LATEST_PATH).subscribe(latestPath => this.router.navigate([latestPath]));
-            },
-            error => this.onError(error)
-          );
-        });
+        this.saveSession(authResult).pipe(mergeMap(() => this.getUserProfile()))
+          .subscribe((userProfile: UserProfile) => {
+            this.sessionUser = userProfile;
+            this.storageService.set(this.ST_SESSION_USER, userProfile).subscribe();
+            this.storageService.getOne(this.ST_LATEST_PATH).subscribe(latestPath => {
+              if (latestPath) {
+                this.router.navigate([latestPath])
+              } else {
+                this.router.navigate(['']);
+              }
+            });
+          },
+          error => this.onError(error)
+        );
       } else if (err) {
         this.onError(err);
       }

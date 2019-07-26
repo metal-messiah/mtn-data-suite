@@ -1,5 +1,5 @@
 import { MapPointLayer } from './map-point-layer';
-import { Coordinates } from './coordinates';
+import { LatLng } from './latLng';
 import { Mappable } from '../interfaces/mappable';
 import { Color } from '../core/functionalEnums/Color';
 import { MarkerShape } from '../core/functionalEnums/MarkerShape';
@@ -9,7 +9,7 @@ export class DraggableSiteLayer extends MapPointLayer<Mappable> {
 
   newSiteMappable: Mappable;
 
-  constructor(mapService: MapService, coordinates: Coordinates) {
+  constructor(mapService: MapService, coordinates: LatLng) {
     super(mapService);
     this.newSiteMappable = {
       getCoordinates: () => coordinates,

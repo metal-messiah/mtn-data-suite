@@ -12,7 +12,8 @@ export class BannerService extends CrudService<Banner> {
 
   protected endpoint = '/api/banner';
 
-  constructor(protected http: HttpClient, protected rest: RestService) {
+  constructor(protected http: HttpClient,
+              protected rest: RestService) {
     super(http, rest);
   }
 
@@ -30,10 +31,6 @@ export class BannerService extends CrudService<Banner> {
 
   protected createEntityFromObj(entityObj): Banner {
     return new Banner(entityObj);
-  }
-
-  getBannerImageSrc(banner: Banner | SimplifiedBanner) {
-    return `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_40,w_100/${banner.logoFileName}`;
   }
 
 }

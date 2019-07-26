@@ -1,20 +1,17 @@
 :host {
+  flex: 1;
   overflow: hidden;
-}
-
-#action-button-container {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
-#action-button-container button {
-  margin-top: 5px;
-  margin-bottom: 5px;
+.content-wrapper {
+  overflow-y: auto;
 }
 
-.list-wrapper mat-expansion-panel {
-  margin: 8px 5px;
+.content-wrapper > div {
+  max-width: 500px;
+  margin: 10px auto;
 }
 
 .centered {

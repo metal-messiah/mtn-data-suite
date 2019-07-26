@@ -1,21 +1,26 @@
-:host {
-  overflow: hidden;
-}
-
 .checklist {
   display: flex;
   flex-direction: column;
+  padding-left: 16px;
+  margin-bottom: 15px;
 }
 
-.content {
-  margin-left: 16px;
-  margin-right: 16px;
-}
-
-.list-wrapper mat-form-field {
-  width: 100%;
-}
-
-#bannerInput {
+#banner-input {
   width: 400px;
+}
+
+#banner-button-container {
+  display: flex;
+  align-items: center;
+  height: 65px;
+  justify-content: center;
+}
+
+#banner-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+#banner-container > div {
+  margin: auto;
 }

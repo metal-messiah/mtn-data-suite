@@ -2,11 +2,9 @@
   <span>Shopping Center Tenants&nbsp;&nbsp;<i class="fas fa-info-circle" (click)="showInfo()"></i></span>
 </h2>
 <div mat-dialog-content [formGroup]="form">
-  <div class="flex-space-between">
-    <mat-form-field>
-      <textarea formControlName="newTenantNames" placeholder="Add Tenants (comma separated list)" matInput></textarea>
-    </mat-form-field>
-  </div>
+  <mat-form-field style="width: 100%">
+    <textarea formControlName="newTenantNames" placeholder="Add Tenants (comma separated list)" matInput></textarea>
+  </mat-form-field>
   <div id="add-buttons" class="flex flex-space-around">
     <button type="button" mat-raised-button color="accent" [disabled]="newTenantNames.pristine"
             (click)="parseTenants(false)">
