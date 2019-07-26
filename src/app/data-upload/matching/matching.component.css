@@ -206,3 +206,8 @@ mds-store-source-location-match {
 mds-file-input {
   margin: 8px;
 }
+
+#control-wrapper > mat-checkbox {
+  margin-left: 10px;
+  display: block;
+}

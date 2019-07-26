@@ -63,6 +63,18 @@ export class MatchingComponent implements OnInit, OnDestroy {
     this.dbEntityMarkerService.destroy();
   }
 
+  getMatchedClass(record: StoreSource) {
+    if (record === this.storeSource) {
+      return 'highlighted';
+    } else if (record.store) {
+      if (record.store.id > 0) {
+        return 'matched';
+      } else {
+        return 'noMatch';
+      }
+    }
+  }
+
   noMatch() {
     this.storeSource.store = new SimplifiedStore({id: 0});
     this.nextRecord();

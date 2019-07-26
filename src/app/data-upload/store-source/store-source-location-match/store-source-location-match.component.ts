@@ -45,8 +45,7 @@ export class StoreSourceLocationMatchComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // TODO filter for necessary changes (storeSource and SiteMarkers)
-    if (this.siteMarkers && this.storeSource) {
+    if ((changes.siteMarkers || changes.storeSource) && this.siteMarkers && this.storeSource) {
       // If there is source data, set the siteMarkers with distance from source
       if (this.storeSource.storeSourceData) {
         this.siteMarkers = MatchingUtil.calculateDistancesAndHeadings(this.storeSource, this.siteMarkers)
@@ -55,7 +54,8 @@ export class StoreSourceLocationMatchComponent implements OnInit, OnChanges {
       // Sort the stores in each site by type
       this.siteMarkers.forEach(sm => sm.stores.sort((a, b) => a.storeType.localeCompare(b.storeType)));
       // Determine the best match
-      this.bestMatch = MatchingUtil.getBestMatch(this.minBestMatchDistance, this.maxWordSimilarityDiff, this.siteMarkers, this.storeSource);
+      this.bestMatch = MatchingUtil.getBestMatch(this.minBestMatchDistance, this.maxWordSimilarityDiff,
+        this.siteMarkers, this.storeSource);
       this.onBestMatchFound.emit(this.bestMatch);
     }
   }

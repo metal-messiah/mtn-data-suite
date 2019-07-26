@@ -57,7 +57,7 @@
       </div>
       <mat-list>
         <mat-list-item *ngFor="let record of getRecords()"
-                       [ngClass]="{matched: (record.store && record.store.id > 0), noMatch: (record.store && record.store.id === 0), highlighted: storeSource === record}"
+                       [ngClass]="getMatchedClass(record)"
                        (click)="setCurrentRecord(record)">
           <span class="list-item-header">{{record.sourceStoreName}}</span>
         </mat-list-item>
