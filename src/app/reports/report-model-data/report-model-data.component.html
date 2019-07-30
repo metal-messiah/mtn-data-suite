@@ -1,7 +1,47 @@
-<mds-sub-title-bar subTitle="1. Upload Report File"></mds-sub-title-bar>
+<mds-sub-title-bar subTitle="1. Upload Report File">
+</mds-sub-title-bar>
 
-<div class="content">
-  <form [formGroup]="rbs.modelMetaDataForm" id="model-data-form">
+<mat-sidenav-container style="flex: 1; overflow: hidden">
+  <mat-sidenav [opened]="true" mode="side">
+    <div id="saved-models-sidenav">
+      <h3 style="text-align: center;">
+        Load Saved Model
+      </h3>
+      <mat-divider></mat-divider>
+      <div *ngIf="savedModelsObs | async as models; else loading" id="list">
+        <div *ngIf="models.length === 0" style="padding: 16px; text-align: center;">
+          No Saved Models
+        </div>
+        <div *ngFor="let savedModel of models" class="saved-model-item">
+          <div>
+            <div class="model-name">{{savedModel.modelName}}</div>
+            <div class="date">{{savedModel.timeStamp | date}}</div>
+          </div>
+          <div style="min-width: 110px;">
+            <button mat-icon-button class="delete-button" color="warn" (click)="confirmDelete(savedModel)">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+            <button mat-raised-button color="primary" (click)="loadSavedModel(savedModel.modelName)">Load</button>
+          </div>
+        </div>
+      </div>
+      <ng-template #loading>
+        <div>
+          <i class="fas fa-spinner fa-pulse"></i>
+        </div>
+      </ng-template>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content class="content">
+    <div id="upload-button-container" style="text-align: center">
+      <button type="button" mat-raised-button id="file-button"
+              [color]="modelFileName ? 'primary' : 'accent'"
+              (click)="fileInput.click()"
+              [disabled]="parsingFile || postProcessing">
+        {{modelFileName || 'Upload File'}}
+      </button>
+    </div>
+    <form [formGroup]="modelMetaDataForm" id="model-data-form">
       <mat-form-field>
         <input required matInput placeholder="Analyst Full Name" type="text" formControlName="analyst">
       </mat-form-field>
@@ -21,19 +61,11 @@
         <mat-datepicker #fieldResDatePicker></mat-datepicker>
       </mat-form-field>
     </form>
-
-  <div style="text-align: center">
-    <button type="button" mat-raised-button id="file-button"
-            [color]="rbs.modelFile ? 'primary' : 'accent'"
-            (click)="fileInput.click()"
-            [disabled]="parsingFile || postProcessing">
-      {{rbs.modelFile ? rbs.modelFile.name: 'Upload File'}}
-    </button>
-  </div>
-
-</div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
 
 <mds-sub-title-bar>
+  <mat-checkbox [(ngModel)]="doSave" style="margin-right: 8px;">Save</mat-checkbox>
   <button (click)="next()" form="model-data-form" color="accent" type="submit" [disabled]="!fileIsReady()"
           mat-raised-button>
     <span *ngIf="!parsingFile && !postProcessing">Next</span>
@@ -45,5 +77,5 @@
   </button>
 </mds-sub-title-bar>
 
-<input hidden type="file" accept=".xls, .xlsx" id="fileInput" #fileInput (change)="readFile($event)"/>
+<input hidden type="file" accept=".xls, .xlsx" id="fileInput" #fileInput (change)="openFile($event)"/>
 

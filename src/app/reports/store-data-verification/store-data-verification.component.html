@@ -1,6 +1,11 @@
 <mds-sub-title-bar subTitle="3. Verify Correctness"></mds-sub-title-bar>
 
-<form *ngIf="dataVerificationForm" [formGroup]="dataVerificationForm" class="content">
+<ng-template #loading>
+  <div class="content">
+    <span style="text-align: center;"><i class="fas fa-spinner fa-pulse fa-2x"></i></span>
+  </div>
+</ng-template>
+<form *ngIf="dataVerificationForm; else loading;" [formGroup]="dataVerificationForm" class="content">
   <table id="data-verification-table" matSort (matSortChange)="sortData($event)" style="border-collapse: collapse;">
     <tr>
       <th mat-sort-header="mapKey">Map<br>Key</th>
@@ -23,7 +28,8 @@
         [ngClass]="getRowColor(storeControl.value)">
       <td>{{storeControl.get('mapKey').value}}</td>
       <td>
-        <a [href]="getStoreHRef(storeControl)" target="_blank">{{storeControl.get('uniqueId').value}}</a>
+        <a [href]="getStoreHRef(storeControl)"
+           target="_blank">{{storeControl.get('uniqueId').value}}</a>
       </td>
       <td>{{storeControl.get('storeName').value}}</td>
       <td>{{storeControl.get('scenario').value}}</td>
@@ -37,7 +43,7 @@
       <td style="width: 230px;">{{storeControl.get('location').value}}</td>
       <td class="right-align">{{storeControl.get('salesArea').value}}</td>
       <td [formGroupName]="i" class="right-align">
-        <input type="number" formControlName="totalArea" min="0">
+        <input [ngClass]="storeControl.invalid ? 'invalid' : null" type="number" formControlName="totalArea" min="0">
       </td>
       <td class="right-align">{{storeControl.get('totalChange').value | thousandsCurrency}}</td>
       <td class="right-align">{{storeControl.get('totalChangePerc').value | percent:'1.0-1'}}</td>
@@ -53,14 +59,23 @@
   </table>
 </form>
 
-<mds-sub-title-bar [subTitle]="dataVerificationForm.invalid ? 'All Total Areas are required!' : null">
-  <button color="primary" type="button" mat-raised-button (click)="harrisTeeter()"
+<mds-sub-title-bar *ngIf="!dataVerificationForm"></mds-sub-title-bar>
+<mds-sub-title-bar *ngIf="dataVerificationForm">
+  <div class="center">
+    {{dataVerificationForm.invalid ? 'Total Areas are required for all included stores!' : null}}
+  </div>
+  <button color="primary" type="button" mat-raised-button [routerLink]="['../harris-teeter']"
           class="left" [disabled]="dataVerificationForm.invalid">
     Harris Teeter
   </button>
-  <button color="accent" type="button" mat-raised-button (click)="next()" [disabled]="dataVerificationForm.invalid">
-    Next
-  </button>
+  <div>
+    <span *ngIf="saving" style="margin-right: 8px;">
+      <i class="fas fa-spinner fa-pulse"></i>&nbsp;Saving...
+    </span>
+    <button color="accent" type="button" mat-raised-button [routerLink]="['../site-evaluation']" [disabled]="dataVerificationForm.invalid">
+      Next
+    </button>
+  </div>
 </mds-sub-title-bar>
 
 
