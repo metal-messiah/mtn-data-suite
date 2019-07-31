@@ -94,14 +94,7 @@ import { MatBadgeModule, MatTooltipModule } from '@angular/material';
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
-<<<<<<< HEAD
-    MatSortModule,
-    MatBadgeModule,
-    MatTooltipModule,
-    ScrollingModule,
-=======
     ScrollingModule
->>>>>>> master
   ]
 })
 export class CustomMaterialModule {

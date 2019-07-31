@@ -31,15 +31,12 @@ import { SidenavMenuComponent } from './store-sidenav/sidenav-menu/sidenav-menu.
 import { SidenavStoresOnMapComponent } from './store-sidenav/sidenav-stores-on-map/sidenav-stores-on-map.component';
 import { SidenavUserListsComponent } from './store-sidenav/sidenav-user-lists/sidenav-user-lists.component';
 import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-list/sidenav-stores-in-list.component';
-<<<<<<< HEAD
 import { BoundaryDialogComponent } from './boundary-dialog/boundary-dialog.component';
-=======
 import { MenuListComponent } from './menu-list/menu-list.component';
 import { SubTitleBarComponent } from './sub-title-bar/sub-title-bar.component';
 import { ItemSelectionDialogComponent } from './item-selection/item-selection-dialog.component';
 import { DbEntityControlsComponent } from './db-entity-controls/db-entity-controls.component';
 import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing-entity-fields.component';
->>>>>>> master
 
 @NgModule({
   imports: [
@@ -73,10 +70,8 @@ import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing
     SidenavStoresInListComponent,
     SidenavStoresOnMapComponent,
     SidenavUserListsComponent,
-<<<<<<< HEAD
     SidenavStoresInListComponent,
-    BoundaryDialogComponent
-=======
+    BoundaryDialogComponent,
     SimpleSelectDialogComponent,
     StoredControlsSelectionDialogComponent,
     StoresListComponent,
@@ -85,7 +80,6 @@ import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing
     TextInputDialogComponent,
     ThousandsCurrencyPipe,
     UserProfileSelectComponent
->>>>>>> master
   ],
   providers: [
     BreakpointObserver,
@@ -104,13 +98,10 @@ import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing
     StoredControlsSelectionDialogComponent,
     TabSelectDialogComponent,
     TextInputDialogComponent,
-<<<<<<< HEAD
     StoredControlsSelectionDialogComponent,
     SimpleSelectDialogComponent,
-    BoundaryDialogComponent
-=======
+    BoundaryDialogComponent,
     UserProfileSelectComponent
->>>>>>> master
   ],
   exports: [
     AddRemoveStoresListDialogComponent,
@@ -134,13 +125,10 @@ import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing
     PathNotFoundComponent,
     ReactiveFormsModule,
     StoresListComponent,
-<<<<<<< HEAD
     AddRemoveStoresListDialogComponent,
-    BoundaryDialogComponent
-=======
+    BoundaryDialogComponent,
     SubTitleBarComponent,
     ThousandsCurrencyPipe
->>>>>>> master
   ]
 })
 export class SharedModule {

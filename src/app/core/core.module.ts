@@ -32,12 +32,7 @@ import { StorageService } from './services/storage.service';
 import { SourceUpdatableService } from './services/source-updatable.service';
 import { BannerSourceService } from './services/banner-source.service';
 import { StoreListService } from './services/store-list.service';
-<<<<<<< HEAD
-import { CloudinaryService } from './services/cloudinary.service';
-import { BoundaryService } from './services/boundary.service';
-=======
 import { RoutingStateService } from './services/routing-state.service';
->>>>>>> master
 
 @NgModule({
   imports: [CommonModule],
