@@ -31,6 +31,7 @@ import { SidenavMenuComponent } from './store-sidenav/sidenav-menu/sidenav-menu.
 import { SidenavStoresOnMapComponent } from './store-sidenav/sidenav-stores-on-map/sidenav-stores-on-map.component';
 import { SidenavUserListsComponent } from './store-sidenav/sidenav-user-lists/sidenav-user-lists.component';
 import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-list/sidenav-stores-in-list.component';
+import { BoundaryDialogComponent } from './boundary-dialog/boundary-dialog.component';
 
 @NgModule({
   imports: [
@@ -67,7 +68,8 @@ import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-
     SidenavMenuComponent,
     SidenavStoresOnMapComponent,
     SidenavUserListsComponent,
-    SidenavStoresInListComponent
+    SidenavStoresInListComponent,
+    BoundaryDialogComponent
   ],
   providers: [
     BreakpointObserver,
@@ -85,7 +87,8 @@ import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-
     AddRemoveStoresListDialogComponent,
     TextInputDialogComponent,
     StoredControlsSelectionDialogComponent,
-    SimpleSelectDialogComponent
+    SimpleSelectDialogComponent,
+    BoundaryDialogComponent
   ],
   exports: [
     CallbackComponent,
@@ -106,7 +109,8 @@ import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-
     ThousandsCurrencyPipe,
     CustomMaterialModule,
     StoresListComponent,
-    AddRemoveStoresListDialogComponent
+    AddRemoveStoresListDialogComponent,
+    BoundaryDialogComponent
   ]
 })
 export class SharedModule {

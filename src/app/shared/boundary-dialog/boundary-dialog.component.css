@@ -1,0 +1,9 @@
+div[mat-dialog-content] {
+    min-height: 25vh;
+}
+
+.mat-list-option-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

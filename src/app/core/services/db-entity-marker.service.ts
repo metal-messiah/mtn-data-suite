@@ -54,12 +54,12 @@ export class DbEntityMarkerService {
   readonly markerTypeOptions = ['Pin', 'Logo', 'Validation', 'Cased for Project'];
 
   constructor(private authService: AuthService,
-              private errorService: ErrorService,
-              private fb: FormBuilder,
-              private siteMarkerService: SiteMarkerService,
-              private projectService: ProjectService,
-              private casingDashboardService: CasingDashboardService,
-              private storageService: StorageService) {
+    private errorService: ErrorService,
+    private fb: FormBuilder,
+    private siteMarkerService: SiteMarkerService,
+    private projectService: ProjectService,
+    private casingDashboardService: CasingDashboardService,
+    private storageService: StorageService) {
 
     this.initControls();
   }
@@ -86,7 +86,7 @@ export class DbEntityMarkerService {
     });
 
     this.clusterer = new MarkerClusterer(this.gmap, [],
-      {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+      { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
 
     if (!this._controls.updateOnBoundsChange) {
       this.storageService.getOne(this.ST_SITE_MARKERS).subscribe(siteMarkersJson => {
@@ -271,7 +271,7 @@ export class DbEntityMarkerService {
     }
 
     // BANNER FILTER
-    if (this._controls.banners.length && !this._controls.banners.find(b => b.id === storeMarker.bannerId)) {
+    if (this._controls.banners && this._controls.banners.length && !this._controls.banners.find(b => b.id === storeMarker.bannerId)) {
       return false;
     }
 
@@ -291,7 +291,7 @@ export class DbEntityMarkerService {
 
     const siteIsVacant = siteMarker.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
     // If site is vacant, don't include if filtering by banner or store list, or if showVacantSites isn't checked
-    return !(siteIsVacant && (this._controls.banners.length > 0 || this._controls.storeList || !this._controls.showVacantSites));
+    return !(siteIsVacant && (this._controls.banners && this._controls.banners.length > 0 || this._controls.storeList || !this._controls.showVacantSites));
   }
 
   /**************************************
@@ -333,7 +333,7 @@ export class DbEntityMarkerService {
       }
     });
 
-    return {siteIds: siteIds, storeIds: storeIds};
+    return { siteIds: siteIds, storeIds: storeIds };
   }
 
   private initControls() {
@@ -371,13 +371,13 @@ export class DbEntityMarkerService {
     // If google marker has a StoreMarker check for store inclusion, if no store, check for site inclusion
     const filteredGMarkers = markers.reduce((prev, curr) => prev.concat(curr), [])
       .filter(marker => {
-          if (marker['store']) {
-            return this.shouldIncludeStoreMarker(marker['store'], marker['site']);
-          } else if (marker['site']) {
-            return this.shouldIncludeSiteMarker(marker['site']);
-          }
-          return true;
+        if (marker['store']) {
+          return this.shouldIncludeStoreMarker(marker['store'], marker['site']);
+        } else if (marker['site']) {
+          return this.shouldIncludeSiteMarker(marker['site']);
         }
+        return true;
+      }
       );
 
     filteredGMarkers.forEach(marker => this.refreshMarkerOptions(marker));
@@ -426,7 +426,7 @@ export class DbEntityMarkerService {
       return cached.markers;
     }
     const markers = this.createMarkersForSite(site);
-    this.siteMarkerCache.push({markers: markers, siteMarker: site});
+    this.siteMarkerCache.push({ markers: markers, siteMarker: site });
     return markers;
   }
 
@@ -476,7 +476,7 @@ export class DbEntityMarkerService {
   private createSiteMarker(site: SiteMarker) {
     const marker = new google.maps.Marker();
     marker['site'] = site;
-    marker.addListener('click', () => this.clickListener$.next({storeId: null, siteId: site.id, marker: marker}));
+    marker.addListener('click', () => this.clickListener$.next({ storeId: null, siteId: site.id, marker: marker }));
 
     if (this.selectionService.siteIds.has(site.id)) {
       this.selectedMarkers.add(marker);
@@ -486,10 +486,10 @@ export class DbEntityMarkerService {
 
   private createStoreMarker(store: StoreMarker, site: SiteMarker) {
     // Must make marker with coordinates for MarkerWithLabel to work
-    const marker = new MarkerWithLabel({position: {lat: site.latitude, lng: site.longitude}});
+    const marker = new MarkerWithLabel({ position: { lat: site.latitude, lng: site.longitude } });
     marker['store'] = store;
     marker['site'] = site;
-    marker.addListener('click', () => this.clickListener$.next({storeId: store.id, siteId: site.id, marker: marker}));
+    marker.addListener('click', () => this.clickListener$.next({ storeId: store.id, siteId: site.id, marker: marker }));
 
     if (this.selectionService.storeIds.has(store.id)) {
       this.selectedMarkers.add(marker);
@@ -506,7 +506,7 @@ export class DbEntityMarkerService {
     const assignedToOther = !assignedToUser && site.assigneeId != null;
 
     return {
-      position: {lat: site.latitude, lng: site.longitude},
+      position: { lat: site.latitude, lng: site.longitude },
       icon: {
         path: site.duplicate ? MarkerShape.FLAGGED : MarkerShape.DEFAULT,
         fillColor: StoreIconUtil.getFillColor(selected, assignedToUser, assignedToOther),
@@ -530,7 +530,7 @@ export class DbEntityMarkerService {
     const assignedToOther = !assignedToUser && site.assigneeId != null;
 
     return {
-      position: {lat: site.latitude, lng: site.longitude},
+      position: { lat: site.latitude, lng: site.longitude },
       icon: {
         path: StoreIconUtil.getStoreIconMarkerShape(store, showLogo, showCased, showValidated),
         fillColor: StoreIconUtil.getStoreIconFillColor(store, selected, assignedToUser, assignedToOther, showValidated),

@@ -62,7 +62,7 @@ import { MatBadgeModule, MatTooltipModule } from '@angular/material';
     MatSortModule,
     MatBadgeModule,
     MatTooltipModule,
-    ScrollingModule
+    ScrollingModule,
   ],
   exports: [
     MatAutocompleteModule,
@@ -96,7 +96,7 @@ import { MatBadgeModule, MatTooltipModule } from '@angular/material';
     MatSortModule,
     MatBadgeModule,
     MatTooltipModule,
-    ScrollingModule
+    ScrollingModule,
   ]
 })
 export class CustomMaterialModule {
