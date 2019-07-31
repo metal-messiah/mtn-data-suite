@@ -9,10 +9,8 @@
   </mat-list>
 </div>
 <mat-action-row>
-  <mat-progress-bar mode="indeterminate" *ngIf="loadingProject"></mat-progress-bar>
   <button type="button" id="add-project-button" mat-raised-button color="primary"
-          (click)="showProjectSelection()"
-          *ngIf="!loadingProject">
+          (click)="showProjectSelection()">
     Add Project
   </button>
 </mat-action-row>

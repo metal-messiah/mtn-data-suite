@@ -24,6 +24,7 @@ import { EntitySelectionService } from '../../core/services/entity-selection.ser
 import { CasingProjectService } from '../../casing/casing-project.service';
 import { DbEntityMarkerControls } from '../../models/db-entity-marker-controls';
 import { SiteMarker } from '../../models/site-marker';
+import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 
 export enum PageEvent {
   PREV,
@@ -86,6 +87,8 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
 
   subscriptions: Subscription[] = [];
 
+  layoutIsSmall = false;
+
   constructor(
     private storeSourceService: StoreSourceService,
     private bannerSourceService: BannerSourceService,
@@ -101,6 +104,7 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
     private sourceUpdatableService: SourceUpdatableService,
     private selectionService: EntitySelectionService,
     private casingProjectService: CasingProjectService,
+    private breakpointObserver: BreakpointObserver,
     private dialog: MatDialog
   ) {
   }
@@ -162,6 +166,10 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
 
   get controls() {
     return this.dbEntityMarkerService.controls;
+  }
+
+  openSidenavDirectlyToSelectedListStores(event) {
+    this.snackBar.open('Not supported in this module!', null, {duration: 2000});
   }
 
   filterChanged() {
@@ -357,6 +365,9 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.push(matchStoreFromMap);
     this.subscriptions.push(markersChanged);
+    // Watch screen size - set flag if small
+    this.subscriptions.push(this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.HandsetPortrait])
+      .subscribe((state: BreakpointState) => this.layoutIsSmall = state.matches));
   }
 
   private setSourceStoreAndValidate(storeId: number) {
