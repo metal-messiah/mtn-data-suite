@@ -1,4 +1,4 @@
-import { Coordinates } from '../../models/coordinates';
+import { LatLng } from '../../models/latLng';
 import { StoreMarker } from '../../models/store-marker';
 import { SiteMarker } from '../../models/site-marker';
 import { SiteUtil } from '../../utils/SiteUtil';
@@ -7,7 +7,7 @@ export class SiteListItem {
   siteId: number;
   address: string;
   intersection: string;
-  coords: Coordinates;
+  coords: LatLng;
   backfilledNonGrocery: boolean;
   vacant: boolean;
   assigneeName: string;
@@ -17,7 +17,7 @@ export class SiteListItem {
     this.siteId = siteMarker.id;
     this.address = this.getAddressLabel(siteMarker);
     this.intersection = this.getFormattedIntersection(siteMarker);
-    this.coords = new Coordinates(siteMarker.latitude, siteMarker.longitude);
+    this.coords = new LatLng(siteMarker.latitude, siteMarker.longitude);
     this.backfilledNonGrocery = siteMarker.backfilledNonGrocery;
     this.vacant = siteMarker.vacant;
     this.assigneeName = siteMarker.assigneeName;

@@ -1,34 +1,33 @@
-<div class="box">
-  <mat-toolbar class="row header flex-space-between">
-    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    <span><i class="fas fa-id-badge"></i> Roles</span>
-    <button mat-raised-button color="primary" routerLink="../role-detail">Add Role</button>
-  </mat-toolbar>
-  <div class="row content">
-    <div class="list-wrapper">
-      <h3 *ngIf="roles && roles.length < 1">No Roles</h3>
-      <div *ngIf="isLoading" style="text-align: center">
-        <i class="fas fa-spinner fa-3x fa-pulse" aria-hidden="true"></i>
-      </div>
-      <mat-accordion *ngIf="!isLoading">
-        <mat-expansion-panel *ngFor="let role of roles">
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              {{role.displayName}}
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <p>{{role.description}}</p>
-          <mat-action-row>
-            <button [disabled]="isDeleting" mat-button color="warn" (click)="confirmDelete(role)">
-              <span *ngIf="isDeleting"><i class="fas fa-spinner fa-pulse" aria-hidden="true"></i></span>
-              <span>Delete</span>
-            </button>
-            <button [disabled]="isDeleting" mat-button color="primary" [routerLink]="['../role-detail/', role.id]">
-              Edit
-            </button>
-          </mat-action-row>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </div>
-  </div>
+<mds-sub-title-bar subTitle="Roles">
+  <i class="fas fa-id-badge"></i>
+  <button mat-mini-fab color="accent" routerLink="../role-detail" title="Create New Role">
+    <i class="fas fa-plus"></i>
+  </button>
+</mds-sub-title-bar>
+
+<div class="entity-table-wrapper">
+  <table class="entity-table" matSort="sort" (matSortChange)="sortData($event)">
+    <tr>
+      <th mat-sort-header="displayName">Role Name</th>
+      <th>Permissions</th>
+    </tr>
+
+    <tr *ngIf="!roles">
+      <td style="text-align: center;" colspan="2">
+        <i *ngIf="isLoading" class="fas fa-spinner fa-pulse fa-2x" style="margin: 10px;"></i>
+        <span *ngIf="!isLoading && roles && roles.length === 0">No Roles</span>
+      </td>
+    </tr>
+
+    <tr *ngFor="let role of roles" [routerLink]="['../role-detail/', role.id]">
+      <td>{{role.displayName}}</td>
+      <td>
+        <button class="select-button" mat-raised-button
+                color="accent"
+                (click)="editPermissions($event, role)">
+          <i class="fas fa-edit"></i>&nbsp;Edit Permissions
+        </button>
+      </td>
+    </tr>
+  </table>
 </div>

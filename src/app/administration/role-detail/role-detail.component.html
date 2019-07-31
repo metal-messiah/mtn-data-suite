@@ -1,85 +1,34 @@
-<form class="box" [formGroup]="roleForm" novalidate>
-  <mat-toolbar class="row header flex-space-between">
-    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    <span id="title">Role Details</span>
-    <div>
-      <button type="submit" mat-raised-button color="primary" (click)="saveRole()"
-              [disabled]="roleForm.pristine || roleForm.invalid || isSaving">
-        <span *ngIf="roleForm.invalid">Invalid</span>
-        <span *ngIf="!isSaving && roleForm.valid">Save</span>
-        <span *ngIf="isSaving"><i class="fas fa-spinner fa-pulse"></i></span>
-      </button>
-    </div>
-  </mat-toolbar>
-  <div class="row content" *ngIf="role">
-    <div class="list-wrapper">
-      <div *ngIf="isLoading" style="text-align: center">
-        <i class="fas fa-spinner fa-3x fa-pulse" aria-hidden="true"> </i>
-      </div>
-      <mat-list>
-        <mat-list-item>
-          <mat-form-field>
-            <input matInput type="text" placeholder="Display Name" formControlName="displayName" required>
-          </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-form-field>
-            <input matInput type="text" placeholder="Description" formControlName="description">
-          </mat-form-field>
-        </mat-list-item>
-        <div id="table-container">
-          <table>
-            <tr>
-              <th>
-                <mat-slide-toggle (change)="selectAllPermissions()" formControlName="allSelected">
-                  <strong>ALL</strong>
-                </mat-slide-toggle>
-              </th>
-              <th *ngFor="let action of actions" formGroupName="actions">
-                <mat-slide-toggle [formControlName]="action" (change)="toggleAction(action)">
-                  {{abbreviate ? action.charAt(0) : action}}
-                </mat-slide-toggle>
-              </th>
-            </tr>
-            <tr *ngFor="let subject of subjects">
-              <td formGroupName="subjects">
-                <mat-slide-toggle [formControlName]="subject" (change)="toggleSubject(subject)">
-                  {{subject}}
-                </mat-slide-toggle>
-              </td>
-              <td *ngFor="let action of actions" formGroupName="permissions">
-                <div [formGroupName]="subject">
-                  <mat-slide-toggle [formControlName]="action"
-                                    *ngIf="getPermission(subject, action)"
-                                    (change)="updateAllControls(subject, action)">{{abbreviate ? action.charAt(0) :
-                    action}}
-                  </mat-slide-toggle>
-                </div>
-              </td>
-            </tr>
-          </table>
-        </div>
-        <mat-list-item>
-          <mat-form-field *ngIf="role.id !== undefined">
-            <input matInput placeholder="Created By" formControlName="createdBy">
-          </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-form-field *ngIf="role.id !== undefined">
-            <input matInput placeholder="Created Date" formControlName="createdDate">
-          </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-form-field *ngIf="role.id !== undefined">
-            <input matInput placeholder="Updated By" formControlName="updatedBy">
-          </mat-form-field>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-form-field *ngIf="role.id !== undefined">
-            <input matInput placeholder="Updated Date" formControlName="updatedDate">
-          </mat-form-field>
-        </mat-list-item>
-      </mat-list>
-    </div>
+<mds-sub-title-bar subTitle="Role Details">
+  <i class="fas fa-id-badge"></i>
+  <button title="Form Invalid" type="button" mat-icon-button color="warn" *ngIf="roleForm.invalid">
+    <i class="fas fa-exclamation-triangle fa-2x"></i>
+  </button>
+  <button title="Save Role" type="submit" form="role-form" mat-mini-fab color="accent" (click)="saveRole()"
+          [disabled]="roleForm.pristine || roleForm.invalid || isSaving">
+    <i class="fas fa-save"></i>
+  </button>
+</mds-sub-title-bar>
+
+<div id="content-wrapper">
+  <div *ngIf="isLoading" style="text-align: center">
+    <i class="fas fa-spinner fa-3x fa-pulse" aria-hidden="true"> </i>
   </div>
-</form>
+  <div id="form-wrapper">
+    <form id="role-form" [formGroup]="roleForm" *ngIf="role">
+      <mat-form-field>
+        <input matInput type="text" placeholder="Display Name" formControlName="displayName" required>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="text" placeholder="Description" formControlName="description">
+      </mat-form-field>
+      <ng-container *ngIf="role.id">
+        <mds-auditing-entity-fields [entity]="role"></mds-auditing-entity-fields>
+        <div>
+          <button mat-button color="warn" title="Delete Role" (click)="deleteRole()">
+            Delete Role
+          </button>
+        </div>
+      </ng-container>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+<mat-form-field [formGroup]="storeCasingForm">
+  <input matInput type="number" autocomplete="off" placeholder="Estimated Weekly Gallons"
+         formControlName="fuelGallonsWeekly">
+</mat-form-field>
+<mat-form-field [formGroup]="storeSurveyForm">
+  <input matInput type="number" autocomplete="off" placeholder="Number of Dispensers"
+         formControlName="fuelDispenserCount">
+  <mat-hint>Maximum number of cars that can fuel simultaneously</mat-hint>
+</mat-form-field>

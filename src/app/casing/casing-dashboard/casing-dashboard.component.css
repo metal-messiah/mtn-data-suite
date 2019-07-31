@@ -62,6 +62,11 @@ mat-slider {
   margin-left: 6px;
 }
 
+#openListView {
+  margin-left: 6px;
+  position: absolute;
+}
+
 .hidden {
   visibility: hidden;
 }

@@ -31,7 +31,15 @@ import { SidenavMenuComponent } from './store-sidenav/sidenav-menu/sidenav-menu.
 import { SidenavStoresOnMapComponent } from './store-sidenav/sidenav-stores-on-map/sidenav-stores-on-map.component';
 import { SidenavUserListsComponent } from './store-sidenav/sidenav-user-lists/sidenav-user-lists.component';
 import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-list/sidenav-stores-in-list.component';
+<<<<<<< HEAD
 import { BoundaryDialogComponent } from './boundary-dialog/boundary-dialog.component';
+=======
+import { MenuListComponent } from './menu-list/menu-list.component';
+import { SubTitleBarComponent } from './sub-title-bar/sub-title-bar.component';
+import { ItemSelectionDialogComponent } from './item-selection/item-selection-dialog.component';
+import { DbEntityControlsComponent } from './db-entity-controls/db-entity-controls.component';
+import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing-entity-fields.component';
+>>>>>>> master
 
 @NgModule({
   imports: [
@@ -42,34 +50,42 @@ import { BoundaryDialogComponent } from './boundary-dialog/boundary-dialog.compo
     ReactiveFormsModule
   ],
   declarations: [
+    AddRemoveStoresListDialogComponent,
     AppInfoDialogComponent,
+    AuditingEntityFieldsComponent,
     CallbackComponent,
     ConfirmDialogComponent,
     DataFieldComponent,
     DataFieldInfoDialogComponent,
+    DbEntityControlsComponent,
     DbLocationInfoCardComponent,
     ErrorDialogComponent,
     FileInputComponent,
     FuzzySearchComponent,
-    FuzzySearchComponent,
     GoogleInfoCardComponent,
+    ItemSelectionDialogComponent,
     LogoMenuComponent,
     MapComponent,
+    MenuListComponent,
     NewProjectNameComponent,
     PathNotFoundComponent,
-    TabSelectDialogComponent,
-    ThousandsCurrencyPipe,
-    UserProfileSelectComponent,
-    StoresListComponent,
-    AddRemoveStoresListDialogComponent,
-    TextInputDialogComponent,
-    StoredControlsSelectionDialogComponent,
-    SimpleSelectDialogComponent,
     SidenavMenuComponent,
+    SidenavStoresInListComponent,
     SidenavStoresOnMapComponent,
     SidenavUserListsComponent,
+<<<<<<< HEAD
     SidenavStoresInListComponent,
     BoundaryDialogComponent
+=======
+    SimpleSelectDialogComponent,
+    StoredControlsSelectionDialogComponent,
+    StoresListComponent,
+    SubTitleBarComponent,
+    TabSelectDialogComponent,
+    TextInputDialogComponent,
+    ThousandsCurrencyPipe,
+    UserProfileSelectComponent
+>>>>>>> master
   ],
   providers: [
     BreakpointObserver,
@@ -77,40 +93,54 @@ import { BoundaryDialogComponent } from './boundary-dialog/boundary-dialog.compo
     MediaMatcher
   ],
   entryComponents: [
+    AddRemoveStoresListDialogComponent,
     AppInfoDialogComponent,
     ConfirmDialogComponent,
     DataFieldInfoDialogComponent,
     ErrorDialogComponent,
+    ItemSelectionDialogComponent,
     NewProjectNameComponent,
+    SimpleSelectDialogComponent,
+    StoredControlsSelectionDialogComponent,
     TabSelectDialogComponent,
-    UserProfileSelectComponent,
-    AddRemoveStoresListDialogComponent,
     TextInputDialogComponent,
+<<<<<<< HEAD
     StoredControlsSelectionDialogComponent,
     SimpleSelectDialogComponent,
     BoundaryDialogComponent
+=======
+    UserProfileSelectComponent
+>>>>>>> master
   ],
   exports: [
+    AddRemoveStoresListDialogComponent,
+    AuditingEntityFieldsComponent,
     CallbackComponent,
     CommonModule,
     CustomMaterialModule,
     DataFieldComponent,
     DataFieldInfoDialogComponent,
     DatePipe,
+    DbEntityControlsComponent,
     DbLocationInfoCardComponent,
     FileInputComponent,
     FormsModule,
     FuzzySearchComponent,
     HttpClientModule,
+    ItemSelectionDialogComponent,
     LogoMenuComponent,
     MapComponent,
+    MenuListComponent,
     PathNotFoundComponent,
     ReactiveFormsModule,
-    ThousandsCurrencyPipe,
-    CustomMaterialModule,
     StoresListComponent,
+<<<<<<< HEAD
     AddRemoveStoresListDialogComponent,
     BoundaryDialogComponent
+=======
+    SubTitleBarComponent,
+    ThousandsCurrencyPipe
+>>>>>>> master
   ]
 })
 export class SharedModule {

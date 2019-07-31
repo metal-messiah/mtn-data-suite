@@ -1,0 +1,6 @@
+.checklist {
+  display: flex;
+  flex-direction: column;
+  padding-left: 16px;
+  margin-bottom: 8px;
+}

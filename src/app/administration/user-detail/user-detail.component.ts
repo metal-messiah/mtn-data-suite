@@ -1,170 +1,113 @@
 import { Component, OnInit } from '@angular/core';
-import { DatePipe, Location } from '@angular/common';
+import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { UserProfile } from '../../models/full/user-profile';
 
 import { UserProfileService } from '../../core/services/user-profile.service';
-import { RoleService } from '../../core/services/role.service';
-import { GroupService } from '../../core/services/group.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ErrorService } from '../../core/services/error.service';
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
-import { DetailFormComponent } from '../../interfaces/detail-form-component';
 import { DetailFormService } from '../../core/services/detail-form.service';
-import { SimplifiedGroup } from '../../models/simplified/simplified-group';
-import { SimplifiedRole } from '../../models/simplified/simplified-role';
 import { Observable } from 'rxjs';
-import { mergeMap, tap } from 'rxjs/internal/operators';
-import { Pageable } from '../../models/pageable';
+import { finalize } from 'rxjs/internal/operators';
+import { MatDialog, MatSnackBar } from '@angular/material';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'mds-user-detail',
   templateUrl: './user-detail.component.html',
-  styleUrls: ['./user-detail.component.css']
+  styleUrls: ['./user-detail.component.css', '../detail-view.css']
 })
-export class UserDetailComponent implements OnInit, CanComponentDeactivate, DetailFormComponent<UserProfile> {
+export class UserDetailComponent implements OnInit, CanComponentDeactivate {
 
   userProfileForm: FormGroup;
 
   userProfile: UserProfile;
 
-  roles: SimplifiedRole[];
-  groups: SimplifiedGroup[];
-
   isSaving = false;
   isLoading = false;
 
   constructor(private userProfileService: UserProfileService,
-              private roleService: RoleService,
-              private groupService: GroupService,
               private route: ActivatedRoute,
               private router: Router,
               private _location: Location,
+              private snackBar: MatSnackBar,
               private errorService: ErrorService,
+              private dialog: MatDialog,
               private fb: FormBuilder,
-              private datePipe: DatePipe,
-              private detailFormService: DetailFormService<UserProfile>) {
+              private detailFormService: DetailFormService) {
   }
 
   ngOnInit() {
     this.createForm();
-
-    this.isLoading = true;
-
-    const compareDisplayNames = function (object1, object2) {
-      return object1['displayName'].localeCompare(object2['displayName']);
-    };
-
-    // First get Roles
-    this.roleService.getAllRoles().pipe(
-      mergeMap((page: Pageable<SimplifiedRole>) => {
-        // When Roles returns, save results in component
-        this.roles = page.content.sort(compareDisplayNames);
-        // Then get groups
-        return this.groupService.getAllGroups();
-      }),
-      // When group request returns save it
-      tap((page: Pageable<SimplifiedGroup>) => this.groups = page.content.sort(compareDisplayNames)))
-      .subscribe(() => {
-          // Finally get the user profile
-          this.detailFormService.retrieveObj(this);
-        },
-        err => this.errorService.handleServerError(
-          'Failed to retrieve reference values! (Groups and Roles)', err,
-          () => this.goBack())
-      );
+    this.getData();
   }
 
-  // Implementations for DetailFormComponent
   createForm(): void {
     this.userProfileForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       firstName: '',
       lastName: '',
-      group: '',
-      role: '',
-      createdBy: '',
-      createdDate: '',
-      updatedBy: '',
-      updatedDate: ''
     });
-    this.setDisabledFields();
   }
 
-  setDisabledFields(): void {
-    this.userProfileForm.get('createdBy').disable();
-    this.userProfileForm.get('createdDate').disable();
-    this.userProfileForm.get('updatedBy').disable();
-    this.userProfileForm.get('updatedDate').disable();
-  }
-
-  getForm(): FormGroup {
-    return this.userProfileForm;
-  }
-
-  getNewObj(): UserProfile {
-    return new UserProfile({});
-  }
-
-  getObj(): UserProfile {
-    return this.userProfile;
-  }
-
-  getEntityService(): UserProfileService {
-    return this.userProfileService;
-  }
-
-  getRoute(): ActivatedRoute {
-    return this.route;
-  }
-
-  getSavableObj(): UserProfile {
-    const savable = JSON.parse(JSON.stringify(this.userProfile));
+  saveUser() {
+    const savable = Object.assign({}, this.userProfile);
     Object.keys(this.userProfileForm.controls).forEach(key => {
       if (this.userProfileForm.get(key).dirty) {
-        savable[key] = this.userProfileForm.get(key).value
+        savable[key] = this.userProfileForm.get(key).value;
       }
     });
-    return savable;
+
+    const request = savable.id ? this.userProfileService.update(savable) : this.userProfileService.create(savable);
+
+    this.isSaving = true;
+    request.pipe(finalize(() => this.isSaving = false))
+      .subscribe(userProfile => {
+        this.snackBar.open('Successfully saved user profile', null, {duration: 2000});
+        this.userProfileForm.reset(userProfile);
+        this._location.back();
+      }, err => this.errorService.handleServerError('Failed to save user profile', err,
+        () => console.log(err), () => this.saveUser()));
   }
 
-  getTypeName(): string {
-    return 'user profile';
-  }
-
-  goBack() {
-    this._location.back();
-  };
-
-  onObjectChange() {
-    this.userProfileForm.reset(this.userProfile);
-
-    if (this.userProfile.id !== undefined) {
-      this.userProfileForm.patchValue({
-        createdBy: this.userProfile.createdBy.email,
-        createdDate: this.datePipe.transform(this.userProfile.createdDate, 'medium'),
-        updatedBy: this.userProfile.updatedBy.email,
-        updatedDate: this.datePipe.transform(this.userProfile.updatedDate, 'medium'),
-      });
-    }
-  }
-
-  setObj(obj: UserProfile) {
-    this.userProfile = obj;
-    this.onObjectChange();
-  }
-
-  // Delegated functions
-  saveUser() {
-    this.detailFormService.save(this);
+  deleteUser() {
+    this.dialog.open(ConfirmDialogComponent, {
+      data: {title: 'Warning!', question: 'This action can only be undone by DB Administrator. Are you sure you want to delete this user?'}
+    }).afterClosed().subscribe(result => {
+      if (result) {
+        this.isSaving = true;
+        this.userProfileService.delete(this.userProfile.id)
+          .pipe(finalize(() => this.isSaving = false))
+          .subscribe(() => {
+            this.snackBar.open('Successfully deleted user profile', null, {duration: 2000});
+            this.userProfileForm.reset({});
+            this._location.back();
+          }, err => this.errorService.handleServerError('Failed to delete User Profile!', err,
+            () => console.log(err), () => this.deleteUser()));
+      }
+    });
   }
 
   canDeactivate(): Observable<boolean> | boolean {
-    return this.detailFormService.canDeactivate(this);
+    return this.detailFormService.canDeactivate(this.userProfileForm);
   }
 
-  compareIds(u1, u2): boolean {
-    return u1 && u2 ? u1.id === u2.id : u1 === u2;
+  private getData() {
+    const idString = this.route.snapshot.paramMap.get('id');
+    if (idString) {
+      const id = parseInt(idString, 10);
+      this.isLoading = true;
+      this.userProfileService.getOneById(id)
+        .pipe(finalize(() => this.isLoading = false))
+        .subscribe(userProfile => {
+          this.userProfile = userProfile;
+          this.userProfileForm.reset(this.userProfile);
+        }, err => this.errorService.handleServerError('Failed to get user profile!', err,
+          () => this._location.back, () => this.getData()));
+    } else {
+      this.userProfile = new UserProfile({});
+    }
   }
 }

@@ -1,13 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { ReportBuilderService } from '../services/report-builder.service';
 import { Router } from '@angular/router';
-import { Location } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'mds-store-categorization',
   templateUrl: './store-categorization.component.html',
-  styleUrls: ['./store-categorization.component.css']
+  styleUrls: ['./store-categorization.component.css', '../shared-report-style.css']
 })
 export class StoreCategorizationComponent implements OnInit {
 
@@ -18,20 +17,37 @@ export class StoreCategorizationComponent implements OnInit {
     'Do Not Include'
   ];
 
-  constructor(public rbs: ReportBuilderService,
+  constructor(private rbs: ReportBuilderService,
               private snackBar: MatSnackBar,
-              public _location: Location,
-              private router: Router) {
+              private router: Router,
+              private host: ElementRef) {
   }
 
   ngOnInit() {
     if (!this.rbs.getReportTableData()) {
       setTimeout(() => {
-        this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 5000});
+        this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 2000});
         this.router.navigate(['reports']);
       }, 10)
     }
-    document.getElementById('reports-content-wrapper').scrollTop = 0;
+    this.host.nativeElement.scrollTop = 0;
+  }
+
+  get reportBuilderService() {
+    return this.rbs;
+  }
+
+  getStoreRowClass(store) {
+    switch (store.category) {
+      case 'Company Store':
+        return 'blue';
+      case 'Existing Competition':
+        return 'yellow';
+      case 'Proposed Competition':
+        return 'pink';
+      default:
+        return 'grey';
+    }
   }
 
   changeCategory(event, store) {

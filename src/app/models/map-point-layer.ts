@@ -11,51 +11,17 @@ import * as MarkerWithLabel from '@google/markerwithlabel';
   - Can be added to and removed from map
  */
 export class MapPointLayer<T extends Mappable> {
-  protected markers: google.maps.Marker[];
-  protected mapService: MapService;
 
   markerClick$ = new Subject<T>();
   markerDrag$ = new Subject<T>();
   markerDragEnd$ = new Subject();
 
+  protected markers: google.maps.Marker[];
+  protected mapService: MapService;
+
   constructor(mapService: MapService) {
     this.mapService = mapService;
     this.markers = [];
-  }
-
-  protected createMarkersFromMappables(mappables: T[]) {
-    mappables.forEach((mappable) => this.createMarkerFromMappable(mappable));
-  }
-
-  protected createMarkerFromMappable(mappable: T) {
-    const marker = mappable.hasOwnProperty('options') ?
-      new MarkerWithLabel({ position: mappable.getCoordinates() }) :
-      new google.maps.Marker({
-        position: mappable.getCoordinates()
-      });
-    marker.addListener('click', () => this.markerClick$.next(mappable));
-    marker.addListener('drag', () => this.markerDrag$.next(mappable));
-    marker.addListener('dragend', () => this.markerDragEnd$.next(mappable));
-
-    // Preserve relationship between marker and mappable
-    marker.set('mappable', mappable);
-    this.markers.push(marker);
-    this.setMarkerOptions(marker);
-  }
-
-  protected refreshOptionsForMappable(mappable: T): void {
-    const marker = this.getMarkerForMappable(mappable);
-    if (marker != null) {
-      this.setMarkerOptions(marker);
-    }
-  }
-
-  getMarkersCount(): number {
-    return this.markers.length;
-  }
-
-  refreshOptions(): void {
-    this.markers.forEach((marker) => this.setMarkerOptions(marker));
   }
 
   addToMap(map: google.maps.Map) {
@@ -78,39 +44,28 @@ export class MapPointLayer<T extends Mappable> {
     return marker.getPosition().toJSON();
   }
 
-  getMappablesInShape(shape): T[] {
-    const mappablesInShape: T[] = [];
-    if (shape.type === google.maps.drawing.OverlayType.CIRCLE) {
-      this.markers.forEach((marker) => {
-        const cir: google.maps.Circle = shape.overlay;
-        if (
-          cir.getBounds().contains(marker.getPosition()) &&
-          google.maps.geometry.spherical.computeDistanceBetween(cir.getCenter(), marker.getPosition()) <= cir.getRadius()
-        ) {
-          mappablesInShape.push(marker.get('mappable'));
-        }
-      });
-    } else if (shape.type === google.maps.drawing.OverlayType.POLYGON) {
-      this.markers.forEach((marker) => {
-        if (google.maps.geometry.poly.containsLocation(marker.getPosition(), shape.overlay)) {
-          mappablesInShape.push(marker.get('mappable'));
-        }
-      });
-    } else if (shape.type === google.maps.drawing.OverlayType.RECTANGLE) {
-      this.markers.forEach((marker) => {
-        if (shape.overlay.getBounds().contains(marker.getPosition())) {
-          mappablesInShape.push(marker.get('mappable'));
-        }
-      });
-    } else {
-      console.error('Drawing Geometry type not detected!');
-    }
-    return mappablesInShape;
+  protected createMarkersFromMappables(mappables: T[]) {
+    mappables.forEach((mappable) => this.createMarkerFromMappable(mappable));
   }
 
-  protected resetPositionOfMappable(mappable: T) {
-    const marker = this.getMarkerForMappable(mappable);
-    marker.setPosition(mappable.getCoordinates());
+  protected createMarkerFromMappable(mappable: T) {
+    const marker = mappable.hasOwnProperty('options') ?
+      new MarkerWithLabel({position: mappable.getCoordinates()}) :
+      new google.maps.Marker({
+        position: mappable.getCoordinates()
+      });
+    marker.addListener('click', () => this.markerClick$.next(mappable));
+    marker.addListener('drag', () => this.markerDrag$.next(mappable));
+    marker.addListener('dragend', () => this.markerDragEnd$.next(mappable));
+
+    // Preserve relationship between marker and mappable
+    marker.set('mappable', mappable);
+    this.markers.push(marker);
+    this.setMarkerOptions(marker);
+  }
+
+  getMarkersCount(): number {
+    return this.markers.length;
   }
 
   protected getMarkerForMappable(mappable: T) {

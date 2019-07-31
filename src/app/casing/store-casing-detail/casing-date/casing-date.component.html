@@ -1,0 +1,6 @@
+<mat-form-field [formGroup]="storeCasingForm">
+  <input matInput [matDatepicker]="storeCasingDate" placeholder="Store Casing Date"
+         formControlName="casingDate">
+  <mat-datepicker-toggle matSuffix [for]="storeCasingDate"></mat-datepicker-toggle>
+  <mat-datepicker #storeCasingDate></mat-datepicker>
+</mat-form-field>

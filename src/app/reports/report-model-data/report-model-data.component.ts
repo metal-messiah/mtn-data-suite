@@ -14,7 +14,7 @@ import { StoreListItem } from '../../models/store-list-item';
 @Component({
   selector: 'mds-report-model-data',
   templateUrl: './report-model-data.component.html',
-  styleUrls: ['./report-model-data.component.css'],
+  styleUrls: ['./report-model-data.component.css', '../shared-report-style.css'],
   providers: [XlsToModelParserService]
 })
 export class ReportModelDataComponent implements OnInit {
@@ -24,7 +24,7 @@ export class ReportModelDataComponent implements OnInit {
 
   fileReader: FileReader;
 
-  constructor(public rbs: ReportBuilderService,
+  constructor(private _rbs: ReportBuilderService,
               private fb: FormBuilder,
               private router: Router,
               private xlsToModelParserService: XlsToModelParserService,
@@ -36,15 +36,27 @@ export class ReportModelDataComponent implements OnInit {
   ngOnInit() {
   }
 
+  get rbs() {
+    return this._rbs;
+  }
+
+  fileIsReady() {
+    return this._rbs.modelMetaDataForm.valid &&
+      this._rbs.modelFile &&
+      this._rbs.getReportTableData() &&
+      !this.parsingFile &&
+      !this.postProcessing;
+  }
+
   readFile(event) {
-    this.rbs.modelFile = null;
+    this._rbs.modelFile = null;
 
     const files = event.target.files;
 
     if (files && files.length === 1) {
       // only want 1 file at a time!
       if (files[0].name.includes('.xls')) {
-        this.rbs.modelFile = files[0];
+        this._rbs.modelFile = files[0];
       } else {
         this.snackBar.open('Only valid .xls or .xlsx files are accepted', null, {
           duration: 2000
@@ -65,7 +77,7 @@ export class ReportModelDataComponent implements OnInit {
             this.postProcessing = true;
             this.postProcessReportData(reportData)
               .pipe(finalize(() => this.postProcessing = false))
-              .subscribe(() => this.rbs.setReportTableData(reportData));
+              .subscribe(() => this._rbs.setReportTableData(reportData));
           }, err => {
             console.error(err);
             this.snackBar.open('Failed to parse html file!', 'Close')
@@ -75,7 +87,7 @@ export class ReportModelDataComponent implements OnInit {
       }
     };
     this.fileReader.onerror = error => this.snackBar.open(error.toString(), null, {duration: 2000});
-    this.fileReader.readAsBinaryString(this.rbs.modelFile); // Triggers FileReader.onload
+    this.fileReader.readAsBinaryString(this._rbs.modelFile); // Triggers FileReader.onload
   }
 
   next() {

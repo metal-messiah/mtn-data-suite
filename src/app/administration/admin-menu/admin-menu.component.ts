@@ -12,4 +12,24 @@ export class AdminMenuComponent implements OnInit {
   ngOnInit() {
   }
 
+  getMenuItems() {
+    return [
+      {
+        routerLink: '/admin/users',
+        iconClasses: 'fas fa-address-book',
+        displayName: 'Users'
+      },
+      {
+        routerLink: '/admin/groups',
+        iconClasses: 'fas fa-users',
+        displayName: 'Groups'
+      },
+      {
+        routerLink: '/admin/roles',
+        iconClasses: 'fas fa-id-badge',
+        displayName: 'Roles'
+      },
+    ];
+  }
+
 }

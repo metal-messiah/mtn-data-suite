@@ -1,25 +1,16 @@
-.file-tip {
-	/* margin-left: 20px; */
-	font-size: small;
-}
-
-.flex-container {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin: 10px;
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 button {
 	width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 button:hover {
 	background: orange;
 	color: black;
-}
-
-i {
-	color: inherit;
-	margin-right: 5px;
 }

@@ -1,15 +1,11 @@
-<div class="flex-container">
-  <button type="button" mat-raised-button [color]="file ? 'primary' : 'warn'" (click)="fileInput.click()" [disabled]="disabled">
-    <span class="file-tip" *ngIf="!file">
-      <i class="fas fa-file"></i>
-      <b>{{buttonText}}</b>
-    </span>
-    <span class="file-tip" *ngIf="file">
-      <i class="fas fa-check-circle"></i>
-      <b>{{file.name | slice:0:10}}</b>
-      <b *ngIf="file.name.length >= 10">...</b>
-    </span>
-  </button>
+<button type="button" mat-raised-button [color]="file ? 'primary' : 'accent'" (click)="fileInput.click()"
+        [disabled]="disabled">
+  <span class="file-tip" *ngIf="!file">
+    <i class="fas fa-file"></i>&nbsp;{{buttonText}}
+  </span>
+  <span class="file-tip" *ngIf="file">
+    {{file.name}}
+  </span>
+</button>
 
-  <input hidden type="file" [accept]="fileTypes" id="fileInput" #fileInput (change)="readFile($event)" />
-</div>
+<input hidden type="file" [accept]="fileTypes" id="fileInput" #fileInput (change)="readFile($event)"/>

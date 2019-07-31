@@ -2,6 +2,7 @@ import { StoreMarker } from '../models/store-marker';
 import { MarkerShape } from '../core/functionalEnums/MarkerShape';
 import { DateUtil } from './date-util';
 import { Color } from '../core/functionalEnums/Color';
+import { CloudinaryUtil } from './cloudinary-util';
 
 export class StoreIconUtil {
 
@@ -134,11 +135,11 @@ export class StoreIconUtil {
     }
   }
 
-  public static getStoreLabelContent(store: StoreMarker, showLogo: boolean, showFullLabel: boolean) {
+  public static getStoreLabelContent(store: StoreMarker, showLogo: boolean, showFullLabel: boolean, cloudinaryUtil: CloudinaryUtil) {
     let labelText = '';
     if (showLogo) {
       const pictureLabel = document.createElement('img');
-      pictureLabel.src = `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${store.logoFileName}`;
+      pictureLabel.src = cloudinaryUtil.getUrlForLogoFileName(store.logoFileName, 20);
       return pictureLabel
     }
     if (store.storeName) {

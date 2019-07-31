@@ -1,0 +1,111 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;;
+  flex: 1;
+}
+
+#chain-xy-logo {
+  margin: 5px 0;
+  height: 40px;
+}
+
+mds-fuzzy-search {
+  width: 400px;
+  margin: 8px auto;
+}
+
+.side-nav {
+  height: calc(100vh - 64px);
+  width: 500px;
+  max-width: 80vw;
+}
+
+.metadata > button {
+  width: calc(100% - 30px);
+  margin: 15px;
+}
+
+.key {
+  text-align: center;
+  font-weight: bold;
+}
+
+.table-wrapper {
+  flex: 1;
+  overflow: auto;
+}
+
+.table-wrapper > table {
+  margin: 0 auto;
+}
+
+.chain-select-table {
+  margin: 10px 0;
+  width: 100%;
+  max-width: 800px;
+}
+
+tr {
+  cursor: pointer;
+}
+
+tr:hover {
+  background: #fffff2;
+}
+
+td {
+  padding: 5px;
+  margin: 0;
+}
+
+.centered {
+  text-align: center;
+}
+
+.lightgreen {
+  color: lightgreen;
+}
+
+.orange {
+  color: orange;
+}
+
+.red {
+  color: red;
+}
+
+.bs-row {
+  height: 50px;
+}
+
+.banner-meta-data {
+  text-align: center;
+}
+
+.banner-logo {
+  height: auto;
+  max-width: 100%;
+  max-height: 50px;
+}
+
+.loading-icon {
+  margin: 0 10px 0;
+}
+
+.select-banner-btn {
+  width: 100%;
+}
+
+th > div > button {
+  margin: 0 auto;
+}
+
+.muted {
+  color: grey;
+}
+
+.muted:hover {
+  background: inherit !important;
+  cursor: default !important;
+}

@@ -1,61 +1,33 @@
-.title-bar {
-  width: 100%;
-  display: flex;
-  align-items: center;
-}
-
-.center {
-  flex: 0;
-}
-
-.left,
-.right {
+:host {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.flex-center {
+.content {
+  flex: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px 25px;
+  flex-direction: column;
+  overflow: auto;
+  padding: 16px;
 }
 
-.flex-between {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.quota {
+  font-size: small;
+}
+
+#form-wrapper {
+  margin: 16px auto;
   max-width: 400px;
-  margin: 0 auto;
 }
 
-.flex-between > button {
-  padding: 0 10px;
-  text-align: center;
+mds-file-input {
+  margin: 16px auto;
+  max-width: 300px;
 }
 
-.centered-div {
-  width: 90vw;
-  margin: 0 auto;
-  text-align: center;
-}
-
-table {
-  text-align: center;
-  overflow: scroll;
-}
-
-tr:nth-child(even) {
-  background-color: gray;
-}
-
-td {
-  padding: 5px;
-}
-
-.loading-spinner {
-  text-align: center;
-  width: 100%;
-  margin: 10px 0;
+mat-form-field {
+  display: block;
 }
 
 .green {
@@ -76,7 +48,7 @@ td {
   font-weight: bold;
 }
 
-.math {
+.right-align {
   text-align: right;
 }
 
@@ -92,5 +64,5 @@ td {
 }
 
 .mat-progress-bar {
-  height: 25px !important;
+  height: 25px;
 }

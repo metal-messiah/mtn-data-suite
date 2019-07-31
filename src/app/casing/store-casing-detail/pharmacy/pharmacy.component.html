@@ -1,0 +1,32 @@
+<form [formGroup]="storeSurveyForm">
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="Number of Pharmacists"
+           formControlName="pharmacyPharmacistCount">
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="Number of Technicians"
+           formControlName="pharmacyTechnicianCount">
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="Estimated Avg. Prescription Price"
+           formControlName="pharmacyAvgDollarsPerScript">
+    <span matPrefix>$&nbsp;</span>
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="Estimated Weekly Prescriptions"
+           formControlName="pharmacyScriptsWeekly">
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="Estimated Weekly $" disabled
+           [value]="storeSurveyForm.get('pharmacyAvgDollarsPerScript').value * storeSurveyForm.get('pharmacyScriptsWeekly').value">
+    <span matPrefix>$&nbsp;</span>
+  </mat-form-field>
+  <div class="checklist">
+    <div class="checklist-item">
+      <mat-checkbox formControlName="pharmacyIsOpen24">Pharmacy is Open 24hrs</mat-checkbox>
+    </div>
+    <div class="checklist-item">
+      <mat-checkbox formControlName="pharmacyHasDriveThrough">Pharmacy has drive-through</mat-checkbox>
+    </div>
+  </div>
+</form>

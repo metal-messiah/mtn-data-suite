@@ -1,0 +1,14 @@
+<form [formGroup]="storeSurveyForm">
+  <mat-form-field>
+    <textarea formControlName="seasonalityNotes" matInput placeholder="Seasonality Notes"></textarea>
+  </mat-form-field>
+  <h3 style="text-align: center;">Adjustments from <b>Slack</b> Volume</h3>
+  <h4 style="text-align: center">Volume: {{getVolume()}}</h4>
+  <mat-form-field *ngFor="let month of months">
+    <input matInput type="number" autocomplete="off" [placeholder]="month.placeholder"
+           [formControlName]="month.formControlName">
+    <span matSuffix>%</span>
+    <mat-error>Between -100% and 200%</mat-error>
+    <mat-hint align="end">{{getCalculatedSeasonality(month)}}</mat-hint>
+  </mat-form-field>
+</form>

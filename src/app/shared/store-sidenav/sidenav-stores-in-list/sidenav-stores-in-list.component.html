@@ -34,7 +34,7 @@
           [disabled]="getSelectedStoresCount() < 1"
           title="Selected stores options"
           class="selected-stores">
-    <div class="fa-stack">
+    <div class="fa-stack" style="margin-right: 8px">
       <i class="far fa-circle fa-stack-2x"></i>
       <span class="fa-stack-1x">{{getSelectedStoresCount()}}</span>
     </div>
@@ -66,22 +66,19 @@
 </mat-menu>
 
 <mat-menu #selectedSubMenu="matMenu" id="selected-sub-menu">
-  <button mat-menu-item
-          title="Zoom to Selected Stores"
-          (click)="zoomToSelection()"
-          class="selected-stores">
-    <i class="fas fa-search-location"></i>
-    <span>Zoom to Selection</span>
+  <button mat-menu-item title="Zoom to Selected Stores" (click)="zoomToSelection()" class="selected-stores">
+    <i class="fas fa-search-location"></i>Zoom to Selection
+  </button>
+  <button mat-menu-item title="Clear Selection" (click)="clearSelection()" class="selected-stores">
+    <i class="fas fa-ban"></i>Clear Selection
   </button>
   <button [disabled]="selectedStoreIdsInList().length === 0" mat-menu-item title="Remove selected from list"
           (click)="removeSelectedFromList()">
-    <i class="fas fa-trash"></i>
-    <span>Remove {{selectedStoreIdsInList().length}} from list</span>
+    <i class="fas fa-trash"></i>Remove {{selectedStoreIdsInList().length}} from list
   </button>
   <button [disabled]="selectedStoreIdsNotInList().length === 0" mat-menu-item title="Add selected to list"
           (click)="addSelectedToList()">
-    <i class="fas fa-plus"></i>
-    <span>Add {{selectedStoreIdsNotInList().length}} to list</span>
+    <i class="fas fa-plus"></i>Add {{selectedStoreIdsNotInList().length}} to list
   </button>
 
 </mat-menu>

@@ -28,12 +28,11 @@ export class ProjectBoundaryService {
 
   projectBoundary: ProjectBoundary;
 
-  constructor(private projectService: ProjectService,
-              private casingDashboardService: CasingDashboardService) {
+  constructor(private projectService: ProjectService) {
   }
 
-  showProjectBoundaries(map: google.maps.Map) {
-    return this.projectService.getBoundaryForProject(this.casingDashboardService.getSelectedProject().id)
+  showProjectBoundaries(map: google.maps.Map, projectId: number) {
+    return this.projectService.getBoundaryForProject(projectId)
       .pipe(tap((boundary: Boundary) => {
         if (boundary == null) {
           this.projectBoundary = new ProjectBoundary(map);
@@ -67,21 +66,19 @@ export class ProjectBoundaryService {
     }
   }
 
-  saveProjectBoundaries(mapService: MapService) {
+  saveProjectBoundaries(mapService: MapService, projectId: number) {
     if (this.projectBoundary.hasShapes()) {
       const geojson = this.projectBoundary.toGeoJson();
       const boundary = new Boundary({geojson: geojson});
-      return this.projectService.saveBoundaryForProject(this.casingDashboardService.getSelectedProject().id, boundary)
+      return this.projectService.saveBoundaryForProject(projectId, boundary)
         .pipe(tap((project: SimplifiedProject) => {
-          this.casingDashboardService.setSelectedProject(project);
           this.deactivateEditingMode(mapService);
           this.projectBoundary.setGeoJson(JSON.parse(geojson));
         }));
     } else {
       // If no shapes - just delete the boundary
-      return this.projectService.deleteBoundaryForProject(this.casingDashboardService.getSelectedProject().id)
+      return this.projectService.deleteBoundaryForProject(projectId)
         .pipe(tap((project: SimplifiedProject) => {
-          this.casingDashboardService.setSelectedProject(project);
           this.deactivateEditingMode(mapService);
           this.projectBoundary.removeFromMap();
           this.projectBoundary = null;

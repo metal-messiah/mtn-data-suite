@@ -9,7 +9,7 @@ import { StoreCategorizationComponent } from './store-categorization/store-categ
 import { StoreDataVerificationComponent } from './store-data-verification/store-data-verification.component';
 import { SiteEvaluationComponent } from './site-evaluation/site-evaluation.component';
 import { ReportTablesComponent } from './report-tables/report-tables.component';
-import { ReportDownloadComponent } from './download/report-download.component';
+import { ReportDownloadComponent } from './report-download/report-download.component';
 import { HarrisTeeterComponent } from './harris-teeter/harris-teeter.component';
 
 const routes: Routes = [

@@ -31,3 +31,7 @@
 .edited {
   color: #ff5722;
 }
+
+.mat-form-field {
+  width: unset;
+}

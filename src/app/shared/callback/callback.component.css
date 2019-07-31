@@ -1,4 +1,4 @@
-.loading {
+:host {
   position: absolute;
   display: flex;
   justify-content: center;

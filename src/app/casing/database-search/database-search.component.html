@@ -1,28 +1,16 @@
-<form class="lat-long-search-form box">
-  <h1 mat-dialog-title>
-    Database Search
-  </h1>
-  <div mat-dialog-content>
-    <div id="search-bar">
-      <mat-form-field class="example-full-width">
-        <input matInput type="number" autocomplete="off" placeholder="Store ID" [formControl]="databaseSearchFormControl">
-      </mat-form-field>
-      <div>
-        <button mat-mini-fab color="primary" type="submit" (click)="search()">
-          <i class="fas fa-search"></i>
-        </button>
-      </div>
-    </div>
-    <div id="search-results">
-      <mat-nav-list>
-        <mat-list-item *ngIf="noSearchResults">No Search Results</mat-list-item>
-        <mat-list-item *ngFor="let store of stores" (click)="goToStore(store)">
-          <h3 matLine>{{store.storeName}}<span *ngIf="store.storeNumber != null">$nbsp#{{store.storeNumber}}</span></h3>
-        </mat-list-item>
-      </mat-nav-list>
-    </div>
-  </div>
-  <div mat-dialog-actions>
-    <button mat-raised-button color="accent" type="button" (click)="closeDialog()">Close</button>
-  </div>
-</form>
+<h1 mat-dialog-title>
+  Database Search
+</h1>
+<div mat-dialog-content>
+  <form id="search-bar">
+    <mat-form-field class="example-full-width">
+      <input matInput #searchField type="number" autocomplete="off" placeholder="Store ID">
+    </mat-form-field>
+  </form>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button color="accent" type="button" mat-dialog-close="">Close</button>
+  <button mat-mini-fab color="primary" type="submit" form="search-bar" (click)="search(searchField.value)">
+    <i class="fas fa-search"></i>
+  </button>
+</div>

@@ -1,0 +1,14 @@
+<form [formGroup]="storeForm">
+  <mat-form-field>
+    <mat-select placeholder="Fit" formControlName="fit">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let fitOption of fitOptions" [value]="fitOption">{{fitOption}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-select placeholder="Format" formControlName="format">
+      <mat-option>Clear Selection</mat-option>
+      <mat-option *ngFor="let formatOption of formatOptions" [value]="formatOption">{{formatOption}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</form>

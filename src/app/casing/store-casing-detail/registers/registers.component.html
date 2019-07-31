@@ -1,0 +1,17 @@
+<form [formGroup]="storeSurveyForm">
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="Normal"
+           formControlName="registerCountNormal">
+    <mat-error>Leave blank if 0</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="Express"
+           formControlName="registerCountExpress">
+    <mat-error>Leave blank if 0</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="number" autocomplete="off" placeholder="Self Checkout"
+           formControlName="registerCountSelfCheckout">
+    <mat-error>Leave blank if 0</mat-error>
+  </mat-form-field>
+</form>

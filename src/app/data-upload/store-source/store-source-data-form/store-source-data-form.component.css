@@ -1,0 +1,35 @@
+#quad-button-wrapper {
+  margin: 10px 0;
+}
+
+mat-form-field {
+  max-width: 400px;
+  display: block;
+}
+
+#banner-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  cursor: pointer;
+}
+
+#banner-container > mat-form-field {
+  flex: 1;
+  width: unset;
+  margin-right: 8px;
+}
+
+#banner-container > img {
+  cursor: pointer;
+}
+
+.mat-dialog-actions {
+  justify-content: space-between;
+}
+
+#map-container {
+  display: flex;
+  height: 200px;
+}
