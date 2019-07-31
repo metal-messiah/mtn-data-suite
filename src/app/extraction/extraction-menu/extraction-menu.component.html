@@ -1,18 +1,4 @@
-<div class="box">
-  <div class="row content">
-    <div class="list-wrapper">
-      <mat-nav-list>
-        <mat-list-item routerLink="by-project">
-          <div mat-list-icon><i class="fas fa-folder"></i></div>
-          <h3 mat-line>Extract by Project</h3>
-        </mat-list-item>
-        <mat-divider></mat-divider>
-        <mat-list-item (click)="openProjectSelectionDialog()">
-          <div mat-list-icon><i class="fas fa-file-download"></i></div>
-          <h3 mat-line>Boundary File</h3>
-        </mat-list-item>
-        <mat-divider></mat-divider>
-      </mat-nav-list>
-    </div>
-  </div>
-</div>
+<mds-sub-title-bar subTitle="Extraction">
+  <i class="fas fa-download"></i>
+</mds-sub-title-bar>
+<mds-menu-list [menuItems]="menuItems"></mds-menu-list>

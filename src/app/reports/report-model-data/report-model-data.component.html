@@ -1,46 +1,49 @@
-<form [formGroup]="rbs.modelMetaDataForm" class="wrapper">
-  <mat-form-field>
-    <input required matInput placeholder="Analyst Full Name" type="text" formControlName="analyst">
-  </mat-form-field>
-  <mat-form-field>
-    <input required matInput placeholder="Client Name" type="text" formControlName="clientName">
-  </mat-form-field>
-  <mat-form-field>
-    <input required matInput placeholder="Type" type="text" formControlName="type">
-  </mat-form-field>
-  <mat-form-field>
-    <input required matInput placeholder="Model Name" type="text" formControlName="modelName">
-  </mat-form-field>
-  <mat-form-field>
-    <input matInput [matDatepicker]="fieldResDatePicker" placeholder="Field Research Date"
-           formControlName="fieldResDate">
-    <mat-datepicker-toggle matSuffix [for]="fieldResDatePicker"></mat-datepicker-toggle>
-    <mat-datepicker #fieldResDatePicker></mat-datepicker>
-  </mat-form-field>
+<mds-sub-title-bar subTitle="1. Upload Report File"></mds-sub-title-bar>
 
-  <div>
-    <button type="button" mat-raised-button
-            [color]="rbs.modelFile ? 'primary' : 'warn'"
+<div class="content">
+  <form [formGroup]="rbs.modelMetaDataForm" id="model-data-form">
+      <mat-form-field>
+        <input required matInput placeholder="Analyst Full Name" type="text" formControlName="analyst">
+      </mat-form-field>
+      <mat-form-field>
+        <input required matInput placeholder="Client Name" type="text" formControlName="clientName">
+      </mat-form-field>
+      <mat-form-field>
+        <input required matInput placeholder="Type" type="text" formControlName="type">
+      </mat-form-field>
+      <mat-form-field>
+        <input required matInput placeholder="Model Name" type="text" formControlName="modelName">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [matDatepicker]="fieldResDatePicker" placeholder="Field Research Date"
+               formControlName="fieldResDate">
+        <mat-datepicker-toggle matSuffix [for]="fieldResDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #fieldResDatePicker></mat-datepicker>
+      </mat-form-field>
+    </form>
+
+  <div style="text-align: center">
+    <button type="button" mat-raised-button id="file-button"
+            [color]="rbs.modelFile ? 'primary' : 'accent'"
             (click)="fileInput.click()"
-            [disabled]="parsingFile">
-      <i class="fas fa-spinner fa-pulse" *ngIf="parsingFile"></i>
-      {{parsingFile ? ' Fetching Data From Server': 'Upload File'}}
+            [disabled]="parsingFile || postProcessing">
+      {{rbs.modelFile ? rbs.modelFile.name: 'Upload File'}}
     </button>
-    <span class="file-tip" *ngIf="rbs.modelFile">
-        <i class="fas fa-check-circle" style="color:green;margin-right:5px;"></i>
-        <b>{{rbs.modelFile ? rbs.modelFile.name : ''}}</b>
-      </span>
-    <input hidden type="file" accept=".xls, .xlsx" id="fileInput" #fileInput (change)="readFile($event)"/>
   </div>
-  <div>
-    <button (click)="next()" color="warn" type="button"
-            [disabled]="rbs.modelMetaDataForm.invalid || !rbs.modelFile || !rbs.getReportTableData() || parsingFile || postProcessing"
-            mat-raised-button style="margin-top:20px;">Next
-    </button>
+
+</div>
+
+<mds-sub-title-bar>
+  <button (click)="next()" form="model-data-form" color="accent" type="submit" [disabled]="!fileIsReady()"
+          mat-raised-button>
+    <span *ngIf="!parsingFile && !postProcessing">Next</span>
     <span class="file-tip" *ngIf="parsingFile || postProcessing">
         <i class="fas fa-spinner fa-pulse" style="margin-right:5px;"></i>
         <b *ngIf="parsingFile">Parsing File...</b>
         <b *ngIf="postProcessing">Processing Data...</b>
     </span>
-  </div>
-</form>
+  </button>
+</mds-sub-title-bar>
+
+<input hidden type="file" accept=".xls, .xlsx" id="fileInput" #fileInput (change)="readFile($event)"/>
+

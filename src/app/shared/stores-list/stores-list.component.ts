@@ -6,6 +6,7 @@ import { MatCheckboxChange, MatSelectChange, MatTabGroup } from '@angular/materi
 import { StoreListUIService } from '../store-sidenav/store-list-u-i.service';
 import { SiteListItem } from './site-list-item';
 import { SortDirection } from '../../core/functionalEnums/sort-direction';
+import { CloudinaryUtil } from '../../utils/cloudinary-util';
 
 @Component({
   selector: 'mds-stores-list',
@@ -23,19 +24,18 @@ export class StoresListComponent implements OnInit {
   @ViewChild('tabGroup', {static: false}) tabGroup: MatTabGroup;
   @ViewChild('virtualScroll', {static: false}) virtualScroll: CdkVirtualScrollViewport;
 
+  private readonly cloudinaryUtil: CloudinaryUtil;
+
   constructor(
     private mapService: MapService,
     private selectionService: EntitySelectionService,
     private storeListUIService: StoreListUIService
   ) {
+    this.cloudinaryUtil = new CloudinaryUtil();
   }
 
   ngOnInit() {
     this.selectionService.singleSelect$.subscribe(selection => this.onSelection(selection));
-  }
-
-  get fetching() {
-    return this.storeListUIService.fetching;
   }
 
   get sortType() {
@@ -150,7 +150,7 @@ export class StoresListComponent implements OnInit {
   }
 
   getLogoPath(fileName: string) {
-    return `https://res.cloudinary.com/mtn-retail-advisors/image/upload/c_limit,h_20/${fileName}`;
+    return this.cloudinaryUtil.getUrlForLogoFileName(fileName, 20);
   }
 
   showOnMap(listItem) {

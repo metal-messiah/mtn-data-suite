@@ -1,22 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { CasingDashboardService } from './casing-dashboard/casing-dashboard.service';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
+import { CasingProjectService } from './casing-project.service';
 
 @Component({
   selector: 'mds-casing',
   templateUrl: './casing.component.html',
-  styleUrls: ['./casing.component.css']
+  styleUrls: ['./casing.component.css'],
+  providers: [CasingProjectService]
 })
-export class CasingComponent implements OnInit {
+export class CasingComponent {
 
-  constructor(public casingDashboardService: CasingDashboardService,
-              private route: ActivatedRoute) { }
-
-  ngOnInit() {
-  }
-
-  navigateToProjectSummary() {
-    // TODO Implement Project Summary
-  }
+  constructor() {}
 
 }

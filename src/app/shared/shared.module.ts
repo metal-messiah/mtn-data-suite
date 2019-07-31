@@ -31,6 +31,11 @@ import { SidenavMenuComponent } from './store-sidenav/sidenav-menu/sidenav-menu.
 import { SidenavStoresOnMapComponent } from './store-sidenav/sidenav-stores-on-map/sidenav-stores-on-map.component';
 import { SidenavUserListsComponent } from './store-sidenav/sidenav-user-lists/sidenav-user-lists.component';
 import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-list/sidenav-stores-in-list.component';
+import { MenuListComponent } from './menu-list/menu-list.component';
+import { SubTitleBarComponent } from './sub-title-bar/sub-title-bar.component';
+import { ItemSelectionDialogComponent } from './item-selection/item-selection-dialog.component';
+import { DbEntityControlsComponent } from './db-entity-controls/db-entity-controls.component';
+import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing-entity-fields.component';
 
 @NgModule({
   imports: [
@@ -41,33 +46,37 @@ import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-
     ReactiveFormsModule
   ],
   declarations: [
+    AddRemoveStoresListDialogComponent,
     AppInfoDialogComponent,
+    AuditingEntityFieldsComponent,
     CallbackComponent,
     ConfirmDialogComponent,
     DataFieldComponent,
     DataFieldInfoDialogComponent,
+    DbEntityControlsComponent,
     DbLocationInfoCardComponent,
     ErrorDialogComponent,
     FileInputComponent,
     FuzzySearchComponent,
-    FuzzySearchComponent,
     GoogleInfoCardComponent,
+    ItemSelectionDialogComponent,
     LogoMenuComponent,
     MapComponent,
+    MenuListComponent,
     NewProjectNameComponent,
     PathNotFoundComponent,
-    TabSelectDialogComponent,
-    ThousandsCurrencyPipe,
-    UserProfileSelectComponent,
-    StoresListComponent,
-    AddRemoveStoresListDialogComponent,
-    TextInputDialogComponent,
-    StoredControlsSelectionDialogComponent,
-    SimpleSelectDialogComponent,
     SidenavMenuComponent,
+    SidenavStoresInListComponent,
     SidenavStoresOnMapComponent,
     SidenavUserListsComponent,
-    SidenavStoresInListComponent
+    SimpleSelectDialogComponent,
+    StoredControlsSelectionDialogComponent,
+    StoresListComponent,
+    SubTitleBarComponent,
+    TabSelectDialogComponent,
+    TextInputDialogComponent,
+    ThousandsCurrencyPipe,
+    UserProfileSelectComponent
   ],
   providers: [
     BreakpointObserver,
@@ -75,38 +84,43 @@ import { SidenavStoresInListComponent } from './store-sidenav/sidenav-stores-in-
     MediaMatcher
   ],
   entryComponents: [
+    AddRemoveStoresListDialogComponent,
     AppInfoDialogComponent,
     ConfirmDialogComponent,
     DataFieldInfoDialogComponent,
     ErrorDialogComponent,
+    ItemSelectionDialogComponent,
     NewProjectNameComponent,
-    TabSelectDialogComponent,
-    UserProfileSelectComponent,
-    AddRemoveStoresListDialogComponent,
-    TextInputDialogComponent,
+    SimpleSelectDialogComponent,
     StoredControlsSelectionDialogComponent,
-    SimpleSelectDialogComponent
+    TabSelectDialogComponent,
+    TextInputDialogComponent,
+    UserProfileSelectComponent
   ],
   exports: [
+    AddRemoveStoresListDialogComponent,
+    AuditingEntityFieldsComponent,
     CallbackComponent,
     CommonModule,
     CustomMaterialModule,
     DataFieldComponent,
     DataFieldInfoDialogComponent,
     DatePipe,
+    DbEntityControlsComponent,
     DbLocationInfoCardComponent,
     FileInputComponent,
     FormsModule,
     FuzzySearchComponent,
     HttpClientModule,
+    ItemSelectionDialogComponent,
     LogoMenuComponent,
     MapComponent,
+    MenuListComponent,
     PathNotFoundComponent,
     ReactiveFormsModule,
-    ThousandsCurrencyPipe,
-    CustomMaterialModule,
     StoresListComponent,
-    AddRemoveStoresListDialogComponent
+    SubTitleBarComponent,
+    ThousandsCurrencyPipe
   ]
 })
 export class SharedModule {

@@ -6,7 +6,7 @@ import { GroupsComponent } from './groups/groups.component';
 import { RoleDetailComponent } from './role-detail/role-detail.component';
 import { UserDetailComponent } from './user-detail/user-detail.component';
 import { RolesComponent } from './roles/roles.component';
-import { AdminComponent } from './admin/admin.component';
+import { AdminComponent } from './admin.component';
 import { AuthGuard } from '../core/services/auth.guard';
 import { CanDeactivateGuard } from '../core/services/can-deactivate.guard';
 import { GroupDetailComponent } from './group-detail/group-detail.component';

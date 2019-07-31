@@ -1,1 +1,27 @@
+<mat-toolbar class="header-bar" color="primary">
+  <div>
+    <button *ngIf="!isHomePage()" title="Go Back" type="button" mat-icon-button (click)="goBack()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+  </div>
+  <div>MTN Data Suite</div>
+  <div>
+    <button mat-icon-button [mat-menu-trigger-for]="menu">
+      <img class="logo" src="assets/images/icons/MTN%20Logo.gif" alt="MTN">
+    </button>
+  </div>
+</mat-toolbar>
 <router-outlet></router-outlet>
+
+<mat-menu #menu="matMenu">
+  <button mat-menu-item *ngIf="!isHomePage()" (click)="goHome()"><i class="fas fa-home"></i>&nbsp;Home</button>
+  <button mat-menu-item *ngIf="isAuthenticated" (click)="logout()">
+    <i class="fas fa-sign-out-alt"></i>&nbsp;Sign Out
+  </button>
+  <button mat-menu-item *ngIf="!isAuthenticated" (click)="signIn()">
+    <i class="fas fa-sign-in-alt"></i>&nbsp;Sign In
+  </button>
+  <button mat-menu-item (click)="openAppInfoDialog()">
+    <i class="fas fa-info-circle"></i>&nbsp;App Info
+  </button>
+</mat-menu>

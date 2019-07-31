@@ -1,80 +1,78 @@
-<div class="box">
-  <mat-toolbar class="row header flex-space-between">
-    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    <span id="title">Site Details</span>
-    <div>
-      <button type="button" mat-icon-button color="warn" *ngIf="form.invalid">
-        <i class="fas fa-exclamation-triangle fa-2x"></i>
-      </button>
-      <button type="submit" mat-mini-fab color="accent" (click)="saveForm()"
-              [disabled]="form.pristine || form.invalid">
-        <i class="fas fa-save"></i>
-      </button>
-    </div>
-  </mat-toolbar>
-  <mat-divider></mat-divider>
-  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-  <div class="row content" *ngIf="!loading">
-    <div class="list-wrapper" [formGroup]="form">
-      <mat-form-field>
-        <mat-select placeholder="Position In Center" formControlName="positionInCenter">
-          <mat-option>Clear Selection</mat-option>
-          <mat-option *ngFor="let positionInCenterOption of positionInCenterOptions" [value]="positionInCenterOption">
-            {{positionInCenterOption}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput type="text" placeholder="Address Line 1" formControlName="address1">
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput type="text" placeholder="Address Line 2" formControlName="address2">
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder="Intersection Type" formControlName="intersectionType">
-          <mat-option>Clear Selection</mat-option>
-          <mat-option *ngFor="let intersectionTypeOption of intersectionTypeOptions" [value]="intersectionTypeOption">
-            {{intersectionTypeOption}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <div class="flex flex-justify-center" id="quad-button-wrapper">
-        <button type="button" mat-raised-button color="primary" (click)="showQuadDialog()">
-          Quad: {{form.get('quad').value}}
-        </button>
-      </div>
-      <mat-form-field>
-        <input matInput type="text" placeholder="Primary Intersection Street"
-               formControlName="intersectionStreetPrimary">
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput type="text" placeholder="Secondary Intersection Street"
-               formControlName="intersectionStreetSecondary">
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput type="text" placeholder="City" formControlName="city">
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput type="text" placeholder="County" formControlName="county">
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput type="text" placeholder="State / Province" formControlName="state">
-        <mat-error>Please use two character abbreviation</mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput type="text" placeholder="Postal Code" formControlName="postalCode">
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput type="text" placeholder="Country" formControlName="country">
-      </mat-form-field>
-      <div class="checklist">
-        <mat-checkbox formControlName="duplicate">
-          Site is a duplicate
-        </mat-checkbox>
-        <mat-checkbox formControlName="backfilledNonGrocery">
-          Site has been back-filled with non-grocery
-        </mat-checkbox>
-      </div>
-    </div>
+<mds-sub-title-bar subTitle="Store Details">
+  <button type="button" mat-icon-button color="warn" *ngIf="form.invalid">
+    <i class="fas fa-exclamation-triangle fa-2x"></i>
+  </button>
+  <button type="submit" mat-mini-fab color="accent" (click)="saveForm()" form="site-form"
+          [disabled]="form.pristine || form.invalid || saving">
+    <i *ngIf="!saving" class="fas fa-save"></i>
+    <i *ngIf="saving" class="fas fa-spinner fa-pulse"></i>
+  </button>
+</mds-sub-title-bar>
+
+<div class="content-wrapper">
+  <div *ngIf="loading" style="text-align: center">
+    <i class="fas fa-spinner fa-pulse fa-2x"></i>
   </div>
+  <form id="site-form" *ngIf="site" [formGroup]="form">
+    <mat-form-field>
+      <mat-select placeholder="Position In Center" formControlName="positionInCenter">
+        <mat-option>Clear Selection</mat-option>
+        <mat-option *ngFor="let positionInCenterOption of positionInCenterOptions" [value]="positionInCenterOption">
+          {{positionInCenterOption}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput type="text" placeholder="Address Line 1" formControlName="address1">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput type="text" placeholder="Address Line 2" formControlName="address2">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-select placeholder="Intersection Type" formControlName="intersectionType">
+        <mat-option>Clear Selection</mat-option>
+        <mat-option *ngFor="let intersectionTypeOption of intersectionTypeOptions" [value]="intersectionTypeOption">
+          {{intersectionTypeOption}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div class="flex flex-justify-center" id="quad-button-wrapper">
+      <button type="button" mat-raised-button color="primary" (click)="showQuadDialog()">
+        Quad: {{form.get('quad').value}}
+      </button>
+    </div>
+    <mat-form-field>
+      <input matInput type="text" placeholder="Primary Intersection Street"
+             formControlName="intersectionStreetPrimary">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput type="text" placeholder="Secondary Intersection Street"
+             formControlName="intersectionStreetSecondary">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput type="text" placeholder="City" formControlName="city">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput type="text" placeholder="County" formControlName="county">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput type="text" placeholder="State / Province" formControlName="state">
+      <mat-error>Please use two character abbreviation</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput type="text" placeholder="Postal Code" formControlName="postalCode">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput type="text" placeholder="Country" formControlName="country">
+    </mat-form-field>
+    <div class="checklist">
+      <mat-checkbox formControlName="duplicate">
+        Site is a duplicate
+      </mat-checkbox>
+      <mat-checkbox formControlName="backfilledNonGrocery">
+        Site has been back-filled with non-grocery
+      </mat-checkbox>
+    </div>
+    <mds-auditing-entity-fields [entity]="site" *ngIf="site.id"></mds-auditing-entity-fields>
+  </form>
 </div>

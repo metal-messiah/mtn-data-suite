@@ -1,0 +1,19 @@
+.project-item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.project-item button {
+  min-width: unset;
+}
+
+#projects {
+  margin-left: -24px;
+  margin-right: -24px;
+}
+
+#add-project-button {
+  min-width: 104px;
+}

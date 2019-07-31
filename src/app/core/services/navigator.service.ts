@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Coordinates } from '../../models/coordinates';
+import { LatLng } from '../../models/latLng';
 import { Observable } from 'rxjs';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class NavigatorService {
     this.watchIds = [];
   }
 
-  getCurrentPosition(): Observable<Coordinates> {
+  getCurrentPosition(): Observable<LatLng> {
     return Observable.create(observer => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {

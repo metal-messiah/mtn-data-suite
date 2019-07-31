@@ -96,8 +96,7 @@ export class AccessListDialogComponent implements OnInit {
         setTimeout(() => this.panels.last.open(), 300);
         this.snackBar.open('Successfully Added Access', null, {duration: 1000});
       }, err => this.errorService.handleServerError('Failed to create new access!', err,
-        () => {
-        },
+        () => console.log(err),
         () => this.saveNewAccess(newAccess)));
   }
 
@@ -109,8 +108,7 @@ export class AccessListDialogComponent implements OnInit {
         this.accesses.removeAt(index);
         this.snackBar.open('Successfully Deleted Access', null, {duration: 1000});
       }, err => this.errorService.handleServerError('Failed to delete access!', err,
-        () => {
-        },
+        () => console.log(err),
         () => this.deleteAccess(access, index)));
   }
 

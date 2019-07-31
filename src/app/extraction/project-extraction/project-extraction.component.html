@@ -1,32 +1,19 @@
-<div class="box">
-  <mat-toolbar class="row header flex-space-between">
-    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    <span><i class="fas fa-folder-open"></i>&nbsp;Extract by Project</span>
-    <div>
-      <button type="button" mat-mini-fab color="accent" (click)="download()"
-              [disabled]="downloading || selectedProject == null">
-        <i *ngIf="!downloading" class="fas fa-download"></i>
-        <i *ngIf="downloading" class="fas fa-spinner fa-pulse"></i>
-      </button>
-    </div>
-  </mat-toolbar>
-  <div class="row content">
-    <div class="list-wrapper">
-      <div>
-        <button type="button" mat-raised-button color="accent" (click)="openProjectSelectionDialog()">
-          <i class="fas fa-folder-open"></i>&nbsp;Select Project
-        </button>
-      </div>
-      <div style="height: 80px;">
-        <h3 *ngIf="selectedProject != null">{{selectedProject.projectName}}</h3>
-      </div>
-      <div>
-        <mat-form-field>
-          <mat-select placeholder="Select a Field Set" [(ngModel)]="selectedFieldSet" name="fieldSet">
-            <mat-option *ngFor="let fieldSet of fieldSets" [value]="fieldSet">{{fieldSet.fieldSetName}}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </div>
-  </div>
+<mds-sub-title-bar subTitle="Extract by Project">
+  <i class="fa fa-folder"></i>
+  <button type="button" mat-mini-fab color="accent" (click)="download()" [disabled]="downloading || !selectedProject">
+    <i *ngIf="!downloading" class="fas fa-download"></i>
+    <i *ngIf="downloading" class="fas fa-spinner fa-pulse"></i>
+  </button>
+</mds-sub-title-bar>
+<div class="content">
+  <button type="button" mat-raised-button color="accent" (click)="openProjectSelectionDialog()">
+    <i class="fas fa-folder-open"></i>&nbsp;
+    <span *ngIf="!selectedProject">Select Project</span>
+    <span *ngIf="selectedProject">{{selectedProject.projectName}}</span>
+  </button>
+  <mat-form-field>
+    <mat-select placeholder="Select a Field Set" [(ngModel)]="selectedFieldSet" name="fieldSet">
+      <mat-option *ngFor="let fieldSet of fieldSets" [value]="fieldSet">{{fieldSet.fieldSetName}}</mat-option>
+    </mat-select>
+  </mat-form-field>
 </div>

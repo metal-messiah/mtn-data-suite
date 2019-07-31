@@ -1,0 +1,14 @@
+:host {
+  height: 100%;
+  overflow-y: auto;
+}
+
+mat-nav-list {
+  width: fit-content;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+mat-list-item:not(:last-child) {
+  border-bottom: 1px solid #ddd;
+}

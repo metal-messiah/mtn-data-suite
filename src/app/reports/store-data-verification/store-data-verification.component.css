@@ -1,6 +1,6 @@
-.wrapper {
-  margin: 40px auto;
-  width: fit-content;
+#data-verification-table {
+  min-width: 1427px;
+  margin: 0 auto;
 }
 
 mat-form-field {

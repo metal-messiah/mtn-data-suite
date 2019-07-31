@@ -9,9 +9,7 @@ import { StoreMarker } from '../../models/store-marker';
 import { forkJoin, Subject } from 'rxjs';
 import { ErrorService } from './error.service';
 import { finalize, map, reduce, tap } from 'rxjs/operators';
-import { FormBuilder } from '@angular/forms';
 import { ProjectService } from './project.service';
-import { CasingDashboardService } from '../../casing/casing-dashboard/casing-dashboard.service';
 import { SiteMarkerService } from '../site-marker.service';
 import { StoreIconUtil } from '../../utils/StoreIconUtil';
 import { MarkerType } from '../functionalEnums/MarkerType';
@@ -21,13 +19,15 @@ import { Control, ControlStorageKeys } from 'app/models/control';
 import { DbEntityMarkerControls } from '../../models/db-entity-marker-controls';
 import { EntitySelectionService } from './entity-selection.service';
 import { SimplifiedBanner } from '../../models/simplified/simplified-banner';
+import { CasingProjectService } from '../../casing/casing-project.service';
+import { CloudinaryUtil } from '../../utils/cloudinary-util';
 
 @Injectable()
 export class DbEntityMarkerService {
 
-  private readonly ST_SITE_MARKERS = 'siteMarkers';
+  private ST_SITE_MARKERS = 'siteMarkers';
+  private ACTIVE_CONTROLS_STORAGE_KEY = 'dbEntityMarkerServiceControls';
   private readonly SAVED_CONTROLS_STORAGE_KEY = ControlStorageKeys.savedDbEntityMarkerServiceControls;
-  private readonly ACTIVE_CONTROLS_STORAGE_KEY = ControlStorageKeys.dbEntityMarkerServiceControls;
 
   private readonly clickListener$ = new Subject<{ storeId: number, siteId: number, marker: google.maps.Marker }>();
 
@@ -45,23 +45,23 @@ export class DbEntityMarkerService {
   private prevBounds: { north: number, south: number, east: number, west: number };
   private prevSubscription;
 
-  private visibleMarkers = [];
+  private visibleMarkers: google.maps.Marker[] = [];
 
   private selectionService: EntitySelectionService;
+  private casingProjectService: CasingProjectService;
 
   gettingLocations = false;
   readonly visibleMarkersChanged$ = new Subject<void>();
   readonly markerTypeOptions = ['Pin', 'Logo', 'Validation', 'Cased for Project'];
 
+  private readonly cloudinaryUtil: CloudinaryUtil;
+
   constructor(private authService: AuthService,
               private errorService: ErrorService,
-              private fb: FormBuilder,
               private siteMarkerService: SiteMarkerService,
               private projectService: ProjectService,
-              private casingDashboardService: CasingDashboardService,
               private storageService: StorageService) {
-
-    this.initControls();
+    this.cloudinaryUtil = new CloudinaryUtil();
   }
 
   /**************************************
@@ -71,15 +71,25 @@ export class DbEntityMarkerService {
   /**
    * Initializes the map. Must be called before other public methods will work.
    */
-  initMap(gmap: google.maps.Map, clickListener, selectionService) {
+  initMap(gmap: google.maps.Map,
+          selectionService: EntitySelectionService,
+          casingProjectService: CasingProjectService,
+          storageKeyPrefix: string,
+          controls?: DbEntityMarkerControls) {
+
+    this.ST_SITE_MARKERS = storageKeyPrefix + '_' + this.ST_SITE_MARKERS;
+    this.ACTIVE_CONTROLS_STORAGE_KEY = storageKeyPrefix + '_' + this.ACTIVE_CONTROLS_STORAGE_KEY;
+    this.initControls();
+
+    // CasingProject service
+    this.casingProjectService = casingProjectService;
+
     // Selection
     this.selectionService = selectionService;
     this.selectionService.selectionUpdated$.subscribe(() => this.refreshMarkers());
 
     this.gmap = gmap;
 
-    // Click Listener - component subscription
-    this.clickListener$.subscribe(clickListener);
     // Click Listener - self subscription
     this.clickListener$.subscribe((selection: { storeId: number, siteId: number, marker: google.maps.Marker }) => {
       this.selectionService.singleSelect(selection);
@@ -87,6 +97,10 @@ export class DbEntityMarkerService {
 
     this.clusterer = new MarkerClusterer(this.gmap, [],
       {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+
+    if (controls) {
+      this._controls = controls;
+    }
 
     if (!this._controls.updateOnBoundsChange) {
       this.storageService.getOne(this.ST_SITE_MARKERS).subscribe(siteMarkersJson => {
@@ -96,6 +110,10 @@ export class DbEntityMarkerService {
         }
       });
     }
+  }
+
+  destroy() {
+    this.clickListener$.unsubscribe();
   }
 
   /**
@@ -132,7 +150,7 @@ export class DbEntityMarkerService {
     );
 
     if (this._controls.markerType === MarkerType.CASED_FOR_PROJECT) {
-      const selectedProject = this.casingDashboardService.getSelectedProject();
+      const selectedProject = this.casingProjectService.getSelectedProject();
       if (selectedProject) {
         requests.push(this.projectService.getAllCasedStoreIds(selectedProject.id)
           .pipe(tap((storeIds: number[]) => {
@@ -164,7 +182,7 @@ export class DbEntityMarkerService {
     // If no call has been made yet, get rather than refresh
     if (this.prevUpdate) {
       if (this._controls.markerType === MarkerType.CASED_FOR_PROJECT) {
-        const selectedProject = this.casingDashboardService.getSelectedProject();
+        const selectedProject = this.casingProjectService.getSelectedProject();
         if (selectedProject) {
           this.gettingLocations = true;
           this.projectService.getAllCasedStoreIds(selectedProject.id)
@@ -172,7 +190,7 @@ export class DbEntityMarkerService {
             .subscribe((storeIds: number[]) => {
               this.storeIdsCasedForProject.clear();
               storeIds.forEach(storeId => this.storeIdsCasedForProject.add(storeId));
-              this.showHideMarkersInBounds()
+              this.showHideMarkersInBounds();
             });
         }
       } else {
@@ -345,7 +363,6 @@ export class DbEntityMarkerService {
         this._controls = new DbEntityMarkerControls(storedControls);
       }
     });
-
   }
 
   private refreshMarkerOptions(marker: google.maps.Marker) {
@@ -445,7 +462,7 @@ export class DbEntityMarkerService {
       if (active.length === 0) {
         markers.push(this.createSiteMarker(site));
       } else {
-        active.forEach(store => markers.push(this.createStoreMarker(store, site)))
+        active.forEach(store => markers.push(this.createStoreMarker(store, site)));
       }
 
       // HISTORICAL
@@ -454,18 +471,19 @@ export class DbEntityMarkerService {
         const mostRecentHistorical = historical.sort((a, b) => b.createdDate.getTime() - a.createdDate.getTime())[0];
         markers.push(this.createStoreMarker(mostRecentHistorical, site));
       } else if (historical.length === 1) {
-        markers.push(this.createStoreMarker(historical[0], site))
+        markers.push(this.createStoreMarker(historical[0], site));
       }
 
       // FUTURE
       if (future.length > 1) {
         // TODO Error state - no site should have multiple future stores - potentially create exclamation marker
       } else if (future.length === 1) {
-        markers.push(this.createStoreMarker(future[0], site))
+        markers.push(this.createStoreMarker(future[0], site));
       }
     } else {
       markers.push(this.createSiteMarker(site));
     }
+
     return markers;
   }
 
@@ -517,7 +535,7 @@ export class DbEntityMarkerService {
         anchor: site.duplicate ? new google.maps.Point(80, 510) : new google.maps.Point(255, 510),
         labelOrigin: site.duplicate ? new google.maps.Point(255, 220) : new google.maps.Point(255, 230),
       }
-    }
+    };
   }
 
   private getMarkerOptionsForStore(store: StoreMarker, site: SiteMarker, selected: boolean) {
@@ -541,7 +559,7 @@ export class DbEntityMarkerService {
         anchor: StoreIconUtil.getStoreIconAnchorPoint(store, showLogo, showCased),
         rotation: StoreIconUtil.getStoreIconRotation(store, showLogo, showCased)
       },
-      labelContent: StoreIconUtil.getStoreLabelContent(store, showLogo, showFullLabel),
+      labelContent: StoreIconUtil.getStoreLabelContent(store, showLogo, showFullLabel, this.cloudinaryUtil),
       labelAnchor: StoreIconUtil.getStoreLabelAnchor(store, showLogo, showCased, showFullLabel),
       labelClass: StoreIconUtil.getStoreLabelClass(store, selected, showLogo, showCased, showFullLabel),
       labelInBackground: false

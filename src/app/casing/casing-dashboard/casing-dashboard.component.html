@@ -7,7 +7,7 @@
                position="end">
     <mds-db-entity-controls (viewStoreList)="openSidenavDirectlyToSelectedListStores($event)"></mds-db-entity-controls>
   </mat-sidenav>
-  <mat-sidenav-content>
+  <mat-sidenav-content style="display: flex;">
     <mds-map #casingMap class="row content" (ready)="onMapReady()"></mds-map>
   </mat-sidenav-content>
 </mat-sidenav-container>
@@ -257,3 +257,9 @@
                  [disabled]="selectedDashboardMode !== casingDashboardMode.DEFAULT">
   </mds-info-card>
 </div>
+
+<button id="openListView" mat-mini-fab color="primary" (click)="setShowStoreLists(!showStoreLists)"
+        [ngClass]="{hidden: selectedDashboardMode !== casingDashboardMode.MULTI_SELECT}">
+  <i class="fas fa-chevron-right" *ngIf="!showStoreLists"></i>
+  <i class="fas fa-chevron-left" *ngIf="showStoreLists"></i>
+</button>

@@ -1,6 +1,6 @@
-import { SimplifiedStoreStatus } from './simplified/simplified-store-status';
 import { DateUtil } from '../utils/date-util';
 import { SimplifiedStoreSource } from './simplified/simplified-store-source';
+import { SimplifiedBanner } from './simplified/simplified-banner';
 
 export class SourceUpdatable {
 
@@ -25,24 +25,32 @@ export class SourceUpdatable {
   readonly storeId: number;
   storeName: string;
   dateOpened: Date;
-
-  // Only a new status (one without an ID) will be regarded when submitted. (Forbids editing of existing status records)
-  storeStatuses: SimplifiedStoreStatus[] = [];
-
-  // Store Survey
   areaTotal: number;
+
+  banner: SimplifiedBanner;
+
+  storeStatus: string;
+  storeStatusStartDate: Date;
 
   storeSource: SimplifiedStoreSource;
 
   constructor(obj?: SourceUpdatable) {
     if (obj) {
       Object.assign(this, obj);
-      this.dateOpened = DateUtil.getDate(obj.dateOpened);
+
+      if (obj.banner) {
+        this.banner = new SimplifiedBanner(obj.banner);
+      }
+
+      if (obj.dateOpened) {
+        this.dateOpened = DateUtil.getDate(obj.dateOpened);
+      }
+      if (obj.storeStatusStartDate) {
+        this.storeStatusStartDate = DateUtil.getDate(obj.storeStatusStartDate);
+      }
+
       if (obj.storeSource) {
         this.storeSource = new SimplifiedStoreSource(obj.storeSource);
-      }
-      if (obj.storeStatuses) {
-        this.storeStatuses = obj.storeStatuses.map(status => new SimplifiedStoreStatus(status));
       }
     }
   }

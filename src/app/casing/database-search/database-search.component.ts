@@ -1,8 +1,7 @@
-import { Component, NgZone, OnInit } from '@angular/core';
-import { Store } from '../../models/full/store';
-import { FormControl, Validators } from '@angular/forms';
+import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { StoreService } from '../../core/services/store.service';
+import { ErrorService } from '../../core/services/error.service';
 
 @Component({
   selector: 'mds-database-search',
@@ -11,23 +10,16 @@ import { StoreService } from '../../core/services/store.service';
 })
 export class DatabaseSearchComponent {
 
-  stores: Store[];
-  databaseSearchFormControl = new FormControl('');
-  noSearchResults = false;
-
-  constructor(public dialogRef: MatDialogRef<DatabaseSearchComponent>,
+  constructor(private dialogRef: MatDialogRef<DatabaseSearchComponent>,
+              private errorService: ErrorService,
               private storeService: StoreService) { }
 
-  closeDialog() {
-    this.dialogRef.close();
-  }
-
-  search() {
-    const queryString = this.databaseSearchFormControl.value;
+  search(queryString: string) {
     if (queryString != null) {
       this.storeService.getOneById(queryString).subscribe(store => {
         this.dialogRef.close(store);
-      });
+      }, err => this.errorService.handleServerError('Failed to find store!', err,
+        () => console.error(err)));
     }
   }
 

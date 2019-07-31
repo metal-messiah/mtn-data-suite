@@ -47,15 +47,14 @@ export class ProjectExtractionComponent implements OnInit {
   };
 
   openProjectSelectionDialog(): void {
-    const dialogRef = this.dialog.open(SelectProjectComponent, {maxWidth: '90%'});
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'clear') {
-        this.selectedProject = null;
-      } else if (result != null) {
-        this.selectedProject = result;
-      }
-    });
+    this.dialog.open(SelectProjectComponent, {maxWidth: '90%'}).afterClosed()
+      .subscribe(result => {
+        if (result === 'clear') {
+          this.selectedProject = null;
+        } else if (result != null) {
+          this.selectedProject = result;
+        }
+      });
   }
 
   download() {

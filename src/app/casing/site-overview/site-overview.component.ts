@@ -16,6 +16,8 @@ import { finalize } from 'rxjs/internal/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { StoreSelectionDialogComponent } from '../store-merge/store-selection-dialog/store-selection-dialog.component';
 import { StoreAttrSelectionDialogComponent } from '../store-merge/store-attr-selection-dialog/store-attr-selection-dialog.component';
+import { CasingDashboardService } from '../casing-dashboard/casing-dashboard.service';
+import { CasingProjectService } from '../casing-project.service';
 
 @Component({
   selector: 'mds-site-overview',
@@ -32,6 +34,7 @@ export class SiteOverviewComponent implements OnInit {
   loading = false;
 
   constructor(private _location: Location,
+              private casingProjectService: CasingProjectService,
               private router: Router,
               private route: ActivatedRoute,
               private dialog: MatDialog,
@@ -43,50 +46,22 @@ export class SiteOverviewComponent implements OnInit {
   }
 
   ngOnInit() {
-    const siteId = parseInt(this.route.snapshot.paramMap.get('siteId'), 10);
-    this.loadSite(siteId);
+    const siteIdParam = this.route.snapshot.paramMap.get('siteId');
+    const siteId = parseInt(siteIdParam, 10);
+    if (!siteIdParam || isNaN(siteId)) {
+      this.errorService.handleServerError('Invalid siteId param!', {}, () => this._location.back());
+    } else {
+      this.loadSite(siteId);
+    }
   }
 
-  loadSite(siteId: number) {
-    this.loading = true;
-    this.siteService.getOneById(siteId)
-      .pipe(finalize(() => this.loading = false))
-      .subscribe(site => {
-        this.site = site;
-        this.setStores(this.site.stores);
-      }, err => this.errorService.handleServerError('Failed to load site!', err,
-        () => this.goBack(),
-        () => this.loadSite(siteId)));
+  getSelectedProject() {
+    return this.casingProjectService.getSelectedProject();
   }
 
-  private setStores(stores: Store[]) {
-    this.historicalStores = [];
-    this.activeStores = [];
-    this.futureStores = [];
-    stores.forEach(store => {
-      if (store.storeType === 'ACTIVE') {
-        this.activeStores.push(store);
-      } else if (store.storeType === 'FUTURE') {
-        this.futureStores.push(store);
-      } else {
-        this.historicalStores.push(store);
-      }
-    });
-
-    const sortByStatusStartDate = (a: Store, b: Store) => {
-      if (a.currentStoreStatus != null && b.currentStoreStatus != null) {
-        return b.currentStoreStatus.statusStartDate.getTime() - a.currentStoreStatus.statusStartDate.getTime();
-      }
-      return 0;
-    };
-    this.activeStores.sort(sortByStatusStartDate);
-    this.futureStores.sort(sortByStatusStartDate);
-    this.historicalStores.sort(sortByStatusStartDate);
+  openProjectSelectionDialog() {
+    this.casingProjectService.openProjectSelectionDialog();
   }
-
-  goBack() {
-    this._location.back();
-  };
 
   openAssignmentDialog(): void {
     const selectAssigneeDialog = this.dialog.open(UserProfileSelectComponent);
@@ -157,6 +132,65 @@ export class SiteOverviewComponent implements OnInit {
     }
   }
 
+  openStoreMergeDialog() {
+    this.dialog.open(StoreSelectionDialogComponent, {
+      data: {stores: this.site.stores},
+      disableClose: true,
+      maxWidth: '90%',
+      minWidth: '300px'
+    }).afterClosed().subscribe((stores: Store[]) => {
+      if (stores && stores.length > 1) {
+        // Open the attribute selection dialog
+        this.dialog.open(StoreAttrSelectionDialogComponent, {
+          data: {selectedStores: stores},
+          maxWidth: '90%',
+          minWidth: '300px'
+        }).afterClosed().subscribe((store: Store) => {
+          if (store) {
+            this.ngOnInit();
+          }
+        });
+      }
+    });
+  }
+
+  private loadSite(siteId: number) {
+    this.loading = true;
+    this.siteService.getOneById(siteId)
+      .pipe(finalize(() => this.loading = false))
+      .subscribe(site => {
+        this.site = site;
+        this.setStores(this.site.stores);
+      }, err => this.errorService.handleServerError('Failed to load site!', err,
+        () => this._location.back(),
+        () => this.loadSite(siteId)));
+  }
+
+  private setStores(stores: Store[]) {
+    this.historicalStores = [];
+    this.activeStores = [];
+    this.futureStores = [];
+    stores.forEach(store => {
+      if (store.storeType === 'ACTIVE') {
+        this.activeStores.push(store);
+      } else if (store.storeType === 'FUTURE') {
+        this.futureStores.push(store);
+      } else {
+        this.historicalStores.push(store);
+      }
+    });
+
+    const sortByStatusStartDate = (a: Store, b: Store) => {
+      if (a.currentStoreStatus != null && b.currentStoreStatus != null) {
+        return b.currentStoreStatus.statusStartDate.getTime() - a.currentStoreStatus.statusStartDate.getTime();
+      }
+      return 0;
+    };
+    this.activeStores.sort(sortByStatusStartDate);
+    this.futureStores.sort(sortByStatusStartDate);
+    this.historicalStores.sort(sortByStatusStartDate);
+  }
+
   private transitionFutureToActive() {
     const prevStoreType = this.futureStores[0].storeType;
     this.futureStores[0].storeType = 'ACTIVE';
@@ -191,25 +225,4 @@ export class SiteOverviewComponent implements OnInit {
         () => console.log('Cancelled'), () => this.saveNewStore(newStore)));
   }
 
-  openStoreMergeDialog() {
-    this.dialog.open(StoreSelectionDialogComponent, {
-      data: {stores: this.site.stores},
-      disableClose: true,
-      maxWidth: '90%',
-      minWidth: '300px'
-    }).afterClosed().subscribe((stores: Store[]) => {
-      if (stores && stores.length > 1) {
-        // Open the attribute selection dialog
-        this.dialog.open(StoreAttrSelectionDialogComponent, {
-          data: {selectedStores: stores},
-          maxWidth: '90%',
-          minWidth: '300px'
-        }).afterClosed().subscribe((store: Store) => {
-          if (store) {
-            this.ngOnInit()
-          }
-        });
-      }
-    })
-  }
 }

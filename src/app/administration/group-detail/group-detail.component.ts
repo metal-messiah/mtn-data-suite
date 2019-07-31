@@ -1,23 +1,24 @@
-import { DatePipe, Location } from '@angular/common';
+import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { CanComponentDeactivate } from '../../core/services/can-deactivate.guard';
 import { DetailFormService } from '../../core/services/detail-form.service';
 import { GroupService } from '../../core/services/group.service';
-
-import { DetailFormComponent } from '../../interfaces/detail-form-component';
 import { Group } from '../../models/full/group';
-import { UserProfile } from '../../models/full/user-profile';
 import { Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { ErrorService } from '../../core/services/error.service';
+import { MatDialog, MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'mds-group-detail',
   templateUrl: './group-detail.component.html',
-  styleUrls: ['./group-detail.component.css']
+  styleUrls: ['./group-detail.component.css', '../detail-view.css']
 })
-export class GroupDetailComponent implements OnInit, CanComponentDeactivate, DetailFormComponent<Group> {
+export class GroupDetailComponent implements OnInit, CanComponentDeactivate {
 
   groupForm: FormGroup;
 
@@ -28,113 +29,85 @@ export class GroupDetailComponent implements OnInit, CanComponentDeactivate, Det
 
   constructor(private groupService: GroupService,
               private route: ActivatedRoute,
-              private router: Router,
               private _location: Location,
               private fb: FormBuilder,
-              private datePipe: DatePipe,
-              private detailFormService: DetailFormService<Group>) {
+              private errorService: ErrorService,
+              private dialog: MatDialog,
+              private snackBar: MatSnackBar,
+              private detailFormService: DetailFormService) {
   }
 
   ngOnInit() {
     this.createForm();
-
-    this.isLoading = true;
-
-    this.detailFormService.retrieveObj(this);
+    this.getData();
   }
 
-  // Implementations for DetailFormComponent
-  createForm() {
-    this.groupForm = this.fb.group({
-      displayName: ['', Validators.required],
-      description: '',
-      createdBy: '',
-      createdDate: '',
-      updatedBy: '',
-      updatedDate: '',
-      members: this.fb.array([]),
-      allSelected: true
-    });
-    this.setDisabledFields();
-  }
-
-  setDisabledFields(): void {
-    this.groupForm.get('createdBy').disable();
-    this.groupForm.get('createdDate').disable();
-    this.groupForm.get('updatedBy').disable();
-    this.groupForm.get('updatedDate').disable();
-  }
-
-  getForm(): FormGroup {
-    return this.groupForm;
-  }
-
-  getNewObj(): Group {
-    return new Group({});
-  }
-
-  getObj(): Group {
-    return this.group;
-  }
-
-  getEntityService(): GroupService {
-    return this.groupService;
-  }
-
-  getRoute(): ActivatedRoute {
-    return this.route;
-  }
-
-  getSavableObj(): Group {
-    const updatedGroup = JSON.parse(JSON.stringify(this.group));
+  saveGroup() {
+    const savable = Object.assign({}, this.group);
     Object.keys(this.groupForm.controls).forEach(key => {
       if (this.groupForm.get(key).dirty) {
-        updatedGroup[key] = this.groupForm.get(key).value
+        savable[key] = this.groupForm.get(key).value;
       }
     });
 
-    return updatedGroup;
+    const request = savable.id ? this.groupService.update(savable) : this.groupService.create(savable);
+
+    this.isSaving = true;
+    request.pipe(finalize(() => this.isSaving = false))
+      .subscribe(group => {
+        this.snackBar.open('Successfully saved group', null, {duration: 2000});
+        this.groupForm.reset(group);
+        this._location.back();
+      }, err => this.errorService.handleServerError('Failed to save group!', err,
+        () => console.log(err), () => this.saveGroup()));
   }
 
-  getTypeName(): string {
-    return 'group';
-  }
-
-  goBack() {
+  deleteGroup() {
+    const data = {
+      title: 'Warning!',
+      question: 'This action can only be undone by a DB Administrator. Are you sure you want to delete this group?'
+    };
+    this.dialog.open(ConfirmDialogComponent, {data: data}).afterClosed().subscribe(result => {
+      if (result) {
+        this.isSaving = true;
+        this.groupService.delete(this.group.id)
+          .pipe(finalize(() => this.isSaving = false))
+          .subscribe(() => {
+            this.snackBar.open('Successfully deleted group', null, {duration: 2000});
+            this.groupForm.reset({});
     this._location.back();
-  };
-
-  onObjectChange(): void {
-    this.groupForm.reset({
-      displayName: this.group.displayName,
-      description: this.group.description
     });
-
-    const memberFGs = this.group.members.map(member => this.fb.group(member));
-    const memberFormArray = this.fb.array(memberFGs);
-    this.groupForm.setControl('members', memberFormArray);
-
-    if (this.group.id !== undefined) {
-      this.groupForm.patchValue({
-        createdBy: this.group.createdBy.email,
-        createdDate: this.datePipe.transform(this.group.createdDate, 'medium'),
-        updatedBy: this.group.updatedBy.email,
-        updatedDate: this.datePipe.transform(this.group.updatedDate, 'medium'),
+      }
       });
     }
-  }
-
-  setObj(obj: Group) {
-    this.group = obj;
-    this.onObjectChange();
-  }
-
-  // Delegated functions
-  saveGroup() {
-    this.detailFormService.save(this);
-  }
 
   canDeactivate(): Observable<boolean> | boolean {
-    return this.detailFormService.canDeactivate(this);
+    return this.detailFormService.canDeactivate(this.groupForm);
+  }
+
+  private createForm() {
+    this.groupForm = this.fb.group({
+      displayName: ['', Validators.required],
+      description: ''
+    });
+  }
+
+  private getData() {
+    const idString = this.route.snapshot.paramMap.get('id');
+    if (idString) {
+      const id = parseInt(idString, 10);
+
+      this.isLoading = true;
+      this.groupService.getOneById(id)
+        .pipe(finalize(() => this.isLoading = false))
+        .subscribe(group => {
+            this.group = group;
+            this.groupForm.reset(this.group);
+          }, err => this.errorService.handleServerError('Failed to get role!', err,
+          () => this._location.back(), () => this.getData())
+        );
+    } else {
+      this.group = new Group({});
+    }
   }
 }

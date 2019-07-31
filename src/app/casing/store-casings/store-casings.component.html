@@ -1,63 +1,66 @@
-<div class="box">
-  <mat-toolbar class="row header flex-space-between">
-    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    <span id="title">Store Casings</span>
-    <div>
+<mds-sub-title-bar [subTitle]="layoutIsSmall ? '' : 'Store Casings'">
+  <span *ngIf="layoutIsSmall" class="left">Store Casings</span>
+  <button type="button" mat-raised-button color="accent" title="Select Project"
+          id="project-button" (click)="openProjectSelectionDialog()">
+    <span *ngIf="getSelectedProject()">{{getSelectedProject().projectName}}</span>
+    <span *ngIf="!getSelectedProject()">Select Project</span>
+  </button>
+</mds-sub-title-bar>
+
+<div class="content-wrapper">
+  <div *ngIf="loading" style="text-align: center">
+    <i class="fas fa-spinner fa-pulse fa-2x"></i>
+  </div>
+  <div *ngIf="!loading">
+    <div id="store-name-header">
+      {{store.storeName}}<span *ngIf="store.storeNumber">&nbsp;({{store.storeNumber}})</span>
     </div>
-  </mat-toolbar>
-  <div class="row content">
-    <div class="list-wrapper">
-      <div class="single-item-row" *ngIf="store">
-        <strong>{{store.storeName}}<span *ngIf="store.storeNumber">&nbsp;({{store.storeNumber}})</span></strong>
-      </div>
-      <div class="single-item-row">
-        <button mat-raised-button color="accent" (click)="createNewCasing()" [disabled]="loading">
-          <i class="fas fa-plus"></i>&nbsp;&nbsp;Create New Casing
-        </button>
-      </div>
-      <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-      <mat-accordion *ngIf="!loading">
-        <mat-expansion-panel *ngFor="let casing of casings; let i = index">
-          <mat-expansion-panel-header>
-            <mat-panel-title>{{casing.casingDate | date}}</mat-panel-title>
-            <mat-panel-description *ngIf="casing.storeVolume != null">
-              {{casing.storeVolume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-          <div>
-            <mds-data-field title="Store Status" [value]="casing.storeStatus"></mds-data-field>
-            <mds-data-field title="Average Weekly Volume"
-                            [currencyValue]="casing.storeVolume?.volumeTotal"></mds-data-field>
-            <mds-data-field title="Sales Area" [sqft]="store.areaSales"></mds-data-field>
-            <mds-data-field title="Total Area" [sqft]="store.areaTotal"></mds-data-field>
-            <div *ngIf="casing.projects != null && casing.projects.length > 0">
-              <h4>Used for Projects</h4>
-              <ul>
-                <li *ngFor="let project of casing.projects">{{project.projectName}}</li>
-              </ul>
-            </div>
-            <div *ngIf="casing.projects != null && casing.projects.length < 1">
-              <h4>No Projects Selected</h4>
-            </div>
+    <div id="new-casing-button-container">
+      <button mat-raised-button color="accent" (click)="createNewCasing()">
+        <i class="fas fa-plus"></i>&nbsp;&nbsp;Create New Casing
+      </button>
+    </div>
+    <mat-accordion>
+      <mat-expansion-panel *ngFor="let casing of casings; let i = index">
+        <mat-expansion-panel-header>
+          <mat-panel-title>{{casing.casingDate | date}}</mat-panel-title>
+          <mat-panel-description *ngIf="casing.storeVolume">
+            {{casing.storeVolume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div>
+          <mds-data-field title="Store Status" [value]="casing.storeStatus"></mds-data-field>
+          <mds-data-field title="Average Weekly Volume"
+                          [currencyValue]="casing.storeVolume?.volumeTotal"></mds-data-field>
+          <mds-data-field title="Sales Area" [sqft]="store.areaSales"></mds-data-field>
+          <mds-data-field title="Total Area" [sqft]="store.areaTotal"></mds-data-field>
+          <div *ngIf="casing.projects != null && casing.projects.length > 0">
+            <h4>Used for Projects</h4>
+            <ul>
+              <li *ngFor="let project of casing.projects">{{project.projectName}}</li>
+            </ul>
           </div>
-          <mat-action-row class="flex-space-between flex-align-center">
-            <button mat-icon-button [mat-menu-trigger-for]="storeCasingMore"><i class="fas fa-ellipsis-v"></i></button>
-            <div></div>
-            <button mat-mini-fab color="primary" *ngIf="canEditCasing(casing)"
-                    [routerLink]="['/casing/store', storeId  , 'store-casings', casing.id]">
-              <i class="fas fa-pencil-alt"></i>
-            </button>
-            <div *ngIf="!canEditCasing(casing)">
-              Select Project to Edit
-            </div>
-          </mat-action-row>
-          <mat-menu #storeCasingMore="matMenu" [overlapTrigger]="false">
-            <button mat-menu-item (click)="deleteCasing(casing, i)">
-              <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
-            </button>
-          </mat-menu>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </div>
+          <div *ngIf="casing.projects != null && casing.projects.length < 1">
+            <h4>No Projects Selected</h4>
+          </div>
+        </div>
+        <mat-action-row class="flex-space-between flex-align-center">
+          <button mat-icon-button [mat-menu-trigger-for]="storeCasingMore"><i class="fas fa-ellipsis-v"></i></button>
+          <div></div>
+          <button mat-mini-fab color="primary" *ngIf="canEditCasing(casing)"
+                  [routerLink]="['/casing/store', store.id  , 'store-casings', casing.id]">
+            <i class="fas fa-pencil-alt"></i>
+          </button>
+          <div *ngIf="!canEditCasing(casing)">
+            Select Project to Edit
+          </div>
+        </mat-action-row>
+        <mat-menu #storeCasingMore="matMenu" [overlapTrigger]="false">
+          <button mat-menu-item (click)="deleteCasing(casing, i)">
+            <i class="fas fa-trash"></i>&nbsp;&nbsp;Delete
+          </button>
+        </mat-menu>
+      </mat-expansion-panel>
+    </mat-accordion>
   </div>
 </div>

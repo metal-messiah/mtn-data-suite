@@ -1,34 +1,25 @@
-<div class="box">
-  <mat-toolbar class="row header flex-space-between">
-    <button type="button" mat-icon-button (click)="goBack()"><i class="fas fa-arrow-left"></i></button>
-    <span><i class="fas fa-id-badge"></i> Groups</span>
-    <button mat-raised-button color="primary" routerLink="../group-detail">Add Group</button>
-  </mat-toolbar>
-  <div class="row content">
-    <div class="list-wrapper">
-      <h3 *ngIf="groups && groups.length < 1">No Groups</h3>
-      <div *ngIf="isLoading" style="text-align: center">
-        <i class="fas fa-spinner fa-3x fa-pulse" aria-hidden="true"></i>
-      </div>
-      <mat-accordion *ngIf="!isLoading">
-        <mat-expansion-panel *ngFor="let group of groups">
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              {{group.displayName}}
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <p>{{group.description}}</p>
-          <mat-action-row>
-            <button [disabled]="isDeleting" mat-button color="warn" (click)="confirmDelete(group)">
-              <span *ngIf="isDeleting"><i class="fas fa-spinner fa-pulse" aria-hidden="true"></i></span>
-              <span>Delete</span>
+<mds-sub-title-bar subTitle="Groups">
+  <i class="fas fa-users"></i>
+  <button mat-mini-fab color="accent" routerLink="../group-detail" title="Create New Group">
+    <i class="fas fa-plus"></i>
             </button>
-            <button [disabled]="isDeleting" mat-button color="primary" [routerLink]="['../group-detail/', group.id]">
-              Edit
-            </button>
-          </mat-action-row>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </div>
-  </div>
+</mds-sub-title-bar>
+
+<div class="entity-table-wrapper">
+  <table class="entity-table" matSort="sort" (matSortChange)="sortData($event)">
+    <tr>
+      <th mat-sort-header="displayName">Group Name</th>
+    </tr>
+
+    <tr *ngIf="!groups">
+      <td style="text-align: center;">
+        <i *ngIf="isLoading" class="fas fa-spinner fa-pulse fa-2x" style="margin: 10px;"></i>
+        <span *ngIf="!isLoading && groups && groups.length === 0">No Groups</span>
+      </td>
+    </tr>
+
+    <tr *ngFor="let group of groups" [routerLink]="['../group-detail/', group.id]">
+      <td>{{group.displayName}}</td>
+    </tr>
+  </table>
 </div>

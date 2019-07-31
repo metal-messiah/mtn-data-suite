@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { RestService } from './rest.service';
 import { Role } from '../../models/full/role';
 import { CrudService } from '../../interfaces/crud-service';
@@ -17,16 +17,24 @@ export class RoleService extends CrudService<Role> {
     super(http, rest);
   }
 
-  protected createEntityFromObj(entityObj): Role {
-    return new Role(entityObj);
-  }
-
   getAllRoles(): Observable<Pageable<SimplifiedRole>> {
     const url = this.rest.getHost() + this.endpoint;
-    return this.http.get<Pageable<SimplifiedRole>>(url, {headers: this.rest.getHeaders()})
+    let params = new HttpParams().set('size', '1000');
+    params = params.set('sort', 'displayName');
+    return this.http.get<Pageable<SimplifiedRole>>(url, {headers: this.rest.getHeaders(), params: params})
       .pipe(map(page => {
         page.content = page.content.map(entityObj => new SimplifiedRole(entityObj));
         return page;
       }));
+  }
+
+  updateRolePermissions(roleId: number, permissionIds: number[]) {
+    const url = this.rest.getHost() + this.endpoint + '/' + roleId + '/permissions';
+    return this.http.put<Role>(url, permissionIds, {headers: this.rest.getHeaders()})
+      .pipe(map(role => new Role(role)));
+  }
+
+  protected createEntityFromObj(entityObj): Role {
+    return new Role(entityObj);
   }
 }

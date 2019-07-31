@@ -1,0 +1,14 @@
+#volume-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#volume-table td {
+  width: 50%;
+}
+
+.button-in-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}

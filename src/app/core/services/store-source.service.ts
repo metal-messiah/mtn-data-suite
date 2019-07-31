@@ -6,6 +6,7 @@ import { StoreSource } from '../../models/full/store-source';
 import { Observable } from 'rxjs';
 import { CrudService } from '../../interfaces/crud-service';
 import { SimplifiedStoreSource } from '../../models/simplified/simplified-store-source';
+import { ParamMap } from '@angular/router';
 
 @Injectable()
 export class StoreSourceService extends CrudService<StoreSource> {
@@ -15,28 +16,47 @@ export class StoreSourceService extends CrudService<StoreSource> {
     super(http, rest);
   }
 
-  getSourcesNotValidated(sourceName?: string, page?: string, size?: string): Observable<Pageable<SimplifiedStoreSource>> {
+  getStoreSources(validated: boolean, page?: string, size?: string, queryParams?: ParamMap): Observable<Pageable<SimplifiedStoreSource>> {
     const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams().set('validated', 'false');
+    let params = new HttpParams();
     params = params.set('size', size || '250');
     params = params.set('page', page || '0');
-    if (sourceName) {
-      params = params.set('source-name', sourceName);
+    if (validated !== null) {
+      params = params.set('validated', String(validated));
     }
+    queryParams.keys.forEach(key => params = params.set(key, queryParams.get(key)));
     return this.http.get<Pageable<SimplifiedStoreSource>>(url, {headers: this.rest.getHeaders(), params: params});
   }
 
-  getSourcesByBannerSourceId(
-    bannerSourceId: number,
-    page?: string,
-    size?: string
-  ): Observable<Pageable<SimplifiedStoreSource>> {
-    const url = this.rest.getHost() + this.endpoint;
-    let params = new HttpParams().set('banner-source-id', `${bannerSourceId}`);
-    params = params.set('size', size || '250');
-    params = params.set('page', page || '0');
+  validate(storeSourceId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + storeSourceId + '/validate';
+    return this.http.put<StoreSource>(url, null, {headers: this.rest.getHeaders()});
+  }
 
-    return this.http.get<Pageable<SimplifiedStoreSource>>(url, {headers: this.rest.getHeaders(), params: params});
+  invalidate(storeSourceId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + storeSourceId + '/invalidate';
+    return this.http.put<StoreSource>(url, null, {headers: this.rest.getHeaders()});
+  }
+
+  setStore(storeSourceId: number, storeId: number, validate: boolean) {
+    const url = this.rest.getHost() + this.endpoint + '/' + storeSourceId + '/store/' + storeId;
+    const params = new HttpParams().set('validate', String(validate));
+    return this.http.put<StoreSource>(url, null, {headers: this.rest.getHeaders(), params: params});
+  }
+
+  removeStore(storeSourceId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + storeSourceId + '/store';
+    return this.http.delete<StoreSource>(url, {headers: this.rest.getHeaders()});
+  }
+
+  setBannerSource(storeSourceId: number, bannerSourceId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + storeSourceId + '/banner-source/' + bannerSourceId;
+    return this.http.put<StoreSource>(url, null, {headers: this.rest.getHeaders()});
+  }
+
+  removeBannerSource(storeSourceId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + storeSourceId + '/banner-source';
+    return this.http.delete<StoreSource>(url, {headers: this.rest.getHeaders()});
   }
 
   protected createEntityFromObj(entityObj): StoreSource {

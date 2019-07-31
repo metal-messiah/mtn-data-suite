@@ -2,7 +2,7 @@
 
 import { Injectable } from '@angular/core';
 import { GooglePlace } from '../../models/google-place';
-import { Coordinates } from '../../models/coordinates';
+import { LatLng } from '../../models/latLng';
 import { Observable, Subject } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StorageService } from './storage.service';
@@ -17,12 +17,12 @@ import { StorageService } from './storage.service';
 @Injectable()
 export class MapService {
 
-  readonly ST_MAP_PERSPECTIVE = 'mapPerspective';
+  private readonly ST_MAP_PERSPECTIVE = 'mapPerspective';
 
   private map: google.maps.Map;
 
   boundsChanged$: Subject<{ east; north; south; west }>;
-  mapClick$: Subject<Coordinates>;
+  mapClick$: Subject<LatLng>;
 
   circleRadiusListener: google.maps.MapsEventListener;
 
@@ -95,7 +95,7 @@ export class MapService {
     this.map.getStreetView().setOptions({imageDateControl: true});
     this.placesService = new google.maps.places.PlacesService(this.map);
     this.boundsChanged$ = new Subject<{ east; north; south; west }>();
-    this.mapClick$ = new Subject<Coordinates>();
+    this.mapClick$ = new Subject<LatLng>();
     this.loadPerspective();
 
     // Listen to events and pass them on via subjects
@@ -142,7 +142,7 @@ export class MapService {
 
   private loadPerspective() {
     this.storageService.getOne(this.ST_MAP_PERSPECTIVE).subscribe(perspective => {
-      if (perspective != null) {
+      if (perspective) {
         perspective = JSON.parse(perspective);
         this.map.setCenter(perspective['center']);
         this.map.setZoom(perspective['zoom']);
@@ -392,7 +392,7 @@ export class MapService {
     });
   }
 
-  fitToPoints(points: Coordinates[], label?: string) {
+  fitToPoints(points: LatLng[], label?: string) {
     const bounds = new google.maps.LatLngBounds();
     points.forEach(pt => bounds.extend(pt));
     this.map.fitBounds(bounds);

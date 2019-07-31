@@ -1,0 +1,47 @@
+:host {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.entity-table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.entity-table {
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  margin: 15px auto;
+}
+
+.entity-table td, .entity-table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.entity-table tr:nth-child(even) {
+  background: #f2f2f2;
+}
+
+.entity-table tr:hover {
+  background: #ddd;
+  cursor: pointer;
+}
+
+.entity-table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #617d89;
+  color: white;
+}
+
+::ng-deep .mat-sort-header-arrow {
+  color: white;
+}
+
+.select-button {
+  width: 100%;
+}
+

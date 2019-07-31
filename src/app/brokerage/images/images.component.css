@@ -1,10 +1,36 @@
 :host {
+  flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  padding: 16px;
+  overflow: auto;
+}
+
+.chain-item {
+  width: 300px;
+  margin: 8px auto;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: space-evenly;
-  width: 50vw;
+}
+
+.logo-button {
+  width: 120px;
+  height: 60px;
+}
+
+mds-file-input {
+  max-width: 400px;
   margin: 0 auto;
+}
+
+.content > button {
+  display: block;
+  margin: 18px auto;
 }
 
 mat-hint {
@@ -12,7 +38,3 @@ mat-hint {
   font-weight: bold;
 }
 
-img {
-  width: 60px; /* you can use % */
-  height: auto;
-}

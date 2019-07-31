@@ -1,13 +1,18 @@
-<div *ngIf="!reportData" style="display: flex; justify-content: center; margin-top: 16px;">
+<mds-sub-title-bar subTitle="5. Preview Report Tables"></mds-sub-title-bar>
+
+<div *ngIf="!reportData" style="text-align: center; margin-top: 16px;">
   <i class="fas fa-spinner fa-pulse fa-2x"></i>
 </div>
 
-<ng-container *ngIf="reportData">
+<div class="content" *ngIf="reportData">
   <div *ngFor="let tableName of tableNames" style="position: relative;">
+    <div *ngIf="!pdfs[tableName]" style="text-align: center;">
+      <i class="fas fa-spinner fa-pulse fa-2x"></i>
+    </div>
     <ng-container *ngIf="pdfs[tableName]">
       <div style="text-align: center; margin-bottom: 8px;">
-        <button mat-raised-button (click)="zoomOut(tableName)"><i class="fas fa-search-plus"></i></button>
-        <button mat-raised-button (click)="zoomIn(tableName)"><i class="fas fa-search-minus"></i></button>
+        <button mat-raised-button (click)="zoomOut(tableName)"><i class="fas fa-search-minus"></i></button>
+        <button mat-raised-button (click)="zoomIn(tableName)"><i class="fas fa-search-plus"></i></button>
       </div>
       <pdf-viewer [src]="pdfs[tableName].data"
                   [zoom]="pdfs[tableName].zoom"
@@ -15,8 +20,8 @@
                   [original-size]="pdfs[tableName].originalSize"
                   [autoresize]="pdfs[tableName].autoResize"
                   [fitToPage]="pdfs[tableName].fitToPage"></pdf-viewer>
-      <hr>
     </ng-container>
+    <hr>
   </div>
 
   <div style="display: flex; align-items: center; justify-content: center;">
@@ -40,16 +45,14 @@
       <br>
     </div>
   </div>
-  <hr>
-  <div style="margin-bottom: 20px; display: flex; justify-content: center;">
-    <button color="primary" mat-raised-button (click)="_location.back()" style="margin:20px 20px 0 0;">Go Back</button>
-    <button [disabled]="rbs.compilingReport" color="warn" mat-raised-button (click)="startBuildingReport()"
-            style="margin-top:20px;">
-      Export
-    </button>
-    <span class="file-tip" *ngIf="rbs.compilingReport">
-        <i class="fas fa-spinner fa-pulse" style="margin-right:5px;"></i>
-        <b>Compiling Report. This may take a couple minutes...</b>
+
+</div>
+
+<mds-sub-title-bar>
+  <button [disabled]="rbs.compilingReport" color="accent" mat-raised-button (click)="startBuildingReport()">
+    <span *ngIf="!rbs.compilingReport"><i class="fas fa-download"></i>&nbsp;Export</span>
+    <span *ngIf="rbs.compilingReport">
+      <i class="fas fa-spinner fa-pulse"></i>&nbsp;Compiling Report. This may take a couple minutes...
     </span>
-  </div>
-</ng-container>
+  </button>
+</mds-sub-title-bar>
