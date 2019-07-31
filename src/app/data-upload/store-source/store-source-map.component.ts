@@ -168,7 +168,7 @@ export class StoreSourceMapComponent implements OnInit, OnDestroy {
     return this.dbEntityMarkerService.controls;
   }
 
-  openSidenavDirectlyToSelectedListStores() {
+  openSidenavDirectlyToSelectedListStores(event) {
     this.snackBar.open('Not supported in this module!', null, {duration: 2000});
   }
 
