@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuditingEntity } from '../../models/auditing-entity';
 import { ErrorService } from '../../core/services/error.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -16,7 +15,7 @@ import { ProjectService } from '../../core/services/project.service';
 @Component({
   selector: 'mds-project-detail',
   templateUrl: './project-detail.component.html',
-  styleUrls: ['./project-detail.component.css']
+  styleUrls: ['./project-detail.component.css', '../entity-detail-view.css']
 })
 export class ProjectDetailComponent implements OnInit {
 
@@ -89,7 +88,7 @@ export class ProjectDetailComponent implements OnInit {
           this.rebuildForm();
         },
         err => this.errorService.handleServerError('Failed to load Project!', err,
-          () => this.goBack(),
+          () => this._location.back(),
           () => this.loadProject())
       );
   }
@@ -98,21 +97,15 @@ export class ProjectDetailComponent implements OnInit {
     this.form.reset(this.project);
   }
 
-  goBack() {
-    this._location.back();
-  };
-
   private prepareSaveProject(): Project {
-    const saveProject = new Project(this.form.value);
-    if (!saveProject.active) {
-      saveProject.active = false;
-    }
-    if (!saveProject.primaryData) {
-      saveProject.primaryData = false;
-    }
-    const strippedAE = new AuditingEntity(this.project);
-    Object.assign(saveProject, strippedAE);
-    return saveProject;
+    const savable = Object.assign({}, this.project);
+    Object.keys(this.form.controls).forEach(key => {
+      if (this.form.get(key).dirty) {
+        savable[key] = this.form.get(key).value;
+      }
+    });
+
+    return savable;
   }
 
   saveForm() {
@@ -120,9 +113,9 @@ export class ProjectDetailComponent implements OnInit {
     this.projectService.update(this.prepareSaveProject())
       .pipe(finalize(() => this.saving = false))
       .subscribe((project: Project) => {
-        this.project = project;
-        this.rebuildForm();
+        this.form.reset(project);
         this.snackBar.open(`Successfully updated Project`, null, {duration: 1000});
+        this._location.back();
       }, err => this.errorService.handleServerError('Failed to update Project!', err,
         () => console.log('Cancelled'),
         () => this.saveForm()));
