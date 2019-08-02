@@ -25,6 +25,8 @@ export class ErrorService {
         let msg: string;
         if (err['error'] && err['error']['message']) {
           msg = err['error']['message'];
+        } else if (err['error']) {
+          msg = err['error'];
         } else if (err['message']) {
           msg = err['message'];
         } else {

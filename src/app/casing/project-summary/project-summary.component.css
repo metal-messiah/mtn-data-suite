@@ -1,0 +1,13 @@
+table {
+  border-collapse: collapse;
+}
+
+td {
+  text-align: center;
+  padding: 5px;
+}
+
+.heading {
+  font-weight: bold;
+  text-align: left;
+}

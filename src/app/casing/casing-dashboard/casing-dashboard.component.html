@@ -224,6 +224,9 @@
     <button mat-menu-item (click)="openProjectSelectionDialog()">
       <i class="fas fa-folder"></i>&nbsp;Change Project
     </button>
+    <button mat-menu-item (click)="showProjectSummary()">
+      Show Summary
+    </button>
     <button mat-menu-item
             *ngIf="!getSelectedProject().hasBoundary && !isShowingBoundary()"
             (click)="enableProjectBoundaryEditing()">

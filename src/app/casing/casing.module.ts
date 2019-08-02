@@ -122,6 +122,7 @@ import { CasingNotesComponent } from './store-casing-detail/casing-notes/casing-
     LatLngSearchComponent,
     NewStoreStatusComponent,
     NewStoreVolumeComponent,
+    ProjectSummaryComponent,
     QuadDialogComponent,
     SelectBannerComponent,
     SelectProjectComponent,
