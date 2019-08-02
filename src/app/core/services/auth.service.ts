@@ -79,8 +79,8 @@ export class AuthService {
     this.auth0.authorize();
   }
 
-  handleAuthentication(hash: string): void {
-    this.auth0.parseHash(hash, (err, authResult) => {
+  handleAuthentication(): void {
+    this.auth0.parseHash((err, authResult) => {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.saveSession(authResult).pipe(mergeMap(() => this.getUserProfile()))
           .subscribe((userProfile: UserProfile) => {

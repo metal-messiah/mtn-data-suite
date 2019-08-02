@@ -28,6 +28,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.auth.handleAuthentication();
     setTimeout(() => this.updateService.checkForUpdate(), 300);
     setTimeout(() => this.auth.isAuthenticated().subscribe(authenticated => this.isAuthenticated = authenticated), 500);
   }
