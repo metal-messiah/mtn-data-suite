@@ -1,7 +1,12 @@
 <mds-sub-title-bar subTitle="4. Enter Narrative Text"></mds-sub-title-bar>
 
-<form class="content" id="site-eval-form" *ngIf="rbs.siteEvaluationNarrativeForm && rbs.siteEvaluationRatingsForm">
-  <div [formGroup]="rbs.siteEvaluationNarrativeForm">
+<ng-template #loading>
+  <div class="content">
+    <span style="text-align: center;"><i class="fas fa-spinner fa-pulse fa-2x"></i></span>
+  </div>
+</ng-template>
+<form class="content" id="site-eval-form" *ngIf="siteEvaluationNarrativeForm && siteEvaluationRatingsForm; else loading;">
+  <div [formGroup]="siteEvaluationNarrativeForm">
     <mat-form-field>
       <textarea rows="3" matInput placeholder="Executive Summary" formControlName="executiveSummary"></textarea>
     </mat-form-field>
@@ -27,29 +32,15 @@
       <textarea rows="3" matInput placeholder="Co-Tenants" formControlName="cotenants"></textarea>
     </mat-form-field>
     <mat-form-field>
-      <textarea rows="3" matInput placeholder="Affected Sister Stores" formControlName="affectedSisterStores"></textarea>
+      <textarea rows="3" matInput placeholder="Affected Sister Stores"
+                formControlName="affectedSisterStores"></textarea>
     </mat-form-field>
   </div>
-  <div id="ratings" [formGroup]="rbs.siteEvaluationRatingsForm">
+  <div id="ratings" [formGroup]="siteEvaluationRatingsForm">
     <h3 class='select-group-header bold'>Access</h3>
     <div class='select-group'>
-      <mat-form-field>
-        <mat-select placeholder='North' formControlName="accessNorth">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='South' formControlName="accessSouth">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='East' formControlName="accessEast">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='West' formControlName="accessWest">
+      <mat-form-field *ngFor="let direction of directions">
+        <mat-select [placeholder]="direction" [formControlName]="'access' + direction">
           <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -64,46 +55,16 @@
     </div>
     <h3 class='select-group-header bold'>Visibility</h3>
     <div class='select-group'>
-      <mat-form-field>
-        <mat-select placeholder='North' formControlName="visibilityNorth">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='South' formControlName="visibilitySouth">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='East' formControlName="visibilityEast">
-          <mat-option [value]='option' *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='West' formControlName="visibilityWest">
+      <mat-form-field *ngFor="let direction of directions">
+        <mat-select [placeholder]="direction" [formControlName]="'visibility' + direction">
           <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
         </mat-select>
       </mat-form-field>
     </div>
     <h3 class='select-group-header'>Population Density</h3>
     <div class='select-group'>
-      <mat-form-field>
-        <mat-select placeholder='North' formControlName="populationDensityNorth">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='South' formControlName="populationDensitySouth">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='East' formControlName="populationDensityEast">
-          <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select placeholder='West' formControlName="populationDensityWest">
+      <mat-form-field *ngFor="let direction of directions">
+        <mat-select [placeholder]="direction" [formControlName]="'populationDensity' + direction">
           <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -112,7 +73,10 @@
 </form>
 
 <mds-sub-title-bar>
-  <button color="accent" form="site-eval-form" type="button" mat-raised-button (click)="next()">
+  <span *ngIf="saving" style="margin-right: 8px;">
+    <i class="fas fa-spinner fa-pulse"></i>&nbsp;Saving...
+  </span>
+  <button color="accent" form="site-eval-form" type="button" mat-raised-button [routerLink]="['../table-preview']">
     Next
   </button>
 </mds-sub-title-bar>

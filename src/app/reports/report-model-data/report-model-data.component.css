@@ -12,4 +12,59 @@
   max-width: 300px;
   text-overflow: ellipsis;
   overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.content {
+  padding: 0;
+}
+
+#saved-models-sidenav {
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+
+#list {
+  overflow: auto;
+}
+
+.saved-model-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  align-items: center;
+}
+
+.saved-model-item .date {
+  font-size: small;
+}
+
+.saved-model-item:hover {
+  background: #cfd8dc;
+}
+
+.delete-button {
+  margin-right: 6px;
+}
+
+#upload-button-container {
+  margin-top: 16px;
+}
+
+mds-file-input {
+  width: 300px;
+  margin: 16px auto;
+}
+
+@media (min-width: 1050px) {
+  .mat-sidenav-content {
+    margin-left: unset !important;
+  }
+}
+
+.deletion-warning {
+  background: #ffcbc5;
 }
