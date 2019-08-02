@@ -83,7 +83,7 @@ export class DbEntityMarkerControls {
     this.clusterZoomLevel = 13;
     this.minPullZoomLevel = 10;
     this.fullLabelMinZoomLevel = 16;
-    this.updateOnBoundsChange = true
+    this.updateOnBoundsChange = true;
   }
 
   addBanner(banner: SimplifiedBanner) {

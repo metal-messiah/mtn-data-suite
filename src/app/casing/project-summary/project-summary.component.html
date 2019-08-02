@@ -1,3 +1,37 @@
-<p>
-  project-summary works!
-</p>
+<h2 mat-dialog-title>{{project.projectName}} Summary</h2>
+<div mat-dialog-content>
+  <ng-template #loading>
+    <div style="text-align: center;">
+      <i class="fas fa-spinner fa-pulse fa-2x"></i>
+    </div>
+  </ng-template>
+  <table *ngIf="projectSummaryObs | async as projectSummary; else loading;">
+    <tr>
+      <td class="heading">Cased</td>
+      <td class="heading">Active</td>
+      <td class="heading">Future</td>
+      <td class="heading">Historical</td>
+    </tr>
+    <tr>
+      <td class="heading">In Boundary</td>
+      <td>{{projectSummary.activeCasedStoresInBounds}}/{{projectSummary.activeStoresInBounds}}</td>
+      <td>{{projectSummary.futureCasedStoresInBounds}}/{{projectSummary.futureStoresInBounds}}</td>
+      <td>{{projectSummary.historicalCasedStoresInBounds}}/{{projectSummary.historicalStoresInBounds}}</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>{{projectSummary.activeCasedStoresInBounds / projectSummary.activeStoresInBounds | percent:'1.0-1'}}</td>
+      <td>{{projectSummary.futureCasedStoresInBounds / projectSummary.futureStoresInBounds | percent:'1.0-1'}}</td>
+      <td>{{projectSummary.historicalCasedStoresInBounds / projectSummary.historicalStoresInBounds | percent:'1.0-1'}}</td>
+    </tr>
+    <tr>
+      <td class="heading">Outside Boundary</td>
+      <td>{{projectSummary.activeCasedStoresOutOfBounds}}</td>
+      <td>{{projectSummary.futureCasedStoresOutOfBounds}}</td>
+      <td>{{projectSummary.historicalCasedStoresOutOfBounds}}</td>
+    </tr>
+  </table>
+</div>
+<div mat-dialog-actions style="justify-content: space-between;">
+  <button type="button" mat-raised-button mat-dialog-close>Close</button>
+</div>

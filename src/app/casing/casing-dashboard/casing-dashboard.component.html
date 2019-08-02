@@ -112,7 +112,8 @@
 
 <mat-menu #multiSelectActionMenu="matMenu" [overlapTrigger]="false">
   <button mat-menu-item (click)="clearSelection()">
-    <i class="fas fa-times-circle"></i>&nbsp;&nbsp;Clear Selection</button>
+    <i class="fas fa-times-circle"></i>&nbsp;&nbsp;Clear Selection
+  </button>
   <button mat-menu-item (click)="openDownloadDialog()" *ngIf="!userIsGuest()">
     <i class="fas fa-download"></i>&nbsp;&nbsp;Download Latest Data
   </button>
@@ -223,6 +224,9 @@
     <button mat-menu-item (click)="openProjectSelectionDialog()">
       <i class="fas fa-folder"></i>&nbsp;Change Project
     </button>
+    <button mat-menu-item (click)="showProjectSummary()">
+      Show Summary
+    </button>
     <button mat-menu-item
             *ngIf="!getSelectedProject().hasBoundary && !isShowingBoundary()"
             (click)="enableProjectBoundaryEditing()">
@@ -263,3 +267,12 @@
   <i class="fas fa-chevron-right" *ngIf="!showStoreLists"></i>
   <i class="fas fa-chevron-left" *ngIf="showStoreLists"></i>
 </button>
+
+<div id="project-buttons">
+  <button id="current-project-button" *ngIf="getSelectedProject()" mat-raised-button [mat-menu-trigger-for]="projectSubMenu">
+    {{getSelectedProject().projectName}}
+  </button>
+  <button *ngIf="!getSelectedProject()" mat-raised-button (click)="openProjectSelectionDialog()">
+    Select Project
+  </button>
+</div>

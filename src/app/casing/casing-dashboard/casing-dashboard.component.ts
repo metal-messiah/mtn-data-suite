@@ -57,6 +57,7 @@ import { EntitySelectionService } from '../../core/services/entity-selection.ser
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 import { CasingProjectService } from '../casing-project.service';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
+import { ProjectSummaryComponent } from '../project-summary/project-summary.component';
 
 @Component({
   selector: 'mds-casing-dashboard',
@@ -181,6 +182,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.mapService.addControl(document.getElementById('refresh'));
     this.mapService.addControl(document.getElementById('info-card-wrapper'), google.maps.ControlPosition.LEFT_BOTTOM);
     this.mapService.addControl(document.getElementById('openListView'), google.maps.ControlPosition.LEFT_BOTTOM);
+    this.mapService.addControl(document.getElementById('project-buttons'), google.maps.ControlPosition.TOP_RIGHT);
 
     this.selectionService.singleSelect$.subscribe((selection) => this.onSelection(selection));
     this.dbEntityMarkerService.initMap(this.mapService.getMap(), this.selectionService,
@@ -245,6 +247,10 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   private getDebounce() {
     return debounce(() => of(true)
       .pipe(delay(this.followMeLayer != null ? 10000 : 1000)));
+  }
+
+  showProjectSummary() {
+    this.dialog.open(ProjectSummaryComponent, {data: {project: this.getSelectedProject()}});
   }
 
   getEntitiesInBounds(): void {

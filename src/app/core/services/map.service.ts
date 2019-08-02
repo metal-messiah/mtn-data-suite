@@ -90,7 +90,11 @@ export class MapService {
     // Create map
     this.map = new google.maps.Map(element, {
       center: {lat: 39.8283, lng: -98.5795},
-      zoom: 8
+      zoom: 8,
+      fullscreenControl: false,
+      mapTypeControlOptions: {
+        style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+      }
     });
     this.map.getStreetView().setOptions({imageDateControl: true});
     this.placesService = new google.maps.places.PlacesService(this.map);
