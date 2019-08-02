@@ -79,8 +79,8 @@ export class AuthService {
     this.auth0.authorize();
   }
 
-  handleAuthentication(): void {
-    this.auth0.parseHash((err, authResult) => {
+  handleAuthentication(hash: string): void {
+    this.auth0.parseHash(hash, (err, authResult) => {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.saveSession(authResult).pipe(mergeMap(() => this.getUserProfile()))
           .subscribe((userProfile: UserProfile) => {
@@ -149,8 +149,9 @@ export class AuthService {
     tasks.push(this.storageService.removeOne(this.ST_EXPIRATION_TIME));
     tasks.push(this.storageService.removeOne(this.ST_LATEST_PATH));
     forkJoin(tasks).subscribe(() => {
-      this.router.navigate(['/']);
-      location.reload();
+      this.router.navigate(['/']).then(() => {
+        location.reload();
+      });
     });
   }
 

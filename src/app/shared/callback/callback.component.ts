@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'mds-callback',
@@ -7,9 +8,10 @@ import { Component, OnInit } from '@angular/core';
 })
 export class CallbackComponent implements OnInit {
 
-  constructor() { }
+  constructor(private authService: AuthService) { }
 
   ngOnInit() {
+    this.authService.handleAuthentication(window.location.hash);
   }
 
 }
