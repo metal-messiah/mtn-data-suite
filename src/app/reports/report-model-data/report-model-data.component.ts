@@ -13,6 +13,7 @@ import { StoreListItem } from '../../models/store-list-item';
 import { MatDialog } from '@angular/material';
 import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { DataFieldInfoDialogComponent } from '../../shared/data-field-info-dialog/data-field-info-dialog.component';
 
 @Component({
   selector: 'mds-report-model-data',
@@ -22,7 +23,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 })
 export class ReportModelDataComponent implements OnInit {
 
-  savedModelsObs: Observable<{ modelName: string; timeStamp: number; updated: number; }[]>;
+  savedModelsObs: Observable<{ modelName: string; timeStamp: number; updated: number; }[]>;
 
   parsingFile = false;
   postProcessing = false;
@@ -36,12 +37,8 @@ export class ReportModelDataComponent implements OnInit {
               private snackBar: MatSnackBar) {
   }
 
-  get doSave() {
-    return this._rbs.doSave;
-  }
-
-  set doSave(ds: boolean) {
-    this._rbs.doSave = ds;
+  get maxSavedModels() {
+    return this._rbs.MAX_SAVED_MODELS;
   }
 
   get modelFileName() {
@@ -54,6 +51,17 @@ export class ReportModelDataComponent implements OnInit {
 
   ngOnInit() {
     this.savedModelsObs = this._rbs.getSavedModels();
+  }
+
+  showSavedModelInfoWindow() {
+    this.dialog.open(DataFieldInfoDialogComponent, {
+      data: {
+        title: 'Saving Models', message: 'The ' + this.maxSavedModels + ' most ' +
+          'recent models will be saved automatically. This allows you to refresh your browser at any point and your progress will be ' +
+          'saved. WARNING: Only the ' + this.maxSavedModels + ' most recently created models will be saved. If one you want to preserve ' +
+          'is getting near the bottom of the list you\'ll want to delete others!'
+      }, maxWidth: '300px'
+    });
   }
 
   confirmDelete(savedModel) {
@@ -108,9 +116,7 @@ export class ReportModelDataComponent implements OnInit {
   }
 
   next() {
-    if (this._rbs.doSave) {
-      this._rbs.saveModel();
-    }
+    this._rbs.saveModel();
     this.router.navigate(['reports/categorization']);
   }
 

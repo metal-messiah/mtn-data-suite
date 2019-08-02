@@ -53,9 +53,7 @@ export class StoreCategorizationComponent implements OnInit {
 
     this.proposedStores = this.getProposedStores();
 
-    if (this._rbs.doSave) {
-      this._rbs.saveModel();
-    }
+    this._rbs.saveModel();
   }
 
   changeCombinedCategory(event, banner) {
@@ -69,9 +67,7 @@ export class StoreCategorizationComponent implements OnInit {
     this.existingStoresCombined = this.getExistingStoresCombined();
 
     // Save the data
-    if (this._rbs.doSave) {
-      this._rbs.saveModel();
-    }
+    this._rbs.saveModel();
   }
 
   private initViewData() {

@@ -1,6 +1,5 @@
 mat-toolbar {
   height: 48px;
-  background: #a5c0ce;
 }
 
 mat-toolbar > div:nth-child(2) {

@@ -13,10 +13,10 @@ import { of, timer } from 'rxjs';
 @Injectable()
 export class ReportBuilderService {
 
-  doSave = false;
   saving = false;
 
   private readonly SAVED_MODELS_KEY = 'saved-models';
+  readonly MAX_SAVED_MODELS = 10;
 
   protected readonly endpoint = '/api/report';
 
@@ -80,7 +80,6 @@ export class ReportBuilderService {
       if (data) {
         this.reportTableData = data.reportTableData;
         this.modelFileName = data.modelFileName;
-        this.doSave = data.doSave;
         this.siteEvaluationNarrativeForm.reset(data.siteEvaluationNarrativeForm);
         this.siteEvaluationRatingsForm.reset(data.siteEvaluationRatingsForm);
         this.modelMetaDataForm.reset(data.modelMetaDataForm);
@@ -107,7 +106,6 @@ export class ReportBuilderService {
     const savable = {
       reportTableData: this.reportTableData,
       modelFileName: this.modelFileName,
-      doSave: this.doSave,
       siteEvaluationNarrativeForm: this.siteEvaluationNarrativeForm.value,
       siteEvaluationRatingsForm: this.siteEvaluationRatingsForm.value,
       modelMetaDataForm: this.modelMetaDataForm.value
@@ -121,6 +119,12 @@ export class ReportBuilderService {
           model.updated = Date.now();
         } else {
           this._savedModels.push({modelName: modelName, timeStamp: Date.now(), updated: Date.now()});
+          this._savedModels.sort(((a, b) => b.timeStamp - a.timeStamp));
+          if (this._savedModels.length > this.MAX_SAVED_MODELS) {
+            const oldModels = this._savedModels.slice(this.MAX_SAVED_MODELS);
+            oldModels.forEach(m => this.deleteSavedModel(m));
+          }
+          this._savedModels = this._savedModels.slice(0, this.MAX_SAVED_MODELS);
         }
         return this.storageService.set(this.SAVED_MODELS_KEY, this._savedModels);
       }))

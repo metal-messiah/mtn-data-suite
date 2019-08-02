@@ -4,15 +4,21 @@
 <mat-sidenav-container style="flex: 1; overflow: hidden">
   <mat-sidenav [opened]="true" mode="side">
     <div id="saved-models-sidenav">
-      <h3 style="text-align: center;">
-        Load Saved Model
-      </h3>
+      <mds-sub-title-bar subTitle="Load Saved Model" color="#b9d5e4">
+        <button mat-icon-button *ngIf="savedModelsObs | async as models;" (click)="showSavedModelInfoWindow()">
+          <i class="fas fa-info-circle" *ngIf="models.length < maxSavedModels; else maxWarn"></i>
+          <ng-template #maxWarn>
+            <i class="fas fa-exclamation-triangle" style="color: orangered;"></i>
+          </ng-template>
+        </button>
+      </mds-sub-title-bar>
       <mat-divider></mat-divider>
       <div *ngIf="savedModelsObs | async as models; else loading" id="list">
         <div *ngIf="models.length === 0" style="padding: 16px; text-align: center;">
           No Saved Models
         </div>
-        <div *ngFor="let savedModel of models" class="saved-model-item">
+        <div *ngFor="let savedModel of models; index as i" class="saved-model-item"
+             [ngClass]="{'deletion-warning': (i + 1) === maxSavedModels}">
           <div>
             <div class="model-name">{{savedModel.modelName}}</div>
             <div class="date">{{savedModel.timeStamp | date}}</div>
@@ -65,7 +71,6 @@
 </mat-sidenav-container>
 
 <mds-sub-title-bar>
-  <mat-checkbox [(ngModel)]="doSave" style="margin-right: 8px;">Save</mat-checkbox>
   <button (click)="next()" form="model-data-form" color="accent" type="submit" [disabled]="!fileIsReady()"
           mat-raised-button>
     <span *ngIf="!parsingFile && !postProcessing">Next</span>

@@ -1,5 +1,4 @@
 import { Component, Input } from '@angular/core';
-import { Location } from '@angular/common';
 
 @Component({
   selector: 'mds-sub-title-bar',
@@ -10,11 +9,8 @@ export class SubTitleBarComponent {
 
   @Input() subTitle: string;
   @Input() hideBackButton: boolean;
+  @Input() color = '#a5c0ce';
 
-  constructor(private _location: Location) { }
-
-  goBack() {
-    this._location.back();
-  }
+  constructor() {}
 
 }
