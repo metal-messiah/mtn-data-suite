@@ -70,3 +70,17 @@ mat-slider {
 .hidden {
   visibility: hidden;
 }
+
+#project-buttons {
+  position: absolute;
+  margin-top: 12px;
+  margin-right: 10px;
+}
+
+@media (max-width: 400px) {
+  #current-project-button {
+    max-width: 205px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+}
