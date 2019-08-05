@@ -25,7 +25,6 @@ export class AuthService {
   accessToken: string;
   idToken: string;
   tokenExpirationTime: number;
-  latestPath: string;
 
   auth0 = new auth0.WebAuth({
     clientID: environment.AUTH_CONFIG.clientID,
@@ -67,16 +66,10 @@ export class AuthService {
         this.tokenExpirationTime = JSON.parse(storedTokenExpirationTime);
       }
     });
-    this.storageService.getOne(this.ST_LATEST_PATH).subscribe(storedLatestPath => {
-      if (storedLatestPath) {
-        this.latestPath = storedLatestPath;
-      }
-    });
   }
 
   signIn(): void {
-    this.storageService.set(this.ST_LATEST_PATH, this.location.path()).subscribe();
-    this.auth0.authorize();
+    this.storageService.set(this.ST_LATEST_PATH, this.location.path()).subscribe(() => this.auth0.authorize());
   }
 
   handleAuthentication(): void {
@@ -86,10 +79,20 @@ export class AuthService {
           .subscribe((userProfile: UserProfile) => {
             this.sessionUser = userProfile;
             this.storageService.set(this.ST_SESSION_USER, userProfile).subscribe();
-            this.storageService.getOne(this.ST_LATEST_PATH).subscribe(latestPath => {
-              if (latestPath) {
-                this.router.navigate([latestPath])
-              } else {
+            this.storageService.getOne(this.ST_LATEST_PATH).subscribe((latestPath: string) => {
+              try {
+                const parsedUri = decodeURI(latestPath).split('?');
+                const queryParams = {};
+                if (parsedUri.length > 1) {
+                  const params = parsedUri[1].split('&');
+                  params.forEach(param => {
+                    const keyValue = param.split('=');
+                    queryParams[keyValue[0]] = keyValue[1];
+                  });
+                }
+                this.router.navigate([parsedUri[0]], {queryParams: queryParams});
+              } catch (err) {
+                console.warn(err);
                 this.router.navigate(['']);
               }
             });
