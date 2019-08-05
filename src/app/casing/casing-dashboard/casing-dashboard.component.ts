@@ -728,28 +728,29 @@ Geo-location
         this.dbEntityMarkerService.removeMarkerForSite(duplicateSiteId);
         this.selectionService.clearSelection();
         this.getEntitiesInBounds();
-        // TODO - prompt if user wants to merge site's stores
 
         this.siteService.getOneById(this.selectedSiteId).subscribe(site => {
-          this.dialog.open(StoreSelectionDialogComponent, {
-            data: {stores: site.stores},
-            disableClose: true,
-            maxWidth: '90%',
-            minWidth: '300px'
-          }).afterClosed().subscribe((stores: Store[]) => {
-            if (stores && stores.length > 1) {
-              // Open the attribute selection dialog
-              this.dialog.open(StoreAttrSelectionDialogComponent, {
-                data: {selectedStores: stores},
-                maxWidth: '90%',
-                minWidth: '300px'
-              }).afterClosed().subscribe((store: Store) => {
-                if (store) {
-                  this.getEntitiesInBounds();
-                }
-              });
-            }
-          });
+          if (site.stores.length > 1) {
+            this.dialog.open(StoreSelectionDialogComponent, {
+              data: {stores: site.stores},
+              disableClose: true,
+              maxWidth: '90%',
+              minWidth: '300px'
+            }).afterClosed().subscribe((stores: Store[]) => {
+              if (stores && stores.length > 1) {
+                // Open the attribute selection dialog
+                this.dialog.open(StoreAttrSelectionDialogComponent, {
+                  data: {selectedStores: stores},
+                  maxWidth: '90%',
+                  minWidth: '300px'
+                }).afterClosed().subscribe((store: Store) => {
+                  if (store) {
+                    this.getEntitiesInBounds();
+                  }
+                });
+              }
+            });
+          }
         });
 
       });
