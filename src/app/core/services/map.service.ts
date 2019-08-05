@@ -29,7 +29,7 @@ export class MapService {
   boundsChanged$: Subject<{ east; north; south; west }>;
   mapClick$: Subject<LatLng>;
 
-  circleRadiusListener: google.maps.MapsEventListener;
+  cancelCircleRadiusListeners: () => void;
 
   drawingManager: google.maps.drawing.DrawingManager;
   drawingEvents: any[];
@@ -217,6 +217,11 @@ export class MapService {
     this.drawingManager.setOptions(multiSelectDrawingOptions);
     this.drawingManager.setMap(this.map);
 
+    // Re-engage circle radius listener
+    if (this.drawingMode === google.maps.drawing.OverlayType.CIRCLE) {
+      this.setDrawingModeToCircle();
+    }
+
     google.maps.event.clearListeners(this.drawingManager, 'overlaycomplete');
     // Listen for completion of drawings
     google.maps.event.addListener(
@@ -242,9 +247,8 @@ export class MapService {
   }
 
   private clearCircleRadiusListener() {
-    if (this.circleRadiusListener != null) {
-      this.circleRadiusListener.remove();
-      this.circleRadiusListener = null;
+    if (this.cancelCircleRadiusListeners != null) {
+      this.cancelCircleRadiusListeners();
     }
   }
 
@@ -324,8 +328,13 @@ export class MapService {
       }
     };
 
-    this.circleRadiusListener = this.map.addListener('touchstart', e => onStart(e));
-    this.circleRadiusListener = this.map.addListener('mousedown', e => onStart(e));
+    const touchListener = this.map.addListener('touchstart', e => onStart(e));
+    const mouseListener = this.map.addListener('mousedown', e => onStart(e));
+
+    this.cancelCircleRadiusListeners = () => {
+      touchListener.remove();
+      mouseListener.remove()
+    }
   }
 
   setDrawingModeToRectangle() {
