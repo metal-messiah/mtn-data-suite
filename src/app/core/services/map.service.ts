@@ -7,6 +7,11 @@ import { Observable, Subject } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StorageService } from './storage.service';
 
+import * as MarkerWithLabel from '@google/markerwithlabel';
+import { MarkerShape } from '../functionalEnums/MarkerShape';
+import { Color } from '../functionalEnums/Color';
+
+
 /*
   The MapService should
   - Initialize a map
@@ -252,85 +257,75 @@ export class MapService {
   setDrawingModeToCircle() {
     this.drawingMode = google.maps.drawing.OverlayType.CIRCLE;
     this.drawingManager.setDrawingMode(this.drawingMode);
-    const mapDiv = document.getElementById('map');
+    const mapDiv = this.map.getDiv();
     let startPoint: google.maps.LatLng;
-    let startMarker: google.maps.Marker;
+    let startMarker: MarkerWithLabel;
     let touchMoveListener: google.maps.MapsEventListener;
     let mouseMoveListener: google.maps.MapsEventListener;
 
-    this.circleRadiusListener = this.map.addListener('mousedown', e => {
-      startPoint = e.latLng;
-      startMarker = new google.maps.Marker({
-        position: startPoint,
-        map: this.map,
-        title: 'distance',
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor: 'blue',
-          fillOpacity: 0.5,
-          scale: 3,
-          strokeColor: 'white',
-          strokeWeight: 1,
-          labelOrigin: new google.maps.Point(-8, -12)
-        },
-        label: {
-          text: '0m',
-          color: 'white',
-          fontWeight: 'bold'
-        }
-      });
+    const onMoved = (point: google.maps.Point) => {
+      const latLng = MapService.point2LatLng(point, this.map);
+      startMarker.setPosition(latLng);
+      const distance = google.maps.geometry.spherical.computeDistanceBetween(
+        startPoint,
+        latLng
+      );
+      startMarker.labelContent = MapService.getDistanceLabel(distance);
+    };
 
-      const eventListener$ = new Subject<google.maps.Point>();
-      eventListener$.subscribe(point => {
-        const latLng = MapService.point2LatLng(point, this.map);
-        startMarker.setPosition(latLng);
-        const distance = google.maps.geometry.spherical.computeDistanceBetween(
-          startPoint,
-          latLng
+    const onStart = (e) => {
+      if (!startMarker) {
+        startMarker = new MarkerWithLabel(this.map.getCenter());
+        startPoint = e.latLng;
+        startMarker.setMap(this.map);
+        startMarker.setOptions({
+          position: startPoint,
+          icon: {
+            path: MarkerShape.DEFAULT,
+            fillColor: Color.PURPLE,
+            fillOpacity: 1,
+            scale: 0.075,
+            strokeColor: Color.PURPLE_DARK,
+            strokeWeight: 2.5,
+            anchor: new google.maps.Point(255, 510),
+            labelOrigin: new google.maps.Point(255, 230),
+          },
+          labelContent: '0 mi',
+          labelAnchor: new google.maps.Point(0, 60),
+          labelClass: 'db-marker-full-label-active',
+          labelInBackground: false
+        });
+
+
+        touchMoveListener = google.maps.event.addDomListener(mapDiv, 'touchmove',
+          touchEvent => {
+            const point = new google.maps.Point(touchEvent.touches[0].clientX, touchEvent.touches[0].clientY - 56);
+            onMoved(point);
+          }
         );
-        const label = {
-          text: MapService.getDistanceLabel(distance),
-          color: 'black',
-          fontWeight: 'bold'
-        };
-        startMarker.setLabel(label);
-      });
+        mouseMoveListener = google.maps.event.addDomListener(mapDiv, 'mousemove',
+          mouseEvent => {
+            const point = new google.maps.Point(mouseEvent.offsetX, mouseEvent.offsetY);
+            onMoved(point);
+          }
+        );
 
-      touchMoveListener = google.maps.event.addDomListener(
-        mapDiv,
-        'touchmove',
-        touchEvent => {
-          eventListener$.next(
-            new google.maps.Point(
-              touchEvent.touches[0].clientX,
-              touchEvent.touches[0].clientY - 56
-            )
-          );
-        }
-      );
-      mouseMoveListener = google.maps.event.addDomListener(
-        mapDiv,
-        'mousemove',
-        mouseEvent => {
-          eventListener$.next(
-            new google.maps.Point(mouseEvent.offsetX, mouseEvent.offsetY)
-          );
-        }
-      );
+        const overlayCompleteListener = this.drawingManager.addListener(
+          'overlaycomplete',
+          () => {
+            touchMoveListener.remove();
+            mouseMoveListener.remove();
+            startMarker.setMap(null);
+            startMarker = null;
+            startPoint = null;
+            overlayCompleteListener.remove();
+          }
+        );
+      }
+    };
 
-      const overlayCompleteListener = this.drawingManager.addListener(
-        'overlaycomplete',
-        () => {
-          touchMoveListener.remove();
-          mouseMoveListener.remove();
-          eventListener$.complete();
-          startMarker.setMap(null);
-          startMarker = null;
-          startPoint = null;
-          overlayCompleteListener.remove();
-        }
-      );
-    });
+    this.circleRadiusListener = this.map.addListener('touchstart', e => onStart(e));
+    this.circleRadiusListener = this.map.addListener('mousedown', e => onStart(e));
   }
 
   setDrawingModeToRectangle() {
@@ -379,21 +374,6 @@ export class MapService {
     }
 
     return subject;
-  }
-
-  getDetailedGooglePlace(requestPlace: GooglePlace) {
-    return Observable.create(observer => {
-      const request = {
-        placeId: requestPlace.id
-      };
-      this.placesService.getDetails(request, (resultPlace, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-          observer.next(new GooglePlace(resultPlace));
-        } else {
-          observer.error(status);
-        }
-      });
-    });
   }
 
   fitToPoints(points: LatLng[], label?: string) {
