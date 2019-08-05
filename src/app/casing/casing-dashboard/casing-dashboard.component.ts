@@ -58,6 +58,8 @@ import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/l
 import { CasingProjectService } from '../casing-project.service';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
 import { ProjectSummaryComponent } from '../project-summary/project-summary.component';
+import { StoreSelectionDialogComponent } from '../store-merge/store-selection-dialog/store-selection-dialog.component';
+import { StoreAttrSelectionDialogComponent } from '../store-merge/store-attr-selection-dialog/store-attr-selection-dialog.component';
 
 @Component({
   selector: 'mds-casing-dashboard',
@@ -726,6 +728,30 @@ Geo-location
         this.dbEntityMarkerService.removeMarkerForSite(duplicateSiteId);
         this.selectionService.clearSelection();
         this.getEntitiesInBounds();
+        // TODO - prompt if user wants to merge site's stores
+
+        this.siteService.getOneById(this.selectedSiteId).subscribe(site => {
+          this.dialog.open(StoreSelectionDialogComponent, {
+            data: {stores: site.stores},
+            disableClose: true,
+            maxWidth: '90%',
+            minWidth: '300px'
+          }).afterClosed().subscribe((stores: Store[]) => {
+            if (stores && stores.length > 1) {
+              // Open the attribute selection dialog
+              this.dialog.open(StoreAttrSelectionDialogComponent, {
+                data: {selectedStores: stores},
+                maxWidth: '90%',
+                minWidth: '300px'
+              }).afterClosed().subscribe((store: Store) => {
+                if (store) {
+                  this.getEntitiesInBounds();
+                }
+              });
+            }
+          });
+        });
+
       });
     }
   }
