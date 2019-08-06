@@ -10,7 +10,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { GeocoderService } from '../../core/services/geocoder.service';
 import { NavigatorService } from '../../core/services/navigator.service';
 import { StoreService } from '../../core/services/store.service';
-import { of } from 'rxjs/observable/of';
+import { of } from 'rxjs';
 
 describe('CasingDashboardComponent', () => {
   let component: CasingDashboardComponent;
@@ -23,12 +23,12 @@ describe('CasingDashboardComponent', () => {
       imports: [SharedModule, BrowserAnimationsModule, RouterTestingModule],
       declarations: [CasingDashboardComponent],
       providers: [
-        {provide: SiteService, useValue: {}},
-        {provide: StoreService, useValue: {}},
-        {provide: MapService, useValue: mapServiceSpy},
-        {provide: GeocoderService, useValue: {}},
-        {provide: CasingDashboardService, useValue: {getSavedPerspective: () => of('nothing')}},
-        {provide: NavigatorService, useValue: {}}
+        { provide: SiteService, useValue: {} },
+        { provide: StoreService, useValue: {} },
+        { provide: MapService, useValue: mapServiceSpy },
+        { provide: GeocoderService, useValue: {} },
+        { provide: CasingDashboardService, useValue: { getSavedPerspective: () => of('nothing') } },
+        { provide: NavigatorService, useValue: {} }
       ]
     })
       .compileComponents();

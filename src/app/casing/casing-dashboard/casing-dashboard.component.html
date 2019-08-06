@@ -248,14 +248,10 @@
   <mds-info-card *ngIf="infoCard" [infoCard]="infoCard"
     [disabled]="selectedDashboardMode !== casingDashboardMode.DEFAULT">
   </mds-info-card>
-<<<<<<< HEAD
-</div>
-=======
 </div>
 
 <button id="openListView" mat-mini-fab color="primary" (click)="setShowStoreLists(!showStoreLists)"
-        [ngClass]="{hidden: selectedDashboardMode !== casingDashboardMode.MULTI_SELECT}">
+  [ngClass]="{hidden: selectedDashboardMode !== casingDashboardMode.MULTI_SELECT}">
   <i class="fas fa-chevron-right" *ngIf="!showStoreLists"></i>
   <i class="fas fa-chevron-left" *ngIf="showStoreLists"></i>
 </button>
->>>>>>> master

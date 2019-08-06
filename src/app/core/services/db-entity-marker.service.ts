@@ -57,22 +57,11 @@ export class DbEntityMarkerService {
   private readonly cloudinaryUtil: CloudinaryUtil;
 
   constructor(private authService: AuthService,
-<<<<<<< HEAD
     private errorService: ErrorService,
-    private fb: FormBuilder,
     private siteMarkerService: SiteMarkerService,
     private projectService: ProjectService,
-    private casingDashboardService: CasingDashboardService,
     private storageService: StorageService) {
-
-    this.initControls();
-=======
-              private errorService: ErrorService,
-              private siteMarkerService: SiteMarkerService,
-              private projectService: ProjectService,
-              private storageService: StorageService) {
     this.cloudinaryUtil = new CloudinaryUtil();
->>>>>>> master
   }
 
   /**************************************
@@ -83,10 +72,10 @@ export class DbEntityMarkerService {
    * Initializes the map. Must be called before other public methods will work.
    */
   initMap(gmap: google.maps.Map,
-          selectionService: EntitySelectionService,
-          casingProjectService: CasingProjectService,
-          storageKeyPrefix: string,
-          controls?: DbEntityMarkerControls) {
+    selectionService: EntitySelectionService,
+    casingProjectService: CasingProjectService,
+    storageKeyPrefix: string,
+    controls?: DbEntityMarkerControls) {
 
     this.ST_SITE_MARKERS = storageKeyPrefix + '_' + this.ST_SITE_MARKERS;
     this.ACTIVE_CONTROLS_STORAGE_KEY = storageKeyPrefix + '_' + this.ACTIVE_CONTROLS_STORAGE_KEY;

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BoundaryService } from 'app/core/services/boundary.service';
 import { Boundary } from 'app/models/full/boundary';
 import { StorageService } from 'app/core/services/storage.service';
+import { GeometryUtil } from '../../utils/geometry-util';
 
 import * as _ from 'lodash';
 
@@ -21,6 +22,7 @@ export class BoundaryDialogService {
   private _enabledCustomBoundaries: Boundary[];
 
   private gmap: google.maps.Map;
+  private polygons: google.maps.Polygon[] = [];
 
   constructor(private boundaryService: BoundaryService, private storageService: StorageService) {
     console.log('BOUNDARY DIALOG SERVICE CONSTRUCTOR!')
@@ -64,6 +66,34 @@ export class BoundaryDialogService {
     this._enabledCustomBoundaries = this._customBoundaries;
   }
 
+  private geojsonStringToPolygon(inputGeojson: any): google.maps.Polygon {
+    let geojson: any;
+    if (typeof inputGeojson === 'string') {
+      geojson = JSON.parse(inputGeojson);
+    } else {
+      geojson = inputGeojson;
+    }
+    console.log(geojson)
+    return GeometryUtil.geoJsonPolygonToGooglePolygon(geojson);
+  }
+
+  private clearEnabledBoundaries() {
+    this.polygons.forEach(poly => poly.setMap(null))
+  }
+
+  private showEnabledBoundaries() {
+    console.log('show enabled boundaries');
+    this.clearEnabledBoundaries();
+    this.polygons = Object.assign(
+      [],
+      this._enabledCustomBoundaries.map(boundary => this.geojsonStringToPolygon(boundary.geojson)),
+      this._enabledGeoPoliticalBoundaries.map(boundary => this.geojsonStringToPolygon(boundary.geojson)),
+      this._enabledProjectBoundaries.map(boundary => this.geojsonStringToPolygon(boundary.geojson))
+    );
+
+    this.polygons.forEach(poly => poly.setMap(this.gmap));
+  }
+
   private async checkEnabledBoundaries() {
     const enabledBoundaries = await this.storageService.getOne(this.enabledBoundariesStorageKey).toPromise();
     if (enabledBoundaries) { this._enabledCustomBoundaries = enabledBoundaries } else { this.dummyData() };
@@ -85,14 +115,17 @@ export class BoundaryDialogService {
 
   setEnabledProjectBoundaries(data) {
     this._enabledProjectBoundaries = data;
+    this.showEnabledBoundaries();
   }
 
   setEnabledGeoPoliticalBoundaries(data) {
     this._enabledGeoPoliticalBoundaries = data;
+    this.showEnabledBoundaries();
   }
 
   setEnabledCustomBoundaries(data) {
     this._enabledCustomBoundaries = data;
+    this.showEnabledBoundaries();
   }
 
   get enabledProjectBoundaries(): Boundary[] {
