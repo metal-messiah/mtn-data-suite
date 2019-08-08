@@ -127,7 +127,7 @@ export class ProjectBoundary {
     const lng = point.coordinates[0];
     const lat = point.coordinates[1];
     const gCircle = new google.maps.Circle();
-    gCircle.setCenter({lat: lat, lng: lng});
+    gCircle.setCenter({ lat: lat, lng: lng });
     gCircle.setRadius(radius);
     gCircle.setMap(this.map);
     this.circles.push(gCircle);
@@ -150,6 +150,7 @@ export class ProjectBoundary {
       rectangle.setMap(this.map);
       this.rectangles.push(rectangle);
     } else {
+
       poly.setMap(this.map);
       this.polygons.push(poly);
     }
