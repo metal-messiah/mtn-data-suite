@@ -62,7 +62,7 @@
       </mat-form-field>
     </div>
     <h3 class='select-group-header'>Population Density</h3>
-    <div class='select-group'>
+    <div class='select-group' style="margin-bottom: 16px;">
       <mat-form-field *ngFor="let direction of directions">
         <mat-select [placeholder]="direction" [formControlName]="'populationDensity' + direction">
           <mat-option [value]="option" *ngFor="let option of ratingOptions">{{option}}</mat-option>
