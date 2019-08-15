@@ -12,6 +12,8 @@ import { AdministrationRoutingModule } from './administration-routing.module';
 import { GroupDetailComponent } from './group-detail/group-detail.component';
 import { AdminMenuComponent } from './admin-menu/admin-menu.component';
 import { RolePermissionsComponent } from './role-permissions/role-permissions.component';
+import { UserPermissionsComponent } from './user-permissions/user-permissions.component';
+import { PermissionTableComponent } from './permission-table/permission-table.component';
 
 @NgModule({
   imports: [
@@ -19,7 +21,8 @@ import { RolePermissionsComponent } from './role-permissions/role-permissions.co
     AdministrationRoutingModule
   ],
   entryComponents: [
-    RolePermissionsComponent
+    RolePermissionsComponent,
+    UserPermissionsComponent
   ],
   declarations: [
     AdminComponent,
@@ -30,7 +33,9 @@ import { RolePermissionsComponent } from './role-permissions/role-permissions.co
     RolesComponent,
     UserDetailComponent,
     UserProfilesComponent,
-    RolePermissionsComponent
+    RolePermissionsComponent,
+    UserPermissionsComponent,
+    PermissionTableComponent
   ]
 })
 export class AdministrationModule {

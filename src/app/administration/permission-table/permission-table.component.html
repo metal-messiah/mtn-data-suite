@@ -1,0 +1,19 @@
+<div *ngIf="!permissions">
+  <i class="fas fa-spinner fa-pulse"></i>
+</div>
+<table *ngIf="permissions">
+  <tr>
+    <th>Subject</th>
+    <th title="Create">C</th>
+    <th title="Read">R</th>
+    <th title="Update">U</th>
+    <th title="Delete">D</th>
+  </tr>
+  <tr *ngFor="let subject of subjects">
+    <td>{{titleCase(subject)}}</td>
+    <td *ngFor="let action of actions">
+      <input [title]="action + ' ' + subject" *ngIf="form.get([subject, action])" type="checkbox"
+             [formControl]="form.get([subject, action])">
+    </td>
+  </tr>
+</table>

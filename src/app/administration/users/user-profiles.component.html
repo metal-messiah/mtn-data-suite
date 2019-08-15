@@ -13,10 +13,11 @@
       <th mat-sort-header="email">Email</th>
       <th mat-sort-header="role">Role</th>
       <th mat-sort-header="group">Group</th>
+      <th>Permissions</th>
     </tr>
 
     <tr *ngIf="!userProfiles">
-      <td colspan="5" style="text-align: center;">
+      <td colspan="6" style="text-align: center;">
         <i *ngIf="isLoading" class="fas fa-spinner fa-pulse fa-2x" style="margin: 10px"></i>
         <span *ngIf="!isLoading && userProfiles && userProfiles.length === 0">No Users</span>
       </td>
@@ -39,6 +40,13 @@
                 (click)="selectGroup($event, userProfile)">
           {{userProfile.group ? userProfile.group.displayName : 'Click to set'}}
             </button>
+      </td>
+      <td>
+        <button class="select-button" mat-raised-button
+                color="accent"
+                (click)="editPermissions($event, userProfile)">
+          <i class="fas fa-edit"></i>&nbsp;Edit Permissions
+        </button>
       </td>
     </tr>
   </table>

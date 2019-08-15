@@ -7,6 +7,7 @@ import { CrudService } from '../../interfaces/crud-service';
 import { Pageable } from '../../models/pageable';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
+import { Role } from '../../models/full/role';
 
 @Injectable()
 export class UserProfileService extends CrudService<UserProfile> {
@@ -52,6 +53,13 @@ export class UserProfileService extends CrudService<UserProfile> {
     }
     return request.pipe(map(up => new UserProfile(up)));
   }
+
+  updateUserPermissions(userId: number, permissionIds: number[]) {
+    const url = this.rest.getHost() + this.endpoint + '/' + userId + '/permissions';
+    return this.http.put<UserProfile>(url, permissionIds, {headers: this.rest.getHeaders()})
+      .pipe(map(userProfile => new UserProfile(userProfile)));
+  }
+
 
   protected createEntityFromObj(entityObj): UserProfile {
     return new UserProfile(entityObj);
