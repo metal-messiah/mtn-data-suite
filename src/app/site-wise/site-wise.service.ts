@@ -20,4 +20,13 @@ export class SiteWiseService {
     return this.http.get(url, {headers: headers, responseType: 'blob'});
   }
 
+  downloadEmptySites() {
+    const url = this.rest.getHost() + this.endpoint + '/empty-sites';
+    const headers = new HttpHeaders({
+      'Content-Type': 'text/csv',
+      'Authorization': 'Bearer ' + this.rest.getAccessToken()
+    });
+    return this.http.get(url, {headers: headers, responseType: 'blob'});
+  }
+
 }
