@@ -1,0 +1,6 @@
+<button mat-raised-button color="accent" (click)="downloadActiveAndFutureStores()" [disabled]="downloading">
+  Download Active And Future Stores
+</button>
+<div *ngIf="downloading">
+  <i class="fas fa-spinner fa-pulse"></i> Downloading. This may take a minute...
+</div>
