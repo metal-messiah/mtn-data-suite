@@ -3,6 +3,7 @@ import { SiteWiseService } from './site-wise.service';
 import { finalize } from 'rxjs/operators';
 import { ErrorService } from '../core/services/error.service';
 import { Observable } from 'rxjs';
+import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'mds-site-wise',
@@ -15,10 +16,20 @@ export class SiteWiseComponent implements OnInit {
   downloading = false;
 
   constructor(private siteWiseService: SiteWiseService,
+              private snackBar: MatSnackBar,
               private errorService: ErrorService) {
   }
 
   ngOnInit() {
+  }
+
+  triggerSftpTransfer() {
+    this.downloading = true;
+    this.siteWiseService.triggerSftpTransfer()
+      .pipe(finalize(() => this.downloading = false))
+      .subscribe(response => this.snackBar.open(response, null, {duration: 2000}),
+        err => this.errorService.handleServerError('Failed to start SFTP transfer!', err,
+          () => console.warn(err), () => this.triggerSftpTransfer()));
   }
 
   downloadActiveAndFutureStores() {

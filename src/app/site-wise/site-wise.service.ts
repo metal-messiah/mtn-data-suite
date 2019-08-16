@@ -29,4 +29,9 @@ export class SiteWiseService {
     return this.http.get(url, {headers: headers, responseType: 'blob'});
   }
 
+  triggerSftpTransfer() {
+    const url = this.rest.getHost() + this.endpoint;
+    return this.http.get(url, {headers: this.rest.getHeaders(), responseType: 'text'});
+  }
+
 }

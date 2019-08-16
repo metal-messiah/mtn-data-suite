@@ -11,7 +11,6 @@ import { ItemSelectionDialogComponent } from '../../shared/item-selection/item-s
 import { GroupService } from '../../core/services/group.service';
 import { RoleService } from '../../core/services/role.service';
 import { CompareUtil } from '../../utils/compare-util';
-import { RolePermissionsComponent } from '../role-permissions/role-permissions.component';
 import { UserPermissionsComponent } from '../user-permissions/user-permissions.component';
 import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-profile';
 
