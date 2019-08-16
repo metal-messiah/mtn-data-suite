@@ -1,11 +1,18 @@
 :host {
   display: flex;
   flex-direction: column;
-  align-items: center;
   height: 100%;
   overflow: auto;
 }
 
+#loading {
+  margin: 12px auto;
+}
+
+table {
+  margin: 24px auto;
+}
+
 button {
-  margin: 24px;
+  margin: 8px;
 }

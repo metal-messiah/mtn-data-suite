@@ -11,6 +11,8 @@ import { ItemSelectionDialogComponent } from '../../shared/item-selection/item-s
 import { GroupService } from '../../core/services/group.service';
 import { RoleService } from '../../core/services/role.service';
 import { CompareUtil } from '../../utils/compare-util';
+import { UserPermissionsComponent } from '../user-permissions/user-permissions.component';
+import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-profile';
 
 @Component({
   selector: 'mds-users',
@@ -137,5 +139,11 @@ export class UserProfilesComponent implements OnInit {
           () => this.setUserGroup(userProfile, groupId)));
 
   }
+
+  editPermissions($event, userProfile: SimplifiedUserProfile) {
+    $event.stopPropagation();
+    this.dialog.open(UserPermissionsComponent, {data: {userProfileId: userProfile.id}, disableClose: true});
+  }
+
 
 }
