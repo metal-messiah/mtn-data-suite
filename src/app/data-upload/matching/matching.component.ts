@@ -23,6 +23,8 @@ import { SiteMarker } from '../../models/site-marker';
 })
 export class MatchingComponent implements OnInit, OnDestroy {
 
+  controlSideNavIsOpen = false;
+
   // Mapping
   recordMapLayer: StoreSourceLayer;
 
@@ -43,6 +45,17 @@ export class MatchingComponent implements OnInit, OnDestroy {
   fields: string[];
 
   subscriptions: Subscription[] = [];
+
+  readonly formFields = [
+    {placeholder: 'Unique ID*', controlName: 'uniqueId', initialValue: 'id'},
+    {placeholder: 'Store Name*', controlName: 'storeName', initialValue: 'storeName'},
+    {placeholder: 'Latitude*', controlName: 'latitude', initialValue: 'latitude'},
+    {placeholder: 'Longitude*', controlName: 'longitude', initialValue: 'longitude'},
+    {placeholder: 'Address', controlName: 'address', initialValue: 'address'},
+    {placeholder: 'City', controlName: 'city', initialValue: 'city'},
+    {placeholder: 'State', controlName: 'state', initialValue: 'state'},
+    {placeholder: 'Zip', controlName: 'zip', initialValue: 'zip'}
+  ];
 
   constructor(
     private mapService: MapService,
@@ -110,7 +123,13 @@ export class MatchingComponent implements OnInit, OnDestroy {
     }
   }
 
+  openSidenavDirectlyToSelectedListStores() {
+    this.snackBar.open('Not supported in this module!', null, {duration: 2000});
+  }
+
   onMapReady() {
+    this.mapService.addControl(document.getElementById('controlsButton'));
+
     this.recordMapLayer = new StoreSourceLayer(this.mapService);
 
     this.selectionService.singleSelect$.subscribe((selection) => {
@@ -128,7 +147,7 @@ export class MatchingComponent implements OnInit, OnDestroy {
     const boundsChangedListener = this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe(() => {
       if (this.storeSource && this.dbEntityMarkerService.controls.updateOnBoundsChange) {
         if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.minPullZoomLevel) {
-          this.dbEntityMarkerService.getMarkersInMapView()
+          this.dbEntityMarkerService.getMarkersInMapView();
         } else {
           this.snackBar.open('Zoom in or change Pull zoom limit', null, {duration: 3000});
         }
@@ -163,6 +182,7 @@ export class MatchingComponent implements OnInit, OnDestroy {
     this.fileData = results.data;
     this.fields = results.meta.fields;
 
+    // Pre-select fields if they have standard headings
     const storeField = this.fields.find(field => field.toLowerCase() === 'store name' || field.toLowerCase() === 'store_name');
     if (storeField) {
       this.fieldForm.get('storeName').setValue(storeField);
@@ -183,14 +203,33 @@ export class MatchingComponent implements OnInit, OnDestroy {
   }
 
   loadRecords() {
-    this.records = this.fileData.map(record => new StoreSource({
-        sourceNativeId: record[this.fieldForm.get('uniqueId').value],
-        sourceStoreName: record[this.fieldForm.get('storeName').value],
-        storeSourceData: new StoreSourceData({
-          latitude: record[this.fieldForm.get('latitude').value],
-          longitude: record[this.fieldForm.get('longitude').value]
-        })
-      })
+    this.records = this.fileData.map(record => {
+        const ss = new StoreSource({
+          sourceNativeId: record[this.fieldForm.get('uniqueId').value],
+          sourceStoreName: record[this.fieldForm.get('storeName').value],
+          storeSourceData: new StoreSourceData({
+            latitude: record[this.fieldForm.get('latitude').value],
+            longitude: record[this.fieldForm.get('longitude').value]
+          })
+        });
+        const addressField = this.fieldForm.get('address').value;
+        if (addressField) {
+          ss.storeSourceData.address = record[addressField];
+        }
+        const cityField = this.fieldForm.get('city').value;
+        if (cityField) {
+          ss.storeSourceData.city = record[cityField];
+        }
+        const stateField = this.fieldForm.get('state').value;
+        if (stateField) {
+          ss.storeSourceData.state = record[stateField];
+        }
+        const zipField = this.fieldForm.get('zip').value;
+        if (zipField) {
+          ss.storeSourceData.postalCode = record[zipField];
+        }
+        return ss;
+      }
     );
     this.setCurrentRecord(this.records[0]);
   }
@@ -227,12 +266,8 @@ export class MatchingComponent implements OnInit, OnDestroy {
   }
 
   private createControlsForm() {
-    this.fieldForm = this.fb.group({
-      uniqueId: 'id',
-      storeName: 'storeName',
-      latitude: 'latitude',
-      longitude: 'longitude'
-    });
+    this.fieldForm = this.fb.group({});
+    this.formFields.forEach(formField => this.fieldForm.addControl(formField.controlName, this.fb.control(formField.initialValue)));
   }
 
 }
