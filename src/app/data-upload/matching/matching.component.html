@@ -7,32 +7,8 @@
     <div *ngIf="!records" id="file-input">
       <mds-file-input (fileChanged)="handleFile($event)"></mds-file-input>
       <div *ngIf="fields" [formGroup]="fieldForm" style="padding: 10px">
-        <mat-form-field>
-          <mat-select placeholder="Unique ID" formControlName="uniqueId">
-            <mat-option>Clear Selection</mat-option>
-            <mat-option *ngFor="let fieldName of fields" [value]="fieldName">
-              {{fieldName}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field>
-          <mat-select placeholder="Store Name" formControlName="storeName">
-            <mat-option>Clear Selection</mat-option>
-            <mat-option *ngFor="let fieldName of fields" [value]="fieldName">
-              {{fieldName}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field>
-          <mat-select placeholder="Latitude" formControlName="latitude">
-            <mat-option>Clear Selection</mat-option>
-            <mat-option *ngFor="let fieldName of fields" [value]="fieldName">
-              {{fieldName}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field>
-          <mat-select placeholder="Longitude" formControlName="longitude">
+        <mat-form-field *ngFor="let formField of formFields">
+          <mat-select [placeholder]="formField.placeholder" [formControlName]="formField.controlName">
             <mat-option>Clear Selection</mat-option>
             <mat-option *ngFor="let fieldName of fields" [value]="fieldName">
               {{fieldName}}
@@ -64,13 +40,18 @@
       </mat-list>
     </div>
   </div>
-  <div class="center-panel hidden-sm">
-    <mds-map class="row content" (ready)="onMapReady()"></mds-map>
-  </div>
+  <mat-sidenav-container class="center-panel hidden-sm">
+    <mat-sidenav-content style="display: flex; flex: 1;">
+      <mds-map (ready)="onMapReady()"></mds-map>
+    </mat-sidenav-content>
+    <mat-sidenav mode="side" [(opened)]="controlSideNavIsOpen" class="control-side-nav"
+                 position="end">
+      <mds-db-entity-controls (viewStoreList)="openSidenavDirectlyToSelectedListStores()"></mds-db-entity-controls>
+    </mat-sidenav>
+  </mat-sidenav-container>
   <div class="right-panel" *ngIf="storeSource">
     <mds-store-source-location-match [storeSource]="storeSource"
                                      [siteMarkers]="siteMarkers"
-                                     [gettingStoreSource]="gettingStoreSource"
                                      (onBestMatchFound)="onBestMatchFound($event)"
                                      (onStoreMatched)="matchStore($event)"
                                      (onNoMatch)="noMatch()">
@@ -83,3 +64,7 @@
     </div>
   </div>
 </div>
+
+<button id="controlsButton" mat-raised-button (click)="controlSideNavIsOpen = !controlSideNavIsOpen">
+  <i class="fas fa-sliders-h"></i>
+</button>
