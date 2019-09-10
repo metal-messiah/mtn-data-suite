@@ -7,7 +7,7 @@ import { CrudService } from '../../interfaces/crud-service';
 import { Pageable } from '../../models/pageable';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
-import { Role } from '../../models/full/role';
+import { SimplifiedPermission } from '../../models/simplified/simplified-permission';
 
 @Injectable()
 export class UserProfileService extends CrudService<UserProfile> {
@@ -52,6 +52,12 @@ export class UserProfileService extends CrudService<UserProfile> {
       request = this.http.delete(url, {headers: this.rest.getHeaders()});
     }
     return request.pipe(map(up => new UserProfile(up)));
+  }
+
+  getUserPermissions(userId: number): Observable<SimplifiedPermission[]> {
+    const url = this.rest.getHost() + this.endpoint + '/' + userId + '/permissions';
+    return this.http.get<SimplifiedPermission[]>(url, {headers: this.rest.getHeaders()})
+      .pipe(map(permissions => permissions.map(p => new SimplifiedPermission(p))));
   }
 
   updateUserPermissions(userId: number, permissionIds: number[]) {

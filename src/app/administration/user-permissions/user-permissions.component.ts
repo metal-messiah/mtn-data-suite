@@ -5,6 +5,7 @@ import { ErrorService } from '../../core/services/error.service';
 import { finalize } from 'rxjs/operators';
 import { UserProfile } from '../../models/full/user-profile';
 import { UserProfileService } from '../../core/services/user-profile.service';
+import { SimplifiedPermission } from '../../models/simplified/simplified-permission';
 
 @Component({
   selector: 'mds-user-permissions',
@@ -14,6 +15,7 @@ import { UserProfileService } from '../../core/services/user-profile.service';
 export class UserPermissionsComponent implements OnInit {
 
   userProfile: UserProfile;
+  userPermissions: SimplifiedPermission[];
 
   saving = false;
 
@@ -28,19 +30,27 @@ export class UserPermissionsComponent implements OnInit {
 
   ngOnInit() {
     this.getUserProfile();
+    this.getUserPermissions(this.data.userProfileId);
   }
 
   save() {
     const permissionIds = this.permissionTable.getSelectedPermissionIds();
 
     this.saving = true;
-    this.userProfileService.updateUserPermissions(this.userProfile.id, permissionIds)
+    this.userProfileService.updateUserPermissions(this.data.userProfileId, permissionIds)
       .pipe(finalize(() => this.saving = false))
       .subscribe(() => {
         this.snackBar.open('Successfully updated user permissions', null, {duration: 2000});
         this.dialoRef.close();
       }, err => this.errorService.handleServerError('Failed to save permissions!', err,
         () => console.log(err), () => this.save()));
+  }
+
+  private getUserPermissions(userId: number) {
+    this.userProfileService.getUserPermissions(userId)
+      .subscribe(permissions => this.userPermissions = permissions,
+        err => this.errorService.handleServerError('Failed to get user\'s permissions!', err,
+          () => this.dialoRef.close(), () => this.getUserPermissions(userId)));
   }
 
   private getUserProfile() {
@@ -50,4 +60,5 @@ export class UserPermissionsComponent implements OnInit {
           () => this.dialoRef.close(), () => this.getUserProfile())
       );
   }
+
 }

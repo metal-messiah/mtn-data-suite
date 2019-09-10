@@ -11,11 +11,11 @@
     </button>
   </div>
 </mat-toolbar>
-<router-outlet></router-outlet>
+<router-outlet *ngIf="isAuthenticated"></router-outlet>
 
 <mat-menu #menu="matMenu">
   <button mat-menu-item *ngIf="!isHomePage()" (click)="goHome()"><i class="fas fa-home"></i>&nbsp;Home</button>
-  <button mat-menu-item *ngIf="isAuthenticated" (click)="logout()">
+  <button mat-menu-item *ngIf="isAuthenticated" (click)="signOut()">
     <i class="fas fa-sign-out-alt"></i>&nbsp;Sign Out
   </button>
   <button mat-menu-item *ngIf="!isAuthenticated" (click)="signIn()">
