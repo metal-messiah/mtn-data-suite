@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -19,13 +20,11 @@ export class AuthGuard implements CanActivate {
         return false;
       }
     } else {
-      this.authService.loadSavedAuthentication().subscribe(authenticated => {
-        if (authenticated) {
-          return true;
-        } else {
+      return this.authService.loadSavedAuthentication().pipe(tap(authenticated => {
+        if (!authenticated) {
           this.authService.signIn();
         }
-      })
+      }));
     }
   }
 

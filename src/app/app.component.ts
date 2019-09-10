@@ -16,8 +16,6 @@ import { environment } from '../environments/environment';
 })
 export class AppComponent implements OnInit {
 
-  isAuthenticated = false;
-
   constructor(
     private _location: Location,
     private authService: AuthService,
@@ -34,18 +32,10 @@ export class AppComponent implements OnInit {
 
     if (window.location.pathname === '/callback') {
       this.authService.parseHash(window.location.hash).subscribe(authenticated => {
-        this.isAuthenticated = authenticated;
         this.authService.navigateToLatestPath();
       }, err => this.showErrorDialog(err));
-    } else {
-      this.authService.loadSavedAuthentication().subscribe(authenticated => {
-        this.isAuthenticated = authenticated;
-        if (!authenticated) {
-          this.signIn()
-        }
-      });
-      this.updateService.checkForUpdate();
     }
+    this.updateService.checkForUpdate();
   }
 
   private showErrorDialog(err): void {
