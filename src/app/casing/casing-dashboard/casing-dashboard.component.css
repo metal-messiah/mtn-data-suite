@@ -84,3 +84,12 @@ mat-slider {
     overflow: hidden;
   }
 }
+
+#market-share {
+  position: absolute;
+  border-radius: 5px;
+  padding: 2px;
+  background: #ffffffc9;
+  font-weight: bold;
+  font-size: 12px;
+}

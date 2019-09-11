@@ -60,6 +60,7 @@ import { SimplifiedProject } from '../../models/simplified/simplified-project';
 import { ProjectSummaryComponent } from '../project-summary/project-summary.component';
 import { StoreSelectionDialogComponent } from '../store-merge/store-selection-dialog/store-selection-dialog.component';
 import { StoreAttrSelectionDialogComponent } from '../store-merge/store-attr-selection-dialog/store-attr-selection-dialog.component';
+import { GravityService } from '../../core/services/gravity.service';
 
 @Component({
   selector: 'mds-casing-dashboard',
@@ -68,6 +69,10 @@ import { StoreAttrSelectionDialogComponent } from '../store-merge/store-attr-sel
   providers: [MapService, DbEntityMarkerService, EntitySelectionService, CasingDashboardService]
 })
 export class CasingDashboardComponent implements OnInit, OnDestroy {
+
+  bannerSisterFactor = 0.0;
+  fitSisterFactor = 0.0;
+  marketShareThreshold = 0.0;
 
   // Layers
   draggableSiteLayer: DraggableSiteLayer;
@@ -98,7 +103,11 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   layoutIsSmall = false;
 
+  choropleth: google.maps.Data.Feature[];
+  web: google.maps.Data.Feature[];
+
   constructor(private mapService: MapService,
+              private gravityService: GravityService,
               private casingProjectService: CasingProjectService,
               private dbEntityMarkerService: DbEntityMarkerService,
               private geocoderService: GeocoderService,
@@ -135,7 +144,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(this.selectionService.multiSelectChanged$.subscribe(multiSelect => {
       if (multiSelect) {
-        this.onMultiSelectEnabled()
+        this.onMultiSelectEnabled();
       } else {
         this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
         this.mapService.deactivateDrawingTools();
@@ -172,19 +181,111 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       this.ngZone.run(() => {
         this.infoCard = new DbEntityInfoCardItem(DbLocationInfoCardComponent, selection,
           this.initiateDuplicateSelection$, this.initiateSiteMove$, this.siteUpdated$);
-      })
+      });
     } else if (this.casingDashboardService.selectedDashboardMode === CasingDashboardMode.DUPLICATE_SELECTION) {
       this.onDuplicateSiteSelected(selection.siteId);
     }
+
+    const projectId = this.casingProjectService.getSelectedProject().id;
+    if (selection.siteId && this.choropleth && this.choropleth.length > 0 && projectId) {
+      this.gravityService.getStoreScores(selection.siteId, projectId,
+        this.bannerSisterFactor, this.fitSisterFactor, this.marketShareThreshold)
+        .subscribe(marketShares => {
+          this.mapService.getMap().data.forEach(feature => {
+            const fips = feature.getProperty('fips');
+            const marketShare = marketShares[fips];
+            if (marketShare) {
+              feature.setProperty('marketShare', marketShare);
+            } else {
+              feature.setProperty('marketShare', 0);
+            }
+          });
+        }, err => this.errorService.handleServerError('Failed to get Store Scores!', err, () => console.error(err)));
+    } else {
+      console.warn('Select a site! Project must also be selected');
+    }
+
     this.ngZone.run(() => {
     });
   }
 
+  private getBlockGroupColor(marketShare) {
+    if (marketShare >= 0.64) {
+      return '#FF0000';
+    }
+    if (marketShare >= 0.32) {
+      return '#FF0000';
+    }
+    if (marketShare >= 0.16) {
+      return '#fef86c';
+    }
+    if (marketShare >= 0.08) {
+      return '#d8ffbe';
+    }
+    if (marketShare >= 0.04) {
+      return '#b8ffec';
+    }
+    if (marketShare >= 0.02) {
+      return '#85e4ff';
+    }
+    return '#73cffe';
+  }
+
   onMapReady() {
+    this.mapService.getMap().data.setStyle(feature => {
+      const marketShare = feature.getProperty('marketShare');
+      const strokeWeight = feature.getProperty('strokeWeight');
+      return {
+        fillColor: marketShare ? this.getBlockGroupColor(marketShare) : 'grey',
+        strokeWeight: strokeWeight || 0.5
+      };
+    });
+
+    const overlay = new google.maps.OverlayView();
+    overlay.setMap(this.mapService.getMap());
+
+    const marker = new google.maps.Marker();
+    marker.setMap(this.mapService.getMap());
+
+    this.mapService.getMap().data.addListener('mouseover', event => {
+      const marketShare = event.feature.getProperty('marketShare') * 100;
+
+      if (marketShare) {
+        const lat = event.feature.getProperty('lat');
+        const lng = event.feature.getProperty('lng');
+        const latLng = new google.maps.LatLng(lat, lng);
+        marker.setPosition(latLng);
+        marker.setLabel(marketShare.toFixed(2));
+      }
+
+    });
+
+    this.mapService.getMap().data.addListener('click', event => {
+      // Remove any previous web
+      const data = this.mapService.getMap().data;
+      if (this.web) {
+        this.web.forEach(feature => data.remove(feature));
+      }
+      // Get and add new web
+      const fips = event.feature.getProperty('fips');
+      const projectId = this.casingProjectService.getSelectedProject().id;
+      this.gravityService.getWebForBlockGroup(fips, projectId, this.bannerSisterFactor, this.fitSisterFactor, this.marketShareThreshold)
+        .subscribe((webGeoJson: string) => {
+          this.web = data.addGeoJson(webGeoJson);
+          this.web.forEach(bgStore => {
+            const marketShare = bgStore.getProperty('marketShare');
+            const weight = marketShare * 10;
+            bgStore.setProperty('strokeWeight', weight);
+            data.overrideStyle(bgStore, {strokeColor: 'red'});
+          });
+        });
+    });
+
     this.mapService.addControl(document.getElementById('refresh'));
     this.mapService.addControl(document.getElementById('info-card-wrapper'), google.maps.ControlPosition.LEFT_BOTTOM);
     this.mapService.addControl(document.getElementById('openListView'), google.maps.ControlPosition.LEFT_BOTTOM);
     this.mapService.addControl(document.getElementById('project-buttons'), google.maps.ControlPosition.TOP_RIGHT);
+    // this.mapService.addControl(document.getElementById('market-share'), google.maps.ControlPosition.BOTTOM_CENTER);
 
     this.selectionService.singleSelect$.subscribe((selection) => this.onSelection(selection));
     this.dbEntityMarkerService.initMap(this.mapService.getMap(), this.selectionService,
@@ -217,7 +318,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(this.mapService.boundsChanged$.pipe(this.getDebounce()).subscribe(() => {
       if (this.dbEntityMarkerService.controls.updateOnBoundsChange) {
-        this.getEntitiesInBounds()
+        this.getEntitiesInBounds();
       }
     }));
 
@@ -259,7 +360,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.minPullZoomLevel) {
       this.dbEntityMarkerService.getMarkersInMapView();
     } else {
-      this.snackBar.open('Zoom in or change Pull zoom limit', null, {duration: 2000, verticalPosition: 'top'})
+      this.snackBar.open('Zoom in or change Pull zoom limit', null, {duration: 2000, verticalPosition: 'top'});
     }
   }
 
@@ -313,7 +414,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
             },
             () => this.createNewSite(site));
         });
-    })
+    });
   }
 
   /*
@@ -394,7 +495,7 @@ Geo-location
       this.siteService.update(site)
         .pipe(finalize(() => {
           this.movingSiteId = null;
-          this.draggableSiteLayer.removeFromMap()
+          this.draggableSiteLayer.removeFromMap();
         }))
         .subscribe(() => {
           this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
@@ -403,7 +504,7 @@ Geo-location
         }, err => this.errorService.handleServerError('Failed to update new Site location!', err,
           () => console.log('Cancel'),
           () => this.saveMove()));
-    })
+    });
 
   }
 
@@ -592,7 +693,7 @@ Geo-location
         },
         err => this.errorService.handleServerError('Failed to save project boundary!', err,
           () => console.log(err),
-          () => this.saveProjectBoundary()))
+          () => this.saveProjectBoundary()));
   }
 
   cancelProjectBoundaryEditing() {
@@ -648,6 +749,24 @@ Geo-location
     }
   }
 
+  clearBlockGroups() {
+    const data = this.mapService.getMap().data;
+    data.forEach(feature => data.remove(feature));
+  }
+
+  showBlockGroups() {
+    const data = this.mapService.getMap().data;
+
+    this.clearBlockGroups();
+    // Clear previous
+    const projectId = this.casingProjectService.getSelectedProject().id;
+
+    this.dbEntityMarkerService.gettingLocations = true;
+    this.gravityService.getProjectBlockGroupGeoJson(projectId).subscribe(geoJson => {
+      this.choropleth = data.addGeoJson(geoJson);
+    });
+  }
+
   showBoundary() {
     const projectId = this.casingProjectService.getSelectedProject().id;
     this.projectBoundaryService.showProjectBoundaries(this.mapService.getMap(), projectId)
@@ -689,7 +808,7 @@ Geo-location
       if (project) {
         downloadDialog.close();
       }
-    })
+    });
   }
 
   userIsGuest() {
@@ -802,7 +921,7 @@ Geo-location
     }
     this.router.navigate(['casing', 'list-stores', storeList.id], {skipLocationChange: true}).then(() => {
       this.ngZone.run(() => {
-      })
+      });
     });
   }
 
