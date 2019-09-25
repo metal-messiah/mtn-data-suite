@@ -53,7 +53,7 @@
   <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.EDIT_PROJECT_BOUNDARY" color="primary"
     class="flex-space-between">
     <div>
-      <button mat-raised-button (click)="cancelProjectBoundaryEditing()" color="warn">Cancel</button>
+      <button mat-raised-button (click)="cancelBoundaryEditing()" color="warn">Cancel</button>
     </div>
     <div>
       <button mat-mini-fab [mat-menu-trigger-for]="drawingToolsMenu" color="primary">
@@ -72,7 +72,7 @@
       </button>
     </div>
     <div>
-      <button *ngIf="!savingBoundary" mat-raised-button color="accent" (click)="saveProjectBoundary()">Save
+      <button *ngIf="!savingBoundary" mat-raised-button color="accent" (click)="saveBoundary()">Save
       </button>
       <button *ngIf="savingBoundary" mat-raised-button color="accent" disabled><i
           class="fas fa-spinner fa-pulse"></i></button>
@@ -219,14 +219,14 @@
       <i class="fas fa-folder"></i>&nbsp;Change Project
     </button>
     <button mat-menu-item *ngIf="!getSelectedProject().hasBoundary && !isShowingBoundary()"
-      (click)="enableProjectBoundaryEditing()">
+      (click)="enableBoundaryEditing()">
       Create Boundary
     </button>
     <div *ngIf="getSelectedProject().hasBoundary">
       <button mat-menu-item (click)="selectAllInBoundary()">
         Select All In Boundary
       </button>
-      <button mat-menu-item (click)="enableProjectBoundaryEditing()">
+      <button mat-menu-item (click)="enableBoundaryEditing()">
         Edit Boundary
       </button>
       <button mat-menu-item *ngIf="isShowingBoundary()" (click)="hideProjectBoundaries()">

@@ -7,3 +7,17 @@ div[mat-dialog-content] {
     justify-content: space-between;
     align-items: center;
 }
+
+h3 > i {
+    filter: grayscale(50%)
+}
+
+.create-new-button{
+    margin: 10px calc(50% - 75px) 0;
+    width: 150px;
+    cursor: pointer;
+}
+
+.create-new-button:hover{
+    background: #f58900;
+}

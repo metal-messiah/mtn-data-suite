@@ -37,6 +37,7 @@ import { SubTitleBarComponent } from './sub-title-bar/sub-title-bar.component';
 import { ItemSelectionDialogComponent } from './item-selection/item-selection-dialog.component';
 import { DbEntityControlsComponent } from './db-entity-controls/db-entity-controls.component';
 import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing-entity-fields.component';
+import { MapDialogComponent } from './map-dialog/map-dialog.component';
 
 @NgModule({
   imports: [
@@ -79,7 +80,8 @@ import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing
     TabSelectDialogComponent,
     TextInputDialogComponent,
     ThousandsCurrencyPipe,
-    UserProfileSelectComponent
+    UserProfileSelectComponent,
+    MapDialogComponent
   ],
   providers: [
     BreakpointObserver,

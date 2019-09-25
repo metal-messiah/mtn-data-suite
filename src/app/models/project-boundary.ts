@@ -3,6 +3,7 @@ import { Feature, GeoJSON, Point, Polygon } from 'geojson';
 
 export class ProjectBoundary {
 
+  name?: string;
   map: google.maps.Map;
   geojson: GeoJSON;
   private editable = false;
@@ -12,10 +13,13 @@ export class ProjectBoundary {
   rectangles: google.maps.Rectangle[] = [];
   deletionListeners: google.maps.MapsEventListener[] = [];
 
-  constructor(map: google.maps.Map, geojson?: GeoJSON) {
+  constructor(map: google.maps.Map, geojson?: GeoJSON, name?: string) {
     this.map = map;
     if (geojson) {
       this.setGeoJson(geojson);
+    }
+    if (name) {
+      this.name = name;
     }
   }
 
