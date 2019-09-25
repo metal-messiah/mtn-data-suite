@@ -62,6 +62,8 @@ import { StoreSelectionDialogComponent } from '../store-merge/store-selection-di
 import { StoreAttrSelectionDialogComponent } from '../store-merge/store-attr-selection-dialog/store-attr-selection-dialog.component';
 import { GravityService } from '../../core/services/gravity.service';
 
+import * as MarkerWithLabel from '@google/markerwithlabel';
+
 @Component({
   selector: 'mds-casing-dashboard',
   templateUrl: './casing-dashboard.component.html',
@@ -214,7 +216,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       return '#FF0000';
     }
     if (marketShare >= 0.32) {
-      return '#FF0000';
+      return '#ff8f02';
     }
     if (marketShare >= 0.16) {
       return '#fef86c';
@@ -228,11 +230,12 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     if (marketShare >= 0.02) {
       return '#85e4ff';
     }
-    return '#73cffe';
+    return '#5d9ffe';
   }
 
   onMapReady() {
-    this.mapService.getMap().data.setStyle(feature => {
+    const map = this.mapService.getMap();
+    map.data.setStyle(feature => {
       const marketShare = feature.getProperty('marketShare');
       const strokeWeight = feature.getProperty('strokeWeight');
       return {
@@ -242,41 +245,56 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     });
 
     const overlay = new google.maps.OverlayView();
-    overlay.setMap(this.mapService.getMap());
+    overlay.setMap(map);
 
-    const marker = new google.maps.Marker();
-    marker.setMap(this.mapService.getMap());
+    const marker = new MarkerWithLabel({
+      position: map.getCenter(),
+      map: map,
+      labelClass: 'db-marker-full-label-active',
+      icon: ' '
+    });
+    marker.labelAnchor = new google.maps.Point(marker.labelAnchor.x, 0);
+    marker.labelContent = '12.2';
 
-    this.mapService.getMap().data.addListener('mouseover', event => {
+    // map.addListener('mousemove', event => marker.setPosition(event.latLng));
+
+    map.data.addListener('mouseover', event => {
       const marketShare = event.feature.getProperty('marketShare') * 100;
 
       if (marketShare) {
+        if (!marker.getMap()) {
+          marker.setMap(map);
+        }
         const lat = event.feature.getProperty('lat');
         const lng = event.feature.getProperty('lng');
         const latLng = new google.maps.LatLng(lat, lng);
+        // const latLng = event.latLng;
         marker.setPosition(latLng);
-        marker.setLabel(marketShare.toFixed(2));
+        marker.labelContent = marketShare.toFixed(1);
+      } else {
+        marker.setMap(null);
       }
-
     });
 
-    this.mapService.getMap().data.addListener('click', event => {
-      // Remove any previous web
-      const data = this.mapService.getMap().data;
+    map.data.addListener('click', event => {
       if (this.web) {
-        this.web.forEach(feature => data.remove(feature));
+        this.web.forEach(feature => map.data.remove(feature));
       }
-      // Get and add new web
+
+      // Remove any previous web
       const fips = event.feature.getProperty('fips');
+      console.log('Clicked: ' + fips);
+
+      // Get and add new web
       const projectId = this.casingProjectService.getSelectedProject().id;
       this.gravityService.getWebForBlockGroup(fips, projectId, this.bannerSisterFactor, this.fitSisterFactor, this.marketShareThreshold)
         .subscribe((webGeoJson: string) => {
-          this.web = data.addGeoJson(webGeoJson);
+          this.web = map.data.addGeoJson(webGeoJson);
           this.web.forEach(bgStore => {
             const marketShare = bgStore.getProperty('marketShare');
             const weight = marketShare * 10;
             bgStore.setProperty('strokeWeight', weight);
-            data.overrideStyle(bgStore, {strokeColor: 'red'});
+            map.data.overrideStyle(bgStore, {strokeColor: 'red'});
           });
         });
     });
