@@ -87,9 +87,10 @@ export class BoundaryDialogService {
   }
 
   private async fetchCustomBoundaries() {
-    const customBoundaries = await this.boundaryService
-      .getUserBoundaries(this.authService.sessionUser.id)
-      .toPromise();
+    // const customBoundaries = await this.boundaryService
+    //   .getUserBoundaries(this.authService.sessionUser.id)
+    //   .toPromise();
+    const customBoundaries = [new Boundary({geojson: null, boundaryName: "Test", legacyProjectId: 1})];
     customBoundaries.forEach(b => {
       b = new Boundary(b);
       if (

@@ -6,6 +6,7 @@ import { CrudService } from '../../interfaces/crud-service';
 import { RestService } from './rest.service';
 import { Observable } from 'rxjs';
 import { Boundary } from 'app/models/full/boundary';
+import { SimplifiedUserBoundary } from '../../models/simplified/simplified-user-boundary';
 
 @Injectable()
 export class BoundaryService extends CrudService<Boundary> {
@@ -36,11 +37,11 @@ export class BoundaryService extends CrudService<Boundary> {
       );
   }
 
-  getUserBoundaries(userId: number): Observable<Boundary[]> {
-    const url = this.rest.getHost() + this.userEndpoint + `/${userId}/boundary`;
-    const params = new HttpParams();
+  getUserBoundaries(userId: number): Observable<SimplifiedUserBoundary[]> {
+    const url = this.rest.getHost() + '/api/user-boundary';
+    const params = new HttpParams().set('user-id', String(userId));
     return this.http
-      .get<Boundary[]>(url, {
+      .get<SimplifiedUserBoundary[]>(url, {
         headers: this.rest.getHeaders(),
         params: params
       })
