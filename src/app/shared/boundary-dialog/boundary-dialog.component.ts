@@ -6,6 +6,8 @@ import { BoundaryColor } from "./enums/boundary-color";
 import { TextInputDialogComponent } from "../text-input-dialog/text-input-dialog.component";
 import { Boundary } from "app/models/full/boundary";
 import { BoundaryService } from "app/core/services/boundary.service";
+import { UserBoundaryService } from "app/core/services/user-boundary.service";
+import { UserBoundary } from "app/models/full/user-boundary";
 
 export enum Actions {
   EDIT = "EDIT"
@@ -18,11 +20,12 @@ export enum Actions {
 })
 export class BoundaryDialogComponent implements OnInit {
   boundaryColor = BoundaryColor;
-  targetBoundary: Boundary;
+  targetBoundary: UserBoundary;
   tabs = { PROJECT: 0, GEOPOLITICAL: 1, CUSTOM: 2 };
   gmap: google.maps.Map;
 
   constructor(
+    private userBoundaryService: UserBoundaryService,
     private boundaryService: BoundaryService,
     private boundaryDialogService: BoundaryDialogService,
     private dialog: MatDialog,
@@ -59,12 +62,16 @@ export class BoundaryDialogComponent implements OnInit {
       .afterClosed()
       .subscribe((text: string) => {
         if (text) {
-          this.boundaryService
+          this.userBoundaryService
             .getOneById(this.targetBoundary.id)
-            .subscribe((b: Boundary) => {
+            .subscribe((b: UserBoundary) => {
               b.boundaryName = text;
-              this.targetBoundary.boundaryName = b.boundaryName;
-              this.boundaryService.update(b);
+              this.userBoundaryService.update(b).subscribe(
+                (newB: UserBoundary) => {
+                  this.targetBoundary.boundaryName = text;
+                },
+                err => console.error(err)
+              );
             });
         }
       });
@@ -75,7 +82,7 @@ export class BoundaryDialogComponent implements OnInit {
   }
 
   private deleteBoundary() {
-    this.boundaryService.delete(this.targetBoundary.id).subscribe(() => {
+    this.userBoundaryService.delete(this.targetBoundary.id).subscribe(() => {
       this.boundaryDialogService.customBoundaries = this.boundaryDialogService.customBoundaries.filter(
         cb => cb.id !== this.targetBoundary.id
       );
@@ -93,12 +100,12 @@ export class BoundaryDialogComponent implements OnInit {
       .afterClosed()
       .subscribe((text: string) => {
         if (text) {
-          this.close(new Boundary({ boundaryName: text }));
+          this.close(new UserBoundary({ boundaryName: text }));
         }
       });
   }
 
-  private close(params: Boundary) {
+  private close(params: UserBoundary) {
     this.dialogRef.close(params);
   }
 

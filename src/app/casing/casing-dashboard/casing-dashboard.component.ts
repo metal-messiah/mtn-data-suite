@@ -72,6 +72,8 @@ import { BoundaryService } from "app/core/services/boundary.service";
 import { BoundaryDialogService } from "app/shared/boundary-dialog/boundary-dialog.service";
 import { ProjectBoundary } from "app/models/project-boundary";
 import { UserProfileService } from "app/core/services/user-profile.service";
+import { UserBoundary } from "app/models/full/user-boundary";
+import { UserBoundaryService } from "app/core/services/user-boundary.service";
 
 @Component({
   selector: "mds-casing-dashboard",
@@ -95,6 +97,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   updating = false;
   savingBoundary = false;
 
+  originalUserBoundary: UserBoundary;
   editingUserBoundary: Boundary = null;
   editingProjectBoundary: ProjectBoundary = null;
 
@@ -141,7 +144,8 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     private breakpointObserver: BreakpointObserver,
     private boundaryDialogService: BoundaryDialogService,
     private boundaryService: BoundaryService,
-    private userProfileService: UserProfileService
+    private userProfileService: UserProfileService,
+    private userBoundaryService: UserBoundaryService
   ) {}
 
   ngOnInit() {
@@ -674,7 +678,6 @@ Geo-location
   openLatLngSearch() {
     const latLngSearchDialog = this.dialog.open(LatLngSearchComponent);
     latLngSearchDialog.afterClosed().subscribe((coordinates: LatLng) => {
-      console.log(coordinates);
       if (coordinates != null) {
         this.mapService.setCenter(coordinates);
         // Create layer
@@ -770,8 +773,10 @@ Geo-location
             CasingDashboardMode.DEFAULT;
 
           if (serverMethod === "create") {
-            this.userProfileService
-              .assignBoundaryToUser(this.authService.sessionUser.id, b.id)
+            this.originalUserBoundary.boundary = b;
+            this.originalUserBoundary.user = this.authService.sessionUser;
+            this.userBoundaryService
+              .create(this.originalUserBoundary)
               .subscribe(() => {
                 this.cancelBoundaryEditing();
                 this.openBoundariesDialog();
@@ -784,7 +789,7 @@ Geo-location
   cancelBoundaryEditing() {
     this.casingDashboardService.selectedDashboardMode =
       CasingDashboardMode.DEFAULT;
-    if (!this.editingUserBoundary || !this.editingProjectBoundary) {
+    if (!this.editingUserBoundary && !this.editingProjectBoundary) {
       this.projectBoundaryService.cancelProjectBoundaryEditing(this.mapService);
     } else {
       this.boundaryDialogService.cancelBoundaryEditing(
@@ -793,6 +798,7 @@ Geo-location
       this.editingProjectBoundary.removeFromMap();
       this.editingUserBoundary = null;
       this.editingProjectBoundary = null;
+      this.originalUserBoundary = null;
       this.mapService.deactivateDrawingTools();
     }
   }
@@ -839,7 +845,6 @@ Geo-location
       CasingDashboardMode.EDIT_PROJECT_BOUNDARY;
 
     this.mapService.setDrawingModeToClick();
-
     if (!this.editingProjectBoundary) {
       if (!this.projectBoundaryService.projectBoundary) {
         const projectId = this.casingProjectService.getSelectedProject().id;
@@ -851,6 +856,9 @@ Geo-location
       }
       this.projectBoundaryService.zoomToProjectBoundary();
     } else {
+      if (!this.editingUserBoundary.id) {
+        this.mapService.setDrawingModeToPolygon();
+      }
       if (!this.editingProjectBoundary.isEditable()) {
         this.mapService
           .activateDrawingTools()
@@ -1051,13 +1059,27 @@ Geo-location
         }
       })
       .afterClosed()
-      .subscribe((editTarget: Boundary) => {
+      .subscribe((editTarget: UserBoundary) => {
+        this.originalUserBoundary = editTarget;
         if (editTarget) {
-          this.editingUserBoundary = editTarget;
-          this.editingProjectBoundary = this.boundaryDialogService.convertBoundaryToProjectBoundary(
-            editTarget
-          );
-          this.enableBoundaryEditing();
+          if (editTarget.boundaryId) {
+            this.boundaryService
+              .getOneById(editTarget.boundaryId)
+              .subscribe((boundary: Boundary) => {
+                this.editingUserBoundary = boundary;
+                this.editingProjectBoundary = this.boundaryDialogService.convertBoundaryToProjectBoundary(
+                  boundary
+                );
+                this.enableBoundaryEditing();
+              });
+          } else {
+            const boundary = new Boundary(editTarget);
+            this.editingUserBoundary = boundary;
+            this.editingProjectBoundary = this.boundaryDialogService.convertBoundaryToProjectBoundary(
+              boundary
+            );
+            this.enableBoundaryEditing();
+          }
         }
       });
   }

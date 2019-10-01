@@ -1,12 +1,16 @@
 import { AuditingEntity } from '../auditing-entity';
+import { UserProfile } from './user-profile';
+import { Boundary } from './boundary';
 
-export class UserBoundary extends AuditingEntity {
+export class UserBoundary {
+  id: number;
+  boundaryId: number;
+  boundaryName?: string;
 
-    geojson: string;
-    boundaryName?: string;
+  user?: UserProfile;
+  boundary?: Boundary;
 
-    constructor(obj) {
-        super(obj);
-        Object.assign(this, obj);
-    }
+  constructor(obj) {
+    Object.assign(this, obj);
+  }
 }
