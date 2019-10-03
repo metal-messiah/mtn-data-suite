@@ -17,6 +17,7 @@ import { ExtractionModule } from './extraction/extraction.module';
 import { ReportsModule } from './reports/reports.module';
 import { BrokerageModule } from './brokerage/brokerage.module';
 import { GeocodingModule } from './geocoding/geocoding.module';
+import { SiteWiseModule } from './site-wise/site-wise.module';
 
 @NgModule({
   imports: [
@@ -34,6 +35,7 @@ import { GeocodingModule } from './geocoding/geocoding.module';
     ReportsModule,
     BrokerageModule,
     GeocodingModule,
+    SiteWiseModule,
     AppRoutingModule // must come last?
   ],
   declarations: [AppComponent, HomeComponent],

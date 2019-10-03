@@ -477,6 +477,7 @@ export class DbEntityMarkerService {
       // FUTURE
       if (future.length > 1) {
         // TODO Error state - no site should have multiple future stores - potentially create exclamation marker
+        future.forEach(f => markers.push(this.createStoreMarker(f, site)));
       } else if (future.length === 1) {
         markers.push(this.createStoreMarker(future[0], site));
       }

@@ -1,0 +1,27 @@
+<table style="border-collapse: collapse">
+  <tr>
+    <td>Active & Future Stores</td>
+    <td>
+      <button mat-raised-button color="accent" (click)="downloadActiveAndFutureStores()">
+        <i class="fas fa-download"></i>
+      </button>
+<!--    </td>-->
+<!--    <td>-->
+<!--      <button mat-raised-button color="accent" (click)="triggerSftpTransfer()">-->
+<!--        <i class="fas fa-paper-plane"></i>&nbsp;&nbsp;SFTP-->
+<!--      </button>-->
+<!--    </td>-->
+  </tr>
+  <tr>
+    <td>Empty Sites</td>
+    <td>
+      <button mat-raised-button color="accent" (click)="downloadEmptySites()">
+        <i class="fas fa-download"></i>
+      </button>
+    </td>
+  </tr>
+</table>
+
+<div id="loading" *ngIf="downloading">
+  <i class="fas fa-spinner fa-pulse"></i> Downloading. This may take a minute...
+</div>

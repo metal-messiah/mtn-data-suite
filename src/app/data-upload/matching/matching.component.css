@@ -8,6 +8,7 @@
 .content-wrapper {
   flex: 1;
   display: flex;
+  overflow: hidden;
 }
 
 #file-input {
@@ -91,7 +92,6 @@
 
 .right-panel{
   flex: 1;
-  min-width: 45vw;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -210,4 +210,12 @@ mds-file-input {
 #control-wrapper > mat-checkbox {
   margin-left: 10px;
   display: block;
+}
+
+#controlsButton {
+  position: absolute;
+  min-width: unset;
+  width: 40px;
+  padding: 0;
+  margin-right: 10px;
 }

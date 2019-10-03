@@ -75,6 +75,14 @@ export class HomeComponent implements OnInit {
       displayName: 'Geocoding'
     });
 
+    if (this.auth.sessionUser.permissions.some(p => p.systemName === 'SITE_WISE_READ')) {
+      menuItems.push({
+        routerLink: '/site-wise',
+        iconClasses: 'fas fa-caret-right',
+        displayName: 'SiteWise'
+      })
+    }
+
     return menuItems;
   }
 

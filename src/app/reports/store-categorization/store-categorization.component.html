@@ -1,41 +1,49 @@
 <mds-sub-title-bar subTitle="2. Categorize Stores"></mds-sub-title-bar>
 
-<form id="cat-form" class="content" *ngIf="reportBuilderService.getReportTableData()">
+<div class="content">
+  <ng-template #loading>
+    <span style="text-align: center;"><i class="fas fa-spinner fa-pulse fa-2x"></i></span>
+  </ng-template>
+  <form id="cat-form" *ngIf="existingStoresCombined; else loading;">
 
-  <h3>Existing Stores</h3>
-  <table id="existing-store-table">
-    <tr *ngFor="let store of getExistingStoresCombined()" [ngClass]="getStoreRowClass(store)">
-      <td>({{getExistingStoresCount(store.bannerName)}})</td>
-      <td>{{store.bannerName}}</td>
-      <td>
-        <select [value]="store.category" (change)="changeCombinedCategory($event, store)">
-          <option *ngFor="let cat of categories">{{cat}}</option>
-        </select>
-      </td>
-    </tr>
-  </table>
-
-  <ng-container *ngIf="getProposedStores().length > 0">
-    <h3>Proposed Stores</h3>
-
-    <table id="proposed-stores-table">
-      <tr *ngFor="let store of getProposedStores()" [ngClass]="getStoreRowClass(store)">
-        <td>{{store.mapKey}}</td>
-        <td>{{store.storeName}}</td>
-        <td>{{store.scenario}}</td>
+    <h3>Existing Stores</h3>
+    <table id="existing-store-table">
+      <tr *ngFor="let banner of existingStoresCombined" [ngClass]="getStoreRowClass(banner)">
+        <td>({{banner.count}})</td>
+        <td>{{banner.bannerName}}</td>
         <td>
-          <select [value]="store.category" (change)="changeCategory($event, store)">
-            <option *ngFor="let cat of categories">{{cat}}</option>
+          <select title="Category" [value]="banner.category" (change)="changeCombinedCategory($event, banner)">
+            <option *ngFor="let category of categories">{{category}}</option>
           </select>
         </td>
       </tr>
     </table>
 
-  </ng-container>
+    <ng-container *ngIf="proposedStores && proposedStores.length > 0">
+      <h3>Proposed Stores</h3>
 
-</form>
+      <table id="proposed-stores-table" style="margin-bottom: 16px;">
+        <tr *ngFor="let store of proposedStores" [ngClass]="getStoreRowClass(store)">
+          <td>{{store.mapKey}}</td>
+          <td>{{store.storeName}}</td>
+          <td>{{store.scenario}}</td>
+          <td>
+            <select title="Category" [value]="store.category" (change)="changeCategory($event, store)">
+              <option *ngFor="let category of categories">{{category}}</option>
+            </select>
+          </td>
+        </tr>
+      </table>
+
+    </ng-container>
+
+  </form>
+</div>
 
 <mds-sub-title-bar>
+  <span *ngIf="saving" style="margin-right: 8px;">
+    <i class="fas fa-spinner fa-pulse"></i>&nbsp;Saving...
+  </span>
   <button color="accent" type="button" form="cat-form" mat-raised-button [routerLink]="['../data-verification']">
     Next
   </button>

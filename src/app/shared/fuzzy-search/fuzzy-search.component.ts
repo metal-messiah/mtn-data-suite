@@ -1,5 +1,5 @@
-import { Component, OnChanges, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import * as Fuse from './fuse/fuse.js';
+import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import * as Fuse from 'fuse.js';
 
 export class FuzzySearchOptions {
     caseSensitive?: boolean;

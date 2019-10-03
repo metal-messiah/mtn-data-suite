@@ -32,4 +32,5 @@ mat-form-field {
 #map-container {
   display: flex;
   height: 200px;
+  margin-bottom: 16px;
 }

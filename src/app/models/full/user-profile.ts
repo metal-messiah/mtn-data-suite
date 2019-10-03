@@ -2,6 +2,7 @@ import { Role } from './role';
 import { Group } from './group';
 import { AuditingEntity } from '../auditing-entity';
 import { SimplifiedStoreList } from '../simplified/simplified-store-list';
+import { SimplifiedPermission } from '../simplified/simplified-permission';
 
 export class UserProfile extends AuditingEntity {
   firstName: string;
@@ -13,6 +14,8 @@ export class UserProfile extends AuditingEntity {
   subscribedStoreLists: SimplifiedStoreList[];
   createdStoreLists: SimplifiedStoreList[];
 
+  permissions: SimplifiedPermission[] = [];
+
   constructor(obj) {
     super(obj);
     Object.assign(this, obj);
@@ -21,6 +24,10 @@ export class UserProfile extends AuditingEntity {
     }
     if (obj.group != null) {
       this.group = new Group(obj.group);
+    }
+
+    if (obj.permissions) {
+      this.permissions = obj.permissions.map(p => new SimplifiedPermission(p));
     }
 
     if (obj.subscribedStoreLists != null) {

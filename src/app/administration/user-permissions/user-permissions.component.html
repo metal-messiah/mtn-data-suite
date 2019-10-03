@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>
+  <span>Permissions for User:&nbsp;</span>
+  <i *ngIf="!userProfile" class="fas fa-spinner fa-pulse"></i>
+  <span *ngIf="userProfile">{{userProfile.firstName}} {{userProfile.lastName}}</span></h2>
+<div mat-dialog-content>
+  <div *ngIf="!userProfile">
+    <i class="fas fa-spinner fa-pulse"></i>
+  </div>
+  <mds-permission-table #permissionsTable *ngIf="userProfile" [selectedPermissions]="userProfile.permissions"></mds-permission-table>
+</div>
+<div mat-dialog-actions style="justify-content: space-between;">
+  <button type="button" mat-raised-button mat-dialog-close>Cancel</button>
+  <button type="button" mat-raised-button color="accent" (click)="save()" [disabled]="saving">
+    <span *ngIf="saving"><i class="fas fa-spinner fa-pulse"></i>&nbsp;Saving</span>
+    <span *ngIf="!saving">Save</span>
+  </button>
+</div>

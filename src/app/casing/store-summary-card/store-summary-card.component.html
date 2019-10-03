@@ -28,10 +28,13 @@
     <div *ngIf="store.storeVolumes != null && store.storeVolumes.length > 0">
       <mds-data-field title="Volumes" [value]=""></mds-data-field>
       <ul>
-        <li *ngFor="let volume of store.storeVolumes">
+        <li *ngFor="let volume of store.storeVolumes.slice(0, 10)">
           <strong>{{volume.volumeDate | date}}:</strong>&nbsp;
           <span>{{volume.volumeTotal/1000 | currency:'USD':'symbol':'1.0-0'}}k</span>
           <span *ngIf="volume.volumeType">&nbsp;&nbsp;{{volume.volumeType}}</span>
+        </li>
+        <li *ngIf="store.storeVolumes.length > 10">
+          ... {{store.storeVolumes.length - 10}} more
         </li>
       </ul>
     </div>

@@ -1,66 +1,83 @@
 <mds-sub-title-bar subTitle="3. Verify Correctness"></mds-sub-title-bar>
 
-<form *ngIf="dataVerificationForm" [formGroup]="dataVerificationForm" class="content">
-  <table id="data-verification-table" matSort (matSortChange)="sortData($event)" style="border-collapse: collapse;">
-    <tr>
-      <th mat-sort-header="mapKey">Map<br>Key</th>
-      <th mat-sort-header="uniqueId">Store<br>ID</th>
-      <th mat-sort-header="storeName">Store Name</th>
-      <th mat-sort-header="scenario">Scenario</th>
-      <th mat-sort-header="category">SOV<br>Category</th>
-      <th mat-sort-header="location">Location</th>
-      <th mat-sort-header="salesArea">Sales Area</th>
-      <th mat-sort-header="totalArea">TotalArea</th>
-      <th mat-sort-header="totalChange">Total<br>Change</th>
-      <th mat-sort-header="totalChangePerc">Total<br>%</th>
-      <th mat-sort-header="tradeAreaChange">TA<br>Change</th>
-      <th mat-sort-header="tradeAreaChangePerc">TA<br>%</th>
-      <th>Use TA<br>Change</th>
-      <th style="width: 70px;">Force<br>Include</th>
-    </tr>
-    <tr formArrayName="stores"
-        *ngFor="let storeControl of dataVerificationForm.get('stores').controls; let i = index;"
-        [ngClass]="getRowColor(storeControl.value)">
-      <td>{{storeControl.get('mapKey').value}}</td>
-      <td>
-        <a [href]="getStoreHRef(storeControl)" target="_blank">{{storeControl.get('uniqueId').value}}</a>
-      </td>
-      <td>{{storeControl.get('storeName').value}}</td>
-      <td>{{storeControl.get('scenario').value}}</td>
-      <td [formGroupName]="i" style="width: 183px;">
-        <select placeholder="SOV Category" formControlName="category">
-          <option *ngFor="let category of categories" [value]="category">
-            {{category}}
-          </option>
-        </select>
-      </td>
-      <td style="width: 230px;">{{storeControl.get('location').value}}</td>
-      <td class="right-align">{{storeControl.get('salesArea').value}}</td>
-      <td [formGroupName]="i" class="right-align">
-        <input type="number" formControlName="totalArea" min="0">
-      </td>
-      <td class="right-align">{{storeControl.get('totalChange').value | thousandsCurrency}}</td>
-      <td class="right-align">{{storeControl.get('totalChangePerc').value | percent:'1.0-1'}}</td>
-      <td class="right-align">{{storeControl.get('tradeAreaChange').value | thousandsCurrency}}</td>
-      <td class="right-align">{{storeControl.get('tradeAreaChangePerc').value | percent:'1.0-1'}}</td>
-      <td [formGroupName]="i" style="text-align: center;">
-        <input type="checkbox" formControlName="useTradeAreaChange">
-      </td>
-      <td [formGroupName]="i" style="text-align: center;">
-        <input type="checkbox" formControlName="forceInclusion">
-      </td>
-    </tr>
-  </table>
-</form>
+<div class="content">
+  <ng-template #loading>
+    <span style="text-align: center;"><i class="fas fa-spinner fa-pulse fa-2x"></i></span>
+  </ng-template>
+  <form *ngIf="dataVerificationForm; else loading;" [formGroup]="dataVerificationForm">
+    <table id="data-verification-table" matSort (matSortChange)="sortData($event)"
+           style="border-collapse: collapse; margin-bottom: 16px;">
+      <tr>
+        <th mat-sort-header="mapKey">Map<br>Key</th>
+        <th mat-sort-header="uniqueId">Store<br>ID</th>
+        <th mat-sort-header="storeName">Store Name</th>
+        <th mat-sort-header="scenario">Scenario</th>
+        <th mat-sort-header="category">SOV<br>Category</th>
+        <th mat-sort-header="location">Location</th>
+        <th mat-sort-header="salesArea">Sales Area</th>
+        <th mat-sort-header="totalArea">TotalArea</th>
+        <th mat-sort-header="totalChange">Total<br>Change</th>
+        <th mat-sort-header="totalChangePerc">Total<br>%</th>
+        <th mat-sort-header="tradeAreaChange">TA<br>Change</th>
+        <th mat-sort-header="tradeAreaChangePerc">TA<br>%</th>
+        <th>Use TA<br>Change</th>
+        <th style="width: 70px;">Force<br>Include</th>
+      </tr>
+      <tr formArrayName="stores"
+          *ngFor="let storeControl of dataVerificationForm.get('stores').controls; let i = index;"
+          [ngClass]="getRowColor(storeControl.value)">
+        <td>{{storeControl.get('mapKey').value}}</td>
+        <td>
+          <a [href]="getStoreHRef(storeControl)"
+             target="_blank">{{storeControl.get('uniqueId').value}}</a>
+        </td>
+        <td>{{storeControl.get('storeName').value}}</td>
+        <td>{{storeControl.get('scenario').value}}</td>
+        <td [formGroupName]="i" style="width: 183px;">
+          <select placeholder="SOV Category" formControlName="category">
+            <option *ngFor="let category of categories" [value]="category">
+              {{category}}
+            </option>
+          </select>
+        </td>
+        <td style="width: 230px;">{{storeControl.get('location').value}}</td>
+        <td class="right-align">{{storeControl.get('salesArea').value}}</td>
+        <td [formGroupName]="i" class="right-align">
+          <input [ngClass]="storeControl.invalid ? 'invalid' : null" type="number" formControlName="totalArea" min="0">
+        </td>
+        <td class="right-align">{{storeControl.get('totalChange').value | thousandsCurrency}}</td>
+        <td class="right-align">{{storeControl.get('totalChangePerc').value | percent:'1.0-1'}}</td>
+        <td class="right-align">{{storeControl.get('tradeAreaChange').value | thousandsCurrency}}</td>
+        <td class="right-align">{{storeControl.get('tradeAreaChangePerc').value | percent:'1.0-1'}}</td>
+        <td [formGroupName]="i" style="text-align: center;">
+          <input type="checkbox" formControlName="useTradeAreaChange">
+        </td>
+        <td [formGroupName]="i" style="text-align: center;">
+          <input type="checkbox" formControlName="forceInclusion">
+        </td>
+      </tr>
+    </table>
+  </form>
+</div>
 
-<mds-sub-title-bar [subTitle]="dataVerificationForm.invalid ? 'All Total Areas are required!' : null">
-  <button color="primary" type="button" mat-raised-button (click)="harrisTeeter()"
+<mds-sub-title-bar *ngIf="!dataVerificationForm"></mds-sub-title-bar>
+<mds-sub-title-bar *ngIf="dataVerificationForm">
+  <div class="center">
+    {{dataVerificationForm.invalid ? 'Total Areas are required for all included stores!' : null}}
+  </div>
+  <button color="primary" type="button" mat-raised-button [routerLink]="['../harris-teeter']"
           class="left" [disabled]="dataVerificationForm.invalid">
     Harris Teeter
   </button>
-  <button color="accent" type="button" mat-raised-button (click)="next()" [disabled]="dataVerificationForm.invalid">
-    Next
-  </button>
+  <div>
+    <span *ngIf="saving" style="margin-right: 8px;">
+      <i class="fas fa-spinner fa-pulse"></i>&nbsp;Saving...
+    </span>
+    <button color="accent" type="button" mat-raised-button [routerLink]="['../site-evaluation']"
+            [disabled]="dataVerificationForm.invalid">
+      Next
+    </button>
+  </div>
 </mds-sub-title-bar>
 
 

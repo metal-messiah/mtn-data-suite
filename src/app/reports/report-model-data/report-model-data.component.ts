@@ -10,68 +10,124 @@ import { Observable } from 'rxjs';
 import { XlsToModelParserService } from '../services/xls-to-model-parser.service';
 import { Router } from '@angular/router';
 import { StoreListItem } from '../../models/store-list-item';
+import { MatDialog } from '@angular/material';
+import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { DataFieldInfoDialogComponent } from '../../shared/data-field-info-dialog/data-field-info-dialog.component';
 
 @Component({
   selector: 'mds-report-model-data',
   templateUrl: './report-model-data.component.html',
-  styleUrls: ['./report-model-data.component.css', '../shared-report-style.css'],
+  styleUrls: ['../shared-report-style.css', './report-model-data.component.css'],
   providers: [XlsToModelParserService]
 })
 export class ReportModelDataComponent implements OnInit {
 
+  savedModelsObs: Observable<{ modelName: string; timeStamp: number; updated: number; }[]>;
+
   parsingFile = false;
   postProcessing = false;
-
-  fileReader: FileReader;
 
   constructor(private _rbs: ReportBuilderService,
               private fb: FormBuilder,
               private router: Router,
               private xlsToModelParserService: XlsToModelParserService,
               private storeService: StoreService,
+              private dialog: MatDialog,
               private snackBar: MatSnackBar) {
-    this.fileReader = new FileReader();
+  }
+
+  get maxSavedModels() {
+    return this._rbs.MAX_SAVED_MODELS;
+  }
+
+  get modelFileName() {
+    return this._rbs.modelFileName;
+  }
+
+  get modelMetaDataForm() {
+    return this._rbs.modelMetaDataForm;
   }
 
   ngOnInit() {
+    this.savedModelsObs = this._rbs.getSavedModels();
   }
 
-  get rbs() {
-    return this._rbs;
+  showSavedModelInfoWindow() {
+    this.dialog.open(DataFieldInfoDialogComponent, {
+      data: {
+        title: 'Saving Models', message: 'The ' + this.maxSavedModels + ' most ' +
+          'recent models will be saved automatically. This allows you to refresh your browser at any point and your progress will be ' +
+          'saved. WARNING: Only the ' + this.maxSavedModels + ' most recently created models will be saved. If one you want to preserve ' +
+          'is getting near the bottom of the list you\'ll want to delete others!'
+      }, maxWidth: '300px'
+    });
+  }
+
+  confirmDelete(savedModel) {
+    const data = {
+      title: 'Delete saved model?',
+      question: 'Are you sure you wish to delete the model: ' + savedModel.modelName + '?',
+      options: ['Delete']
+    };
+    this.dialog.open(ConfirmDialogComponent, {data: data}).afterClosed()
+      .subscribe(result => {
+        if (result === 'Delete') {
+          this._rbs.deleteSavedModel(savedModel).subscribe(() => {
+            this.snackBar.open('Successfully deleted model', null, {duration: 2000});
+          }, err => console.error(err));
+        }
+      });
+  }
+
+  loadSavedModel(modelName) {
+    this._rbs.loadModel(modelName).subscribe(() => {
+      this.snackBar.open('Successfully loaded model!', null, {duration: 2000});
+    }, err => {
+      this.snackBar.open(err, 'Close');
+    });
   }
 
   fileIsReady() {
     return this._rbs.modelMetaDataForm.valid &&
-      this._rbs.modelFile &&
       this._rbs.getReportTableData() &&
       !this.parsingFile &&
       !this.postProcessing;
   }
 
-  readFile(event) {
-    this._rbs.modelFile = null;
-
+  openFile(event) {
     const files = event.target.files;
 
     if (files && files.length === 1) {
       // only want 1 file at a time!
-      if (files[0].name.includes('.xls')) {
-        this._rbs.modelFile = files[0];
+      const file = files[0];
+      if (file.name.includes('.xls')) {
+        this._rbs.modelFileName = file.name;
+        const modelName = file.name.replace(/\.[^.]+$/, '');
+        this._rbs.modelMetaDataForm.get('modelName').setValue(modelName);
+        this.readFile(file);
       } else {
-        this.snackBar.open('Only valid .xls or .xlsx files are accepted', null, {
-          duration: 2000
-        });
+        this.snackBar.open('Only valid .xls or .xlsx files are accepted', null, {duration: 2000});
       }
     } else {
       // notify about file constraints
       this.snackBar.open('1 file at a time please', null, {duration: 2000});
     }
+  }
 
-    this.fileReader.onload = () => {
-      if (this.fileReader.result) {
+  next() {
+    this._rbs.saveModel();
+    this.router.navigate(['reports/categorization']);
+  }
+
+  private readFile(file: File) {
+    const fileReader = new FileReader();
+
+    // Triggered by readAsBinaryString() below
+    fileReader.onload = () => {
+      if (fileReader.result) {
         this.parsingFile = true;
-        this.xlsToModelParserService.parseXls(this.fileReader.result)
-        // this.htmlReportToJsonService.parseHtml(this.fileReader.result)
+        this.xlsToModelParserService.parseXls(fileReader.result)
           .pipe(finalize(() => this.parsingFile = false))
           .subscribe((reportData: ReportData) => {
             this.postProcessing = true;
@@ -79,19 +135,13 @@ export class ReportModelDataComponent implements OnInit {
               .pipe(finalize(() => this.postProcessing = false))
               .subscribe(() => this._rbs.setReportTableData(reportData));
           }, err => {
-            console.error(err);
-            this.snackBar.open('Failed to parse html file!', 'Close')
+            this.dialog.open(ErrorDialogComponent, {data: {message: 'Failed to parse html file!', reason: err.toString()}});
           });
       } else {
-        this.snackBar.open('Error Reading file! No result!', null, {duration: 5000});
+        this.dialog.open(ErrorDialogComponent, {data: {message: 'Error Reading file! No result!'}});
       }
     };
-    this.fileReader.onerror = error => this.snackBar.open(error.toString(), null, {duration: 2000});
-    this.fileReader.readAsBinaryString(this._rbs.modelFile); // Triggers FileReader.onload
-  }
-
-  next() {
-    this.router.navigate(['reports/categorization']);
+    fileReader.readAsBinaryString(file); // Triggers FileReader.onload
   }
 
   private postProcessReportData(reportData: ReportData): Observable<any> {
@@ -149,7 +199,7 @@ export class ReportModelDataComponent implements OnInit {
       } else {
         storeListItem.scenario = 'Existing';
       }
-    })
+    });
   }
 
   private setStoreListItemCategories(reportData: ReportData) {

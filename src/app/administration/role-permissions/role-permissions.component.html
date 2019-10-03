@@ -1,33 +1,17 @@
 <h2 mat-dialog-title>
-  <span>Role:&nbsp;</span>
+  <span>Permissions for Role:&nbsp;</span>
   <i *ngIf="!role" class="fas fa-spinner fa-pulse"></i>
   <span *ngIf="role">{{role.displayName}}</span></h2>
 <div mat-dialog-content>
-  <div *ngIf="isLoading">
+  <div *ngIf="!role">
     <i class="fas fa-spinner fa-pulse"></i>
   </div>
-  <table *ngIf="!isLoading">
-    <tr>
-      <th>Subject</th>
-      <th title="Create">C</th>
-      <th title="Read">R</th>
-      <th title="Update">U</th>
-      <th title="Delete">D</th>
-    </tr>
-    <tr *ngFor="let subject of subjects">
-      <td>{{titleCase(subject)}}</td>
-      <td *ngFor="let action of actions">
-        <input [title]="action + ' ' + subject" *ngIf="form.get([subject, action])" type="checkbox"
-               [formControl]="form.get([subject, action])">
-      </td>
-    </tr>
-  </table>
+  <mds-permission-table #permissionsTable *ngIf="role" [selectedPermissions]="role.permissions"></mds-permission-table>
 </div>
-<div mat-dialog-actions>
+<div mat-dialog-actions style="justify-content: space-between;">
   <button type="button" mat-raised-button mat-dialog-close>Cancel</button>
-  <button type="button" mat-raised-button color="accent" (click)="save()"
-          [disabled]="form && form.pristine">
-    <i *ngIf="saving" class="fas fa-spinner fa-pulse"></i>
+  <button type="button" mat-raised-button color="accent" (click)="save()" [disabled]="saving">
+    <span *ngIf="saving"><i class="fas fa-spinner fa-pulse"></i>&nbsp;Saving</span>
     <span *ngIf="!saving">Save</span>
   </button>
 </div>

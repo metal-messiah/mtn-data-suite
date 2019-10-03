@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/internal/operators';
 import { Boundary } from '../../models/full/boundary';
 import { SimplifiedProject } from '../../models/simplified/simplified-project';
+import { ProjectSummary } from '../../models/simplified/project-summary';
 
 @Injectable()
 export class ProjectService extends CrudService<Project> {
@@ -68,6 +69,11 @@ export class ProjectService extends CrudService<Project> {
   getAllCasedStoreIds(projectId: number) {
     const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/cased-store-ids';
     return this.http.get<number[]>(url, {headers: this.rest.getHeaders()});
+  }
+
+  getProjectSummary(projectId: number) {
+    const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/summary';
+    return this.http.get<ProjectSummary>(url, {headers: this.rest.getHeaders()});
   }
 
   protected createEntityFromObj(entityObj): Project {

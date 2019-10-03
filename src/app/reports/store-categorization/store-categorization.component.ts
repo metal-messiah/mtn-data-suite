@@ -10,6 +10,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class StoreCategorizationComponent implements OnInit {
 
+  existingStoresCombined;
+  proposedStores;
+
   categories: string[] = [
     'Company Store',
     'Existing Competition',
@@ -17,69 +20,79 @@ export class StoreCategorizationComponent implements OnInit {
     'Do Not Include'
   ];
 
-  constructor(private rbs: ReportBuilderService,
+  constructor(private _rbs: ReportBuilderService,
               private snackBar: MatSnackBar,
               private router: Router,
               private host: ElementRef) {
   }
 
-  ngOnInit() {
-    if (!this.rbs.getReportTableData()) {
-      setTimeout(() => {
-        this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 2000});
-        this.router.navigate(['reports']);
-      }, 10)
-    }
-    this.host.nativeElement.scrollTop = 0;
+  get saving() {
+    return this._rbs.saving;
   }
 
-  get reportBuilderService() {
-    return this.rbs;
+  ngOnInit() {
+    if (this._rbs.getReportTableData()) {
+      this.initViewData();
+    } else {
+      this._rbs.loadLatest().subscribe(() => {
+        this.initViewData();
+        this.snackBar.open('Loaded latest model', null, {duration: 2000});
+      }, err => {
+        this.snackBar.open(err, null, {duration: 2000});
+        this.router.navigate(['reports']);
+      });
+    }
   }
 
   getStoreRowClass(store) {
-    switch (store.category) {
-      case 'Company Store':
-        return 'blue';
-      case 'Existing Competition':
-        return 'yellow';
-      case 'Proposed Competition':
-        return 'pink';
-      default:
-        return 'grey';
-    }
+    return this._rbs.getStoreRowClass(store.category);
   }
 
   changeCategory(event, store) {
     store.category = event.target.value;
+
+    this.proposedStores = this.getProposedStores();
+
+    this._rbs.saveModel();
   }
 
-  changeCombinedCategory(event, combo) {
-    console.log(combo, ' change to ', event.target.value);
-    this.rbs.getReportTableData().storeList.forEach(s => {
-      if (s.bannerName === combo.bannerName && s.scenario === 'Existing') {
-        s.category = event.target.value;
-      }
-    });
+  changeCombinedCategory(event, banner) {
+    // Update the category for all Existing stores of the given banner
+    this._rbs.getReportTableData().storeList
+      .filter(store => store.scenario === 'Existing' && store.bannerName === banner.bannerName)
+      .forEach(store => {
+        store.category = event.target.value;
+      });
+
+    this.existingStoresCombined = this.getExistingStoresCombined();
+
+    // Save the data
+    this._rbs.saveModel();
   }
 
-  getExistingStoresCount(bannerName) {
-    return this.rbs.getReportTableData().storeList.filter(s => s.bannerName === bannerName && s.uniqueId).length;
+  private initViewData() {
+    this.existingStoresCombined = this.getExistingStoresCombined();
+    this.proposedStores = this.getProposedStores();
+    this.host.nativeElement.scrollTop = 0;
   }
 
-  getExistingStoresCombined() {
-    return this.rbs.getReportTableData().storeList
-    // If store has unique ID, then it exists in DB. If a store has a decimal or the store is the site then it should be treated separately.
+  private getExistingStoresCombined() {
+    const existingStores = {};
+    this._rbs.getReportTableData().storeList
       .filter(s => s.scenario === 'Existing')
-      .map(s => {
-        return {bannerName: s.bannerName, category: s.category};
-      })
-      .filter((elem, idx, arr) => arr.findIndex(e => e.bannerName === elem.bannerName) === idx)
+      .forEach(store => {
+        if (!existingStores[store.bannerName]) {
+          existingStores[store.bannerName] = {bannerName: store.bannerName, category: store.category, count: 1};
+        } else {
+          existingStores[store.bannerName].count = existingStores[store.bannerName].count + 1;
+        }
+      });
+    return Object.keys(existingStores).map(key => existingStores[key])
       .sort((a, b) => a.bannerName.localeCompare(b.bannerName));
   }
 
-  getProposedStores() {
-    return this.rbs.getReportTableData().storeList.filter(s => s.scenario !== 'Existing');
+  private getProposedStores() {
+    return this._rbs.getReportTableData().storeList.filter(s => s.scenario !== 'Existing');
   }
 
 }

@@ -90,7 +90,7 @@ export class DbEntityControlsComponent implements OnInit {
         if (name) {
           this.dbEntityMarkerService.saveControlsAs(name);
         }
-      })
+      });
   }
 
   loadFilter() {
@@ -99,7 +99,7 @@ export class DbEntityControlsComponent implements OnInit {
         if (control) {
           this.dbEntityMarkerService.setControls(control.control);
         }
-      })
+      });
   }
 
   resetFilters() {

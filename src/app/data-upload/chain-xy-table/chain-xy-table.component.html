@@ -1,5 +1,6 @@
 <mds-sub-title-bar>
-  <img id="chain-xy-logo" class="center" src="http://chainxy.com/wp-content/uploads/2017/10/chainXY-logo.png">
+  <img id="chain-xy-logo" class="center" src="http://chainxy.com/wp-content/uploads/2017/10/chainXY-logo.png"
+       alt="ChainXY Logo">
 
   <button mat-raised-button color="accent"
           [routerLink]="['../update']"
@@ -8,7 +9,7 @@
   </button>
 </mds-sub-title-bar>
 
-<mat-sidenav-container>
+<mat-sidenav-container style="flex: 1;">
   <mat-sidenav class="side-nav" #sidenav position="end" [(opened)]="sideNavOpened">
     <div *ngIf="selectedBannerSourceSummary">
       <div class="metadata">
@@ -74,8 +75,8 @@
             <td>{{bss.matchedStoreSources}}</td>
             <td>{{bss.percentComplete | percent}}</td>
             <td class="banner-meta-data">
-              <i *ngIf="bss.saving" class="fas fa-spinner fa-pulse"></i>
-              <div *ngIf="!bss.saving">
+              <i *ngIf="bss['saving']" class="fas fa-spinner fa-pulse"></i>
+              <div *ngIf="!bss['saving']">
                 <div *ngIf="bss.bannerId" style="height: 40px;">
                   <img *ngIf="bss.logoFileName" class="banner-logo" [title]="bss.bannerName"
                        [src]="getUrlForLogoFileName(bss.logoFileName)"

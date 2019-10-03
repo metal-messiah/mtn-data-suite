@@ -97,12 +97,8 @@ export class StoreCasingsComponent implements OnInit, OnDestroy {
       return true;
     }
     const selectedProject = this.casingProjectService.getSelectedProject();
-    if (selectedProject != null) {
-      for (const project of casing.projects) {
-        if (project.id === selectedProject.id) {
-          return true;
-        }
-      }
+    if (selectedProject) {
+      return casing.projects.some(project => project.id === selectedProject.id);
     }
     return false;
   }

@@ -23,7 +23,7 @@ td {
   padding: 5px 10px;
 }
 
-input.ng-invalid {
+input.invalid {
   border-color: red;
 }
 
@@ -58,4 +58,9 @@ input.ng-invalid {
 .grey {
   background: black;
   color: gray;
+}
+
+.center {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
