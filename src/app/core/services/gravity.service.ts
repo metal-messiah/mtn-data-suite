@@ -45,4 +45,13 @@ export class GravityService {
     return this.http.get(url, {headers: this.rest.getHeaders(), params: params});
   }
 
+  runModel(distanceFactor: number) {
+    const url = this.rest.getHost() + this.endpoint + '/run-model';
+    let params = new HttpParams().set('project-id', String(187));
+    params = params.set('banner-sister-factor', String(0));
+    params = params.set('fit-sister-factor', String(0));
+    params = params.set('distance-factor', String(distanceFactor));
+    return this.http.get(url, {headers: this.rest.getHeaders(), params: params});
+  }
+
 }

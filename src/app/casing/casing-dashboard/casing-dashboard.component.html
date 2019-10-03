@@ -292,3 +292,16 @@
 <div id="market-share">
 
 </div>
+
+<div id="graphcontrol">
+  <div>
+    <button mat-raised-button color="primary" (click)="runModel()">Run Model</button>
+    <mat-form-field>
+      <input matInput placeholder="Distance Factor" [(ngModel)]="distanceFactor">
+    </mat-form-field>
+  </div>
+  <div *ngIf="runningModel">
+    <i class="fas fa-spinner fa-pulse fa-2x"></i>
+  </div>
+  <div id="graphdiv"></div>
+</div>

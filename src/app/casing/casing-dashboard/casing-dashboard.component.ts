@@ -64,6 +64,9 @@ import { GravityService } from '../../core/services/gravity.service';
 
 import * as MarkerWithLabel from '@google/markerwithlabel';
 
+import * as _ from 'lodash';
+import Dygraph from 'dygraphs';
+
 @Component({
   selector: 'mds-casing-dashboard',
   templateUrl: './casing-dashboard.component.html',
@@ -107,6 +110,10 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   choropleth: google.maps.Data.Feature[];
   web: google.maps.Data.Feature[];
+
+  runningModel = false;
+
+  distanceFactor = 2;
 
   constructor(private mapService: MapService,
               private gravityService: GravityService,
@@ -303,6 +310,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     this.mapService.addControl(document.getElementById('info-card-wrapper'), google.maps.ControlPosition.LEFT_BOTTOM);
     this.mapService.addControl(document.getElementById('openListView'), google.maps.ControlPosition.LEFT_BOTTOM);
     this.mapService.addControl(document.getElementById('project-buttons'), google.maps.ControlPosition.TOP_RIGHT);
+    this.mapService.addControl(document.getElementById('graphcontrol'), google.maps.ControlPosition.LEFT_CENTER);
     // this.mapService.addControl(document.getElementById('market-share'), google.maps.ControlPosition.BOTTOM_CENTER);
 
     this.selectionService.singleSelect$.subscribe((selection) => this.onSelection(selection));
@@ -363,6 +371,58 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
       const projectId = this.casingProjectService.getSelectedProject().id;
       this.projectBoundaryService.showProjectBoundaries(this.mapService.getMap(), projectId).subscribe();
     }
+  }
+
+  runModel() {
+    this.runningModel = true;
+    this.gravityService.runModel(this.distanceFactor)
+      .pipe(finalize(() => this.runningModel = false))
+      .subscribe((results: any[]) => {
+        console.log(results);
+
+
+        const grouped = _.groupBy(results['records'], r => r['fit']);
+        const data = Object.keys(grouped).map(group => grouped[group].map);
+        const data = results['records'].map(r => [
+          r['volumeCased'],
+          r['volumeModel']
+        ]);
+
+        const config = {
+          labels: Object.keys(grouped),
+          strokeWidth: 0.0,
+          drawPoints: true,
+          underlayCallback: (ctx, area, dygraph) => {
+            const range = dygraph.xAxisRange();
+
+            const slope = results['regression']['slope'];
+            const intercept = results['regression']['intercept'];
+            const R2 = results['regression']['R2'];
+            console.log('R2: ' + R2);
+
+            const x1 = range[0];
+            const y1 = slope * x1 + intercept;
+            const x2 = range[1];
+            const y2 = slope * x2 + intercept;
+
+            const p1 = dygraph.toDomCoords(x1, y1);
+            const p2 = dygraph.toDomCoords(x2, y2);
+
+            ctx.save();
+            ctx.lineWidth = 1.0;
+            ctx.beginPath();
+            ctx.moveTo(p1[0], p1[1]);
+            ctx.lineTo(p2[0], p2[1]);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.restore();
+
+            console.log(range);
+          }
+        };
+        const g = new Dygraph('graphdiv', data, config);
+
+      });
   }
 
   private getDebounce() {

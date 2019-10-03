@@ -93,3 +93,13 @@ mat-slider {
   font-weight: bold;
   font-size: 12px;
 }
+
+#graphcontrol {
+  position: absolute;
+  background: white;
+}
+
+#graphdiv {
+  width: 600px;
+  height: 400px;
+}
