@@ -1,26 +1,28 @@
-import { Injectable } from "@angular/core";
-import { BoundaryService } from "app/core/services/boundary.service";
-import { Boundary } from "app/models/full/boundary";
+import { Injectable } from '@angular/core';
+import { BoundaryService } from 'app/core/services/boundary.service';
+import { Boundary } from 'app/models/full/boundary';
+import { ProjectBoundary } from 'app/models/project-boundary';
 
-import * as _ from "lodash";
-import { ProjectBoundary } from "app/models/project-boundary";
-
-import { BoundaryColor } from "./enums/boundary-color";
-import { MapService } from "app/core/services/map.service";
-import { AuthService } from "app/core/services/auth.service";
-import { Pageable } from "app/models/pageable";
+import { BoundaryColor } from './enums/boundary-color';
+import { MapService } from 'app/core/services/map.service';
+import { AuthService } from 'app/core/services/auth.service';
+import { Pageable } from 'app/models/pageable';
+import { UserBoundaryService } from 'app/core/services/user-boundary.service';
+import { UserBoundary } from 'app/models/full/user-boundary';
+import { Project } from 'app/models/full/project';
+import { ProjectService } from 'app/core/services/project.service';
 
 @Injectable({
-  providedIn: "root"
+  providedIn: 'root'
 })
 export class BoundaryDialogService {
-  private _projectBoundaries: Boundary[] = [];
+  private _projectBoundaries: Project[] = [];
   private _geoPoliticalBoundaries: Boundary[] = [];
-  private _customBoundaries: Boundary[] = [];
+  private _customBoundaries: UserBoundary[] = [];
 
-  private _enabledProjectBoundaries: Boundary[] = [];
+  private _enabledProjectBoundaries: Project[] = [];
   private _enabledGeoPoliticalBoundaries: Boundary[] = [];
-  private _enabledCustomBoundaries: Boundary[] = [];
+  private _enabledCustomBoundaries: UserBoundary[] = [];
 
   private polygons = [];
 
@@ -30,13 +32,15 @@ export class BoundaryDialogService {
   deletingShapes = false;
 
   constructor(
+    private userBoundaryService: UserBoundaryService,
     private boundaryService: BoundaryService,
-    private authService: AuthService
+    private authService: AuthService,
+    private projectService: ProjectService
   ) {}
 
   private geojsonStringToPolygon(inputGeojson: any): any {
     let geojson: any;
-    if (typeof inputGeojson === "string") {
+    if (typeof inputGeojson === 'string') {
       geojson = JSON.parse(inputGeojson);
     } else {
       geojson = inputGeojson;
@@ -47,7 +51,7 @@ export class BoundaryDialogService {
   private stylePolygon(color: BoundaryColor, boundary: ProjectBoundary) {
     boundary.polygons.forEach(p => {
       p.setOptions({
-        strokeColor: "#000",
+        strokeColor: '#000',
         strokeOpacity: 0.8,
         strokeWeight: 2,
         fillColor: color,
@@ -57,44 +61,58 @@ export class BoundaryDialogService {
     return boundary;
   }
 
-  private drawEnabledBoundaries() {
-    this.polygons.forEach(poly => poly.polygons.forEach(p => p.setMap(null)));
-    this.polygons = Object.assign(
-      [],
-      this._enabledCustomBoundaries.map(boundary => {
-        return this.stylePolygon(
-          BoundaryColor.CUSTOM,
-          this.convertBoundaryToProjectBoundary(boundary)
-        );
-      }),
-      this._enabledGeoPoliticalBoundaries.map(boundary => {
-        return this.stylePolygon(
-          BoundaryColor.GEOPOLITICAL,
-          this.convertBoundaryToProjectBoundary(boundary)
-        );
-      }),
-      this._enabledProjectBoundaries.map(boundary => {
-        return this.stylePolygon(
-          BoundaryColor.PROJECT,
-          this.convertBoundaryToProjectBoundary(boundary)
-        );
-      })
-    );
+  async getCustomBoundariesFromEnabled() {
+    const promises = [];
+    this._enabledCustomBoundaries.forEach((boundary: UserBoundary) => {
+      promises.push(
+        this.boundaryService.getOneById(boundary.boundaryId).toPromise()
+      );
+    });
+    return Promise.all(promises);
   }
 
-  private compareBoundaryGeojsonObjects(a: Boundary, b: Boundary) {
-    return JSON.stringify(a.geojson) === JSON.stringify(b.geojson);
+  async getProjectBoundariesFromEnabled() {
+    const promises = [];
+    this._enabledProjectBoundaries.forEach((project: Project) => {
+      promises.push(
+        this.projectService.getBoundaryForProject(project.id).toPromise()
+      );
+    });
+    return Promise.all(promises);
+  }
+
+  getStyledPolygonFromBoundaries(boundaries: Boundary[]) {
+    return boundaries.map(boundary => {
+      return this.stylePolygon(
+        BoundaryColor.CUSTOM,
+        this.convertBoundaryToProjectBoundary(boundary)
+      );
+    });
+  }
+
+  private async drawEnabledBoundaries() {
+    this.polygons.forEach(poly => poly.removeFromMap());
+
+    const customBoundaries = await this.getCustomBoundariesFromEnabled();
+    const projectBoundaries = await this.getProjectBoundariesFromEnabled();
+
+    const cbPolygons = this.getStyledPolygonFromBoundaries(customBoundaries);
+    const pbPolygons = this.getStyledPolygonFromBoundaries(projectBoundaries);
+
+    this.polygons = cbPolygons.concat(pbPolygons);
   }
 
   private async fetchCustomBoundaries() {
-    // const customBoundaries = await this.boundaryService
-    //   .getUserBoundaries(this.authService.sessionUser.id)
-    //   .toPromise();
-    const customBoundaries = [new Boundary({geojson: null, boundaryName: "Test", legacyProjectId: 1})];
+    const customBoundaries = await this.userBoundaryService
+      .getUserBoundaries(this.authService.sessionUser.id)
+      .toPromise();
+
+    // tracking checkbox state without local storage
     customBoundaries.forEach(b => {
-      b = new Boundary(b);
+      b = new UserBoundary(b);
       if (
-        !this._customBoundaries.filter((cb: Boundary) => cb.id === b.id).length
+        !this._customBoundaries.filter((cb: UserBoundary) => cb.id === b.id)
+          .length
       ) {
         this._customBoundaries.push(b);
       }
@@ -103,18 +121,20 @@ export class BoundaryDialogService {
 
   private async fetchProjectBoundaries() {
     const projectBoundaries: Pageable<
-      Boundary
-    > = await this.boundaryService.getBoundaries().toPromise();
-    // this._customBoundaries = customBoundaries.map(b => new Boundary(b));
+      Project
+    > = await this.projectService
+      .getAllByQuery(null, null, null, null, true)
+      .toPromise();
 
-    projectBoundaries.content.forEach(b => {
-      b = new Boundary(b);
-      if (
-        !this._projectBoundaries.filter(
-          (pb: Boundary) => pb.id === b.id && pb.legacyProjectId
-        ).length
-      ) {
-        this._projectBoundaries.push(b);
+    // tracking checkbox state without local storage
+    projectBoundaries.content.forEach((p: any) => {
+      if (p.hasBoundary) {
+        if (
+          !this._projectBoundaries.filter((pb: Project) => pb.id === p.id)
+            .length
+        ) {
+          this._projectBoundaries.push(p);
+        }
       }
     });
   }
@@ -154,12 +174,12 @@ export class BoundaryDialogService {
     this.drawEnabledBoundaries();
   }
 
-  setEnabledCustomBoundaries(data) {
+  async setEnabledCustomBoundaries(data) {
     this._enabledCustomBoundaries = data;
     this.drawEnabledBoundaries();
   }
 
-  get enabledProjectBoundaries(): Boundary[] {
+  get enabledProjectBoundaries(): Project[] {
     return this._enabledProjectBoundaries;
   }
 
@@ -167,11 +187,11 @@ export class BoundaryDialogService {
     return this._enabledGeoPoliticalBoundaries;
   }
 
-  get enabledCustomBoundaries(): Boundary[] {
+  get enabledCustomBoundaries(): UserBoundary[] {
     return this._enabledCustomBoundaries;
   }
 
-  get projectBoundaries(): Boundary[] {
+  get projectBoundaries(): Project[] {
     return this._projectBoundaries;
   }
 
@@ -179,11 +199,11 @@ export class BoundaryDialogService {
     return this._geoPoliticalBoundaries;
   }
 
-  get customBoundaries(): Boundary[] {
+  get customBoundaries(): UserBoundary[] {
     return this._customBoundaries;
   }
 
-  set customBoundaries(boundaries: Boundary[]) {
+  set customBoundaries(boundaries: UserBoundary[]) {
     this._customBoundaries = boundaries;
   }
 

@@ -4,12 +4,12 @@
     <mat-tab label="Project">
       <mat-selection-list [(ngModel)]="enabledProjectBoundaries">
         <mat-list-option
-          *ngFor="let boundary of projectBoundaries"
-          [value]="boundary"
+          *ngFor="let project of projectBoundaries"
+          [value]="project"
           [checkboxPosition]="'before'"
         >
           <div class="mat-list-option-content">
-            <div>{{ boundary.boundaryName }}</div>
+            <div>{{ project.projectName }}</div>
           </div>
         </mat-list-option>
       </mat-selection-list>

@@ -1,28 +1,25 @@
-import { Component, Inject, OnInit } from "@angular/core";
-import { BoundaryDialogService } from "./boundary-dialog.service";
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
+import { Component, Inject, OnInit } from '@angular/core';
+import { BoundaryDialogService } from './boundary-dialog.service';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 
-import { BoundaryColor } from "./enums/boundary-color";
-import { TextInputDialogComponent } from "../text-input-dialog/text-input-dialog.component";
-import { Boundary } from "app/models/full/boundary";
-import { BoundaryService } from "app/core/services/boundary.service";
-
-export enum Actions {
-  EDIT = "EDIT"
-}
+import { BoundaryColor } from './enums/boundary-color';
+import { TextInputDialogComponent } from '../text-input-dialog/text-input-dialog.component';
+import { BoundaryService } from 'app/core/services/boundary.service';
+import { UserBoundaryService } from 'app/core/services/user-boundary.service';
+import { UserBoundary } from 'app/models/full/user-boundary';
 
 @Component({
-  selector: "mds-boundary-dialog",
-  templateUrl: "./boundary-dialog.component.html",
-  styleUrls: ["./boundary-dialog.component.css"]
+  selector: 'mds-boundary-dialog',
+  templateUrl: './boundary-dialog.component.html',
+  styleUrls: ['./boundary-dialog.component.css']
 })
 export class BoundaryDialogComponent implements OnInit {
   boundaryColor = BoundaryColor;
-  targetBoundary: Boundary;
-  tabs = { PROJECT: 0, GEOPOLITICAL: 1, CUSTOM: 2 };
-  gmap: google.maps.Map;
+  targetBoundary: UserBoundary;
+  tabs = {PROJECT: 0, GEOPOLITICAL: 1, CUSTOM: 2};
 
   constructor(
+    private userBoundaryService: UserBoundaryService,
     private boundaryService: BoundaryService,
     private boundaryDialogService: BoundaryDialogService,
     private dialog: MatDialog,
@@ -33,11 +30,12 @@ export class BoundaryDialogComponent implements OnInit {
       this.boundaryDialogService.setMap(data.map);
       this.boundaryDialogService.fetchBoundaries();
     } else {
-      console.error("NO MAP PROVIDED TO BOUNDARY DIALOG COMPONENT!");
+      console.error('NO MAP PROVIDED TO BOUNDARY DIALOG COMPONENT!');
     }
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
 
   getBoundaryColorCSS(idx: number) {
     return this.boundaryColor[Object.keys(this.boundaryColor)[idx]];
@@ -59,12 +57,16 @@ export class BoundaryDialogComponent implements OnInit {
       .afterClosed()
       .subscribe((text: string) => {
         if (text) {
-          this.boundaryService
+          this.userBoundaryService
             .getOneById(this.targetBoundary.id)
-            .subscribe((b: Boundary) => {
+            .subscribe((b: UserBoundary) => {
               b.boundaryName = text;
-              this.targetBoundary.boundaryName = b.boundaryName;
-              this.boundaryService.update(b);
+              this.userBoundaryService.update(b).subscribe(
+                (newB: UserBoundary) => {
+                  this.targetBoundary.boundaryName = text;
+                },
+                err => console.error(err)
+              );
             });
         }
       });
@@ -75,7 +77,7 @@ export class BoundaryDialogComponent implements OnInit {
   }
 
   private deleteBoundary() {
-    this.boundaryService.delete(this.targetBoundary.id).subscribe(() => {
+    this.userBoundaryService.delete(this.targetBoundary.id).subscribe(() => {
       this.boundaryDialogService.customBoundaries = this.boundaryDialogService.customBoundaries.filter(
         cb => cb.id !== this.targetBoundary.id
       );
@@ -87,24 +89,25 @@ export class BoundaryDialogComponent implements OnInit {
       .open(TextInputDialogComponent, {
         data: {
           title: `Boundary Name`,
-          placeholder: "Enter Boundary Name"
+          placeholder: 'Enter Boundary Name'
         }
       })
       .afterClosed()
       .subscribe((text: string) => {
         if (text) {
-          this.close(new Boundary({ boundaryName: text }));
+          this.close(new UserBoundary({boundaryName: text}));
         }
       });
   }
 
-  private close(params: Boundary) {
+  private close(params: UserBoundary) {
     this.dialogRef.close(params);
   }
 
   get enabledProjectBoundaries() {
     return this.boundaryDialogService.enabledProjectBoundaries;
   }
+
   set enabledProjectBoundaries(data) {
     this.boundaryDialogService.setEnabledProjectBoundaries(data);
   }
@@ -112,6 +115,7 @@ export class BoundaryDialogComponent implements OnInit {
   get enabledGeoPoliticalBoundaries() {
     return this.boundaryDialogService.enabledGeoPoliticalBoundaries;
   }
+
   set enabledGeoPoliticalBoundaries(data) {
     this.boundaryDialogService.setEnabledGeoPoliticalBoundaries(data);
   }
@@ -119,6 +123,7 @@ export class BoundaryDialogComponent implements OnInit {
   get enabledCustomBoundaries() {
     return this.boundaryDialogService.enabledCustomBoundaries;
   }
+
   set enabledCustomBoundaries(data) {
     this.boundaryDialogService.setEnabledCustomBoundaries(data);
   }
@@ -126,9 +131,11 @@ export class BoundaryDialogComponent implements OnInit {
   get projectBoundaries() {
     return this.boundaryDialogService.projectBoundaries;
   }
+
   get geoPoliticalBoundaries() {
     return this.boundaryDialogService.geoPoliticalBoundaries;
   }
+
   get customBoundaries() {
     return this.boundaryDialogService.customBoundaries;
   }
