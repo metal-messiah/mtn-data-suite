@@ -12,9 +12,15 @@
     "curly": true,
     "eofline": true,
     "forin": true,
-    "import-blacklist": [true],
+    "import-blacklist": [
+      true
+    ],
     "import-spacing": true,
-    "indent": [true, "spaces", 4],
+    "indent": [
+      true,
+      "spaces",
+      4
+    ],
     "interface-over-type-literal": true,
     "label-position": true,
     "max-line-length": [
@@ -22,11 +28,7 @@
       140
     ],
     "member-access": false,
-    "member-ordering": [
-      true,
-      "static-before-instance",
-      "variables-before-functions"
-    ],
+    "member-ordering": [true, {"order": "fields-first"}],
     "no-arg": true,
     "no-bitwise": true,
     "no-console": [
@@ -43,7 +45,10 @@
     "no-empty": false,
     "no-empty-interface": true,
     "no-eval": true,
-    "no-inferrable-types": [true, "ignore-params"],
+    "no-inferrable-types": [
+      true,
+      "ignore-params"
+    ],
     "no-shadowed-variable": true,
     "no-string-literal": false,
     "no-string-throw": true,
@@ -67,6 +72,7 @@
     ],
     "radix": true,
     "semicolon": [
+      true,
       "always"
     ],
     "triple-equals": [
@@ -94,8 +100,18 @@
       "check-separator",
       "check-type"
     ],
-    "directive-selector": [true, "attribute", "mds", "camelCase"],
-    "component-selector": [true, "element", "mds", "kebab-case"],
+    "directive-selector": [
+      true,
+      "attribute",
+      "mds",
+      "camelCase"
+    ],
+    "component-selector": [
+      true,
+      "element",
+      "mds",
+      "kebab-case"
+    ],
     "no-inputs-metadata-property": true,
     "no-outputs-metadata-property": true,
     "no-host-metadata-property": true,
@@ -104,9 +120,6 @@
     "use-lifecycle-interface": true,
     "use-pipe-transform-interface": true,
     "component-class-suffix": true,
-    "directive-class-suffix": true,
-    "no-access-missing-member": true,
-    "templates-use-public": true,
-    "invoke-injectable": true
+    "directive-class-suffix": true
   }
 }
