@@ -12,6 +12,7 @@ import { ProjectSummary } from '../../models/simplified/project-summary';
 
 @Injectable()
 export class ProjectService extends CrudService<Project> {
+
   protected endpoint = '/api/project';
 
   constructor(protected http: HttpClient, protected rest: RestService) {
@@ -42,60 +43,39 @@ export class ProjectService extends CrudService<Project> {
     if (all) {
       params = params.set('size', '10000');
     }
-    return this.http
-      .get<Pageable<Project>>(url, {
-        headers: this.rest.getHeaders(),
-        params: params
-      })
-      .pipe(
-        map(page => {
-          page.content = page.content.map(site => new Project(site));
-          return page;
-        })
-      );
+    return this.http.get<Pageable<Project>>(url, {headers: this.rest.getHeaders(), params: params})
+      .pipe(map(page => {
+        page.content = page.content.map(site => new Project(site));
+        return page;
+      }));
   }
 
   getBoundaryForProject(projectId: number) {
-    const url =
-      this.rest.getHost() + this.endpoint + '/' + projectId + '/boundary';
-    return this.http
-      .get(url, {observe: 'response', headers: this.rest.getHeaders()})
-      .pipe(
-        map((response: HttpResponse<Boundary>) => {
-          if (response.status === 204) {
-            return null;
-          } else {
-            return new Boundary(response.body);
-          }
-        })
-      );
+    const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/boundary';
+    return this.http.get(url, {observe: 'response', headers: this.rest.getHeaders()})
+      .pipe(map((response: HttpResponse<Boundary>) => {
+        if (response.status === 204) {
+          return null;
+        } else {
+          return new Boundary(response.body);
+        }
+      }));
   }
 
   saveBoundaryForProject(projectId: number, boundary: Boundary) {
-    const url =
-      this.rest.getHost() + this.endpoint + '/' + projectId + '/boundary';
-    return this.http
-      .post<SimplifiedProject>(url, boundary, {
-        headers: this.rest.getHeaders()
-      })
+    const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/boundary';
+    return this.http.post<SimplifiedProject>(url, boundary, {headers: this.rest.getHeaders()})
       .pipe(map(response => new SimplifiedProject(response)));
   }
 
   deleteBoundaryForProject(projectId: number) {
-    const url =
-      this.rest.getHost() + this.endpoint + '/' + projectId + '/boundary';
-    return this.http
-      .delete<SimplifiedProject>(url, {headers: this.rest.getHeaders()})
+    const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/boundary';
+    return this.http.delete<SimplifiedProject>(url, {headers: this.rest.getHeaders()})
       .pipe(map(response => new SimplifiedProject(response)));
   }
 
   getAllCasedStoreIds(projectId: number) {
-    const url =
-      this.rest.getHost() +
-      this.endpoint +
-      '/' +
-      projectId +
-      '/cased-store-ids';
+    const url = this.rest.getHost() + this.endpoint + '/' + projectId + '/cased-store-ids';
     return this.http.get<number[]>(url, {headers: this.rest.getHeaders()});
   }
 
@@ -107,4 +87,5 @@ export class ProjectService extends CrudService<Project> {
   protected createEntityFromObj(entityObj): Project {
     return new Project(entityObj);
   }
+
 }
