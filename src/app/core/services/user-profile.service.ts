@@ -63,12 +63,6 @@ export class UserProfileService extends CrudService<UserProfile> {
     return request.pipe(map(up => new UserProfile(up)));
   }
 
-  assignBoundaryToUser(userProfileId: number, boundaryId: number) {
-    const url = this.rest.getHost() + this.endpoint + '/' + userProfileId + '/boundary/' + boundaryId;
-    return this.http.put(url, null, {headers: this.rest.getHeaders()})
-      .pipe(map(up => new UserProfile(up)));
-  }
-
   updateUserPermissions(userId: number, permissionIds: number[]) {
     const url = this.rest.getHost() + this.endpoint + '/' + userId + '/permissions';
     return this.http.put<UserProfile>(url, permissionIds, {headers: this.rest.getHeaders()})

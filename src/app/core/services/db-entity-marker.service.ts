@@ -57,10 +57,10 @@ export class DbEntityMarkerService {
   private readonly cloudinaryUtil: CloudinaryUtil;
 
   constructor(private authService: AuthService,
-    private errorService: ErrorService,
-    private siteMarkerService: SiteMarkerService,
-    private projectService: ProjectService,
-    private storageService: StorageService) {
+              private errorService: ErrorService,
+              private siteMarkerService: SiteMarkerService,
+              private projectService: ProjectService,
+              private storageService: StorageService) {
     this.cloudinaryUtil = new CloudinaryUtil();
   }
 
@@ -72,10 +72,10 @@ export class DbEntityMarkerService {
    * Initializes the map. Must be called before other public methods will work.
    */
   initMap(gmap: google.maps.Map,
-    selectionService: EntitySelectionService,
-    casingProjectService: CasingProjectService,
-    storageKeyPrefix: string,
-    controls?: DbEntityMarkerControls) {
+          selectionService: EntitySelectionService,
+          casingProjectService: CasingProjectService,
+          storageKeyPrefix: string,
+          controls?: DbEntityMarkerControls) {
 
     this.ST_SITE_MARKERS = storageKeyPrefix + '_' + this.ST_SITE_MARKERS;
     this.ACTIVE_CONTROLS_STORAGE_KEY = storageKeyPrefix + '_' + this.ACTIVE_CONTROLS_STORAGE_KEY;
@@ -96,7 +96,7 @@ export class DbEntityMarkerService {
     });
 
     this.clusterer = new MarkerClusterer(this.gmap, [],
-      { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
+      {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 
     if (controls) {
       this._controls = controls;
@@ -325,7 +325,7 @@ export class DbEntityMarkerService {
       }
     });
 
-    this.siteMarkerCache = this.siteMarkerCache.filter(s => !outOfBoundsSiteIds.has(s.siteMarker.id))
+    this.siteMarkerCache = this.siteMarkerCache.filter(s => !outOfBoundsSiteIds.has(s.siteMarker.id));
   }
 
   private verifyMapInitialized() {
@@ -351,7 +351,7 @@ export class DbEntityMarkerService {
       }
     });
 
-    return { siteIds: siteIds, storeIds: storeIds };
+    return {siteIds: siteIds, storeIds: storeIds};
   }
 
   private initControls() {
@@ -388,13 +388,13 @@ export class DbEntityMarkerService {
     // If google marker has a StoreMarker check for store inclusion, if no store, check for site inclusion
     const filteredGMarkers = markers.reduce((prev, curr) => prev.concat(curr), [])
       .filter(marker => {
-        if (marker['store']) {
-          return this.shouldIncludeStoreMarker(marker['store'], marker['site']);
-        } else if (marker['site']) {
-          return this.shouldIncludeSiteMarker(marker['site']);
+          if (marker['store']) {
+            return this.shouldIncludeStoreMarker(marker['store'], marker['site']);
+          } else if (marker['site']) {
+            return this.shouldIncludeSiteMarker(marker['site']);
+          }
+          return true;
         }
-        return true;
-      }
       );
 
     filteredGMarkers.forEach(marker => this.refreshMarkerOptions(marker));
@@ -443,7 +443,7 @@ export class DbEntityMarkerService {
       return cached.markers;
     }
     const markers = this.createMarkersForSite(site);
-    this.siteMarkerCache.push({ markers: markers, siteMarker: site });
+    this.siteMarkerCache.push({markers: markers, siteMarker: site});
     return markers;
   }
 
@@ -495,7 +495,7 @@ export class DbEntityMarkerService {
   private createSiteMarker(site: SiteMarker) {
     const marker = new google.maps.Marker();
     marker['site'] = site;
-    marker.addListener('click', () => this.clickListener$.next({ storeId: null, siteId: site.id, marker: marker }));
+    marker.addListener('click', () => this.clickListener$.next({storeId: null, siteId: site.id, marker: marker}));
 
     if (this.selectionService.siteIds.has(site.id)) {
       this.selectedMarkers.add(marker);
@@ -505,10 +505,10 @@ export class DbEntityMarkerService {
 
   private createStoreMarker(store: StoreMarker, site: SiteMarker) {
     // Must make marker with coordinates for MarkerWithLabel to work
-    const marker = new MarkerWithLabel({ position: { lat: site.latitude, lng: site.longitude } });
+    const marker = new MarkerWithLabel({position: {lat: site.latitude, lng: site.longitude}});
     marker['store'] = store;
     marker['site'] = site;
-    marker.addListener('click', () => this.clickListener$.next({ storeId: store.id, siteId: site.id, marker: marker }));
+    marker.addListener('click', () => this.clickListener$.next({storeId: store.id, siteId: site.id, marker: marker}));
 
     if (this.selectionService.storeIds.has(store.id)) {
       this.selectedMarkers.add(marker);
@@ -525,7 +525,7 @@ export class DbEntityMarkerService {
     const assignedToOther = !assignedToUser && site.assigneeId != null;
 
     return {
-      position: { lat: site.latitude, lng: site.longitude },
+      position: {lat: site.latitude, lng: site.longitude},
       icon: {
         path: site.duplicate ? MarkerShape.FLAGGED : MarkerShape.DEFAULT,
         fillColor: StoreIconUtil.getFillColor(selected, assignedToUser, assignedToOther),
@@ -549,7 +549,7 @@ export class DbEntityMarkerService {
     const assignedToOther = !assignedToUser && site.assigneeId != null;
 
     return {
-      position: { lat: site.latitude, lng: site.longitude },
+      position: {lat: site.latitude, lng: site.longitude},
       icon: {
         path: StoreIconUtil.getStoreIconMarkerShape(store, showLogo, showCased, showValidated),
         fillColor: StoreIconUtil.getStoreIconFillColor(store, selected, assignedToUser, assignedToOther, showValidated),

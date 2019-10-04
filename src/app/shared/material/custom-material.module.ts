@@ -60,7 +60,7 @@ import { MatBadgeModule, MatTooltipModule } from '@angular/material';
     MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
-    ScrollingModule,
+    ScrollingModule
   ],
   exports: [
     MatAutocompleteModule,
