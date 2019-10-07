@@ -64,9 +64,7 @@ export class BoundaryDialogService {
   async getCustomBoundariesFromEnabled() {
     const promises = [];
     this._enabledCustomBoundaries.forEach((boundary: UserBoundary) => {
-      promises.push(
-        this.boundaryService.getOneById(boundary.boundaryId).toPromise()
-      );
+      promises.push(this.boundaryService.getOneById(boundary.boundaryId).toPromise());
     });
     return Promise.all(promises);
   }
@@ -74,23 +72,18 @@ export class BoundaryDialogService {
   async getProjectBoundariesFromEnabled() {
     const promises = [];
     this._enabledProjectBoundaries.forEach((project: Project) => {
-      promises.push(
-        this.projectService.getBoundaryForProject(project.id).toPromise()
-      );
+      promises.push(this.projectService.getBoundaryForProject(project.id).toPromise());
     });
     return Promise.all(promises);
   }
 
   getStyledPolygonFromBoundaries(boundaries: Boundary[]) {
     return boundaries.map(boundary => {
-      return this.stylePolygon(
-        BoundaryColor.CUSTOM,
-        this.convertBoundaryToProjectBoundary(boundary)
-      );
+      return this.stylePolygon(BoundaryColor.CUSTOM, this.convertBoundaryToProjectBoundary(boundary));
     });
   }
 
-  private async drawEnabledBoundaries() {
+  async drawEnabledBoundaries() {
     this.polygons.forEach(poly => poly.removeFromMap());
 
     const customBoundaries = await this.getCustomBoundariesFromEnabled();
@@ -110,29 +103,21 @@ export class BoundaryDialogService {
     // tracking checkbox state without local storage
     customBoundaries.forEach(b => {
       b = new UserBoundary(b);
-      if (
-        !this._customBoundaries.filter((cb: UserBoundary) => cb.id === b.id)
-          .length
-      ) {
+      if (!this._customBoundaries.filter((cb: UserBoundary) => cb.id === b.id).length) {
         this._customBoundaries.push(b);
       }
     });
   }
 
   private async fetchProjectBoundaries() {
-    const projectBoundaries: Pageable<
-      Project
-    > = await this.projectService
+    const projectBoundaries: Pageable<Project> = await this.projectService
       .getAllByQuery(null, null, null, null, true)
       .toPromise();
 
     // tracking checkbox state without local storage
     projectBoundaries.content.forEach((p: any) => {
       if (p.hasBoundary) {
-        if (
-          !this._projectBoundaries.filter((pb: Project) => pb.id === p.id)
-            .length
-        ) {
+        if (!this._projectBoundaries.filter((pb: Project) => pb.id === p.id).length) {
           this._projectBoundaries.push(p);
         }
       }
@@ -140,10 +125,7 @@ export class BoundaryDialogService {
   }
 
   convertBoundaryToProjectBoundary(boundary: Boundary): ProjectBoundary {
-    return new ProjectBoundary(
-      this.gmap,
-      this.geojsonStringToPolygon(boundary.geojson)
-    );
+    return new ProjectBoundary(this.gmap, this.geojsonStringToPolygon(boundary.geojson));
   }
 
   convertProjectBoundaryToBoundary(projectBoundary: ProjectBoundary): Boundary {

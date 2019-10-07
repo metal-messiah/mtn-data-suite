@@ -37,16 +37,8 @@ import { SubTitleBarComponent } from './sub-title-bar/sub-title-bar.component';
 import { ItemSelectionDialogComponent } from './item-selection/item-selection-dialog.component';
 import { DbEntityControlsComponent } from './db-entity-controls/db-entity-controls.component';
 import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing-entity-fields.component';
-import { MapDialogComponent } from './map-dialog/map-dialog.component';
-
 @NgModule({
-  imports: [
-    CommonModule,
-    CustomMaterialModule,
-    RouterModule,
-    FormsModule,
-    ReactiveFormsModule
-  ],
+  imports: [CommonModule, CustomMaterialModule, RouterModule, FormsModule, ReactiveFormsModule],
   declarations: [
     AddRemoveStoresListDialogComponent,
     AppInfoDialogComponent,
@@ -80,14 +72,9 @@ import { MapDialogComponent } from './map-dialog/map-dialog.component';
     TabSelectDialogComponent,
     TextInputDialogComponent,
     ThousandsCurrencyPipe,
-    UserProfileSelectComponent,
-    MapDialogComponent
+    UserProfileSelectComponent
   ],
-  providers: [
-    BreakpointObserver,
-    DatePipe,
-    MediaMatcher
-  ],
+  providers: [BreakpointObserver, DatePipe, MediaMatcher],
   entryComponents: [
     AddRemoveStoresListDialogComponent,
     AppInfoDialogComponent,
@@ -133,5 +120,4 @@ import { MapDialogComponent } from './map-dialog/map-dialog.component';
     ThousandsCurrencyPipe
   ]
 })
-export class SharedModule {
-}
+export class SharedModule {}

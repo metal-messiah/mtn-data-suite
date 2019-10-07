@@ -2,7 +2,6 @@ import { GeometryUtil } from '../utils/geometry-util';
 import { Feature, GeoJSON, Point, Polygon } from 'geojson';
 
 export class ProjectBoundary {
-
   name?: string;
   map: google.maps.Map;
   geojson: GeoJSON;
@@ -13,13 +12,10 @@ export class ProjectBoundary {
   rectangles: google.maps.Rectangle[] = [];
   deletionListeners: google.maps.MapsEventListener[] = [];
 
-  constructor(map: google.maps.Map, geojson?: GeoJSON, name?: string) {
+  constructor(map: google.maps.Map, geojson?: GeoJSON) {
     this.map = map;
     if (geojson) {
       this.setGeoJson(geojson);
-    }
-    if (name) {
-      this.name = name;
     }
   }
 
@@ -56,7 +52,7 @@ export class ProjectBoundary {
     this.geojson = geojson;
     if (this.geojson && this.geojson.type === 'FeatureCollection') {
       if (this.geojson.features) {
-        this.geojson.features.forEach(feature => this.parseFeature(feature))
+        this.geojson.features.forEach(feature => this.parseFeature(feature));
       }
     }
   }
@@ -96,7 +92,10 @@ export class ProjectBoundary {
   zoomToBounds() {
     const bounds = new google.maps.LatLngBounds();
     this.polygons.forEach(polygon => {
-      polygon.getPath().getArray().forEach(latLng => bounds.extend(latLng));
+      polygon
+        .getPath()
+        .getArray()
+        .forEach(latLng => bounds.extend(latLng));
     });
     this.circles.forEach(circle => {
       const circleBoundary = circle.getBounds();
@@ -109,7 +108,7 @@ export class ProjectBoundary {
   removeFromMap() {
     this.polygons.forEach(polygon => polygon.setMap(null));
     this.circles.forEach(circle => circle.setMap(null));
-    this.rectangles.forEach(rectangle => rectangle.setMap(null))
+    this.rectangles.forEach(rectangle => rectangle.setMap(null));
   }
 
   addShape(shape) {
@@ -143,7 +142,7 @@ export class ProjectBoundary {
     } else if (feature.geometry.type === 'Point' && feature.properties.radius) {
       this.parseCircle(feature.geometry, feature.properties.radius);
     } else {
-      throw new Error('Can\'t identify geometry type');
+      throw new Error("Can't identify geometry type");
     }
   }
 
@@ -154,10 +153,8 @@ export class ProjectBoundary {
       rectangle.setMap(this.map);
       this.rectangles.push(rectangle);
     } else {
-
       poly.setMap(this.map);
       this.polygons.push(poly);
     }
   }
-
 }

@@ -16,7 +16,7 @@ import { UserBoundary } from 'app/models/full/user-boundary';
 export class BoundaryDialogComponent implements OnInit {
   boundaryColor = BoundaryColor;
   targetBoundary: UserBoundary;
-  tabs = {PROJECT: 0, GEOPOLITICAL: 1, CUSTOM: 2};
+  tabs = { PROJECT: 0, GEOPOLITICAL: 1, CUSTOM: 2 };
 
   constructor(
     private userBoundaryService: UserBoundaryService,
@@ -35,6 +35,7 @@ export class BoundaryDialogComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.boundaryDialogService.drawEnabledBoundaries(); // refresh whats there;
   }
 
   getBoundaryColorCSS(idx: number) {
@@ -57,17 +58,15 @@ export class BoundaryDialogComponent implements OnInit {
       .afterClosed()
       .subscribe((text: string) => {
         if (text) {
-          this.userBoundaryService
-            .getOneById(this.targetBoundary.id)
-            .subscribe((b: UserBoundary) => {
-              b.boundaryName = text;
-              this.userBoundaryService.update(b).subscribe(
-                (newB: UserBoundary) => {
-                  this.targetBoundary.boundaryName = text;
-                },
-                err => console.error(err)
-              );
-            });
+          this.userBoundaryService.getOneById(this.targetBoundary.id).subscribe((b: UserBoundary) => {
+            b.boundaryName = text;
+            this.userBoundaryService.update(b).subscribe(
+              (newB: UserBoundary) => {
+                this.targetBoundary.boundaryName = text;
+              },
+              err => console.error(err)
+            );
+          });
         }
       });
   }
@@ -95,7 +94,7 @@ export class BoundaryDialogComponent implements OnInit {
       .afterClosed()
       .subscribe((text: string) => {
         if (text) {
-          this.close(new UserBoundary({boundaryName: text}));
+          this.close(new UserBoundary({ boundaryName: text }));
         }
       });
   }

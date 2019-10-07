@@ -1,78 +1,78 @@
-import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
-import { MatDialog } from "@angular/material/dialog";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { of, Subject, Subscription } from "rxjs";
-import { debounce, debounceTime, delay, finalize } from "rxjs/internal/operators";
+import { of, Subject, Subscription } from 'rxjs';
+import { debounce, debounceTime, delay, finalize } from 'rxjs/internal/operators';
 
-import { AuthService } from "../../core/services/auth.service";
-import { CasingDashboardService } from "./casing-dashboard.service";
-import { DbEntityMarkerService } from "../../core/services/db-entity-marker.service";
-import { ErrorService } from "../../core/services/error.service";
-import { GeocoderService } from "../../core/services/geocoder.service";
-import { MapService } from "../../core/services/map.service";
-import { NavigatorService } from "../../core/services/navigator.service";
-import { ProjectBoundaryService } from "../services/project-boundary.service";
-import { ProjectService } from "../../core/services/project.service";
-import { SiteService } from "../../core/services/site.service";
-import { StoreService } from "../../core/services/store.service";
+import { AuthService } from '../../core/services/auth.service';
+import { CasingDashboardService } from './casing-dashboard.service';
+import { DbEntityMarkerService } from '../../core/services/db-entity-marker.service';
+import { ErrorService } from '../../core/services/error.service';
+import { GeocoderService } from '../../core/services/geocoder.service';
+import { MapService } from '../../core/services/map.service';
+import { NavigatorService } from '../../core/services/navigator.service';
+import { ProjectBoundaryService } from '../services/project-boundary.service';
+import { ProjectService } from '../../core/services/project.service';
+import { SiteService } from '../../core/services/site.service';
+import { StoreService } from '../../core/services/store.service';
 
-import { DatabaseSearchComponent } from "../database-search/database-search.component";
-import { DbLocationInfoCardComponent } from "../../shared/db-location-info-card/db-location-info-card.component";
-import { DownloadDialogComponent } from "../download-dialog/download-dialog.component";
-import { GoogleSearchComponent } from "../google-search/google-search.component";
-import { GoogleInfoCardComponent } from "../../shared/google-info-card/google-info-card.component";
-import { LatLngSearchComponent } from "../lat-lng-search/lat-lng-search.component";
-import { SiteMergeDialogComponent } from "../site-merge-dialog/site-merge-dialog.component";
-import { UserProfileSelectComponent } from "../../shared/user-profile-select/user-profile-select.component";
+import { DatabaseSearchComponent } from '../database-search/database-search.component';
+import { DbLocationInfoCardComponent } from '../../shared/db-location-info-card/db-location-info-card.component';
+import { DownloadDialogComponent } from '../download-dialog/download-dialog.component';
+import { GoogleSearchComponent } from '../google-search/google-search.component';
+import { GoogleInfoCardComponent } from '../../shared/google-info-card/google-info-card.component';
+import { LatLngSearchComponent } from '../lat-lng-search/lat-lng-search.component';
+import { SiteMergeDialogComponent } from '../site-merge-dialog/site-merge-dialog.component';
+import { UserProfileSelectComponent } from '../../shared/user-profile-select/user-profile-select.component';
 
-import { LatLng } from "../../models/latLng";
-import { GooglePlace } from "../../models/google-place";
-import { SimplifiedSite } from "../../models/simplified/simplified-site";
-import { SimplifiedStore } from "../../models/simplified/simplified-store";
-import { SimplifiedUserProfile } from "../../models/simplified/simplified-user-profile";
-import { Site } from "../../models/full/site";
-import { Store } from "../../models/full/store";
+import { LatLng } from '../../models/latLng';
+import { GooglePlace } from '../../models/google-place';
+import { SimplifiedSite } from '../../models/simplified/simplified-site';
+import { SimplifiedStore } from '../../models/simplified/simplified-store';
+import { SimplifiedUserProfile } from '../../models/simplified/simplified-user-profile';
+import { Site } from '../../models/full/site';
+import { Store } from '../../models/full/store';
 
-import { DraggableSiteLayer } from "../../models/draggable-site-layer";
-import { FindMeLayer } from "../../models/find-me-layer";
-import { FollowMeLayer } from "../../models/follow-me-layer";
-import { GooglePlaceLayer } from "../../models/google-place-layer";
+import { DraggableSiteLayer } from '../../models/draggable-site-layer';
+import { FindMeLayer } from '../../models/find-me-layer';
+import { FollowMeLayer } from '../../models/follow-me-layer';
+import { GooglePlaceLayer } from '../../models/google-place-layer';
 
-import { GeometryUtil } from "../../utils/geometry-util";
+import { GeometryUtil } from '../../utils/geometry-util';
 
-import { DbEntityInfoCardItem } from "../db-entity-info-card-item";
-import { InfoCardItem } from "../info-card-item";
-import { GoogleInfoCardItem } from "../google-info-card-item";
-import { StorageService } from "../../core/services/storage.service";
-import { SimplifiedStoreList } from "../../models/simplified/simplified-store-list";
+import { DbEntityInfoCardItem } from '../db-entity-info-card-item';
+import { InfoCardItem } from '../info-card-item';
+import { GoogleInfoCardItem } from '../google-info-card-item';
+import { StorageService } from '../../core/services/storage.service';
+import { SimplifiedStoreList } from '../../models/simplified/simplified-store-list';
 import {
   AddRemoveStoresListDialogComponent,
   AddRemoveType
-} from "app/shared/add-remove-stores-list-dialog/add-remove-stores-list-dialog.component";
-import { BoundaryDialogComponent } from "app/shared/boundary-dialog/boundary-dialog.component";
-import { Boundary } from "app/models/full/boundary";
-import { BoundaryService } from "app/core/services/boundary.service";
-import { BoundaryDialogService } from "app/shared/boundary-dialog/boundary-dialog.service";
-import { ProjectBoundary } from "app/models/project-boundary";
-import { UserProfileService } from "app/core/services/user-profile.service";
-import { BannerService } from "app/core/services/banner.service";
-import { CasingDashboardMode } from "../enums/casing-dashboard-mode";
-import { EntitySelectionService } from "../../core/services/entity-selection.service";
-import { BreakpointObserver, Breakpoints, BreakpointState } from "@angular/cdk/layout";
-import { CasingProjectService } from "../casing-project.service";
-import { SimplifiedProject } from "../../models/simplified/simplified-project";
-import { ProjectSummaryComponent } from "../project-summary/project-summary.component";
-import { StoreSelectionDialogComponent } from "../store-merge/store-selection-dialog/store-selection-dialog.component";
-import { StoreAttrSelectionDialogComponent } from "../store-merge/store-attr-selection-dialog/store-attr-selection-dialog.component";
-import { UserBoundary } from "app/models/full/user-boundary";
-import { UserBoundaryService } from "app/core/services/user-boundary.service";
+} from 'app/shared/add-remove-stores-list-dialog/add-remove-stores-list-dialog.component';
+import { BoundaryDialogComponent } from 'app/shared/boundary-dialog/boundary-dialog.component';
+import { Boundary } from 'app/models/full/boundary';
+import { BoundaryService } from 'app/core/services/boundary.service';
+import { BoundaryDialogService } from 'app/shared/boundary-dialog/boundary-dialog.service';
+import { ProjectBoundary } from 'app/models/project-boundary';
+import { UserProfileService } from 'app/core/services/user-profile.service';
+import { BannerService } from 'app/core/services/banner.service';
+import { CasingDashboardMode } from '../enums/casing-dashboard-mode';
+import { EntitySelectionService } from '../../core/services/entity-selection.service';
+import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
+import { CasingProjectService } from '../casing-project.service';
+import { SimplifiedProject } from '../../models/simplified/simplified-project';
+import { ProjectSummaryComponent } from '../project-summary/project-summary.component';
+import { StoreSelectionDialogComponent } from '../store-merge/store-selection-dialog/store-selection-dialog.component';
+import { StoreAttrSelectionDialogComponent } from '../store-merge/store-attr-selection-dialog/store-attr-selection-dialog.component';
+import { UserBoundary } from 'app/models/full/user-boundary';
+import { UserBoundaryService } from 'app/core/services/user-boundary.service';
 
 @Component({
-  selector: "mds-casing-dashboard",
-  templateUrl: "./casing-dashboard.component.html",
-  styleUrls: ["./casing-dashboard.component.css"],
+  selector: 'mds-casing-dashboard',
+  templateUrl: './casing-dashboard.component.html',
+  styleUrls: ['./casing-dashboard.component.css'],
   providers: [MapService, DbEntityMarkerService, EntitySelectionService, CasingDashboardService]
 })
 export class CasingDashboardComponent implements OnInit, OnDestroy {
@@ -139,9 +139,9 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Navigate to correct store-list sidenav view
-    this.storageService.getOne("casing-dashboard-store-list-view").subscribe(value => {
+    this.storageService.getOne('casing-dashboard-store-list-view').subscribe(value => {
       if (value) {
-        this.router.navigate(["casing", ...value.split("/")], { skipLocationChange: true });
+        this.router.navigate(['casing', ...value.split('/')], { skipLocationChange: true });
       }
     });
 
@@ -206,17 +206,17 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   }
 
   onMapReady() {
-    this.mapService.addControl(document.getElementById("refresh"));
-    this.mapService.addControl(document.getElementById("info-card-wrapper"), google.maps.ControlPosition.LEFT_BOTTOM);
-    this.mapService.addControl(document.getElementById("openListView"), google.maps.ControlPosition.LEFT_BOTTOM);
-    this.mapService.addControl(document.getElementById("project-buttons"), google.maps.ControlPosition.TOP_RIGHT);
+    this.mapService.addControl(document.getElementById('refresh'));
+    this.mapService.addControl(document.getElementById('info-card-wrapper'), google.maps.ControlPosition.LEFT_BOTTOM);
+    this.mapService.addControl(document.getElementById('openListView'), google.maps.ControlPosition.LEFT_BOTTOM);
+    this.mapService.addControl(document.getElementById('project-buttons'), google.maps.ControlPosition.TOP_RIGHT);
 
     this.selectionService.singleSelect$.subscribe(selection => this.onSelection(selection));
     this.dbEntityMarkerService.initMap(
       this.mapService.getMap(),
       this.selectionService,
       this.casingProjectService,
-      "casing-dashboard"
+      'casing-dashboard'
     );
 
     console.log(`Map is ready`);
@@ -230,7 +230,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
         this.selectedSiteId = siteId;
 
         // Display instructions to user
-        const ref = this.snackBar.open(`Select another site to merge with this one`, "Cancel");
+        const ref = this.snackBar.open(`Select another site to merge with this one`, 'Cancel');
 
         // If user clicks cancel, close snackbar and return to default mode
         ref
@@ -269,7 +269,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     );
 
     this.route.queryParams.subscribe((params: Params) => {
-      const storeId = parseInt(params["store-id"], 10);
+      const storeId = parseInt(params['store-id'], 10);
       if (!isNaN(storeId)) {
         this.storeService.getOneById(storeId).subscribe((store: Store) => {
           this.mapService.setCenter(this.siteService.getCoordinates(store.site));
@@ -297,7 +297,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
     if (this.mapService.getZoom() >= this.dbEntityMarkerService.controls.minPullZoomLevel) {
       this.dbEntityMarkerService.getMarkersInMapView();
     } else {
-      this.snackBar.open("Zoom in or change Pull zoom limit", null, { duration: 2000, verticalPosition: "top" });
+      this.snackBar.open('Zoom in or change Pull zoom limit', null, { duration: 2000, verticalPosition: 'top' });
     }
   }
 
@@ -318,7 +318,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   editNewLocation(): void {
     const coordinates = this.draggableSiteLayer.getCoordinatesOfDraggableMarker();
     this.ngZone.run(() => {
-      const snackBarRef = this.snackBar.open("Reverse Geocoding...", null);
+      const snackBarRef = this.snackBar.open('Reverse Geocoding...', null);
       this.geocoderService
         .reverseGeocode(coordinates)
         .pipe(finalize(() => snackBarRef.dismiss()))
@@ -327,7 +327,7 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
             // If reverse geocode is successful - exit creation state (moving on to site page)
             newSite.latitude = coordinates.lat;
             newSite.longitude = coordinates.lng;
-            newSite.type = "ANCHOR";
+            newSite.type = 'ANCHOR';
             this.createNewSite(new Site(newSite));
           },
           err => {
@@ -341,20 +341,20 @@ export class CasingDashboardComponent implements OnInit, OnDestroy {
   private createNewSite(site: Site) {
     this.ngZone.run(() => {
       // Create a new site from reverse geocode - make sharable via service
-      const snackBarRef2 = this.snackBar.open("Creating new site...", null);
+      const snackBarRef2 = this.snackBar.open('Creating new site...', null);
       this.siteService
         .create(site)
         .pipe(finalize(() => this.cancelSiteCreation()))
         .subscribe(
           () => {
-            this.snackBar.open("Successfully created new Site", null, { duration: 1500 });
+            this.snackBar.open('Successfully created new Site', null, { duration: 1500 });
             this.getEntitiesInBounds();
           },
           err => {
             snackBarRef2.dismiss();
             this.cancelSiteCreation();
             this.errorService.handleServerError(
-              "Failed to create new Site!",
+              'Failed to create new Site!',
               err,
               () => {},
               () => this.createNewSite(site)
@@ -389,19 +389,19 @@ Geo-location
         this.mapService.setCenter(position);
       },
       err => {
-        let message = "";
+        let message = '';
         switch (err.code) {
           case err.PERMISSION_DENIED:
-            message = "Permission denied";
+            message = 'Permission denied';
             break;
           case err.POSITION_UNAVAILABLE:
-            message = "Position unavailable";
+            message = 'Position unavailable';
             break;
           case err.PERMISSION_DENIED_TIMEOUT:
-            message = "Position timeout";
+            message = 'Position timeout';
             break;
         }
-        console.log("Error: " + message);
+        console.log('Error: ' + message);
       }
     );
   }
@@ -450,14 +450,14 @@ Geo-location
         .subscribe(
           () => {
             this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
-            this.snackBar.open("Successfully created new Site", null, { duration: 1500 });
+            this.snackBar.open('Successfully created new Site', null, { duration: 1500 });
             this.getEntitiesInBounds();
           },
           err =>
             this.errorService.handleServerError(
-              "Failed to update new Site location!",
+              'Failed to update new Site location!',
               err,
-              () => console.log("Cancel"),
+              () => console.log('Cancel'),
               () => this.saveMove()
             )
         );
@@ -478,7 +478,7 @@ Geo-location
     // Activate Map Drawing Tools and listen for completed Shapes
     this.mapService.activateDrawingTools().subscribe(shape => {
       const geoJson = GeometryUtil.getGeoJsonFromShape(shape);
-      if (geoJson.geometry.type === "Point") {
+      if (geoJson.geometry.type === 'Point') {
         const longitude = geoJson.geometry.coordinates[0];
         const latitude = geoJson.geometry.coordinates[1];
         const radiusMeters = geoJson.properties.radius;
@@ -556,7 +556,7 @@ Geo-location
         }
       },
       err => {
-        if (err === "ZERO_RESULTS") {
+        if (err === 'ZERO_RESULTS') {
           this.warnNoResults(query);
         }
       }
@@ -635,7 +635,7 @@ Geo-location
         },
         err =>
           this.errorService.handleServerError(
-            "Failed to update sites!",
+            'Failed to update sites!',
             err,
             () => console.log(err),
             () => this.assign(userId)
@@ -665,14 +665,14 @@ Geo-location
       } else {
         boundary = new Boundary({ geojson: geojson });
       }
-      const serverMethod = boundary.id ? "update" : "create";
+      const serverMethod = boundary.id ? 'update' : 'create';
       this.boundaryService[serverMethod](boundary)
         .pipe(finalize(() => (this.savingBoundary = false)))
         .subscribe(
           (b: Boundary) => {
             this.projectBoundaryService.deactivateEditingMode(this.mapService);
             this.projectBoundaryService.projectBoundary.setGeoJson(JSON.parse(geojson));
-            if (serverMethod === "create") {
+            if (serverMethod === 'create') {
               this.projectService.associateBoundaryToProject(projectId, b.id).subscribe(project => {
                 this.casingProjectService.setSelectedProject(project);
                 this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
@@ -686,7 +686,7 @@ Geo-location
           },
           err =>
             this.errorService.handleServerError(
-              "Failed to save project boundary!",
+              'Failed to save project boundary!',
               err,
               () => console.log(err),
               () => this.saveBoundary()
@@ -695,13 +695,13 @@ Geo-location
     } else {
       this.savingBoundary = true;
       this.editingUserBoundary.geojson = this.editingProjectBoundary.toGeoJson();
-      const serverMethod = this.editingUserBoundary.id ? "update" : "create";
+      const serverMethod = this.editingUserBoundary.id ? 'update' : 'create';
       this.boundaryService[serverMethod](this.editingUserBoundary)
         .pipe(finalize(() => (this.savingBoundary = false)))
         .subscribe((b: Boundary) => {
           this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
 
-          if (serverMethod === "create") {
+          if (serverMethod === 'create') {
             this.originalUserBoundary.boundary = b;
             this.originalUserBoundary.user = this.authService.sessionUser;
             this.userBoundaryService.create(this.originalUserBoundary).subscribe(() => {
@@ -820,7 +820,7 @@ Geo-location
             .subscribe(ids => this.selectionService.selectByIds(ids));
           this.projectBoundaryService.zoomToProjectBoundary();
         } else {
-          this.snackBar.open("No Boundary for Project", null, { duration: 2000, verticalPosition: "top" });
+          this.snackBar.open('No Boundary for Project', null, { duration: 2000, verticalPosition: 'top' });
         }
       });
     }
@@ -837,7 +837,7 @@ Geo-location
   openDownloadDialog() {
     const config = {
       data: { selectedStoreIds: Array.from(this.selectionService.storeIds) },
-      maxWidth: "90%"
+      maxWidth: '90%'
     };
     const downloadDialog = this.dialog.open(DownloadDialogComponent, config);
     downloadDialog.afterClosed().subscribe(project => {
@@ -849,15 +849,15 @@ Geo-location
 
   userIsGuest() {
     const role = this.authService.sessionUser.role;
-    return role && role.displayName === "Guest Analyst";
+    return role && role.displayName === 'Guest Analyst';
   }
 
   onDuplicateSiteSelected(duplicateSiteId: number) {
     // If the user selects the same site (can't merge with self)
     if (this.selectedSiteId === duplicateSiteId) {
       // Display clarifying instructions to user
-      const message = "Oops, select ANY OTHER site to merge into this site";
-      const ref = this.snackBar.open(message, "Cancel");
+      const message = 'Oops, select ANY OTHER site to merge into this site';
+      const ref = this.snackBar.open(message, 'Cancel');
 
       // If user clicks cancel, close snackbar and return to default mode
       ref.onAction().subscribe(() => (this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT));
@@ -872,8 +872,8 @@ Geo-location
 
       // Open the dialog to allow the user to merge the two sites
       const siteMergeDialog = this.dialog.open(SiteMergeDialogComponent, {
-        maxWidth: "90%",
-        minWidth: "300px",
+        maxWidth: '90%',
+        minWidth: '300px',
         disableClose: true,
         data: {
           duplicateSiteId: duplicateSiteId,
@@ -893,8 +893,8 @@ Geo-location
               .open(StoreSelectionDialogComponent, {
                 data: { stores: site.stores },
                 disableClose: true,
-                maxWidth: "90%",
-                minWidth: "300px"
+                maxWidth: '90%',
+                minWidth: '300px'
               })
               .afterClosed()
               .subscribe((stores: Store[]) => {
@@ -903,8 +903,8 @@ Geo-location
                   this.dialog
                     .open(StoreAttrSelectionDialogComponent, {
                       data: { selectedStores: stores },
-                      maxWidth: "90%",
-                      minWidth: "300px"
+                      maxWidth: '90%',
+                      minWidth: '300px'
                     })
                     .afterClosed()
                     .subscribe((store: Store) => {
@@ -963,7 +963,7 @@ Geo-location
     if (this.layoutIsSmall) {
       this.filterSideNavIsOpen = false;
     }
-    this.router.navigate(["casing", "list-stores", storeList.id], { skipLocationChange: true }).then(() => {
+    this.router.navigate(['casing', 'list-stores', storeList.id], { skipLocationChange: true }).then(() => {
       this.ngZone.run(() => {});
     });
   }
