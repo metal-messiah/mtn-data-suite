@@ -42,7 +42,7 @@ export class NewStoreStatusComponent implements OnInit {
     this.form = this.fb.group({
       status: 'Open',
       statusStartDate: new Date()
-    })
+    });
   }
 
   create() {

@@ -61,7 +61,7 @@ export class StoreStatusesDialogComponent implements OnInit {
       if (store) {
         this.initStore(store);
       }
-    })
+    });
   }
 
 }

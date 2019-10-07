@@ -46,17 +46,17 @@ export class GooglePlace implements PlaceResult, Mappable {
 
   getCoordinates(): LatLng {
     return this.geometry.location.toJSON();
-  };
+  }
 
   getOptions() {
-    const label = { labelContent: this.name }
+    const label = { labelContent: this.name };
     return Object.assign({}, this.options, label);
   }
 
   getIcon(markerType?: MarkerType): (string | google.maps.Icon | google.maps.Symbol) {
     // Use default google marker
     return null;
-  };
+  }
 
   getLabel(markerType?: MarkerType): string | MarkerLabel {
     if (markerType !== MarkerType.LOGO) {
@@ -66,9 +66,9 @@ export class GooglePlace implements PlaceResult, Mappable {
       };
     }
     return this.name;
-  };
+  }
 
   isDraggable(): boolean {
     return false;
-  };
+  }
 }

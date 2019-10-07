@@ -5,8 +5,8 @@ import { saveAs } from 'file-saver';
 import { CloudinaryAsset } from '../../shared/cloudinary/CloudinaryAsset';
 import { CloudinaryUtil } from '../../utils/cloudinary-util';
 
-import * as papa from 'papaparse'
-import { ParseResult } from 'papaparse'
+import * as papa from 'papaparse';
+import { ParseResult } from 'papaparse';
 import { ClipboardUtil } from '../../utils/clipboard-util';
 
 @Component({
@@ -74,7 +74,7 @@ export class ImagesComponent implements OnInit {
 
     this.parsedFile.data.forEach(record => {
       const value = record[this.chainIdentifyingHeader];
-      this.chainLogos[value] = null
+      this.chainLogos[value] = null;
     });
   }
 
@@ -85,7 +85,7 @@ export class ImagesComponent implements OnInit {
   exportNewCsv() {
     this.parsedFile.data.forEach(record => {
       const chain = record[this.chainIdentifyingHeader];
-      record['logo'] = this.chainLogos[chain]
+      record['logo'] = this.chainLogos[chain];
     });
 
     const csv = papa.unparse(this.parsedFile.data);

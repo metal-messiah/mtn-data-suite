@@ -56,7 +56,7 @@
   <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.EDIT_PROJECT_BOUNDARY" color="primary"
                class="flex-space-between">
     <div>
-      <button mat-raised-button (click)="cancelProjectBoundaryEditing()" color="warn">Cancel</button>
+      <button mat-raised-button (click)="cancelBoundaryEditing()" color="warn">Cancel</button>
     </div>
     <div>
       <button mat-mini-fab [mat-menu-trigger-for]="drawingToolsMenu" color="primary">
@@ -67,17 +67,15 @@
       </button>
     </div>
     <div>
-      <button mat-mini-fab *ngIf="!deletingProjectShapes" color="primary"
-              (click)="enableProjectShapeDeletion()">
+      <button mat-mini-fab *ngIf="!deletingProjectShapes" color="primary" (click)="enableShapeDeletion()">
         <i class="fas fa-trash-alt"></i>
       </button>
-      <button mat-mini-fab *ngIf="deletingProjectShapes" color="accent"
-              (click)="disableProjectShapeDeletion()">
+      <button mat-mini-fab *ngIf="deletingProjectShapes" color="accent" (click)="disableShapeDeletion()">
         <i class="fas fa-trash-alt fa-spin"></i>
       </button>
     </div>
     <div>
-      <button *ngIf="!savingBoundary" mat-raised-button color="accent" (click)="saveProjectBoundary()">Save
+      <button *ngIf="!savingBoundary" mat-raised-button color="accent" (click)="saveBoundary()">Save
       </button>
       <button *ngIf="savingBoundary" mat-raised-button color="accent" disabled><i
         class="fas fa-spinner fa-pulse"></i></button>
@@ -92,8 +90,7 @@
   <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DUPLICATE_SELECTION" color="primary"
                class="flex-space-between">
   </mat-toolbar>
-  <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" color="primary"
-               class="flex-space-between">
+  <mat-toolbar *ngIf="selectedDashboardMode === casingDashboardMode.DEFAULT" color="primary" class="flex-space-between">
     <button mat-mini-fab color="primary" (click)="setShowStoreLists(!showStoreLists)">
       <i class="fas fa-chevron-right" *ngIf="!showStoreLists"></i>
       <i class="fas fa-chevron-left" *ngIf="showStoreLists"></i>
@@ -188,21 +185,22 @@
 </mat-menu>
 
 <mat-menu #moreMenu="matMenu" [overlapTrigger]="false">
+  <button mat-menu-item (click)="openBoundariesDialog()">
+    <i class="fas fa-draw-polygon"></i>&nbsp;Boundaries
+  </button>
   <button mat-menu-item (click)="initSiteCreation()">
     <i class="fas fa-plus-circle"></i>&nbsp;Create New Site
   </button>
   <button mat-menu-item (click)="enableMultiSelect()">
     <i class="fas fa-hand-pointer"></i>&nbsp;Enable Multi-select
   </button>
-  <button mat-menu-item (click)="openDownloadDialog()" [disabled]="selectedStoreIds.size < 1"
-          *ngIf="!userIsGuest()">
+  <button mat-menu-item (click)="openDownloadDialog()" [disabled]="selectedStoreIds.size < 1" *ngIf="!userIsGuest()">
     <i class="fas fa-download"></i>&nbsp;Download Latest ({{selectedStoreIds.size}})
   </button>
   <button mat-menu-item [mat-menu-trigger-for]="geolocationSubMenu">
     <i class="fas fa-crosshairs"></i>&nbsp;Geolocation
   </button>
-  <button mat-menu-item *ngIf="!getSelectedProject()"
-          (click)="openProjectSelectionDialog()">
+  <button mat-menu-item *ngIf="!getSelectedProject()" (click)="openProjectSelectionDialog()">
     <i class="fas fa-folder"></i>&nbsp;Select Project
   </button>
   <button mat-menu-item *ngIf="getSelectedProject()" [mat-menu-trigger-for]="projectSubMenu">
@@ -227,20 +225,18 @@
     <button mat-menu-item (click)="showProjectSummary()">
       Show Summary
     </button>
-    <button mat-menu-item
-            *ngIf="!getSelectedProject().hasBoundary && !isShowingBoundary()"
-            (click)="enableProjectBoundaryEditing()">
+    <button mat-menu-item *ngIf="!getSelectedProject().hasBoundary && !isShowingBoundary()"
+            (click)="enableBoundaryEditing()">
       Create Boundary
     </button>
     <div *ngIf="getSelectedProject().hasBoundary">
       <button mat-menu-item (click)="selectAllInBoundary()">
         Select All In Boundary
       </button>
-      <button mat-menu-item (click)="enableProjectBoundaryEditing()">
+      <button mat-menu-item (click)="enableBoundaryEditing()">
         Edit Boundary
       </button>
-      <button mat-menu-item *ngIf="isShowingBoundary()"
-              (click)="hideProjectBoundaries()">
+      <button mat-menu-item *ngIf="isShowingBoundary()" (click)="hideProjectBoundaries()">
         Hide Boundary
       </button>
       <button mat-menu-item *ngIf="!isShowingBoundary()" (click)="showBoundary()">
@@ -269,7 +265,8 @@
 </button>
 
 <div id="project-buttons">
-  <button id="current-project-button" *ngIf="getSelectedProject()" mat-raised-button [mat-menu-trigger-for]="projectSubMenu">
+  <button id="current-project-button" *ngIf="getSelectedProject()" mat-raised-button
+          [mat-menu-trigger-for]="projectSubMenu">
     {{getSelectedProject().projectName}}
   </button>
   <button *ngIf="!getSelectedProject()" mat-raised-button (click)="openProjectSelectionDialog()">

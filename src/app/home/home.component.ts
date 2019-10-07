@@ -80,7 +80,7 @@ export class HomeComponent implements OnInit {
         routerLink: '/site-wise',
         iconClasses: 'fas fa-caret-right',
         displayName: 'SiteWise'
-      })
+      });
     }
 
     return menuItems;

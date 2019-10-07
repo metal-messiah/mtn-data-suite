@@ -111,7 +111,7 @@ export class GeocodingComponent implements OnInit, OnDestroy {
     const state = control.get('state').value;
     const zip = control.get('zip').value;
     return (address || city || state || zip) ? null : {'oneRequired': true};
-  };
+  }
 
   private buildForm() {
     this.fieldForm = this.fb.group({
@@ -119,7 +119,7 @@ export class GeocodingComponent implements OnInit, OnDestroy {
       city: null,
       state: null,
       zip: null
-    }, {validators: this.oneRequiredValidator})
+    }, {validators: this.oneRequiredValidator});
   }
 
   getStatus() {

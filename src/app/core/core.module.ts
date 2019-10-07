@@ -33,6 +33,8 @@ import { SourceUpdatableService } from './services/source-updatable.service';
 import { BannerSourceService } from './services/banner-source.service';
 import { StoreListService } from './services/store-list.service';
 import { RoutingStateService } from './services/routing-state.service';
+import { BoundaryService } from './services/boundary.service';
+import { UserBoundaryService } from './services/user-boundary.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -70,17 +72,21 @@ import { RoutingStateService } from './services/routing-state.service';
     StorageService,
     SourceUpdatableService,
     BannerSourceService,
-    StoreListService
+    StoreListService,
+    BoundaryService,
+    UserBoundaryService
   ]
 })
 export class CoreModule {
   constructor(
     @Optional()
     @SkipSelf()
-      parentModule: CoreModule
+    parentModule: CoreModule
   ) {
     if (parentModule) {
-      throw new Error('CoreModule is already loaded. Import it in the AppModule only');
+      throw new Error(
+        'CoreModule is already loaded. Import it in the AppModule only'
+      );
     }
   }
 }

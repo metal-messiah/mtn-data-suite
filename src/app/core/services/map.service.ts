@@ -333,8 +333,8 @@ export class MapService {
 
     this.cancelCircleRadiusListeners = () => {
       touchListener.remove();
-      mouseListener.remove()
-    }
+      mouseListener.remove();
+    };
   }
 
   setDrawingModeToRectangle() {
@@ -416,7 +416,7 @@ export class MapService {
     } else {
       rect.setMap(null);
     }
-  };
+  }
 
   getMap() {
     return this.map;

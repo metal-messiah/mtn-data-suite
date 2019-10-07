@@ -2,7 +2,7 @@ import { GeometryUtil } from '../utils/geometry-util';
 import { Feature, GeoJSON, Point, Polygon } from 'geojson';
 
 export class ProjectBoundary {
-
+  name?: string;
   map: google.maps.Map;
   geojson: GeoJSON;
   private editable = false;
@@ -52,7 +52,7 @@ export class ProjectBoundary {
     this.geojson = geojson;
     if (this.geojson && this.geojson.type === 'FeatureCollection') {
       if (this.geojson.features) {
-        this.geojson.features.forEach(feature => this.parseFeature(feature))
+        this.geojson.features.forEach(feature => this.parseFeature(feature));
       }
     }
   }
@@ -92,7 +92,10 @@ export class ProjectBoundary {
   zoomToBounds() {
     const bounds = new google.maps.LatLngBounds();
     this.polygons.forEach(polygon => {
-      polygon.getPath().getArray().forEach(latLng => bounds.extend(latLng));
+      polygon
+        .getPath()
+        .getArray()
+        .forEach(latLng => bounds.extend(latLng));
     });
     this.circles.forEach(circle => {
       const circleBoundary = circle.getBounds();
@@ -105,7 +108,7 @@ export class ProjectBoundary {
   removeFromMap() {
     this.polygons.forEach(polygon => polygon.setMap(null));
     this.circles.forEach(circle => circle.setMap(null));
-    this.rectangles.forEach(rectangle => rectangle.setMap(null))
+    this.rectangles.forEach(rectangle => rectangle.setMap(null));
   }
 
   addShape(shape) {
@@ -127,7 +130,7 @@ export class ProjectBoundary {
     const lng = point.coordinates[0];
     const lat = point.coordinates[1];
     const gCircle = new google.maps.Circle();
-    gCircle.setCenter({lat: lat, lng: lng});
+    gCircle.setCenter({ lat: lat, lng: lng });
     gCircle.setRadius(radius);
     gCircle.setMap(this.map);
     this.circles.push(gCircle);
@@ -154,5 +157,4 @@ export class ProjectBoundary {
       this.polygons.push(poly);
     }
   }
-
 }

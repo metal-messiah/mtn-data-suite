@@ -289,7 +289,7 @@ export class DbEntityMarkerService {
     }
 
     // BANNER FILTER
-    if (this._controls.banners.length && !this._controls.banners.find(b => b.id === storeMarker.bannerId)) {
+    if (this._controls.banners && this._controls.banners.length && !this._controls.banners.find(b => b.id === storeMarker.bannerId)) {
       return false;
     }
 
@@ -309,7 +309,7 @@ export class DbEntityMarkerService {
 
     const siteIsVacant = siteMarker.stores.filter(st => st.storeType === 'ACTIVE').length === 0;
     // If site is vacant, don't include if filtering by banner or store list, or if showVacantSites isn't checked
-    return !(siteIsVacant && (this._controls.banners.length > 0 || this._controls.storeList || !this._controls.showVacantSites));
+    return !(siteIsVacant && (this._controls.banners && this._controls.banners.length > 0 || this._controls.storeList || !this._controls.showVacantSites));
   }
 
   /**************************************
@@ -325,7 +325,7 @@ export class DbEntityMarkerService {
       }
     });
 
-    this.siteMarkerCache = this.siteMarkerCache.filter(s => !outOfBoundsSiteIds.has(s.siteMarker.id))
+    this.siteMarkerCache = this.siteMarkerCache.filter(s => !outOfBoundsSiteIds.has(s.siteMarker.id));
   }
 
   private verifyMapInitialized() {

@@ -32,7 +32,7 @@ export class ResourceQuotaService extends CrudService<ResourceQuota> {
       queryCount: 0,
       quotaLimit: 20000
     });
-    return this.create(rq)
+    return this.create(rq);
 
   }
 

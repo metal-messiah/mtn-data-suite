@@ -45,7 +45,7 @@ export class SiteService extends CrudService<Site> {
     _.forEach(bounds, function (value, key) {
       params = params.set(key, value);
     });
-    return this.http.get<LatLng[]>(url, {headers: this.rest.getHeaders(), params: params})
+    return this.http.get<LatLng[]>(url, {headers: this.rest.getHeaders(), params: params});
   }
 
   assignSitesToUser(siteIds: number[], userId: number) {
@@ -86,7 +86,7 @@ export class SiteService extends CrudService<Site> {
       mergedSite: mergedSite,
       siteIds: siteIds
     };
-    return this.http.post<SimplifiedSite>(url, body, {headers: this.rest.getHeaders()})
+    return this.http.post<SimplifiedSite>(url, body, {headers: this.rest.getHeaders()});
   }
 
 }

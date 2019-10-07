@@ -41,7 +41,7 @@ export class NewProjectNameComponent implements OnInit {
         this.snackBar.open('Successfully created new Project', null, {duration: 1000});
         this.dialogRef.close(project);
       }, err => this.errorService.handleServerError('Failed to create new project!', err,
-        () => console.log(err), () => this.create()))
+        () => console.log(err), () => this.create()));
   }
 
 }

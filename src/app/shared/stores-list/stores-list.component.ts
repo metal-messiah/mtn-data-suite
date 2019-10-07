@@ -130,11 +130,11 @@ export class StoresListComponent implements OnInit {
   }
 
   selectSite(siteId: number) {
-    this.selectionService.singleSelect({siteId: siteId, storeId: null})
+    this.selectionService.singleSelect({siteId: siteId, storeId: null});
   }
 
   selectStore(siteId: number, storeId: number) {
-    this.selectionService.singleSelect({siteId: siteId, storeId: storeId})
+    this.selectionService.singleSelect({siteId: siteId, storeId: storeId});
   }
 
   toggleSortDirection() {

@@ -49,7 +49,7 @@ export class EntitySelectionService {
     if (ids.storeId) {
       this.selectByIds({storeIds: [ids.storeId], siteIds: []});
     } else {
-      this.selectByIds({storeIds: [], siteIds: [ids.siteId]})
+      this.selectByIds({storeIds: [], siteIds: [ids.siteId]});
     }
     this.singleSelect$.next(ids);
   }
