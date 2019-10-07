@@ -7,6 +7,7 @@ import { ProjectBoundary } from '../../models/project-boundary';
 import { ProjectService } from '../../core/services/project.service';
 import { CasingDashboardService } from '../casing-dashboard/casing-dashboard.service';
 import { MapService } from '../../core/services/map.service';
+import { BoundaryService } from 'app/core/services/boundary.service';
 
 /*
   Consumers of this service can:
@@ -22,25 +23,25 @@ import { MapService } from '../../core/services/map.service';
   providedIn: 'root'
 })
 export class ProjectBoundaryService {
-
   // Project Editing flags
   deletingProjectShapes = false;
-
+  boundary: Boundary = null;
   projectBoundary: ProjectBoundary;
 
-  constructor(private projectService: ProjectService) {
-  }
+  constructor(private projectService: ProjectService, private boundaryService: BoundaryService) {}
 
   showProjectBoundaries(map: google.maps.Map, projectId: number) {
-    return this.projectService.getBoundaryForProject(projectId)
-      .pipe(tap((boundary: Boundary) => {
+    return this.projectService.getBoundaryForProject(projectId).pipe(
+      tap((boundary: Boundary) => {
         if (boundary == null) {
           this.projectBoundary = new ProjectBoundary(map);
           this.projectBoundary.setEditable(false);
         } else {
           this.projectBoundary = new ProjectBoundary(map, JSON.parse(boundary.geojson));
+          this.boundary = boundary;
         }
-      }));
+      })
+    );
   }
 
   hideProjectBoundaries(mapService: MapService) {
@@ -69,20 +70,22 @@ export class ProjectBoundaryService {
   saveProjectBoundaries(mapService: MapService, projectId: number) {
     if (this.projectBoundary.hasShapes()) {
       const geojson = this.projectBoundary.toGeoJson();
-      const boundary = new Boundary({geojson: geojson});
-      return this.projectService.saveBoundaryForProject(projectId, boundary)
-        .pipe(tap((project: SimplifiedProject) => {
+      const boundary = new Boundary({ geojson: geojson });
+      return this.projectService.saveBoundaryForProject(projectId, boundary).pipe(
+        tap((project: SimplifiedProject) => {
           this.deactivateEditingMode(mapService);
           this.projectBoundary.setGeoJson(JSON.parse(geojson));
-        }));
+        })
+      );
     } else {
       // If no shapes - just delete the boundary
-      return this.projectService.deleteBoundaryForProject(projectId)
-        .pipe(tap((project: SimplifiedProject) => {
+      return this.projectService.deleteBoundaryForProject(projectId).pipe(
+        tap((project: SimplifiedProject) => {
           this.deactivateEditingMode(mapService);
           this.projectBoundary.removeFromMap();
           this.projectBoundary = null;
-        }));
+        })
+      );
     }
   }
 
@@ -104,10 +107,9 @@ export class ProjectBoundaryService {
     this.projectBoundary.zoomToBounds();
   }
 
-  private deactivateEditingMode(mapService: MapService) {
+  deactivateEditingMode(mapService: MapService) {
     mapService.deactivateDrawingTools();
     this.projectBoundary.setEditable(false);
     this.deletingProjectShapes = false;
   }
-
 }

@@ -185,7 +185,7 @@ export class JsonToTablesUtil {
     return {
       fitAverage: this.getSovFitAverageForCategory(category),
       contributionSum: this.getSovContributionToSiteSubtotal(category)
-    }
+    };
   }
 
   private getSovStoresForTable(category: string) {
@@ -206,8 +206,8 @@ export class JsonToTablesUtil {
           resultingVolume: store['resultingVolume'],
           closing: store['closing'],
           isSite: store.mapKey === this.targetStore.mapKey
-        }
-      })
+        };
+      });
   }
 
   private getProjectedSummaryTableData() {
@@ -216,7 +216,7 @@ export class JsonToTablesUtil {
       stores: this.getProjectedSummaryStores(),
       summary: this.getProjectedSummaryAverages(),
       overflowCount: this.currentWeeklyStoresOverflow.length
-    }
+    };
   }
 
   private getProjectedSummaryStores() {
@@ -233,8 +233,8 @@ export class JsonToTablesUtil {
         category: store.category,
         isSite: store.mapKey === this.targetStore.mapKey,
         scenario: store.scenario
-      }
-    })
+      };
+    });
   }
 
   private getProjectedSummaryAverages() {
@@ -243,7 +243,7 @@ export class JsonToTablesUtil {
       psf: this.getSummaryAverage(this.projectedWeeklyStores, 'projectedSalesPSF'),
       salesArea: this.getSummaryAverage(this.projectedWeeklyStores, 'salesArea'),
       power: this.getSummaryAverage(this.projectedWeeklyStores, 'effectivePower'),
-    }
+    };
   }
 
   private getCurrentSummaryTableData() {
@@ -252,7 +252,7 @@ export class JsonToTablesUtil {
       stores: this.getCurrentSummaryStores(),
       summary: this.getCurrentSummaryAverages(),
       overflowCount: this.currentWeeklyStoresOverflow.length
-    }
+    };
   }
 
   private getCurrentSummaryAverages() {
@@ -261,7 +261,7 @@ export class JsonToTablesUtil {
       psf: this.getSummaryAverage(this.currentWeeklyStores, 'actualSalesPSF'),
       salesArea: this.getSummaryAverage(this.currentWeeklyStores, 'salesArea'),
       power: this.getSummaryAverage(this.currentWeeklyStores, 'effectivePower'),
-    }
+    };
   }
 
   private getCurrentSummaryStores() {
@@ -275,8 +275,8 @@ export class JsonToTablesUtil {
         salesArea: store.salesArea,
         pwta: store.PWTA,
         fitPower: store.effectivePower
-      }
-    })
+      };
+    });
   }
 
   private getProjectionsTableData() {
@@ -298,7 +298,7 @@ export class JsonToTablesUtil {
       firstYearAnnualizedSalesPSF: sgps.firstYearEndingSales * 52 / ts.salesArea,
       firstYearAnnualizedSalesPSFTotalArea: sgps.firstYearEndingSales * 52 / ts.totalArea,
       comment: this.reportMetaData.type
-    }
+    };
   }
 
   private getSovMapData() {
@@ -322,7 +322,7 @@ export class JsonToTablesUtil {
     let txt = '';
 
     Object.keys(this.reportMetaData).forEach(key => {
-      txt += `${key}:\r\n${this.reportMetaData[key]}\r\n\r\n`
+      txt += `${key}:\r\n${this.reportMetaData[key]}\r\n\r\n`;
     });
 
     txt += `Store Name:\r\n${this.targetStore.storeName}\r\n\r\n`;
@@ -330,7 +330,7 @@ export class JsonToTablesUtil {
 
     if (this.siteEvaluationNarrative) {
       Object.keys(this.siteEvaluationNarrative).forEach(key => {
-        txt += `${key}:\r\n${this.siteEvaluationNarrative[key]}\r\n\r\n`
+        txt += `${key}:\r\n${this.siteEvaluationNarrative[key]}\r\n\r\n`;
       });
     }
     return txt;

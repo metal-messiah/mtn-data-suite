@@ -20,7 +20,7 @@ export class ExtractionService {
       'Content-Type': 'text/csv',
       'Authorization': 'Bearer ' + this.rest.getAccessToken()
     });
-    return this.http.get(url, {headers: headers, params: params, responseType: 'blob'})
+    return this.http.get(url, {headers: headers, params: params, responseType: 'blob'});
   }
 
   extractLatestDataForStores(storeIds: number[], fieldSetId: number) {
@@ -31,7 +31,7 @@ export class ExtractionService {
       'Content-Type': 'text/csv',
       'Authorization': 'Bearer ' + this.rest.getAccessToken()
     });
-    return this.http.get(url, {headers: headers, params: params, responseType: 'blob'})
+    return this.http.get(url, {headers: headers, params: params, responseType: 'blob'});
 
   }
 }

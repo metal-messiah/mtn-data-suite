@@ -86,11 +86,11 @@ export class SelectBannerComponent implements OnInit {
   }
 
   getBannerCompanyName(banner: SimplifiedBanner): string {
-    return banner.companyName !== banner.bannerName ? banner.companyName : ''
+    return banner.companyName !== banner.bannerName ? banner.companyName : '';
   }
 
   getBannerParentCompanyName(banner: SimplifiedBanner): string {
-    return banner.companyName !== banner.parentCompanyName ? banner.parentCompanyName : ''
+    return banner.companyName !== banner.parentCompanyName ? banner.parentCompanyName : '';
   }
 
   selectBanner(banner: SimplifiedBanner, event: MouseEvent) {

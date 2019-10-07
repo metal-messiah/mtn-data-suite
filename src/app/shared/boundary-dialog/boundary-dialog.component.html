@@ -1,0 +1,75 @@
+<h3 mat-dialog-title>Boundaries <i class="fas fa-draw-polygon"></i></h3>
+<div mat-dialog-content>
+  <mat-tab-group #tabGroup [selectedIndex]="tabs.CUSTOM">
+    <mat-tab label="Project">
+      <mat-selection-list [(ngModel)]="enabledProjectBoundaries">
+        <mat-list-option
+          *ngFor="let project of projectBoundaries"
+          [value]="project"
+          [checkboxPosition]="'before'"
+        >
+          <div class="mat-list-option-content">
+            <div>{{ project.projectName }}</div>
+          </div>
+        </mat-list-option>
+      </mat-selection-list>
+    </mat-tab>
+    <mat-tab label="Political" [disabled]="true">
+      <mat-selection-list [(ngModel)]="enabledGeoPoliticalBoundaries">
+        <mat-list-option
+          *ngFor="let boundary of geoPoliticalBoundaries"
+          [value]="boundary"
+          [checkboxPosition]="'before'"
+        >
+          <div class="mat-list-option-content">
+            <div>{{ boundary.boundaryName }}</div>
+          </div>
+        </mat-list-option>
+      </mat-selection-list>
+    </mat-tab>
+    <mat-tab label="Custom">
+      <button
+        class="create-new-button"
+        mat-raised-button
+        color="accent"
+        (click)="createNewBoundary()"
+      >
+        Create New
+      </button>
+      <mat-selection-list [(ngModel)]="enabledCustomBoundaries">
+        <mat-list-option
+          *ngFor="let boundary of customBoundaries"
+          [value]="boundary"
+          [checkboxPosition]="'before'"
+        >
+          <div class="mat-list-option-content">
+            <div>{{ boundary.boundaryName }}</div>
+            <button
+              mat-icon-button
+              color="primary"
+              (click)="setTargetBoundary(boundary, $event)"
+              [mat-menu-trigger-for]="editSubmenu"
+            >
+              <i class="fas fa-pencil-alt"></i>
+            </button>
+          </div>
+        </mat-list-option>
+      </mat-selection-list>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+<div mat-dialog-actions>
+  <button color="primary" mat-dialog-close mat-raised-button>Close</button>
+</div>
+
+<mat-menu #editSubmenu="matMenu">
+  <button mat-menu-item (click)="editName()">
+    <i class="fas fa-pencil-alt"></i>&nbsp;&nbsp;Edit Name
+  </button>
+  <button mat-menu-item (click)="editBoundary()">
+    <i class="fas fa-draw-polygon"></i>&nbsp;&nbsp;Edit Boundary
+  </button>
+  <button mat-menu-item (click)="deleteBoundary()">
+    <i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete Boundary
+  </button>
+</mat-menu>

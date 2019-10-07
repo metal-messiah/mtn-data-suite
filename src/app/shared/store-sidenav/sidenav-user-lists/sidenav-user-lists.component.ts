@@ -82,8 +82,8 @@ export class SidenavUserListsComponent implements OnInit, OnDestroy {
           .pipe(finalize(() => this.saving = false))
           .subscribe(() => {
             this.snackBar.open('Successfully deleted storeList', null, {duration: 2000});
-            this.getUserStoreLists()
-          })
+            this.getUserStoreLists();
+          });
       }
     });
   }
@@ -112,7 +112,7 @@ export class SidenavUserListsComponent implements OnInit, OnDestroy {
         this.getUserStoreLists();
       }, err => this.errorService.handleServerError('Failed to create new list!', err,
         () => console.log(err),
-        () => this.saveNewList(newStoreList)))
+        () => this.saveNewList(newStoreList)));
   }
 
   renameList(storeList: SimplifiedStoreList) {

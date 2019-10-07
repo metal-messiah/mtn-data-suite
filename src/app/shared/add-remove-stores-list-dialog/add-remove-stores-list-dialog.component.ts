@@ -100,7 +100,7 @@ export class AddRemoveStoresListDialogComponent implements OnInit {
         this.storeLists.sort((a, b) => a.storeListName.localeCompare(b.storeListName));
       }, err => this.errorService.handleServerError('Failed to create new list!', err,
         () => console.log(err),
-        () => this.saveNewList(newStoreList)))
+        () => this.saveNewList(newStoreList)));
   }
 
   submit() {
@@ -108,13 +108,13 @@ export class AddRemoveStoresListDialogComponent implements OnInit {
       const obs = this.selectedListIds.map(listId => this.storeListService.addStoresToStoreList(listId, this.storeIds));
       forkJoin(obs).subscribe(() => {
         this.snackBar.open('Successfully added stores to selected lists', null, {duration: 2000});
-        this.dialogRef.close()
+        this.dialogRef.close();
       });
     } else {
       const obs = this.selectedListIds.map(listId => this.storeListService.removeStoresFromStoreList(listId, this.storeIds));
       forkJoin(obs).subscribe(() => {
         this.snackBar.open('Successfully removed stores from selected lists', null, {duration: 2000});
-        this.dialogRef.close()
+        this.dialogRef.close();
       });
     }
   }

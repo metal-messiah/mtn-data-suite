@@ -19,7 +19,7 @@ export class StoredControlsSelectionDialogComponent {
     this.storageService.getOne(ControlStorageKeys.savedDbEntityMarkerServiceControls).subscribe((savedControls) => {
       this.originalSavedControlsObject = savedControls;
       this.setControlItems(this.originalSavedControlsObject);
-    })
+    });
   }
 
   setControlItems(savedControls) {

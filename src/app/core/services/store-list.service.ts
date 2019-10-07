@@ -88,7 +88,7 @@ export class StoreListService extends CrudService<StoreList> {
     return this.getOneById(storeListId)
       .pipe(concatMap((sl: StoreList) => {
         sl.storeListName = newListName;
-        return this.update(sl)
+        return this.update(sl);
       }));
   }
 }

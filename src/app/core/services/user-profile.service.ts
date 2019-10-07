@@ -11,23 +11,33 @@ import { SimplifiedPermission } from '../../models/simplified/simplified-permiss
 
 @Injectable()
 export class UserProfileService extends CrudService<UserProfile> {
-
   protected endpoint = '/api/user';
 
   constructor(protected http: HttpClient, protected rest: RestService) {
     super(http, rest);
   }
 
-  getUserProfiles(pageNumber: number = 0, size: number = 50): Observable<Pageable<UserProfile>> {
+  getUserProfiles(
+    pageNumber: number = 0,
+    size: number = 50
+  ): Observable<Pageable<UserProfile>> {
     const url = this.rest.getHost() + this.endpoint;
     let params = new HttpParams().set('page', String(pageNumber));
     params = params.set('size', String(size));
     params = params.set('sort', 'firstName,lastName');
-    return this.http.get<Pageable<UserProfile>>(url, {headers: this.rest.getHeaders(), params: params})
-      .pipe(map(page => {
-        page.content = page.content.map(entityObj => new UserProfile(entityObj));
-        return page;
-      }));
+    return this.http
+      .get<Pageable<UserProfile>>(url, {
+        headers: this.rest.getHeaders(),
+        params: params
+      })
+      .pipe(
+        map(page => {
+          page.content = page.content.map(
+            entityObj => new UserProfile(entityObj)
+          );
+          return page;
+        })
+      );
   }
 
   setUserGroup(userProfileId: number, groupId: number) {
@@ -70,5 +80,4 @@ export class UserProfileService extends CrudService<UserProfile> {
   protected createEntityFromObj(entityObj): UserProfile {
     return new UserProfile(entityObj);
   }
-
 }

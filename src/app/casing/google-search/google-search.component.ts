@@ -49,7 +49,7 @@ export class GoogleSearchComponent implements AfterViewInit {
         // google autocomplete selection event doesn't re-paint the DOM, force it here...
         this.ngZone.run(() => { });
       }
-    })
+    });
   }
 
   validate() {
@@ -61,7 +61,7 @@ export class GoogleSearchComponent implements AfterViewInit {
   }
 
   isValidSearch() {
-    return this.searchQuery !== '' && this.searchQuery.length >= 3
+    return this.searchQuery !== '' && this.searchQuery.length >= 3;
   }
 
   getSubmitButtonText() {
@@ -86,7 +86,7 @@ export class GoogleSearchComponent implements AfterViewInit {
     if (this.autocompleteResult) {
       this.dialogRef.close({
         place: this.autocompleteResult
-      })
+      });
     } else {
       this.dialogRef.close({
         query: this.searchQuery

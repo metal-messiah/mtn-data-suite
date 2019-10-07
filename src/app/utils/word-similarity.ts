@@ -1,8 +1,8 @@
 export class WordSimilarity {
 
     static levenshtein(a, b) {
-        if (a.length === 0) { return b.length }
-        if (b.length === 0) { return a.length }
+        if (a.length === 0) { return b.length; }
+        if (b.length === 0) { return a.length; }
 
         const matrix = [];
 

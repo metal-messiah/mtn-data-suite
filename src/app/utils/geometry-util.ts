@@ -34,7 +34,7 @@ export class GeometryUtil {
         type: 'Polygon',
         coordinates: rings
       }
-    }
+    };
   }
 
   static googleRectangleToGeoJsonFeature(rectangle: google.maps.Rectangle): Feature {
@@ -55,7 +55,7 @@ export class GeometryUtil {
         type: 'Point',
         coordinates: [circle.getCenter().lng(), circle.getCenter().lat()]
       }
-    }
+    };
   }
 
   // Test for right/left handedness (right = counter)
@@ -86,7 +86,7 @@ export class GeometryUtil {
           }
           // else skip (eliminates duplicate points
         } else {
-          path.push(new LatLng(lat, lng))
+          path.push(new LatLng(lat, lng));
         }
       });
       paths.push(path);

@@ -28,7 +28,7 @@ export class ReportDownloadComponent implements OnInit {
   }
 
   startOver() {
-    this.router.navigate(['reports'], {replaceUrl: true})
+    this.router.navigate(['reports'], {replaceUrl: true});
   }
 
 }

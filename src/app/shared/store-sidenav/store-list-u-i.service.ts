@@ -130,12 +130,12 @@ export class StoreListUIService {
   private getPersistedSettings() {
     const getSortType = this.storageService.getOne(this.SORT_TYPE_STORAGE_KEY).pipe(tap(t => {
       if (t) {
-        this.sortType = t
+        this.sortType = t;
       }
     }));
     const getSortDirection = this.storageService.getOne(this.SORT_DIRECTION_STORAGE_KEY).pipe(tap(d => {
       if (d) {
-        this.sortDirection = d
+        this.sortDirection = d;
       }
     }));
     forkJoin([getSortType, getSortDirection]).subscribe(() => this.sortSiteLists());
@@ -234,15 +234,15 @@ export class StoreListUIService {
       const groupedStores = _.groupBy(siteMarker.stores, (st) => st.storeType);
       if (groupedStores['ACTIVE']) {
         const storeMarker = groupedStores['ACTIVE'].sort((a, b) => b.createdDate.getTime() - a.createdDate.getTime())[0];
-        this._activeStores.push(new SiteListItem(siteMarker, storeMarker))
+        this._activeStores.push(new SiteListItem(siteMarker, storeMarker));
       }
       if (groupedStores['FUTURE']) {
         const storeMarker = groupedStores['FUTURE'].sort((a, b) => b.createdDate.getTime() - a.createdDate.getTime())[0];
-        this._futureStores.push(new SiteListItem(siteMarker, storeMarker))
+        this._futureStores.push(new SiteListItem(siteMarker, storeMarker));
       }
       if (groupedStores['HISTORICAL']) {
         const storeMarker = groupedStores['HISTORICAL'].sort((a, b) => b.createdDate.getTime() - a.createdDate.getTime())[0];
-        this._historicalStores.push(new SiteListItem(siteMarker, storeMarker))
+        this._historicalStores.push(new SiteListItem(siteMarker, storeMarker));
       }
     });
     this.sortSiteLists();

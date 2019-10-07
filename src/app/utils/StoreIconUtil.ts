@@ -57,7 +57,7 @@ export class StoreIconUtil {
 
   public static getStoreIconMarkerShape(store: StoreMarker, showLogo: boolean, showCased: boolean, showValidated: boolean) {
     if (showValidated) {
-      return MarkerShape.CERTIFICATE
+      return MarkerShape.CERTIFICATE;
     }
     if (showCased || showLogo) {
       return MarkerShape.CIRCLE;
@@ -140,11 +140,11 @@ export class StoreIconUtil {
     if (showLogo) {
       const pictureLabel = document.createElement('img');
       pictureLabel.src = cloudinaryUtil.getUrlForLogoFileName(store.logoFileName, 20);
-      return pictureLabel
+      return pictureLabel;
     }
     if (store.storeName) {
       if (showFullLabel) {
-        labelText = store.storeName
+        labelText = store.storeName;
       } else {
         labelText = store.storeName[0];
       }
