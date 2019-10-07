@@ -27,7 +27,7 @@ export class InfoCardComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.componentRef) {
-      this.componentRef.destroy()
+      this.componentRef.destroy();
     }
   }
 

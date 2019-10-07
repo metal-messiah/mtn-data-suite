@@ -36,13 +36,13 @@ export class ReportTablesComponent implements OnInit {
       setTimeout(() => {
         this.snackBar.open('No data has been loaded. Starting from the beginning', null, {duration: 2000});
         this.router.navigate(['reports']);
-      }, 10)
+      }, 10);
     } else {
       this.host.nativeElement.scrollTop = 0;
 
       this.util = new JsonToTablesUtil(this._rbs);
       this.reportData = this.util.getReportData();
-      this.getPdfData()
+      this.getPdfData();
     }
   }
 
@@ -60,8 +60,8 @@ export class ReportTablesComponent implements OnInit {
           originalSize: false,
           autoResize: true,
           fitToPage: false
-        }
-      })))
+        };
+      })));
     });
 
     forkJoin(requests).subscribe(() => {},
@@ -108,7 +108,7 @@ export class ReportTablesComponent implements OnInit {
         },
         err => {
           this._rbs.compilingReport = false;
-          this.errorService.handleServerError('Failed to retrieve zip file', err, () => console.log(err))
+          this.errorService.handleServerError('Failed to retrieve zip file', err, () => console.log(err));
         });
   }
 

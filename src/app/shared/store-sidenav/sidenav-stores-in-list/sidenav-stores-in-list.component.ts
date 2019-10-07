@@ -85,7 +85,7 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
             }
             this.updateListUIElements().subscribe();
           }
-        })
+        });
       });
     });
   }
@@ -117,7 +117,7 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
               () => console.log(err), () => this.renameList()));
         }
       }
-    })
+    });
   }
 
   deleteList() {
@@ -234,7 +234,7 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
         const points = stores.map((s: SimplifiedStore) => new LatLng(s.site.latitude, s.site.longitude));
         this.mapService.fitToPoints(points);
       }, err => this.errorService.handleServerError('Failed to get coordinates for selection!', err,
-        () => console.log(err), () => this.zoomToSelection()))
+        () => console.log(err), () => this.zoomToSelection()));
   }
 
 }

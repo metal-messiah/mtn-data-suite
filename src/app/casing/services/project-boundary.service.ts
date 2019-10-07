@@ -1,13 +1,13 @@
-import { Injectable } from "@angular/core";
-import { tap } from "rxjs/operators";
+import { Injectable } from '@angular/core';
+import { tap } from 'rxjs/operators';
 
-import { SimplifiedProject } from "../../models/simplified/simplified-project";
-import { Boundary } from "../../models/full/boundary";
-import { ProjectBoundary } from "../../models/project-boundary";
-import { ProjectService } from "../../core/services/project.service";
-import { CasingDashboardService } from "../casing-dashboard/casing-dashboard.service";
-import { MapService } from "../../core/services/map.service";
-import { BoundaryService } from "app/core/services/boundary.service";
+import { SimplifiedProject } from '../../models/simplified/simplified-project';
+import { Boundary } from '../../models/full/boundary';
+import { ProjectBoundary } from '../../models/project-boundary';
+import { ProjectService } from '../../core/services/project.service';
+import { CasingDashboardService } from '../casing-dashboard/casing-dashboard.service';
+import { MapService } from '../../core/services/map.service';
+import { BoundaryService } from 'app/core/services/boundary.service';
 
 /*
   Consumers of this service can:
@@ -20,7 +20,7 @@ import { BoundaryService } from "app/core/services/boundary.service";
   - Complete editing project boundary
  */
 @Injectable({
-  providedIn: "root"
+  providedIn: 'root'
 })
 export class ProjectBoundaryService {
   // Project Editing flags

@@ -102,7 +102,7 @@ export class SelectProjectComponent implements OnInit {
         this.router.navigate(['casing/project', project.id]);
         this.dialogRef.close();
       }
-    })
+    });
   }
 
   closeDialog(): void {
@@ -118,7 +118,7 @@ export class SelectProjectComponent implements OnInit {
     this.gettingProject = true;
     this.projectService.getOneById(p.id)
       .pipe(finalize(() => this.gettingProject = false))
-      .subscribe((project: Project) => this.openedProject = project)
+      .subscribe((project: Project) => this.openedProject = project);
   }
 
   downloadBoundary(selectedProject: SimplifiedProject) {

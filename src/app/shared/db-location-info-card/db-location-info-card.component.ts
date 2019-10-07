@@ -55,7 +55,7 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
       this.storeService.getOneById(this.infoCardItem.selection.storeId).subscribe((store: Store) => {
         this.initStore(store);
         this.initSite(store.site);
-      })
+      });
     } else if (this.infoCardItem.selection.siteId) {
       this.siteService.getOneById(this.infoCardItem.selection.siteId).subscribe((site: Site) => this.initSite(new SimplifiedSite(site)));
     }
@@ -157,7 +157,7 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
         },
         err => this.errorService.handleServerError('Failed to validate store', err,
           () => console.log('cancelled'),
-          () => this.validateStore()))
+          () => this.validateStore()));
   }
 
   invalidateStore() {
@@ -169,7 +169,7 @@ export class DbLocationInfoCardComponent implements OnInit, OnChanges {
         },
         err => this.errorService.handleServerError('Failed to invalidate store', err,
           () => console.log('cancelled'),
-          () => this.validateStore()))
+          () => this.validateStore()));
   }
 
   addToList() {

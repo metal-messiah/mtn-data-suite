@@ -14,7 +14,7 @@ describe('RolesComponent', () => {
   let fixture: ComponentFixture<RolesComponent>;
 
   beforeEach(async(() => {
-    const entityListServiceSpy = jasmine.createSpyObj('EntityListService', ['initialize', 'confirmDelete'])
+    const entityListServiceSpy = jasmine.createSpyObj('EntityListService', ['initialize', 'confirmDelete']);
 
     TestBed.configureTestingModule({
       imports: [

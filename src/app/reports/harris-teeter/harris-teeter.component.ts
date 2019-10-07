@@ -94,7 +94,7 @@ export class HarrisTeeterComponent implements OnInit {
           additionalText = ' ' + additionalText;
         }
         const totalArea: number = siControl.get('totalArea').value;
-        return `${storeName} at ${location.replace('/', 'in')}, ${scenario}${additionalText}, ${totalArea.toLocaleString()} TSQFT.`
+        return `${storeName} at ${location.replace('/', 'in')}, ${scenario}${additionalText}, ${totalArea.toLocaleString()} TSQFT.`;
       });
   }
 
@@ -112,7 +112,7 @@ export class HarrisTeeterComponent implements OnInit {
         ingress: this.form.get('ingressRating').value,
         egress: this.form.get('egressRating').value
       }
-    }
+    };
   }
 
   private getImpactedSisterStores(reportData) {
@@ -132,7 +132,7 @@ export class HarrisTeeterComponent implements OnInit {
           scenarioImpacts: {
             'S1 A': store.contributionDollars
           }
-        }
+        };
       });
   }
 
@@ -162,7 +162,7 @@ export class HarrisTeeterComponent implements OnInit {
         },
         err => {
           this.rbs.compilingReport = false;
-          this.errorService.handleServerError('Failed get pdf', err, () => console.log(err))
+          this.errorService.handleServerError('Failed get pdf', err, () => console.log(err));
         });
   }
 

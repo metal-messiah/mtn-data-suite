@@ -78,7 +78,7 @@ export class StoreVolumeDialogComponent implements OnInit {
         this.store = store;
         this.loadVolumes(store.id);
       }
-    })
+    });
   }
 
 }

@@ -142,7 +142,7 @@ export class ProjectBoundary {
     } else if (feature.geometry.type === 'Point' && feature.properties.radius) {
       this.parseCircle(feature.geometry, feature.properties.radius);
     } else {
-      throw new Error("Can't identify geometry type");
+      throw new Error('Can\'t identify geometry type');
     }
   }
 

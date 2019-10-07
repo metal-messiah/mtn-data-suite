@@ -206,7 +206,7 @@ export class ReportBuilderService {
     const totalArea = control.get('totalArea').value;
 
     return (category === 'Do Not Include' || (totalArea)) ? null : {totalAreaIfInclude: true};
-  };
+  }
 
   getDataVerificationForm() {
     if (this.reportTableData) {

@@ -32,7 +32,7 @@ export class XlsToModelParserService {
 
       observer.next(reportData);
       observer.complete();
-    })
+    });
   }
 
   private getStoreList(ws: WorkSheet): StoreListItem[] {
@@ -64,7 +64,7 @@ export class XlsToModelParserService {
         useTradeAreaChange: false,
         forceInclusion: false,
         scenario: 'Existing'
-      })
+      });
     } while (!ws['A' + ++row].v.includes('Totals'));
 
     return storeListItems;
@@ -87,7 +87,7 @@ export class XlsToModelParserService {
         taChange: this.getNumberFromCell(ws, 'I' + row),
         taChangePerc: this.getNumberFromCell(ws, 'J' + row),
         location: ws['K' + row].v
-      })
+      });
     } while (!ws['A' + ++row].v.includes('Totals'));
 
     return volumeItems;
@@ -125,7 +125,7 @@ export class XlsToModelParserService {
         distribution: this.getNumberFromCell(ws, 'I' + row),
         futurePop2: this.getNumberFromCell(ws, 'J' + row),
         futurePop3: this.getNumberFromCell(ws, 'K' + row)
-      })
+      });
     } while (ws['A' + ++row].t === 'n');
 
     return items;
@@ -144,7 +144,7 @@ export class XlsToModelParserService {
         pop: this.getNumberFromCell(ws, 'E' + row),
         PCW: this.getNumberFromCell(ws, 'F' + row),
         leakage: this.getNumberFromCell(ws, 'G' + row)
-      })
+      });
     } while (ws['A' + ++row].t === 'n');
 
     return items;
@@ -159,7 +159,7 @@ export class XlsToModelParserService {
         items.push({
           mapKey: this.getNumberFromCell(ws, 'B' + row),
           assumedPower: this.getNumberFromCell(ws, 'H' + row)
-        })
+        });
       } while (ws['A' + ++row].v !== 'Totals');
 
       return items;

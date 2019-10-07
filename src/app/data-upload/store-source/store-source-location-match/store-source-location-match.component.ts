@@ -69,7 +69,7 @@ export class StoreSourceLocationMatchComponent implements OnInit, OnChanges {
   }
 
   getSiteAddressString(site: SiteMarker) {
-    return AddressUtil.getAddressString(site.address, site.city, site.state, null)
+    return AddressUtil.getAddressString(site.address, site.city, site.state, null);
   }
 
   isBestMatch(storeId: number) {

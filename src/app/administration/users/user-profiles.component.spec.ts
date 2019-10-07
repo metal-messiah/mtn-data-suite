@@ -14,7 +14,7 @@ describe('UserProfilesComponent', () => {
   let fixture: ComponentFixture<UserProfilesComponent>;
 
   beforeEach(async(() => {
-    const entityListServiceSpy = jasmine.createSpyObj('EntityListService', ['initialize', 'confirmDelete'])
+    const entityListServiceSpy = jasmine.createSpyObj('EntityListService', ['initialize', 'confirmDelete']);
 
     TestBed.configureTestingModule({
       imports: [

@@ -14,7 +14,7 @@ describe('GroupsComponent', () => {
   let fixture: ComponentFixture<GroupsComponent>;
 
   beforeEach(async(() => {
-    const entityListServiceSpy = jasmine.createSpyObj('EntityListService', ['initialize', 'confirmDelete'])
+    const entityListServiceSpy = jasmine.createSpyObj('EntityListService', ['initialize', 'confirmDelete']);
 
     TestBed.configureTestingModule({
       imports: [

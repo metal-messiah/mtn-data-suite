@@ -30,7 +30,7 @@ export class CasingDashboardService {
   setShowingStoreListSidenav(show: boolean) {
     this._showingStoreListSidenav = show;
     // Save the state
-    this.storageService.set(this.STORE_LIST_STORAGE_KEY, this._showingStoreListSidenav).subscribe()
+    this.storageService.set(this.STORE_LIST_STORAGE_KEY, this._showingStoreListSidenav).subscribe();
   }
 
   get showingStoreListSidenav() {

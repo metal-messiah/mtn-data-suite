@@ -44,7 +44,7 @@ export class ProjectExtractionComponent implements OnInit {
 
   goBack() {
     this._location.back();
-  };
+  }
 
   openProjectSelectionDialog(): void {
     this.dialog.open(SelectProjectComponent, {maxWidth: '90%'}).afterClosed()
