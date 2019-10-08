@@ -62,7 +62,6 @@ import { CasingDashboardMode } from '../enums/casing-dashboard-mode';
 import { EntitySelectionService } from '../../core/services/entity-selection.service';
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 import { CasingProjectService } from '../casing-project.service';
-import { SimplifiedProject } from '../../models/simplified/simplified-project';
 import { ProjectSummaryComponent } from '../project-summary/project-summary.component';
 import { StoreSelectionDialogComponent } from '../store-merge/store-selection-dialog/store-selection-dialog.component';
 import { StoreAttrSelectionDialogComponent } from '../store-merge/store-attr-selection-dialog/store-attr-selection-dialog.component';
