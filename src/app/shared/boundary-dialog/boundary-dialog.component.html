@@ -14,18 +14,10 @@
         </mat-list-option>
       </mat-selection-list>
     </mat-tab>
-    <mat-tab label="Political" [disabled]="true">
-      <mat-selection-list [(ngModel)]="enabledGeoPoliticalBoundaries">
-        <mat-list-option
-          *ngFor="let boundary of geoPoliticalBoundaries"
-          [value]="boundary"
-          [checkboxPosition]="'before'"
-        >
-          <div class="mat-list-option-content">
-            <div>{{ boundary.boundaryName }}</div>
-          </div>
-        </mat-list-option>
-      </mat-selection-list>
+    <mat-tab label="Political">
+      <div style="margin-top:20px; display: flex; justify-content: center;">
+        <i class="fas fa-hammer"></i>&nbsp;Coming Soon
+      </div>
     </mat-tab>
     <mat-tab label="Custom">
       <button
