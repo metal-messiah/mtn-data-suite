@@ -27,3 +27,7 @@ mat-list-option {
 p.mat-caption {
   font-size: x-small !important;
 }
+
+form {
+  min-height: 50vh;
+}

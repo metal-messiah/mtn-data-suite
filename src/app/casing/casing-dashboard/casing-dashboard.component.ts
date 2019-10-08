@@ -672,8 +672,8 @@ Geo-location
             this.projectBoundaryService.deactivateEditingMode(this.mapService);
             this.projectBoundaryService.projectBoundary.setGeoJson(JSON.parse(geojson));
             if (serverMethod === 'create') {
-              this.projectService.associateBoundaryToProject(projectId, b.id).subscribe(project => {
-                this.casingProjectService.setSelectedProject(project);
+              this.projectService.associateBoundaryToProject(projectId, b.id).subscribe(p => {
+                this.casingProjectService.setSelectedProject(p);
                 this.casingDashboardService.selectedDashboardMode = CasingDashboardMode.DEFAULT;
                 this.cancelBoundaryEditing();
               });

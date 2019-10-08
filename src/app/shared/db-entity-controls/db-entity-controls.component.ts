@@ -21,17 +21,18 @@ import { CloudinaryUtil } from '../../utils/cloudinary-util';
   styleUrls: ['./db-entity-controls.component.css']
 })
 export class DbEntityControlsComponent implements OnInit {
-
   @Output() viewStoreList = new EventEmitter<SimplifiedStoreList>();
 
   storeListOptions: SimplifiedStoreList[] = [];
 
   private readonly cloudinaryUtil: CloudinaryUtil;
 
-  constructor(private dbEntityMarkerService: DbEntityMarkerService,
-              private mapService: MapService,
-              private storeListService: StoreListService,
-              private dialog: MatDialog) {
+  constructor(
+    private dbEntityMarkerService: DbEntityMarkerService,
+    private mapService: MapService,
+    private storeListService: StoreListService,
+    private dialog: MatDialog
+  ) {
     this.cloudinaryUtil = new CloudinaryUtil();
   }
 
@@ -56,7 +57,9 @@ export class DbEntityControlsComponent implements OnInit {
   }
 
   selectAssignee() {
-    this.dialog.open(UserProfileSelectComponent).afterClosed()
+    this.dialog
+      .open(UserProfileSelectComponent)
+      .afterClosed()
       .subscribe(user => {
         if (user != null) {
           this.dbEntityMarkerService.controls.assignment = user;
@@ -73,11 +76,14 @@ export class DbEntityControlsComponent implements OnInit {
       data: {
         title: 'Select a Store List',
         items: this.storeListOptions,
+        sortField: 'storeListName',
         getDisplayText: (storeList: SimplifiedStoreList) => storeList.storeListName
       }
     };
-    this.dialog.open(SimpleSelectDialogComponent, config).afterClosed()
-      .subscribe(storeList => this.dbEntityMarkerService.controls.storeList = storeList);
+    this.dialog
+      .open(SimpleSelectDialogComponent, config)
+      .afterClosed()
+      .subscribe(storeList => (this.dbEntityMarkerService.controls.storeList = storeList));
   }
 
   clearStoreList() {
@@ -85,7 +91,9 @@ export class DbEntityControlsComponent implements OnInit {
   }
 
   saveFilter() {
-    this.dialog.open(TextInputDialogComponent, {data: {title: 'Filter Name', placeholder: 'Filter Name'}}).afterClosed()
+    this.dialog
+      .open(TextInputDialogComponent, { data: { title: 'Filter Name', placeholder: 'Filter Name' } })
+      .afterClosed()
       .subscribe(async (name: string) => {
         if (name) {
           this.dbEntityMarkerService.saveControlsAs(name);
@@ -94,7 +102,9 @@ export class DbEntityControlsComponent implements OnInit {
   }
 
   loadFilter() {
-    this.dialog.open(StoredControlsSelectionDialogComponent).afterClosed()
+    this.dialog
+      .open(StoredControlsSelectionDialogComponent)
+      .afterClosed()
       .subscribe((control: Control) => {
         if (control) {
           this.dbEntityMarkerService.setControls(control.control);
@@ -149,11 +159,7 @@ export class DbEntityControlsComponent implements OnInit {
   }
 
   getActiveControlNames() {
-    const {
-      updateOnBoundsChange,
-      cluster,
-      fullLabelMinZoomLevel
-    } = this.dbEntityMarkerService.controls;
+    const { updateOnBoundsChange, cluster, fullLabelMinZoomLevel } = this.dbEntityMarkerService.controls;
 
     const labels = [
       updateOnBoundsChange ? `Updating` : `NOT Updating`,
@@ -166,8 +172,16 @@ export class DbEntityControlsComponent implements OnInit {
 
   getActiveStatusNames() {
     const {
-      showClosed, showDeadDeal, showNewUnderConstruction, showOpen, showPlanned,
-      showProposed, showRemodel, showRumored, showStrongRumor, showTemporarilyClosed
+      showClosed,
+      showDeadDeal,
+      showNewUnderConstruction,
+      showOpen,
+      showPlanned,
+      showProposed,
+      showRemodel,
+      showRumored,
+      showStrongRumor,
+      showTemporarilyClosed
     } = this.dbEntityMarkerService.controls;
 
     const labels = [
@@ -201,12 +215,15 @@ export class DbEntityControlsComponent implements OnInit {
   }
 
   selectBanner() {
-    const config = {maxWidth: '90%'};
-    this.dialog.open(SelectBannerComponent, config).afterClosed().subscribe(selectedBanner => {
-      if (selectedBanner && selectedBanner.bannerName) {
-        this.dbEntityMarkerService.addBannerFilter(selectedBanner);
-      }
-    });
+    const config = { maxWidth: '90%' };
+    this.dialog
+      .open(SelectBannerComponent, config)
+      .afterClosed()
+      .subscribe(selectedBanner => {
+        if (selectedBanner && selectedBanner.bannerName) {
+          this.dbEntityMarkerService.addBannerFilter(selectedBanner);
+        }
+      });
   }
 
   getBannerImageSrc(banner: SimplifiedBanner) {
@@ -215,7 +232,7 @@ export class DbEntityControlsComponent implements OnInit {
 
   setStoreListOptions() {
     // Get all store lists (that the user has permissions to see)
-    this.storeListService.getStoreLists({}).subscribe(page => this.storeListOptions = page.content);
+    this.storeListService.getStoreLists({}).subscribe(page => (this.storeListOptions = page.content));
   }
 
   viewList(storeList: SimplifiedStoreList) {
