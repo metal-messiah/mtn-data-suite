@@ -63,7 +63,7 @@ export class FuzzySearchComponent implements OnChanges {
   constructor() {}
 
   ngOnChanges() {
-    if (this.data.length && this.keys.length) {
+    if (this.data && this.data.length && this.keys.length) {
       this.updateCount(this.data.length);
       this.searchOptions = new FuzzySearchOptions(null, this.data);
       this.searchOptions.setKeys(this.keys);
