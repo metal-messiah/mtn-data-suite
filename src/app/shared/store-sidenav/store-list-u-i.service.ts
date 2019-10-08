@@ -9,16 +9,19 @@ import { tap } from 'rxjs/operators';
 import { forkJoin } from 'rxjs';
 import { StorageService } from '../../core/services/storage.service';
 import { DbEntityMarkerControls } from '../../models/db-entity-marker-controls';
+import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
+import { DownloadDialogComponent } from 'app/casing/download-dialog/download-dialog.component';
+import { MatDialog } from '@angular/material';
 
 @Injectable()
 export class StoreListUIService {
-
   private readonly SORT_TYPE_STORAGE_KEY = 'storesListSortType';
   private readonly SORT_DIRECTION_STORAGE_KEY = 'storesListSortDirection';
 
   private readonly COMPARATORS = [
     {
-      sortType: SortType.STORE_NAME, compare: (a: SiteListItem, b: SiteListItem) => {
+      sortType: SortType.STORE_NAME,
+      compare: (a: SiteListItem, b: SiteListItem) => {
         if (a.store && b.store) {
           const result = a.store.storeName.localeCompare(b.store.storeName);
           return result === 0 ? a.coords.lat - b.coords.lat : result;
@@ -28,7 +31,8 @@ export class StoreListUIService {
       }
     },
     {
-      sortType: SortType.FLOAT, compare: (a: SiteListItem, b: SiteListItem) => {
+      sortType: SortType.FLOAT,
+      compare: (a: SiteListItem, b: SiteListItem) => {
         if (a.store && b.store) {
           return a.store.float === b.store.float ? this.defaultComparator.compare(a, b) : a.store.float ? 1 : -1;
         } else {
@@ -37,7 +41,8 @@ export class StoreListUIService {
       }
     },
     {
-      sortType: SortType.CREATED_DATE, compare: (a: SiteListItem, b: SiteListItem) => {
+      sortType: SortType.CREATED_DATE,
+      compare: (a: SiteListItem, b: SiteListItem) => {
         if (a.store && b.store) {
           const result = DateUtil.compareDates(a.store.createdDate, b.store.createdDate);
           return result === 0 ? this.defaultComparator.compare(a, b) : result;
@@ -47,24 +52,27 @@ export class StoreListUIService {
       }
     },
     {
-      sortType: SortType.VALIDATED_DATE, compare: (a: SiteListItem, b: SiteListItem) => {
+      sortType: SortType.VALIDATED_DATE,
+      compare: (a: SiteListItem, b: SiteListItem) => {
         if (a.store && b.store) {
           const result = DateUtil.compareDates(a.store.validatedDate, b.store.validatedDate);
           return result === 0 ? this.defaultComparator.compare(a, b) : result;
         } else {
           return this.defaultComparator.compare(a, b);
         }
-
       }
     },
     {
-      sortType: SortType.LATITUDE, compare: (a: SiteListItem, b: SiteListItem) => a.coords.lat - b.coords.lat
+      sortType: SortType.LATITUDE,
+      compare: (a: SiteListItem, b: SiteListItem) => a.coords.lat - b.coords.lat
     },
     {
-      sortType: SortType.LONGITUDE, compare: (a: SiteListItem, b: SiteListItem) => a.coords.lng - b.coords.lng
+      sortType: SortType.LONGITUDE,
+      compare: (a: SiteListItem, b: SiteListItem) => a.coords.lng - b.coords.lng
     },
     {
-      sortType: SortType.ASSIGNEE_NAME, compare: (a: SiteListItem, b: SiteListItem) => {
+      sortType: SortType.ASSIGNEE_NAME,
+      compare: (a: SiteListItem, b: SiteListItem) => {
         if (a.assigneeName && b.assigneeName) {
           const result = a.assigneeName.localeCompare(b.assigneeName);
           return result === 0 ? this.defaultComparator.compare(a, b) : result;
@@ -76,8 +84,13 @@ export class StoreListUIService {
       }
     },
     {
-      sortType: SortType.BACK_FILLED_NON_GROCERY, compare: (a: SiteListItem, b: SiteListItem) => {
-        return a.backfilledNonGrocery === b.backfilledNonGrocery ? this.defaultComparator.compare(a, b) : a.backfilledNonGrocery ? -1 : 1;
+      sortType: SortType.BACK_FILLED_NON_GROCERY,
+      compare: (a: SiteListItem, b: SiteListItem) => {
+        return a.backfilledNonGrocery === b.backfilledNonGrocery
+          ? this.defaultComparator.compare(a, b)
+          : a.backfilledNonGrocery
+          ? -1
+          : 1;
       }
     }
   ];
@@ -90,29 +103,21 @@ export class StoreListUIService {
 
   private _siteMarkers = [];
 
-
   readonly sortGroups = [
     {
-      name: 'Store', keys: [
-        SortType.STORE_NAME,
-        SortType.FLOAT,
-        SortType.CREATED_DATE,
-        SortType.VALIDATED_DATE
-      ]
-    }, {
-      name: 'Site', keys: [
-        SortType.LATITUDE,
-        SortType.LONGITUDE,
-        SortType.ASSIGNEE_NAME,
-        SortType.BACK_FILLED_NON_GROCERY
-      ]
+      name: 'Store',
+      keys: [SortType.STORE_NAME, SortType.FLOAT, SortType.CREATED_DATE, SortType.VALIDATED_DATE]
+    },
+    {
+      name: 'Site',
+      keys: [SortType.LATITUDE, SortType.LONGITUDE, SortType.ASSIGNEE_NAME, SortType.BACK_FILLED_NON_GROCERY]
     }
   ];
 
   readonly storeTabs = [
-    {tabTitle: 'Historical', getStores: () => this._historicalStores},
-    {tabTitle: 'Active', getStores: () => this._activeStores},
-    {tabTitle: 'Future', getStores: () => this._futureStores}
+    { tabTitle: 'Historical', getStores: () => this._historicalStores },
+    { tabTitle: 'Active', getStores: () => this._activeStores },
+    { tabTitle: 'Future', getStores: () => this._futureStores }
   ];
 
   vacantSites = [];
@@ -122,22 +127,25 @@ export class StoreListUIService {
   sortType: SortType = SortType.STORE_NAME;
   sortDirection: SortDirection = SortDirection.ASC;
 
-
-  constructor(private storageService: StorageService) {
+  constructor(private storageService: StorageService, private dialog: MatDialog) {
     this.getPersistedSettings();
   }
 
   private getPersistedSettings() {
-    const getSortType = this.storageService.getOne(this.SORT_TYPE_STORAGE_KEY).pipe(tap(t => {
-      if (t) {
-        this.sortType = t;
-      }
-    }));
-    const getSortDirection = this.storageService.getOne(this.SORT_DIRECTION_STORAGE_KEY).pipe(tap(d => {
-      if (d) {
-        this.sortDirection = d;
-      }
-    }));
+    const getSortType = this.storageService.getOne(this.SORT_TYPE_STORAGE_KEY).pipe(
+      tap(t => {
+        if (t) {
+          this.sortType = t;
+        }
+      })
+    );
+    const getSortDirection = this.storageService.getOne(this.SORT_DIRECTION_STORAGE_KEY).pipe(
+      tap(d => {
+        if (d) {
+          this.sortDirection = d;
+        }
+      })
+    );
     forkJoin([getSortType, getSortDirection]).subscribe(() => this.sortSiteLists());
   }
 
@@ -227,26 +235,41 @@ export class StoreListUIService {
     this._activeStores = [];
     this._futureStores = [];
     siteMarkers.forEach((siteMarker: SiteMarker) => {
-      if (siteMarker.vacant && controls.showVacantSites &&
-        (controls.showSitesBackfilledByNonGrocery || !siteMarker.backfilledNonGrocery)) {
+      if (
+        siteMarker.vacant &&
+        controls.showVacantSites &&
+        (controls.showSitesBackfilledByNonGrocery || !siteMarker.backfilledNonGrocery)
+      ) {
         this.vacantSites.push(new SiteListItem(siteMarker));
       }
-      const groupedStores = _.groupBy(siteMarker.stores, (st) => st.storeType);
+      const groupedStores = _.groupBy(siteMarker.stores, st => st.storeType);
       if (groupedStores['ACTIVE']) {
-        const storeMarker = groupedStores['ACTIVE'].sort((a, b) => b.createdDate.getTime() - a.createdDate.getTime())[0];
+        const storeMarker = groupedStores['ACTIVE'].sort(
+          (a, b) => b.createdDate.getTime() - a.createdDate.getTime()
+        )[0];
         this._activeStores.push(new SiteListItem(siteMarker, storeMarker));
       }
       if (groupedStores['FUTURE']) {
-        const storeMarker = groupedStores['FUTURE'].sort((a, b) => b.createdDate.getTime() - a.createdDate.getTime())[0];
+        const storeMarker = groupedStores['FUTURE'].sort(
+          (a, b) => b.createdDate.getTime() - a.createdDate.getTime()
+        )[0];
         this._futureStores.push(new SiteListItem(siteMarker, storeMarker));
       }
       if (groupedStores['HISTORICAL']) {
-        const storeMarker = groupedStores['HISTORICAL'].sort((a, b) => b.createdDate.getTime() - a.createdDate.getTime())[0];
+        const storeMarker = groupedStores['HISTORICAL'].sort(
+          (a, b) => b.createdDate.getTime() - a.createdDate.getTime()
+        )[0];
         this._historicalStores.push(new SiteListItem(siteMarker, storeMarker));
       }
     });
     this.sortSiteLists();
   }
 
-
+  openDownloadDialog(storeList: SimplifiedStoreList) {
+    const config = {
+      data: { selectedStoreList: storeList },
+      maxWidth: '90%'
+    };
+    this.dialog.open(DownloadDialogComponent, config);
+  }
 }

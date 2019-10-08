@@ -15,24 +15,37 @@
   <i class="fas fa-spinner fa-2x fa-pulse"></i>
 </div>
 <mat-list *ngIf="storeLists && !fetching">
-  <div *ngFor="let storeList of storeLists" class="list-item"
-       [ngClass]="{'current-filter': storeListIsCurrentFilter(storeList)}">
+  <div
+    *ngFor="let storeList of storeLists"
+    class="list-item"
+    [ngClass]="{ 'current-filter': storeListIsCurrentFilter(storeList) }"
+  >
     <div style="display: flex; flex-direction: column; flex: 1;">
       <div style="display: flex;">
-        <span class="list-name">{{storeList.storeListName}}</span>
-        <div><i [title]="'Only Showing Stores in ' + storeList.storeListName"
-           *ngIf="storeListIsCurrentFilter(storeList)" class="fas fa-filter" style="color: #607d8b"></i></div>
+        <span class="list-name">{{ storeList.storeListName }}</span>
+        <div>
+          <i
+            [title]="'Only Showing Stores in ' + storeList.storeListName"
+            *ngIf="storeListIsCurrentFilter(storeList)"
+            class="fas fa-filter"
+            style="color: #607d8b"
+          ></i>
+        </div>
       </div>
-      <div class="mat-caption">Created By {{storeList.createdBy.name}}</div>
+      <div class="mat-caption">Created By {{ storeList.createdBy.name }}</div>
     </div>
 
     <div>
-      <button class="badged-button" mat-icon-button (click)="goToStoreList(storeList)"
-              [matBadge]="storeList.storeCount">
+      <button
+        class="badged-button"
+        mat-icon-button
+        (click)="goToStoreList(storeList)"
+        [matBadge]="storeList.storeCount"
+      >
         <i class="fas fa-list-ul"></i>
       </button>
       <!-- OPTIONS MENU FOR EACH STORELIST -->
-      <button class='menu-icon-button' mat-icon-button [mat-menu-trigger-for]="siteMenu">
+      <button class="menu-icon-button" mat-icon-button [mat-menu-trigger-for]="siteMenu">
         <i class="site-menu fas fa-ellipsis-v"></i>
       </button>
     </div>
@@ -45,6 +58,10 @@
       <button mat-menu-item (click)="goToStoreList(storeList)">
         <i class="fas fa-list-ul"></i>
         <span>View Stores</span>
+      </button>
+      <button mat-menu-item (click)="storeListUIService.openDownloadDialog(storeList)">
+        <i class="fas fa-download"></i>
+        <span>Download Store Data</span>
       </button>
       <button *ngIf="!storeListIsCurrentFilter(storeList)" mat-menu-item (click)="setStoreListAsFilter(storeList)">
         <i class="fas fa-filter"></i>
@@ -66,6 +83,5 @@
         <span>Delete List</span>
       </button>
     </mat-menu>
-
   </div>
 </mat-list>

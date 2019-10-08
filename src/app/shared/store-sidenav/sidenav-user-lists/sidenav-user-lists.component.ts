@@ -15,14 +15,16 @@ import { SimplifiedStore } from '../../../models/simplified/simplified-store';
 import { LatLng } from '../../../models/latLng';
 import { StorageService } from '../../../core/services/storage.service';
 import { Subscription } from 'rxjs';
+import { DownloadDialogComponent } from 'app/casing/download-dialog/download-dialog.component';
+import { StoreListUIService } from '../store-list-u-i.service';
 
 @Component({
   selector: 'mds-sidenav-user-lists',
   templateUrl: './sidenav-user-lists.component.html',
-  styleUrls: ['./sidenav-user-lists.component.css']
+  styleUrls: ['./sidenav-user-lists.component.css'],
+  providers: [StoreListUIService]
 })
 export class SidenavUserListsComponent implements OnInit, OnDestroy {
-
   storeLists: SimplifiedStoreList[];
 
   fetching = false;
@@ -30,16 +32,18 @@ export class SidenavUserListsComponent implements OnInit, OnDestroy {
 
   listChangeListener: Subscription;
 
-  constructor(private router: Router,
-              private storeListService: StoreListService,
-              private dbEntityMarkerService: DbEntityMarkerService,
-              private storeService: StoreService,
-              private mapService: MapService,
-              private errorService: ErrorService,
-              private snackBar: MatSnackBar,
-              private storageService: StorageService,
-              private dialog: MatDialog) {
-  }
+  constructor(
+    private router: Router,
+    private storeListService: StoreListService,
+    private dbEntityMarkerService: DbEntityMarkerService,
+    private storeService: StoreService,
+    private mapService: MapService,
+    private errorService: ErrorService,
+    private storeListUIService: StoreListUIService,
+    private snackBar: MatSnackBar,
+    private storageService: StorageService,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit() {
     this.storageService.set('casing-dashboard-store-list-view', 'my-store-lists').subscribe();
@@ -52,40 +56,47 @@ export class SidenavUserListsComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.router.navigate(['casing'], {skipLocationChange: true});
+    this.router.navigate(['casing'], { skipLocationChange: true });
   }
 
   private getUserStoreLists() {
     // Get all store lists user has access to see
     this.fetching = true;
-    this.storeListService.getStoreLists({})
-      .pipe(finalize(() => this.fetching = false))
-      .subscribe(page => this.storeLists = page.content.sort(((a, b) => a.storeListName.localeCompare(b.storeListName))));
+    this.storeListService
+      .getStoreLists({})
+      .pipe(finalize(() => (this.fetching = false)))
+      .subscribe(
+        page => (this.storeLists = page.content.sort((a, b) => a.storeListName.localeCompare(b.storeListName)))
+      );
   }
 
   goToStoreList(storeList: SimplifiedStoreList) {
-    this.router.navigate(['casing', 'list-stores', storeList.id], {skipLocationChange: true});
+    this.router.navigate(['casing', 'list-stores', storeList.id], { skipLocationChange: true });
   }
 
   deleteList(storeList: SimplifiedStoreList): void {
     const confirmed = 'Delete List';
-    this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Warning!',
-        question: `You are about to delete ${storeList.storeListName}...`,
-        options: [confirmed]
-      }
-    }).afterClosed().subscribe((choice: string) => {
-      if (choice === confirmed) {
-        this.saving = true;
-        this.storeListService.delete(storeList.id)
-          .pipe(finalize(() => this.saving = false))
-          .subscribe(() => {
-            this.snackBar.open('Successfully deleted storeList', null, {duration: 2000});
-            this.getUserStoreLists();
-          });
-      }
-    });
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'Warning!',
+          question: `You are about to delete ${storeList.storeListName}...`,
+          options: [confirmed]
+        }
+      })
+      .afterClosed()
+      .subscribe((choice: string) => {
+        if (choice === confirmed) {
+          this.saving = true;
+          this.storeListService
+            .delete(storeList.id)
+            .pipe(finalize(() => (this.saving = false)))
+            .subscribe(() => {
+              this.snackBar.open('Successfully deleted storeList', null, { duration: 2000 });
+              this.getUserStoreLists();
+            });
+        }
+      });
   }
 
   storeListIsCurrentFilter(storeList: SimplifiedStoreList) {
@@ -94,46 +105,67 @@ export class SidenavUserListsComponent implements OnInit, OnDestroy {
   }
 
   createNewList() {
-    this.dialog.open(TextInputDialogComponent, {data: {title: 'New List', placeholder: 'New List Name'}})
-      .afterClosed().subscribe((text: string) => {
-      if (text) {
-        const newStoreList = new StoreList({storeListName: text});
-        this.saveNewList(newStoreList);
-      }
-    });
+    this.dialog
+      .open(TextInputDialogComponent, { data: { title: 'New List', placeholder: 'New List Name' } })
+      .afterClosed()
+      .subscribe((text: string) => {
+        if (text) {
+          const newStoreList = new StoreList({ storeListName: text });
+          this.saveNewList(newStoreList);
+        }
+      });
   }
 
   private saveNewList(newStoreList: StoreList) {
     this.saving = false;
-    this.storeListService.create(newStoreList)
-      .pipe(finalize(() => this.saving = false))
-      .subscribe(() => {
-        this.snackBar.open('Successfully created new list', null, {duration: 2000});
-        this.getUserStoreLists();
-      }, err => this.errorService.handleServerError('Failed to create new list!', err,
-        () => console.log(err),
-        () => this.saveNewList(newStoreList)));
+    this.storeListService
+      .create(newStoreList)
+      .pipe(finalize(() => (this.saving = false)))
+      .subscribe(
+        () => {
+          this.snackBar.open('Successfully created new list', null, { duration: 2000 });
+          this.getUserStoreLists();
+        },
+        err =>
+          this.errorService.handleServerError(
+            'Failed to create new list!',
+            err,
+            () => console.log(err),
+            () => this.saveNewList(newStoreList)
+          )
+      );
   }
 
   renameList(storeList: SimplifiedStoreList) {
     // Open dialog to get new name
-    this.dialog.open(TextInputDialogComponent, {data: {title: 'Rename List', placeholder: storeList.storeListName}})
-      .afterClosed().subscribe((text: string) => {
-      if (text) {
-        if (text === storeList.storeListName) {
-          this.snackBar.open('That is the same name. No change.', null, {duration: 2000});
-        } else {
-          this.saving = true;
-          this.storeListService.renameList(storeList.id, text)
-            .pipe(finalize(() => this.saving = false))
-            .subscribe(() => {
-              this.getUserStoreLists();
-              this.snackBar.open('Successfully renamed storeList', null, {duration: 2000});
-            }, err => this.errorService.handleServerError('Failed to update storeList name!', err,
-              () => console.log(err), () => this.renameList(storeList)));
+    this.dialog
+      .open(TextInputDialogComponent, { data: { title: 'Rename List', placeholder: storeList.storeListName } })
+      .afterClosed()
+      .subscribe((text: string) => {
+        if (text) {
+          if (text === storeList.storeListName) {
+            this.snackBar.open('That is the same name. No change.', null, { duration: 2000 });
+          } else {
+            this.saving = true;
+            this.storeListService
+              .renameList(storeList.id, text)
+              .pipe(finalize(() => (this.saving = false)))
+              .subscribe(
+                () => {
+                  this.getUserStoreLists();
+                  this.snackBar.open('Successfully renamed storeList', null, { duration: 2000 });
+                },
+                err =>
+                  this.errorService.handleServerError(
+                    'Failed to update storeList name!',
+                    err,
+                    () => console.log(err),
+                    () => this.renameList(storeList)
+                  )
+              );
+          }
         }
-      }
-    });
+      });
   }
 
   setStoreListAsFilter(storeList: SimplifiedStoreList) {
@@ -143,16 +175,30 @@ export class SidenavUserListsComponent implements OnInit, OnDestroy {
   zoomToList(storeList: SimplifiedStoreList) {
     if (storeList.storeIds.length) {
       this.dbEntityMarkerService.gettingLocations = true;
-      this.storeService.getAllByIds(storeList.storeIds)
-        .pipe(finalize(() => this.dbEntityMarkerService.gettingLocations = false))
-        .subscribe((stores: SimplifiedStore[]) => {
+      this.storeService
+        .getAllByIds(storeList.storeIds)
+        .pipe(finalize(() => (this.dbEntityMarkerService.gettingLocations = false)))
+        .subscribe(
+          (stores: SimplifiedStore[]) => {
             const storeGeoms = stores.map((s: SimplifiedStore) => new LatLng(s.site.latitude, s.site.longitude));
             this.mapService.fitToPoints(storeGeoms, storeList.storeListName);
-          }, err => this.errorService.handleServerError('Failed to Zoom to List!', err,
-          () => console.log(err),
-          () => this.zoomToList(storeList))
+          },
+          err =>
+            this.errorService.handleServerError(
+              'Failed to Zoom to List!',
+              err,
+              () => console.log(err),
+              () => this.zoomToList(storeList)
+            )
         );
     }
   }
 
+  openDownloadDialog(storeList: SimplifiedStoreList) {
+    const config = {
+      data: { selectedStoreList: storeList },
+      maxWidth: '90%'
+    };
+    this.dialog.open(DownloadDialogComponent, config);
+  }
 }

@@ -17,6 +17,7 @@ import { TextInputDialogComponent } from '../../text-input-dialog/text-input-dia
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 import { StorageService } from '../../../core/services/storage.service';
 import { Subscription } from 'rxjs';
+import { DownloadDialogComponent } from 'app/casing/download-dialog/download-dialog.component';
 
 @Component({
   selector: 'mds-sidenav-stores-in-list',
@@ -25,7 +26,6 @@ import { Subscription } from 'rxjs';
   providers: [StoreListUIService]
 })
 export class SidenavStoresInListComponent implements OnInit, OnDestroy {
-
   saving = false;
 
   storeList;
@@ -35,20 +35,21 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
 
   routeListener: Subscription;
 
-  constructor(private router: Router,
-              private route: ActivatedRoute,
-              private storeService: StoreService,
-              private storeListService: StoreListService,
-              private siteService: SiteService,
-              private mapService: MapService,
-              private errorService: ErrorService,
-              private snackBar: MatSnackBar,
-              private dialog: MatDialog,
-              private dbEntityMarkerService: DbEntityMarkerService,
-              private storeListUIService: StoreListUIService,
-              private storageService: StorageService,
-              private selectionService: EntitySelectionService) {
-  }
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private storeService: StoreService,
+    private storeListService: StoreListService,
+    private siteService: SiteService,
+    private mapService: MapService,
+    private errorService: ErrorService,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog,
+    private dbEntityMarkerService: DbEntityMarkerService,
+    private storeListUIService: StoreListUIService,
+    private storageService: StorageService,
+    private selectionService: EntitySelectionService
+  ) {}
 
   ngOnInit() {
     this.initializeList();
@@ -95,50 +96,67 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
   }
 
   private updateListUIElements() {
-    return this.storeListService.getSiteMarkersForStoreList(this.listId).pipe(tap(siteMarkers => {
-      this.storeListUIService.setSiteMarkers(siteMarkers, this.dbEntityMarkerService.controls);
-    }));
+    return this.storeListService.getSiteMarkersForStoreList(this.listId).pipe(
+      tap(siteMarkers => {
+        this.storeListUIService.setSiteMarkers(siteMarkers, this.dbEntityMarkerService.controls);
+      })
+    );
   }
 
   renameList() {
     // Open dialog to get new name
-    this.dialog.open(TextInputDialogComponent, {data: {title: 'Rename List', placeholder: this.storeList.storeListName}})
-      .afterClosed().subscribe((text: string) => {
-      if (text) {
-        if (text === this.storeList.storeListName) {
-          this.snackBar.open('That is the same name. No change.', null, {duration: 2000});
-        } else {
-          this.saving = true;
-          this.storeListService.renameList(this.storeList.id, text)
-            .pipe(finalize(() => this.saving = false))
-            .subscribe(() => {
-              this.snackBar.open('Successfully renamed storeList', null, {duration: 2000});
-            }, err => this.errorService.handleServerError('Failed to update storeList name!', err,
-              () => console.log(err), () => this.renameList()));
+    this.dialog
+      .open(TextInputDialogComponent, { data: { title: 'Rename List', placeholder: this.storeList.storeListName } })
+      .afterClosed()
+      .subscribe((text: string) => {
+        if (text) {
+          if (text === this.storeList.storeListName) {
+            this.snackBar.open('That is the same name. No change.', null, { duration: 2000 });
+          } else {
+            this.saving = true;
+            this.storeListService
+              .renameList(this.storeList.id, text)
+              .pipe(finalize(() => (this.saving = false)))
+              .subscribe(
+                () => {
+                  this.snackBar.open('Successfully renamed storeList', null, { duration: 2000 });
+                },
+                err =>
+                  this.errorService.handleServerError(
+                    'Failed to update storeList name!',
+                    err,
+                    () => console.log(err),
+                    () => this.renameList()
+                  )
+              );
+          }
         }
-      }
-    });
+      });
   }
 
   deleteList() {
     const confirmed = 'Delete List';
-    this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Warning!',
-        question: `You are about to delete ${this.storeList.storeListName}...`,
-        options: [confirmed]
-      }
-    }).afterClosed().subscribe((choice: string) => {
-      if (choice === confirmed) {
-        this.saving = true;
-        this.storeListService.delete(this.storeList.id)
-          .pipe(finalize(() => this.saving = false))
-          .subscribe(() => {
-            this.snackBar.open('Successfully deleted storeList', null, {duration: 2000});
-            this.goBack();
-          });
-      }
-    });
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'Warning!',
+          question: `You are about to delete ${this.storeList.storeListName}...`,
+          options: [confirmed]
+        }
+      })
+      .afterClosed()
+      .subscribe((choice: string) => {
+        if (choice === confirmed) {
+          this.saving = true;
+          this.storeListService
+            .delete(this.storeList.id)
+            .pipe(finalize(() => (this.saving = false)))
+            .subscribe(() => {
+              this.snackBar.open('Successfully deleted storeList', null, { duration: 2000 });
+              this.goBack();
+            });
+        }
+      });
   }
 
   selectedStoreIdsInList() {
@@ -158,34 +176,43 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
   removeSelectedFromList() {
     this.saving = true;
     // Remove the stores from the list
-    this.storeListService.removeStoresFromStoreList(this.storeList.id, this.selectedStoreIdsInList())
-      .pipe(finalize(() => this.saving = false))
+    this.storeListService
+      .removeStoresFromStoreList(this.storeList.id, this.selectedStoreIdsInList())
+      .pipe(finalize(() => (this.saving = false)))
       .subscribe(() => {
-        this.snackBar.open('Successfully removed stores from list', null, {duration: 2000});
+        this.snackBar.open('Successfully removed stores from list', null, { duration: 2000 });
       });
   }
 
   addSelectedToList() {
     this.saving = true;
     // Remove the stores from the list
-    this.storeListService.addStoresToStoreList(this.storeList.id, this.selectedStoreIdsNotInList())
-      .pipe(finalize(() => this.saving = false))
+    this.storeListService
+      .addStoresToStoreList(this.storeList.id, this.selectedStoreIdsNotInList())
+      .pipe(finalize(() => (this.saving = false)))
       .subscribe(() => {
-        this.snackBar.open('Successfully added stores to list', null, {duration: 2000});
+        this.snackBar.open('Successfully added stores to list', null, { duration: 2000 });
       });
   }
 
   zoomToList() {
     if (this.storeList.stores.length) {
       this.saving = true;
-      this.storeService.getAllByIds(this.storeList.stores.map(st => st.id))
-        .pipe(finalize(() => this.saving = false))
-        .subscribe((stores: SimplifiedStore[]) => {
+      this.storeService
+        .getAllByIds(this.storeList.stores.map(st => st.id))
+        .pipe(finalize(() => (this.saving = false)))
+        .subscribe(
+          (stores: SimplifiedStore[]) => {
             const storeGeoms = stores.map((s: SimplifiedStore) => new LatLng(s.site.latitude, s.site.longitude));
             this.mapService.fitToPoints(storeGeoms, this.storeList.storeListName);
-          }, err => this.errorService.handleServerError('Failed to Zoom to List!', err,
-          () => console.log(err),
-          () => this.zoomToList())
+          },
+          err =>
+            this.errorService.handleServerError(
+              'Failed to Zoom to List!',
+              err,
+              () => console.log(err),
+              () => this.zoomToList()
+            )
         );
     }
   }
@@ -208,7 +235,7 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.router.navigate(['casing', 'my-store-lists'], {skipLocationChange: true});
+    this.router.navigate(['casing', 'my-store-lists'], { skipLocationChange: true });
   }
 
   getSelectedStoresCount(): number {
@@ -229,12 +256,26 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
 
   zoomToSelection() {
     this.saving = true;
-    this.storeService.getAllByIds(Array.from(this.selectionService.storeIds))
-      .subscribe((stores: SimplifiedStore[]) => {
+    this.storeService.getAllByIds(Array.from(this.selectionService.storeIds)).subscribe(
+      (stores: SimplifiedStore[]) => {
         const points = stores.map((s: SimplifiedStore) => new LatLng(s.site.latitude, s.site.longitude));
         this.mapService.fitToPoints(points);
-      }, err => this.errorService.handleServerError('Failed to get coordinates for selection!', err,
-        () => console.log(err), () => this.zoomToSelection()));
+      },
+      err =>
+        this.errorService.handleServerError(
+          'Failed to get coordinates for selection!',
+          err,
+          () => console.log(err),
+          () => this.zoomToSelection()
+        )
+    );
   }
 
+  openDownloadDialog(storeList: SimplifiedStoreList) {
+    const config = {
+      data: { selectedStoreList: storeList },
+      maxWidth: '90%'
+    };
+    this.dialog.open(DownloadDialogComponent, config);
+  }
 }

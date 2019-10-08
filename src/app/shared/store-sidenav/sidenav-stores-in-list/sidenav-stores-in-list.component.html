@@ -5,19 +5,21 @@
     </button>
   </div>
   <h1 *ngIf="!storeList">Stores In List</h1>
-  <h1 *ngIf="storeList">{{storeList.storeListName}}</h1>
+  <h1 *ngIf="storeList">{{ storeList.storeListName }}</h1>
   <div>
     <button *ngIf="saving" mat-icon-button>
       <i class="fas fa-spinner fa-pulse"></i>
     </button>
-    <button *ngIf="!saving"
-            mat-icon-button
-            title="More menu"
-            id="more-menu-button"
-            [matBadge]="getSelectedStoresCount() || null"
-            matBadgeColor="accent"
-            matBadgeSize="small"
-            [mat-menu-trigger-for]="storeListMenu">
+    <button
+      *ngIf="!saving"
+      mat-icon-button
+      title="More menu"
+      id="more-menu-button"
+      [matBadge]="getSelectedStoresCount() || null"
+      matBadgeColor="accent"
+      matBadgeSize="small"
+      [mat-menu-trigger-for]="storeListMenu"
+    >
       <i class="fas fa-ellipsis-v"></i>
     </button>
   </div>
@@ -29,16 +31,22 @@
     <i class="fas fa-hand-pointer"></i>
     <span>Enable multi-select</span>
   </button>
-  <button mat-menu-item
-          [mat-menu-trigger-for]="selectedSubMenu"
-          [disabled]="getSelectedStoresCount() < 1"
-          title="Selected stores options"
-          class="selected-stores">
+  <button
+    mat-menu-item
+    [mat-menu-trigger-for]="selectedSubMenu"
+    [disabled]="getSelectedStoresCount() < 1"
+    title="Selected stores options"
+    class="selected-stores"
+  >
     <div class="fa-stack" style="margin-right: 8px">
       <i class="far fa-circle fa-stack-2x"></i>
-      <span class="fa-stack-1x">{{getSelectedStoresCount()}}</span>
+      <span class="fa-stack-1x">{{ getSelectedStoresCount() }}</span>
     </div>
     <span>Selected</span>
+  </button>
+  <button mat-menu-item (click)="storeListUIService.openDownloadDialog(storeList)">
+    <i class="fas fa-download"></i>
+    <span>Download Store Data</span>
   </button>
   <button mat-menu-item (click)="zoomToList()">
     <i class="fas fa-map-marked-alt"></i>
@@ -72,13 +80,20 @@
   <button mat-menu-item title="Clear Selection" (click)="clearSelection()" class="selected-stores">
     <i class="fas fa-ban"></i>Clear Selection
   </button>
-  <button [disabled]="selectedStoreIdsInList().length === 0" mat-menu-item title="Remove selected from list"
-          (click)="removeSelectedFromList()">
-    <i class="fas fa-trash"></i>Remove {{selectedStoreIdsInList().length}} from list
+  <button
+    [disabled]="selectedStoreIdsInList().length === 0"
+    mat-menu-item
+    title="Remove selected from list"
+    (click)="removeSelectedFromList()"
+  >
+    <i class="fas fa-trash"></i>Remove {{ selectedStoreIdsInList().length }} from list
   </button>
-  <button [disabled]="selectedStoreIdsNotInList().length === 0" mat-menu-item title="Add selected to list"
-          (click)="addSelectedToList()">
-    <i class="fas fa-plus"></i>Add {{selectedStoreIdsNotInList().length}} to list
+  <button
+    [disabled]="selectedStoreIdsNotInList().length === 0"
+    mat-menu-item
+    title="Add selected to list"
+    (click)="addSelectedToList()"
+  >
+    <i class="fas fa-plus"></i>Add {{ selectedStoreIdsNotInList().length }} to list
   </button>
-
 </mat-menu>
