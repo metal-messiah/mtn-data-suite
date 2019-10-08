@@ -15,11 +15,8 @@
 
 <mat-menu #menu="matMenu">
   <button mat-menu-item *ngIf="!isHomePage()" (click)="goHome()"><i class="fas fa-home"></i>&nbsp;Home</button>
-  <button mat-menu-item *ngIf="isAuthenticated" (click)="logout()">
+  <button mat-menu-item (click)="signOut()">
     <i class="fas fa-sign-out-alt"></i>&nbsp;Sign Out
-  </button>
-  <button mat-menu-item *ngIf="!isAuthenticated" (click)="signIn()">
-    <i class="fas fa-sign-in-alt"></i>&nbsp;Sign In
   </button>
   <button mat-menu-item (click)="openAppInfoDialog()">
     <i class="fas fa-info-circle"></i>&nbsp;App Info

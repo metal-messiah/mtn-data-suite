@@ -1,11 +1,9 @@
 <mds-sub-title-bar subTitle="Home">
   <i class="fas fa-home"></i>
 </mds-sub-title-bar>
-<div class="sign-in-button-container" *ngIf="!isAuthenticated">
+<ng-template #loading>
   <div>
-    <button mat-raised-button color="accent" (click)="signIn()">
-      <i class="fas fa-sign-in-alt"></i>&nbsp;<strong>Sign in</strong>
-    </button>
+    <i class="fas fa-spinner fa-pulse fa-2x"></i>
   </div>
-</div>
-<mds-menu-list *ngIf="isAuthenticated" [menuItems]="getMenuItems()"></mds-menu-list>
+</ng-template>
+<mds-menu-list *ngIf="userPermissions; else loading" [menuItems]="getMenuItems()"></mds-menu-list>

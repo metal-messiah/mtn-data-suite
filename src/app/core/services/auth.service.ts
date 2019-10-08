@@ -6,11 +6,10 @@ import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RestService } from './rest.service';
 import { UserProfile } from '../../models/full/user-profile';
-import { ErrorDialogComponent } from '../../shared/error-dialog/error-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { forkJoin, Observable } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
+import { forkJoin, Observable, Observer } from 'rxjs';
+import { finalize, map, mergeMap, tap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
+import { SimplifiedPermission } from '../../models/simplified/simplified-permission';
 
 @Injectable()
 export class AuthService {
@@ -22,9 +21,9 @@ export class AuthService {
   private readonly ST_LATEST_PATH = 'latest_path';
 
   sessionUser: UserProfile;
-  accessToken: string;
-  idToken: string;
-  tokenExpirationTime: number;
+  private tokenExpirationTime: number;
+
+  isLoaded = false;
 
   auth0 = new auth0.WebAuth({
     clientID: environment.AUTH_CONFIG.clientID,
@@ -39,91 +38,96 @@ export class AuthService {
               private location: Location,
               private http: HttpClient,
               private rest: RestService,
-              private storageService: StorageService,
-              private dialog: MatDialog) {
-    this.getValuesFromStorage();
+              private storageService: StorageService) {
   }
 
-  private getValuesFromStorage() {
-    this.storageService.getOne(this.ST_SESSION_USER).subscribe(storedSessionUser => {
+  public loadSavedAuthentication() {
+    const getSessionUser = this.storageService.getOne(this.ST_SESSION_USER).pipe(tap(storedSessionUser => {
       if (storedSessionUser) {
         this.sessionUser = new UserProfile(storedSessionUser);
       }
-    });
-    this.storageService.getOne(this.ST_ACCESS_TOKEN).subscribe(storedAccessToken => {
+    }));
+    const getAccesToken = this.storageService.getOne(this.ST_ACCESS_TOKEN).pipe(tap(storedAccessToken => {
       if (storedAccessToken) {
         this.rest.setAccessToken(storedAccessToken);
-        this.accessToken = storedAccessToken;
       }
-    });
-    this.storageService.getOne(this.ST_ID_TOKEN).subscribe(storedIdToken => {
-      if (storedIdToken) {
-        this.idToken = storedIdToken;
-      }
-    });
-    this.storageService.getOne(this.ST_EXPIRATION_TIME).subscribe(storedTokenExpirationTime => {
+    }));
+    const getExpirationTime = this.storageService.getOne(this.ST_EXPIRATION_TIME).pipe(tap(storedTokenExpirationTime => {
       if (storedTokenExpirationTime) {
-        this.tokenExpirationTime = JSON.parse(storedTokenExpirationTime);
+        this.tokenExpirationTime = storedTokenExpirationTime;
       }
-    });
+    }));
+    return forkJoin([getSessionUser, getAccesToken, getExpirationTime])
+      .pipe(finalize(() => this.isLoaded = true))
+      .pipe(map(() => this.isAuthenticated()));
   }
+
+  private parseAuthResult(authResult): Observable<any> {
+    this.rest.setAccessToken(authResult.accessToken);
+
+    // Set the time that the access token will expire at
+    const expirationTime = (authResult.expiresIn * 1000) + new Date().getTime();
+    this.tokenExpirationTime = expirationTime;
+
+    const expirationDate = new Date();
+    expirationDate.setTime(expirationTime);
+    console.log(`Session expires at ${expirationDate}`);
+
+    const saveAccessToken = this.storageService.set(this.ST_ACCESS_TOKEN, authResult.accessToken);
+    const saveExpirationTime = this.storageService.set(this.ST_EXPIRATION_TIME, expirationTime);
+
+    return forkJoin([saveAccessToken, saveExpirationTime]);
+  }
+
 
   signIn(): void {
     this.storageService.set(this.ST_LATEST_PATH, this.location.path()).subscribe(() => this.auth0.authorize());
   }
 
-  handleAuthentication(): void {
-    this.auth0.parseHash((err, authResult) => {
-      if (authResult && authResult.accessToken && authResult.idToken) {
-        this.saveSession(authResult).pipe(mergeMap(() => this.getUserProfile()))
-          .subscribe((userProfile: UserProfile) => {
-            this.sessionUser = userProfile;
-            this.storageService.set(this.ST_SESSION_USER, userProfile).subscribe();
-            this.storageService.getOne(this.ST_LATEST_PATH).subscribe((latestPath: string) => {
-              try {
-                const parsedUri = decodeURI(latestPath).split('?');
-                const queryParams = {};
-                if (parsedUri.length > 1) {
-                  const params = parsedUri[1].split('&');
-                  params.forEach(param => {
-                    const keyValue = param.split('=');
-                    queryParams[keyValue[0]] = keyValue[1];
-                  });
-                }
-                this.router.navigate([parsedUri[0]], {queryParams: queryParams});
-              } catch (err) {
-                console.warn(err);
-                this.router.navigate(['']);
-              }
-            });
-          },
-          error => this.onError(error)
-        );
-      } else if (err) {
-        this.onError(err);
+  navigateToLatestPath() {
+    this.storageService.getOne(this.ST_LATEST_PATH).subscribe((latestPath: string) => {
+      try {
+        const parsedUri = decodeURI(latestPath).split('?');
+        const queryParams = {};
+        if (parsedUri.length > 1) {
+          const params = parsedUri[1].split('&');
+          params.forEach(param => {
+            const keyValue = param.split('=');
+            queryParams[keyValue[0]] = keyValue[1];
+          });
+        }
+        this.router.navigate([parsedUri[0]], {queryParams: queryParams});
+      } catch (err) {
+        console.warn(err);
+        this.router.navigate(['']);
       }
     });
   }
 
-  onError(err): void {
-    this.logout();
-    const dialogRef = this.dialog.open(ErrorDialogComponent, {
-      data: {
-        message: 'Login failed!',
-        reason: err['error']['message'],
-        status: err['status'],
-        showRetry: false,
-        showLogin: true
-      },
-      width: '250px'
+  private setSessionUser(userProfile: UserProfile) {
+    this.sessionUser = userProfile;
+    this.storageService.set(this.ST_SESSION_USER, userProfile).subscribe();
+  }
+
+  parseHash(hash: string): Observable<boolean> {
+    return new Observable<boolean>((observer: Observer<boolean>) => {
+      this.auth0.parseHash({hash: hash}, (err, authResult) => {
+        if (authResult && authResult.accessToken) {
+          this.parseAuthResult(authResult)
+            .pipe(mergeMap(() => this.getUserProfile().pipe(tap(user => this.setSessionUser(user)))))
+            .subscribe(() => observer.next(this.isAuthenticated()), saveError => observer.error(saveError));
+        } else if (err) {
+          this.clearSavedInfo().subscribe(() => observer.error(err));
+        } else {
+          observer.next(false);
+        }
+      });
     });
-    dialogRef.afterClosed().subscribe(response => {
-      if (response === 'signIn') {
-        this.signIn();
-      } else {
-        this.router.navigate(['/']);
-      }
-    });
+  }
+
+  getUserPermissions() {
+    const url = this.rest.getHost() + `/api/auth/user-permissions`;
+    return this.http.get<SimplifiedPermission[]>(url, {headers: this.rest.getHeaders()});
   }
 
   private getUserProfile(): Observable<UserProfile> {
@@ -131,42 +135,23 @@ export class AuthService {
     return this.http.get<UserProfile>(url, {headers: this.rest.getHeaders()});
   }
 
-  private saveSession(authResult): Observable<any> {
-    // Set the time that the access token will expire at
-    const expirationTime = (authResult.expiresIn * 1000) + new Date().getTime();
-    const expirationDate = new Date();
-    expirationDate.setTime(expirationTime);
-    console.log(`Session expires at ${expirationDate}`);
-    this.rest.setAccessToken(authResult.accessToken);
-    const saveAccessToken = this.storageService.set(this.ST_ACCESS_TOKEN, authResult.accessToken);
-    const saveIdToken = this.storageService.set(this.ST_ID_TOKEN, authResult.idToken);
-    const saveExpirationTime = this.storageService.set(this.ST_EXPIRATION_TIME, expirationTime);
-    return forkJoin([saveAccessToken, saveIdToken, saveExpirationTime]);
-  }
-
-  logout(): void {
+  clearSavedInfo(): Observable<any> {
     const tasks = [];
     tasks.push(this.storageService.removeOne(this.ST_SESSION_USER));
     tasks.push(this.storageService.removeOne(this.ST_ACCESS_TOKEN));
     tasks.push(this.storageService.removeOne(this.ST_ID_TOKEN));
     tasks.push(this.storageService.removeOne(this.ST_EXPIRATION_TIME));
     tasks.push(this.storageService.removeOne(this.ST_LATEST_PATH));
-    forkJoin(tasks).subscribe(() => {
-      this.router.navigate(['/']).then(() => {
-        location.reload();
-      });
-    });
+    return forkJoin(tasks);
   }
 
-  isAuthenticated(): Observable<boolean> {
+  isAuthenticated(): boolean {
     // Check whether the current time is past the access token's expiry time
-    return this.storageService.getOne(this.ST_EXPIRATION_TIME).pipe(map(expirationTime => {
-      if (expirationTime) {
-        return new Date().getTime() < expirationTime;
-      } else {
-        return false;
-      }
-    }));
+    if (this.tokenExpirationTime) {
+      return new Date().getTime() < this.tokenExpirationTime;
+    } else {
+      return false;
+    }
   }
 
 }
