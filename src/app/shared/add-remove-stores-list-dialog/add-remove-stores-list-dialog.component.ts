@@ -77,7 +77,7 @@ export class AddRemoveStoresListDialogComponent implements OnInit {
             if (this.type === AddRemoveType.ADD) {
               this.snackBar.open('Store already belongs to every list!', null, { duration: 2000 });
             } else {
-              this.snackBar.open("Store isn't in any list!", null, { duration: 2000 });
+              this.snackBar.open('Store isn\'t in any list!', null, { duration: 2000 });
             }
             this.dialogRef.close();
           }
