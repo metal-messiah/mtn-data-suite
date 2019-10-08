@@ -193,12 +193,4 @@ export class SidenavUserListsComponent implements OnInit, OnDestroy {
         );
     }
   }
-
-  openDownloadDialog(storeList: SimplifiedStoreList) {
-    const config = {
-      data: { selectedStoreList: storeList },
-      maxWidth: '90%'
-    };
-    this.dialog.open(DownloadDialogComponent, config);
-  }
 }
