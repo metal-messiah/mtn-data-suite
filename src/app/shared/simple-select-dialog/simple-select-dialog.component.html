@@ -1,8 +1,9 @@
-<h2 mat-dialog-title>{{title}}</h2>
+<h2 mat-dialog-title>{{ title }}</h2>
 <div mat-dialog-content>
+  <mds-fuzzy-search [data]="items" [keys]="fuzzyFields" (results)="handleFuzzySearch($event)"> </mds-fuzzy-search>
   <mat-nav-list>
-    <mat-list-item *ngFor="let item of items" (click)="selectItem(item)">
-      {{getDisplayText(item)}}
+    <mat-list-item *ngFor="let item of itemsDisplay" (click)="selectItem(item)">
+      {{ getDisplayText(item) }}
     </mat-list-item>
   </mat-nav-list>
 </div>

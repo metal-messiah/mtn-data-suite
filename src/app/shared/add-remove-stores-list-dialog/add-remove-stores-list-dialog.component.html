@@ -2,23 +2,28 @@
   Select Store Lists
 </h2>
 <form id="addRemoveForm" mat-dialog-content>
-
-  <button *ngIf="type === AddRemoveType.ADD" style="width: 100%; margin-bottom: 10px"
-          mat-raised-button color="primary" (click)="createNewList()">
+  <button
+    *ngIf="type === AddRemoveType.ADD"
+    style="width: 100%; margin-bottom: 10px"
+    mat-raised-button
+    color="primary"
+    (click)="createNewList()"
+  >
     Create New List
   </button>
+
+  <mds-fuzzy-search [data]="storeLists" [keys]="fuzzyFields" (results)="handleFuzzySearch($event)"> </mds-fuzzy-search>
 
   <div class="loading" *ngIf="fetching">
     <i class="fas fa-spinner fa-pulse fa-2x"></i>
   </div>
 
   <mat-selection-list [(ngModel)]="selectedListIds" name="selectionList">
-    <mat-list-option *ngFor="let storeList of storeLists" [value]="storeList.id">
+    <mat-list-option *ngFor="let storeList of storeListsDisplay" [value]="storeList.id">
       <div style="display: flex; justify-content: space-between; max-width: 200px;">
         <span style="max-width: 160px; overflow: hidden; text-overflow: ellipsis;">
-          {{storeList.storeListName}}
+          <b>{{ storeList.storeListName }}</b> ({{ storeList.storeCount }})
         </span>
-        <span>({{storeList.storeCount}})</span>
       </div>
     </mat-list-option>
   </mat-selection-list>
@@ -26,8 +31,14 @@
 
 <mat-dialog-actions style="justify-content: space-between;">
   <button type="button" mat-raised-button color="primary" mat-dialog-close>Cancel</button>
-  <button type="submit" form="addRemoveForm" [disabled]="selectedListIds.length === 0" mat-raised-button color="accent"
-          (click)="submit()">
-    {{type}}
+  <button
+    type="submit"
+    form="addRemoveForm"
+    [disabled]="selectedListIds.length === 0"
+    mat-raised-button
+    color="accent"
+    (click)="submit()"
+  >
+    {{ type }}
   </button>
 </mat-dialog-actions>

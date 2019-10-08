@@ -48,18 +48,12 @@ button.mat-menu-item > span {
   color: rgba(255, 0, 0, 0.75);
 }
 
-.red{
+.red {
   color: red !important;
 }
 
 .current-filter {
-  background: repeating-linear-gradient(
-    45deg,
-    #fff,
-    #fff 10px,
-    #efefef 10px,
-    #efefef 20px
-  );
+  background: repeating-linear-gradient(45deg, #fff, #fff 10px, #efefef 10px, #efefef 20px);
 }
 
 .mat-caption {
@@ -89,3 +83,7 @@ mat-list {
   right: -2px;
 }
 
+mds-fuzzy-search {
+  margin: 10px 25px;
+  width: calc(100% - 50px);
+}
