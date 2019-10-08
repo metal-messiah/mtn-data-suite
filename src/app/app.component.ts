@@ -6,6 +6,8 @@ import { UpdateService } from './core/services/update.service';
 import { Location } from '@angular/common';
 import { AppInfoDialogComponent } from './shared/app-info-dialog/app-info-dialog.component';
 import { MatDialog } from '@angular/material';
+import { ErrorDialogComponent } from './shared/error-dialog/error-dialog.component';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'mds-root',
@@ -14,11 +16,9 @@ import { MatDialog } from '@angular/material';
 })
 export class AppComponent implements OnInit {
 
-  isAuthenticated = false;
-
   constructor(
     private _location: Location,
-    private auth: AuthService,
+    private authService: AuthService,
     private dialog: MatDialog,
     private route: ActivatedRoute,
     private router: Router,
@@ -28,9 +28,34 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.auth.handleAuthentication();
-    setTimeout(() => this.updateService.checkForUpdate(), 300);
-    setTimeout(() => this.auth.isAuthenticated().subscribe(authenticated => this.isAuthenticated = authenticated), 500);
+    console.log(environment.VERSION);
+
+    if (window.location.pathname === '/callback') {
+      this.authService.parseHash(window.location.hash).subscribe(authenticated => {
+        this.authService.navigateToLatestPath();
+      }, err => this.showErrorDialog(err));
+    }
+    this.updateService.checkForUpdate();
+  }
+
+  private showErrorDialog(err): void {
+    const dialogRef = this.dialog.open(ErrorDialogComponent, {
+      data: {
+        message: 'Login failed!',
+        reason: err['error']['message'],
+        status: err['status'],
+        showRetry: false,
+        showLogin: true
+      },
+      width: '250px'
+    });
+    dialogRef.afterClosed().subscribe(response => {
+      if (response === 'signIn') {
+        this.authService.signIn();
+      } else {
+        // this.router.navigate(['/']);
+      }
+    });
   }
 
   goHome() {
@@ -41,12 +66,14 @@ export class AppComponent implements OnInit {
     return this._location.isCurrentPathEqualTo('');
   }
 
-  logout() {
-    this.auth.logout();
+  signOut() {
+    this.authService.clearSavedInfo().subscribe(() => {
+      this.router.navigate(['/']).then(() => location.reload());
+    });
   }
 
   signIn() {
-    this.auth.signIn();
+    this.authService.signIn();
   }
 
   openAppInfoDialog() {

@@ -11,12 +11,16 @@
 <button style="margin: 10px 25px;" type="button" mat-raised-button color="primary" (click)="createNewList()">
   Create New List
 </button>
+<mds-fuzzy-search [data]="storeLists" [keys]="fuzzyFields" (results)="handleFuzzySearch($event)"> </mds-fuzzy-search>
+<!-- <mat-form-field>
+  <input matInput type="text" placeholder="Search For List" [formControl]="storeListSearch" />
+</mat-form-field> -->
 <div *ngIf="fetching" style="text-align: center; width: 100%; margin-top: 10px;">
   <i class="fas fa-spinner fa-2x fa-pulse"></i>
 </div>
-<mat-list *ngIf="storeLists && !fetching">
+<mat-list *ngIf="storeListsDisplay && !fetching">
   <div
-    *ngFor="let storeList of storeLists"
+    *ngFor="let storeList of storeListsDisplay"
     class="list-item"
     [ngClass]="{ 'current-filter': storeListIsCurrentFilter(storeList) }"
   >

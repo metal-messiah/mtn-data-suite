@@ -6,10 +6,8 @@ import { CustomMaterialModule } from './material/custom-material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { BreakpointObserver, MediaMatcher } from '@angular/cdk/layout';
-import { CallbackComponent } from './callback/callback.component';
 import { PathNotFoundComponent } from './path-not-found/path-not-found.component';
 import { MapComponent } from './map/map.component';
-import { LogoMenuComponent } from './logo-menu/logo-menu.component';
 import { RouterModule } from '@angular/router';
 import { DataFieldComponent } from './data-field/data-field.component';
 import { UserProfileSelectComponent } from './user-profile-select/user-profile-select.component';
@@ -43,7 +41,6 @@ import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing
     AddRemoveStoresListDialogComponent,
     AppInfoDialogComponent,
     AuditingEntityFieldsComponent,
-    CallbackComponent,
     ConfirmDialogComponent,
     DataFieldComponent,
     DataFieldInfoDialogComponent,
@@ -54,7 +51,6 @@ import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing
     FuzzySearchComponent,
     GoogleInfoCardComponent,
     ItemSelectionDialogComponent,
-    LogoMenuComponent,
     MapComponent,
     MenuListComponent,
     NewProjectNameComponent,
@@ -95,7 +91,6 @@ import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing
   exports: [
     AddRemoveStoresListDialogComponent,
     AuditingEntityFieldsComponent,
-    CallbackComponent,
     CommonModule,
     CustomMaterialModule,
     DataFieldComponent,
@@ -108,7 +103,6 @@ import { AuditingEntityFieldsComponent } from './auditing-entity-fields/auditing
     FuzzySearchComponent,
     HttpClientModule,
     ItemSelectionDialogComponent,
-    LogoMenuComponent,
     MapComponent,
     MenuListComponent,
     PathNotFoundComponent,

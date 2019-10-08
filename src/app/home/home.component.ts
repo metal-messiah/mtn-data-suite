@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../core/services/auth.service';
-import { environment } from '../../environments/environment';
+import { SimplifiedPermission } from '../models/simplified/simplified-permission';
+import { ErrorService } from '../core/services/error.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'mds-home',
@@ -10,14 +12,24 @@ import { environment } from '../../environments/environment';
 export class HomeComponent implements OnInit {
 
   isAuthenticated = false;
+  gettingPermissions = false;
 
-  constructor(private auth: AuthService) {
+  userPermissions: SimplifiedPermission[];
+
+  constructor(private auth: AuthService,
+              private errorService: ErrorService) {
   }
 
   ngOnInit() {
-    console.log(environment.VERSION);
-    // The view is initialized before the Auth0 hash parser has time to set the authentication data
-    setTimeout(() => this.auth.isAuthenticated().subscribe(authenticated => this.isAuthenticated = authenticated), 100);
+    this.getUserPermissions();
+  }
+
+  private getUserPermissions() {
+    this.gettingPermissions = true;
+    this.auth.getUserPermissions()
+      .pipe(finalize(() => this.gettingPermissions))
+      .subscribe(permissions => this.userPermissions = permissions,
+        err => this.errorService.handleServerError('Failed to get user permissions!', err, () => console.error(err)));
   }
 
   getMenuItems() {
@@ -75,7 +87,7 @@ export class HomeComponent implements OnInit {
       displayName: 'Geocoding'
     });
 
-    if (this.auth.sessionUser.permissions.some(p => p.systemName === 'SITE_WISE_READ')) {
+    if (this.userPermissions.some(p => p.systemName === 'SITE_WISE_READ')) {
       menuItems.push({
         routerLink: '/site-wise',
         iconClasses: 'fas fa-caret-right',

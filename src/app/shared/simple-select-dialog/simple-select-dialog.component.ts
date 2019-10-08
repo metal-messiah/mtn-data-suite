@@ -7,15 +7,22 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
   styleUrls: ['./simple-select-dialog.component.css']
 })
 export class SimpleSelectDialogComponent implements OnInit {
-
   title = 'Select item';
-  items;
+  items: any[];
 
-  getDisplayText = (i) => i.toString();
+  itemsDisplay: any[];
+  sortField: string;
 
-  constructor(private dialogRef: MatDialogRef<SimpleSelectDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) private data) {
+  fuzzyFields: string[] = [];
+
+  getDisplayText = i => i.toString();
+
+  constructor(private dialogRef: MatDialogRef<SimpleSelectDialogComponent>, @Inject(MAT_DIALOG_DATA) private data) {
     this.items = data.items;
+    this.fuzzyFields = Object.keys(this.items.length ? this.items[0] : []);
+    this.sortField = data.sortField;
+    this.sortAlphabetically(this.items, this.sortField);
+    this.itemsDisplay = this.items;
     if (data.items) {
       this.title = data.title;
     }
@@ -24,11 +31,27 @@ export class SimpleSelectDialogComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   selectItem(item) {
     this.dialogRef.close(item);
   }
 
+  sortAlphabetically(array: any[], property: string) {
+    array.sort((a, b) => {
+      if (a[property] > b[property]) {
+        return 1;
+      }
+      if (a[property] < b[property]) {
+        return -1;
+      }
+      return 0;
+    });
+  }
+
+  handleFuzzySearch(output: [any[], string]) {
+    const [results, term] = output;
+    this.itemsDisplay = term ? results : this.items;
+    this.sortAlphabetically(this.itemsDisplay, this.sortField);
+  }
 }

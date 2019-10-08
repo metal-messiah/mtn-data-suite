@@ -15,7 +15,6 @@ import { SimplifiedStore } from '../../../models/simplified/simplified-store';
 import { LatLng } from '../../../models/latLng';
 import { StorageService } from '../../../core/services/storage.service';
 import { Subscription } from 'rxjs';
-import { DownloadDialogComponent } from 'app/casing/download-dialog/download-dialog.component';
 import { StoreListUIService } from '../store-list-u-i.service';
 
 @Component({
@@ -26,11 +25,14 @@ import { StoreListUIService } from '../store-list-u-i.service';
 })
 export class SidenavUserListsComponent implements OnInit, OnDestroy {
   storeLists: SimplifiedStoreList[];
+  storeListsDisplay: SimplifiedStoreList[];
 
   fetching = false;
   saving = false;
 
   listChangeListener: Subscription;
+
+  fuzzyFields: string[] = ['storeListName', 'createdBy.name'];
 
   constructor(
     private router: Router,
@@ -65,9 +67,15 @@ export class SidenavUserListsComponent implements OnInit, OnDestroy {
     this.storeListService
       .getStoreLists({})
       .pipe(finalize(() => (this.fetching = false)))
-      .subscribe(
-        page => (this.storeLists = page.content.sort((a, b) => a.storeListName.localeCompare(b.storeListName)))
-      );
+      .subscribe(page => {
+        this.storeLists = page.content.sort((a, b) => a.storeListName.localeCompare(b.storeListName));
+        this.storeListsDisplay = this.storeLists;
+      });
+  }
+
+  handleFuzzySearch(output: [SimplifiedStoreList[], string]) {
+    const [results, term] = output;
+    this.storeListsDisplay = term ? results : this.storeLists;
   }
 
   goToStoreList(storeList: SimplifiedStoreList) {

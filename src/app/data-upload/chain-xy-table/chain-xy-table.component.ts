@@ -26,7 +26,6 @@ export enum statuses {
   styleUrls: ['./chain-xy-table.component.css']
 })
 export class ChainXyTableComponent implements OnInit {
-
   bannerSourceSummaries: BannerSourceSummary[];
 
   selectedBannerSourceSummary: BannerSourceSummary;
@@ -40,7 +39,7 @@ export class ChainXyTableComponent implements OnInit {
 
   sort: Sort;
 
-  @ViewChild('sidenav', {static: false}) sidenav: MatSidenav;
+  @ViewChild('sidenav', { static: false }) sidenav: MatSidenav;
 
   private readonly cloudinaryUtil: CloudinaryUtil;
 
@@ -82,14 +81,15 @@ export class ChainXyTableComponent implements OnInit {
    * Triggered when bannerSourceSummaries list changes
    * @param results
    */
-  handleFuzzySearch(results) {
-    this.fuzzyResults = (results.length > 0) ? results : null;
+  handleFuzzySearch(output: [any[], string]) {
+    const [results, term] = output;
+    this.fuzzyResults = results.length > 0 ? results : null;
   }
 
   selectBanner(event, bannerSourceSummary: BannerSourceSummary) {
     event.stopPropagation();
-    const dialog = this.dialog.open(SelectBannerComponent, {maxWidth: '90%'});
-    dialog.afterClosed().subscribe((result) => {
+    const dialog = this.dialog.open(SelectBannerComponent, { maxWidth: '90%' });
+    dialog.afterClosed().subscribe(result => {
       this.selectingBanner = null;
       if (result && result.bannerName) {
         this.assignBanner(result.id, bannerSourceSummary);
@@ -103,26 +103,36 @@ export class ChainXyTableComponent implements OnInit {
 
   assignBanner(bannerId: number, bannerSourceSummary: BannerSourceSummary) {
     bannerSourceSummary['saving'] = true;
-    this.bannerSourceService.assignBanner(bannerSourceSummary.id, bannerId)
-      .subscribe(() => {
-          this.snackBar.open('Successfully assigned banner', null, {duration: 1000});
-          this.getBannerSourceSummaries();
-        },
-        err => this.errorService.handleServerError('Failed to assign banner!', err, () => console.log(err),
-          () => this.assignBanner(bannerId, bannerSourceSummary))
-      );
+    this.bannerSourceService.assignBanner(bannerSourceSummary.id, bannerId).subscribe(
+      () => {
+        this.snackBar.open('Successfully assigned banner', null, { duration: 1000 });
+        this.getBannerSourceSummaries();
+      },
+      err =>
+        this.errorService.handleServerError(
+          'Failed to assign banner!',
+          err,
+          () => console.log(err),
+          () => this.assignBanner(bannerId, bannerSourceSummary)
+        )
+    );
   }
 
   removeBanner(bannerSourceSummary: BannerSourceSummary) {
     bannerSourceSummary['saving'] = true;
-    this.bannerSourceService.unassignBanner(bannerSourceSummary.id)
-      .subscribe(() => {
-          this.snackBar.open('Successfully unassigned banner', null, {duration: 1000});
-          this.getBannerSourceSummaries();
-        },
-        err => this.errorService.handleServerError('Failed to assign banner!', err, () => console.log(err),
-          () => this.removeBanner(bannerSourceSummary))
-      );
+    this.bannerSourceService.unassignBanner(bannerSourceSummary.id).subscribe(
+      () => {
+        this.snackBar.open('Successfully unassigned banner', null, { duration: 1000 });
+        this.getBannerSourceSummaries();
+      },
+      err =>
+        this.errorService.handleServerError(
+          'Failed to assign banner!',
+          err,
+          () => console.log(err),
+          () => this.removeBanner(bannerSourceSummary)
+        )
+    );
   }
 
   openSideNav(bs: BannerSourceSummary) {
@@ -148,21 +158,17 @@ export class ChainXyTableComponent implements OnInit {
   }
 
   private getBannerSourceSummaries() {
-    const queryParams = {'source-name': 'ChainXy'};
-    this.bannerSourceService
-      .getAllByQuery(queryParams, null, 1000)
-      .subscribe((resp: Pageable<any>) => {
-        this.bannerSourceSummaries = resp.content;
-        // update fuzzy results
-        if (this.fuzzyResults) {
-          this.fuzzyResults = this.fuzzyResults.map(bss => this.bannerSourceSummaries.find((b) => b.id === bss.id));
-        }
-      });
+    const queryParams = { 'source-name': 'ChainXy' };
+    this.bannerSourceService.getAllByQuery(queryParams, null, 1000).subscribe((resp: Pageable<any>) => {
+      this.bannerSourceSummaries = resp.content;
+      // update fuzzy results
+      if (this.fuzzyResults) {
+        this.fuzzyResults = this.fuzzyResults.map(bss => this.bannerSourceSummaries.find(b => b.id === bss.id));
+      }
+    });
   }
 
   private compare(a: number | string, b: number | string, isAsc: boolean) {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
 }
-
-
