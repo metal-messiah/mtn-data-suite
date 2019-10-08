@@ -6,6 +6,7 @@ import { finalize } from 'rxjs/operators';
 import { ExtractionFieldSetService } from '../../core/services/extraction-field-set.service';
 import { ErrorService } from '../../core/services/error.service';
 import { SimplifiedStoreList } from 'app/models/simplified/simplified-store-list';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'mds-download-dialog',
@@ -27,6 +28,7 @@ export class DownloadDialogComponent implements OnInit {
     private extractionService: ExtractionService,
     private extractionFieldSetService: ExtractionFieldSetService,
     private errorService: ErrorService,
+    private snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.selectedStoreIds = data.selectedStoreIds;
@@ -48,57 +50,39 @@ export class DownloadDialogComponent implements OnInit {
   }
 
   download() {
-    this.downloading = true;
     if (this.selectedStoreIds && this.selectedStoreIds.length) {
-      this.extractionService
-        .extractLatestDataForStores(this.selectedStoreIds, this.selectedFieldSet.id)
-        .pipe(finalize(() => (this.downloading = false)))
-        .subscribe(
-          response => {
-            const url = window.URL.createObjectURL(response);
-            const a = document.createElement('a');
-            document.body.appendChild(a);
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'extraction.csv';
-            a.target = '_blank';
-            a.click();
-            a.remove();
-            this.dialogRef.close();
-          },
-          err =>
-            this.errorService.handleServerError(
-              'Failed to download!',
-              err,
-              () => console.log(err),
-              () => this.download()
-            )
-        );
+      this.downloadResponse(this.extractionService.extractLatestDataForStores(this.selectedStoreIds, this.selectedFieldSet.id));
     } else if (this.selectedStoreList) {
-      this.extractionService
-        .extractByStoreListId(this.selectedStoreList.id, this.selectedFieldSet.id)
-        .pipe(finalize(() => (this.downloading = false)))
-        .subscribe(
-          response => {
-            const url = window.URL.createObjectURL(response);
-            const a = document.createElement('a');
-            document.body.appendChild(a);
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'extraction.csv';
-            a.target = '_blank';
-            a.click();
-            a.remove();
-            this.dialogRef.close();
-          },
-          err =>
-            this.errorService.handleServerError(
-              'Failed to download!',
-              err,
-              () => console.log(err),
-              () => this.download()
-            )
-        );
+      this.downloadResponse(this.extractionService.extractByStoreListId(this.selectedStoreList.id, this.selectedFieldSet.id));
+    } else {
+      this.snackBar.open('No store or list is selected!', null, {duration: 2000});
     }
   }
+
+  private downloadResponse(obs) {
+    this.downloading = true;
+    obs.pipe(finalize(() => (this.downloading = false)))
+      .subscribe(
+        response => {
+          const url = window.URL.createObjectURL(response);
+          const a = document.createElement('a');
+          document.body.appendChild(a);
+          a.style.display = 'none';
+          a.href = url;
+          a.download = 'extraction.csv';
+          a.target = '_blank';
+          a.click();
+          a.remove();
+          this.dialogRef.close();
+        },
+        err =>
+          this.errorService.handleServerError(
+            'Failed to download!',
+            err,
+            () => console.log(err),
+            () => this.download()
+          )
+      );
+  }
+
 }
