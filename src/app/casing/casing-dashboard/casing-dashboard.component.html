@@ -98,15 +98,6 @@
     <button mat-mini-fab color="primary" [mat-menu-trigger-for]="moreMenu">
       <i class="fas fa-ellipsis-v"></i>
     </button>
-    <mat-form-field>
-      <input type="number" matInput placeholder="Banner Sister Factor" [(ngModel)]="bannerSisterFactor">
-    </mat-form-field>
-    <mat-form-field>
-      <input type="number" matInput placeholder="Fit Sister Factor" [(ngModel)]="fitSisterFactor">
-    </mat-form-field>
-    <mat-form-field>
-      <input type="number" matInput placeholder="Market Share Threshold" [(ngModel)]="marketShareThreshold">
-    </mat-form-field>
     <button mat-mini-fab color="primary" [mat-menu-trigger-for]="searchMenu">
       <i class="fas fa-search"></i>
     </button>
@@ -251,9 +242,6 @@
       <button mat-menu-item *ngIf="!isShowingBoundary()" (click)="showBoundary()">
         Show Boundary
       </button>
-      <button mat-menu-item (click)="showBlockGroups()">
-        Show Block Groups
-      </button>
     </div>
   </div>
 </mat-menu>
@@ -285,4 +273,3 @@
     Select Project
   </button>
 </div>
-

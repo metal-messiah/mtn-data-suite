@@ -18,6 +18,7 @@ import { ReportsModule } from './reports/reports.module';
 import { BrokerageModule } from './brokerage/brokerage.module';
 import { GeocodingModule } from './geocoding/geocoding.module';
 import { SiteWiseModule } from './site-wise/site-wise.module';
+import { AuthenticationComponent } from './authentication/authentication.component';
 
 @NgModule({
   imports: [
@@ -38,7 +39,7 @@ import { SiteWiseModule } from './site-wise/site-wise.module';
     SiteWiseModule,
     AppRoutingModule // must come last?
   ],
-  declarations: [AppComponent, HomeComponent],
+  declarations: [AppComponent, HomeComponent, AuthenticationComponent],
   providers: [],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

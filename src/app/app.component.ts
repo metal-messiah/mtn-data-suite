@@ -53,7 +53,7 @@ export class AppComponent implements OnInit {
       if (response === 'signIn') {
         this.authService.signIn();
       } else {
-        this.router.navigate(['/']);
+        // this.router.navigate(['/']);
       }
     });
   }
