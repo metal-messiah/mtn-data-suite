@@ -47,7 +47,7 @@ export class BoundaryDialogComponent implements OnInit {
     event.stopPropagation();
   }
 
-  private editName() {
+  editName() {
     this.dialog
       .open(TextInputDialogComponent, {
         data: {
@@ -71,11 +71,11 @@ export class BoundaryDialogComponent implements OnInit {
       });
   }
 
-  private editBoundary() {
+  editBoundary() {
     this.close(this.targetBoundary);
   }
 
-  private deleteBoundary() {
+  deleteBoundary() {
     this.userBoundaryService.delete(this.targetBoundary.id).subscribe(() => {
       this.boundaryDialogService.customBoundaries = this.boundaryDialogService.customBoundaries.filter(
         cb => cb.id !== this.targetBoundary.id
@@ -83,7 +83,7 @@ export class BoundaryDialogComponent implements OnInit {
     });
   }
 
-  private createNewBoundary() {
+  createNewBoundary() {
     this.dialog
       .open(TextInputDialogComponent, {
         data: {

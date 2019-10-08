@@ -15,7 +15,7 @@ export class PermissionTableComponent implements OnInit, OnChanges {
 
   @Input() selectedPermissions: SimplifiedPermission[];
 
-  private permissions: SimplifiedPermission[];
+  permissions: SimplifiedPermission[];
   subjects: string[];
   actions = ['CREATE', 'READ', 'UPDATE', 'DELETE'];
 

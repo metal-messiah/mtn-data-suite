@@ -17,7 +17,6 @@ import { TextInputDialogComponent } from '../../text-input-dialog/text-input-dia
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 import { StorageService } from '../../../core/services/storage.service';
 import { Subscription } from 'rxjs';
-import { DownloadDialogComponent } from 'app/casing/download-dialog/download-dialog.component';
 
 @Component({
   selector: 'mds-sidenav-stores-in-list',
@@ -59,6 +58,10 @@ export class SidenavStoresInListComponent implements OnInit, OnDestroy {
         this.initializeList();
       }
     });
+  }
+
+  openDownloadDialog(storeList) {
+    this.storeListUIService.openDownloadDialog(storeList);
   }
 
   private initializeList() {
