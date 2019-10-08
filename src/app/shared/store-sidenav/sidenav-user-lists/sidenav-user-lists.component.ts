@@ -7,7 +7,7 @@ import { StoreService } from '../../../core/services/store.service';
 import { MapService } from '../../../core/services/map.service';
 import { ErrorService } from '../../../core/services/error.service';
 import { MatDialog, MatSnackBar } from '@angular/material';
-import { finalize, debounceTime } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 import { TextInputDialogComponent } from '../../text-input-dialog/text-input-dialog.component';
 import { StoreList } from '../../../models/full/store-list';
@@ -15,13 +15,13 @@ import { SimplifiedStore } from '../../../models/simplified/simplified-store';
 import { LatLng } from '../../../models/latLng';
 import { StorageService } from '../../../core/services/storage.service';
 import { Subscription } from 'rxjs';
-import { FormControl, Validators } from '@angular/forms';
-import * as Fuse from 'fuse.js';
+import { StoreListUIService } from '../store-list-u-i.service';
 
 @Component({
   selector: 'mds-sidenav-user-lists',
   templateUrl: './sidenav-user-lists.component.html',
-  styleUrls: ['./sidenav-user-lists.component.css']
+  styleUrls: ['./sidenav-user-lists.component.css'],
+  providers: [StoreListUIService]
 })
 export class SidenavUserListsComponent implements OnInit, OnDestroy {
   storeLists: SimplifiedStoreList[];
@@ -41,6 +41,7 @@ export class SidenavUserListsComponent implements OnInit, OnDestroy {
     private storeService: StoreService,
     private mapService: MapService,
     private errorService: ErrorService,
+    private storeListUIService: StoreListUIService,
     private snackBar: MatSnackBar,
     private storageService: StorageService,
     private dialog: MatDialog

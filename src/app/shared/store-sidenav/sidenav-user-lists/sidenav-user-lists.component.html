@@ -63,6 +63,10 @@
         <i class="fas fa-list-ul"></i>
         <span>View Stores</span>
       </button>
+      <button mat-menu-item (click)="storeListUIService.openDownloadDialog(storeList)">
+        <i class="fas fa-download"></i>
+        <span>Download Store Data</span>
+      </button>
       <button *ngIf="!storeListIsCurrentFilter(storeList)" mat-menu-item (click)="setStoreListAsFilter(storeList)">
         <i class="fas fa-filter"></i>
         <span>Filter Map</span>

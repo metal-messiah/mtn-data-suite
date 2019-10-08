@@ -6,10 +6,19 @@ import { RestService } from './rest.service';
   providedIn: 'root'
 })
 export class ExtractionService {
-
   private endpoint = '/api/extraction';
 
-  constructor(protected http: HttpClient, private rest: RestService) {
+  constructor(protected http: HttpClient, private rest: RestService) {}
+
+  extractByStoreListId(storeListId: number, fieldSetId: number) {
+    const url = this.rest.getHost() + this.endpoint;
+    let params = new HttpParams().set('store-list-id', String(storeListId));
+    params = params.set('field-set-id', String(fieldSetId));
+    const headers = new HttpHeaders({
+      'Content-Type': 'text/csv',
+      Authorization: 'Bearer ' + this.rest.getAccessToken()
+    });
+    return this.http.get(url, { headers: headers, params: params, responseType: 'blob' });
   }
 
   extractByProjectId(projectId: number, fieldSetId: number) {
@@ -18,9 +27,9 @@ export class ExtractionService {
     params = params.set('field-set-id', String(fieldSetId));
     const headers = new HttpHeaders({
       'Content-Type': 'text/csv',
-      'Authorization': 'Bearer ' + this.rest.getAccessToken()
+      Authorization: 'Bearer ' + this.rest.getAccessToken()
     });
-    return this.http.get(url, {headers: headers, params: params, responseType: 'blob'});
+    return this.http.get(url, { headers: headers, params: params, responseType: 'blob' });
   }
 
   extractLatestDataForStores(storeIds: number[], fieldSetId: number) {
@@ -29,9 +38,8 @@ export class ExtractionService {
     params = params.set('field-set-id', String(fieldSetId));
     const headers = new HttpHeaders({
       'Content-Type': 'text/csv',
-      'Authorization': 'Bearer ' + this.rest.getAccessToken()
+      Authorization: 'Bearer ' + this.rest.getAccessToken()
     });
-    return this.http.get(url, {headers: headers, params: params, responseType: 'blob'});
-
+    return this.http.get(url, { headers: headers, params: params, responseType: 'blob' });
   }
 }
