@@ -657,9 +657,9 @@ Geo-location
       const projectId = project.id;
       const geojson = this.projectBoundaryService.projectBoundary.toGeoJson();
 
-      let boundary = this.projectBoundaryService.boundary;
-      if (boundary && boundary.id) {
-        boundary = await this.boundaryService.getOneById(boundary.id).toPromise();
+      let boundary;
+      if (project.hasBoundary) {
+        boundary = await this.projectService.getBoundaryForProject(projectId);
         boundary.geojson = geojson;
       } else {
         boundary = new Boundary({ geojson: geojson });
