@@ -21,7 +21,7 @@ export class JsonToTablesUtil {
 
   readonly targetStore: StoreListItem;
 
-  private readonly googleMapsKey = 'AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ';
+  private readonly googleMapsKey = 'REDACTED';
 
   private readonly maxSovCount = 20;
 
