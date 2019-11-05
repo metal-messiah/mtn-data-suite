@@ -16,10 +16,10 @@ import { ClipboardUtil } from '../../utils/clipboard-util';
 })
 export class ImagesComponent implements OnInit {
   private readonly cloudinaryParams = {
-    cloudName: 'mtnra',
-    username: 'jordan@mtnra.com',
-    apiSecret: 'wClRfg43OFsvwhg33QMnowZ0Skc',
-    apiKey: '515812459374857',
+    cloudName: 'REDACTED',
+    username: 'REDACTED',
+    apiSecret: 'REDACTED',
+    apiKey: 'REDACTED',
     multiple: false
   };
 
