@@ -8,10 +8,10 @@ declare var cloudinary: any;
 export class CloudinaryUtil {
 
   private readonly defaultCloudinaryParams = {
-    cloudName: 'mtn-retail-advisors',
-    username: 'tyler@mtnra.com',
-    apiSecret: 'OGQKRd95GxzMrn5d7_D6FOd7lXs',
-    apiKey: '713598197624775',
+    cloudName: 'REDACTED',
+    username: 'REDACTED',
+    apiSecret: 'REDACTED',
+    apiKey: 'REDACTED',
     multiple: true,
     maxFiles: 1
   };
