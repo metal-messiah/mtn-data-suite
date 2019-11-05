@@ -203,7 +203,7 @@ export class GeocodingService {
     const requestURL = encodeURI(
       `https://maps.googleapis.com/maps/api/geocode/json?address=${addressString
         .join(' ')
-        .trim()}&key=AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ`
+        .trim()}&key=${googleMapsApiKey}`
     );
 
     // put as many promises into an array as we can fit (limit)
@@ -291,7 +291,7 @@ export class GeocodingService {
   getLatLong(url) {
     if (
       url ===
-      'https://maps.googleapis.com/maps/api/geocode/json?address=&key=AIzaSyBwCet-oRMj-K7mUhd0kcX_0U1BW-xpKyQ'
+      'https://maps.googleapis.com/maps/api/geocode/json?address=&key=${googleMapsApiKey}'
     ) {
       this.errorService.handleServerError(
         `A Row In The File Is Creating an Invalid Request`,
