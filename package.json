@@ -46,7 +46,7 @@
     "localforage": "^1.7.3",
     "lodash": "^4.17.5",
     "ng2-pdf-viewer": "^5.2.4",
-    "papaparse": "^4.6.3",
+    "papaparse": "^5.2.0",
     "popper.js": "^1.14.3",
     "rxjs": "^6.5.2",
     "sha.js": "^2.4.11",
